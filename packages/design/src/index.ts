@@ -9,6 +9,7 @@ import type * as React from "react";
 import {
   proseClassName as baseProse,
   proseDocument as documentProse,
+  proseReading as readingProse,
 } from "./prose";
 
 // Plain `twMerge`. Before the shadcn reset this was `extendTailwindMerge`, teaching tailwind-merge
@@ -118,8 +119,10 @@ export {
   prose,
   proseClassName,
   proseDocument,
+  proseReading,
   type ProseElement,
   type ProseDocumentElement,
+  type ProseReadingElement,
 } from "./prose";
 
 /**
@@ -134,6 +137,19 @@ export {
 export const proseDocumentClassName: string = cn(
   baseProse,
   Object.values(documentProse).join(" "),
+);
+
+/**
+ * The reading type scale as one class string: the base `prose` recipe with the `proseReading`
+ * overlay merged over it — what `MarkdownView` wears with `typeScale="reading"` (a chat answer, an
+ * Ask AI answer, a generated summary). Merged once here, through `cn`.
+ *
+ * @example
+ * <div className={proseReadingClassName}>…</div>
+ */
+export const proseReadingClassName: string = cn(
+  baseProse,
+  Object.values(readingProse).join(" "),
 );
 
 /**

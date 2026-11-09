@@ -1,9 +1,10 @@
-// @vegastack message-parts@0.41.0 sha256-GBF0dULsuP7wwvgeEjKvV3DIOK6v9BH45GjbmByVlDE=
+// @vegastack message-parts@0.41.0 sha256-sKXPdgG8XtAaBFSdeJNeDw2aaevuzBGmWfmNNj9OVqw=
 
 "use client";
 
 import * as React from "react";
 import {
+  ArrowUpRight,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -12,11 +13,13 @@ import {
   CircleMinus,
   CircleX,
   CornerDownRight,
+  Globe,
   Minus,
   X,
 } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, proseReading } from "@vegastack/design";
 
+import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -24,6 +27,11 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { disclosureTriggerClasses } from "@/lib/disclosure-trigger";
+import { formatDuration } from "@/lib/date-time";
+import {
+  RelativeTime,
+  type RelativeTimeProps,
+} from "@/components/ui/relative-time";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { StatusLine, type StatusLineProps } from "@/components/ui/status-line";
@@ -111,7 +119,8 @@ export function MessageSteps({
 }
 
 /** Where a `MessageStep` stands. `stopped`: the turn was stopped while the step ran. */
-export type MessageStepStatus = "running" | "done" | "failed" | "stopped";
+export type MessageStepStatus =
+  "pending" | "running" | "done" | "failed" | "stopped";
 
 /** Props accepted by `MessageStep`. */
 export interface MessageStepProps extends Omit<
@@ -134,6 +143,7 @@ export interface MessageStepProps extends Omit<
 }
 
 const STEP_STATUS_LABELS: Record<MessageStepStatus, string> = {
+  pending: "Not started",
   running: "Running",
   done: "Done",
   failed: "Failed",
@@ -141,6 +151,7 @@ const STEP_STATUS_LABELS: Record<MessageStepStatus, string> = {
 };
 
 const STEP_ICONS: Record<MessageStepStatus, React.ReactNode> = {
+  pending: <Circle aria-hidden className="text-muted-foreground/50" />,
   running: <Spinner aria-hidden role={undefined} aria-label={undefined} />,
   done: <Check aria-hidden />,
   failed: <X aria-hidden className="text-destructive-text" />,
@@ -502,13 +513,23 @@ export interface MessageActionsProps extends React.ComponentProps<"div"> {
 }
 
 /**
- * `MessageActions` — Copy, Retry and the rest, in a row under the message. Pass small ghost buttons.
- * Their place is kept while they are hidden, so the conversation never jumps. Hover reveals them
- * across the whole `Message`; outside one, only over the row itself.
+ * Shown while the pointer is over the `Message` or focus is inside it, always on a touch screen —
+ * `MessageActions reveal="hover"` and `MessageTime reveal="hover"`. The place is kept while hidden.
+ */
+const REVEAL_ON_HOVER =
+  "opacity-0 transition-opacity duration-150 group-hover/message:opacity-100 group-focus-within/message:opacity-100 hover:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100";
+
+/**
+ * `MessageActions` — Copy, Retry and the rest, in a row under the message. One button style: pass
+ * `Button size="icon-sm" variant="ghost"` for an action and a `Toggle` for a rating (👍, 👎); the
+ * row sizes every toggle to the same 28px square. Their place is kept while they are hidden, so the
+ * conversation never jumps. Hover reveals them across the whole `Message`; outside one, only over
+ * the row itself.
  *
  * @example
  * <MessageActions>
- *   <Button size="icon-xs" variant="ghost" aria-label="Copy"><Copy aria-hidden /></Button>
+ *   <Button size="icon-sm" variant="ghost" aria-label="Copy"><Copy aria-hidden /></Button>
+ *   <Toggle aria-label="Good answer"><ThumbsUp aria-hidden /></Toggle>
  * </MessageActions>
  */
 export function MessageActions({
@@ -525,8 +546,9 @@ export function MessageActions({
       aria-label={label}
       className={cn(
         "flex min-w-0 items-center gap-0.5 text-muted-foreground",
-        reveal === "hover" &&
-          "opacity-0 transition-opacity duration-150 group-hover/message:opacity-100 group-focus-within/message:opacity-100 hover:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100",
+        // One button style: a `Toggle` (👍, 👎) takes the 28px square of a `Button size="icon-sm"`.
+        "[&_[data-slot=toggle]]:size-7 [&_[data-slot=toggle]]:min-w-7 [&_[data-slot=toggle]]:px-0",
+        reveal === "hover" && REVEAL_ON_HOVER,
         className,
       )}
       {...props}
@@ -707,6 +729,732 @@ export function MessageFold({
           {open ? showLessLabel : showMoreLabel}
         </Button>
       ) : null}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * MessageBubble
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props accepted by `MessageBubble`. */
+export type MessageBubbleProps = React.ComponentProps<typeof Bubble>;
+
+/**
+ * `MessageBubble` — a person's message in a conversation: `Bubble` on the muted surface with
+ * foreground text, the line breaks they typed kept, at the same reading size and leading as the
+ * answer beside it (`proseReading.root`, the reading scale's body). End-aligned by default.
+ *
+ * @example
+ * <Message align="end">
+ *   <MessageContent>
+ *     <MessageBubble>{"Search the web for TM-21\nand LM-80."}</MessageBubble>
+ *   </MessageContent>
+ * </Message>
+ */
+export function MessageBubble({
+  variant = "muted",
+  align = "end",
+  children,
+  ...props
+}: MessageBubbleProps) {
+  return (
+    <Bubble data-message-bubble="" variant={variant} align={align} {...props}>
+      <BubbleContent
+        className={cn("whitespace-pre-wrap text-foreground", proseReading.root)}
+      >
+        {children}
+      </BubbleContent>
+    </Bubble>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * MessageTime
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props accepted by `MessageTime`. */
+export interface MessageTimeProps extends RelativeTimeProps {
+  /**
+   * `always` — a person's message: the time is always there. `hover` — an answer: shown while the
+   * pointer is over the `Message` or focus is inside it, and always on a touch screen.
+   * @default "always"
+   */
+  reveal?: "always" | "hover";
+}
+
+/**
+ * `MessageTime` — when a message was sent: `RelativeTime` ("2m ago") in small muted type, with the
+ * full date in its tooltip. Put it under the bubble or beside the answer's actions.
+ *
+ * @example
+ * <MessageTime date={message.createdAt} />
+ * <MessageTime date={answer.createdAt} reveal="hover" />
+ */
+export function MessageTime({
+  reveal = "always",
+  className,
+  ...props
+}: MessageTimeProps) {
+  return (
+    <RelativeTime
+      data-slot="message-time"
+      data-reveal={reveal}
+      className={cn(
+        "text-xs text-muted-foreground tabular-nums",
+        reveal === "hover" && REVEAL_ON_HOVER,
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Site icons and source rows — shared by MessageSourceList and MessageActivityResults
+ * ----------------------------------------------------------------------------------------------*/
+
+/** A web page an answer cites or a search found. */
+export interface MessageSource {
+  /** The page's address; the row links to it in a new tab. */
+  href: string;
+  /** The page's title. Absent: the site stands in. @default undefined */
+  title?: string | null;
+  /** The site, as people read it: "ies.org". */
+  site: string;
+  /**
+   * The site's icon, served by the host (a favicon proxy on the app's own origin, so the reader's
+   * browser never calls the cited site). Absent, or failing to load: a neutral globe.
+   * @default undefined
+   */
+  icon?: string | null;
+}
+
+/** A site's 16px icon, or a globe when there is none or it fails to load. Decorative. */
+function SiteIcon({
+  src,
+  className,
+}: {
+  src?: string | null;
+  className?: string;
+}) {
+  const [failed, setFailed] = React.useState<string | null>(null);
+  const showImage = Boolean(src) && failed !== src;
+  return (
+    <span
+      aria-hidden
+      data-slot="message-site-icon"
+      className={cn(
+        "inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-background text-muted-foreground [&_svg]:size-3.5",
+        className,
+      )}
+    >
+      {showImage ? (
+        <img
+          src={src!}
+          alt=""
+          width={16}
+          height={16}
+          decoding="async"
+          referrerPolicy="no-referrer"
+          // Dark-on-transparent icons vanish on a dark ground: a light backing in dark mode.
+          className="size-full rounded-[inherit] object-contain dark:bg-foreground/90"
+          // An image that failed before hydration never fires `error` for React: check on mount.
+          ref={(node) => {
+            if (node?.complete && node.naturalWidth === 0) setFailed(src!);
+          }}
+          onError={() => setFailed(src!)}
+        />
+      ) : (
+        <Globe />
+      )}
+    </span>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * MessageSourceList
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props accepted by `MessageSourceList`. */
+export interface MessageSourceListProps extends Omit<
+  React.ComponentProps<typeof Collapsible>,
+  "className" | "children"
+> {
+  /** The pages the answer cites, in the order of its `[[n]]` markers. Empty: nothing renders. */
+  sources: readonly MessageSource[];
+  /** The word on the closed line, which also names the list. @default "Sources" */
+  label?: string;
+  /** The closed line's words. @default (count) => `${label} · ${count}` */
+  formatSummary?: (count: number) => React.ReactNode;
+  /** Read after each row's title, since it opens a new tab. @default "(opens in new tab)" */
+  newTabLabel?: string;
+  /** Classes for the root. @default undefined */
+  className?: string;
+}
+
+/**
+ * `MessageSourceList` — the web pages an answer cites, under its text. Closed, one quiet line: the
+ * first three sites' icons and "Sources · 3". Open, a numbered row per page — icon, title, site and
+ * ↗ — each row the link. Numbers match the answer's `[[n]]` pills.
+ *
+ * @example
+ * <MessageSourceList sources={[
+ *   { href: "https://www.ies.org/standards/tm-21", title: "TM-21-21", site: "ies.org", icon: "/api/favicon?site=ies.org" },
+ * ]} />
+ */
+export function MessageSourceList({
+  sources,
+  label = "Sources",
+  formatSummary,
+  newTabLabel = "(opens in new tab)",
+  className,
+  ...props
+}: MessageSourceListProps) {
+  if (!sources.length) return null;
+  return (
+    <Collapsible
+      data-slot="message-source-list"
+      className={cn(
+        "flex w-full min-w-0 flex-col items-start gap-1",
+        className,
+      )}
+      {...props}
+    >
+      <CollapsibleTrigger
+        data-slot="message-source-list-trigger"
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              disclosureTriggerClasses,
+              "group/message-source-list max-w-full min-w-0 gap-2 rounded-full border-border ps-1.5 pe-2.5 text-sm font-normal text-muted-foreground hover:text-foreground aria-expanded:not-hover:text-muted-foreground",
+            )}
+          />
+        }
+      >
+        <span aria-hidden className="flex shrink-0 items-center -space-x-1.5">
+          {sources.slice(0, 3).map((source, index) => (
+            <SiteIcon
+              key={`${source.href}-${index}`}
+              src={source.icon}
+              className="size-5 rounded-full bg-background p-0.5"
+            />
+          ))}
+        </span>
+        <span className="min-w-0 truncate">
+          {formatSummary
+            ? formatSummary(sources.length)
+            : `${label} · ${sources.length}`}
+        </span>
+        <ChevronRight
+          aria-hidden
+          className="transition-transform group-aria-expanded/message-source-list:rotate-90"
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent
+        data-slot="message-source-list-content"
+        className="w-full min-w-0"
+      >
+        <ol aria-label={label} className="flex min-w-0 flex-col">
+          {sources.map((source, index) => (
+            <li key={`${source.href}-${index}`} className="min-w-0">
+              <a
+                href={source.href}
+                target="_blank"
+                rel="noreferrer noopener"
+                data-slot="message-source"
+                className="group/message-source flex min-w-0 items-start gap-2 rounded-md px-2 py-1.5 no-underline state-layer"
+              >
+                <span className="w-4 shrink-0 text-end text-xs leading-5 text-muted-foreground tabular-nums">
+                  {index + 1}
+                </span>
+                <SiteIcon src={source.icon} className="mt-0.5" />
+                <span className="flex min-w-0 flex-1 flex-col">
+                  <span className="truncate text-sm leading-5 text-foreground">
+                    {source.title || source.site}
+                  </span>
+                  <span className="truncate text-xs text-muted-foreground">
+                    {source.site}
+                  </span>
+                </span>
+                <ArrowUpRight
+                  aria-hidden
+                  className="mt-0.5 size-4 shrink-0 text-muted-foreground group-hover/message-source:text-foreground"
+                />
+                <span className="sr-only">{newTabLabel}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * MessageActivity
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props accepted by `MessageActivity`. */
+export interface MessageActivityProps extends Omit<
+  React.ComponentProps<typeof Collapsible>,
+  "className" | "children"
+> {
+  /**
+   * The closed line. While running, the current note or step ("Searching the web"); when done, a
+   * summary ("Searched the web · 2 searches", "Worked").
+   */
+  summary: React.ReactNode;
+  /**
+   * The turn is still working: the line shimmers and a live timer counts. Uncontrolled, the block
+   * opens when work starts and closes once, a second after it ends; once the reader closes it, it
+   * never opens by itself again.
+   * @default false
+   */
+  running?: boolean;
+  /** When the work started, for the live timer while `running` (the server's time, so a reload agrees). @default undefined */
+  startedAt?: Date | number | string;
+  /** How long the work took, in milliseconds, after the summary once done ("· 14s"). @default undefined */
+  ms?: number | null;
+  /** Words for a duration in milliseconds. @default (ms) => formatDuration(ms, { unit: "milliseconds" }) → "14s" */
+  formatDuration?: (ms: number) => string;
+  /** Leads the closed line. @default undefined */
+  icon?: React.ReactNode;
+  /** Names the open timeline. @default "Activity" */
+  label?: string;
+  /** The timeline: `MessageActivityNote` and `MessageActivityStep` items, in order. @default undefined */
+  children?: React.ReactNode;
+  /** Classes for the root. @default undefined */
+  className?: string;
+}
+
+const formatMs = (ms: number) => formatDuration(ms, { unit: "milliseconds" });
+
+/** How long a finished block stays open before it closes by itself. */
+const AUTO_CLOSE_MS = 1000;
+
+/** Milliseconds since `startedAt`, ticking each second while `running`; undefined before mount. */
+function useElapsed(
+  startedAt: Date | number | string | undefined,
+  running: boolean,
+): number | undefined {
+  const [now, setNow] = React.useState<number | undefined>(undefined);
+  React.useEffect(() => {
+    if (!running || startedAt === undefined) return;
+    setNow(Date.now());
+    const timer = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, [running, startedAt]);
+  if (!running || startedAt === undefined || now === undefined)
+    return undefined;
+  return Math.max(0, now - new Date(startedAt).getTime());
+}
+
+/**
+ * `MessageActivity` — what the agent thought and did on the way to its answer, above the text: one
+ * disclosure. Closed, a single line: the current note or step with a shimmer and a live timer while
+ * it works, a summary and the time it took once done. Open, a timeline on a thin rule: notes in
+ * muted text, and steps with their markers (a spinner while running, a check or the step's icon
+ * when done, a faint circle while pending, a cross when failed). A step with children opens in
+ * place, indented on a rule of its own (a search's results). Every string is the caller's.
+ *
+ * Uncontrolled, it opens while `running` and closes once, a second after the work ends; after the
+ * reader closes it, it stays closed. Pass `defaultOpen={false}` for a reader who didn't ask (another
+ * person, a reloaded chat), or control it with `open` and `onOpenChange`.
+ *
+ * @example
+ * <MessageActivity summary="Searched the web · 2 searches" ms={14000}>
+ *   <MessageActivityNote>Planning a search for LM-80 and TM-21.</MessageActivityNote>
+ *   <MessageActivityStep icon={<Search />} label="Searched the web" detail="TM-21 projection">
+ *     <MessageActivityResults results={results} />
+ *   </MessageActivityStep>
+ * </MessageActivity>
+ */
+export function MessageActivity({
+  summary,
+  running = false,
+  startedAt,
+  ms,
+  formatDuration: format = formatMs,
+  icon,
+  label = "Activity",
+  open: openProp,
+  defaultOpen,
+  onOpenChange,
+  className,
+  children,
+  ...props
+}: MessageActivityProps) {
+  const [ownOpen, setOwnOpen] = React.useState(defaultOpen ?? running);
+  const open = openProp ?? ownOpen;
+  // The reader's own choice wins over the automatic open and close from then on.
+  const touched = React.useRef(defaultOpen === false);
+  const root = React.useRef<HTMLDivElement>(null);
+  const wasRunning = React.useRef(running);
+  React.useEffect(() => {
+    const started = running && !wasRunning.current;
+    const ended = !running && wasRunning.current;
+    wasRunning.current = running;
+    if (openProp !== undefined || touched.current) return;
+    if (started) {
+      setOwnOpen(true);
+      return;
+    }
+    if (!ended) return;
+    const timer = setTimeout(() => {
+      // Never close under the reader's keyboard: focus inside the timeline counts as reading it.
+      const focused = root.current?.contains(document.activeElement) ?? false;
+      if (!touched.current && !focused) setOwnOpen(false);
+    }, AUTO_CLOSE_MS);
+    return () => clearTimeout(timer);
+  }, [running, openProp]);
+  const elapsed = useElapsed(startedAt, running);
+  const time = running
+    ? elapsed !== undefined
+      ? format(elapsed)
+      : null
+    : ms != null
+      ? format(ms)
+      : null;
+  return (
+    <Collapsible
+      ref={root}
+      data-slot="message-activity"
+      data-running={running ? "" : undefined}
+      open={open}
+      onOpenChange={(next, details) => {
+        touched.current = true;
+        setOwnOpen(next);
+        onOpenChange?.(next, details);
+      }}
+      className={cn(
+        "@container/message-activity flex w-full min-w-0 flex-col items-start gap-1",
+        className,
+      )}
+      {...props}
+    >
+      <CollapsibleTrigger
+        data-slot="message-activity-trigger"
+        render={
+          <Button
+            variant="ghost"
+            size="sm"
+            className={cn(
+              disclosureTriggerClasses,
+              "group/message-activity -ms-2 max-w-full min-w-0 gap-1.5 text-sm font-normal text-muted-foreground hover:text-foreground aria-expanded:not-hover:text-muted-foreground",
+            )}
+          />
+        }
+      >
+        {icon ? (
+          <span
+            aria-hidden
+            className="inline-flex shrink-0 [&_svg:not([class*='size-'])]:size-4"
+          >
+            {icon}
+          </span>
+        ) : null}
+        <span
+          data-slot="message-activity-summary"
+          className={cn(
+            "min-w-0 truncate",
+            running && "shimmer motion-reduce:shimmer-none",
+          )}
+        >
+          {summary}
+        </span>
+        {time ? (
+          <span
+            data-slot="message-activity-time"
+            aria-hidden={running ? true : undefined}
+            className="shrink-0 tabular-nums"
+          >
+            {`· ${time}`}
+          </span>
+        ) : null}
+        <ChevronRight
+          aria-hidden
+          className="transition-transform group-aria-expanded/message-activity:rotate-90"
+        />
+      </CollapsibleTrigger>
+      <CollapsibleContent
+        data-slot="message-activity-content"
+        className="w-full min-w-0"
+      >
+        <ol aria-label={label} className="flex min-w-0 flex-col pt-0.5">
+          {children}
+        </ol>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+/*
+ * The timeline. Every item has a 16px marker column at its start; a 1px rule runs from under one
+ * marker to the next item's, centred on the column, and the last item draws none. Notes take a
+ * small dot as their marker, steps their icon.
+ */
+const TIMELINE_ITEM =
+  "relative flex min-w-0 gap-2 after:absolute after:start-2 after:top-6 after:-bottom-0.5 after:w-px after:-translate-x-1/2 after:bg-border last:after:hidden rtl:after:translate-x-1/2";
+const TIMELINE_MARKER =
+  "relative z-10 inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground [&_svg:not([class*='size-'])]:size-3.5";
+
+/**
+ * `MessageActivityNote` — a note the agent wrote while working ("Planning a search for TM-21."),
+ * in muted body text on the timeline.
+ *
+ * @example
+ * <MessageActivityNote>Planning a search for LM-80 and TM-21.</MessageActivityNote>
+ */
+export function MessageActivityNote({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"li">) {
+  return (
+    <li
+      data-slot="message-activity-note"
+      className={cn(TIMELINE_ITEM, "pb-2", className)}
+      {...props}
+    >
+      <span aria-hidden className={cn(TIMELINE_MARKER, "h-6")}>
+        <span className="size-1.5 rounded-full bg-muted-foreground/60" />
+      </span>
+      <span className="min-w-0 flex-1 text-sm/6 whitespace-pre-wrap text-muted-foreground">
+        {children}
+      </span>
+    </li>
+  );
+}
+
+/** Props accepted by `MessageActivityStep`. */
+export interface MessageActivityStepProps extends Omit<
+  React.ComponentProps<"li">,
+  "children"
+> {
+  /** What the step did, in muted type: "Searched the web", "Opened", "Used skill". */
+  label: React.ReactNode;
+  /** What it did it to, in body ink: the query, the page, the skill. @default undefined */
+  detail?: React.ReactNode;
+  /** A short result after it: "8 results". @default undefined */
+  meta?: React.ReactNode;
+  /**
+   * The step's marker once done (a magnifier, a globe). Running shows a spinner, pending a faint
+   * circle, failed a cross, stopped a dash.
+   * @default a check
+   */
+  icon?: React.ReactNode;
+  /** `running` is the active step; `pending` one not started yet. @default "done" */
+  status?: MessageStepStatus;
+  /** Why a failed step failed, under it in muted text. @default undefined */
+  error?: React.ReactNode;
+  /**
+   * The words a screen reader hears for each status, read before the step.
+   * @default { pending: "Not started", running: "Running", done: "Done", failed: "Failed", stopped: "Stopped" }
+   */
+  statusLabels?: Partial<Record<MessageStepStatus, string>>;
+  /** What opens under the step (`MessageActivityResults`). With it, the step is a disclosure. @default undefined */
+  children?: React.ReactNode;
+  /** Start open. @default false */
+  defaultOpen?: boolean;
+  /** Controlled open state. @default undefined */
+  open?: boolean;
+  /** Called when the step opens or closes. @default undefined */
+  onOpenChange?: (open: boolean) => void;
+}
+
+/**
+ * `MessageActivityStep` — one thing the agent did, on `MessageActivity`'s timeline: its marker,
+ * what it did and what to. A step with children is a button that opens them in place — a search's
+ * results — indented on a rule of their own.
+ *
+ * @example
+ * <MessageActivityStep icon={<Search />} label="Searched the web" detail="TM-21 projection" meta="8 results">
+ *   <MessageActivityResults results={results} />
+ * </MessageActivityStep>
+ * <MessageActivityStep status="failed" icon={<Globe />} label="Opened" detail="ies.org" error="The site didn't answer." />
+ */
+export function MessageActivityStep({
+  label,
+  detail,
+  meta,
+  icon,
+  status = "done",
+  error,
+  statusLabels,
+  children,
+  defaultOpen,
+  open,
+  onOpenChange,
+  className,
+  ...props
+}: MessageActivityStepProps) {
+  const marker =
+    status === "done" ? (icon ?? STEP_ICONS.done) : STEP_ICONS[status];
+  const words = (
+    <>
+      <span className="sr-only">
+        {statusLabels?.[status] ?? STEP_STATUS_LABELS[status]}:
+      </span>
+      <span
+        className={cn(
+          "shrink-0 text-muted-foreground",
+          status === "running" && "text-foreground",
+        )}
+      >
+        {label}
+      </span>
+      {detail != null ? (
+        <span
+          className={cn(
+            "min-w-0 truncate text-foreground",
+            status === "pending" && "text-muted-foreground",
+          )}
+        >
+          {detail}
+        </span>
+      ) : null}
+      {meta != null ? (
+        // In a narrow column the object reads first: the count steps aside.
+        <span className="shrink-0 text-muted-foreground @max-sm/message-activity:sr-only">
+          · {meta}
+        </span>
+      ) : null}
+    </>
+  );
+  const reason = error ? (
+    <span
+      data-slot="message-activity-step-error"
+      className="text-xs text-muted-foreground"
+    >
+      {error}
+    </span>
+  ) : null;
+  return (
+    <li
+      data-slot="message-activity-step"
+      data-status={status}
+      className={cn(TIMELINE_ITEM, "pb-1", className)}
+      {...props}
+    >
+      <span aria-hidden className={cn(TIMELINE_MARKER, "h-7")}>
+        {marker}
+      </span>
+      <div className="flex min-w-0 flex-1 flex-col">
+        {children ? (
+          <Collapsible
+            defaultOpen={defaultOpen}
+            open={open}
+            onOpenChange={onOpenChange}
+            className="flex min-w-0 flex-col"
+          >
+            <CollapsibleTrigger
+              data-slot="message-activity-step-trigger"
+              render={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    disclosureTriggerClasses,
+                    "group/message-activity-step -ms-2 max-w-full min-w-0 justify-start gap-2 self-start text-sm font-normal",
+                  )}
+                />
+              }
+            >
+              {words}
+              <ChevronRight
+                aria-hidden
+                className="text-muted-foreground transition-transform group-aria-expanded/message-activity-step:rotate-90"
+              />
+            </CollapsibleTrigger>
+            {reason}
+            <CollapsibleContent
+              data-slot="message-activity-step-content"
+              className="min-w-0 py-1"
+            >
+              {children}
+            </CollapsibleContent>
+          </Collapsible>
+        ) : (
+          <>
+            <div className="flex min-h-7 max-w-full min-w-0 items-center gap-2 text-sm">
+              {words}
+            </div>
+            {reason}
+          </>
+        )}
+      </div>
+    </li>
+  );
+}
+
+/** Props accepted by `MessageActivityResults`. */
+export interface MessageActivityResultsProps extends Omit<
+  React.ComponentProps<"div">,
+  "results"
+> {
+  /** The pages the step found, each a link that opens in a new tab. */
+  results: readonly MessageSource[];
+  /** The caption over the list, which also names it. @default "Results" */
+  label?: string;
+  /** Read after each title, since it opens a new tab. @default "(opens in new tab)" */
+  newTabLabel?: string;
+}
+
+/**
+ * `MessageActivityResults` — what a search found, under its `MessageActivityStep`: a captioned list
+ * on a light panel — the only panel in the activity — each row the site's icon, the title and the site, and each row the link.
+ *
+ * @example
+ * <MessageActivityResults results={[{ href: "https://www.ies.org/…", title: "TM-21-21", site: "ies.org" }]} />
+ */
+export function MessageActivityResults({
+  results,
+  label = "Results",
+  newTabLabel = "(opens in new tab)",
+  className,
+  ...props
+}: MessageActivityResultsProps) {
+  const captionId = React.useId();
+  return (
+    <div
+      data-slot="message-activity-results"
+      className={cn(
+        "flex min-w-0 flex-col gap-0.5 rounded-lg bg-muted/50 p-1",
+        className,
+      )}
+      {...props}
+    >
+      <span
+        id={captionId}
+        className="px-2 pt-1 pb-0.5 text-xs text-muted-foreground"
+      >
+        {label}
+      </span>
+      <ul aria-labelledby={captionId} className="flex min-w-0 flex-col">
+        {results.map((result, index) => (
+          <li key={`${result.href}-${index}`} className="min-w-0">
+            <a
+              href={result.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              data-slot="message-activity-result"
+              className="group/message-activity-result flex min-w-0 items-center gap-2 rounded-md px-2 py-1 text-sm no-underline state-layer"
+            >
+              <SiteIcon src={result.icon} />
+              <span className="min-w-0 flex-1 truncate text-foreground">
+                {result.title || result.site}
+              </span>
+              <span className="max-w-2/5 shrink-0 truncate text-xs text-muted-foreground">
+                {result.site}
+              </span>
+              <span className="sr-only">{newTabLabel}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

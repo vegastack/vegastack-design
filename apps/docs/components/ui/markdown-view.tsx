@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.57.4 sha256-ls1++C4vioVS6hevHDpJdXbTPy72kHsNM9FPC06UKmA=
+// @vegastack markdown-view@0.57.4 sha256-t5b+G2yb0WSKtk52IK2PGa2xMyLWQjZngsm7n+77HoI=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -11,7 +11,12 @@ import {
   TriangleAlert,
   type LucideIcon,
 } from "lucide-react";
-import { cn, proseClassName, proseDocumentClassName } from "@vegastack/design";
+import {
+  cn,
+  proseClassName,
+  proseDocumentClassName,
+  proseReadingClassName,
+} from "@vegastack/design";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 // `CodeBlock` owns the fenced-code surface (header + copy + sunken mono panel); shadcn rewrites
@@ -951,6 +956,27 @@ function withCitations(nodes: DocNode[]): DocNode[] {
         match.index === cursor &&
         typeof previous !== "string" &&
         previous?.tag === "citation";
+      // Markers in a run (`[[1]][[2]]`, `[[1]] [[2]]`) are one group: one pill, "1 +1", whose card
+      // lists every source behind it — a row of pills would crowd the sentence.
+      const gap = node.slice(cursor, match.index);
+      const before = gap === "" ? previous : undefined;
+      const spaced =
+        gap !== "" && /^[ \t]*$/.test(gap) && cursor > 0
+          ? out[out.length - 2]
+          : undefined;
+      const group = [before, spaced].find(
+        (item): item is El =>
+          typeof item === "object" && item?.tag === "citation",
+      );
+      if (group) {
+        if (spaced) out.pop();
+        group.attrs.more = [group.attrs.more, match[1]]
+          .filter(Boolean)
+          .join(",");
+        group.children.push(gap + match[0]);
+        cursor = match.index + match[0].length;
+        continue;
+      }
       out.push(
         el(
           "citation",
@@ -1287,6 +1313,77 @@ function fromMarkdown(
   } finally {
     reader = outer;
   }
+}
+
+/* --- Streaming ---------------------------------------------------------------------------------*/
+
+/**
+ * Close what a half-written Markdown block leaves open, so a streaming answer never flashes raw
+ * syntax: an open code fence, an inline code span, `**`, `*` and `~~`; a link still being written
+ * shows its words only, and a citation marker still being written (`[[1`) is held back until it
+ * closes. Meant for the LAST block of a stream only — `MarkdownView`'s `streaming` applies it there.
+ *
+ * @example
+ * completeStreamingMarkdown("Use **TM-21 for `L70") // "Use **TM-21 for `L70`**"
+ */
+export function completeStreamingMarkdown(block: string): string {
+  // An open code fence (``` or ~~~, closed only by its own kind at least as long): close it, and
+  // touch nothing inside — code is never repaired.
+  let fence: string | null = null;
+  for (const line of block.split("\n")) {
+    const marker = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1];
+    if (!marker) continue;
+    if (fence === null) fence = marker;
+    else if (marker[0] === fence[0] && marker.length >= fence.length)
+      fence = null;
+  }
+  if (fence !== null)
+    return `${block}${block.endsWith("\n") ? "" : "\n"}${fence}`;
+  // An open code span: close it, and leave its contents as written.
+  const ticks = (block.match(/`/g) ?? []).length;
+  const openSpan = ticks % 2 === 1;
+  const spanAt = openSpan ? block.lastIndexOf("`") : block.length;
+  let prose = block.slice(0, spanAt);
+  const code = block.slice(spanAt);
+  if (!openSpan)
+    prose = prose
+      // A citation marker still being written.
+      .replace(/\\?\[\\?\[\d*(?:\\?\])?$/, "")
+      // A link whose address is still arriving: its words only.
+      .replace(/\[([^\]\n]*)\]\([^)\s]*$/, "$1")
+      // A link whose words are still arriving.
+      .replace(/(^|[^!\\])\[([^\]\n]*)$/, "$1$2");
+  // Emphasis is counted outside code spans only.
+  const outside = prose.replace(/`[^`]*`/g, "");
+  const closers: string[] = [];
+  if ((outside.match(/~~/g) ?? []).length % 2 === 1) closers.push("~~");
+  const single = (
+    outside
+      // A list bullet is not emphasis.
+      .replace(/^\s*\*\s/gm, "")
+      .replace(/\*\*/g, "")
+      .match(/\*/g) ?? []
+  ).length;
+  if (single % 2 === 1) closers.push("*");
+  if ((outside.match(/\*\*/g) ?? []).length % 2 === 1) closers.push("**");
+  let text = prose + code;
+  if (openSpan) text += "`";
+  else if (closers.length) text = text.replace(/\s+$/, ""); // emphasis cannot close after a space
+  // Close inner first: the code span, then the emphasis opened last.
+  return text + closers.join("");
+}
+
+/** The settled blocks of a stream and the last block, which may still be half-written. */
+function splitStreamingTail(source: string): { settled: string; tail: string } {
+  const tokens = new Lexer({ gfm: true }).lex(source);
+  for (let index = tokens.length - 1; index >= 0; index -= 1) {
+    const token = tokens[index]!;
+    if (token.type === "space") continue;
+    const at = source.lastIndexOf(token.raw);
+    if (at < 0) break;
+    return { settled: source.slice(0, at), tail: source.slice(at) };
+  }
+  return { settled: "", tail: source };
 }
 
 /* --- HTML → tree ------------------------------------------------------------------------------*/
@@ -2181,18 +2278,65 @@ function renderNode(
       );
     }
     case "citation": {
-      const n = Number(attrs.n);
-      const source = ctx.citation?.(n);
-      if (!source) return textOf(node);
+      const numbers = [attrs.n, ...(attrs.more ? attrs.more.split(",") : [])]
+        .map(Number)
+        .filter(Boolean);
+      const resolved = numbers.flatMap((n) => {
+        const source = ctx.citation?.(n);
+        return source ? [{ n, source }] : [];
+      });
+      if (!resolved.length) return textOf(node);
+      // A marker the host doesn't answer for stays literal text, as it would on its own.
+      const literal = numbers
+        .filter((n) => !resolved.some((item) => item.n === n))
+        .map((n) => `[[${n}]]`)
+        .join("");
+      // Sources with an action of their own (play from here) keep a pill each: one grouped pill
+      // could only carry one action.
+      const groups =
+        resolved.length > 1 && resolved.some((item) => item.source.onSelect)
+          ? resolved.map((item) => [item])
+          : [resolved];
       return (
-        <MarkdownCitationMarker
-          key={key}
-          n={n}
-          className={attrs.adjacent !== undefined ? "ms-2.5" : undefined}
-          label={source.label}
-          content={source.content}
-          onSelect={source.onSelect}
-        />
+        <React.Fragment key={key}>
+          {groups.map((group, index) => {
+            const [first] = group;
+            const contents = group.filter(
+              (item) => item.source.content != null,
+            );
+            return (
+              <MarkdownCitationMarker
+                key={first!.n}
+                n={first!.n}
+                more={group.length - 1}
+                className={
+                  index > 0 || attrs.adjacent !== undefined
+                    ? "ms-2.5"
+                    : undefined
+                }
+                label={group.map((item) => item.source.label).join(", ")}
+                content={
+                  group.length === 1 ? (
+                    first!.source.content
+                  ) : contents.length ? (
+                    <span
+                      data-slot="markdown-citation-group"
+                      className="flex flex-col divide-y divide-border [&>*]:py-2 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0"
+                    >
+                      {contents.map((item) => (
+                        <span key={item.n} className="block">
+                          {item.source.content}
+                        </span>
+                      ))}
+                    </span>
+                  ) : undefined
+                }
+                onSelect={first!.source.onSelect}
+              />
+            );
+          })}
+          {literal}
+        </React.Fragment>
       );
     }
     case "mention": {
@@ -2877,10 +3021,21 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    * (16/26 on a coarse pointer or a narrow window, where editing is 16px too), 12px between
    * paragraphs, `#` 24 · `##` 20 · `###` 16 with more room above a heading than below, inline code
    * in the body's ink, and print rules (`documentPrintClassName`). `TextEdit`'s `typeScale` is the
-   * same overlay, so a page reads and edits at identical metrics.
+   * same overlay, so a page reads and edits at identical metrics. `reading` is long-form text an
+   * agent or an AI wrote, read beside the work (a chat answer, an Ask AI answer, a summary): the
+   * document's 14/24 body (16/26 on a coarse pointer or a narrow window) with the compact headings,
+   * 12px between paragraphs and lists, 4px between list items.
    * @default "compact"
    */
-  typeScale?: "compact" | "document";
+  typeScale?: "compact" | "document" | "reading";
+  /**
+   * The text is still arriving (an answer streaming in). The last block is completed before it
+   * renders — an open code fence, code span, `**`, `*` or `~~` is closed, a link still being written
+   * shows its words, a half-written `[[n]]` waits — and citations render in settled blocks only.
+   * Turn it off when the stream ends. Markdown only.
+   * @default false
+   */
+  streaming?: boolean;
   /**
    * Comment highlights over the words each one quotes (resolved through its quote and context,
    * the way `TextEdit` re-anchors). One that matches no text, or two places equally well, draws
@@ -3154,6 +3309,7 @@ export function MarkdownView({
   headingOffset = 0,
   headingIds: withHeadingIds = false,
   typeScale = "compact",
+  streaming = false,
   annotations,
   activeAnnotationId = null,
   onAnnotationClick,
@@ -3195,9 +3351,30 @@ export function MarkdownView({
 
   if (!source.trim()) return null;
 
-  const parsed =
-    format === "html" ? fromHtml(source) : fromMarkdown(source, liveBlockKinds);
-  const tree = citation && format !== "html" ? withCitations(parsed) : parsed;
+  let tree: DocNode[];
+  if (format === "html") tree = fromHtml(source);
+  else if (streaming) {
+    // The settled blocks render as they will stay; only the last block is completed, and its
+    // citations wait until it is settled, so a half-written marker never becomes a pill.
+    const { settled, tail } = splitStreamingTail(source);
+    // Parsed once, whole, so reference definitions and numbering span the blocks.
+    tree = fromMarkdown(
+      settled + completeStreamingMarkdown(tail),
+      liveBlockKinds,
+    );
+    if (citation) {
+      const settledBlocks = settled.trim()
+        ? fromMarkdown(settled, liveBlockKinds).length
+        : 0;
+      tree = [
+        ...withCitations(tree.slice(0, settledBlocks)),
+        ...tree.slice(settledBlocks),
+      ];
+    }
+  } else {
+    const parsed = fromMarkdown(source, liveBlockKinds);
+    tree = citation ? withCitations(parsed) : parsed;
+  }
 
   // Headings: ids (their words, or the host's slugs and block ids) and the outline.
   const headings: El[] = [];
@@ -3264,10 +3441,15 @@ export function MarkdownView({
     <div
       data-slot="markdown-view"
       data-type-scale={typeScale}
+      data-streaming={streaming ? "" : undefined}
       data-view-id={effects ? viewId : undefined}
       data-finding={findQuery?.trim() ? "" : undefined}
       className={cn(
-        typeScale === "document" ? documentProse : compactProse,
+        typeScale === "document"
+          ? documentProse
+          : typeScale === "reading"
+            ? readingProse
+            : compactProse,
         className,
       )}
       {...props}
@@ -3380,6 +3562,17 @@ const FIND_HIGHLIGHT_CSS = [
       `[data-slot=markdown-view][data-finding]::highlight(${name}),[data-slot=markdown-view][data-finding] *::highlight(${name}){background-color:color-mix(in oklab,var(--warning) ${tint}%,transparent)}`,
   )
   .join("");
+
+/**
+ * The reading scale (a chat answer): the prose recipe with the reading overlay, the chips' rules
+ * after it and the overlay restated last, so its `[&_details]:my-3` beats the extras' `my-2`.
+ */
+const readingProse = cn(
+  proseReadingClassName,
+  markdownExtrasClassName,
+  proseReadingClassName,
+  "[&_[data-slot=markdown-figure]]:my-3 [&_[data-slot=block-view]]:my-3",
+);
 
 /** The app's own scale: the prose recipe and the chips' rules. */
 const compactProse = cn(proseClassName, markdownExtrasClassName);

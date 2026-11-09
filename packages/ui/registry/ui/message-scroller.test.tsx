@@ -493,3 +493,47 @@ test("no a11y violations — streaming (aria-busy on the log)", async () => {
   expect(content.getAttribute("aria-busy")).toBe("true");
   await expectNoA11yViolations(screen.container);
 });
+
+// ── stick to bottom (the chat redesign's streaming contract, 10-11-2026) ──────────────────────────
+
+test("follows new content only while at the bottom, lets go when the reader scrolls up, and offers Jump to latest", async () => {
+  function Growing() {
+    const [count, setCount] = React.useState(12);
+    return (
+      <>
+        <button type="button" onClick={() => setCount((n) => n + 3)}>
+          More
+        </button>
+        <Thread count={count} />
+      </>
+    );
+  }
+  const screen = await render(<Growing />);
+  const viewport = screen.container.querySelector<HTMLElement>(
+    '[data-slot="message-scroller-viewport"]',
+  )!;
+  const atBottom = () =>
+    viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight < 4;
+  await expect.poll(atBottom).toBe(true);
+  // At the bottom: new messages are followed.
+  await screen.getByRole("button", { name: "More" }).click();
+  await expect.poll(atBottom).toBe(true);
+  // The reader scrolls up: the view holds still as more arrive, and the jump button shows.
+  await userEvent.hover(viewport);
+  for (let step = 0; step < 6; step++) {
+    viewport.dispatchEvent(
+      new WheelEvent("wheel", { deltaY: -200, bubbles: true }),
+    );
+    viewport.scrollTop = Math.max(0, viewport.scrollTop - 200);
+    viewport.dispatchEvent(new Event("scroll"));
+    await new Promise((resolve) => setTimeout(resolve, 30));
+  }
+  await expect.poll(() => viewport.scrollTop).toBe(0);
+  await screen.getByRole("button", { name: "More" }).click();
+  await new Promise((resolve) => setTimeout(resolve, 300));
+  expect(viewport.scrollTop).toBe(0);
+  const jump = screen.container.querySelector<HTMLElement>(
+    '[data-slot="message-scroller-button"]',
+  )!;
+  await expect.poll(() => jump.dataset.active).toBe("true");
+});

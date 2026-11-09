@@ -7,6 +7,7 @@ import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
 import {
   ChatComposer,
+  ChatComposerNotice,
   type ChatComposerStatus,
 } from "@/components/ui/chat-composer";
 import {
@@ -70,7 +71,7 @@ export function chatComposer(): ReactNode {
         chips={<ContextChip />}
         mentions={mentions}
         onAttach={() => {}}
-        hint="Only you can see this chat"
+        hint="Only you can see this chat · AI can make mistakes. Verify important info."
         onSubmit={() => {
           setStatus("streaming");
         }}
@@ -133,5 +134,54 @@ export function chatComposerDisabled(): ReactNode {
         onAttach={() => {}}
       />
     </Column>
+  );
+}
+
+export function chatComposerNotice(): ReactNode {
+  // A notice attached to the top of the box: a usage limit with its action and ✕, and a paused
+  // agent's warning without either.
+  function Demo(): ReactNode {
+    const [shown, setShown] = useState(true);
+    return (
+      <ChatComposer
+        placeholder="Ask a follow-up…"
+        onAttach={() => {}}
+        mentions={mentions}
+        hint="Only you can see this chat · AI can make mistakes. Verify important info."
+        notice={
+          shown ? (
+            <ChatComposerNotice
+              action={
+                <Button size="xs" variant="secondary">
+                  Details
+                </Button>
+              }
+              onDismiss={() => setShown(false)}
+            >
+              You've used 90% of this month's agent budget.
+            </ChatComposerNotice>
+          ) : null
+        }
+        onSubmit={() => {}}
+      />
+    );
+  }
+  return (
+    <Wrapper className="flex-col items-stretch justify-start gap-6">
+      <div className="w-full max-w-md">
+        <Demo />
+      </div>
+      <div className="w-full max-w-md">
+        <ChatComposer
+          placeholder="Ask a follow-up…"
+          onAttach={() => {}}
+          notice={
+            <ChatComposerNotice tone="warning">
+              BOQ processor is paused. Your message sends when it's turned on.
+            </ChatComposerNotice>
+          }
+        />
+      </div>
+    </Wrapper>
   );
 }

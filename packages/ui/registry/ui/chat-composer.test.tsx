@@ -6,6 +6,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import {
   ChatComposer,
+  ChatComposerNotice,
   type ChatComposerHandle,
   type ChatComposerProps,
 } from "./chat-composer";
@@ -410,4 +411,67 @@ test("a drag that crosses children keeps the highlight until it leaves", async (
       screen.container.querySelector("[data-slot=chat-composer-drop]"),
     ).toBeNull(),
   );
+});
+
+test("a notice sits on top of the box as part of it, with its action and ✕", async () => {
+  const dismiss = vi.fn();
+  const screen = await mount({
+    notice: (
+      <ChatComposerNotice
+        action={
+          <Button size="xs" variant="secondary">
+            Details
+          </Button>
+        }
+        onDismiss={dismiss}
+      >
+        You've used 90% of this month's budget.
+      </ChatComposerNotice>
+    ),
+  });
+  const notice = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-notice]",
+  )!;
+  const editor = screen.container.querySelector<HTMLElement>(
+    "[data-slot=text-edit]",
+  )!;
+  expect(notice.getAttribute("role")).toBeNull();
+  // Attached: the notice ends where the box begins, the same width, the box's top corners square.
+  const a = notice.getBoundingClientRect();
+  const b = editor.getBoundingClientRect();
+  expect(Math.round(a.bottom)).toBe(Math.round(b.top));
+  expect(a.width).toBe(b.width);
+  expect(getComputedStyle(editor).borderTopLeftRadius).toBe("0px");
+  expect(getComputedStyle(notice).borderBottomWidth).toBe("0px");
+  await page.getByRole("button", { name: "Dismiss" }).click();
+  expect(dismiss).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a live notice is a polite status", async () => {
+  const screen = await mount({
+    notice: (
+      <ChatComposerNotice live tone="warning">
+        Held.
+      </ChatComposerNotice>
+    ),
+  });
+  expect(
+    screen.container
+      .querySelector("[data-slot=chat-composer-notice]")
+      ?.getAttribute("role"),
+  ).toBe("status");
+});
+
+test("Backspace in the empty box takes the last attachment off; with text it deletes text", async () => {
+  const remove = vi.fn();
+  await mount({ hasAttachments: true, onRemoveLastAttachment: remove });
+  await userEvent.click(box());
+  await vi.waitFor(() =>
+    expect(document.activeElement?.className).toContain("ProseMirror"),
+  );
+  await userEvent.keyboard("{Backspace}");
+  expect(remove).toHaveBeenCalledOnce();
+  await userEvent.keyboard("ab{Backspace}");
+  expect(remove).toHaveBeenCalledOnce();
 });

@@ -1,3 +1,4 @@
+import * as React from "react";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
@@ -5,16 +6,24 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import { Citation } from "./cited-list";
 import { Message, MessageContent } from "./message";
+import { Toggle } from "./toggle";
 import {
   MessageActions,
+  MessageActivity,
+  MessageActivityNote,
+  MessageActivityResults,
+  MessageActivityStep,
+  MessageBubble,
   MessageChange,
   MessageDisclaimer,
   MessageFold,
   MessageHandoff,
   MessageNotice,
   MessagePlan,
+  MessageSourceList,
   MessageSources,
   MessageStatus,
+  MessageTime,
   MessageStep,
   MessageSteps,
   MessageVersionSwitch,
@@ -78,19 +87,30 @@ test("a step's status is in words, and a failed step gives its reason", async ()
 
 test("the steps line keeps its muted ink when open", async () => {
   await render(
-    <MessageSteps summary="1 step" defaultOpen>
-      <MessageStep label="Done" />
-    </MessageSteps>,
+    <>
+      <div data-testid="rest" className="h-8 w-8" />
+      <MessageSteps summary="1 step" defaultOpen>
+        <MessageStep label="Done" />
+      </MessageSteps>
+    </>,
   );
+  // The pointer may still rest where an earlier test clicked; park it away from both lines.
+  await userEvent.hover(page.getByTestId("rest"));
   const open = page.getByRole("button", { name: "1 step" });
-  const ink = getComputedStyle(open.element()).color;
   await render(
     <MessageSteps summary="2 steps">
       <MessageStep label="Done" />
     </MessageSteps>,
   );
   const closed = page.getByRole("button", { name: "2 steps" });
-  expect(ink).toBe(getComputedStyle(closed.element()).color);
+  // Polled: the Button's colour transition can still be running on a loaded runner.
+  await expect
+    .poll(
+      () =>
+        getComputedStyle(open.element()).color ===
+        getComputedStyle(closed.element()).color,
+    )
+    .toBe(true);
 });
 
 test("a plan says each item's state in words", async () => {
@@ -343,4 +363,218 @@ test("an open fold stays open, and tabbing into a folded one opens it", async ()
     .element(folded.getByRole("button", { name: "Show less" }))
     .toBeVisible();
   expect(document.activeElement?.textContent).toBe("Deep link");
+});
+
+const SOURCES = [
+  {
+    href: "https://ies.org/tm-21",
+    title: "TM-21-21",
+    site: "ies.org",
+    icon: "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7",
+  },
+  { href: "https://energystar.gov/lm80", title: null, site: "energystar.gov" },
+  {
+    href: "https://a.example/1",
+    title: "Three",
+    site: "a.example",
+    icon: "/no-such-icon.png",
+  },
+  { href: "https://b.example/2", title: "Four", site: "b.example" },
+  { href: "https://c.example/3", title: "Five", site: "c.example" },
+];
+
+test("a person's message: muted surface, foreground ink, kept line breaks, reading metrics", async () => {
+  const screen = await render(
+    <Message align="end">
+      <MessageContent>
+        <MessageBubble>{"First line\nSecond line"}</MessageBubble>
+        <MessageTime date={Date.now() - 120_000} />
+      </MessageContent>
+    </Message>,
+  );
+  const bubble = slot(screen.container, "bubble")!;
+  expect(bubble.dataset.variant).toBe("muted");
+  expect(bubble.dataset.align).toBe("end");
+  const content = slot(screen.container, "bubble-content")!;
+  const style = getComputedStyle(content);
+  expect(style.whiteSpace).toBe("pre-wrap");
+  // The reading body: 14/24, or 16/26 on a coarse pointer or a narrow window.
+  expect([
+    ["14px", "24px"],
+    ["16px", "26px"],
+  ]).toContainEqual([style.fontSize, style.lineHeight]);
+  // Two typed lines are two rendered lines.
+  expect(content.getBoundingClientRect().height).toBeGreaterThan(
+    2 * parseFloat(style.lineHeight),
+  );
+  const time = slot(screen.container, "message-time")!;
+  expect(time.textContent).toBe("2m ago");
+  expect(time.dataset.reveal).toBe("always");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("an answer's time shows on hover or focus, like its actions", async () => {
+  const screen = await render(
+    <Message>
+      <MessageContent>
+        <p>Answer</p>
+        <MessageTime date={Date.now()} reveal="hover" />
+      </MessageContent>
+    </Message>,
+  );
+  const time = slot(screen.container, "message-time")!;
+  expect(getComputedStyle(time).opacity).toBe("0");
+  await userEvent.hover(slot(screen.container, "message")!);
+  await vi.waitFor(() => expect(getComputedStyle(time).opacity).toBe("1"));
+});
+
+test("toggles in the actions row take the icon button's 28px square", async () => {
+  const screen = await render(
+    <MessageActions reveal="always">
+      <Button size="icon-sm" variant="ghost" aria-label="Copy">
+        C
+      </Button>
+      <Toggle aria-label="Good answer">+</Toggle>
+    </MessageActions>,
+  );
+  const [button, toggle] = Array.from(
+    screen.container.querySelectorAll<HTMLElement>("button"),
+  );
+  expect(toggle!.getBoundingClientRect().width).toBe(28);
+  expect(toggle!.getBoundingClientRect().height).toBe(
+    button!.getBoundingClientRect().height,
+  );
+});
+
+test("the source list: closed, three icons and a count; open, numbered links with a globe for a missing icon", async () => {
+  const screen = await render(<MessageSourceList sources={SOURCES} />);
+  const trigger = page.getByRole("button", { name: "Sources · 5" });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+  const icons = screen.container.querySelectorAll(
+    "[data-slot=message-source-list-trigger] [data-slot=message-site-icon]",
+  );
+  expect(icons).toHaveLength(3);
+  // No letter avatars: an icon is an image or a globe, never text.
+  for (const icon of icons) expect(icon.textContent).toBe("");
+  await trigger.click();
+  const links = screen.container.querySelectorAll<HTMLAnchorElement>(
+    "[data-slot=message-source]",
+  );
+  expect(links).toHaveLength(5);
+  expect(links[0]!.getAttribute("target")).toBe("_blank");
+  expect(links[0]!.getAttribute("rel")).toBe("noreferrer noopener");
+  // A missing title shows the site; the failing icon falls back to the globe.
+  expect(links[1]!.textContent).toContain("energystar.gov");
+  await vi.waitFor(
+    () =>
+      expect(
+        links[2]!.querySelector("[data-slot=message-site-icon] svg"),
+        links[2]!.innerHTML,
+      ).not.toBeNull(),
+    { timeout: 5000 },
+  );
+  expect(links[0]!.querySelector("img")).not.toBeNull();
+  await expectNoA11yViolations(screen.container);
+  const empty = await render(<MessageSourceList sources={[]} />);
+  expect(empty.container.innerHTML).toBe("");
+});
+
+test("activity: a done summary with its time opens to notes and steps; a step opens its results", async () => {
+  const screen = await render(
+    <MessageActivity summary="Searched the web · 2 searches" ms={14_000}>
+      <MessageActivityNote>Planning a search.</MessageActivityNote>
+      <MessageActivityStep
+        label="Searched the web"
+        detail="TM-21"
+        meta="1 result"
+      >
+        <MessageActivityResults results={SOURCES.slice(0, 1)} />
+      </MessageActivityStep>
+      <MessageActivityStep
+        status="failed"
+        label="Opened"
+        detail="ies.org"
+        error="No answer."
+      />
+    </MessageActivity>,
+  );
+  const trigger = page.getByRole("button", {
+    name: /Searched the web · 2 searches · 14s/,
+  });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+  await trigger.click();
+  await expect.element(page.getByText("Planning a search.")).toBeVisible();
+  const step = page.getByRole("button", {
+    name: /Done: Searched the web TM-21/,
+  });
+  await expect.element(step).toHaveAttribute("aria-expanded", "false");
+  // Keyboard: Enter opens the nested step, and its results are links.
+  (step.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
+  await expect.element(step).toHaveAttribute("aria-expanded", "true");
+  await expect
+    .element(page.getByRole("list", { name: "Results" }))
+    .toBeVisible();
+  await expect
+    .element(page.getByRole("link", { name: /TM-21-21/ }))
+    .toHaveAttribute("href", "https://ies.org/tm-21");
+  const failed = screen.container.querySelector<HTMLElement>(
+    "[data-slot=message-activity-step][data-status=failed]",
+  )!;
+  expect(failed.textContent).toContain("Failed:");
+  expect(failed.textContent).toContain("No answer.");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("activity while running shimmers and counts up", async () => {
+  const screen = await render(
+    <MessageActivity
+      running
+      startedAt={Date.now() - 5_000}
+      summary="Searching the web"
+    />,
+  );
+  const summary = slot(screen.container, "message-activity-summary")!;
+  expect(summary.className).toContain("shimmer");
+  await vi.waitFor(() =>
+    expect(
+      slot(screen.container, "message-activity-time")?.textContent,
+    ).toMatch(/^· [56]s$/),
+  );
+  expect(
+    slot(screen.container, "message-activity-time")!.getAttribute(
+      "aria-hidden",
+    ),
+  ).toBe("true");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("activity opens while running, closes once a second after, and stays as the reader leaves it", async () => {
+  function Turn() {
+    const [running, setRunning] = React.useState(true);
+    return (
+      <>
+        <button type="button" onClick={() => setRunning((value) => !value)}>
+          Toggle run
+        </button>
+        <MessageActivity running={running} summary="Working">
+          <MessageActivityNote>Planning.</MessageActivityNote>
+        </MessageActivity>
+      </>
+    );
+  }
+  await render(<Turn />);
+  const trigger = page.getByRole("button", { name: /Working/ });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await page.getByRole("button", { name: "Toggle run" }).click();
+  await vi.waitFor(
+    () => expect(trigger.element().getAttribute("aria-expanded")).toBe("false"),
+    { timeout: 3000 },
+  );
+  // The reader opens it; a new run and its end never close it again.
+  await trigger.click();
+  await page.getByRole("button", { name: "Toggle run" }).click();
+  await page.getByRole("button", { name: "Toggle run" }).click();
+  await new Promise((resolve) => setTimeout(resolve, 1300));
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
 });

@@ -2,17 +2,21 @@
 
 import { useState, type ReactNode } from "react";
 import {
+  BookOpen,
+  Brain,
   CalendarDays,
   CopyIcon,
   FileText,
+  Globe,
   RefreshCcwIcon,
+  Search,
+  Sparkles,
   SquareCheck,
   ThumbsDownIcon,
   ThumbsUpIcon,
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/message-parts` (dogfoods the registry) → auto-scanned.
-import { Bubble, BubbleContent } from "@/components/ui/bubble";
 import { Button } from "@/components/ui/button";
 import { Citation } from "@/components/ui/cited-list";
 import {
@@ -21,21 +25,30 @@ import {
   MessageGroup,
   MessageHeader,
 } from "@/components/ui/message";
+import { MarkdownView } from "@/components/ui/markdown-view";
 import {
   MessageActions,
+  MessageActivity,
+  MessageActivityNote,
+  MessageActivityResults,
+  MessageActivityStep,
+  MessageBubble,
   MessageChange,
   MessageDisclaimer,
   MessageFold,
   MessageHandoff,
   MessageNotice,
   MessagePlan,
+  MessageSourceList,
   MessageSources,
   MessageStatus,
+  MessageTime,
   MessageStep,
   MessageSteps,
   MessageVersionSwitch,
 } from "@/components/ui/message-parts";
 import { PersonAvatar } from "@/components/ui/person-avatar";
+import { Toggle } from "@/components/ui/toggle";
 
 const assistant = { name: "Assistant", kind: "agent" as const };
 
@@ -49,74 +62,276 @@ function AgentHeader({ name = "Assistant" }: { name?: string }): ReactNode {
 }
 
 function Actions({ reveal }: { reveal?: "hover" | "always" }): ReactNode {
+  // One button style: icon-sm ghost buttons for actions, toggles for the rating — the row sizes
+  // every toggle to the same 28px square.
   return (
     <MessageActions reveal={reveal}>
-      <Button size="icon-xs" variant="ghost" aria-label="Copy">
+      <Button size="icon-sm" variant="ghost" aria-label="Copy">
         <CopyIcon aria-hidden />
       </Button>
-      <Button size="icon-xs" variant="ghost" aria-label="Retry">
+      <Button size="icon-sm" variant="ghost" aria-label="Retry">
         <RefreshCcwIcon aria-hidden />
       </Button>
-      <Button size="icon-xs" variant="ghost" aria-label="Helpful">
+      <Toggle aria-label="Good answer">
         <ThumbsUpIcon aria-hidden />
-      </Button>
-      <Button size="icon-xs" variant="ghost" aria-label="Not helpful">
+      </Toggle>
+      <Toggle aria-label="Bad answer">
         <ThumbsDownIcon aria-hidden />
-      </Button>
+      </Toggle>
     </MessageActions>
   );
 }
 
+/** A site's icon, drawn inline so the docs call no site. A host serves real ones from its proxy. */
+function siteIcon(hue: number, shape: "circle" | "square" = "square"): string {
+  const mark =
+    shape === "circle"
+      ? `<circle cx='8' cy='8' r='6' fill='oklch(0.62 0.17 ${hue})'/>`
+      : `<rect x='2' y='2' width='12' height='12' rx='3' fill='oklch(0.62 0.17 ${hue})'/><path d='M5 8h6M8 5v6' stroke='white' stroke-width='1.6' stroke-linecap='round'/>`;
+  return `data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'>${mark}</svg>`)}`;
+}
+
+const WEB_SOURCES = [
+  {
+    href: "https://www.ies.org/standards/tm-21",
+    title:
+      "TM-21-21 — Projecting long-term luminous flux maintenance of LED packages",
+    site: "ies.org",
+    icon: siteIcon(250),
+  },
+  {
+    href: "https://www.energystar.gov/lm80",
+    title: "LM-80 test reports: what they cover and what they don't",
+    site: "energystar.gov",
+    icon: siteIcon(150, "circle"),
+  },
+  {
+    href: "https://hi-hyperlite.com/lm80-tm21",
+    title: "LM-80 & TM-21 reports: predicting high bay lifespan",
+    site: "hi-hyperlite.com",
+    icon: siteIcon(30),
+  },
+  {
+    href: "https://example.org/missing",
+    title: null,
+    site: "lighting-research.example",
+    // A favicon that fails to load falls back to the globe.
+    icon: "/favicon-that-does-not-exist.png",
+  },
+];
+
+const ANSWER = `LED lifetime claims rest on two documents. **LM-80** measures how a package's light output falls over at least 6,000 hours [[2]], and **TM-21** projects that data forward — never more than six times the tested hours [[1]].
+
+### What to ask a supplier for
+
+1. The LM-80 report for the exact package and drive current.
+2. The TM-21 projection, with the sample size and case temperature.
+3. The in-situ temperature of the fixture [[3]].
+
+A claim of *L70 > 100,000 h* from a 6,000-hour test is outside TM-21's limit, so treat it as marketing.`;
+
+function Answer(): ReactNode {
+  return (
+    <MarkdownView
+      typeScale="reading"
+      citation={(n) => {
+        const source = WEB_SOURCES[n - 1];
+        if (!source) return null;
+        return {
+          label: `Source ${n}: ${source.title ?? source.site}`,
+          content: (
+            <a
+              href={source.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="flex max-w-72 flex-col gap-0.5 text-sm no-underline"
+            >
+              <span className="font-medium text-foreground">
+                {source.title}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {source.site} ↗
+              </span>
+            </a>
+          ),
+        };
+      }}
+    >
+      {ANSWER}
+    </MarkdownView>
+  );
+}
+
+// A fixed clock, so the server render and the browser agree on every timestamp.
+const NOW = Date.parse("2026-11-10T10:00:00Z");
+const TEN_MINUTES_AGO = NOW - 10 * 60_000;
+
 export function messageParts(): ReactNode {
-  // A whole turn: the person's bubble, then the agent's answer with everything it carries.
+  // A whole turn: the person's message and its time, then the agent's answer with its activity,
+  // its sources, its actions and its time on hover.
   return (
     <Wrapper className="items-start justify-start">
-      <MessageGroup className="w-full max-w-sm gap-4">
+      <MessageGroup className="w-full max-w-md gap-6">
         <Message align="end">
-          <MessageContent>
-            <Bubble align="end" variant="muted">
-              <BubbleContent>
-                What did we decide about the 4000 K downlight?
-              </BubbleContent>
-            </Bubble>
+          <MessageContent className="gap-1">
+            <MessageBubble>
+              {
+                "How long do LM-80 and TM-21 let a supplier claim?\nOur high bay says 100,000 h."
+              }
+            </MessageBubble>
+            <MessageTime date={TEN_MINUTES_AGO} now={NOW} />
           </MessageContent>
         </Message>
         <Message>
           <MessageContent>
             <AgentHeader />
-            <MessageSteps summary="3 steps · Searched meetings, read 2 notes">
-              <MessageStep label="Searched meetings" meta="2 results" />
-              <MessageStep label="Read Range review 28 Oct" />
-              <MessageStep label="Read SR-9 Order 3000 K samples" />
-            </MessageSteps>
-            <p>
-              In the 28 Oct review you agreed to keep 4000 K for the IP65 range
-              and test 3000 K samples by Friday.
-            </p>
-            <MessageSources>
-              <Citation icon={<CalendarDays />} href="#">
-                Range review 28 Oct
-              </Citation>
-              <Citation icon={<SquareCheck />} href="#">
-                SR-9 Order 3000 K samples
-              </Citation>
-            </MessageSources>
-            <MessageChange
-              action={
-                <Button size="xs" variant="ghost">
-                  Undo
-                </Button>
-              }
+            <MessageActivity
+              icon={<Sparkles />}
+              summary="Searched the web · 2 searches"
+              ms={14_000}
             >
-              Created task SR-41 Test 3000 K samples
-            </MessageChange>
-            <MessageDisclaimer>
-              Generated by AI · can make mistakes
-            </MessageDisclaimer>
-            <Actions reveal="always" />
+              <MessageActivityNote>
+                Planning a search for LM-80 and TM-21.
+              </MessageActivityNote>
+              <MessageActivityStep
+                icon={<Search />}
+                label="Searched the web"
+                detail="TM-21 projection limit"
+                meta="3 results"
+              >
+                <MessageActivityResults results={WEB_SOURCES.slice(0, 3)} />
+              </MessageActivityStep>
+            </MessageActivity>
+            <Answer />
+            <MessageSourceList sources={WEB_SOURCES.slice(0, 3)} />
+            <div className="flex items-center gap-2">
+              <Actions reveal="always" />
+              <MessageTime date={TEN_MINUTES_AGO} now={NOW} reveal="hover" />
+            </div>
           </MessageContent>
         </Message>
       </MessageGroup>
+    </Wrapper>
+  );
+}
+
+export function messagePartsBubble(): ReactNode {
+  // A person's message: the muted surface, foreground text, their line breaks kept.
+  return (
+    <Wrapper className="items-start justify-start">
+      <MessageGroup className="w-full max-w-md gap-4">
+        <Message align="end">
+          <MessageContent className="gap-1">
+            <MessageBubble>Search the web for TM-21.</MessageBubble>
+            <MessageTime date={TEN_MINUTES_AGO} now={NOW} />
+          </MessageContent>
+        </Message>
+        <Message align="end">
+          <MessageContent className="gap-1">
+            <MessageBubble>
+              {
+                "Compare these two high bays:\n- 150 W, 160 lm/W, IP65\n- 200 W, 150 lm/W, IP66\n\nWhich lasts longer at 45 °C ambient, and how sure can we be?"
+              }
+            </MessageBubble>
+            <MessageTime date={NOW - 3 * 86_400_000} now={NOW} />
+          </MessageContent>
+        </Message>
+      </MessageGroup>
+    </Wrapper>
+  );
+}
+
+export function messagePartsActivity(): ReactNode {
+  // Done, opened: notes in muted text, steps, a search open on its results, a failed step's reason.
+  return (
+    <Wrapper className="items-start justify-start">
+      <MessageActivity
+        defaultOpen
+        icon={<Sparkles />}
+        summary="Searched the web · 2 searches"
+        ms={14_000}
+        className="w-full max-w-md"
+      >
+        <MessageActivityNote>
+          Planning a search for LM-80 and TM-21, then reading the standard
+          itself.
+        </MessageActivityNote>
+        <MessageActivityStep
+          defaultOpen
+          icon={<Search />}
+          label="Searched the web"
+          detail="TM-21 projection limit"
+          meta="4 results"
+        >
+          <MessageActivityResults results={WEB_SOURCES} />
+        </MessageActivityStep>
+        <MessageActivityStep
+          icon={<Search />}
+          label="Searched the web"
+          detail="LM-80 6000 hours test duration"
+          meta="2 results"
+        >
+          <MessageActivityResults results={WEB_SOURCES.slice(1, 3)} />
+        </MessageActivityStep>
+        <MessageActivityStep
+          icon={<Globe />}
+          label="Opened"
+          detail="ies.org/standards/tm-21"
+        />
+        <MessageActivityStep
+          status="failed"
+          icon={<Globe />}
+          label="Opened"
+          detail="hi-hyperlite.com/lm80-tm21"
+          error="The site didn't answer."
+        />
+        <MessageActivityStep
+          icon={<BookOpen />}
+          label="Used skill"
+          detail="Datasheet check"
+        />
+        <MessageActivityStep
+          icon={<Brain />}
+          label="Saved to memory"
+          detail="Prefers TM-21 numbers over supplier claims"
+        />
+      </MessageActivity>
+    </Wrapper>
+  );
+}
+
+export function messagePartsActivityRunning(): ReactNode {
+  // Working: the current step shimmers with a live timer, open for the person who asked.
+  return (
+    <Wrapper className="items-start justify-start">
+      <MessageActivity
+        defaultOpen
+        running
+        startedAt={Date.now() - 6_000}
+        icon={<Sparkles />}
+        summary="Searching the web"
+        className="w-full max-w-md"
+      >
+        <MessageActivityNote>
+          Planning a search for LM-80 and TM-21.
+        </MessageActivityNote>
+        <MessageActivityStep
+          status="running"
+          label="Searching the web"
+          detail="TM-21 projection limit"
+        />
+      </MessageActivity>
+    </Wrapper>
+  );
+}
+
+export function messagePartsSourceList(): ReactNode {
+  // Closed, then open: numbered rows of icon, title and site, each the link. The last icon
+  // failed to load and shows the globe.
+  return (
+    <Wrapper className="flex-col items-stretch justify-start gap-6">
+      <MessageSourceList sources={WEB_SOURCES.slice(0, 3)} />
+      <MessageSourceList defaultOpen sources={WEB_SOURCES} />
     </Wrapper>
   );
 }
@@ -263,6 +478,24 @@ export function messagePartsFold(): ReactNode {
           ))}
         </div>
       </MessageFold>
+    </Wrapper>
+  );
+}
+
+export function messagePartsRecordSources(): ReactNode {
+  // Records an answer rests on (meetings, tasks), and the disclaimer for a surface without a
+  // composer line to carry it.
+  return (
+    <Wrapper className="flex-col items-stretch justify-start gap-2">
+      <MessageSources>
+        <Citation icon={<CalendarDays />} href="#">
+          Range review 28 Oct
+        </Citation>
+        <Citation icon={<SquareCheck />} href="#">
+          SR-9 Order 3000 K samples
+        </Citation>
+      </MessageSources>
+      <MessageDisclaimer>Generated by AI · can make mistakes</MessageDisclaimer>
     </Wrapper>
   );
 }

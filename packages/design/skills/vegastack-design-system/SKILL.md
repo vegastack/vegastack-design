@@ -302,6 +302,14 @@ descendant rules (`[&_h1]:…`), which means an element-level class on a child *
 by setting a class on the rendered element. Under the page's own headings, `MarkdownView headingOffset={n}` moves every
 heading down `n` levels (capped at h6) so the outline never skips back up.
 
+**Pick the type scale by what the text is.** `MarkdownView typeScale="compact"` (the default) for a
+comment, a card or a short message; `"document"` for a page; `"reading"` for long-form text an agent
+or an AI wrote, read beside the work (a chat answer, an Ask AI answer, a summary). Pass `streaming`
+while an answer arrives. A conversation is built from `message-parts`: `MessageBubble` for the
+person, `MessageActivity` for thinking and steps, `MessageSourceList` for cited pages, `MessageTime`,
+`MessageActions`; the AI disclaimer goes once under `ChatComposer` (`hint`), and notices attach to
+its top (`notice`). A `[[n]]` citation never navigates on click — its card's link does.
+
 **Markdown is read with `MarkdownView` and edited with `TextEdit format="markdown"`** — never a
 textarea, a local prose class, or a hand-rolled editor. For in-place editing, swap the view for
 `<TextEdit format="markdown" variant="document" onCommit={save} />` for inline document editing.

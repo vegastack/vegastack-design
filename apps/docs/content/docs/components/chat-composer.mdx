@@ -23,7 +23,7 @@ import { ChatComposer } from "@/components/ui/chat-composer";
   status={status}
   onSubmit={send}
   onStop={stop}
-  hint="Only you can see this chat"
+  hint="Only you can see this chat · AI can make mistakes. Verify important info."
 />;
 ```
 
@@ -36,7 +36,24 @@ has. For a comment or a reply on a record, use
   file="components/preview/chat-composer.tsx"
 />
 
+## Anatomy
+
+<Anatomy name="chat-composer" />
+
 ## Examples
+
+### A notice on the box
+
+`notice` attaches a `ChatComposerNotice` to the top of the box, sharing its border so the two read
+as one: a usage limit, a send that is held, a paused agent. It carries an icon by `tone`, the
+words, one optional action (a `secondary` xs button) and an optional ✕ through `onDismiss`. It is
+silent by default; pass `live` when it appears because of what the person just did. The `hint` is
+the one muted line under the box: who can see the chat and the AI disclaimer, wrapping on a phone.
+
+<ComponentPreview
+  name="chatComposerNotice"
+  file="components/preview/chat-composer.tsx"
+/>
 
 ### While the agent answers
 
@@ -102,6 +119,11 @@ const composer = useRef<ChatComposerHandle>(null);
 <ApiTable
   path="../../packages/ui/registry/ui/chat-composer.tsx"
   name="ChatComposerProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-composer.tsx"
+  name="ChatComposerNoticeProps"
 />
 
 <ApiTable
