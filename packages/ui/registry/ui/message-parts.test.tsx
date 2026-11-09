@@ -87,10 +87,15 @@ test("a step's status is in words, and a failed step gives its reason", async ()
 
 test("the steps line keeps its muted ink when open", async () => {
   await render(
-    <MessageSteps summary="1 step" defaultOpen>
-      <MessageStep label="Done" />
-    </MessageSteps>,
+    <>
+      <div data-testid="rest" className="h-8 w-8" />
+      <MessageSteps summary="1 step" defaultOpen>
+        <MessageStep label="Done" />
+      </MessageSteps>
+    </>,
   );
+  // The pointer may still rest where an earlier test clicked; park it away from both lines.
+  await userEvent.hover(page.getByTestId("rest"));
   const open = page.getByRole("button", { name: "1 step" });
   await render(
     <MessageSteps summary="2 steps">
