@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.41.0 sha256-nWMhfX5I0BVNetw+BEFC/KQGSB7tZu2y4mOC9jzby1Q=
+// @vegastack message-parts@0.41.0 sha256-saeG8GfZa5ppe5sQ3ViLf3oQicsSU6NGi30s/zFNFOk=
 
 "use client";
 
@@ -915,7 +915,10 @@ export function MessageSourceList({
   return (
     <Collapsible
       data-slot="message-source-list"
-      className={cn("flex min-w-0 flex-col items-start gap-1", className)}
+      className={cn(
+        "flex w-full min-w-0 flex-col items-start gap-1",
+        className,
+      )}
       {...props}
     >
       <CollapsibleTrigger
@@ -1123,7 +1126,7 @@ export function MessageActivity({
         onOpenChange?.(next, details);
       }}
       className={cn(
-        "@container/message-activity flex min-w-0 flex-col items-start gap-1",
+        "@container/message-activity flex w-full min-w-0 flex-col items-start gap-1",
         className,
       )}
       {...props}
