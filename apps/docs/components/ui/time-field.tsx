@@ -1,4 +1,4 @@
-// @vegastack time-field@0.39.0 sha256-66tNkBZSVnNW+UIHfPIQOHZctNJYktm+K71YOs0olqo=
+// @vegastack time-field@0.60.0 sha256-eR7FmcRcv1wzPUCFtofz0FLmJtYZcvWId7u5V6LOV0U=
 
 "use client";
 

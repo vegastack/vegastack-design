@@ -1,4 +1,4 @@
-// @vegastack sheet@0.33.0 sha256-lfKkY4gso5IaprOUewSloPv/nWr+/gVf8pOC3bNm8tk=
+// @vegastack sheet@0.60.0 sha256-Ro/3f7NOqAGxebvVPtJZIVdUfNpQjHo/OB5iSFsHZRI=
 
 "use client";
 

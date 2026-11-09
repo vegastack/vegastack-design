@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.33.0 sha256-cwSCmV43cwU0W6k6bMlTsSsBEDwsWTgclGM1IzzglUU=
+// @vegastack picker-panel@0.60.0 sha256-bDUOe1qo6DYYt/i2pbwTBQSRNN6QcEbCl8hwhy0pcC0=
 
 "use client";
 import * as React from "react";
