@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.59.1 sha256-FmEvxWrN4aEGmW9kiUMmtZc72GdijrPxLZQjlj5oKcI=
+// @vegastack data-grid@0.59.1 sha256-0+S609WrhlIeOAXzmqozdpsY69H4XNpgXIQ6mww9QGU=
 
 "use client";
 
@@ -1283,7 +1283,7 @@ const FROZEN_CELL_CLASS =
 /**
  * The frozen edge's cells while the viewport is scrolled sideways (`data-scrolled-x`): in dark,
  * where a shadow does not read, the edge's divider (`columnDividers`) is brighter than the rest.
- * Light theme's shadow is one overlay on the frame (`data-grid-frozen-edge`), not a cell shadow:
+ * Light theme's shadow is one strip in the scrolled content (`data-grid-frozen-edge`), not a cell shadow:
  * the grid's table collapses its borders, and browsers paint no outer box shadow on a cell then.
  */
 const FROZEN_EDGE_CLASS = "dark:in-data-scrolled-x:after:bg-foreground/20";
@@ -5048,11 +5048,10 @@ export function DataGrid<T>({
     };
     const measure = () => {
       extent = viewport.scrollWidth - viewport.clientWidth;
-      // The frozen edge's strip stops at the table's end: a short table's summary row sits above
-      // the frame's bottom, and the strip must not run on below it.
+      // The frozen edge's strip is exactly as tall as the table, so it ends at the summary row.
       const table = viewport.querySelector<HTMLElement>(":scope > table");
       if (table && frozenEdgeRef.current)
-        frozenEdgeRef.current.style.maxHeight = `${table.offsetHeight}px`;
+        frozenEdgeRef.current.style.height = `${table.getBoundingClientRect().height}px`;
       update();
     };
     const onScroll = () => {
@@ -5064,8 +5063,8 @@ export function DataGrid<T>({
         ? null
         : new ResizeObserver(measure);
     observer?.observe(viewport);
-    if (viewport.firstElementChild)
-      observer?.observe(viewport.firstElementChild);
+    const observed = viewport.querySelector(":scope > table");
+    if (observed) observer?.observe(observed);
     viewport.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       observer?.disconnect();
@@ -5396,6 +5395,29 @@ export function DataGrid<T>({
 
   const viewportInner = (
     <>
+      {frozenPlaced.length > 0 ? (
+        // The frozen edge's shadow (light theme only), header to summary row, once the viewport
+        // scrolls sideways. It lives in the scrolled content, so it moves with the table up and
+        // down and ends where the table does (never down an `endSpacer` band); its inner box is
+        // sticky to the frozen columns' end. The zero-height wrapper is as wide as the table, so
+        // the sticky box's containing block spans every scroll position.
+        <div
+          aria-hidden
+          data-slot="data-grid-frozen-edge"
+          className="pointer-events-none h-0"
+          style={{ width: tableWidth }}
+        >
+          <div
+            className="sticky z-40 h-0 w-0"
+            style={{ insetInlineStart: frozenWidth }}
+          >
+            <span
+              ref={frozenEdgeRef}
+              className="absolute start-0 top-0 block w-1 bg-linear-to-r from-foreground/10 to-transparent opacity-0 in-data-scrolled-x:opacity-100 dark:hidden rtl:bg-linear-to-l"
+            />
+          </div>
+        </div>
+      ) : null}
       {gridTable}
       {/* Inside the scroll viewport, so a `maxHeight` grid loads as its own body scrolls. */}
       {loadMore ? (
@@ -5434,7 +5456,7 @@ export function DataGrid<T>({
     className: cn(
       // `overscroll-x-contain`: a sideways pan that reaches the end stops there instead of moving
       // the page (vertical pans still reach it).
-      "peer/viewport relative overflow-auto overscroll-x-contain",
+      "relative overflow-auto overscroll-x-contain",
       maxHeight != null && "max-h-[calc(var(--data-grid-max-height))]",
       // Filling: as tall as the room, however few the rows.
       fill && maxHeight != null && "min-h-[calc(var(--data-grid-max-height))]",
@@ -5634,17 +5656,6 @@ export function DataGrid<T>({
             ) : (
               <div {...viewportProps}>{viewportInner}</div>
             )}
-            {frozenPlaced.length > 0 ? (
-              // The frozen edge's shadow (light theme only), header to summary row, once the
-              // viewport scrolls sideways: one strip over the frame at the frozen columns' end.
-              <span
-                ref={frozenEdgeRef}
-                aria-hidden
-                data-slot="data-grid-frozen-edge"
-                className="pointer-events-none absolute inset-y-0 z-30 w-1 bg-linear-to-r from-foreground/10 to-transparent opacity-0 peer-data-scrolled-x/viewport:opacity-100 dark:hidden rtl:bg-linear-to-l"
-                style={{ insetInlineStart: frozenWidth }}
-              />
-            ) : null}
             {/* More columns past the end: a quiet edge shadow, like the frozen edge's. */}
             <span
               aria-hidden
