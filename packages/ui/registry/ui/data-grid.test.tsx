@@ -1566,15 +1566,17 @@ test("fixed layout: colgroup widths, frozen columns sticky at their offsets, pri
     // Only the last frozen column carries the scrolled edge's cue (dark theme's brighter divider).
     expect(second.className).toContain("in-data-scrolled-x:");
     expect(first.className).not.toContain("in-data-scrolled-x:");
-    // The light theme's edge shadow is one strip on the frame at the frozen columns' end (a cell's
+    // The light theme's edge shadow is one strip at the frozen columns' end (a cell's
     // own outer shadow is never painted in a table that collapses its borders).
+    // It sits in the scrolled content (so it ends where the table does, never down an
+    // `endSpacer` band), sticky at the frozen columns' end.
     const edge = screen.container.querySelector<HTMLElement>(
       '[data-slot="data-grid-frozen-edge"]',
     )!;
-    expect(edge.style.insetInlineStart).toBe("380px");
-    expect(edge.parentElement?.getAttribute("data-slot")).toBe(
-      "data-grid-viewport-frame",
-    );
+    expect(edge.parentElement?.getAttribute("data-slot")).toBe("grid-viewport");
+    expect(
+      edge.querySelector<HTMLElement>(".sticky")!.style.insetInlineStart,
+    ).toBe("380px");
     // The whole grid is one scroll box: the table is not wrapped in Table's own container.
     expect(table.closest('[data-slot="table-container"]')).toBeNull();
     expect(table.parentElement?.getAttribute("data-slot")).toBe(
