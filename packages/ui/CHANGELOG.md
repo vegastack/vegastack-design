@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.59.2
+
+### Patch Changes
+
+- [#939](https://github.com/vegastack/vegastack-design/pull/939) [`cc8c3f1`](https://github.com/vegastack/vegastack-design/commit/cc8c3f147616ba7b24227911ab4efec191634c29) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 **DataGrid**: the frozen edge's scroll shadow ends at the summary row when the grid is scrolled to its end, instead of running down the `endSpacer` band below it. The strip now sits in the scrolled content, sticky at the frozen columns' end, and is exactly as tall as the table.
+
 ## 0.59.1
 
 ### Patch Changes

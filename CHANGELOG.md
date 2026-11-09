@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.59.2] — November 9, 2026
+
+<!-- assembled from 1 changeset: 64e61e7a6e26 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.59.1 → 0.59.2.
+
+### 🐛 Fixed
+
+- **DataGrid**: the frozen edge's scroll shadow ends at the summary row when the grid is scrolled to its end, instead of running down the `endSpacer` band below it. The strip now sits in the scrolled content, sticky at the frozen columns' end, and is exactly as tall as the table.
+  [`cc8c3f1`](https://github.com/VegaStack/vegastack-design/commit/cc8c3f1)
+
 ## [0.59.1] — November 9, 2026
 
 <!-- assembled from 1 changeset: c02793c4bf7e -->
