@@ -16905,7 +16905,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.57.4",
-        "integrity": "sha256-ls1++C4vioVS6hevHDpJdXbTPy72kHsNM9FPC06UKmA="
+        "integrity": "sha256-SEfpvgsvSG0RMdIhYEWl6zMZ/+1vy8weQFtWlCRfMfc="
       }
     },
     {
@@ -19597,7 +19597,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.51.0",
-        "integrity": "sha256-PZjX3pT4N+GDrHlGbkV1Kfw9p3bVQCtZi5SOdADDTAA="
+        "integrity": "sha256-j6ahSBG0pF5ZPg7FjqusYRQ4nRjLJ7dkdSTz48pDW0s="
       }
     },
     {
@@ -19621,7 +19621,10 @@
         "@vegastack/spinner",
         "@vegastack/status-line",
         "@vegastack/tool-call-chip",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/bubble",
+        "@vegastack/date-time",
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -19634,7 +19637,7 @@
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
         "version": "0.41.0",
-        "integrity": "sha256-GBF0dULsuP7wwvgeEjKvV3DIOK6v9BH45GjbmByVlDE="
+        "integrity": "sha256-nWMhfX5I0BVNetw+BEFC/KQGSB7tZu2y4mOC9jzby1Q="
       }
     },
     {

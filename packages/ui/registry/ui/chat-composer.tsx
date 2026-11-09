@@ -1,9 +1,18 @@
-// @vegastack chat-composer@0.51.0 sha256-PZjX3pT4N+GDrHlGbkV1Kfw9p3bVQCtZi5SOdADDTAA=
+// @vegastack chat-composer@0.51.0 sha256-j6ahSBG0pF5ZPg7FjqusYRQ4nRjLJ7dkdSTz48pDW0s=
 
 "use client";
 
 import * as React from "react";
-import { ArrowUp, AtSign, Paperclip, Square } from "lucide-react";
+import {
+  ArrowUp,
+  AtSign,
+  CircleAlert,
+  Info,
+  Paperclip,
+  Square,
+  TriangleAlert,
+  X,
+} from "lucide-react";
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
@@ -109,8 +118,23 @@ export interface ChatComposerProps extends Omit<
   onDropData?: (data: DataTransfer) => void;
   /** ↑ in the empty box: bring back the last message to edit. @default undefined */
   onEditLast?: () => void;
-  /** The line under the box: who can see this chat. @default undefined */
+  /**
+   * Backspace in the empty box with something attached (`hasAttachments`): take the last attachment
+   * off, as a chat box does. @default undefined
+   */
+  onRemoveLastAttachment?: () => void;
+  /**
+   * The one muted line under the box: who can see this chat, and the AI disclaimer beside it
+   * ("Only you can see this chat · AI can make mistakes. Verify important info."). Wraps on a phone.
+   * @default undefined
+   */
   hint?: React.ReactNode;
+  /**
+   * A notice attached to the top of the box, as part of it: a usage limit, a held send, a paused
+   * agent. Pass a `ChatComposerNotice`.
+   * @default undefined
+   */
+  notice?: React.ReactNode;
   /** The message that failed to send, under the box; `onSubmit`'s rejection shows otherwise. @default undefined */
   error?: React.ReactNode;
   /** The starting text, as Markdown: a restored draft. @default undefined */
@@ -131,6 +155,98 @@ export interface ChatComposerProps extends Omit<
   handleRef?: React.Ref<ChatComposerHandle>;
   /** The composer's words. @default undefined */
   labels?: ChatComposerLabels;
+}
+
+/** Props accepted by `ChatComposerNotice`. */
+export interface ChatComposerNoticeProps extends Omit<
+  React.ComponentPropsWithRef<"div">,
+  "children"
+> {
+  /** What the person should know: "You've used 90% of this month's agent budget." */
+  children: React.ReactNode;
+  /** `info` is neutral; `warning` and `destructive` tint the icon. @default "info" */
+  tone?: "info" | "warning" | "destructive";
+  /** Replaces the tone's icon. @default ⓘ, ⚠ or a circled ! by tone */
+  icon?: React.ReactNode;
+  /** One small action at the end: a `Button size="xs" variant="secondary"` such as Details. @default undefined */
+  action?: React.ReactNode;
+  /** Adds ✕: the person closes the notice. @default undefined */
+  onDismiss?: () => void;
+  /** ✕'s name. @default "Dismiss" */
+  dismissLabel?: string;
+  /**
+   * The notice appeared because of something the person just did (a send was held): announce it
+   * politely. A notice present when the chat opens stays silent. @default false
+   */
+  live?: boolean;
+}
+
+const NOTICE_ICONS = {
+  info: <Info aria-hidden className="text-muted-foreground" />,
+  warning: <TriangleAlert aria-hidden className="text-warning-text" />,
+  destructive: <CircleAlert aria-hidden className="text-destructive-text" />,
+} as const;
+
+/**
+ * `ChatComposerNotice` — a notice attached to the top of `ChatComposer`'s box (its `notice` prop):
+ * an icon, the words, an optional action and an optional ✕. It shares the box's border and reads
+ * as part of it.
+ *
+ * @example
+ * <ChatComposer
+ *   notice={
+ *     <ChatComposerNotice
+ *       action={<Button size="xs" variant="secondary">Details</Button>}
+ *       onDismiss={dismiss}
+ *     >
+ *       You've used 90% of this month's agent budget.
+ *     </ChatComposerNotice>
+ *   }
+ * />
+ */
+export function ChatComposerNotice({
+  tone = "info",
+  icon,
+  action,
+  onDismiss,
+  dismissLabel = "Dismiss",
+  live = false,
+  className,
+  children,
+  ...props
+}: ChatComposerNoticeProps) {
+  return (
+    <div
+      data-slot="chat-composer-notice"
+      data-tone={tone}
+      role={live ? "status" : undefined}
+      className={cn(
+        "flex min-w-0 items-center gap-2 rounded-t-xl border border-b-0 border-input bg-muted/50 py-1 ps-3 pe-3 has-[button]:pe-1 text-sm text-muted-foreground dark:bg-muted/40",
+        className,
+      )}
+      {...props}
+    >
+      <span className="inline-flex shrink-0 [&_svg:not([class*='size-'])]:size-4">
+        {icon ?? NOTICE_ICONS[tone]}
+      </span>
+      <span className="min-w-0 flex-1 py-1 leading-5">{children}</span>
+      {action || onDismiss ? (
+        <span className="inline-flex shrink-0 items-center gap-1">
+          {action}
+          {onDismiss ? (
+            <Button
+              size="icon-xs"
+              variant="ghost"
+              aria-label={dismissLabel}
+              onClick={onDismiss}
+            >
+              <X aria-hidden />
+            </Button>
+          ) : null}
+        </span>
+      ) : null}
+    </div>
+  );
 }
 
 /**
@@ -219,7 +335,9 @@ export function ChatComposer({
   dropTypes,
   onDropData,
   onEditLast,
+  onRemoveLastAttachment,
   hint,
+  notice,
   error: errorProp,
   defaultValue,
   onValueChange,
@@ -400,6 +518,23 @@ export function ChatComposer({
         className="relative min-w-0"
         onKeyDownCapture={(event) => {
           if (
+            event.key === "Backspace" &&
+            onRemoveLastAttachment &&
+            hasAttachments &&
+            !sendable(body) &&
+            !event.nativeEvent.isComposing &&
+            (event.target as HTMLElement).closest("[role=textbox]") &&
+            !event.shiftKey &&
+            !event.altKey &&
+            !event.metaKey &&
+            !event.ctrlKey
+          ) {
+            event.preventDefault();
+            event.stopPropagation();
+            onRemoveLastAttachment();
+            return;
+          }
+          if (
             event.key !== "ArrowUp" ||
             !onEditLast ||
             !(event.target as HTMLElement).closest("[role=textbox]") ||
@@ -469,6 +604,9 @@ export function ChatComposer({
             : undefined
         }
       >
+        {notice ? (
+          <div data-slot="chat-composer-notice-slot">{notice}</div>
+        ) : null}
         <TextEdit
           key={draft.generation}
           handleRef={box}
@@ -504,7 +642,13 @@ export function ChatComposer({
           mentionStatus={mentionStatus}
           minHeight="1.5rem"
           maxHeight="10rem"
-          className="dark:bg-transparent"
+          className={cn(
+            // A soft lift in light mode only (borders carry the structure in dark), on the system's
+            // larger card radius; Send is the one strong colour.
+            "rounded-xl bg-background shadow-xs dark:bg-transparent dark:shadow-none",
+            // The notice and the box read as one: the box's top corners meet the notice.
+            notice && "rounded-t-none",
+          )}
           header={
             chips ? (
               <div
@@ -545,7 +689,7 @@ export function ChatComposer({
           <div
             aria-hidden
             data-slot="chat-composer-drop"
-            className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-lg border-2 border-dashed border-primary bg-background/80 text-sm font-medium text-primary"
+            className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-xl border-2 border-dashed border-primary bg-background/80 text-sm font-medium text-primary"
           >
             {labels?.drop ?? "Drop to add to chat"}
           </div>

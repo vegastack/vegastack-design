@@ -441,3 +441,61 @@ export function markdownViewComment(): ReactNode {
     </Wrapper>
   );
 }
+
+const READING = `Lumen maintenance is how much light an LED keeps as it ages. Two documents decide what a supplier may claim: **LM-80** measures it over at least 6,000 hours [[1]], and **TM-21** projects it forward [[2]].
+
+## What to ask for
+
+1. The LM-80 report for the exact package and drive current.
+2. The TM-21 projection, with sample size and case temperature.
+   - Nested: the in-situ case temperature, measured in the fixture.
+3. A warranty that matches the projected hours.
+
+### The six-times rule
+
+TM-21 never projects beyond six times the tested hours [[2]], so a 6,000-hour test supports at most 36,000 hours. Ask for \`L70\` at the fixture's real temperature.
+
+> A claim of L70 > 100,000 h from a 6,000-hour test is outside TM-21's limit.
+
+| Test hours | Longest projection |
+| --- | --- |
+| 6,000 | 36,000 h |
+| 10,000 | 60,000 h |
+`;
+
+/**
+ * The reading type scale (`typeScale="reading"`): an agent's answer beside the work — the
+ * document's 14/24 body under the compact headings, 12px between paragraphs, citation pills on the
+ * text's middle line. A click on a pill opens its card; the card's link opens the page.
+ */
+export function markdownViewReading(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <div className="max-w-md">
+        <MarkdownView
+          typeScale="reading"
+          citation={(n) => ({
+            label: `Source ${n}`,
+            content: (
+              <a
+                href="https://www.ies.org/standards"
+                target="_blank"
+                rel="noreferrer noopener"
+                className="flex flex-col gap-0.5 text-sm no-underline"
+              >
+                <span className="font-medium text-foreground">
+                  {n === 1
+                    ? "LM-80-20 — Measuring luminous flux maintenance"
+                    : "TM-21-21 — Projecting long-term luminous flux"}
+                </span>
+                <span className="text-xs text-muted-foreground">ies.org ↗</span>
+              </a>
+            ),
+          })}
+        >
+          {READING}
+        </MarkdownView>
+      </div>
+    </Wrapper>
+  );
+}

@@ -75,6 +75,8 @@ describe("affected component closure", () => {
       "packages/ui/registry/ui/field-cell.test.tsx",
       "packages/ui/registry/ui/file-card.test.tsx",
       "packages/ui/registry/ui/file-viewer.test.tsx",
+      // markdown-view's measured lane: the reading scale and the citation pill (2026-11-10).
+      "packages/ui/registry/ui/markdown-view-reading.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
       "packages/ui/registry/ui/text-edit.test.tsx",
       "packages/ui/registry/ui/upload-dialog.test.tsx",
@@ -106,6 +108,8 @@ describe("affected component closure", () => {
       // mermaid-block's previews draw diagrams in a MarkdownView and a TextEdit (B.2).
       "mermaid-block",
       "message",
+      // message-parts' preview reads its answers through a MarkdownView at the reading scale.
+      "message-parts",
       "page-editor-01",
       "sortable-list",
       "text-edit",

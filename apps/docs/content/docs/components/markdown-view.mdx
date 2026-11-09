@@ -342,6 +342,21 @@ beyond it; while it scrolls the box is a named, focusable region.
   file="components/preview/markdown-view.tsx"
 />
 
+### Reading type scale
+
+`typeScale="reading"` is long-form text an agent or an AI wrote, read beside the work: a chat
+answer, an Ask AI answer, a generated summary. It takes the document's body — 14/24, 16/26 on a
+coarse pointer or a narrow window — so every long read in the product shares one rhythm, and keeps
+the compact headings (`#` 18 · `##` 16 · `###` the body's size, semibold) because an answer is not
+a page. Paragraphs and lists sit 12px apart and list items 4px; quotes, tables and inline code read
+at the body's size, and a table keeps the tinted header and roomy cells of the base recipe. A
+comment, a card or a short message stays `compact`.
+
+<ComponentPreview
+  name="markdownViewReading"
+  file="components/preview/markdown-view.tsx"
+/>
+
 ### Read mode
 
 A reader needs no editor. `annotations` draw comment highlights over the words each one quotes —
@@ -425,10 +440,13 @@ server-safe: the button is part of its client effects.
 ### Citations
 
 A summary cites its sources with `[[n]]` markers (n = 1–999). With `citation`, each marker whose
-`n` the function answers for renders as a small superscript `n`: a button named by `label` that
-opens `content` (a quote, who said it, when) on hover, keyboard focus or a long press, and calls
-`onSelect` on a click or tap — play the recording from there. Without `onSelect`, a tap opens
-`content`. A marker the function returns `null` for, and every marker without the prop, stays
+`n` the function answers for renders as a small numbered pill sitting on the text's middle line —
+never a superscript, so it neither crowds the line above nor changes the line's height. It is a
+button named by `label` that opens `content` (a quote, who said it, when) on hover, keyboard focus
+or a long press, and calls `onSelect` on a click or tap — play the recording from there. Without
+`onSelect`, a click or tap opens `content` too. A chat answer passes no `onSelect`: the marker sits
+mid-sentence, so a stray click must never take the reader away; the link inside `content`, and
+the answer's source list, open the page. A marker the function returns `null` for, and every marker without the prop, stays
 literal text, and so does one inside a code span, fenced code or link text. The marker is a
 client component, so pass `citation` from one.
 

@@ -19319,6 +19319,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "completeStreamingMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -19403,7 +19412,10 @@
         "@vegastack/design-tokens@^0.11.0",
         "lucide-react@^1.47.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/markdown-view.test.tsx"],
+      "testFiles": [
+        "packages/ui/registry/ui/markdown-view.test.tsx",
+        "packages/ui/registry/ui/markdown-view-reading.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -19421,6 +19433,7 @@
               "values": [
                 "markdown-citation",
                 "markdown-citation-content",
+                "markdown-citation-more",
                 "markdown-citation-trigger"
               ]
             }
@@ -19591,6 +19604,10 @@
             {
               "name": "data-slot",
               "values": ["markdown-view"]
+            },
+            {
+              "name": "data-streaming",
+              "values": [""]
             },
             {
               "name": "data-type-scale",
@@ -31085,6 +31102,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "ChatComposerNotice",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerNoticeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -31177,6 +31212,19 @@
       },
       "previewModule": "chat-composer",
       "dataAttributes": {
+        "ChatComposerNotice": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-composer-notice"]
+            },
+            {
+              "name": "data-tone",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
         "ChatComposer": {
           "attributes": [
             {
@@ -31193,6 +31241,7 @@
                 "chat-composer-error",
                 "chat-composer-held",
                 "chat-composer-hint",
+                "chat-composer-notice-slot",
                 "chat-composer-send",
                 "chat-composer-stop",
                 "chat-composer-toolbar"
@@ -31445,6 +31494,132 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MessageActivity",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityNote",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityResults",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityResultsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityStep",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityStepProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageBubble",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageBubbleProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageSource",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageSourceList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageSourceListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageTime",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageTimeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -31538,7 +31713,10 @@
         "@vegastack/spinner",
         "@vegastack/status-line",
         "@vegastack/tool-call-chip",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/bubble",
+        "@vegastack/date-time",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -31683,6 +31861,97 @@
             {
               "name": "data-slot",
               "values": ["message-fold", "message-fold-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageBubble": {
+          "attributes": [
+            {
+              "name": "data-message-bubble",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageTime": {
+          "attributes": [
+            {
+              "name": "data-reveal",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["message-time"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageSourceList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "message-source",
+                "message-source-list",
+                "message-source-list-content",
+                "message-source-list-trigger"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageActivity": {
+          "attributes": [
+            {
+              "name": "data-running",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "message-activity",
+                "message-activity-content",
+                "message-activity-summary",
+                "message-activity-time",
+                "message-activity-trigger"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageActivityNote": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-activity-note"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageActivityStep": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "message-activity-step",
+                "message-activity-step-content",
+                "message-activity-step-error",
+                "message-activity-step-trigger"
+              ]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageActivityResults": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-activity-result", "message-activity-results"]
             }
           ],
           "cssVariables": []

@@ -207,3 +207,49 @@ export const proseDocument = {
 
 /** The element roles the document overlay covers. */
 export type ProseDocumentElement = keyof typeof proseDocument;
+
+/**
+ * THE reading type scale — `typeScale="reading"` on `MarkdownView` (TYP-20's reading overlay, MK
+ * 2026-11-10, "Agent chat, ground up"). Long-form text an agent or an AI wrote, read in a column
+ * beside the work: a chat answer, an Ask AI answer, a generated summary. The body is the document
+ * body (14/24 on a fine pointer, 16/26 on a coarse pointer or a narrow window) so every long read
+ * in the product shares one rhythm, while headings stay on the app's compact steps (`#` 18 · `##` 16
+ * · `###` body size, semibold) because an answer is not a page. Paragraphs and lists sit 12 apart,
+ * list items 4, and quotes, tables and inline code read at the body's size.
+ *
+ * Like `proseDocument` it is an OVERLAY on `prose`: compose it after the base recipe through `cn`,
+ * or use `proseReadingClassName`, which is that composition done once. A person's message beside an
+ * answer reads at the same metrics through `proseReading.root` (`MessageBubble`).
+ *
+ * @example
+ * <div className={proseReadingClassName}>…</div>
+ */
+export const proseReading = {
+  /** Body: 14/24 on a fine pointer, 16/26 on a coarse pointer or below the `sm` width. */
+  root: "text-sm/6 pointer-coarse:text-base/6.5 max-sm:text-base/6.5",
+  // Headings: the compact steps with more room above than below. On 16px body text `###` steps up
+  // to 16 with it, so a heading never reads smaller than the text under it.
+  h1: "[&_h1]:mt-6 [&_h1]:mb-2",
+  h2: "[&_h2]:mt-5 [&_h2]:mb-2",
+  h3: "[&_h3]:mt-4 [&_h3]:mb-1.5 pointer-coarse:[&_h3]:text-base max-sm:[&_h3]:text-base",
+  h4: "[&_h4]:mt-4 [&_h4]:mb-1 [&_h4]:font-semibold pointer-coarse:[&_h4]:text-base max-sm:[&_h4]:text-base",
+  // A 12px gap between paragraphs; none before the first or after the last.
+  p: "[&_p]:my-3",
+  // Lists 12 from their neighbours, items 4 apart, a nested list 4 below its item's text.
+  ul: "[&_ul]:my-3",
+  ol: "[&_ol]:my-3",
+  li: "[&_li_ul]:mt-1 [&_li_ul]:mb-0 [&_li_ol]:mt-1 [&_li_ol]:mb-0",
+  blockquote: "[&_blockquote]:my-3",
+  // Inline code at the body's size on a coarse pointer too (on a fine pointer both are 14).
+  code: "pointer-coarse:[&_code]:text-base max-sm:[&_code]:text-base",
+  pre: "[&_pre:not([data-slot='code-block-pre'])]:my-3",
+  hr: "[&_hr]:my-5",
+  // Tables: the body's size, 12 from their neighbours; the header tint and cell padding are the
+  // base recipe's (`bg-muted/50`, 12 × 8).
+  table: "[&_[data-slot=markdown-table]]:my-3",
+  blocks:
+    "[&_[data-slot=callout]]:my-3 [&_[data-slot=code-block]]:my-3 [&_details]:my-3",
+} as const;
+
+/** The element roles the reading overlay covers. */
+export type ProseReadingElement = keyof typeof proseReading;

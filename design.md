@@ -1037,6 +1037,15 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   body's ink, in `DocumentLayout`'s fluid column (about three quarters of the layout within each
   tier's bounds, MK 2026-10-21: 94 characters a line at 36rem up to about 160 at 64rem). Compact
   prose stays the app's own 14px scale everywhere else.
+- **Reading type scale** (TYP-20's reading overlay, operator 2026-11-10, "Agent chat, ground up") —
+  long-form text an agent or an AI wrote, read beside the work (a chat answer, an Ask AI answer, a
+  generated summary), wears `proseReading` (`typeScale="reading"` on `MarkdownView`): the
+  document's body (14/24, 16/26 on a coarse pointer or a narrow window) under the compact headings,
+  12px between paragraphs and lists, 4px between list items, quotes, tables and inline code at the
+  body's size. A person's message beside it (`MessageBubble`) reads at the same metrics. Sizes stay
+  stock (TYP-1): 15px would be a new size, an MK decision. A citation is a numbered pill on the
+  text's middle line, never a superscript; adjacent markers group into one pill ("1 +2"), and a
+  click opens its card, never the page.
 - **Surfaces** (BRD-1) — cards and floating surfaces draw a real 1px `border border-border`, never
   upstream's `ring-1 ring-foreground/10` box-shadow outline; the floating sidebar draws
   `border border-sidebar-border` (MK, 23-09-2026). Avatar's `ring-2 ring-background` is a stacking

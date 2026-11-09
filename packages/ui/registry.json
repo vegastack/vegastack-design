@@ -16086,7 +16086,10 @@
         "@vegastack/spinner",
         "@vegastack/status-line",
         "@vegastack/tool-call-chip",
-        "@vegastack/use-overflow"
+        "@vegastack/use-overflow",
+        "@vegastack/bubble",
+        "@vegastack/date-time",
+        "@vegastack/relative-time"
       ],
       "files": [
         {
