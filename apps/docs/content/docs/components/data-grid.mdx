@@ -114,7 +114,10 @@ should: summary values, server sort orders and group pages come in as props.
 | Fixed          | Any column has `width`, `frozen` or `resizable`, or the grid has `onColumnResize` or `virtualizeColumns` | `table-layout: fixed` from a `<colgroup>`; every cell one line (truncating); the grid scrolls sideways instead of revealing; frozen columns stick to the inline start. |
 
 The grid renders its own `<table>` inside ONE scroll viewport (`data-slot="grid-viewport"`), so the
-sticky header, the sticky summary row and the frozen columns all resolve against the same box.
+sticky header, the sticky summary row and the frozen columns all resolve against the same box. Once
+the grid scrolls sideways, the frozen columns' end casts a soft 4px shadow from the header to the
+summary row in light theme; dark theme casts none and brightens that end's `columnDividers` line
+instead.
 
 The fixed layout **fills its box**: the table is never narrower than the viewport, and a last,
 unsized filler track takes whatever the columns leave. The header band, the row borders and
@@ -395,7 +398,7 @@ inside a page that grows with its content keeps `fill`.
 
 `endSpacer` leaves a band (180px, or the pixels given) after the last row so the last rows scroll
 clear of anything floating at the bottom, `columnDividers` rules every column's end (the frozen
-columns too, drawn over their sticky background) and `editingTint` fills the cell being edited with
+columns too, drawn over their sticky background, and the frozen end through the summary row) and `editingTint` fills the cell being edited with
 the `accent` tint.
 
 ```tsx

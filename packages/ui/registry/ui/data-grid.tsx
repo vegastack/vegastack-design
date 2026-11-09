@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.53.3 sha256-A2vtpq8kip6pMArPN0pi6Y1hY+5R+KfzyfPvDi3NKQE=
+// @vegastack data-grid@0.53.3 sha256-c7RxN0XQQC7VaQK5AJTorps4O4SWRp9y4ZdllraelgA=
 
 "use client";
 
@@ -1252,8 +1252,8 @@ const ROW_BASE_CLASS = cn("border-b", ROW_HOVER_CLASS);
 const CELL_BASE_CLASS =
   "p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--color-info)_12%,var(--color-background))] data-fill-target:bg-[color-mix(in_oklab,var(--color-info)_6%,var(--color-background))] group-focus-within/grid:data-current-cell:inset-ring-2 group-focus-within/grid:data-current-cell:inset-ring-info";
 /**
- * The header's and the summary row's rules, drawn inside their own cells (an inset shadow on
- * Tailwind's inset-shadow layer, so it stacks with the frozen edge's shadow). A row border would not
+ * The header's and the summary row's rules, drawn inside their own cells (an inset shadow).
+ * A row border would not
  * do: in the collapsed table model a border belongs to the table, not the sticky cell, so it stayed
  * behind while the header or summary row stuck, and opaque sticky cells painted over it. The body's
  * first row has no top border and its last none at the bottom, so each line is drawn once.
@@ -1280,11 +1280,13 @@ const HEAD_BASE_CLASS =
  */
 const FROZEN_CELL_CLASS =
   "sticky z-10 bg-background group-hover/row:layer-hover group-data-[selected]/row:layer-selected [[data-peek-active][data-peek-active]>&]:layer-selected";
-/** The frozen edge's shadow, shown while the viewport is scrolled sideways (`data-scrolled-x`). */
-// A box shadow, not a pseudo-element: body cells clip their overflow (one line, truncated), and a
-// cell's own shadow is painted outside its box, where the clip does not reach.
-const FROZEN_EDGE_CLASS =
-  "in-data-scrolled-x:shadow-[6px_0_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)] rtl:in-data-scrolled-x:shadow-[-6px_0_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)]";
+/**
+ * The frozen edge's cells while the viewport is scrolled sideways (`data-scrolled-x`): in dark,
+ * where a shadow does not read, the edge's divider (`columnDividers`) is brighter than the rest.
+ * Light theme's shadow is one overlay on the frame (`data-grid-frozen-edge`), not a cell shadow:
+ * the grid's table collapses its borders, and browsers paint no outer box shadow on a cell then.
+ */
+const FROZEN_EDGE_CLASS = "dark:in-data-scrolled-x:after:bg-foreground/20";
 
 /** `columnDividers`: a column's end line. */
 const DIVIDER_CLASS = "border-e border-border";
@@ -2317,6 +2319,8 @@ function GridFooterCellImpl<T>({
       "bg-background",
       alignClass(p.column.align),
       p.offset != null && "sticky z-30",
+      p.edge && FROZEN_EDGE_CLASS,
+      p.dividers && p.edge && FROZEN_DIVIDER_CLASS,
       "focus-visible:-outline-offset-2",
     ),
   };
@@ -5024,6 +5028,8 @@ export function DataGrid<T>({
   // viewport or its content resizes, the offset once a frame from the column virtualiser — the
   // scroll handler itself reads no layout, as above.
   const [frame, setFrame] = React.useState<HTMLDivElement | null>(null);
+  const frozenEdgeRef = React.useRef<HTMLSpanElement>(null);
+  const hasFrozen = frozenPlaced.length > 0;
   React.useEffect(() => {
     if (!viewport || !frame) return;
     let extent = 0;
@@ -5042,6 +5048,11 @@ export function DataGrid<T>({
     };
     const measure = () => {
       extent = viewport.scrollWidth - viewport.clientWidth;
+      // The frozen edge's strip stops at the table's end: a short table's summary row sits above
+      // the frame's bottom, and the strip must not run on below it.
+      const table = viewport.querySelector<HTMLElement>(":scope > table");
+      if (table && frozenEdgeRef.current)
+        frozenEdgeRef.current.style.maxHeight = `${table.offsetHeight}px`;
       update();
     };
     const onScroll = () => {
@@ -5061,7 +5072,7 @@ export function DataGrid<T>({
       viewport.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
     };
-  }, [viewport, frame, columnVirtualizer]);
+  }, [viewport, frame, columnVirtualizer, hasFrozen]);
 
   // ---- render --------------------------------------------------------------
   /** A closed function picker hands focus back to its cell, which roves. */
@@ -5423,7 +5434,7 @@ export function DataGrid<T>({
     className: cn(
       // `overscroll-x-contain`: a sideways pan that reaches the end stops there instead of moving
       // the page (vertical pans still reach it).
-      "relative overflow-auto overscroll-x-contain",
+      "peer/viewport relative overflow-auto overscroll-x-contain",
       maxHeight != null && "max-h-[calc(var(--data-grid-max-height))]",
       // Filling: as tall as the room, however few the rows.
       fill && maxHeight != null && "min-h-[calc(var(--data-grid-max-height))]",
@@ -5623,6 +5634,17 @@ export function DataGrid<T>({
             ) : (
               <div {...viewportProps}>{viewportInner}</div>
             )}
+            {frozenPlaced.length > 0 ? (
+              // The frozen edge's shadow (light theme only), header to summary row, once the
+              // viewport scrolls sideways: one strip over the frame at the frozen columns' end.
+              <span
+                ref={frozenEdgeRef}
+                aria-hidden
+                data-slot="data-grid-frozen-edge"
+                className="pointer-events-none absolute inset-y-0 z-30 w-1 bg-linear-to-r from-foreground/10 to-transparent opacity-0 peer-data-scrolled-x/viewport:opacity-100 dark:hidden rtl:bg-linear-to-l"
+                style={{ insetInlineStart: frozenWidth }}
+              />
+            ) : null}
             {/* More columns past the end: a quiet edge shadow, like the frozen edge's. */}
             <span
               aria-hidden
