@@ -8435,6 +8435,7 @@
                 "data-grid-filler",
                 "data-grid-filler-col",
                 "data-grid-footer",
+                "data-grid-frozen-edge",
                 "data-grid-head-trailing",
                 "data-grid-hidden-hint",
                 "data-grid-more",

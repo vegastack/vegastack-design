@@ -1563,9 +1563,18 @@ test("fixed layout: colgroup widths, frozen columns sticky at their offsets, pri
     expect(first.style.insetInlineStart).toBe("40px");
     expect(second.style.insetInlineStart).toBe("280px");
     expect(first.className).toContain("sticky");
-    // Only the last frozen column carries the scroll-edge shadow.
-    expect(second.className).toContain("in-data-scrolled-x:shadow-");
-    expect(first.className).not.toContain("in-data-scrolled-x:shadow-");
+    // Only the last frozen column carries the scrolled edge's cue (dark theme's brighter divider).
+    expect(second.className).toContain("in-data-scrolled-x:");
+    expect(first.className).not.toContain("in-data-scrolled-x:");
+    // The light theme's edge shadow is one strip on the frame at the frozen columns' end (a cell's
+    // own outer shadow is never painted in a table that collapses its borders).
+    const edge = screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-grid-frozen-edge"]',
+    )!;
+    expect(edge.style.insetInlineStart).toBe("380px");
+    expect(edge.parentElement?.getAttribute("data-slot")).toBe(
+      "data-grid-viewport-frame",
+    );
     // The whole grid is one scroll box: the table is not wrapped in Table's own container.
     expect(table.closest('[data-slot="table-container"]')).toBeNull();
     expect(table.parentElement?.getAttribute("data-slot")).toBe(
@@ -1607,6 +1616,30 @@ test("the frozen edge's scroll cue is one attribute on the viewport, set when th
     await expect
       .poll(() => viewport.hasAttribute("data-scrolled-x"))
       .toBe(false);
+  } finally {
+    cleanup();
+  }
+});
+
+test("columnDividers: the frozen edge's divider runs through the summary row too", async () => {
+  const cleanup = sizeViewport(300, 300);
+  try {
+    const screen = await render(
+      <DataGrid
+        aria-label="Requests"
+        columns={wideColumns(6)}
+        data={wideRows(3, 6)}
+        getRowId={(row) => row.id}
+        columnPicker={false}
+        columnDividers
+        summaryRow={{ label: "3 rows", value: {}, onValueChange: () => {} }}
+      />,
+    );
+    const footer = screen.container.querySelector<HTMLElement>(
+      'tfoot [data-grid-key="c0"]',
+    )!;
+    expect(footer.className).toContain("after:bg-border");
+    expect(footer.className).toContain("in-data-scrolled-x:");
   } finally {
     cleanup();
   }
