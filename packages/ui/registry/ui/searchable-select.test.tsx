@@ -1082,3 +1082,29 @@ test("selectAll follows isItemEqualToValue, as the rows do", async () => {
   await screen.getByRole("option", { name: "All 3 projects" }).click();
   expect(onChange).toHaveBeenLastCalledWith([]);
 });
+
+test("selectAll: the checked mark keeps primary-foreground on the fill while the row is highlighted, in both themes", async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => {
+    sheet.remove();
+    document.documentElement.classList.remove("dark");
+  });
+  const screen = await render(<SelectAllPicker initial={PROJECTS} />);
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  const row = selectAllRow()!;
+  for (const dark of [false, true]) {
+    document.documentElement.classList.toggle("dark", dark);
+    await userEvent.hover(row);
+    await expect.element(row).toHaveAttribute("data-highlighted");
+    const box = checkboxOf(row);
+    const probe = document.createElement("span");
+    probe.className = "bg-primary text-primary-foreground";
+    document.body.append(probe);
+    const want = getComputedStyle(probe);
+    expect(getComputedStyle(box).backgroundColor).toBe(want.backgroundColor);
+    expect(getComputedStyle(box.querySelector("svg")!).color).toBe(want.color);
+    probe.remove();
+  }
+});

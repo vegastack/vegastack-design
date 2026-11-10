@@ -18513,7 +18513,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.60.3",
-        "integrity": "sha256-YtiPEOTTjN5ZEHbTtC9Nc8HXYo6RM8dms/yNIyspnWg="
+        "integrity": "sha256-6iAR2zsjtlplPihJKz3V1IvVO0z/ZfwR+gCn0D9Yzfs="
       }
     },
     {

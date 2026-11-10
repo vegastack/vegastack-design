@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.60.3 sha256-YtiPEOTTjN5ZEHbTtC9Nc8HXYo6RM8dms/yNIyspnWg=
+// @vegastack searchable-select@0.60.3 sha256-6iAR2zsjtlplPihJKz3V1IvVO0z/ZfwR+gCn0D9Yzfs=
 
 "use client";
 
@@ -824,13 +824,14 @@ export function SearchableSelect<
     >
       <span
         aria-hidden
+        // `data-icon-tone` on the box (and its mark) stands it down from the row's svg ink and its
+        // highlight ink, so the checked mark keeps `primary-foreground` on the fill.
+        data-icon-tone=""
         data-slot={`${slot}-select-all-box`}
         data-checked={allSelected ? "" : undefined}
         data-indeterminate={selectedCount > 0 && !allSelected ? "" : undefined}
         className="pointer-events-none flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors dark:bg-input/30 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary"
       >
-        {/* `data-icon-tone` stands the mark down from the row's svg ink (muted, and the
-            highlight's accent), so it keeps the box's own ink. */}
         {allSelected ? (
           <CheckIcon data-icon-tone="" className="size-3.5 text-current" />
         ) : selectedCount > 0 ? (
