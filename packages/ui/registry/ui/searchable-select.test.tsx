@@ -1050,13 +1050,16 @@ test("selectAll without a search field: Space toggles the hovered row, once", as
 
 test("selectAll follows isItemEqualToValue, as the rows do", async () => {
   const onChange = vi.fn();
-  // Fresh objects whose keys differ from the list's, equal only by name.
-  const stale = { id: "old-atlas", name: "Atlas" };
+  // A selected value whose key differs from the list's; the order-sensitive comparator takes
+  // (item, value), as Base UI calls it for each row, and resolves the value's canonical id.
+  const stale = { id: "old-atlas", name: "Atlas", canonicalId: "atlas" };
   const screen = await render(
     <SelectAllPicker
       initial={[stale]}
       onChange={onChange}
-      isItemEqualToValue={(a: Project, b: Project) => a.name === b.name}
+      isItemEqualToValue={(item: Project, value: Project) =>
+        item.id === ((value as typeof stale).canonicalId ?? value.id)
+      }
     />,
   );
   await screen.getByRole("combobox", { name: "Projects" }).click();

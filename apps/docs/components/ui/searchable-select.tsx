@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.60.0 sha256-pTg+tUOn4W3ARhcl/0MwaMWyacOucrqLv/qTUvhasGc=
+// @vegastack searchable-select@0.60.0 sha256-pYsduzibBaSmF+c/j+z9AyokLUSpdrnfMQzX11jGg78=
 
 "use client";
 
@@ -657,14 +657,14 @@ export function SearchableSelect<
         : [],
     [isMultiple, selectAll, allItems, itemToDisabledReason],
   );
-  // The same equality the option rows use (`isItemEqualToValue`, else `itemToKey`), so the bulk
-  // state never disagrees with the rows' own ticks.
+  // The same equality the option rows use (`isItemEqualToValue(item, value)`, in Base UI's argument
+  // order, else `itemToKey`), so the bulk state never disagrees with the rows' own ticks.
   const sameItem = (a: Item, b: Item) =>
     isItemEqualToValue
       ? isItemEqualToValue(a, b)
       : a === b || itemToKey(a) === itemToKey(b);
   const isSelected = (item: Item) =>
-    selectedList.some((value) => sameItem(value, item));
+    selectedList.some((value) => sameItem(item, value));
   const selectedCount = selectable.filter(isSelected).length;
   const allSelected =
     selectable.length > 0 && selectedCount === selectable.length;
@@ -690,7 +690,7 @@ export function SearchableSelect<
     // Selected options outside the list (or disabled ones) stay as they are; a select-all keeps
     // the current order and appends the rest.
     const kept = selectedList.filter(
-      (value) => !selectable.some((item) => sameItem(value, item)),
+      (value) => !selectable.some((item) => sameItem(item, value)),
     );
     const added = selectable.filter((item) => !isSelected(item));
     onValueChange?.(
