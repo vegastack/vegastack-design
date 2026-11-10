@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 795,
-    "components": 204,
+    "totalRegistryItems": 796,
+    "components": 205,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 44,
     "Navigation/layout": 27,
     "Overlays": 24,
-    "Data display": 47,
+    "Data display": 48,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 17,
@@ -195,6 +195,7 @@
       "view-tabs",
       "icon-glyph",
       "level-meter",
+      "rating-bars",
       "mermaid-block",
       "qr-code",
       "brand-logo",
@@ -38621,6 +38622,125 @@
             {
               "name": "data-slot",
               "values": ["brand-logo"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "rating-bars",
+      "registryType": "registry:ui",
+      "title": "Rating Bars",
+      "summary": "A short qualitative rating: a label, max segments of which value are lit (primary on the muted track) and a word after them; one role=meter named by label with aria-valuetext set to the word. Server-safe, no motion.",
+      "status": "stable",
+      "since": "0.61.2",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/rating-bars.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RatingBars",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/rating-bars.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the root meter div."
+          }
+        },
+        {
+          "name": "RatingBarsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/rating-bars.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look: lit segments on the primary fill, unlit on the muted track."
+      },
+      "sizes": {
+        "status": "covered",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default"]
+          }
+        ],
+        "rationale": "default draws h-2 w-3 segments, sm h-1.5 w-2.5."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["lit", "unlit", "null", "clamped"],
+          "evidence": "packages/ui/registry/ui/rating-bars.tsx + packages/ui/registry/ui/rating-bars.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["meter", "valuetext", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/rating-bars.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "sm"],
+          "evidence": "packages/ui/registry/ui/rating-bars.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A fixed 4rem label column, fixed segments and a flexible word column that truncates."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/rating-bars",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/rating-bars.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "rating-bars",
+      "dataAttributes": {
+        "RatingBars": {
+          "attributes": [
+            {
+              "name": "data-lit",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "rating-bars",
+                "rating-bars-label",
+                "rating-bars-segment",
+                "rating-bars-segments",
+                "rating-bars-value"
+              ]
             }
           ],
           "cssVariables": []
