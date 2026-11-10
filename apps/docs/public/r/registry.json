@@ -16904,8 +16904,8 @@
       "meta": {
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
-        "version": "0.60.0",
-        "integrity": "sha256-XFwilpJrEHppgZllkKo2uVGsPv8qXFqLTeq1XysMs6k="
+        "version": "0.60.1",
+        "integrity": "sha256-VAZerC6mgQNLJtk7ei5L1NIVfn1JJSiqsJsO6l3Vc5M="
       }
     },
     {

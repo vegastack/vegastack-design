@@ -9,6 +9,22 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.60.1] — November 10, 2026
+
+<!-- assembled from 1 changeset: 5d84f3c6c391 -->
+
+### 🧩 New components
+
+- Citation pills hold their place.
+
+  - `MarkdownView` `streaming`: a whole `[[n]]` marker in the block still arriving renders as its pill straight away (a list answer no longer shows raw `[[1]]` until it ends); a half-written marker still waits.
+  - `MarkdownView` citations: the word before a pill and the pill sit in one `citation-run` that never wraps (`data-slot="markdown-citation-run"`), so a pill never starts a line alone; a no-break space couldn't hold a button.
+    [`470df2a`](https://github.com/VegaStack/vegastack-design/commit/470df2a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.60.0 → 0.60.1.
+
 ## [0.60.0] — November 9, 2026
 
 <!-- assembled from 1 changeset: 863ecf3ed84e -->

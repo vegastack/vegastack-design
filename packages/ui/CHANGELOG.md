@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.60.1
+
+### Patch Changes
+
+- [#941](https://github.com/vegastack/vegastack-design/pull/941) [`470df2a`](https://github.com/vegastack/vegastack-design/commit/470df2a300a70471509b34ce6da1a0edd14a7d2f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Citation pills hold their place.
+
+  - `MarkdownView` `streaming`: a whole `[[n]]` marker in the block still arriving renders as its pill straight away (a list answer no longer shows raw `[[1]]` until it ends); a half-written marker still waits.
+  - `MarkdownView` citations: the word before a pill and the pill sit in one `citation-run` that never wraps (`data-slot="markdown-citation-run"`), so a pill never starts a line alone; a no-break space couldn't hold a button.
+
 ## 0.60.0
 
 ### Minor Changes
