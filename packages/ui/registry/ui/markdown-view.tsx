@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.60.0 sha256-RTiLz0TtDWXrp48p55BDZ9+Hjme9gEOmnimMC2Tm6QA=
+// @vegastack markdown-view@0.60.0 sha256-XFwilpJrEHppgZllkKo2uVGsPv8qXFqLTeq1XysMs6k=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -924,9 +924,24 @@ const CITATION_MARKER = /\[\[([1-9]\d{0,2})\]\]/g;
 /** Elements whose text never carries a citation: code, link text, chips. */
 const CITATION_OPAQUE = new Set(["code", "pre", "a", "mention"]);
 
+/** The word a pill follows, with the space before the pill: kept on one line with it. */
+const LEAD_WORD = /\S{1,40}[ \t\u00A0]*$/u;
+
+/** The citation an item is, or ends with (a `citation-run`: the word before it and the pill). */
+const citationIn = (item: DocNode | undefined): El | undefined => {
+  if (typeof item !== "object" || !item) return undefined;
+  if (item.tag === "citation") return item;
+  const last = item.tag === "citation-run" ? item.children.at(-1) : undefined;
+  return typeof last === "object" && last?.tag === "citation"
+    ? last
+    : undefined;
+};
+
 /**
  * Split every `[[n]]` in the tree's running text into a `citation` node. The node keeps the literal
- * marker as its text, so `textOf` and heading ids read exactly what was written.
+ * marker as its text, so `textOf` and heading ids read exactly what was written. The word just
+ * before a pill joins it in a `citation-run` that never wraps: a pill is a button, and a line may
+ * break before a button whatever space precedes it, so a no-break space alone can't hold it.
  */
 function withCitations(nodes: DocNode[]): DocNode[] {
   const out: DocNode[] = [];
@@ -955,7 +970,7 @@ function withCitations(nodes: DocNode[]): DocNode[] {
       const adjacent =
         match.index === cursor &&
         typeof previous !== "string" &&
-        previous?.tag === "citation";
+        citationIn(previous) !== undefined;
       // Markers in a run (`[[1]][[2]]`, `[[1]] [[2]]`) are one group: one pill, "1 +1", whose card
       // lists every source behind it — a row of pills would crowd the sentence.
       const gap = node.slice(cursor, match.index);
@@ -964,10 +979,9 @@ function withCitations(nodes: DocNode[]): DocNode[] {
         gap !== "" && /^[ \t]*$/.test(gap) && cursor > 0
           ? out[out.length - 2]
           : undefined;
-      const group = [before, spaced].find(
-        (item): item is El =>
-          typeof item === "object" && item?.tag === "citation",
-      );
+      const group = [before, spaced]
+        .map(citationIn)
+        .find((item): item is El => item !== undefined);
       if (group) {
         if (spaced) out.pop();
         group.attrs.more = [group.attrs.more, match[1]]
@@ -977,13 +991,22 @@ function withCitations(nodes: DocNode[]): DocNode[] {
         cursor = match.index + match[0].length;
         continue;
       }
-      out.push(
-        el(
-          "citation",
-          { n: match[1]!, ...(adjacent ? { adjacent: "" } : {}) },
-          [match[0]],
-        ),
+      const citation = el(
+        "citation",
+        { n: match[1]!, ...(adjacent ? { adjacent: "" } : {}) },
+        [match[0]],
       );
+      const text = out[out.length - 1];
+      const lead =
+        typeof text === "string" && match.index > cursor
+          ? LEAD_WORD.exec(text)
+          : null;
+      if (lead && typeof text === "string") {
+        const rest = text.slice(0, lead.index);
+        if (rest) out[out.length - 1] = rest;
+        else out.pop();
+        out.push(el("citation-run", {}, [lead[0], citation]));
+      } else out.push(citation);
       cursor = match.index + match[0].length;
     }
     if (cursor === 0) out.push(node);
@@ -1048,6 +1071,7 @@ const INLINE_TAGS = new Set([
   "a",
   "mention",
   "citation",
+  "citation-run",
   "br",
   "img",
   "sup",
@@ -2720,6 +2744,16 @@ function renderNode(
     }
     case "code":
       return <code key={key}>{children()}</code>;
+    case "citation-run":
+      return (
+        <span
+          key={key}
+          data-slot="markdown-citation-run"
+          className="whitespace-nowrap"
+        >
+          {children()}
+        </span>
+      );
     case "mark":
       // A highlight (`==text==`, TextEdit's `<mark data-color>`): its colour from the palette.
       return (
@@ -3031,7 +3065,7 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * The text is still arriving (an answer streaming in). The last block is completed before it
    * renders — an open code fence, code span, `**`, `*` or `~~` is closed, a link still being written
-   * shows its words, a half-written `[[n]]` waits — and citations render in settled blocks only.
+   * shows its words, and a half-written `[[n]]` waits until it is whole.
    * Turn it off when the stream ends. Markdown only.
    * @default false
    */
@@ -3354,23 +3388,16 @@ export function MarkdownView({
   let tree: DocNode[];
   if (format === "html") tree = fromHtml(source);
   else if (streaming) {
-    // The settled blocks render as they will stay; only the last block is completed, and its
-    // citations wait until it is settled, so a half-written marker never becomes a pill.
+    // The settled blocks render as they will stay; only the last block is completed. A citation
+    // marker becomes its pill as soon as it is whole: a half-written one (`[[1`) is held back by
+    // `completeStreamingMarkdown`, so a pill never changes number under the reader.
     const { settled, tail } = splitStreamingTail(source);
     // Parsed once, whole, so reference definitions and numbering span the blocks.
     tree = fromMarkdown(
       settled + completeStreamingMarkdown(tail),
       liveBlockKinds,
     );
-    if (citation) {
-      const settledBlocks = settled.trim()
-        ? fromMarkdown(settled, liveBlockKinds).length
-        : 0;
-      tree = [
-        ...withCitations(tree.slice(0, settledBlocks)),
-        ...tree.slice(settledBlocks),
-      ];
-    }
+    if (citation) tree = withCitations(tree);
   } else {
     const parsed = fromMarkdown(source, liveBlockKinds);
     tree = citation ? withCitations(parsed) : parsed;

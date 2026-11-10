@@ -100,14 +100,16 @@ test("streaming: the last block's open syntax is closed, half-written links and 
     expect(completeStreamingMarkdown(input), input).toBe(output);
 });
 
-test("streaming: settled blocks keep their citations, the half-written last block shows none", async () => {
+test("streaming: a whole marker is a pill even in the last block, a half-written one waits", async () => {
   const screen = await render(
     <MarkdownView
       streaming
       typeScale="reading"
       citation={(n) => ({ label: `Source ${n}` })}
     >
-      {"LM-80 runs 6,000 hours [[1]].\n\nTM-21 projects **six times [[2]] the"}
+      {
+        "LM-80 runs 6,000 hours [[1]].\n\nTM-21 projects **six times [[2]] the [[3"
+      }
     </MarkdownView>,
   );
   const root = screen.container.querySelector<HTMLElement>(
@@ -115,10 +117,29 @@ test("streaming: settled blocks keep their citations, the half-written last bloc
   )!;
   expect(root.dataset.streaming).toBe("");
   const markers = root.querySelectorAll("[data-slot=markdown-citation]");
-  expect(markers).toHaveLength(1);
+  // A list or paragraph still streaming shows its whole markers as pills, never as `[[2]]`.
+  expect([...markers].map((m) => m.textContent)).toEqual(["1", "2"]);
+  expect(root.textContent).not.toContain("[[");
   // The open `**` is closed: no raw asterisks on screen.
   expect(root.querySelector("strong")?.textContent).toContain("six times");
   expect(root.textContent).not.toContain("**");
+});
+
+test("a pill stays on one line with the word before it", async () => {
+  const screen = await render(
+    <MarkdownView citation={(n) => ({ label: `Source ${n}` })}>
+      {"It counts the temperature data.\u00A0[[1]] Then [[2]][[3]] more."}
+    </MarkdownView>,
+  );
+  const runs = screen.container.querySelectorAll<HTMLElement>(
+    "[data-slot=markdown-citation-run]",
+  );
+  expect([...runs].map((r) => r.textContent)).toEqual([
+    "data.\u00A01",
+    "Then 2+1",
+  ]);
+  for (const run of runs)
+    expect(getComputedStyle(run).whiteSpace).toBe("nowrap");
 });
 
 test("adjacent markers group into one pill, '1 +2', whose card lists every source", async () => {
