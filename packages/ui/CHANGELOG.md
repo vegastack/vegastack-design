@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.60.2
+
+### Patch Changes
+
+- [#942](https://github.com/vegastack/vegastack-design/pull/942) [`d85401f`](https://github.com/vegastack/vegastack-design/commit/d85401f6a3d395bb6ef9c0ad94576171743b176f) Thanks [@dev-mahesh-peerxp](https://github.com/dev-mahesh-peerxp)! - 🐛 `FieldCellDisplay variant="cell"`: a person cell no longer shrinks its people as the column narrows. Every person keeps their avatar and whole name, one after another, and the line clips at the cell's edge, like the file cell.
+
 ## 0.60.1
 
 ### Patch Changes

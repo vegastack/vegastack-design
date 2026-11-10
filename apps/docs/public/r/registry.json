@@ -3108,8 +3108,8 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.60.0",
-        "integrity": "sha256-Qk70qLTPcQYdi9m95gkWnA9/HNwz/HPudW6j+ZG9agQ="
+        "version": "0.60.2",
+        "integrity": "sha256-nhUGh+IZW49Ve0cBPBxZjkVCN2lN69Zw64gsKOWcc80="
       }
     },
     {

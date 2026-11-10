@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.60.2] — November 10, 2026
+
+<!-- assembled from 1 changeset: 72241ae692b6 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.60.1 → 0.60.2.
+
+### 🐛 Fixed
+
+- `FieldCellDisplay variant="cell"`: a person cell no longer shrinks its people as the column narrows. Every person keeps their avatar and whole name, one after another, and the line clips at the cell's edge, like the file cell.
+  [`d85401f`](https://github.com/VegaStack/vegastack-design/commit/d85401f)
+
 ## [0.60.1] — November 10, 2026
 
 <!-- assembled from 1 changeset: 5d84f3c6c391 -->
