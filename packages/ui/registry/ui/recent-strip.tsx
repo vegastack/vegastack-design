@@ -1,8 +1,9 @@
-// @vegastack recent-strip@0.60.0 sha256-csjNs3gs3NwLVLM7L+hZVC7qTps4QGiX19S9PPvZheQ=
+// @vegastack recent-strip@0.60.0 sha256-5QCD/t8KF9T16sxC3OBu4d1QL4Ht2TgN7Bjr0z21ijg=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { cn } from "@vegastack/design";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
@@ -325,7 +326,7 @@ function RecentStripList({
               className="flex shrink-0 snap-start"
             >
               {React.cloneElement(
-                linkRender ?? <a />,
+                linkRender ?? <AppLink />,
                 mergeProps((linkRender?.props ?? {}) as object, {
                   href: item.href,
                   // A clipped title stays readable on hover; its name is always whole.

@@ -104,6 +104,8 @@ describe("affected component closure", () => {
       "inline-chip",
       "issue-detail-01",
       "library-01",
+      // link-provider's preview shows an agent's answer through a MarkdownView.
+      "link-provider",
       "markdown-view",
       // mermaid-block's previews draw diagrams in a MarkdownView and a TextEdit (B.2).
       "mermaid-block",

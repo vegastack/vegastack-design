@@ -1,8 +1,9 @@
-// @vegastack inline-chip@0.60.0 sha256-j/6OMJ2U3HDdiMrMGXW/tklIPwVwPbBU8/O0bxJWyaQ=
+// @vegastack inline-chip@0.60.0 sha256-6iZIEb2fG6tvkf/4gyWkgKZmxMRdBmHJMgub6cm7Zd8=
 
 "use client";
 
 import * as React from "react";
+import { inAppPath, useLinkProvider } from "@/components/ui/link-provider";
 import { Bot, CircleCheck, Link2, UserRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { FileTypeIcon } from "@/lib/file-kind";
@@ -485,6 +486,7 @@ export function InlineChip({
     ...(contentType ? { contentType } : {}),
   };
   const opens = Boolean(href || (onOpen && kind !== "user"));
+  const links = useLinkProvider();
 
   const open = (event: React.MouseEvent | React.KeyboardEvent) => {
     const modifier =
@@ -503,7 +505,21 @@ export function InlineChip({
       return;
     }
     if (onOpen && kind !== "user") {
-      if (onOpen(target, event) !== false) event.preventDefault();
+      if (onOpen(target, event) !== false) {
+        event.preventDefault();
+        return;
+      }
+    }
+    // No surface hand-off: an in-app link opens in place through the app's router.
+    const path = href ? inAppPath(href, links.origin) : null;
+    if (
+      path !== null &&
+      links.navigate &&
+      "button" in event &&
+      event.button === 0
+    ) {
+      event.preventDefault();
+      links.navigate(path);
     }
   };
 

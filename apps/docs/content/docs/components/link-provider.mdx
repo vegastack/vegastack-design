@@ -1,0 +1,158 @@
+---
+title: Link Provider
+description: One rule for every link — an in-app link opens in place through the router, a modified click stays the browser's, other sites open a new tab.
+audience: public
+registry: link-provider
+status: stable
+since: 0.61.0
+a11y: native links
+preview: linkProviderDemo
+---
+
+## Install
+
+<InstallSteps name="link-provider" />
+
+## Usage
+
+Mount it **once**, near the app root, in a client component that owns the router. Pass the router's
+`push` and the app's own origin — the same value on the server and the client, so server-rendered
+links hydrate unchanged:
+
+```tsx
+"use client";
+import { useRouter } from "next/navigation";
+import { LinkProvider } from "@/components/ui/link-provider";
+
+export function AppLinks({
+  origin,
+  children,
+}: {
+  origin: string;
+  children: React.ReactNode;
+}) {
+  const router = useRouter();
+  return (
+    <LinkProvider navigate={router.push} origin={origin}>
+      {children}
+    </LinkProvider>
+  );
+}
+```
+
+Every VegaStack link below it then follows one rule:
+
+| The link                                                    | A plain click                                             | ⌘/Ctrl/Shift/Alt or middle click    |
+| ----------------------------------------------------------- | --------------------------------------------------------- | ----------------------------------- |
+| An in-app path (`/tasks/42`), or a full address on `origin` | `navigate(path)` — only the page changes, in the same tab | The browser's (a new tab or window) |
+| Another web origin                                          | A new tab, `rel="noopener noreferrer"`                    | The browser's                       |
+| `mailto:`, a bare `#anchor`                                 | The browser's                                             | The browser's                       |
+
+It is read by default by `MarkdownView` (every rendered rich text: chat answers, citations,
+comments, summaries), `InlineChip` without an `onOpen`, `RecordChip`'s ↗, `DataList` rows, and
+`TextEdit` (a read-only body's links and the link card's Open), and it is the default template of
+every `linkRender`. A component's own prop (`linkRender`, `onNavigate`, `linkOrigin`, an
+`InlineChipProvider`'s `onOpen`) still wins. `RecordList`'s ↗ keeps its new tab: it sits in a dialog
+the reader has not answered.
+
+## Anatomy
+
+<Anatomy name="link-provider" />
+
+- `LinkProvider` — the context: the host router's `navigate` and the app's `origin`.
+- `AppLink` — an `<a>` that follows the rule; the default `linkRender` template across the system.
+
+## Examples
+
+### In place, in a new tab
+
+A plain click on the first two links and the answer's quote changes only what the preview shows;
+another site opens a new tab, and ⌘/Ctrl-click opens any of them in one.
+
+<ComponentPreview
+  name="linkProviderDemo"
+  file="components/preview/link-provider.tsx"
+/>
+
+### A link of your own
+
+`AppLink` is an `<a>` that follows the rule. A full address on the app's origin renders as its path.
+
+```tsx
+<AppLink href="/tasks/42">TSK-42</AppLink>
+<AppLink href="https://example.org/spec">The spec</AppLink> {/* a new tab */}
+```
+
+### An Open button
+
+`useOpenLink` opens an address from a button or a key press: in place when it is in-app, in a new tab
+when it is external or `newTab` is set.
+
+```tsx
+const openLink = useOpenLink();
+
+<Button
+  onClick={(event) =>
+    openLink(href, { newTab: event.metaKey || event.ctrlKey })
+  }
+>
+  Open
+</Button>;
+```
+
+## API Reference
+
+### LinkProvider
+
+<TypeTable
+  type={{
+    navigate: {
+      type: "(href: string) => void",
+      description:
+        "Opens an in-app path without a reload: the router's push. Without it, an in-app link is a plain browser navigation.",
+    },
+    origin: {
+      type: "string",
+      description:
+        "The app's own origin: a full address on it is an in-app link. The same value on the server and the client.",
+    },
+  }}
+/>
+
+### AppLink
+
+An `<a>` (every anchor prop). `href` is optional, so `<AppLink />` works as a `linkRender` template.
+
+<TypeTable
+  type={{
+    onNavigate: {
+      type: "(href: string, event: React.MouseEvent<HTMLAnchorElement>) => void",
+      description:
+        "Opens an in-app link on a plain click instead of the provider's navigate.",
+    },
+  }}
+/>
+
+### Helpers
+
+- `useLinkProvider()` — the nearest provider's `{ navigate, origin }`, or `{}`.
+- `useOpenLink()` — `(href, { newTab }) => void`, for buttons and keys.
+- `inAppPath(href, origin)` — the in-app path of `href`, or `null`.
+- `linkAction(href, links)` — `navigate`, `browser` or `external`.
+- `isPlainClick(event)` — a primary click with no modifier.
+
+## Accessibility
+
+`AppLink` is a native `<a>` with a real `href`, so it is announced as a link, reached with Tab, and
+opened with Enter; a new tab, a copied address and a middle click all work, because only a plain
+primary click is intercepted. An external link gets `rel="noopener noreferrer"`; `MarkdownView`
+also says "(opens in new tab)" to screen readers.
+
+<StatesTested name="link-provider" />
+
+## Do / Don't
+
+<DoDont
+  do="Mount LinkProvider once at the app root with the router's push and the app's own origin, and let every VegaStack link read it."
+  dont="Wire onNavigate, linkOrigin or a router linkRender per call site, or open an in-app record in a new tab — a modified click already does that."
+/>

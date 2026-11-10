@@ -1,8 +1,14 @@
-// @vegastack text-edit@0.60.0 sha256-M+anRxrTPzHF7PlOL6035C/leIS6KMwKcMR3gtCCLRo=
+// @vegastack text-edit@0.60.0 sha256-0gRr35I0ob+QKImHqWr7UWL6HAqAWl1MupebG/WohVg=
 
 "use client";
 
 import * as React from "react";
+import {
+  inAppPath,
+  isPlainClick,
+  useLinkProvider,
+  useOpenLink,
+} from "@/components/ui/link-provider";
 import { createPortal } from "react-dom";
 import {
   useEditor,
@@ -6661,6 +6667,7 @@ function LinkPanel({
   /** Open a file link in the viewer; false when `href` is not a file link. */
   onOpenFile?: (href: string) => boolean;
 }) {
+  const openLink = useOpenLink();
   const current = (editor.getAttributes("link").href as string) ?? "";
   const [href, setHref] = React.useState(current);
   const [invalid, setInvalid] = React.useState(false);
@@ -6722,10 +6729,11 @@ function LinkPanel({
               size="icon-sm"
               variant="ghost"
               aria-label="Open link"
-              onClick={() => {
-                // A file link opens in the viewer; any other link in a new tab.
+              onClick={(event) => {
+                // A file link opens in the viewer; an in-app link in place (a new tab with a
+                // modifier held); any other link in a new tab.
                 if (onOpenFile?.(current)) return;
-                window.open(current, "_blank", "noopener,noreferrer");
+                openLink(current, { newTab: event.metaKey || event.ctrlKey });
               }}
             >
               <ExternalLink />
@@ -6912,6 +6920,7 @@ function LinkCard({
   onOpenFile?: (href: string) => boolean;
   onLeave: (next: EventTarget | null) => void;
 }) {
+  const openLink = useOpenLink();
   let shown = href;
   let host = "";
   try {
@@ -6969,9 +6978,9 @@ function LinkCard({
             variant="ghost"
             size="sm"
             onMouseDown={(event) => event.preventDefault()}
-            onClick={() => {
+            onClick={(event) => {
               if (onOpenFile?.(href)) return;
-              window.open(href, "_blank", "noopener,noreferrer");
+              openLink(href, { newTab: event.metaKey || event.ctrlKey });
             }}
             title={href}
             aria-label={`Open ${href}`}
@@ -11982,6 +11991,7 @@ export function TextEditEditor({
 
   const openImageRef = React.useRef(onOpenImage);
   openImageRef.current = onOpenImage;
+  const links = useLinkProvider();
   const openFileRef = React.useRef(onOpenFile);
   openFileRef.current = onOpenFile;
   const openFileLink = React.useCallback((href: string) => {
@@ -12790,6 +12800,20 @@ export function TextEditEditor({
   // commit — "flushSync was called from inside a lifecycle method" on every callout or code block.
   const liveProps: EditorProps = {
     handleDOMEvents: {
+      // Reading (not editing): a plain click on an in-app link opens it in place through the app's
+      // router, not in the new tab the link's `target` asks for. A chip opens itself.
+      click: (view, event) => {
+        if (view.editable || !isPlainClick(event)) return false;
+        const anchor = (event.target as Element).closest?.<HTMLAnchorElement>(
+          "a[href]",
+        );
+        if (!anchor || anchor.closest("[data-slot=inline-chip]")) return false;
+        const path = inAppPath(anchor.getAttribute("href") ?? "", links.origin);
+        if (path === null || !links.navigate) return false;
+        event.preventDefault();
+        links.navigate(path);
+        return true;
+      },
       // A double-click on a file chip opens the file in the viewer.
       dblclick: (_view, event) => {
         const chip = (event.target as Element).closest?.<HTMLAnchorElement>(
@@ -13046,6 +13070,9 @@ export function TextEditEditor({
   livePropsRef.current = liveProps;
   const [stableHandlers] = React.useState<EditorProps>(() => ({
     handleDOMEvents: {
+      click: (view, event) =>
+        livePropsRef.current.handleDOMEvents?.click?.call(view, view, event) ??
+        false,
       dblclick: (view, event) =>
         livePropsRef.current.handleDOMEvents?.dblclick?.call(
           view,

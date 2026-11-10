@@ -207,6 +207,36 @@ still reads as part of the same continuous thread instead of restarting on a bla
 With `autoScroll`, the viewport follows new content — but only while the reader is at the live edge.
 Set `aria-busy` on the content while a turn streams so announcements wait for the completed row.
 
+The engine lets go on the reader's intent, not on a scroll: a wheel, touch or scrolling key while the
+view is already at the bottom stops the follow until the reader scrolls themself, and a send while
+scrolled up stays where it is. A chat whose answers stream uses `useStickToBottom` instead, with
+`autoScroll` off: it stays pinned while the reader is at the bottom (tokens, an activity block
+opening, an image loading, a reload), lets go only when the view really moves up, re-pins at the
+bottom or on Jump to latest, and its `follow` key — the reader's newest message — always scrolls a
+send into view.
+
+```tsx
+const { attachViewport, attachContent, scrollToBottom } = useStickToBottom({
+  follow: lastOwnMessageId,
+});
+
+<MessageScrollerProvider defaultScrollPosition="end">
+  <MessageScroller>
+    <MessageScrollerViewport ref={attachViewport}>
+      <MessageScrollerContent ref={attachContent} aria-busy={streaming}>
+        {/* messages */}
+      </MessageScrollerContent>
+    </MessageScrollerViewport>
+    <MessageScrollerButton
+      onClick={(event) => {
+        event.preventDefault();
+        scrollToBottom({ behavior: "smooth" });
+      }}
+    />
+  </MessageScroller>
+</MessageScrollerProvider>;
+```
+
 ```tsx
 <MessageScrollerContent aria-busy={status === "streaming"}>
   {/* messages */}

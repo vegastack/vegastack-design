@@ -1,8 +1,9 @@
-// @vegastack record-peek@0.60.0 sha256-Uh7lXjdXd9cGgsDRrptAh0H5JduO0Tq76jVDVGHBRQg=
+// @vegastack record-peek@0.60.0 sha256-qbakxHvITuJ8I63cGlsPRpR/WFQxBYU8HBPlPG3SLAg=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { ArrowDown, ArrowUp, Maximize2, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { useDirection } from "@/components/ui/direction";
@@ -521,18 +522,21 @@ export function RecordPeek({
                     ) : (
                       // Navigation stays a real link wearing the button's classes (a link through
                       // `Button` would get `role="button"`): the router's own link, or a plain one.
-                      React.cloneElement(fullLink ?? <a href={fullHref} />, {
-                        ref: fullRef,
-                        "aria-label": fullLabel,
-                        "aria-keyshortcuts": "Meta+Enter Control+Enter",
-                        "data-slot": "record-peek-open-full",
-                        className: buttonVariants({
-                          variant: "ghost",
-                          size: "icon-sm",
-                        }),
-                      } as React.HTMLAttributes<HTMLElement> & {
-                        ref: React.Ref<HTMLElement>;
-                      })
+                      React.cloneElement(
+                        fullLink ?? <AppLink href={fullHref} />,
+                        {
+                          ref: fullRef,
+                          "aria-label": fullLabel,
+                          "aria-keyshortcuts": "Meta+Enter Control+Enter",
+                          "data-slot": "record-peek-open-full",
+                          className: buttonVariants({
+                            variant: "ghost",
+                            size: "icon-sm",
+                          }),
+                        } as React.HTMLAttributes<HTMLElement> & {
+                          ref: React.Ref<HTMLElement>;
+                        },
+                      )
                     )
                   }
                 >

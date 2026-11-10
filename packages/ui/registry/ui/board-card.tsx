@@ -1,8 +1,9 @@
-// @vegastack board-card@0.60.0 sha256-+or2dbRTvmbt1dMLaZ/hJqhUhFfAe/v87QEBrf8I1uw=
+// @vegastack board-card@0.60.0 sha256-f+ZYCH7Cg4WXR460gFRuKtY7glHKe4RuVk8B4zqsV/g=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { cn } from "@vegastack/design";
@@ -331,7 +332,7 @@ export function BoardCard({
 
   const titleText = href
     ? React.cloneElement(
-        linkRender ?? <a />,
+        linkRender ?? <AppLink />,
         mergeProps((linkRender?.props ?? {}) as object, {
           href,
           "data-slot": "board-card-link",

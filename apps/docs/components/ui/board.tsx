@@ -1,8 +1,9 @@
-// @vegastack board@0.60.0 sha256-sjx2pH/RWbZrliNk2lbAP6rStjMrQW/1HG6+5wbPBNE=
+// @vegastack board@0.60.0 sha256-ZbnPRv/qMX2VlkKzU1mqPCVm7hnAFWhlFuIVQOlJu9k=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { flushSync } from "react-dom";
 import {
   Ellipsis,
@@ -535,7 +536,7 @@ function BoardCardSurface({
   ref,
   ...props
 }: BoardCardSurfaceProps) {
-  const template = href ? (linkRender ?? <a />) : undefined;
+  const template = href ? (linkRender ?? <AppLink />) : undefined;
   return useRender({
     defaultTagName: "div",
     render: template

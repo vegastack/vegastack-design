@@ -1,6 +1,7 @@
-// @vegastack block-header@0.60.0 sha256-4xZP5xuiAoqkaZ6lbvkgHhyGtAovA6cuKG4qO2E5aRU=
+// @vegastack block-header@0.60.0 sha256-twGmNHj1n1CNexeSfl1C5hGWFWnsS/tCXPFz4IGtD8Q=
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { ArrowUpRight, Ellipsis } from "lucide-react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { cn, mergeRefs } from "@vegastack/design";
@@ -248,7 +249,7 @@ export function BlockHeaderOpen({
   ref,
   ...props
 }: BlockHeaderOpenProps) {
-  const element = render ?? <a />;
+  const element = render ?? <AppLink />;
   const own = (element.props ?? {}) as {
     className?: string;
     ref?: React.Ref<HTMLAnchorElement>;

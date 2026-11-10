@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.60.1 sha256-VAZerC6mgQNLJtk7ei5L1NIVfn1JJSiqsJsO6l3Vc5M=
+// @vegastack markdown-view@0.60.1 sha256-4F6hYznp9lcyAsanDxWTnr1Y7rb6xKmOxL/ck0fCgCs=
 
 "use client";
 
@@ -24,6 +24,11 @@ import {
   useInlineChipResolver,
   type InlineChipLinkPreview,
 } from "@/components/ui/inline-chip";
+import {
+  inAppPath,
+  isPlainClick,
+  useLinkProvider,
+} from "@/components/ui/link-provider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TaskInline } from "@/components/ui/task-inline";
 import type { MarkdownMentionStatus } from "@/components/ui/markdown-view";
@@ -1288,6 +1293,91 @@ export function MarkdownBlockedImage({
         {action}
       </Button>
     </span>
+  );
+}
+
+/** Props accepted by `MarkdownLink`. */
+export interface MarkdownLinkProps {
+  /** The link's address, already made safe (`safeUrl`). */
+  href: string;
+  /** The link's own title, shown on hover. @default undefined */
+  title?: string;
+  /** Another site's host to say after the words, when the link turns out external. */
+  domain: string | null;
+  /** The address reaches another web origin unless it is on the app's own. */
+  external: boolean;
+  /** `MarkdownView`'s `linkOrigin`, else the `LinkProvider`'s origin. @default undefined */
+  linkOrigin?: string;
+  /** `MarkdownView`'s `onNavigate`, else the `LinkProvider`'s `navigate`. @default undefined */
+  onNavigate?: (
+    href: string,
+    event: React.MouseEvent<HTMLAnchorElement>,
+  ) => void;
+  /** The link's words. @default undefined */
+  children?: React.ReactNode;
+}
+
+/**
+ * `MarkdownLink` — a link in rendered markdown (the client leaf, so a server-rendered view still
+ * reads `LinkProvider`). An in-app link — a path, or a full address on the app's origin — renders as
+ * its path and opens in place on a plain click; ⌘/Ctrl/Shift/Alt and middle clicks stay the
+ * browser's. Any other web address opens a new tab and says its domain (`domain`).
+ *
+ * @example
+ * <MarkdownLink href="https://app.example.com/tasks/1" domain="app.example.com" external>TSK-1</MarkdownLink>
+ */
+export function MarkdownLink({
+  href,
+  title,
+  domain,
+  external,
+  linkOrigin,
+  onNavigate,
+  children,
+}: MarkdownLinkProps) {
+  const links = useLinkProvider();
+  const path = inAppPath(href, linkOrigin ?? links.origin);
+  const navigate =
+    onNavigate ??
+    (links.navigate ? (to: string) => links.navigate?.(to) : undefined);
+  if (path !== null)
+    return (
+      <a
+        href={path}
+        title={title}
+        onClick={
+          navigate
+            ? (event) => {
+                if (!isPlainClick(event)) return;
+                event.preventDefault();
+                navigate(path, event);
+              }
+            : undefined
+        }
+      >
+        {children}
+      </a>
+    );
+  return (
+    <a
+      href={href}
+      title={title}
+      {...(external ? { target: "_blank", rel: "noreferrer noopener" } : {})}
+    >
+      {children}
+      {domain ? (
+        <span
+          data-slot="markdown-link-domain"
+          className="text-muted-foreground"
+        >
+          {" "}
+          ({domain})
+        </span>
+      ) : null}
+      {/* SR-only hint — external links open a new tab, which is otherwise silent to assistive
+          tech (register P2-37). */}
+      {external ? <span className="sr-only"> (opens in new tab)</span> : null}
+    </a>
   );
 }
 

@@ -1,8 +1,9 @@
-// @vegastack breadcrumb-cascade@0.60.0 sha256-PfITN9rmwZua3IiaU/rJI9RQ/W4CIhdKOJd/pGp5nWQ=
+// @vegastack breadcrumb-cascade@0.60.0 sha256-m/Or+FprEraA1IKBXaOQTGqmcoTP2PU2Qi8eebnZqNc=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { useRender } from "@base-ui/react/use-render";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Check, ChevronDown, ChevronLeft } from "lucide-react";
@@ -254,7 +255,7 @@ export function BreadcrumbSiblings({
                 onClick={() => onSelect?.(item.id)}
                 render={
                   item.href !== undefined
-                    ? React.cloneElement(linkRender ?? <a />, {
+                    ? React.cloneElement(linkRender ?? <AppLink />, {
                         href: item.href,
                       })
                     : undefined
@@ -491,7 +492,7 @@ export function BreadcrumbTrail({
                         disabled={index !== last && step.href === undefined}
                         render={
                           index !== last && step.href !== undefined
-                            ? React.cloneElement(linkRender ?? <a />, {
+                            ? React.cloneElement(linkRender ?? <AppLink />, {
                                 href: step.href,
                               })
                             : undefined
@@ -546,9 +547,12 @@ export function BreadcrumbTrail({
                                 disabled={item.href === undefined}
                                 render={
                                   item.href !== undefined
-                                    ? React.cloneElement(linkRender ?? <a />, {
-                                        href: item.href,
-                                      })
+                                    ? React.cloneElement(
+                                        linkRender ?? <AppLink />,
+                                        {
+                                          href: item.href,
+                                        },
+                                      )
                                     : undefined
                                 }
                               >

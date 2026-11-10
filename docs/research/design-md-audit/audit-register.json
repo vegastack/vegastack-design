@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "0f59c8551a2f7d048f0364c0121d3ae7a3807cdbca911a94fed34eec02e740fb",
+  "contractSha256": "74959ab94c2456933e6d46f2b2a041708f8fffffb20a7d9cdd348bdead721a5b",
   "expectedCounts": {
-    "totalRegistryItems": 793,
-    "components": 203,
+    "totalRegistryItems": 795,
+    "components": 204,
     "animatedIcons": 467,
-    "hooks": 18,
+    "hooks": 19,
     "blocks": 15,
     "libs": 22,
     "chartBlocks": 68
@@ -2257,6 +2257,17 @@
         "packages/ui/registry/ui/option-list-editor.tsx"
       ],
       "docsSlug": "/docs/components/option-list-editor",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "link-provider",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/link-provider.tsx"
+      ],
+      "docsSlug": "/docs/components/link-provider",
       "contractStatus": "reconciled"
     },
     {
@@ -7592,6 +7603,17 @@
         "packages/ui/registry/ui/use-record-peek-row.ts"
       ],
       "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "use-stick-to-bottom",
+      "inventoryClass": "hook",
+      "wave": "Hooks",
+      "family": "hook",
+      "sourceFiles": [
+        "packages/ui/registry/ui/use-stick-to-bottom.ts"
+      ],
+      "docsSlug": "/docs/components/message-scroller",
       "contractStatus": "reconciled"
     },
     {
