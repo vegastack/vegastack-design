@@ -1,10 +1,10 @@
-// @vegastack searchable-select@0.60.3 sha256-T1TLOFK/N9vyHJa1I5eJRnFbNlsK8wjf6xX81xkUOJY=
+// @vegastack searchable-select@0.60.3 sha256-YtiPEOTTjN5ZEHbTtC9Nc8HXYo6RM8dms/yNIyspnWg=
 
 "use client";
 
 import * as React from "react";
 import { Combobox as BaseCombobox } from "@base-ui/react/combobox";
-import { ChevronsUpDown, X } from "lucide-react";
+import { CheckIcon, ChevronsUpDown, MinusIcon, X } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import {
   Combobox,
@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/combobox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
@@ -805,7 +804,10 @@ export function SearchableSelect<
     </ComboboxItem>
   );
   // The select-all row: Base UI never holds it in the value, so its selected state is ours — the
-  // checkbox (decorative and inert: the row is the one control) and `aria-selected` say "all".
+  // box and `aria-selected` say "all". The box is drawn, not a `Checkbox`: it is decorative (the
+  // row is the one control), and importing the checkbox engine would put it in every picker's first
+  // load. It wears `Checkbox`'s own look: a `border-input` square, `primary` fill when checked, a
+  // minus on the empty box when mixed.
   const renderSelectAllRow = () => (
     <ComboboxItem
       key="searchable-select-select-all"
@@ -820,13 +822,20 @@ export function SearchableSelect<
       }
       aria-selected={allSelected}
     >
-      <span aria-hidden inert className="flex">
-        <Checkbox
-          checked={allSelected}
-          indeterminate={selectedCount > 0 && !allSelected}
-          tabIndex={-1}
-          className="pointer-events-none"
-        />
+      <span
+        aria-hidden
+        data-slot={`${slot}-select-all-box`}
+        data-checked={allSelected ? "" : undefined}
+        data-indeterminate={selectedCount > 0 && !allSelected ? "" : undefined}
+        className="pointer-events-none flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors dark:bg-input/30 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary"
+      >
+        {/* `data-icon-tone` stands the mark down from the row's svg ink (muted, and the
+            highlight's accent), so it keeps the box's own ink. */}
+        {allSelected ? (
+          <CheckIcon data-icon-tone="" className="size-3.5 text-current" />
+        ) : selectedCount > 0 ? (
+          <MinusIcon data-icon-tone="" className="size-3.5 text-current" />
+        ) : null}
       </span>
       {selectAll!.label(selectable.length)}
     </ComboboxItem>

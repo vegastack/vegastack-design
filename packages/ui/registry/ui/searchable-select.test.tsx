@@ -910,7 +910,9 @@ const selectAllRow = () =>
     '[data-slot="searchable-select-select-all"]',
   );
 const checkboxOf = (row: HTMLElement) =>
-  row.querySelector<HTMLElement>('[data-slot="checkbox"]')!;
+  row.querySelector<HTMLElement>(
+    '[data-slot="searchable-select-select-all-box"]',
+  )!;
 
 test("selectAll: first option, checkbox unchecked / indeterminate / checked with the selection", async () => {
   const screen = await render(<SelectAllPicker />);
@@ -935,6 +937,12 @@ test("selectAll: first option, checkbox unchecked / indeterminate / checked with
   await screen.getByRole("option", { name: "Cinder" }).click();
   await expect.element(row).toHaveAttribute("data-state", "checked");
   expect(checkboxOf(row).hasAttribute("data-checked")).toBe(true);
+  // A drawn, decorative box: no checkbox engine, nothing focusable inside the option.
+  const box = checkboxOf(row);
+  expect(box.getAttribute("aria-hidden")).toBe("true");
+  expect(box.querySelector("svg")!.hasAttribute("data-icon-tone")).toBe(true);
+  expect(box.closest("[inert]")).toBeNull();
+  expect(box.querySelector('[role="checkbox"], input')).toBeNull();
   expect(row.getAttribute("aria-selected")).toBe("true");
   await expectNoA11yViolations(document.body);
 });

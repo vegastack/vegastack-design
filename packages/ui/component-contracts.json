@@ -24692,8 +24692,7 @@
         "@vegastack/load-more",
         "@vegastack/person-avatar",
         "@vegastack/skeleton",
-        "@vegastack/spinner",
-        "@vegastack/checkbox"
+        "@vegastack/spinner"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -24715,7 +24714,19 @@
         "SearchableSelect": {
           "attributes": [
             {
+              "name": "data-checked",
+              "values": [""]
+            },
+            {
               "name": "data-flat",
+              "values": [""]
+            },
+            {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
+              "name": "data-indeterminate",
               "values": [""]
             },
             {
