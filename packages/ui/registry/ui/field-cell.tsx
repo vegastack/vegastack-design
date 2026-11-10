@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.60.0 sha256-UBWK5KtYcqkZTFd7xo3478BN4lLy0rc0fMZGYrKPQhg=
+// @vegastack field-cell@0.60.0 sha256-Qk70qLTPcQYdi9m95gkWnA9/HNwz/HPudW6j+ZG9agQ=
 
 "use client";
 
@@ -803,8 +803,8 @@ export interface FieldCellDisplayProps {
    * `cell` — the value as a grid cell shows it: one clipped line that never grows its cell. A
    * number or percent is plain (no digit grouping; only a currency groups), a link shows without
    * its scheme and without a trailing slash on a bare host, a date or date-time is clipped on one
-   * line instead of ending in an ellipsis, a person is always their avatar and name (every
-   * person, not avatars and "+N"; a name that doesn't fit ends in an ellipsis), and every file shows as its chip, or an image's thumbnail.
+   * line instead of ending in an ellipsis, a person is always their avatar and whole name (every
+   * person, not avatars and "+N"; none shrinks, the line clips at the cell's edge), and every file shows as its chip, or an image's thumbnail.
    * @default "default"
    */
   variant?: "default" | "cell";
@@ -1022,18 +1022,21 @@ export function FieldCellDisplay({
       if (people.length === 0) return empty;
       if (cell)
         return root(
-          <span className="flex min-w-0 items-center gap-3 overflow-hidden whitespace-nowrap">
+          // Every person keeps their whole avatar and name, one after another, and the line clips
+          // at the cell's edge like the file cell: nobody shrinks as the column narrows.
+          // `overflow-clip`, not `hidden`: a clipped box has no scroll position.
+          <span className="flex min-w-0 items-center gap-3 overflow-clip whitespace-nowrap">
             {people.map((person) => (
-              // Each name shrinks to an ellipsis, with the whole name on hover, focus or tap
-              // (`TruncatedText`); the avatar keeps its size.
               <span
                 key={person.id}
-                className="flex max-w-fit min-w-0 items-center gap-1.5"
+                data-slot="field-cell-person"
+                title={person.name}
+                className="flex shrink-0 items-center gap-1.5"
               >
                 {/* `xs` (20px): the cell's 20px line, so an editable cell's clipping wrapper never
                     cuts the circle. */}
                 <PersonAvatar person={person} size="xs" className="shrink-0" />
-                <TruncatedText>{person.name}</TruncatedText>
+                <span>{person.name}</span>
               </span>
             ))}
           </span>,
