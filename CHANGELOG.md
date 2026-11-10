@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.62.1] — November 10, 2026
+
+<!-- assembled from 1 changeset: c35571350bc5 -->
+
+### 🧩 New components
+
+- **RatingBars** (new): a short qualitative rating — a label, a row of `max` segments (default 5) of which the first `value` are lit, and a word after them (`valueText`). The root is one `role="meter"` named by `label` with `aria-valuetext` set to `valueText`; the segments are `aria-hidden`. Lit segments take `bg-primary`, unlit ones the `bg-muted` track that `Progress` uses; `value={null}` lights none. `size` is `default` (12×8px segments) or `sm` (10×6px). Server-safe, no motion.
+  [docs](https://design.vegastack.com/docs/components/rating-bars) ·
+  [`a7f253d`](https://github.com/VegaStack/vegastack-design/commit/a7f253d)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.62.0 → 0.62.1.
+
 ## [0.62.0] — November 10, 2026
 
 <!-- assembled from 2 changesets: 0b8aebb24234 -->

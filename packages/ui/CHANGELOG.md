@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.62.1
+
+### Patch Changes
+
+- [#947](https://github.com/vegastack/vegastack-design/pull/947) [`a7f253d`](https://github.com/vegastack/vegastack-design/commit/a7f253d1d5862775f13d8390b37bdd67491fe945) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **RatingBars** (new): a short qualitative rating — a label, a row of `max` segments (default 5) of which the first `value` are lit, and a word after them (`valueText`). The root is one `role="meter"` named by `label` with `aria-valuetext` set to `valueText`; the segments are `aria-hidden`. Lit segments take `bg-primary`, unlit ones the `bg-muted` track that `Progress` uses; `value={null}` lights none. `size` is `default` (12×8px segments) or `sm` (10×6px). Server-safe, no motion.
+  [docs](https://design.vegastack.com/docs/components/rating-bars)
+
 ## 0.62.0
 
 ### Minor Changes
