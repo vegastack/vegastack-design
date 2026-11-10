@@ -38634,7 +38634,7 @@
       "title": "Rating Bars",
       "summary": "A short qualitative rating: a label, max segments of which value are lit (primary on the muted track) and a word after them; one role=meter named by label with aria-valuetext set to the word. Server-safe, no motion.",
       "status": "stable",
-      "since": "0.61.2",
+      "since": "0.62.1",
       "family": "display",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/rating-bars.tsx"],
