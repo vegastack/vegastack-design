@@ -1034,3 +1034,40 @@ test("selectAll without multiple: no row, and a development warning", async () =
     expect.stringMatching(/selectAll.*needs `multiple`/),
   );
 });
+
+test("selectAll without a search field: Space toggles the hovered row, once", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <SelectAllPicker onChange={onChange} searchable={false} />,
+  );
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  await screen.getByRole("option", { name: "All 3 projects" }).hover();
+  await expect.element(selectAllRow()!).toHaveAttribute("data-highlighted");
+  await userEvent.keyboard(" ");
+  expect(onChange).toHaveBeenCalledTimes(1);
+  expect(onChange).toHaveBeenLastCalledWith(PROJECTS);
+});
+
+test("selectAll follows isItemEqualToValue, as the rows do", async () => {
+  const onChange = vi.fn();
+  // Fresh objects whose keys differ from the list's, equal only by name.
+  const stale = { id: "old-atlas", name: "Atlas" };
+  const screen = await render(
+    <SelectAllPicker
+      initial={[stale]}
+      onChange={onChange}
+      isItemEqualToValue={(a: Project, b: Project) => a.name === b.name}
+    />,
+  );
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  await expect
+    .element(selectAllRow()!)
+    .toHaveAttribute("data-state", "indeterminate");
+  await screen.getByRole("option", { name: "All 3 projects" }).click();
+  expect(onChange).toHaveBeenLastCalledWith([stale, PROJECTS[1], PROJECTS[2]]);
+  await expect
+    .element(selectAllRow()!)
+    .toHaveAttribute("data-state", "checked");
+  await screen.getByRole("option", { name: "All 3 projects" }).click();
+  expect(onChange).toHaveBeenLastCalledWith([]);
+});

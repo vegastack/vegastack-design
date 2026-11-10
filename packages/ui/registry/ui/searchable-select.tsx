@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.60.0 sha256-MZaxQjIKnGy8bOEykVm79WDQerjtLfKb48X+7CetinQ=
+// @vegastack searchable-select@0.60.0 sha256-pTg+tUOn4W3ARhcl/0MwaMWyacOucrqLv/qTUvhasGc=
 
 "use client";
 
@@ -657,18 +657,24 @@ export function SearchableSelect<
         : [],
     [isMultiple, selectAll, allItems, itemToDisabledReason],
   );
-  const selectedKeys = new Set(selectedList.map(itemToKey));
-  const selectedCount = selectable.filter((item) =>
-    selectedKeys.has(itemToKey(item)),
-  ).length;
+  // The same equality the option rows use (`isItemEqualToValue`, else `itemToKey`), so the bulk
+  // state never disagrees with the rows' own ticks.
+  const sameItem = (a: Item, b: Item) =>
+    isItemEqualToValue
+      ? isItemEqualToValue(a, b)
+      : a === b || itemToKey(a) === itemToKey(b);
+  const isSelected = (item: Item) =>
+    selectedList.some((value) => sameItem(value, item));
+  const selectedCount = selectable.filter(isSelected).length;
   const allSelected =
     selectable.length > 0 && selectedCount === selectable.length;
   const selectAllRow =
     isMultiple && selectAll && selectable.length > 0 && query.trim() === ""
       ? SELECT_ALL_ROW_ITEM
       : null;
-  // Space toggles the select-all row while it is highlighted. The search field owns Space (it
-  // types), so only an empty field hands it over — the row is hidden once there is text anyway.
+  // Space toggles the select-all row while it is highlighted. Handled on the panel, so it works
+  // from the search field (which bubbles here; preventing the default keeps the space out of an
+  // empty field — the row is hidden once there is text anyway) and without one.
   const highlightedRef = React.useRef<unknown>(undefined);
   const onSpace = (event: React.KeyboardEvent) => {
     if (
@@ -681,13 +687,12 @@ export function SearchableSelect<
     toggleAll();
   };
   const toggleAll = () => {
-    const keys = new Set(selectable.map(itemToKey));
     // Selected options outside the list (or disabled ones) stay as they are; a select-all keeps
     // the current order and appends the rest.
-    const kept = selectedList.filter((item) => !keys.has(itemToKey(item)));
-    const added = selectable.filter(
-      (item) => !selectedKeys.has(itemToKey(item)),
+    const kept = selectedList.filter(
+      (value) => !selectable.some((item) => sameItem(value, item)),
     );
+    const added = selectable.filter((item) => !isSelected(item));
     onValueChange?.(
       (allSelected
         ? kept
@@ -1071,6 +1076,7 @@ export function SearchableSelect<
         )}
         <ComboboxContent
           align="start"
+          onKeyDown={selectAllRow ? onSpace : undefined}
           className={cn(
             "w-(--anchor-width) p-0",
             // A person list (name over email) gets room so neither line truncates.
@@ -1088,7 +1094,6 @@ export function SearchableSelect<
               // explicit `undefined` wins Base UI's prop merge (API-26's recipe on the toggle).
               aria-labelledby={undefined}
               placeholder={searchPlaceholder}
-              onKeyDown={selectAllRow ? onSpace : undefined}
             />
           ) : null}
           {/* The polite status region (API-27): mounted for the panel's life, only its text
