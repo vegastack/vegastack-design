@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.60.1 sha256-4F6hYznp9lcyAsanDxWTnr1Y7rb6xKmOxL/ck0fCgCs=
+// @vegastack markdown-view@0.60.1 sha256-0SfkWSEontFJDGHehREM6wY9UlZri+6tpdA1Lle+7EA=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -1724,7 +1724,8 @@ function inAppPath(href: string, origin: string | undefined): string {
     const url = new URL(href);
     const own = new URL(origin);
     if (url.origin !== own.origin || url.username || url.password) return href;
-    return `${url.pathname}${url.search}${url.hash}`;
+    // `//host/x` as a path would leave the origin: one leading slash only.
+    return `/${url.pathname.replace(/^\/+/, "")}${url.search}${url.hash}`;
   } catch {
     return href;
   }

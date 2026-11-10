@@ -1,4 +1,4 @@
-// @vegastack link-provider@0.61.0 sha256-WXbylnHxXYRQ2JFX+u/Oem38X75ovhGfgf+mIRp58oE=
+// @vegastack link-provider@0.61.0 sha256-eId3dqxt0tj2NPLljx3CWkDPvapIOAPesO8VzgrudWU=
 
 "use client";
 
@@ -81,16 +81,19 @@ export function useLinkProvider(): LinkProviderValue {
  * inAppPath("https://example.org/a", "https://app.example.com"); // null
  */
 export function inAppPath(href: string, origin?: string): string | null {
-  if (href.startsWith("/") && !href.startsWith("//")) return href;
-  if (!origin || !/^https?:\/\//i.test(href)) return null;
+  const path = href.startsWith("/") && !href.startsWith("//");
+  if (!path && (!origin || !/^https?:\/\//i.test(href))) return null;
+  const base = new URL(origin ?? "https://app.invalid");
+  let url: URL;
   try {
-    const url = new URL(href);
-    const own = new URL(origin);
-    if (url.origin !== own.origin || url.username || url.password) return null;
-    return `${url.pathname}${url.search}${url.hash}`;
+    // As the browser reads it: `/\host`, a tab or a newline inside `//` all reach another host.
+    url = new URL(href, base);
   } catch {
     return null;
   }
+  if (url.origin !== base.origin || url.username || url.password) return null;
+  // `//host/x` as a path would leave the origin: one leading slash only.
+  return `/${url.pathname.replace(/^\/+/, "")}${url.search}${url.hash}`;
 }
 
 /** A primary-button click with no modifier: the one gesture an app link handles itself. */
@@ -216,7 +219,12 @@ export function AppLink({ href, onNavigate, onClick, ...props }: AppLinkProps) {
       href={action.kind === "navigate" ? action.path : action.href}
       onClick={(event) => {
         onClick?.(event);
-        if (action.kind !== "navigate" || !isPlainClick(event)) return;
+        // A link that asks for another window or a download keeps its native behaviour.
+        const native =
+          (props.target !== undefined && props.target !== "_self") ||
+          props.download !== undefined;
+        if (action.kind !== "navigate" || native || !isPlainClick(event))
+          return;
         event.preventDefault();
         if (onNavigate) onNavigate(action.path, event);
         else links.navigate?.(action.path);

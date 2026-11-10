@@ -16885,7 +16885,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.60.0",
-        "integrity": "sha256-6iZIEb2fG6tvkf/4gyWkgKZmxMRdBmHJMgub6cm7Zd8="
+        "integrity": "sha256-nlL4/b63Ii3dqItR+QaiwFG9mqrsXVTz5DTcfrMSwvI="
       }
     },
     {
@@ -16940,7 +16940,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.60.1",
-        "integrity": "sha256-4F6hYznp9lcyAsanDxWTnr1Y7rb6xKmOxL/ck0fCgCs="
+        "integrity": "sha256-0SfkWSEontFJDGHehREM6wY9UlZri+6tpdA1Lle+7EA="
       }
     },
     {
@@ -17117,7 +17117,7 @@
         "whenToUse": "A MessageScroller thread whose answers stream: pass the reader's newest message id as follow, and keep the engine's autoScroll off.",
         "whenNotToUse": "A list that never grows while read, or a feed that should hold its place (a log the reader pages through).",
         "version": "0.61.0",
-        "integrity": "sha256-MGsXjdAMAxnJlfancIAyFNrPyFbWBPKT8vVAj2B4jM4="
+        "integrity": "sha256-OuBuX3oUFadgOSY19tWu5PB8dtIrd6cqOCpermb8+P4="
       }
     },
     {
@@ -23776,7 +23776,7 @@
         "whenToUse": "Once, at the app root, with the router's push and the app's origin; AppLink or useOpenLink for a link or Open button of your own.",
         "whenNotToUse": "A link that must always open a new tab inside an unanswered dialog (RecordList's ↗), or a download.",
         "version": "0.61.0",
-        "integrity": "sha256-WXbylnHxXYRQ2JFX+u/Oem38X75ovhGfgf+mIRp58oE="
+        "integrity": "sha256-eId3dqxt0tj2NPLljx3CWkDPvapIOAPesO8VzgrudWU="
       }
     }
   ]

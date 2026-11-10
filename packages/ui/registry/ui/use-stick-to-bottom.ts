@@ -65,6 +65,9 @@ export interface UseStickToBottomResult<
   scrollToBottom: (options?: { behavior?: ScrollBehavior }) => void;
 }
 
+/** How long an upward gesture that moved nothing waits before it counts as no release at all. */
+const GESTURE_SETTLE_MS = 250;
+
 /** Within `threshold` pixels of the bottom of `element`'s scroll range. */
 export function isAtScrollBottom(
   element: Pick<HTMLElement, "scrollHeight" | "scrollTop" | "clientHeight">,
@@ -115,34 +118,54 @@ export function useStickToBottom<
     if (!viewport) return;
     let lastTop = viewport.scrollTop;
     let touchY: number | null = null;
+    // Where an upward gesture let go. If the view never moved from there (a nested scroller took
+    // the wheel, a pinch), the release was only provisional and the next resize pins it again.
+    let gesture: { top: number; at: number } | null = null;
     const toBottom = () => {
       viewport.scrollTop = viewport.scrollHeight;
+    };
+    const release = () => {
+      if (viewport.scrollTop <= 0) return;
+      pinned.current = false;
+      gesture = { top: viewport.scrollTop, at: performance.now() };
     };
     const onScroll = () => {
       const top = viewport.scrollTop;
       if (isAtScrollBottom(viewport, threshold)) pinned.current = true;
       else if (top < lastTop - 1) pinned.current = false;
+      if (Math.abs(top - lastTop) > 1) gesture = null;
       lastTop = top;
     };
     // An upward gesture lets go before its scroll lands, so a resize in between can't undo it.
     const onWheel = (event: WheelEvent) => {
-      if (event.deltaY < 0 && viewport.scrollTop > 0) pinned.current = false;
+      // ⌘/Ctrl-wheel is a zoom, not a scroll.
+      if (event.deltaY < 0 && !event.ctrlKey && !event.metaKey) release();
     };
     const onTouchStart = (event: TouchEvent) => {
-      touchY = event.touches[0]?.clientY ?? null;
+      touchY =
+        event.touches.length === 1 ? (event.touches[0]?.clientY ?? null) : null;
     };
     const onTouchMove = (event: TouchEvent) => {
-      const y = event.touches[0]?.clientY;
+      const y =
+        event.touches.length === 1 ? event.touches[0]?.clientY : undefined;
       if (y === undefined) return;
       // A finger moving down drags the content down: the view goes up.
-      if (touchY !== null && y > touchY && viewport.scrollTop > 0)
-        pinned.current = false;
+      if (touchY !== null && y > touchY) release();
       touchY = y;
     };
     const observer =
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(() => {
+            if (
+              !pinned.current &&
+              gesture &&
+              viewport.scrollTop === gesture.top &&
+              performance.now() - gesture.at > GESTURE_SETTLE_MS
+            ) {
+              pinned.current = true;
+              gesture = null;
+            }
             if (pinned.current) toBottom();
           });
     observer?.observe(viewport);

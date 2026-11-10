@@ -39,6 +39,14 @@ test("inAppPath: a path, or a full address on the origin, is in-app; anything el
   expect(inAppPath("https://user@app.example.com/a", ORIGIN)).toBeNull();
   expect(inAppPath("mailto:a@example.org", ORIGIN)).toBeNull();
   expect(inAppPath("#section", ORIGIN)).toBeNull();
+  // As a browser reads them, these reach another host.
+  expect(inAppPath("/\\evil.example/a", ORIGIN)).toBeNull();
+  expect(inAppPath("/\n/evil.example/a", ORIGIN)).toBeNull();
+  expect(inAppPath("/\t/evil.example/a")).toBeNull();
+  // A path that would start `//` keeps one slash, so it can never name a host.
+  expect(inAppPath(`${ORIGIN}//evil.example/a`, ORIGIN)).toBe(
+    "/evil.example/a",
+  );
 });
 
 test("linkAction: navigate with a router, the browser without one, a new tab for another origin", () => {
@@ -107,6 +115,26 @@ test("AppLink: another origin opens a new tab and never navigates", async () => 
   expect(link.getAttribute("rel")).toBe("noopener noreferrer");
   link.addEventListener("click", (event) => event.preventDefault());
   click(link);
+  expect(navigate).not.toHaveBeenCalled();
+});
+
+test("AppLink keeps a native new-window or download link native", async () => {
+  const navigate = vi.fn();
+  const screen = await render(
+    <LinkProvider navigate={navigate} origin={ORIGIN}>
+      <AppLink href="/files/1" download>
+        File
+      </AppLink>
+      <AppLink href="/tasks/1" target="_blank">
+        Elsewhere
+      </AppLink>
+    </LinkProvider>,
+  );
+  for (const name of ["File", "Elsewhere"]) {
+    const link = screen.getByRole("link", { name }).element();
+    link.addEventListener("click", (event) => event.preventDefault());
+    click(link);
+  }
   expect(navigate).not.toHaveBeenCalled();
 });
 

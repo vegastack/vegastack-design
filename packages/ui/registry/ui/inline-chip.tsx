@@ -3,7 +3,12 @@
 "use client";
 
 import * as React from "react";
-import { inAppPath, useLinkProvider } from "@/components/ui/link-provider";
+import {
+  inAppPath,
+  isPlainClick,
+  linkAction,
+  useLinkProvider,
+} from "@/components/ui/link-provider";
 import { Bot, CircleCheck, Link2, UserRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { FileTypeIcon } from "@/lib/file-kind";
@@ -516,7 +521,7 @@ export function InlineChip({
       path !== null &&
       links.navigate &&
       "button" in event &&
-      event.button === 0
+      isPlainClick(event)
     ) {
       event.preventDefault();
       links.navigate(path);
@@ -643,6 +648,10 @@ export function InlineChip({
       <a
         {...(shared as React.ComponentProps<"a">)}
         href={href}
+        // Another site (not a hand-off to the host): a new tab, as every external link.
+        {...(!onOpen && linkAction(href, links).kind === "external"
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
         onClick={open}
         onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLElement>}
       >
