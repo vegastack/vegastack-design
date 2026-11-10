@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.61.0 sha256-q9hIfl2u1dTlsEMW1GgB+CUUQJpvKYfYwvdbmLqyOCE=
+// @vegastack agent-panel@0.62.0 sha256-sv8nPDDnv9ntbmmaPBIJBxPABJBZL1zm7On0HjsiuN4=
 
 "use client";
 

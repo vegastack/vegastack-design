@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.62.0] — November 10, 2026
+
+<!-- assembled from 2 changesets: 0b8aebb24234 -->
+
+### 🧩 New components
+
+- **SettingsSection** `layout`: `"split"` puts the title, description and actions in a sticky left column (18rem at most, `top-20`) beside the children from 768px, and stacks like the default `"stacked"` below it. `"stacked"` is unchanged.
+  [docs](https://design.vegastack.com/docs/components/settings-row) ·
+  [`5d77cef`](https://github.com/VegaStack/vegastack-design/commit/5d77cef)
+
+### 🔧 Changed components
+
+- **AgentPanel** and **AgentStateBadge**: the `no-action` state now reads "Nothing to do" (was "No action needed").
+  [docs](https://design.vegastack.com/docs/components/agent-panel) ·
+  [`5d77cef`](https://github.com/VegaStack/vegastack-design/commit/5d77cef)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.61.1 → 0.62.0.
+
 ## [0.61.1] — November 10, 2026
 
 <!-- assembled from 1 changeset: 8a8cd53efb44 -->

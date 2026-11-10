@@ -15245,7 +15245,7 @@
       "meta": {
         "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows, and a rows × channels matrix (Push / Email) of switches.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
-        "version": "0.60.0"
+        "version": "0.62.0"
       }
     },
     {
@@ -19266,7 +19266,7 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
-        "version": "0.61.0"
+        "version": "0.62.0"
       }
     },
     {
