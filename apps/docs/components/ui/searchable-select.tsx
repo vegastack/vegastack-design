@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.60.0 sha256-4lLgQV+IgDbRgkmWT9czdx8as0DQTugyr8kMwQsxbVA=
+// @vegastack searchable-select@0.60.0 sha256-pYsduzibBaSmF+c/j+z9AyokLUSpdrnfMQzX11jGg78=
 
 "use client";
 
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/combobox";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
 import { LoadMore, type LoadMoreState } from "@/components/ui/load-more";
 import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
@@ -269,6 +270,15 @@ export interface SearchableSelectProps<
    * @default (query) => `Add “${query}”`
    */
   createLabel?: (query: string) => string;
+  /**
+   * With `multiple`: a "select all" row first in the list, with a checkbox that is checked when
+   * every option is selected, mixed when some are and empty when none are. Choosing it (pointer,
+   * Enter or Space) selects every option, or clears them all when every option is already
+   * selected, through `onValueChange`. `label` gets the number of options it acts on. Hidden while
+   * the search field has text. Without `multiple` it is ignored (a development warning).
+   * @default undefined — no select-all row
+   */
+  selectAll?: { label: (total: number) => string };
   /** Shows a clear control on the trigger while a value is set, which reports `null`.
    * @default false
    */
@@ -409,10 +419,19 @@ const CLEAR_ROW_ITEM: ClearRow = { [CLEAR_ROW]: true };
 const isClearRow = (item: unknown): item is ClearRow =>
   typeof item === "object" && item !== null && CLEAR_ROW in item;
 
-/** A row the list adds after the options: the add row or the clear option. */
-type ActionRow = CreateRow | ClearRow;
+/** The select-all row's stand-in item (`selectAll`): never an `Item`, never in the value. */
+interface SelectAllRow {
+  readonly [SELECT_ALL_ROW]: true;
+}
+const SELECT_ALL_ROW = Symbol("searchable-select-select-all");
+const SELECT_ALL_ROW_ITEM: SelectAllRow = { [SELECT_ALL_ROW]: true };
+const isSelectAllRow = (item: unknown): item is SelectAllRow =>
+  typeof item === "object" && item !== null && SELECT_ALL_ROW in item;
+
+/** A row the list adds around the options: the select-all row, the add row or the clear option. */
+type ActionRow = CreateRow | ClearRow | SelectAllRow;
 const isActionRow = (item: unknown): item is ActionRow =>
-  isCreateRow(item) || isClearRow(item);
+  isCreateRow(item) || isClearRow(item) || isSelectAllRow(item);
 
 /** Skeleton rows the height of real options: one line, or two with a secondary label. */
 function OptionSkeletons({
@@ -517,6 +536,7 @@ export function SearchableSelect<
   clearable = false,
   clearLabel = "Clear selection",
   clearOption = false,
+  selectAll,
   disabled = false,
   id,
   name,
@@ -561,6 +581,12 @@ export function SearchableSelect<
     ? itemToStringLabel
     : (renderValue ?? renderItem ?? itemToStringLabel);
   const isMultiple = multiple === true;
+  React.useEffect(() => {
+    if (selectAll && !isMultiple)
+      warnOnce(
+        "SearchableSelect: `selectAll` ignored — it needs `multiple`. Remove it, or pass `multiple`.",
+      );
+  }, [selectAll, isMultiple]);
   const value = (valueProp ?? (isMultiple ? [] : null)) as Item | Item[] | null;
   const selectedList: Item[] = isMultiple
     ? (value as Item[])
@@ -622,16 +648,72 @@ export function SearchableSelect<
     [onCreateOption, created, allItems, itemToStringLabel],
   );
   const clearRow = clearOption && hasValue ? CLEAR_ROW_ITEM : null;
+  // `selectAll`: the options it acts on (every listed option a reader could pick — not a disabled
+  // one), and how many of them are selected. Shown only while the search field is empty.
+  const selectable = React.useMemo(
+    () =>
+      isMultiple && selectAll
+        ? allItems.filter((item) => itemToDisabledReason?.(item) === undefined)
+        : [],
+    [isMultiple, selectAll, allItems, itemToDisabledReason],
+  );
+  // The same equality the option rows use (`isItemEqualToValue(item, value)`, in Base UI's argument
+  // order, else `itemToKey`), so the bulk state never disagrees with the rows' own ticks.
+  const sameItem = (a: Item, b: Item) =>
+    isItemEqualToValue
+      ? isItemEqualToValue(a, b)
+      : a === b || itemToKey(a) === itemToKey(b);
+  const isSelected = (item: Item) =>
+    selectedList.some((value) => sameItem(item, value));
+  const selectedCount = selectable.filter(isSelected).length;
+  const allSelected =
+    selectable.length > 0 && selectedCount === selectable.length;
+  const selectAllRow =
+    isMultiple && selectAll && selectable.length > 0 && query.trim() === ""
+      ? SELECT_ALL_ROW_ITEM
+      : null;
+  // Space toggles the select-all row while it is highlighted. Handled on the panel, so it works
+  // from the search field (which bubbles here; preventing the default keeps the space out of an
+  // empty field — the row is hidden once there is text anyway) and without one.
+  const highlightedRef = React.useRef<unknown>(undefined);
+  const onSpace = (event: React.KeyboardEvent) => {
+    if (
+      event.key !== " " ||
+      !selectAllRow ||
+      !isSelectAllRow(highlightedRef.current)
+    )
+      return;
+    event.preventDefault();
+    toggleAll();
+  };
+  const toggleAll = () => {
+    // Selected options outside the list (or disabled ones) stay as they are; a select-all keeps
+    // the current order and appends the rest.
+    const kept = selectedList.filter(
+      (value) => !selectable.some((item) => sameItem(item, value)),
+    );
+    const added = selectable.filter((item) => !isSelected(item));
+    onValueChange?.(
+      (allSelected
+        ? kept
+        : [...selectedList, ...added]) as SearchableSelectValue<Item, Multiple>,
+    );
+  };
   const listed = React.useMemo(() => {
     const rows: ActionRow[] = [
       ...(createRow ? [createRow] : []),
       ...(clearRow ? [clearRow] : []),
     ];
-    if (rows.length === 0) return grouped ?? allItems;
+    const lead = selectAllRow ? [selectAllRow] : [];
+    if (rows.length === 0 && lead.length === 0) return grouped ?? allItems;
     return grouped
-      ? [...grouped, { value: "", items: rows }]
-      : [...allItems, ...rows];
-  }, [createRow, clearRow, grouped, allItems]);
+      ? [
+          ...(lead.length > 0 ? [{ value: "", items: lead }] : []),
+          ...grouped,
+          ...(rows.length > 0 ? [{ value: "", items: rows }] : []),
+        ]
+      : [...lead, ...allItems, ...rows];
+  }, [selectAllRow, createRow, clearRow, grouped, allItems]);
   // Base UI's own matcher (`Intl.Collator`: case- and accent-insensitive), kept when the list
   // needs its own filter for the rows it adds.
   const match = BaseCombobox.useFilter();
@@ -641,11 +723,14 @@ export function SearchableSelect<
       leadingKeys.size === 0 &&
       !itemToSecondaryLabel &&
       !createRow &&
-      !clearRow
+      !clearRow &&
+      !selectAllRow
     )
       return undefined;
     return (item: Item | ActionRow, query: string) => {
       if (isCreateRow(item)) return true;
+      // The select-all row acts on the whole list, so a search hides it.
+      if (isSelectAllRow(item)) return query.trim() === "";
       // The clear option sits under the unsearched list; a search shows only what matches.
       if (isClearRow(item)) return query.trim() === "";
       const q = query.trim();
@@ -661,6 +746,7 @@ export function SearchableSelect<
     remote,
     createRow,
     clearRow,
+    selectAllRow,
     leadingKeys,
     itemToKey,
     itemToStringLabel,
@@ -718,12 +804,41 @@ export function SearchableSelect<
       {clearLabel}
     </ComboboxItem>
   );
+  // The select-all row: Base UI never holds it in the value, so its selected state is ours — the
+  // checkbox (decorative and inert: the row is the one control) and `aria-selected` say "all".
+  const renderSelectAllRow = () => (
+    <ComboboxItem
+      key="searchable-select-select-all"
+      value={SELECT_ALL_ROW_ITEM}
+      data-slot={`${slot}-select-all`}
+      data-state={
+        allSelected
+          ? "checked"
+          : selectedCount > 0
+            ? "indeterminate"
+            : "unchecked"
+      }
+      aria-selected={allSelected}
+    >
+      <span aria-hidden inert className="flex">
+        <Checkbox
+          checked={allSelected}
+          indeterminate={selectedCount > 0 && !allSelected}
+          tabIndex={-1}
+          className="pointer-events-none"
+        />
+      </span>
+      {selectAll!.label(selectable.length)}
+    </ComboboxItem>
+  );
   const renderRow = (item: Item | ActionRow) =>
-    isCreateRow(item)
-      ? renderCreateRow(item)
-      : isClearRow(item)
-        ? renderClearRow()
-        : renderOption(item);
+    isSelectAllRow(item)
+      ? renderSelectAllRow()
+      : isCreateRow(item)
+        ? renderCreateRow(item)
+        : isClearRow(item)
+          ? renderClearRow()
+          : renderOption(item);
 
   const renderOption = (item: Item) => {
     const reason = itemToDisabledReason?.(item);
@@ -813,6 +928,10 @@ export function SearchableSelect<
           next: Item | ActionRow | (Item | ActionRow)[] | null,
         ) => {
           const picked = Array.isArray(next) ? next : [next];
+          if (picked.some(isSelectAllRow)) {
+            toggleAll();
+            return;
+          }
           if (picked.some(isClearRow)) {
             // A clear supersedes an option still on its way (`onCreateOption`).
             createdRef.current++;
@@ -831,7 +950,7 @@ export function SearchableSelect<
         }}
         filter={filter}
         onInputValueChange={
-          onSearchChange || onCreateOption
+          onSearchChange || onCreateOption || selectAll
             ? (text: string) => {
                 setQuery(text);
                 onSearchChange?.(text);
@@ -839,12 +958,17 @@ export function SearchableSelect<
             : undefined
         }
         isItemEqualToValue={isEqual}
+        onItemHighlighted={(item: Item | ActionRow | undefined) => {
+          highlightedRef.current = item;
+        }}
         itemToStringLabel={(item: Item | ActionRow) =>
           isCreateRow(item)
             ? item[CREATE_ROW]
             : isClearRow(item)
               ? clearLabel
-              : itemToStringLabel(item)
+              : isSelectAllRow(item)
+                ? (selectAll?.label(selectable.length) ?? "")
+                : itemToStringLabel(item)
         }
         open={open}
         defaultOpen={defaultSearch ? true : undefined}
@@ -952,6 +1076,7 @@ export function SearchableSelect<
         )}
         <ComboboxContent
           align="start"
+          onKeyDown={selectAllRow ? onSpace : undefined}
           className={cn(
             "w-(--anchor-width) p-0",
             // A person list (name over email) gets room so neither line truncates.
@@ -983,7 +1108,12 @@ export function SearchableSelect<
               {grouped
                 ? (group: { value: string; items: (Item | ActionRow)[] }) => (
                     <ComboboxGroup
-                      key={group.value || "searchable-select-actions"}
+                      key={
+                        group.value ||
+                        (group.items.some(isSelectAllRow)
+                          ? "searchable-select-select-all"
+                          : "searchable-select-actions")
+                      }
                       items={group.items}
                     >
                       {group.value ? (

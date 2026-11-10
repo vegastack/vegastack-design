@@ -326,6 +326,29 @@ export function searchableSelectMultiple(): ReactNode {
   );
 }
 
+/** Select all — a first row that selects every option, or clears them all; mixed while some are. */
+export function searchableSelectSelectAll(): ReactNode {
+  const [value, setValue] = React.useState<Repo[]>([REPOS[1]!]);
+  return (
+    <Wrapper>
+      <div className="w-full max-w-xs">
+        <SearchableSelect<Repo, true>
+          multiple
+          items={REPOS}
+          value={value}
+          onValueChange={setValue}
+          itemToKey={(r) => r.id}
+          itemToStringLabel={(r) => r.name}
+          selectAll={{ label: (n) => `All ${n} repositories` }}
+          searchLabel="Search repositories"
+          placeholder="Select repositories"
+          aria-label="Repositories"
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
 interface Tag {
   id: string;
   name: string;

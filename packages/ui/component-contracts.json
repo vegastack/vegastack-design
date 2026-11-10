@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 792,
-    "components": 202,
+    "totalRegistryItems": 793,
+    "components": 203,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 44,
     "Navigation/layout": 26,
     "Overlays": 24,
-    "Data display": 46,
+    "Data display": 47,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 17,
@@ -196,6 +196,7 @@
       "level-meter",
       "mermaid-block",
       "qr-code",
+      "brand-logo",
       "member-list",
       "record-header",
       "block-header",
@@ -24616,9 +24617,10 @@
             "loading",
             "error",
             "paged",
-            "option-disabled-reason"
+            "option-disabled-reason",
+            "select-all"
           ],
-          "evidence": "Observed from the Combobox root's open/value state, the panel search field, ComboboxEmpty, and the clearable branch."
+          "evidence": "Observed from the Combobox root's open/value state, the panel search field, ComboboxEmpty, and the clearable branch. The selectAll row's checked/indeterminate/unchecked state (data-state on the row) is derived from the selection."
         },
         "accessibility": {
           "status": "observed",
@@ -24654,7 +24656,8 @@
         "@vegastack/load-more",
         "@vegastack/person-avatar",
         "@vegastack/skeleton",
-        "@vegastack/spinner"
+        "@vegastack/spinner",
+        "@vegastack/checkbox"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -24690,6 +24693,10 @@
             {
               "name": "data-slot",
               "values": []
+            },
+            {
+              "name": "data-state",
+              "values": ["checked", "indeterminate", "unchecked"]
             },
             {
               "name": "data-variant",
@@ -38431,6 +38438,132 @@
             {
               "name": "data-state",
               "values": ["invalid", "ready"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "brand-logo",
+      "registryType": "registry:ui",
+      "title": "Brand Logo",
+      "summary": "A provider, tool or channel's mark in a small monochrome tile (muted fill, foreground ink): a Simple Icons (CC0) path through BrandIcon's mono variant, or the brand's first letter where no CC0 mark exists; decorative beside its name or an image named by label. Server-safe.",
+      "status": "stable",
+      "since": "0.60.3",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/brand-logo.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BrandLogo",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/brand-logo.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Spread onto the root tile span."
+          }
+        },
+        {
+          "name": "BrandLogoProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/brand-logo.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Brand",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/brand-logo.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look: the theme's ink on the muted tile for every brand; never brand colours."
+      },
+      "sizes": {
+        "status": "covered",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["sm", "default"]
+          }
+        ],
+        "rationale": "default is a size-5 tile, sm a size-4 tile."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["glyph", "letter"],
+          "evidence": "packages/ui/registry/ui/brand-logo.tsx + packages/ui/registry/ui/brand-logo.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["decorative", "labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/brand-logo.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "sm"],
+          "evidence": "packages/ui/registry/ui/brand-logo.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A fixed 16px or 20px tile; nothing reflows."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/brand-logo",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/brand-logo.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "brand-logo",
+      "dataAttributes": {
+        "BrandLogo": {
+          "attributes": [
+            {
+              "name": "data-brand",
+              "values": []
+            },
+            {
+              "name": "data-mark",
+              "values": ["glyph", "letter"]
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["brand-logo"]
             }
           ],
           "cssVariables": []
