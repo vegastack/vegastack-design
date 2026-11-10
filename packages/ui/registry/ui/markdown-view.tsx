@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.60.0 sha256-RTiLz0TtDWXrp48p55BDZ9+Hjme9gEOmnimMC2Tm6QA=
+// @vegastack markdown-view@0.60.0 sha256-nL+YCzDcKHemuBrsZJAIPFbMsesGfuyilS8O0WhCi+Y=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -3031,7 +3031,7 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
   /**
    * The text is still arriving (an answer streaming in). The last block is completed before it
    * renders — an open code fence, code span, `**`, `*` or `~~` is closed, a link still being written
-   * shows its words, a half-written `[[n]]` waits — and citations render in settled blocks only.
+   * shows its words, and a half-written `[[n]]` waits until it is whole.
    * Turn it off when the stream ends. Markdown only.
    * @default false
    */
@@ -3354,23 +3354,16 @@ export function MarkdownView({
   let tree: DocNode[];
   if (format === "html") tree = fromHtml(source);
   else if (streaming) {
-    // The settled blocks render as they will stay; only the last block is completed, and its
-    // citations wait until it is settled, so a half-written marker never becomes a pill.
+    // The settled blocks render as they will stay; only the last block is completed. A citation
+    // marker becomes its pill as soon as it is whole: a half-written one (`[[1`) is held back by
+    // `completeStreamingMarkdown`, so a pill never changes number under the reader.
     const { settled, tail } = splitStreamingTail(source);
     // Parsed once, whole, so reference definitions and numbering span the blocks.
     tree = fromMarkdown(
       settled + completeStreamingMarkdown(tail),
       liveBlockKinds,
     );
-    if (citation) {
-      const settledBlocks = settled.trim()
-        ? fromMarkdown(settled, liveBlockKinds).length
-        : 0;
-      tree = [
-        ...withCitations(tree.slice(0, settledBlocks)),
-        ...tree.slice(settledBlocks),
-      ];
-    }
+    if (citation) tree = withCitations(tree);
   } else {
     const parsed = fromMarkdown(source, liveBlockKinds);
     tree = citation ? withCitations(parsed) : parsed;
