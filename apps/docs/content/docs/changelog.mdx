@@ -10,6 +10,18 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.61.1] — November 10, 2026
+
+### 🔧 Changed components
+
+- **SearchableSelect** `selectAll`: the select-all row's box is now a drawn, decorative mark in `Checkbox`'s look (a `border-input` square, `primary` fill with a check when all are selected, a minus when some are) instead of a `Checkbox`, so `searchable-select` no longer imports the checkbox engine into every picker's first load. Behaviour, `aria-selected` and `data-state` are unchanged.
+  [docs](/docs/components/searchable-select) ·
+  [`4455d83`](https://github.com/VegaStack/vegastack-design/commit/4455d83)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.61.0 → 0.61.1.
+
 ## [0.61.0] — November 10, 2026
 
 ### 🧩 New components

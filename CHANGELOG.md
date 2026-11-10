@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.61.1] — November 10, 2026
+
+<!-- assembled from 1 changeset: 8a8cd53efb44 -->
+
+### 🔧 Changed components
+
+- **SearchableSelect** `selectAll`: the select-all row's box is now a drawn, decorative mark in `Checkbox`'s look (a `border-input` square, `primary` fill with a check when all are selected, a minus when some are) instead of a `Checkbox`, so `searchable-select` no longer imports the checkbox engine into every picker's first load. Behaviour, `aria-selected` and `data-state` are unchanged.
+  [docs](https://design.vegastack.com/docs/components/searchable-select) ·
+  [`4455d83`](https://github.com/VegaStack/vegastack-design/commit/4455d83)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.61.0 → 0.61.1.
+
 ## [0.61.0] — November 10, 2026
 
 <!-- assembled from 1 changeset: d1921667899d -->
