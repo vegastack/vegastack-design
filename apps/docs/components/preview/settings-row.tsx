@@ -86,6 +86,53 @@ export function settingsSection(): ReactNode {
   );
 }
 
+export function settingsSectionSplit(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <div className="flex flex-col gap-8">
+        <SettingsSection
+          layout="split"
+          titleAs="h2"
+          title="Web access"
+          description="Which sites your agents may open, and how they search. Applies to every agent in the workspace."
+          actions={
+            <Button variant="outline" size="sm">
+              Reset
+            </Button>
+          }
+        >
+          <SettingsCard>
+            <SettingsRow
+              label="Search the web"
+              description="Look things up when a task needs it."
+            >
+              <Switch defaultChecked aria-label="Search the web" />
+            </SettingsRow>
+            <SettingsRow
+              label="Open links"
+              description="Read pages people share in a task."
+            >
+              <Switch defaultChecked aria-label="Open links" />
+            </SettingsRow>
+          </SettingsCard>
+        </SettingsSection>
+        <SettingsSection
+          layout="split"
+          titleAs="h2"
+          title="Spending"
+          description="A monthly limit for the whole workspace."
+        >
+          <SettingsCard>
+            <SettingsRow label="Monthly limit" controlId="split-limit">
+              <Input id="split-limit" defaultValue="$200" />
+            </SettingsRow>
+          </SettingsCard>
+        </SettingsSection>
+      </div>
+    </Wrapper>
+  );
+}
+
 export function settingsRowControlId(): ReactNode {
   return (
     <Wrapper className="block">

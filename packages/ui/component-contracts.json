@@ -25590,10 +25590,15 @@
         "SettingsSection": {
           "attributes": [
             {
+              "name": "data-layout",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "settings-section",
                 "settings-section-actions",
+                "settings-section-content",
                 "settings-section-description",
                 "settings-section-header",
                 "settings-section-title"

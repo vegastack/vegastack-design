@@ -66,7 +66,8 @@ element with a forwarded ref and a `data-slot` for styling and targeting:
 - `SettingsSection` — a titled group (`data-slot="settings-section"`). Renders an optional `title`
   and `description` above its children, with optional `actions` ("Sign out other devices", "New
   attribute") right-aligned on the title's row. Use one section per logical group (Account, Notifications,
-  Danger zone).
+  Danger zone). `layout="split"` moves that header into a sticky left column beside the children
+  on screens 768px and wider.
 - `SettingsCard` — **upstream's [`Card`](/docs/components/card)** (`data-slot="settings-card"`),
   flattened for a divided list: `py-0 gap-0`, so rows sit edge to edge and each row's own `border-b`
   is the only divider. The radius, the `bg-card` ground and the `border border-border` hairline come from `Card`, which is
@@ -94,6 +95,20 @@ A full section with a titled header above a card of switch rows:
 
 <ComponentPreview
   name="settingsSection"
+  file="components/preview/settings-row.tsx"
+/>
+
+### Split layout
+
+`layout="split"` puts the section's title, description and `actions` in a left column (18rem at
+most) beside its children from 768px, and keeps that column sticky under the page header
+(`top-20`) while the settings scroll past. Below 768px it stacks exactly like the default
+`stacked` layout. Use it on a long settings page where each section is one setting with room to
+explain itself; keep `stacked` for short groups inside a page or a dialog. Every child lands in the
+right column, even when the section has no title.
+
+<ComponentPreview
+  name="settingsSectionSplit"
   file="components/preview/settings-row.tsx"
 />
 

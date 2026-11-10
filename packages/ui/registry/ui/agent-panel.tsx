@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.61.0 sha256-JMKnH5JuA9EfnL/dxsmeZhNpxDW49JFu8vBPLmx2Y/8=
+// @vegastack agent-panel@0.61.0 sha256-q9hIfl2u1dTlsEMW1GgB+CUUQJpvKYfYwvdbmLqyOCE=
 
 "use client";
 
@@ -136,7 +136,7 @@ const DEFAULT_STATE_LABELS: AgentStateLabels = {
   blocked: "Can't start",
   failed: "Failed",
   done: "Done",
-  "no-action": "No action needed",
+  "no-action": "Nothing to do",
   stopped: "Stopped",
 };
 
