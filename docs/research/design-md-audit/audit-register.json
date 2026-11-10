@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b7eb3f1a6e98d46b903dd95d0dfdc0feb303083e54734368f06344b6d8e8f9c2",
+  "contractSha256": "f509638ba2f50ef2d1c0bab5747fcedfb91dd1fb22313c22585b96dbbcd99d54",
   "expectedCounts": {
-    "totalRegistryItems": 796,
-    "components": 205,
+    "totalRegistryItems": 798,
+    "components": 207,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -1314,6 +1314,28 @@
         "packages/ui/registry/ui/stat.tsx"
       ],
       "docsSlug": "/docs/components/stat",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "kpi-card",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/kpi-card.tsx"
+      ],
+      "docsSlug": "/docs/components/kpi-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "heatmap",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/heatmap.tsx"
+      ],
+      "docsSlug": "/docs/components/heatmap",
       "contractStatus": "reconciled"
     },
     {

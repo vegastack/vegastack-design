@@ -374,7 +374,10 @@ function importantModifierTokens(lit) {
 // which no lucide glyph expresses — operator-approved 09-10-2026 when the VegaStack web app moved to that set.
 // `qr-code` draws a QR matrix as one SVG path — a scannable graphic, not an icon (MK blanket
 // approval 27-10-2026, D19, web app product-cohesion W2-MTG).
-const SVG_GRAPHIC_ALLOWLIST = /(?:^|\/)(?:empty|status-icon|qr-code)\.tsx$/;
+// `kpi-card` draws a KPI's trend as one aria-hidden sparkline polyline — a data graphic, not an icon
+// (VegaStack agents overhaul P3, operator batch approval 10-11-2026).
+const SVG_GRAPHIC_ALLOWLIST =
+  /(?:^|\/)(?:empty|status-icon|qr-code|kpi-card)\.tsx$/;
 
 /**
  * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).

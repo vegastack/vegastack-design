@@ -34,6 +34,8 @@ export * from "./toggle-group";
 export * from "./chip";
 export * from "./tag-group";
 export * from "./stat";
+export * from "./kpi-card";
+export * from "./heatmap";
 export * from "./property-list";
 export * from "./code-block";
 export * from "./tool-call-chip";

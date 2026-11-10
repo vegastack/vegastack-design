@@ -1,0 +1,126 @@
+---
+title: KPI Card
+description: A dashboard KPI tile — a large value in card chrome with a hint, delta, sparkline and whole-tile link — and the grid that lays tiles out.
+audience: public
+registry: kpi-card
+status: stable
+since: 0.63.0
+a11y: a named group, or one named link per tile
+preview: kpiCard
+---
+
+## Install
+
+<InstallSteps name="kpi-card" />
+
+## Usage
+
+```tsx
+import { KpiCard, KpiGrid } from "@/components/ui/kpi-card";
+
+<KpiGrid>
+  <KpiCard
+    label="Runs"
+    value="1,284"
+    hint="Every agent run that started in the last 7 days."
+    delta={{ text: "↑ 12% vs last week", direction: "up", tone: "positive" }}
+    spark={[12, 15, 14, 18, 17, 21, 24]}
+  />
+</KpiGrid>;
+```
+
+`KpiCard` is one headline number at the top of a dashboard: the `lg` `Stat` inside a `Card`, with
+an optional (i) hint beside the label, a delta line, a sparkline and a link to the list behind the
+number. `KpiGrid` lays tiles out 2 across on a phone, 3 from `sm`, 4 from `lg` and 7 from `xl`.
+
+<ComponentPreview name="kpiCard" file="components/preview/kpi-card.tsx" />
+
+## Scope
+
+`KpiCard` composes `Card`, `Stat`, `StatDelta`, `StatEmpty`, `StatSkeleton`, `InfoHint` and
+`Skeleton`. Reach for `StatGroup` instead for a compact strip of counts — one hairline row, one
+value per cell, no card chrome — and for `Chart` when the trend itself is the point.
+
+## Anatomy
+
+<Anatomy name="kpi-card" />
+
+## Examples
+
+### Grid
+
+Seven tiles fill one row on a wide screen. A tile with `value={null}` reads "No data", never a dash
+or a zero.
+
+<ComponentPreview name="kpiCardGrid" file="components/preview/kpi-card.tsx" />
+
+### Delta tone
+
+`direction` says which way the number moved; `tone` says whether that is good. They are separate
+because up is not always good: more failures go up in `text-destructive-text`, a latency that falls
+reads `text-success-text`, and `neutral` stays `text-muted-foreground`. Write the change in words or
+with a sign — colour is never the only signal.
+
+### Linked tiles
+
+`linkRender` takes your router's link with its `href` (`<Link href="/runs" />`) and stretches it
+over the whole tile, named "label: value, delta". The hint stays a separate button beside the
+label, never a button inside a link.
+
+<ComponentPreview name="kpiCardLinked" file="components/preview/kpi-card.tsx" />
+
+### Loading and empty
+
+`loading` shows the `lg` `StatSkeleton` and a sparkline-height bar, so the tile is the same size
+loading as loaded.
+
+<ComponentPreview name="kpiCardStates" file="components/preview/kpi-card.tsx" />
+
+## API Reference
+
+### KpiCard
+
+<ApiTable
+  path="../../packages/ui/registry/ui/kpi-card.tsx"
+  name="KpiCardProps"
+/>
+
+### Delta
+
+<ApiTable
+  path="../../packages/ui/registry/ui/kpi-card.tsx"
+  name="KpiCardDelta"
+/>
+
+### KpiGrid
+
+`KpiGrid` takes the `<div>` element's own props and forwards its ref.
+
+## Accessibility
+
+- A plain tile is a `group` named "label: value, delta" (the value only when it is text); a linked
+  tile is one link with that name instead, so the name is read once. A value passed as an element rather than text is named
+  from the rendered label, value and delta (`aria-labelledby`).
+- The sparkline is `aria-hidden`: the value and the delta carry the meaning.
+- A loading tile is `aria-busy` and named by its label.
+- The hint is its own button ("About Runs"), reachable by keyboard beside the link.
+
+| Key           | Action                              |
+| ------------- | ----------------------------------- |
+| `Tab`         | Moves to the tile's link, then hint |
+| `Enter`       | Follows the tile's link             |
+| `Enter/Space` | On the hint, opens its explanation  |
+
+<StatesTested name="kpi-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Set tone by what the change means — more failures is negative even though it goes up."
+  dont="Colour every rise green and every fall red."
+/>
+
+<DoDont
+  do="Pass null when the value is unknown, so the tile reads No data."
+  dont="Show 0 or a dash for a value that failed to load."
+/>

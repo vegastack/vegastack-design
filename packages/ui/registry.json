@@ -15531,6 +15531,60 @@
       ]
     },
     {
+      "name": "kpi-card",
+      "type": "registry:ui",
+      "title": "KPI Card",
+      "description": "A dashboard KPI tile — a large Stat in Card chrome with an optional hint, delta line, sparkline and whole-tile link — plus KpiGrid, the responsive 2/3/4/7-column grid of tiles.",
+      "categories": ["display"],
+      "dependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/kpi-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/kpi-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A row of headline numbers at the top of a dashboard or report, each with its own trend, change and optional link to the list behind it.",
+        "whenNotToUse": "A compact strip of counts on a home page (StatGroup), the facts of one record (Stat or PropertyList), or a full chart (Chart).",
+        "version": "0.63.0"
+      },
+      "registryDependencies": [
+        "@vegastack/card",
+        "@vegastack/info-hint",
+        "@vegastack/skeleton",
+        "@vegastack/stat"
+      ]
+    },
+    {
+      "name": "heatmap",
+      "type": "registry:ui",
+      "title": "Heatmap",
+      "description": "Counts over two dimensions (weekday × hour, agent × day) as a keyboard-navigable grid of cells in five quintile steps of the single-series chart ink, with row and column headers, a tooltip per cell and an optional legend.",
+      "categories": ["data-display"],
+      "dependencies": [
+        "@base-ui/react@^1.8.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/heatmap.tsx",
+          "type": "registry:ui",
+          "target": "@ui/heatmap.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Showing when or where activity concentrates across two dimensions — runs by weekday and hour, events by agent and day.",
+        "whenNotToUse": "A trend over one dimension (Chart), exact values people compare or sort (Table or DataList), or more than a few hundred cells.",
+        "version": "0.63.0"
+      },
+      "registryDependencies": ["@vegastack/tooltip"]
+    },
+    {
       "name": "priority-icon",
       "type": "registry:ui",
       "title": "Priority Icon",
