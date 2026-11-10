@@ -1,4 +1,4 @@
-// @vegastack use-stick-to-bottom@0.61.0 sha256-OuBuX3oUFadgOSY19tWu5PB8dtIrd6cqOCpermb8+P4=
+// @vegastack use-stick-to-bottom@0.61.0 sha256-v0A+njJEMgsuipJHriG09duLs37AXSuMbZKPUyAHd2w=
 
 "use client";
 
