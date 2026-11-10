@@ -2450,6 +2450,44 @@ test('FieldCellDisplay variant="cell": plain numbers, bare links, clipped dates,
   expect(text()).toContain(",");
 });
 
+test('FieldCellDisplay variant="cell": a narrow column clips the people, it never shrinks one', async () => {
+  injectCompiledCss();
+  const people = [
+    { id: "u1", name: "Ada Lovelace" },
+    { id: "u2", name: "Grace Hopper" },
+    { id: "u3", name: "Edsger Dijkstra" },
+  ];
+  // Both widths side by side and measured at the same moment, so a web font landing mid-test
+  // changes both alike.
+  const screen = await render(
+    <>
+      <div data-testid="wide" style={{ width: 800 }}>
+        <FieldCellDisplay type="person" value={people} variant="cell" />
+      </div>
+      <div data-testid="narrow" style={{ width: 120 }}>
+        <FieldCellDisplay type="person" value={people} variant="cell" />
+      </div>
+    </>,
+  );
+  await document.fonts.ready;
+  const box = (id: string) =>
+    screen.container.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
+  const widths = (id: string) =>
+    [
+      ...box(id).querySelectorAll<HTMLElement>(
+        '[data-slot="field-cell-person"]',
+      ),
+    ].map((el) => el.getBoundingClientRect().width);
+  const natural = widths("wide");
+  expect(widths("narrow")).toEqual(natural);
+  for (const w of natural) expect(w).toBeGreaterThan(60);
+  // The line clips at the cell's edge: the cell never grows past its column.
+  const root = box("narrow").querySelector<HTMLElement>(
+    '[data-slot="field-cell-display"]',
+  )!;
+  expect(root.getBoundingClientRect().width).toBeLessThanOrEqual(120);
+});
+
 test('FieldCellEditor variant="cell": text is one wrapping paragraph that commits null when emptied', async () => {
   const onCommit = vi.fn();
   const screen = await render(

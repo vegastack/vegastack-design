@@ -14976,7 +14976,8 @@
               "values": [
                 "field-cell-display",
                 "field-cell-file-chip",
-                "field-cell-filling"
+                "field-cell-filling",
+                "field-cell-person"
               ]
             },
             {
