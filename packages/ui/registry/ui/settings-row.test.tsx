@@ -149,7 +149,7 @@ test("split: from 768px the header is a sticky left column of at most 18rem besi
       title="Web access"
       description="Which sites the agent may open, and how it searches."
       actions={<button type="button">Reset</button>}
-      style={{ width: 960 }}
+      style={{ width: "100%", maxWidth: 960 }}
     >
       <SettingsCard>
         <SettingsRow label="Search the web">
@@ -192,8 +192,15 @@ test("split: from 768px the header is a sticky left column of at most 18rem besi
   expect(getComputedStyle(header).position).toBe("static");
   const hs = header.getBoundingClientRect();
   const cs = content.getBoundingClientRect();
+  const ss = slot("settings-section").getBoundingClientRect();
   expect(cs.top).toBeGreaterThanOrEqual(hs.bottom);
   expect(Math.round(cs.width)).toBe(Math.round(hs.width));
+  expect(Math.round(cs.width)).toBe(Math.round(ss.width));
+  // Nothing overflows the phone viewport.
+  expect(ss.right).toBeLessThanOrEqual(414);
+  expect(slot("settings-section").scrollWidth).toBeLessThanOrEqual(
+    Math.ceil(ss.width),
+  );
 });
 
 test("stacked (the default) keeps its children direct, with no content wrapper", async () => {
