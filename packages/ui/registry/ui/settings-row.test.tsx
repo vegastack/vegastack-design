@@ -141,6 +141,77 @@ test("titleAs picks the heading level so a page keeps a valid outline", async ()
   expect(title?.classList.contains("font-medium")).toBe(true);
 });
 
+test("split: from 768px the header is a sticky left column of at most 18rem beside the content", async () => {
+  const section = (
+    <SettingsSection
+      layout="split"
+      titleAs="h2"
+      title="Web access"
+      description="Which sites the agent may open, and how it searches."
+      actions={<button type="button">Reset</button>}
+      style={{ width: 960 }}
+    >
+      <SettingsCard>
+        <SettingsRow label="Search the web">
+          <Switch aria-label="Search the web" />
+        </SettingsRow>
+      </SettingsCard>
+      <p>Second child</p>
+    </SettingsSection>
+  );
+  await page.viewport(1280, 900);
+  const screen = await render(section);
+  const slot = (name: string) =>
+    screen.container.querySelector<HTMLElement>(`[data-slot="${name}"]`)!;
+  expect(slot("settings-section")).toHaveAttribute("data-layout", "split");
+  const header = slot("settings-section-header");
+  const content = slot("settings-section-content");
+  expect(getComputedStyle(header).position).toBe("sticky");
+  expect(getComputedStyle(header).top).toBe("80px");
+  const h = header.getBoundingClientRect();
+  const c = content.getBoundingClientRect();
+  const s = slot("settings-section").getBoundingClientRect();
+  // Side by side: the header capped at 18rem on the left, a 2rem gutter, every child on the right
+  // from the section's top (the header's own top moves with its sticky offset, so it is not pinned).
+  expect(Math.round(h.left)).toBe(Math.round(s.left));
+  expect(Math.round(h.width)).toBe(288);
+  expect(Math.round(c.left - h.right)).toBe(32);
+  expect(Math.round(c.top)).toBe(Math.round(s.top));
+  expect(content.children).toHaveLength(2);
+  // The actions sit under the text in the left column, not beside it.
+  const actions = slot("settings-section-actions").getBoundingClientRect();
+  const description = slot(
+    "settings-section-description",
+  ).getBoundingClientRect();
+  expect(actions.top).toBeGreaterThanOrEqual(description.bottom);
+  expect(Math.round(actions.left)).toBe(Math.round(h.left));
+  await expectNoA11yViolations(screen.container);
+
+  // Below 768px it stacks like the default: header above, content full width under it.
+  await page.viewport(414, 896);
+  expect(getComputedStyle(header).position).toBe("static");
+  const hs = header.getBoundingClientRect();
+  const cs = content.getBoundingClientRect();
+  expect(cs.top).toBeGreaterThanOrEqual(hs.bottom);
+  expect(Math.round(cs.width)).toBe(Math.round(hs.width));
+});
+
+test("stacked (the default) keeps its children direct, with no content wrapper", async () => {
+  const screen = await render(
+    <SettingsSection title="Notifications">
+      <p>body</p>
+    </SettingsSection>,
+  );
+  const section = screen.container.querySelector(
+    '[data-slot="settings-section"]',
+  );
+  expect(section).toHaveAttribute("data-layout", "stacked");
+  expect(
+    section?.querySelector('[data-slot="settings-section-content"]'),
+  ).toBeNull();
+  expect(section?.lastElementChild?.textContent).toBe("body");
+});
+
 test("compound parts each expose their data-slot", async () => {
   const screen = await render(
     <SettingsSection title="Account">

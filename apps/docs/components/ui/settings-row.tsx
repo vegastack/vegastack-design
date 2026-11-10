@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.60.0 sha256-fNP4GnM8yUQvmadDtT8oQZyJHfbx7zzqpFll4LV4dG4=
+// @vegastack settings-row@0.60.0 sha256-9zQgmdMMdRjEUIefjE/xVUmR8yGrcoAocAceiWpgq64=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -49,13 +49,23 @@ export interface SettingsSectionProps extends Omit<
    * @default undefined
    */
   actions?: React.ReactNode;
+  /**
+   * How the header sits against the content. `stacked` puts the title, description and actions
+   * above the children. `split` puts them in a left column (18rem at most) beside the children
+   * from the `md` breakpoint (768px), with the left column sticky under the page header
+   * (`top-20`) while the settings scroll past; below `md` it stacks exactly like `stacked`.
+   * Use `split` for a long settings page where each section is one setting with room to explain it.
+   * @default "stacked"
+   */
+  layout?: "stacked" | "split";
 }
 
 /**
  * `SettingsSection` — a titled group of settings. Renders an optional `title`,
  * `description` and right-aligned `actions` above its `children` (typically a `SettingsCard`).
  * The actions stay on the title row beside a long description (top-aligned to the title), and
- * wrap under it only when the header is too narrow for both.
+ * wrap under it only when the header is too narrow for both. `layout="split"` moves the header
+ * into a sticky left column beside the children from the `md` breakpoint.
  *
  * Pure presentational and server-safe — no hooks, no `'use client'`.
  *
@@ -67,6 +77,9 @@ export interface SettingsSectionProps extends Omit<
  *     </SettingsRow>
  *   </SettingsCard>
  * </SettingsSection>
+ * <SettingsSection layout="split" titleAs="h2" title="Web access" description="What it may open." actions={<Button>Reset</Button>}>
+ *   <SettingsCard>…</SettingsCard>
+ * </SettingsSection>
  */
 export function SettingsSection({
   className,
@@ -74,23 +87,42 @@ export function SettingsSection({
   titleAs: TitleTag = "h3",
   description,
   actions,
+  layout = "stacked",
   children,
   ref,
   ...props
 }: SettingsSectionProps) {
+  const split = layout === "split";
   return (
     <section
       ref={ref}
       data-slot="settings-section"
-      className={cn("flex flex-col gap-4", className)}
+      data-layout={layout}
+      className={cn(
+        "flex flex-col gap-4",
+        split &&
+          "md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start md:gap-x-8",
+        className,
+      )}
       {...props}
     >
       {(title != null || description != null || actions != null) && (
         <div
           data-slot="settings-section-header"
-          className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 has-data-[slot=settings-section-description]:items-start"
+          className={cn(
+            "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 has-data-[slot=settings-section-description]:items-start",
+            // Split: one sticky column, the actions under the text rather than beside it.
+            split &&
+              "md:sticky md:top-20 md:flex-col md:flex-nowrap md:items-start md:justify-start md:gap-y-3",
+          )}
         >
-          <div className="flex min-w-0 flex-col gap-1 has-data-[slot=settings-section-description]:flex-[1_1_16rem]">
+          <div
+            className={cn(
+              "flex min-w-0 flex-col gap-1 has-data-[slot=settings-section-description]:flex-[1_1_16rem]",
+              split &&
+                "md:has-data-[slot=settings-section-description]:flex-none",
+            )}
+          >
             {title != null && (
               <TitleTag
                 data-slot="settings-section-title"
@@ -111,14 +143,27 @@ export function SettingsSection({
           {actions != null && (
             <div
               data-slot="settings-section-actions"
-              className="ms-auto flex shrink-0 items-center gap-2"
+              className={cn(
+                "ms-auto flex shrink-0 items-center gap-2",
+                split && "md:ms-0 md:flex-wrap",
+              )}
             >
               {actions}
             </div>
           )}
         </div>
       )}
-      {children}
+      {split ? (
+        // One grid cell for every child, in the right column even when there is no header.
+        <div
+          data-slot="settings-section-content"
+          className="flex min-w-0 flex-col gap-4 md:col-start-2"
+        >
+          {children}
+        </div>
+      ) : (
+        children
+      )}
     </section>
   );
 }

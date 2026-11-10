@@ -1099,7 +1099,7 @@ test("the added states: quiet, not started, paused, no action, an approval to re
   await screen.getByRole("button", { name: "Resume" }).click();
   expect(onResume).toHaveBeenCalledTimes(1);
 
-  expect(line("none-needed")).toBe("No action needed");
+  expect(line("none-needed")).toBe("Nothing to do");
   expect(sentence("none-needed")).toBe("Nothing new since Friday.");
   expect(slot(card("none-needed"), "agent-panel-state-actions")).toBeNull();
 
@@ -1153,7 +1153,7 @@ test("the badge words for the added states; the ring stays for the states that n
     "Quiet",
     "Not started",
     "Paused",
-    "No action needed",
+    "Nothing to do",
     "Needs approval",
   ]);
   const ring = (id: string) =>
