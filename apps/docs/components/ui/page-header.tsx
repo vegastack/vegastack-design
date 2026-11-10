@@ -1,8 +1,9 @@
-// @vegastack page-header@0.60.0 sha256-ctqvV00zYVN5ZBNVH1IvK8ltuqm3tLdlnYon5YiGpAo=
+// @vegastack page-header@0.60.0 sha256-slzJc9H8f7rcd6TEfkiSMBnLoxxY3QnBoZNXJH1SLAA=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { useRender } from "@base-ui/react/use-render";
 import { ChevronLeft, Star } from "lucide-react";
 import { cn } from "@vegastack/design";
@@ -268,7 +269,7 @@ export function PageHeader({
   // the plain-anchor shorthand. `buttonVariants({ size: "icon-sm" })` is the same square the
   // button form renders, so every back affordance is pixel-identical.
   const backLink = useRender({
-    render: backRender ?? <a href={backHref} />,
+    render: backRender ?? <AppLink href={backHref} />,
     props: {
       "aria-label": backLabel,
       "data-slot": "page-header-back",

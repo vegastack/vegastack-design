@@ -1,8 +1,9 @@
-// @vegastack route-tabs@0.60.0 sha256-QE2iWdHPPfXRGaxGLTSagKstuU+gw7iV+38hImsz0t4=
+// @vegastack route-tabs@0.60.0 sha256-ELtDGNDxnT2arDG9KFG3fvH8fECQXwaz591OtaZLTRQ=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { cn, mergeRefs } from "@vegastack/design";
 
 import { Check, ChevronDown } from "lucide-react";
@@ -147,7 +148,7 @@ function linkElement(
   },
   children: React.ReactNode,
 ): React.ReactElement {
-  const template = (linkRender ?? <a />) as React.ReactElement<{
+  const template = (linkRender ?? <AppLink />) as React.ReactElement<{
     className?: string;
     onClick?: React.MouseEventHandler<HTMLElement>;
   }>;

@@ -1,8 +1,9 @@
-// @vegastack data-list@0.60.0 sha256-XQmgRxY9GOknjCwLq5VzTZBTLPjoeTm8+uPhcNAP5ME=
+// @vegastack data-list@0.60.0 sha256-+UQHdkIyZ+jThPIWvS4y+2Hyr5uAYTT2egt8qVwSU7k=
 
 "use client";
 
 import * as React from "react";
+import { AppLink, useOpenLink } from "@/components/ui/link-provider";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { cn, mergeRefs } from "@vegastack/design";
 import {
@@ -1350,7 +1351,7 @@ function RowLink({
       mergeProps(render.props as object, props) as object,
     );
   }
-  return <a {...props} />;
+  return <AppLink {...props} />;
 }
 
 /** A section's count as a screen reader hears it, by default (`sectionCountLabel`). */
@@ -1875,7 +1876,7 @@ export function DataList<T>({
     index: number,
   ): React.ReactElement | undefined => {
     if (!onRowOpen) return template;
-    const base = template ?? <a />;
+    const base = template ?? <AppLink />;
     const own = (base.props as { onClick?: React.MouseEventHandler }).onClick;
     return React.cloneElement(base, {
       onClick: (event: React.MouseEvent<HTMLElement>) => {
@@ -2484,6 +2485,7 @@ export function DataList<T>({
   };
   // The cursor row's activation: its link (so the router and `target` apply), its injected
   // row button, `onRowClick`, or a plain navigation to its href.
+  const openLink = useOpenLink();
   const activateRow = React.useCallback(
     (id: string) => {
       const el = rowElement(id);
@@ -2500,10 +2502,10 @@ export function DataList<T>({
       if (onRowClick) onRowClick(row, index);
       else {
         const href = getRowHref?.(row);
-        if (href !== undefined) window.location.assign(href);
+        if (href !== undefined) openLink(href);
       }
     },
-    [rowElement, rowIds, data, onRowClick, getRowHref],
+    [rowElement, rowIds, data, onRowClick, getRowHref, openLink],
   );
   const keyState = React.useRef({ displayOrder, moveCursor, activateRow });
   React.useLayoutEffect(() => {
@@ -2725,7 +2727,7 @@ export function DataList<T>({
   // A row link's own native drag (its URL) would win over the row's.
   const cardLinkRender =
     draggable || reorderable
-      ? React.cloneElement(rowLinkRender ?? <a />, { draggable: false })
+      ? React.cloneElement(rowLinkRender ?? <AppLink />, { draggable: false })
       : rowLinkRender;
 
   const table = (

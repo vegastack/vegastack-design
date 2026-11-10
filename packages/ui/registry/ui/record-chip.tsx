@@ -1,6 +1,7 @@
-// @vegastack record-chip@0.60.0 sha256-RbB7vuRDYmZrNovS6zcefm23P9a7YpXbNQVMRm0K2WU=
+// @vegastack record-chip@0.60.0 sha256-VWwn7oFmzDSBk+9NZrMqrO5xEPOsCi3lOtWixPWcK+I=
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { ArrowUpRight, ChevronDown } from "lucide-react";
 import { cn } from "@vegastack/design";
 
@@ -75,8 +76,8 @@ export interface RecordChipProps extends Omit<
    */
   linkLabel?: string;
   /**
-   * Renders the ↗ link — pass your router's link for client navigation.
-   * @default a plain `<a>`
+   * Renders the ↗ link. The default follows `LinkProvider` (an in-app link opens in place).
+   * @default `AppLink`
    */
   renderLink?: (props: {
     href: string;
@@ -100,7 +101,7 @@ export interface RecordChipPerson {
 
 const defaultRenderLink: NonNullable<RecordChipProps["renderLink"]> = (
   props,
-) => <a {...props} />;
+) => <AppLink {...props} />;
 
 /** Props accepted by `SplitChip`. */
 export type SplitChipProps = React.ComponentProps<"span">;

@@ -1,8 +1,9 @@
-// @vegastack agent-panel@0.60.0 sha256-WaTAzwnGzDdZvX0Gie6ZTdfDZdSygN0NYz4WSB5sVBk=
+// @vegastack agent-panel@0.60.0 sha256-4Ja+WsjRdjw0FwUJzn+QRNtGgDqIILkwSAzvtUEqPnA=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { mergeProps } from "@base-ui/react/merge-props";
 import {
   ArrowUp,
@@ -826,7 +827,7 @@ export function AgentCard({
       ) : null}
       {href ? (
         React.cloneElement(
-          linkRender ?? <a />,
+          linkRender ?? <AppLink />,
           mergeProps((linkRender?.props ?? {}) as object, {
             href,
             "data-slot": "agent-hover-card-open",

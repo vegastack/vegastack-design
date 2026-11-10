@@ -86,6 +86,7 @@ export * from "./markdown-view";
 export * from "./inline-chip";
 export * from "./cited-list";
 export * from "./provider";
+export * from "./link-provider";
 export * from "./toast";
 export * from "./command";
 export * from "./command-search";

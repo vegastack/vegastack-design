@@ -1,8 +1,14 @@
-// @vegastack inline-chip@0.60.0 sha256-j/6OMJ2U3HDdiMrMGXW/tklIPwVwPbBU8/O0bxJWyaQ=
+// @vegastack inline-chip@0.60.0 sha256-i/m5wdtRFEiQReAKLIkenpsGn0ndetyXl5nGdcERg9s=
 
 "use client";
 
 import * as React from "react";
+import {
+  inAppPath,
+  isPlainClick,
+  linkAction,
+  useLinkProvider,
+} from "@/components/ui/link-provider";
 import { Bot, CircleCheck, Link2, UserRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { FileTypeIcon } from "@/lib/file-kind";
@@ -485,10 +491,12 @@ export function InlineChip({
     ...(contentType ? { contentType } : {}),
   };
   const opens = Boolean(href || (onOpen && kind !== "user"));
+  const links = useLinkProvider();
 
   const open = (event: React.MouseEvent | React.KeyboardEvent) => {
     const modifier =
-      "metaKey" in event && (event.metaKey || event.ctrlKey || event.shiftKey);
+      "metaKey" in event &&
+      (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey);
     if (modifier) {
       // A link opens in a new tab natively; in an editor (`modifier`), the anchor's default may be
       // eaten by the contenteditable, so open it here.
@@ -503,7 +511,21 @@ export function InlineChip({
       return;
     }
     if (onOpen && kind !== "user") {
-      if (onOpen(target, event) !== false) event.preventDefault();
+      if (onOpen(target, event) !== false) {
+        event.preventDefault();
+        return;
+      }
+    }
+    // No surface hand-off: an in-app link opens in place through the app's router.
+    const path = href ? inAppPath(href, links.origin) : null;
+    if (
+      path !== null &&
+      links.navigate &&
+      "button" in event &&
+      isPlainClick(event)
+    ) {
+      event.preventDefault();
+      links.navigate(path);
     }
   };
 
@@ -627,6 +649,10 @@ export function InlineChip({
       <a
         {...(shared as React.ComponentProps<"a">)}
         href={href}
+        // Another site (not a hand-off to the host): a new tab, as every external link.
+        {...(!onOpen && linkAction(href, links).kind === "external"
+          ? { target: "_blank", rel: "noopener noreferrer" }
+          : {})}
         onClick={open}
         onKeyDown={onKeyDown as React.KeyboardEventHandler<HTMLElement>}
       >

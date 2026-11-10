@@ -841,7 +841,8 @@
         "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-media-query",
-        "@vegastack/use-mobile"
+        "@vegastack/use-mobile",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -874,7 +875,8 @@
         "@vegastack/date-time",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/person-hover-card"
+        "@vegastack/person-hover-card",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -932,7 +934,8 @@
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/use-drag-reorder",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -1596,7 +1599,11 @@
         "@vegastack/design@^0.13.0",
         "@vegastack/design-tokens@^0.11.0"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/link-provider"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/block-header.tsx",
@@ -1637,7 +1644,8 @@
         "@vegastack/checkbox",
         "@vegastack/action-bar",
         "@vegastack/list-toolbar",
-        "@vegastack/display-menu"
+        "@vegastack/display-menu",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -2564,7 +2572,8 @@
         "@vegastack/drawer",
         "@vegastack/kbd",
         "@vegastack/tooltip",
-        "@vegastack/use-platform"
+        "@vegastack/use-platform",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -13647,7 +13656,8 @@
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
         "@vegastack/avatar",
-        "@vegastack/badge"
+        "@vegastack/badge",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -13688,7 +13698,8 @@
         "@vegastack/embed-providers",
         "@vegastack/block-view",
         "@vegastack/task-inline",
-        "@vegastack/skeleton"
+        "@vegastack/skeleton",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -13850,6 +13861,26 @@
       }
     },
     {
+      "name": "use-stick-to-bottom",
+      "type": "registry:hook",
+      "title": "useStickToBottom",
+      "description": "Keeps a chat thread on its newest line while the reader is there, lets go when they scroll up, and comes back when they reach the bottom or send.",
+      "dependencies": [],
+      "registryDependencies": ["@vegastack/use-media-query"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-stick-to-bottom.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-stick-to-bottom.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A MessageScroller thread whose answers stream: pass the reader's newest message id as follow, and keep the engine's autoScroll off.",
+        "whenNotToUse": "A list that never grows while read, or a feed that should hold its place (a log the reader pages through).",
+        "version": "0.61.0"
+      }
+    },
+    {
       "name": "transcript",
       "type": "registry:ui",
       "title": "Transcript",
@@ -14005,7 +14036,8 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/person-avatar",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -14311,7 +14343,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -15227,7 +15260,7 @@
         "@vegastack/design@^0.13.0",
         "@vegastack/design-tokens@^0.11.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/link-provider"],
       "files": [
         {
           "path": "packages/ui/registry/ui/settings-layout.tsx",
@@ -15469,7 +15502,10 @@
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
         "version": "0.60.0"
       },
-      "registryDependencies": ["@vegastack/skeleton"]
+      "registryDependencies": [
+        "@vegastack/skeleton",
+        "@vegastack/link-provider"
+      ]
     },
     {
       "name": "priority-icon",
@@ -15840,7 +15876,8 @@
         "@vegastack/person-avatar",
         "@vegastack/task-inline",
         "@vegastack/block-toolbar",
-        "@vegastack/use-platform"
+        "@vegastack/use-platform",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -19217,7 +19254,8 @@
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/disclosure-trigger"
+        "@vegastack/disclosure-trigger",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -19285,7 +19323,8 @@
         "@vegastack/separator",
         "@vegastack/skeleton",
         "@vegastack/spinner",
-        "@vegastack/textarea"
+        "@vegastack/textarea",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -19343,7 +19382,8 @@
         "@vegastack/tabs",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/use-overflow-fold"
+        "@vegastack/use-overflow-fold",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -19406,7 +19446,8 @@
         "@vegastack/collapsible",
         "@vegastack/skeleton",
         "@vegastack/use-list-nav",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -19446,6 +19487,27 @@
         "whenToUse": "A nested list in the collapsed icon rail (Spaces and + New space), where an inline group has no room; railOnly keeps the expanded sidebar's own group.",
         "whenNotToUse": "A row that goes somewhere on its own (SidebarMenuButton), a submenu inside the expanded sidebar (SidebarMenuSub), or the profile or workspace menu (DropdownMenu with a SidebarMenuButton trigger).",
         "version": "0.60.0"
+      }
+    },
+    {
+      "name": "link-provider",
+      "type": "registry:ui",
+      "title": "Link Provider",
+      "description": "One rule for every link: a plain click on an in-app link is the host router's navigation in the same tab, a modified click stays the browser's, another origin opens a new tab. Set once at the app root; every VegaStack link reads it.",
+      "categories": ["navigation"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/link-provider.tsx",
+          "type": "registry:ui",
+          "target": "@ui/link-provider.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Once, at the app root, with the router's push and the app's origin; AppLink or useOpenLink for a link or Open button of your own.",
+        "whenNotToUse": "A link that must always open a new tab inside an unanswered dialog (RecordList's ↗), or a download.",
+        "version": "0.61.0"
       }
     }
   ]

@@ -169,6 +169,7 @@
     "announcement-banner",
     "toast",
     "provider",
+    "link-provider",
     "priority-icon",
     "progress",
     "spinner",

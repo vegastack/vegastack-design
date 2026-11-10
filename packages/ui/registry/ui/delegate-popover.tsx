@@ -1,8 +1,9 @@
-// @vegastack delegate-popover@0.60.0 sha256-ZLVCl7qSLGNAuEKy3WmsQA8hjde84OZwhd7ktLsUR3k=
+// @vegastack delegate-popover@0.60.0 sha256-7Fc4k1P79lThLs08lXSr8+NasgcsNyWDu60CtRtxmjg=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { Bot, ChevronRight, TriangleAlert } from "lucide-react";
 import { cn } from "@vegastack/design";
@@ -396,7 +397,7 @@ export function DelegatePopover({
   ) =>
     connectHref ? (
       React.cloneElement(
-        linkRender ?? <a />,
+        linkRender ?? <AppLink />,
         mergeProps((linkRender?.props ?? {}) as object, {
           href: connectHref,
           "data-slot": "delegate-popover-connect",

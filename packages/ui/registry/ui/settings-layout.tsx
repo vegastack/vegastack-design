@@ -1,6 +1,7 @@
-// @vegastack settings-layout@0.60.0 sha256-iNLkWub6xCv5aA0UF/ZHn0HZb+pLwFrwGz9rdgqh/NI=
+// @vegastack settings-layout@0.60.0 sha256-mQoXcyONyWs7/wNXxNaEKGxMO/RqptqbeqRNzpRu6aw=
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@vegastack/design";
 
@@ -110,7 +111,7 @@ function renderLink(
   linkRender: React.ReactElement | undefined,
   props: Record<string, unknown> & { className?: string },
 ): React.ReactElement {
-  const template = (linkRender ?? <a />) as React.ReactElement<{
+  const template = (linkRender ?? <AppLink />) as React.ReactElement<{
     className?: string;
   }>;
   return React.cloneElement(template, {

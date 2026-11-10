@@ -1,8 +1,9 @@
-// @vegastack stat@0.60.0 sha256-BedkKxOlWUfztTEofS2VB17txMWP6rTkwPCW4T39u7w=
+// @vegastack stat@0.60.0 sha256-smv2nPCAIMb7NSYpP+8stdNrsXgPlK1hFcHrss9oBBc=
 
 "use client";
 
 import * as React from "react";
+import { AppLink } from "@/components/ui/link-provider";
 import { cva } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -312,7 +313,7 @@ export function StatGroup({
                 {stat}
               </div>
             );
-          const template = (linkRender ?? <a />) as React.ReactElement<{
+          const template = (linkRender ?? <AppLink />) as React.ReactElement<{
             className?: string;
           }>;
           return React.cloneElement(

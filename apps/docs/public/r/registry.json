@@ -936,7 +936,8 @@
         "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-media-query",
-        "@vegastack/use-mobile"
+        "@vegastack/use-mobile",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -949,7 +950,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.60.0",
-        "integrity": "sha256-sjx2pH/RWbZrliNk2lbAP6rStjMrQW/1HG6+5wbPBNE="
+        "integrity": "sha256-ZbnPRv/qMX2VlkKzU1mqPCVm7hnAFWhlFuIVQOlJu9k="
       }
     },
     {
@@ -972,7 +973,8 @@
         "@vegastack/date-time",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/person-hover-card"
+        "@vegastack/person-hover-card",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -985,7 +987,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.60.0",
-        "integrity": "sha256-+or2dbRTvmbt1dMLaZ/hJqhUhFfAe/v87QEBrf8I1uw="
+        "integrity": "sha256-f+ZYCH7Cg4WXR460gFRuKtY7glHKe4RuVk8B4zqsV/g="
       }
     },
     {
@@ -1036,7 +1038,8 @@
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/use-drag-reorder",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -1049,7 +1052,7 @@
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
         "version": "0.60.0",
-        "integrity": "sha256-PfITN9rmwZua3IiaU/rJI9RQ/W4CIhdKOJd/pGp5nWQ="
+        "integrity": "sha256-m/Or+FprEraA1IKBXaOQTGqmcoTP2PU2Qi8eebnZqNc="
       }
     },
     {
@@ -1794,7 +1797,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/dropdown-menu"
+        "@vegastack/dropdown-menu",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -1807,7 +1811,7 @@
         "whenToUse": "The top row of a block that shows records from elsewhere inside a page — a table view (DataGrid embedded's toolbar), a task list — and the block's unconfigured state with its picker.",
         "whenNotToUse": "A page's own header (DocumentLayoutHeader), a section heading (DocumentLayoutSection), or a record's header.",
         "version": "0.60.0",
-        "integrity": "sha256-4xZP5xuiAoqkaZ6lbvkgHhyGtAovA6cuKG4qO2E5aRU="
+        "integrity": "sha256-twGmNHj1n1CNexeSfl1C5hGWFWnsS/tCXPFz4IGtD8Q="
       }
     },
     {
@@ -1839,7 +1843,8 @@
         "@vegastack/checkbox",
         "@vegastack/action-bar",
         "@vegastack/list-toolbar",
-        "@vegastack/display-menu"
+        "@vegastack/display-menu",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -1852,7 +1857,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.60.0",
-        "integrity": "sha256-XQmgRxY9GOknjCwLq5VzTZBTLPjoeTm8+uPhcNAP5ME="
+        "integrity": "sha256-+UQHdkIyZ+jThPIWvS4y+2Hyr5uAYTT2egt8qVwSU7k="
       }
     },
     {
@@ -2892,7 +2897,8 @@
         "@vegastack/drawer",
         "@vegastack/kbd",
         "@vegastack/tooltip",
-        "@vegastack/use-platform"
+        "@vegastack/use-platform",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -2905,7 +2911,7 @@
         "whenToUse": "Opening any record from a list — a task, a table row, a meeting, a customer — beside the list, with keyboard walking and a way to the full page.",
         "whenNotToUse": "A document or file that opens as its own page or viewer, or a form that needs the page to wait (Dialog, Sheet).",
         "version": "0.60.0",
-        "integrity": "sha256-Uh7lXjdXd9cGgsDRrptAh0H5JduO0Tq76jVDVGHBRQg="
+        "integrity": "sha256-qbakxHvITuJ8I63cGlsPRpR/WFQxBYU8HBPlPG3SLAg="
       }
     },
     {
@@ -16865,7 +16871,8 @@
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
         "@vegastack/avatar",
-        "@vegastack/badge"
+        "@vegastack/badge",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -16878,7 +16885,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.60.0",
-        "integrity": "sha256-j/6OMJ2U3HDdiMrMGXW/tklIPwVwPbBU8/O0bxJWyaQ="
+        "integrity": "sha256-i/m5wdtRFEiQReAKLIkenpsGn0ndetyXl5nGdcERg9s="
       }
     },
     {
@@ -16909,7 +16916,8 @@
         "@vegastack/embed-providers",
         "@vegastack/block-view",
         "@vegastack/task-inline",
-        "@vegastack/skeleton"
+        "@vegastack/skeleton",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -16932,7 +16940,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.60.1",
-        "integrity": "sha256-VAZerC6mgQNLJtk7ei5L1NIVfn1JJSiqsJsO6l3Vc5M="
+        "integrity": "sha256-0SfkWSEontFJDGHehREM6wY9UlZri+6tpdA1Lle+7EA="
       }
     },
     {
@@ -17087,6 +17095,29 @@
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.60.0",
         "integrity": "sha256-zgk2FXUwxKlDN2bxjhQ3oAdi3tYKExgUuMqshSsXvM8="
+      }
+    },
+    {
+      "name": "use-stick-to-bottom",
+      "type": "registry:hook",
+      "title": "useStickToBottom",
+      "description": "Keeps a chat thread on its newest line while the reader is there, lets go when they scroll up, and comes back when they reach the bottom or send.",
+      "dependencies": [],
+      "registryDependencies": [
+        "@vegastack/use-media-query"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/use-stick-to-bottom.ts",
+          "type": "registry:hook",
+          "target": "@ui/use-stick-to-bottom.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A MessageScroller thread whose answers stream: pass the reader's newest message id as follow, and keep the engine's autoScroll off.",
+        "whenNotToUse": "A list that never grows while read, or a feed that should hold its place (a log the reader pages through).",
+        "version": "0.61.0",
+        "integrity": "sha256-v0A+njJEMgsuipJHriG09duLs37AXSuMbZKPUyAHd2w="
       }
     },
     {
@@ -17262,7 +17293,8 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/person-avatar",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -17275,7 +17307,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.60.0",
-        "integrity": "sha256-RbB7vuRDYmZrNovS6zcefm23P9a7YpXbNQVMRm0K2WU="
+        "integrity": "sha256-VWwn7oFmzDSBk+9NZrMqrO5xEPOsCi3lOtWixPWcK+I="
       }
     },
     {
@@ -17607,7 +17639,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -17620,7 +17653,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.60.0",
-        "integrity": "sha256-ctqvV00zYVN5ZBNVH1IvK8ltuqm3tLdlnYon5YiGpAo="
+        "integrity": "sha256-slzJc9H8f7rcd6TEfkiSMBnLoxxY3QnBoZNXJH1SLAA="
       }
     },
     {
@@ -18651,7 +18684,9 @@
         "@vegastack/design@^0.13.0",
         "@vegastack/design-tokens@^0.11.0"
       ],
-      "registryDependencies": [],
+      "registryDependencies": [
+        "@vegastack/link-provider"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/settings-layout.tsx",
@@ -18663,7 +18698,7 @@
         "whenToUse": "An app's Settings area — many settings pages browsed sideways, each starting at the same x with one width rule.",
         "whenNotToUse": "One settings form on its own page (AppShellPage size=\"prose\"), or a record's tabs (Tabs).",
         "version": "0.60.0",
-        "integrity": "sha256-iNLkWub6xCv5aA0UF/ZHn0HZb+pLwFrwGz9rdgqh/NI="
+        "integrity": "sha256-mQoXcyONyWs7/wNXxNaEKGxMO/RqptqbeqRNzpRu6aw="
       }
     },
     {
@@ -18916,10 +18951,11 @@
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
         "version": "0.60.0",
-        "integrity": "sha256-BedkKxOlWUfztTEofS2VB17txMWP6rTkwPCW4T39u7w="
+        "integrity": "sha256-smv2nPCAIMb7NSYpP+8stdNrsXgPlK1hFcHrss9oBBc="
       },
       "registryDependencies": [
-        "@vegastack/skeleton"
+        "@vegastack/skeleton",
+        "@vegastack/link-provider"
       ]
     },
     {
@@ -19338,7 +19374,8 @@
         "@vegastack/person-avatar",
         "@vegastack/task-inline",
         "@vegastack/block-toolbar",
-        "@vegastack/use-platform"
+        "@vegastack/use-platform",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -19356,7 +19393,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.60.0",
-        "integrity": "sha256-M+anRxrTPzHF7PlOL6035C/leIS6KMwKcMR3gtCCLRo="
+        "integrity": "sha256-0gRr35I0ob+QKImHqWr7UWL6HAqAWl1MupebG/WohVg="
       }
     },
     {
@@ -23457,7 +23494,8 @@
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/disclosure-trigger"
+        "@vegastack/disclosure-trigger",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -23470,7 +23508,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
         "version": "0.60.0",
-        "integrity": "sha256-WaTAzwnGzDdZvX0Gie6ZTdfDZdSygN0NYz4WSB5sVBk="
+        "integrity": "sha256-4Ja+WsjRdjw0FwUJzn+QRNtGgDqIILkwSAzvtUEqPnA="
       }
     },
     {
@@ -23531,7 +23569,8 @@
         "@vegastack/separator",
         "@vegastack/skeleton",
         "@vegastack/spinner",
-        "@vegastack/textarea"
+        "@vegastack/textarea",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -23544,7 +23583,7 @@
         "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
         "version": "0.60.0",
-        "integrity": "sha256-ZLVCl7qSLGNAuEKy3WmsQA8hjde84OZwhd7ktLsUR3k="
+        "integrity": "sha256-7Fc4k1P79lThLs08lXSr8+NasgcsNyWDu60CtRtxmjg="
       }
     },
     {
@@ -23596,7 +23635,8 @@
         "@vegastack/tabs",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/use-overflow-fold"
+        "@vegastack/use-overflow-fold",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -23609,7 +23649,7 @@
         "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
         "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
         "version": "0.60.0",
-        "integrity": "sha256-QE2iWdHPPfXRGaxGLTSagKstuU+gw7iV+38hImsz0t4="
+        "integrity": "sha256-ELtDGNDxnT2arDG9KFG3fvH8fECQXwaz591OtaZLTRQ="
       }
     },
     {
@@ -23668,7 +23708,8 @@
         "@vegastack/collapsible",
         "@vegastack/skeleton",
         "@vegastack/use-list-nav",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/link-provider"
       ],
       "files": [
         {
@@ -23681,7 +23722,7 @@
         "whenToUse": "A Recent row above a list (the Library home) or Home's Jump back in: up to six records to return to, one tap away, without pushing the main list down.",
         "whenNotToUse": "The main list of records (DataList), a grid of every item (DataList view=\"grid\"), or a record's own links (RecordChip).",
         "version": "0.60.0",
-        "integrity": "sha256-csjNs3gs3NwLVLM7L+hZVC7qTps4QGiX19S9PPvZheQ="
+        "integrity": "sha256-5QCD/t8KF9T16sxC3OBu4d1QL4Ht2TgN7Bjr0z21ijg="
       }
     },
     {
@@ -23712,6 +23753,30 @@
         "whenNotToUse": "A row that goes somewhere on its own (SidebarMenuButton), a submenu inside the expanded sidebar (SidebarMenuSub), or the profile or workspace menu (DropdownMenu with a SidebarMenuButton trigger).",
         "version": "0.60.0",
         "integrity": "sha256-EOf+6dWwiNTs5E6r0tcVPBdM0fnchmlTQL2M87O1OO0="
+      }
+    },
+    {
+      "name": "link-provider",
+      "type": "registry:ui",
+      "title": "Link Provider",
+      "description": "One rule for every link: a plain click on an in-app link is the host router's navigation in the same tab, a modified click stays the browser's, another origin opens a new tab. Set once at the app root; every VegaStack link reads it.",
+      "categories": [
+        "navigation"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/link-provider.tsx",
+          "type": "registry:ui",
+          "target": "@ui/link-provider.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Once, at the app root, with the router's push and the app's origin; AppLink or useOpenLink for a link or Open button of your own.",
+        "whenNotToUse": "A link that must always open a new tab inside an unanswered dialog (RecordList's ↗), or a download.",
+        "version": "0.61.0",
+        "integrity": "sha256-eId3dqxt0tj2NPLljx3CWkDPvapIOAPesO8VzgrudWU="
       }
     }
   ]

@@ -966,6 +966,17 @@
       "family": "chat",
       "source": "Regent agents platform, lane AQ (agent question forms) — operator approval 2026-11-05 (go-dark, \"rsume from them on finishing all phases development till the end continuing in godark mode\")",
       "rationale": "Upstream ships no agent question batch. A composition of our questionnaire (upstream's engine) with upstream badge, button and textarea: a compact pick-and-send form for one question, and a stepped form with own words, notes, previews and a review for the rest; no patch."
+    },
+    "link-provider": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Operator request 2026-11-10 (VegaStack: in-app links change only the centre, in the same tab; fixed once in the design system) — VegaStack agents overhaul batch approval",
+      "rationale": "Upstream ships no router seam. The React Aria RouterProvider pattern: one context with the host router's navigate and the app's origin, read by default by every link-rendering component (MarkdownView, InlineChip, RecordChip, DataList, TextEdit and the linkRender templates); explicit props still win."
+    },
+    "use-stick-to-bottom": {
+      "disposition": "keep",
+      "family": "hook",
+      "source": "registry:hook — not a component, so extras.md does not list it"
     }
   }
 }

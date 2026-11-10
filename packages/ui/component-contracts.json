@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 793,
-    "components": 203,
+    "totalRegistryItems": 795,
+    "components": 204,
     "animatedIcons": 467,
-    "hooks": 18,
+    "hooks": 19,
     "blocks": 15,
     "libs": 22,
     "chartBlocks": 68
@@ -23,13 +23,13 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 44,
-    "Navigation/layout": 26,
+    "Navigation/layout": 27,
     "Overlays": 24,
     "Data display": 47,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 17,
-    "Hooks": 18,
+    "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
   },
@@ -132,7 +132,8 @@
       "settings-layout",
       "help-menu",
       "route-tabs",
-      "sidebar-menu-flyout"
+      "sidebar-menu-flyout",
+      "link-provider"
     ],
     "Overlays": [
       "access-chip",
@@ -271,7 +272,8 @@
       "use-optimistic-action",
       "use-record-peek-row",
       "use-overflow-fold",
-      "use-grid-selection"
+      "use-grid-selection",
+      "use-stick-to-bottom"
     ],
     "Block": [
       "board-01",
@@ -3780,7 +3782,8 @@
         "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-media-query",
-        "@vegastack/use-mobile"
+        "@vegastack/use-mobile",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -4066,7 +4069,8 @@
         "@vegastack/date-time",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/person-hover-card"
+        "@vegastack/person-hover-card",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -4482,7 +4486,8 @@
         "@vegastack/button",
         "@vegastack/dropdown-menu",
         "@vegastack/use-drag-reorder",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -8853,7 +8858,8 @@
         "@vegastack/checkbox",
         "@vegastack/action-bar",
         "@vegastack/list-toolbar",
-        "@vegastack/display-menu"
+        "@vegastack/display-menu",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -18720,7 +18726,8 @@
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
         "@vegastack/avatar",
-        "@vegastack/badge"
+        "@vegastack/badge",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -19330,6 +19337,24 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "MarkdownLink",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MarkdownLinkProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -19406,7 +19431,8 @@
         "@vegastack/embed-providers",
         "@vegastack/block-view",
         "@vegastack/task-inline",
-        "@vegastack/skeleton"
+        "@vegastack/skeleton",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
@@ -19465,6 +19491,15 @@
             {
               "name": "data-slot",
               "values": ["markdown-image-blocked"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownLink": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["markdown-link-domain"]
             }
           ],
           "cssVariables": []
@@ -22270,7 +22305,8 @@
       "docsSlug": "/docs/components/page-header",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -25755,7 +25791,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/settings-layout",
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/link-provider"],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
         "@vegastack/design@^0.13.0",
@@ -27104,7 +27140,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/stat",
-      "registryDependencies": ["@vegastack/skeleton"],
+      "registryDependencies": [
+        "@vegastack/skeleton",
+        "@vegastack/link-provider"
+      ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
         "@vegastack/design@^0.13.0",
@@ -29611,7 +29650,8 @@
         "@vegastack/block-toolbar",
         "@vegastack/use-platform",
         "@vegastack/chip",
-        "@vegastack/kbd"
+        "@vegastack/kbd",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -34529,7 +34569,8 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/person-avatar",
-        "@vegastack/popover"
+        "@vegastack/popover",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -42755,7 +42796,8 @@
         "@vegastack/drawer",
         "@vegastack/kbd",
         "@vegastack/tooltip",
-        "@vegastack/use-platform"
+        "@vegastack/use-platform",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -43285,7 +43327,8 @@
         "@vegastack/disclosure-trigger",
         "@vegastack/field",
         "@vegastack/badge",
-        "@vegastack/truncated-text"
+        "@vegastack/truncated-text",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -43768,7 +43811,8 @@
         "@vegastack/spinner",
         "@vegastack/textarea",
         "@vegastack/avatar",
-        "@vegastack/person-avatar"
+        "@vegastack/person-avatar",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -44108,7 +44152,8 @@
         "@vegastack/tabs",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/use-overflow-fold"
+        "@vegastack/use-overflow-fold",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -44578,7 +44623,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/block-header",
-      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/link-provider"
+      ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
         "@vegastack/design-tokens@^0.11.0",
@@ -45543,7 +45592,8 @@
         "@vegastack/collapsible",
         "@vegastack/skeleton",
         "@vegastack/use-list-nav",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/link-provider"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -46212,6 +46262,186 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "link-provider",
+      "registryType": "registry:ui",
+      "title": "Link Provider",
+      "summary": "One rule for every link, set once at the app root: an in-app link opens in place through the host router, a modified click stays the browser's, another origin opens a new tab.",
+      "status": "stable",
+      "since": "0.61.0",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/link-provider.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AppLink",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AppLinkProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "inAppPath",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "isPlainClick",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "linkAction",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "LinkAction",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "LinkProvider",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "LinkProviderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "LinkProviderValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useLinkProvider",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useOpenLink",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/link-provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A context and a native link: no variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "AppLink inherits its host's type and size."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["navigate", "browser", "external", "modified-click"],
+          "evidence": "packages/ui/registry/ui/link-provider.tsx + packages/ui/registry/ui/link-provider.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "native-or-base-ui-semantics",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/link-provider.test.tsx"
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No visual state of its own: AppLink is a plain anchor styled by its host."
+        }
+      },
+      "responsive": {
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "Renders no layout of its own."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/link-provider",
+      "registryDependencies": [],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/link-provider.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "exempt"
+      },
+      "dataAttributes": {
+        "AppLink": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["app-link"]
+            }
+          ],
+          "cssVariables": []
+        }
+      },
+      "previewModule": "link-provider"
     }
   ],
   "animatedIcons": {
@@ -50860,6 +51090,107 @@
         "navigation": "exempt",
         "preview": "exempt",
         "vrt": "exempt"
+      }
+    },
+    {
+      "name": "use-stick-to-bottom",
+      "registryType": "registry:hook",
+      "title": "useStickToBottom",
+      "summary": "Keeps a chat thread on its newest line while the reader is there, lets go only when the view really moves up, and comes back at the bottom, on Jump to latest or on a send.",
+      "family": "hook",
+      "wave": "Hooks",
+      "sourceFiles": ["packages/ui/registry/ui/use-stick-to-bottom.ts"],
+      "publicSymbols": [
+        {
+          "name": "isAtScrollBottom",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useStickToBottom",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "UseStickToBottomOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "UseStickToBottomResult",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A scroll hook has no variant axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A scroll hook has no size scale."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["pinned", "released", "follow"],
+          "evidence": "Pinned at the bottom, released by an upward scroll or gesture, re-pinned at the bottom, by scrollToBottom or a changed follow key."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render an accessibility tree."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure hooks do not render visual states."
+        }
+      },
+      "responsive": {
+        "status": "observed",
+        "risks": ["overflow-and-scroll"],
+        "rationale": "One ResizeObserver watches the viewport and the content, so a resize, a streamed line or an image loading all keep a pinned view at the bottom."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["scroll-behavior"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "scrollToBottom's smooth scroll becomes an instant jump under prefers-reduced-motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/message-scroller",
+      "registryDependencies": ["@vegastack/use-media-query"],
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/ui/use-stick-to-bottom.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt",
+        "crossBrowserSmoke": "not-selected-intentional-subset"
       }
     }
   ],
