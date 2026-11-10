@@ -16,15 +16,27 @@ import { TextEdit } from "./text-edit";
 
 const ORIGIN = "https://app.example.com";
 
+/**
+ * Clicks `element` and says whether the app handled it (`defaultPrevented`), then stops the
+ * browser from following it either way, so the test page never navigates.
+ */
 function click(element: Element, init: MouseEventInit = {}) {
-  const event = new MouseEvent("click", {
-    bubbles: true,
-    cancelable: true,
-    button: 0,
-    ...init,
-  });
-  element.dispatchEvent(event);
-  return event;
+  let defaultPrevented = false;
+  const guard = (event: Event) => {
+    defaultPrevented = event.defaultPrevented;
+    event.preventDefault();
+  };
+  window.addEventListener("click", guard, { once: true });
+  element.dispatchEvent(
+    new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      button: 0,
+      ...init,
+    }),
+  );
+  window.removeEventListener("click", guard);
+  return { defaultPrevented };
 }
 
 test("inAppPath: a path, or a full address on the origin, is in-app; anything else is not", () => {
