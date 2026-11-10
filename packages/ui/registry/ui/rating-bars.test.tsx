@@ -112,3 +112,20 @@ test("forwards ref and merges className onto the root", async () => {
   expect(root.className).toContain("w-60");
   expect(root.className).toContain("grid-cols-[4rem_auto_1fr]");
 });
+
+test("a fraction lights the nearest whole segment and is reported as given", async () => {
+  const screen = await render(
+    <RatingBars label="Speed" value={2.4} valueText="Medium" />,
+  );
+  expect(litOf(screen.container)).toHaveLength(2);
+  expect(rootOf(screen.container).getAttribute("aria-valuenow")).toBe("2.4");
+});
+
+test("max below 1 still draws one segment, so the meter's maximum stays above its minimum", async () => {
+  const screen = await render(
+    <RatingBars label="Speed" value={1} max={0} valueText="Fast" />,
+  );
+  expect(segmentsOf(screen.container)).toHaveLength(1);
+  expect(rootOf(screen.container).getAttribute("aria-valuemax")).toBe("1");
+  expect(rootOf(screen.container).getAttribute("aria-valuenow")).toBe("1");
+});

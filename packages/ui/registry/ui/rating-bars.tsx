@@ -1,4 +1,4 @@
-// @vegastack rating-bars@0.61.2 sha256-bAaNwCVr5OVz99e65ca67CIhAjyZYq0g6TBELm2PQbM=
+// @vegastack rating-bars@0.61.2 sha256-VxXFCRXU3qFRW4ov9cxWMBg/mckD4szMkoY/xK3SnAc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -20,12 +20,14 @@ export interface RatingBarsProps extends Omit<
   "children"
 > {
   /**
-   * How many segments are lit, clamped to `0`–`max` and rounded to a whole segment. `null` lights
-   * none — for a rating that is not known; say so in `valueText` ("Not listed").
+   * How many segments are lit, clamped to `0`–`max`; a fraction lights the nearest whole number of
+   * segments and is reported as given in `aria-valuenow`. `null` lights none — for a rating that is
+   * not known; say so in `valueText` ("Not listed").
    */
   value: number | null;
   /**
-   * How many segments the row has.
+   * How many segments the row has: a whole number of at least 1 (a fraction is floored, anything
+   * below 1 draws one segment).
    * @default 5
    */
   max?: number;
@@ -57,11 +59,13 @@ export function RatingBars({
   className,
   ...props
 }: RatingBarsProps): React.ReactElement {
-  const total = Math.max(0, Math.floor(Number.isFinite(max) ? max : 0));
-  const lit =
+  // A row needs at least one segment, and the meter a maximum above its minimum.
+  const total = Number.isFinite(max) ? Math.max(1, Math.floor(max)) : 5;
+  const now =
     value === null || !Number.isFinite(value)
       ? 0
-      : Math.min(total, Math.max(0, Math.round(value)));
+      : Math.min(total, Math.max(0, value));
+  const lit = Math.round(now);
   return (
     <div
       data-slot="rating-bars"
@@ -70,7 +74,7 @@ export function RatingBars({
       aria-label={label}
       aria-valuemin={0}
       aria-valuemax={total}
-      aria-valuenow={lit}
+      aria-valuenow={now}
       aria-valuetext={valueText}
       className={cn(
         "grid grid-cols-[4rem_auto_1fr] items-center gap-2",

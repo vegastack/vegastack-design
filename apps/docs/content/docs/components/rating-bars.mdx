@@ -64,12 +64,13 @@ at both sizes.
 />
 
 `RatingBars` also takes the `<div>` element's own props (`className`, `ref`, `title`, …) except
-`children`; the root is the meter. `value` is clamped to `0`–`max` and rounded to a whole segment.
+`children`; the root is the meter. `value` is clamped to `0`–`max` and lights the nearest whole number of segments; `max` is a whole
+number of at least 1.
 
 ## Accessibility
 
-- The root is `role="meter"`, named by `label`, with `aria-valuenow` (the lit count, `0` for
-  `null`), `aria-valuemin` `0`, `aria-valuemax` `max` and `aria-valuetext` `valueText` — a screen
+- The root is `role="meter"`, named by `label`, with `aria-valuenow` (the clamped value, `0`
+  for `null`), `aria-valuemin` `0`, `aria-valuemax` `max` and `aria-valuetext` `valueText` — a screen
   reader hears "Speed, Fast", not a number.
 - The segments are `aria-hidden`: they draw the value the meter already states.
 - Nothing in it is focusable or interactive.

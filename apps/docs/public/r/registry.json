@@ -672,7 +672,7 @@
         "whenToUse": "Rating something on a small fixed scale with a word that says what it means — a model's speed, cost and quality in a picker's details, stacked so the rows compare down the column.",
         "whenNotToUse": "A live or continuous value (Progress, LevelMeter); a user's own star rating input; an exact number or a price (show the figure).",
         "version": "0.61.2",
-        "integrity": "sha256-bAaNwCVr5OVz99e65ca67CIhAjyZYq0g6TBELm2PQbM="
+        "integrity": "sha256-VxXFCRXU3qFRW4ov9cxWMBg/mckD4szMkoY/xK3SnAc="
       }
     },
     {
