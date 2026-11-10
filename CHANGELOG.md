@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.61.0] — November 10, 2026
+
+<!-- assembled from 1 changeset: d1921667899d -->
+
+### 🧩 New components
+
+- `LinkProvider`: one rule for every link, set once at the app root — a plain click on an in-app link (a path, or a full address on the app's origin) is the router's navigation in the same tab, a modified or middle click stays the browser's, another origin opens a new tab. `MarkdownView`, `InlineChip`, `RecordChip`, `DataList`, `TextEdit` (read-only links and the link card's Open) and every `linkRender` default (`AppLink`) read it; their own props still win. `useStickToBottom`: a chat thread stays on its newest line while the reader is there (streamed words, an activity block opening, an image loading), lets go only when the view really moves up, re-pins at the bottom or on Jump to latest, and always shows a send — use it with `MessageScroller`'s `autoScroll` off, whose engine stops following after a wheel or key at the bottom.
+  [`2a833c9`](https://github.com/VegaStack/vegastack-design/commit/2a833c9)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.60.3 → 0.61.0.
+
 ## [0.60.3] — November 10, 2026
 
 <!-- assembled from 2 changesets: 9fe4b115c6e2 -->

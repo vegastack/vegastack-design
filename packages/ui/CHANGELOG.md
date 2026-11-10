@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.61.0
+
+### Minor Changes
+
+- [#944](https://github.com/vegastack/vegastack-design/pull/944) [`2a833c9`](https://github.com/vegastack/vegastack-design/commit/2a833c97ba09901056f162377b36b30dfc50c0ac) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `LinkProvider`: one rule for every link, set once at the app root — a plain click on an in-app link (a path, or a full address on the app's origin) is the router's navigation in the same tab, a modified or middle click stays the browser's, another origin opens a new tab. `MarkdownView`, `InlineChip`, `RecordChip`, `DataList`, `TextEdit` (read-only links and the link card's Open) and every `linkRender` default (`AppLink`) read it; their own props still win. `useStickToBottom`: a chat thread stays on its newest line while the reader is there (streamed words, an activity block opening, an image loading), lets go only when the view really moves up, re-pins at the bottom or on Jump to latest, and always shows a send — use it with `MessageScroller`'s `autoScroll` off, whose engine stops following after a wheel or key at the bottom.
+
 ## 0.60.3
 
 ### Patch Changes

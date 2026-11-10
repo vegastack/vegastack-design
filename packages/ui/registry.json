@@ -854,7 +854,7 @@
       "meta": {
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -888,7 +888,7 @@
       "meta": {
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -947,7 +947,7 @@
       "meta": {
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -1614,7 +1614,7 @@
       "meta": {
         "whenToUse": "The top row of a block that shows records from elsewhere inside a page — a table view (DataGrid embedded's toolbar), a task list — and the block's unconfigured state with its picker.",
         "whenNotToUse": "A page's own header (DocumentLayoutHeader), a section heading (DocumentLayoutSection), or a record's header.",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -1657,7 +1657,7 @@
       "meta": {
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -2585,7 +2585,7 @@
       "meta": {
         "whenToUse": "Opening any record from a list — a task, a table row, a meeting, a customer — beside the list, with keyboard walking and a way to the full page.",
         "whenNotToUse": "A document or file that opens as its own page or viewer, or a form that needs the page to wait (Dialog, Sheet).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -13669,7 +13669,7 @@
       "meta": {
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -13721,7 +13721,7 @@
       "meta": {
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
-        "version": "0.60.1"
+        "version": "0.61.0"
       }
     },
     {
@@ -14049,7 +14049,7 @@
       "meta": {
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -14356,7 +14356,7 @@
       "meta": {
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -15271,7 +15271,7 @@
       "meta": {
         "whenToUse": "An app's Settings area — many settings pages browsed sideways, each starting at the same x with one width rule.",
         "whenNotToUse": "One settings form on its own page (AppShellPage size=\"prose\"), or a record's tabs (Tabs).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -15500,7 +15500,7 @@
       "meta": {
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
         "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       },
       "registryDependencies": [
         "@vegastack/skeleton",
@@ -15894,7 +15894,7 @@
       "meta": {
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -19267,7 +19267,7 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -19336,7 +19336,7 @@
       "meta": {
         "whenToUse": "Delegating a task or table rows to an agent from the Delegate property, a peek pill, the D key or a bulk bar.",
         "whenNotToUse": "Assigning a person (PeoplePicker), or showing an agent already on the work (AgentPanel).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -19395,7 +19395,7 @@
       "meta": {
         "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
         "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
@@ -19459,7 +19459,7 @@
       "meta": {
         "whenToUse": "A Recent row above a list (the Library home) or Home's Jump back in: up to six records to return to, one tap away, without pushing the main list down.",
         "whenNotToUse": "The main list of records (DataList), a grid of every item (DataList view=\"grid\"), or a record's own links (RecordChip).",
-        "version": "0.60.0"
+        "version": "0.61.0"
       }
     },
     {
