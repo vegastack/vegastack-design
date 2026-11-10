@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.60.3] — November 10, 2026
+
+<!-- assembled from 2 changesets: 9fe4b115c6e2 -->
+
+### 🧩 New components
+
+- **BrandLogo** (new): a provider, tool or channel's mark in a small monochrome tile — the `muted` fill with the `foreground` ink in both themes, never brand colours. Fourteen brands (`anthropic`, `openai`, `google`, `openrouter`, `claude`, `claude-code`, `chatgpt`, `codex`, `cursor`, `copilot`, `gemini`, `slack`, `gmail`, `mcp`): Simple Icons 16.37.0 paths (CC0) drawn through `BrandIcon`'s `mono` variant, or the brand's first letter where Simple Icons has no CC0 mark (`openai`, `chatgpt`, `codex`, `slack`; `copilot` is MIT there). `size` is `default` (`size-5`) or `sm` (`size-4`); without `label` it is decorative (`aria-hidden`), with it `role="img"`. Server-safe.
+  [docs](https://design.vegastack.com/docs/components/brand-logo) ·
+  [`122e2c3`](https://github.com/VegaStack/vegastack-design/commit/122e2c3)
+
+### 🔧 Changed components
+
+- **SearchableSelect** `selectAll` (with `multiple`): a first "select all" row, `selectAll.label(total)`, whose checkbox is checked, mixed or empty with the selection. Choosing it (click, Enter or Space) selects every enabled option or clears them all, through `onValueChange`; it is an `option` with `aria-selected`, first in arrow order, and hidden while the search field has text. Without `multiple` it is ignored with a development warning.
+  [docs](https://design.vegastack.com/docs/components/searchable-select) ·
+  [`122e2c3`](https://github.com/VegaStack/vegastack-design/commit/122e2c3)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.60.2 → 0.60.3.
+
 ## [0.60.2] — November 10, 2026
 
 <!-- assembled from 1 changeset: 72241ae692b6 -->

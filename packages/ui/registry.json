@@ -579,7 +579,7 @@
       "meta": {
         "whenToUse": "Naming a model provider, coding tool or channel by its mark in a list, a picker or a settings row (Anthropic, OpenAI, Slack, MCP) — beside its name, or labelled when it stands alone.",
         "whenNotToUse": "A brand in its own colours or a wordmark (BrandIcon with a thesvg module); a person or workspace (Avatar); a functional icon (lucide).",
-        "version": "0.60.2"
+        "version": "0.60.3"
       }
     },
     {
@@ -15083,7 +15083,7 @@
       "meta": {
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
-        "version": "0.60.0"
+        "version": "0.60.3"
       }
     },
     {

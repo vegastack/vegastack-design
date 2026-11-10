@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.60.3
+
+### Patch Changes
+
+- [#943](https://github.com/vegastack/vegastack-design/pull/943) [`122e2c3`](https://github.com/vegastack/vegastack-design/commit/122e2c3ee32deb457b97c53cdbc45cada1970e58) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **BrandLogo** (new): a provider, tool or channel's mark in a small monochrome tile — the `muted` fill with the `foreground` ink in both themes, never brand colours. Fourteen brands (`anthropic`, `openai`, `google`, `openrouter`, `claude`, `claude-code`, `chatgpt`, `codex`, `cursor`, `copilot`, `gemini`, `slack`, `gmail`, `mcp`): Simple Icons 16.37.0 paths (CC0) drawn through `BrandIcon`'s `mono` variant, or the brand's first letter where Simple Icons has no CC0 mark (`openai`, `chatgpt`, `codex`, `slack`; `copilot` is MIT there). `size` is `default` (`size-5`) or `sm` (`size-4`); without `label` it is decorative (`aria-hidden`), with it `role="img"`. Server-safe.
+  [docs](https://design.vegastack.com/docs/components/brand-logo)
+
+- [#943](https://github.com/vegastack/vegastack-design/pull/943) [`122e2c3`](https://github.com/vegastack/vegastack-design/commit/122e2c3ee32deb457b97c53cdbc45cada1970e58) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **SearchableSelect** `selectAll` (with `multiple`): a first "select all" row, `selectAll.label(total)`, whose checkbox is checked, mixed or empty with the selection. Choosing it (click, Enter or Space) selects every enabled option or clears them all, through `onValueChange`; it is an `option` with `aria-selected`, first in arrow order, and hidden while the search field has text. Without `multiple` it is ignored with a development warning.
+  [docs](https://design.vegastack.com/docs/components/searchable-select)
+
 ## 0.60.2
 
 ### Patch Changes
