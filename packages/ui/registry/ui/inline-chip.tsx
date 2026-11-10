@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.60.0 sha256-6iZIEb2fG6tvkf/4gyWkgKZmxMRdBmHJMgub6cm7Zd8=
+// @vegastack inline-chip@0.60.0 sha256-nlL4/b63Ii3dqItR+QaiwFG9mqrsXVTz5DTcfrMSwvI=
 
 "use client";
 
@@ -495,7 +495,8 @@ export function InlineChip({
 
   const open = (event: React.MouseEvent | React.KeyboardEvent) => {
     const modifier =
-      "metaKey" in event && (event.metaKey || event.ctrlKey || event.shiftKey);
+      "metaKey" in event &&
+      (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey);
     if (modifier) {
       // A link opens in a new tab natively; in an editor (`modifier`), the anchor's default may be
       // eaten by the contenteditable, so open it here.

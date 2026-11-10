@@ -1,4 +1,4 @@
-// @vegastack use-stick-to-bottom@0.61.0 sha256-OuBuX3oUFadgOSY19tWu5PB8dtIrd6cqOCpermb8+P4=
+// @vegastack use-stick-to-bottom@0.61.0 sha256-v0A+njJEMgsuipJHriG09duLs37AXSuMbZKPUyAHd2w=
 
 "use client";
 
@@ -125,7 +125,8 @@ export function useStickToBottom<
       viewport.scrollTop = viewport.scrollHeight;
     };
     const release = () => {
-      if (viewport.scrollTop <= 0) return;
+      // Only a pinned view has something to let go of; a reader already up stays where they are.
+      if (!pinned.current || viewport.scrollTop <= 0) return;
       pinned.current = false;
       gesture = { top: viewport.scrollTop, at: performance.now() };
     };

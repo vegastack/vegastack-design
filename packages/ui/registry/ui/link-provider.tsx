@@ -1,4 +1,4 @@
-// @vegastack link-provider@0.61.0 sha256-WXbylnHxXYRQ2JFX+u/Oem38X75ovhGfgf+mIRp58oE=
+// @vegastack link-provider@0.61.0 sha256-eId3dqxt0tj2NPLljx3CWkDPvapIOAPesO8VzgrudWU=
 
 "use client";
 
