@@ -125,6 +125,23 @@ test("streaming: a whole marker is a pill even in the last block, a half-written
   expect(root.textContent).not.toContain("**");
 });
 
+test("a pill stays on one line with the word before it", async () => {
+  const screen = await render(
+    <MarkdownView citation={(n) => ({ label: `Source ${n}` })}>
+      {"It counts the temperature data.\u00A0[[1]] Then [[2]][[3]] more."}
+    </MarkdownView>,
+  );
+  const runs = screen.container.querySelectorAll<HTMLElement>(
+    "[data-slot=markdown-citation-run]",
+  );
+  expect([...runs].map((r) => r.textContent)).toEqual([
+    "data.\u00A01",
+    "Then 2+1",
+  ]);
+  for (const run of runs)
+    expect(getComputedStyle(run).whiteSpace).toBe("nowrap");
+});
+
 test("adjacent markers group into one pill, '1 +2', whose card lists every source", async () => {
   const screen = await render(
     <MarkdownView
