@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "6a9b8d5ba120be7140b421738fe9a49bcc7cf22bef4b66874566ac9ff2c8bfcd",
+  "contractSha256": "0f59c8551a2f7d048f0364c0121d3ae7a3807cdbca911a94fed34eec02e740fb",
   "expectedCounts": {
-    "totalRegistryItems": 792,
-    "components": 202,
+    "totalRegistryItems": 793,
+    "components": 203,
     "animatedIcons": 467,
     "hooks": 18,
     "blocks": 15,
@@ -1795,6 +1795,17 @@
         "packages/ui/registry/ui/qr-code.tsx"
       ],
       "docsSlug": "/docs/components/qr-code",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "brand-logo",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/brand-logo.tsx"
+      ],
+      "docsSlug": "/docs/components/brand-logo",
       "contractStatus": "reconciled"
     },
     {

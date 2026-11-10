@@ -873,3 +873,164 @@ test("flat: no border, fill or open tint while the panel is open; off by default
   await userEvent.keyboard("{Escape}");
   await plain.unmount();
 });
+
+/* selectAll — a "select all" row first in a multiple picker */
+
+function SelectAllPicker({
+  initial = [],
+  onChange,
+  ...props
+}: {
+  initial?: Project[];
+  onChange?: (value: Project[]) => void;
+} & Partial<SearchableSelectProps<Project, true>>) {
+  const [value, setValue] = React.useState<Project[]>(initial);
+  return (
+    <SearchableSelect<Project, true>
+      multiple
+      items={PROJECTS}
+      value={value}
+      onValueChange={(next) => {
+        setValue(next);
+        onChange?.(next);
+      }}
+      itemToKey={(p) => p.id}
+      itemToStringLabel={(p) => p.name}
+      searchLabel="Search projects"
+      placeholder="Select projects"
+      aria-label="Projects"
+      selectAll={{ label: (n) => `All ${n} projects` }}
+      {...(props as Record<string, unknown>)}
+    />
+  );
+}
+
+const selectAllRow = () =>
+  document.querySelector<HTMLElement>(
+    '[data-slot="searchable-select-select-all"]',
+  );
+const checkboxOf = (row: HTMLElement) =>
+  row.querySelector<HTMLElement>('[data-slot="checkbox"]')!;
+
+test("selectAll: first option, checkbox unchecked / indeterminate / checked with the selection", async () => {
+  const screen = await render(<SelectAllPicker />);
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  const options = screen.getByRole("option").elements();
+  expect(options[0]).toBe(selectAllRow());
+  expect(options[0]!.textContent).toBe("All 3 projects");
+  const row = selectAllRow()!;
+  expect(row.getAttribute("role")).toBe("option");
+  expect(row.getAttribute("aria-selected")).toBe("false");
+  expect(row.dataset.state).toBe("unchecked");
+  expect(checkboxOf(row).hasAttribute("data-checked")).toBe(false);
+  expect(checkboxOf(row).hasAttribute("data-indeterminate")).toBe(false);
+  await expectNoA11yViolations(document.body);
+
+  await screen.getByRole("option", { name: "Atlas" }).click();
+  await expect.element(row).toHaveAttribute("data-state", "indeterminate");
+  expect(checkboxOf(row).hasAttribute("data-indeterminate")).toBe(true);
+  expect(row.getAttribute("aria-selected")).toBe("false");
+
+  await screen.getByRole("option", { name: "Borealis" }).click();
+  await screen.getByRole("option", { name: "Cinder" }).click();
+  await expect.element(row).toHaveAttribute("data-state", "checked");
+  expect(checkboxOf(row).hasAttribute("data-checked")).toBe(true);
+  expect(row.getAttribute("aria-selected")).toBe("true");
+  await expectNoA11yViolations(document.body);
+});
+
+test("selectAll: choosing it selects every option, choosing it again clears them", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <SelectAllPicker initial={[PROJECTS[1]!]} onChange={onChange} />,
+  );
+  const trigger = screen.getByRole("combobox", { name: "Projects" });
+  await trigger.click();
+  await screen.getByRole("option", { name: "All 3 projects" }).click();
+  expect(onChange).toHaveBeenLastCalledWith([
+    PROJECTS[1],
+    PROJECTS[0],
+    PROJECTS[2],
+  ]);
+  await expect.element(trigger).toHaveTextContent("3 selected");
+  // The panel stays open, as for any pick with `multiple`.
+  await screen.getByRole("option", { name: "All 3 projects" }).click();
+  expect(onChange).toHaveBeenLastCalledWith([]);
+  await expect.element(trigger).toHaveTextContent("Select projects");
+});
+
+test("selectAll: first in arrow order; Enter and Space toggle it", async () => {
+  const onChange = vi.fn();
+  const screen = await render(<SelectAllPicker onChange={onChange} />);
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  // The search field has focus; the first ArrowDown lands on the select-all row.
+  await expect.element(screen.getByPlaceholder("Search…")).toHaveFocus();
+  await userEvent.keyboard("{ArrowDown}");
+  await expect.element(selectAllRow()!).toHaveAttribute("data-highlighted");
+  await userEvent.keyboard("{ArrowDown}");
+  await expect
+    .element(screen.getByRole("option", { name: "Atlas" }))
+    .toHaveAttribute("data-highlighted");
+  await userEvent.keyboard("{ArrowUp}");
+  await expect.element(selectAllRow()!).toHaveAttribute("data-highlighted");
+
+  await userEvent.keyboard("{Enter}");
+  expect(onChange).toHaveBeenLastCalledWith(PROJECTS);
+  await userEvent.keyboard(" ");
+  expect(onChange).toHaveBeenLastCalledWith([]);
+  expect(onChange).toHaveBeenCalledTimes(2);
+  // Space toggled the row; it typed nothing into the search field.
+  await expect.element(screen.getByPlaceholder("Search…")).toHaveValue("");
+  await userEvent.keyboard(" ");
+  expect(onChange).toHaveBeenLastCalledWith(PROJECTS);
+});
+
+test("selectAll: a search hides the row; clearing the search brings it back", async () => {
+  const screen = await render(<SelectAllPicker />);
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  const search = screen.getByPlaceholder("Search…");
+  await search.fill("bor");
+  await expect
+    .element(screen.getByRole("option", { name: "Borealis" }))
+    .toBeInTheDocument();
+  expect(selectAllRow()).toBeNull();
+  expect(screen.getByRole("option").elements()).toHaveLength(1);
+  await search.fill("");
+  await expect
+    .element(screen.getByRole("option", { name: "All 3 projects" }))
+    .toBeInTheDocument();
+});
+
+test("selectAll: disabled options are neither counted nor selected", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <SelectAllPicker
+      onChange={onChange}
+      itemToDisabledReason={(p: Project) =>
+        p.id === "cinder" ? "Archived" : undefined
+      }
+    />,
+  );
+  await screen.getByRole("combobox", { name: "Projects" }).click();
+  await screen.getByRole("option", { name: "All 2 projects" }).click();
+  expect(onChange).toHaveBeenLastCalledWith([PROJECTS[0], PROJECTS[1]]);
+  await expect
+    .element(selectAllRow()!)
+    .toHaveAttribute("data-state", "checked");
+});
+
+test("selectAll without multiple: no row, and a development warning", async () => {
+  const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+  onTestFinished(() => warn.mockRestore());
+  const screen = await render(
+    <Picker selectAll={{ label: (n: number) => `All ${n}` }} />,
+  );
+  await screen.getByRole("combobox").click();
+  await expect
+    .element(screen.getByRole("option", { name: "Atlas" }))
+    .toBeInTheDocument();
+  expect(selectAllRow()).toBeNull();
+  expect(warn).toHaveBeenCalledWith(
+    expect.stringMatching(/selectAll.*needs `multiple`/),
+  );
+});

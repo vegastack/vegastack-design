@@ -1,0 +1,90 @@
+---
+title: Brand Logo
+description: A provider, tool or channel's mark in a small monochrome tile — the theme's ink on the muted fill, in light and dark.
+audience: public
+registry: brand-logo
+status: stable
+since: 0.60.3
+a11y: decorative beside its name, or an image named by label
+preview: brandLogo
+---
+
+## Install
+
+<InstallSteps name="brand-logo" />
+
+## Usage
+
+```tsx
+import { BrandLogo } from "@/components/ui/brand-logo";
+
+<span className="flex items-center gap-2">
+  <BrandLogo brand="anthropic" />
+  Anthropic
+</span>;
+```
+
+`BrandLogo` names a model provider, a coding tool or a channel by its mark — in a settings row, a
+picker or a list. Every brand sits in the same small tile, the `muted` fill with the `foreground`
+ink, so a row of mixed brands reads as one set and follows the theme; the brand's own colours are
+never used. It renders on the server.
+
+<ComponentPreview name="brandLogo" file="components/preview/brand-logo.tsx" />
+
+## Examples
+
+### Brands
+
+Fourteen brands: `anthropic`, `openai`, `google`, `openrouter`, `claude`, `claude-code`,
+`chatgpt`, `codex`, `cursor`, `copilot`, `gemini`, `slack`, `gmail` and `mcp`. The marks are
+[Simple Icons](https://simpleicons.org) paths (simple-icons 16.37.0, CC0), filled with
+`currentColor`. A brand Simple Icons does not carry — `openai`, `chatgpt`, `codex` and `slack` — or
+carries under a licence other than CC0 — `copilot` (MIT) — shows its first letter in the same tile.
+The marks remain their owners' trademarks; they are here only to name them.
+
+<ComponentPreview
+  name="brandLogoBrands"
+  file="components/preview/brand-logo.tsx"
+/>
+
+### Sizes
+
+`default` is a 20px tile (`size-5`) beside body text; `sm` is a 16px tile (`size-4`) for a dense row
+or a small control.
+
+<ComponentPreview
+  name="brandLogoSizes"
+  file="components/preview/brand-logo.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/brand-logo.tsx"
+  name="BrandLogoProps"
+/>
+
+`BrandLogo` also takes the `<span>` element's own props (`className`, `ref`, `title`, …); the root
+is the tile.
+
+## Accessibility
+
+- Without `label` the tile is decorative (`aria-hidden`): use it beside the brand's name, which
+  carries the meaning.
+- With `label` the tile is `role="img"`, named by it — for a tile that stands alone, such as a
+  compact list of connected channels. Name the brand ("Slack"), not "logo".
+- Nothing in it is focusable or interactive.
+
+<StatesTested name="brand-logo" />
+
+## Do / Don't
+
+<DoDont
+  do="Put the tile beside the brand's name, and leave it unlabelled there."
+  dont="Label a tile its neighbouring text already names, so a screen reader hears the brand twice."
+/>
+
+<DoDont
+  do="Keep every brand in the same monochrome tile, so a list of providers reads as one set."
+  dont="Recolour a mark with the brand's own colours, or swap in a different logo source for one brand."
+/>

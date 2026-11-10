@@ -1302,7 +1302,10 @@ Feedback and Content. The portal half of the theme scope stays — OVL-13 depend
 ## Iconography
 
 One library: **lucide** (functional line icons), the lucide-animated mirrors for motion, and `thesvg`
-for brand glyphs — through `Icon` / `BrandIcon`. Icon sizes are ordinary utilities (`size-3`,
+for brand glyphs — through `Icon` / `BrandIcon`. A brand named in a list or picker (a model
+provider, a coding tool, a channel) is a `BrandLogo` tile: Simple Icons (CC0) paths drawn through
+`BrandIcon`'s `mono` variant in the theme's ink, or the brand's first letter where no CC0 mark
+exists — never the brand's own colours. Icon sizes are ordinary utilities (`size-3`,
 `size-3.5`, `size-4`) sitting on the control tier that carries them; never pass `size`/`width`/
 `height` to a lucide component. Stroke 1.5–2px, always `currentColor`, so an icon inherits text
 colour and every state. Never inline an ad-hoc `<svg>` as an icon, and never mix icon libraries.

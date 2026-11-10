@@ -127,6 +127,7 @@ export * from "./data-list";
 export * from "./media-card";
 export * from "./thumbnail";
 export * from "./qr-code";
+export * from "./brand-logo";
 export * from "./person-hover-card";
 export * from "./permission-menu";
 export * from "./responsive-dialog";

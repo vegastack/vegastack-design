@@ -214,6 +214,21 @@ lists the headings that come first whatever the rows' order.
   file="components/preview/searchable-select.tsx"
 />
 
+### Select all
+
+`selectAll` (with `multiple` only) puts a "select all" row first in the list, labelled by
+`selectAll.label(total)`. Its checkbox is checked when every option is selected, mixed when some
+are and empty when none are. Choosing it — a click, <kbd>Enter</kbd> or <kbd>Space</kbd> — selects
+every option, or clears them all when every option is already selected, through `onValueChange`.
+Disabled options are left out of the count and the selection, and options selected from outside
+the list stay. The row hides while the search field has text, since it acts on the whole list.
+Without `multiple` it is ignored, with a development warning.
+
+<ComponentPreview
+  name="searchableSelectSelectAll"
+  file="components/preview/searchable-select.tsx"
+/>
+
 ### Add an option
 
 `onCreateOption(query)` lets the reader add what they typed. While the search text matches no
@@ -318,12 +333,16 @@ public ref is its root.
   trigger never nests one interactive control inside another.
 - Selection is one code path for pointer and keyboard alike: both go through the Combobox root's
   `onValueChange`.
+- The select-all row (`selectAll`) is an option like the others (`role="option"`), first in arrow
+  order, with `aria-selected` true only while every option is selected. Its checkbox is decorative
+  and inert, so the row stays the one control.
 
 | Key                                 | Action                                    |
 | ----------------------------------- | ----------------------------------------- |
 | <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the panel from the trigger.          |
 | <kbd>↑</kbd> / <kbd>↓</kbd>         | Move the highlight between matching rows. |
 | <kbd>Enter</kbd>                    | Select the highlighted row and close.     |
+| <kbd>Space</kbd>                    | Toggle the highlighted select-all row.    |
 | <kbd>Esc</kbd>                      | Close without changing the selection.     |
 
 <StatesTested name="searchable-select" />

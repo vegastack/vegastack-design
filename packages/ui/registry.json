@@ -559,6 +559,30 @@
       }
     },
     {
+      "name": "brand-logo",
+      "type": "registry:ui",
+      "title": "Brand Logo",
+      "description": "A provider, tool or channel's mark in a small monochrome tile — Simple Icons (CC0) glyphs in the theme's ink, or the brand's first letter where no CC0 mark exists. Server-safe.",
+      "categories": ["display"],
+      "dependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/brand-logo.tsx",
+          "type": "registry:ui",
+          "target": "@ui/brand-logo.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Naming a model provider, coding tool or channel by its mark in a list, a picker or a settings row (Anthropic, OpenAI, Slack, MCP) — beside its name, or labelled when it stands alone.",
+        "whenNotToUse": "A brand in its own colours or a wordmark (BrandIcon with a thesvg module); a person or workspace (Avatar); a functional icon (lucide).",
+        "version": "0.60.2"
+      }
+    },
+    {
       "name": "reactions",
       "type": "registry:ui",
       "title": "Reactions",
@@ -15041,6 +15065,7 @@
       "registryDependencies": [
         "@vegastack/badge",
         "@vegastack/button",
+        "@vegastack/checkbox",
         "@vegastack/combobox",
         "@vegastack/item",
         "@vegastack/load-more",
