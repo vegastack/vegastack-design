@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 143,
+    "total": 145,
     "fromExtras": 46
   },
   "items": {
@@ -751,6 +751,18 @@
       "family": "display",
       "source": "VegaStack agents overhaul P1 (C-P1-6, settings tabs) — operator batch approval 10-11-2026",
       "rationale": "Upstream ships no brand mark. Ours: a monochrome muted tile holding a Simple Icons (CC0) path drawn through BrandIcon's mono variant, or the brand's first letter where Simple Icons has no CC0 mark; no patch."
+    },
+    "kpi-card": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "VegaStack agents overhaul P3 (observability dashboards) — operator batch approval 10-11-2026",
+      "rationale": "Upstream ships no KPI tile. Ours: composes upstream's Card with our Stat parts, InfoHint and Skeleton, plus an inline SVG sparkline in the chart-single ink; no patch."
+    },
+    "heatmap": {
+      "disposition": "keep",
+      "family": "display",
+      "source": "VegaStack agents overhaul P3 (observability dashboards) — operator batch approval 10-11-2026",
+      "rationale": "Upstream ships no heatmap. Ours: an ARIA grid of color-mix steps of chart-single over card, bucketed by quintile, with roving focus and upstream's Tooltip on a shared handle; no patch."
     },
     "rating-bars": {
       "disposition": "keep",

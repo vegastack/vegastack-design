@@ -1,0 +1,98 @@
+---
+title: Heatmap
+description: Counts over two dimensions as a grid of shaded cells, with headers, a tooltip per cell, keyboard navigation and an optional legend.
+audience: public
+registry: heatmap
+status: stable
+since: 0.63.0
+a11y: ARIA grid with roving focus
+preview: heatmap
+---
+
+## Install
+
+<InstallSteps name="heatmap" />
+
+## Usage
+
+```tsx
+import { Heatmap } from "@/components/ui/heatmap";
+
+<Heatmap
+  label="Runs by weekday and hour"
+  rows={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]}
+  columns={hours}
+  values={runsByDayAndHour}
+  cellLabel={(r, c, v) => `${days[r]} ${hours[c]}:00 — ${v} runs`}
+  legend={{ low: "Fewer", high: "More" }}
+/>;
+```
+
+`Heatmap` shows when or where activity concentrates: runs by weekday and hour, failures by agent
+and day. `values` holds one array per row and one number per column.
+
+<ComponentPreview name="heatmap" file="components/preview/heatmap.tsx" />
+
+## Examples
+
+### Colour steps
+
+A non-zero cell takes one of five steps of `--chart-single` (the single-series chart ink) mixed
+into `--card` in OKLab: 45%, 59%, 73%, 86% and 100%. The steps are the quintiles of the non-zero
+values, so each holds about a fifth of them, equal values share a step, and one outlier cannot wash
+the rest out. A zero cell is the `muted` well, so "nothing happened" never reads as "a little
+happened". The lowest step is 45% rather than 20% because it must stand 3:1 apart from the zero
+cell: 20% measures about 1.1:1 against it, while 45% measures 3.40:1 in light and 3.19:1 in dark. A
+test recomputes this from the token values.
+
+### Any two dimensions
+
+<ComponentPreview name="heatmapAgents" file="components/preview/heatmap.tsx" />
+
+### Empty
+
+When every value is 0 the grid is replaced by `empty` (default: "No data").
+
+<ComponentPreview name="heatmapEmpty" file="components/preview/heatmap.tsx" />
+
+### Narrow screens
+
+Columns share the width, never narrower than 12px. Below 640px only every third column header
+shows; the others stay in the grid for assistive technology.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/heatmap.tsx"
+  name="HeatmapProps"
+/>
+
+## Accessibility
+
+- The grid is `role="grid"`, named by `label`, with `row`, `rowheader`, `columnheader` and
+  `gridcell` roles; each cell is named by its `cellLabel`.
+- One cell is in the tab order at a time (roving `tabIndex`); the focused or hovered cell shows its
+  `cellLabel` in a tooltip.
+- Write `cellLabel` as a full sentence with the row, the column and the count — it is both the
+  tooltip and what a screen reader hears.
+
+| Key               | Action                          |
+| ----------------- | ------------------------------- |
+| `Tab`             | Moves into the grid, then out   |
+| `Arrow keys`      | Move one cell (mirrored in RTL) |
+| `Home` / `End`    | First / last cell of the row    |
+| `Ctrl+Home`/`End` | First / last cell of the grid   |
+
+<StatesTested name="heatmap" />
+
+## Do / Don't
+
+<DoDont
+  do="Write cellLabel with its units and both dimensions: Tue 09:00 — 14 runs."
+  dont="Return the bare number, which names the cell 14 with no context."
+/>
+
+<DoDont
+  do="Use a heatmap to show where activity concentrates."
+  dont="Use it for exact values people need to compare or sort; use a table."
+/>

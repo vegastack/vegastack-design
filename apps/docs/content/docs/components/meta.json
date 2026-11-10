@@ -162,6 +162,8 @@
     "chip",
     "tag-group",
     "stat",
+    "kpi-card",
+    "heatmap",
     "accordion",
     "collapsible",
     "---Feedback & Status---",

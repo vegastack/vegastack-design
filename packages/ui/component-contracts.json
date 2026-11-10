@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 796,
-    "components": 205,
+    "totalRegistryItems": 798,
+    "components": 207,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 44,
     "Navigation/layout": 27,
     "Overlays": 24,
-    "Data display": 48,
+    "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 17,
@@ -188,6 +188,8 @@
       "record-aside",
       "record-list",
       "stat",
+      "kpi-card",
+      "heatmap",
       "table",
       "thumbnail",
       "timeline",
@@ -27255,6 +27257,321 @@
             }
           ],
           "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "kpi-card",
+      "registryType": "registry:ui",
+      "title": "KPI Card",
+      "summary": "A dashboard KPI tile — a large Stat in Card chrome with an optional hint, delta line, sparkline and whole-tile link — plus KpiGrid, the responsive 2/3/4/7-column grid of tiles.",
+      "status": "stable",
+      "since": "0.63.0",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/kpi-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "KpiCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the Card root."
+          }
+        },
+        {
+          "name": "KpiCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "KpiCardDelta",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "KpiGrid",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the grid root."
+          }
+        },
+        {
+          "name": "KpiGridProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "tone",
+            "values": ["negative", "neutral", "positive"],
+            "evidence": "packages/ui/registry/ui/kpi-card.tsx: KpiCardDelta.tone union"
+          },
+          {
+            "name": "direction",
+            "values": ["down", "flat", "up"],
+            "evidence": "packages/ui/registry/ui/kpi-card.tsx: KpiCardDelta.direction union → StatDelta intent"
+          }
+        ]
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One scale: the Stat's lg value inside a sm Card."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "empty", "loading", "linked", "hint", "spark"],
+          "evidence": "packages/ui/registry/ui/kpi-card.tsx + packages/ui/registry/ui/kpi-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-group",
+            "named-link",
+            "aria-busy",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/kpi-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "empty", "loading", "success", "error"],
+          "evidence": "packages/ui/registry/ui/kpi-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "KpiGrid is 2 columns below sm, 3 from sm, 4 from lg and 7 from xl; the label and value truncate inside a tile."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/kpi-card",
+      "registryDependencies": [
+        "@vegastack/card",
+        "@vegastack/info-hint",
+        "@vegastack/skeleton",
+        "@vegastack/stat"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/kpi-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "kpi-card",
+      "dataAttributes": {
+        "KpiCard": {
+          "attributes": [
+            {
+              "name": "data-linked",
+              "values": [""]
+            },
+            {
+              "name": "data-loading",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["kpi-card", "kpi-card-content"]
+            },
+            {
+              "name": "data-tone",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "KpiGrid": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["kpi-grid"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "heatmap",
+      "registryType": "registry:ui",
+      "title": "Heatmap",
+      "summary": "Counts over two dimensions (weekday × hour, agent × day) as a keyboard-navigable grid of cells in five quintile steps of the single-series chart ink, with row and column headers, a tooltip per cell and an optional legend.",
+      "status": "stable",
+      "since": "0.63.0",
+      "family": "display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/heatmap.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Heatmap",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/heatmap.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Takes no ref; the grid is internal."
+          }
+        },
+        {
+          "name": "HeatmapProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/heatmap.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "HEATMAP_STEPS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/heatmap.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A data constant, not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look: chart-single steps over card, muted for zero."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Cells stretch with the container; rows are h-6."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "empty", "focused", "legend"],
+          "evidence": "packages/ui/registry/ui/heatmap.tsx + packages/ui/registry/ui/heatmap.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "aria-grid",
+            "roving-tabindex",
+            "tooltip",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/heatmap.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["zero", "step-1", "step-2", "step-3", "step-4", "step-5"],
+          "evidence": "packages/ui/registry/ui/heatmap.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "Columns share the width (minimum 0.75rem); below 640px only every third column header shows."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "The tooltip's own motion is upstream's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/heatmap",
+      "registryDependencies": ["@vegastack/tooltip"],
+      "npmDependencies": [
+        "@base-ui/react@^1.8.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/heatmap.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "heatmap",
+      "dataAttributes": {
+        "Heatmap": {
+          "attributes": [
+            {
+              "name": "data-col",
+              "values": []
+            },
+            {
+              "name": "data-current",
+              "values": [""]
+            },
+            {
+              "name": "data-row",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "heatmap",
+                "heatmap-cell",
+                "heatmap-column-header",
+                "heatmap-corner",
+                "heatmap-empty",
+                "heatmap-grid",
+                "heatmap-header-row",
+                "heatmap-legend",
+                "heatmap-row",
+                "heatmap-row-header",
+                "heatmap-scroll",
+                "heatmap-tooltip"
+              ]
+            },
+            {
+              "name": "data-step",
+              "values": []
+            }
+          ],
+          "cssVariables": ["--heatmap-columns"]
         }
       }
     },

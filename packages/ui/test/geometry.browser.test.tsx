@@ -1314,6 +1314,13 @@ for (const [name, fixture] of FIXTURES) {
         // keep being measured.
         if (control.getAttribute("role") === "tabpanel") continue;
 
+        // A Heatmap cell is the same case: it matches only through the grid's roving
+        // `[tabindex="0"]` (the APG grid pattern), and clicking it activates nothing — hovering
+        // shows the tooltip whose text is already the cell's accessible name and reachable by the
+        // arrow keys. Its 12px minimum width is the heatmap's density by design (24 hours must fit
+        // a phone); it is a data mark, not a control. Scoped to that one slot.
+        if (control.getAttribute("data-slot") === "heatmap-cell") continue;
+
         // Centre the control so nothing scrolled out of the 320×812 viewport can steal its hit.
         control.scrollIntoView({ block: "center", inline: "center" });
         const probe = effectiveTargetProbe(control);
