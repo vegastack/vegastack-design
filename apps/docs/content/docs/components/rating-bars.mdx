@@ -1,0 +1,90 @@
+---
+title: Rating Bars
+description: A short qualitative rating — a label, a row of lit and unlit segments and the word that says what it means — read as one meter.
+audience: public
+registry: rating-bars
+status: stable
+since: 0.62.1
+a11y: one meter named by its label and read as its word
+preview: ratingBars
+---
+
+## Install
+
+<InstallSteps name="rating-bars" />
+
+## Usage
+
+```tsx
+import { RatingBars } from "@/components/ui/rating-bars";
+
+<div className="flex flex-col gap-1.5">
+  <RatingBars label="Speed" value={4} valueText="Fast" />
+  <RatingBars label="Cost" value={2} valueText="Low" />
+  <RatingBars label="Quality" value={5} valueText="Strongest" />
+</div>;
+```
+
+`RatingBars` shows a rating on a small fixed scale at a glance — how fast, how costly, how strong —
+as a label, a row of segments of which the first `value` are lit, and a word after them. The word
+carries the meaning; the segments let a stack of ratings be compared down the column. Every row puts
+its label in the same 4rem column, so stacked rows line up without a wrapper. Lit segments take the
+`primary` fill and unlit ones the `muted` track, the pair `Progress` uses, in light and dark. It
+renders on the server and has no motion.
+
+<ComponentPreview name="ratingBars" file="components/preview/rating-bars.tsx" />
+
+## Examples
+
+### Unknown value
+
+`value={null}` lights no segment. Say why in `valueText` ("Not listed"), so the row never reads as
+a rating of zero.
+
+<ComponentPreview
+  name="ratingBarsUnknown"
+  file="components/preview/rating-bars.tsx"
+/>
+
+### Sizes
+
+`default` draws 12×8px segments; `sm` draws 10×6px ones for a dense panel. The text stays `text-xs`
+at both sizes.
+
+<ComponentPreview
+  name="ratingBarsSizes"
+  file="components/preview/rating-bars.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/rating-bars.tsx"
+  name="RatingBarsProps"
+/>
+
+`RatingBars` also takes the `<div>` element's own props (`className`, `ref`, `title`, …) except
+`children`; the root is the meter. `value` is clamped to `0`–`max` and lights the nearest whole number of segments; `max` is a whole
+number of at least 1.
+
+## Accessibility
+
+- The root is `role="meter"`, named by `label`, with `aria-valuenow` (the clamped value, `0`
+  for `null`), `aria-valuemin` `0`, `aria-valuemax` `max` and `aria-valuetext` `valueText` — a screen
+  reader hears "Speed, Fast", not a number.
+- The segments are `aria-hidden`: they draw the value the meter already states.
+- Nothing in it is focusable or interactive.
+
+<StatesTested name="rating-bars" />
+
+## Do / Don't
+
+<DoDont
+  do="Give every row a word that says what the rating means (Fast, Low, Strongest, Not listed)."
+  dont="Rely on the lit count alone, or show a raw number or a price in valueText."
+/>
+
+<DoDont
+  do="Stack rows with the same max so they compare down the column."
+  dont="Use it for live or continuous values — a level, a progress — where Progress or LevelMeter fits."
+/>

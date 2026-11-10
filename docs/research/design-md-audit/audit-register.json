@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "09d5ec2be52f6f317e47402fd7d71fa4ba3164e031d3cc1ba0c58fbd58091678",
+  "contractSha256": "b7eb3f1a6e98d46b903dd95d0dfdc0feb303083e54734368f06344b6d8e8f9c2",
   "expectedCounts": {
-    "totalRegistryItems": 795,
-    "components": 204,
+    "totalRegistryItems": 796,
+    "components": 205,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -1806,6 +1806,17 @@
         "packages/ui/registry/ui/brand-logo.tsx"
       ],
       "docsSlug": "/docs/components/brand-logo",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "rating-bars",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/rating-bars.tsx"
+      ],
+      "docsSlug": "/docs/components/rating-bars",
       "contractStatus": "reconciled"
     },
     {
