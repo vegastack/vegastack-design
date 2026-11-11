@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.64.0] — November 11, 2026
+
+<!-- assembled from 1 changeset: fac14b46757b -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.63.1 → 0.64.0.
+
+### 🐛 Fixed
+
+- **useStickToBottom + MessageFold + Heatmap**: a full-page chat can scroll with the page — `useStickToBottom({ scroller: "page" })` follows the nearest scrolling ancestor instead of an inset pane and returns `atBottom` for the page's own Jump to latest button. Opening something in the thread (Show more, an activity block) no longer jumps the view to the bottom: the hook holds the view, and the browser's scroll anchoring, for that growth. `MessageFold` ends its fold between two lines of text instead of through one (`foldLineCut`). `Heatmap` thins its column names by measuring its own width (every 2nd, 3rd, 4th, 6th… name, each whole) instead of truncating them to "0…" in a half-width card.
+  [docs](https://design.vegastack.com/docs/components/message-scroller) ·
+  [`b059b13`](https://github.com/VegaStack/vegastack-design/commit/b059b13)
+
 ## [0.63.1] — November 11, 2026
 
 <!-- assembled from 1 changeset: c53280eb7ed7 -->

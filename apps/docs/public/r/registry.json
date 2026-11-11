@@ -17143,8 +17143,8 @@
       "meta": {
         "whenToUse": "A MessageScroller thread whose answers stream: pass the reader's newest message id as follow, and keep the engine's autoScroll off.",
         "whenNotToUse": "A list that never grows while read, or a feed that should hold its place (a log the reader pages through).",
-        "version": "0.61.0",
-        "integrity": "sha256-zPYmcLsrapKFb3YLI4lxfRSaekABlikXD9sBOe4KV5Y="
+        "version": "0.64.0",
+        "integrity": "sha256-ejV+ihFyAM8WUoL800ZpOuphkmRQdr7qe5ckc3Kbdfk="
       }
     },
     {
@@ -19039,8 +19039,8 @@
       "meta": {
         "whenToUse": "Showing when or where activity concentrates across two dimensions — runs by weekday and hour, events by agent and day.",
         "whenNotToUse": "A trend over one dimension (Chart), exact values people compare or sort (Table or DataList), or more than a few hundred cells.",
-        "version": "0.63.0",
-        "integrity": "sha256-uPymzK4QzIhKBn+duBt2TVrmQKZjZtCoIaUQvqniNZI="
+        "version": "0.64.0",
+        "integrity": "sha256-7gg1EkZkWjXDHtma8k5H5UfCUd7c7aLewndoksUZ/Ok="
       },
       "registryDependencies": [
         "@vegastack/tooltip"
@@ -19789,8 +19789,8 @@
       "meta": {
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
-        "version": "0.60.0",
-        "integrity": "sha256-56QKToGfyS4PqgykxGbpaO3Ew7+vULEHxRN4zUUuJtw="
+        "version": "0.64.0",
+        "integrity": "sha256-ORubJtomw60f6IHh803KVPUT0bkAhAnChrBls8ej5+c="
       }
     },
     {
