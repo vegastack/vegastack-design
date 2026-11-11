@@ -299,3 +299,34 @@ test("a narrowed grid measures its own width: four tiles at 320px stack", async 
   // Under 20.75rem one a row, never the parent's four columns.
   expect(new Set(tops).size).toBe(4);
 });
+
+test("values sit on one line across a row, however far a neighbour's label wraps", async () => {
+  const screen = await render(
+    <div style={{ width: 720 }}>
+      <KpiGrid>
+        <KpiCard label="Total provider cost" value="$4.10" />
+        <KpiCard label="Transcription and other services" value="$0.20" />
+        <KpiCard
+          label="Web search"
+          value="$0.03"
+          delta={{ text: "+2%", direction: "up", tone: "neutral" }}
+        />
+        <KpiCard label="Model" value="$3.87" spark={[1, 2, 3, 4]} />
+      </KpiGrid>
+    </div>,
+  );
+  const values = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="stat-value"]',
+    ),
+  ];
+  const tops = values.map((v) => Math.round(v.getBoundingClientRect().top));
+  expect(new Set(tops).size).toBe(1);
+  // The long label did wrap: the alignment is real, not a coincidence of one-line labels.
+  const label = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="stat-label"]',
+  )[1]!;
+  expect(label.getBoundingClientRect().height).toBeGreaterThan(
+    parseFloat(getComputedStyle(label).lineHeight) * 1.5,
+  );
+});
