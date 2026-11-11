@@ -1,4 +1,4 @@
-// @vegastack heatmap@0.63.0 sha256-D8aEyObPneQBZf8d9RXi2CT7lbiqtWi51B9RyrvmRoM=
+// @vegastack heatmap@0.63.0 sha256-kQKilo+U4LkJmGmIeU4e2CkKSnKvCAJ1NmWnLm/LmHg=
 
 "use client";
 
@@ -305,7 +305,18 @@ export function Heatmap({
                 role="columnheader"
                 aria-colindex={c + 2}
                 data-slot="heatmap-column-header"
-                className="flex min-w-0 justify-center text-xs text-muted-foreground"
+                className={cn(
+                  "flex min-w-0 text-xs text-muted-foreground",
+                  // Thinned, the first and last names keep inside the grid (never over the row
+                  // names or past the scroll edge); the rest centre over their columns.
+                  labelStep === 1
+                    ? "justify-center"
+                    : c === 0
+                      ? "justify-start"
+                      : c === lastCol
+                        ? "justify-end"
+                        : "justify-center",
+                )}
               >
                 {/* A shown name may run past its narrow column, centred over it, into the hidden
                   neighbours' space; the hidden ones stay readable to assistive technology. */}

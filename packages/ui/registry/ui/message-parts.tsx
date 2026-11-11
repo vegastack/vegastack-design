@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.60.0 sha256-2WT5N+dWrM4S6C+595P2vZG7pNHjAzQUpuUJNCi+Yyc=
+// @vegastack message-parts@0.60.0 sha256-56QKToGfyS4PqgykxGbpaO3Ew7+vULEHxRN4zUUuJtw=
 
 "use client";
 
@@ -679,13 +679,16 @@ export function foldLineCut(element: HTMLElement, limit: number): number {
   let cut = limit;
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     range.selectNodeContents(node);
+    const box = range.getBoundingClientRect();
+    // Text below the fold ends the walk; text wholly above the cut has no line to cut.
+    if (box.top - top >= limit) break;
+    if (box.bottom - top <= cut) continue;
     for (const rect of range.getClientRects()) {
       const lineTop = rect.top - top;
-      const lineBottom = rect.bottom - top;
-      if (rect.height > 0 && lineTop < cut && lineBottom > cut) cut = lineTop;
+      if (lineTop >= limit) break;
+      if (rect.height > 0 && lineTop < cut && rect.bottom - top > cut)
+        cut = lineTop;
     }
-    // Text below the fold can only raise what is already settled above it.
-    if (range.getBoundingClientRect().top - top > limit) break;
   }
   return cut >= limit / 2 ? Math.floor(cut) : limit;
 }
@@ -735,14 +738,29 @@ export function MessageFold({
       const limit =
         20 * parseFloat(getComputedStyle(document.documentElement).fontSize);
       if (!Number.isFinite(limit)) return;
-      const next = foldLineCut(content, limit);
+      // Content that now fits under 20rem needs no cut (and the fold lets it go).
+      const next =
+        content.scrollHeight <= limit ? null : foldLineCut(content, limit);
       setCut((previous) => (previous === next ? previous : next));
     };
     measure();
-    // A width change rewraps the lines.
+    // A width change rewraps the lines; the unclipped children change with the text.
     const observer = new ResizeObserver(measure);
     observer.observe(content);
-    return () => observer.disconnect();
+    for (const child of content.children) observer.observe(child);
+    const mutations = new MutationObserver(() => {
+      for (const child of content.children) observer.observe(child);
+      measure();
+    });
+    mutations.observe(content, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    return () => {
+      observer.disconnect();
+      mutations.disconnect();
+    };
   }, [folded, content]);
   return (
     <div

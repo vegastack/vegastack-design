@@ -1,4 +1,4 @@
-// @vegastack use-stick-to-bottom@0.61.0 sha256-JPqwuqBhw6VkU3NDE37TxCmWfr5x215U7XqrndUAPU0=
+// @vegastack use-stick-to-bottom@0.61.0 sha256-zPYmcLsrapKFb3YLI4lxfRSaekABlikXD9sBOe4KV5Y=
 
 "use client";
 
@@ -92,7 +92,12 @@ const OPEN_HOLD_MS = 600;
 
 /** The nearest ancestor of `node` that scrolls vertically, or the document's scrolling element. */
 export function scrollParentOf(node: HTMLElement): HTMLElement {
+  const page =
+    (document.scrollingElement as HTMLElement | null) ??
+    document.documentElement;
   for (let el = node.parentElement; el; el = el.parentElement) {
+    // `<body>`'s and `<html>`'s overflow propagates to the viewport: the document scrolls.
+    if (el === document.body || el === document.documentElement) return page;
     const { overflowY } = getComputedStyle(el);
     if (
       overflowY === "auto" ||
@@ -101,10 +106,7 @@ export function scrollParentOf(node: HTMLElement): HTMLElement {
     )
       return el;
   }
-  return (
-    (document.scrollingElement as HTMLElement | null) ??
-    document.documentElement
-  );
+  return page;
 }
 
 /** Within `threshold` pixels of the bottom of `element`'s scroll range. */
@@ -167,10 +169,21 @@ export function useStickToBottom<
 }: UseStickToBottomOptions = {}): UseStickToBottomResult<Viewport, Content> {
   const [ownViewport, setViewport] = React.useState<Viewport | null>(null);
   const [content, setContent] = React.useState<Content | null>(null);
-  const pageScroller = React.useMemo(
-    () => (scroller === "page" && content ? scrollParentOf(content) : null),
-    [scroller, content],
+  // Resolved after commit, and again when the window resizes: a responsive layout can move the
+  // scrolling from the shell's content region to the document.
+  const [pageScroller, setPageScroller] = React.useState<HTMLElement | null>(
+    null,
   );
+  React.useLayoutEffect(() => {
+    if (scroller !== "page" || !content) {
+      setPageScroller(null);
+      return;
+    }
+    const resolve = () => setPageScroller(scrollParentOf(content));
+    resolve();
+    window.addEventListener("resize", resolve);
+    return () => window.removeEventListener("resize", resolve);
+  }, [scroller, content]);
   const viewport: HTMLElement | null =
     scroller === "page" ? pageScroller : ownViewport;
   const pinned = React.useRef(true);
