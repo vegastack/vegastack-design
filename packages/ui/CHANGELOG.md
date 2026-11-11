@@ -1,5 +1,18 @@
 # @vegastack/ui
 
+## 0.66.3
+
+### Patch Changes
+
+- [#955](https://github.com/vegastack/vegastack-design/pull/955) [`656eb5a`](https://github.com/vegastack/vegastack-design/commit/656eb5a46c5dcb3781fecc095050e018caf05a02) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **InfoHint**: like a tooltip, it also opens on hover and when the keyboard tabs to it, and closes when the pointer or focus leaves; focus stays on the trigger, and a press while it's open that way keeps it open. Click, tap, Enter and Space still open it.
+  [docs](https://design.vegastack.com/docs/components/info-hint)
+
+- [#955](https://github.com/vegastack/vegastack-design/pull/955) [`656eb5a`](https://github.com/vegastack/vegastack-design/commit/656eb5a46c5dcb3781fecc095050e018caf05a02) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **date-time** / **RelativeTime** / **ApprovalCard**: a future time moves up a unit only once it rounds past that unit's size, so a request that expires in 7 days reads "Expires in 7 days" before and after the exact 7-day mark, never "in 1 week" for one of them.
+  [docs](https://design.vegastack.com/docs/components/relative-time)
+
+- [#955](https://github.com/vegastack/vegastack-design/pull/955) [`656eb5a`](https://github.com/vegastack/vegastack-design/commit/656eb5a46c5dcb3781fecc095050e018caf05a02) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **Tabs / RouteTabs**: a scrolling strip that overflows by only a little shows its full end fade, so its last tab reads as more to scroll, never as clipped (the fade's reveal distance is 16px in a tab list, not the utility's 96px).
+  [docs](https://design.vegastack.com/docs/components/tabs)
+
 ## 0.66.2
 
 ### Patch Changes

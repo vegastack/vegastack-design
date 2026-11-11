@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.66.3] — November 11, 2026
+
+<!-- assembled from 3 changesets: 0a5ee70c4b9b -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.66.2 → 0.66.3.
+
+### 🐛 Fixed
+
+- **InfoHint**: like a tooltip, it also opens on hover and when the keyboard tabs to it, and closes when the pointer or focus leaves; focus stays on the trigger, and a press while it's open that way keeps it open. Click, tap, Enter and Space still open it.
+  [docs](https://design.vegastack.com/docs/components/info-hint) ·
+  [`656eb5a`](https://github.com/VegaStack/vegastack-design/commit/656eb5a)
+- **date-time** / **RelativeTime** / **ApprovalCard**: a future time moves up a unit only once it rounds past that unit's size, so a request that expires in 7 days reads "Expires in 7 days" before and after the exact 7-day mark, never "in 1 week" for one of them.
+  [docs](https://design.vegastack.com/docs/components/relative-time) ·
+  [`656eb5a`](https://github.com/VegaStack/vegastack-design/commit/656eb5a)
+- **Tabs / RouteTabs**: a scrolling strip that overflows by only a little shows its full end fade, so its last tab reads as more to scroll, never as clipped (the fade's reveal distance is 16px in a tab list, not the utility's 96px).
+  [docs](https://design.vegastack.com/docs/components/tabs) ·
+  [`656eb5a`](https://github.com/VegaStack/vegastack-design/commit/656eb5a)
+
 ## [0.66.2] — November 11, 2026
 
 <!-- assembled from 1 changeset: 48b00e701c8a -->
