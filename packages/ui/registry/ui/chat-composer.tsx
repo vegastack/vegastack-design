@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.60.0 sha256-06D3g0GvtjDxTfsq4sUsaVPbvllZcVI1bfijcWiAYj4=
+// @vegastack chat-composer@0.60.0 sha256-vvr9lKL7aEANtRMqjN5HvYGDc3Dhl7obnplE48kl7uk=
 
 "use client";
 
@@ -77,7 +77,7 @@ export interface ChatComposerProps extends Omit<
    * when the answer ends. A rejection, or resolving `false` (a question first: "Send without the
    * skill?"), puts the text back, ahead of anything typed since. Without it, Send stays off.
    * The Markdown is the stored form (it round-trips into the composer for Edit); what a model or a
-   * bubble reads is `markdownAsTyped(value)` from `text-edit-markdown`, so `__init__` reaches it as
+   * bubble reads is `markdownAsTyped(value)` (`markdown-as-typed`), so `__init__` reaches it as
    * typed, not as `\_\_init\_\_`.
    * @default undefined
    */

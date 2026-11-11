@@ -1,0 +1,26 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "markdown-as-typed",
+  "title": "Markdown As Typed",
+  "description": "Stored Markdown as the person typed it — markdownAsTyped keeps real formatting, drops the escapes the writer added only to keep plain text from reading as syntax (\\_\\_init\\_\\_ → __init__), turns hard breaks into newlines, and keeps code byte for byte. Pure strings, server-safe.",
+  "dependencies": [],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/lib/markdown-as-typed.ts",
+      "content": "// @vegastack markdown-as-typed@0.66.0 sha256-2/s/TBAQ4EjP6SNcGIpgw0dIEkG+iK5txq1y7RVIBvY=\n\n/* ---\n`markdown-as-typed.ts` — stored Markdown as the person typed it. Pure strings, no dependencies, so\nserver and worker code (an agent's turn input) can import it without the editor.\n--- */\n\n/**\n * Stored Markdown as the person typed it, for a reader that isn't a Markdown renderer — a model\n * reading a chat message, a bubble showing it. Real formatting stays as Markdown (`**bold**`, a\n * list, a link); what the writer escaped only so Markdown would not read it as syntax reads as\n * itself (`\\_\\_init\\_\\_` → `__init__`, `\\*` → `*`), and a hard break (`\\` at a line's end) is\n * the newline it stands for. Code is kept byte for byte: a fenced block's lines and a code span\n * keep every backslash. Never feed the result back to `text-edit-markdown`'s `markdownToDoc`: it is the reading form, and\n * `__init__` would then parse as bold.\n *\n * @example\n * markdownAsTyped(\"rename \\\\_\\\\_init\\\\_\\\\_ to **setup**\"); // \"rename __init__ to **setup**\"\n */\nexport function markdownAsTyped(markdown: string): string {\n  let fence: string | null = null;\n  return markdown\n    .split(\"\\n\")\n    .map((line, i, lines) => {\n      const opens = /^ {0,3}(`{3,}|~{3,})/u.exec(line)?.[1];\n      if (fence) {\n        if (opens && opens[0] === fence[0] && opens.length >= fence.length)\n          fence = null;\n        return line;\n      }\n      if (opens) {\n        fence = opens;\n        return line;\n      }\n      // A hard break: the backslash at the end of a line that has a next one.\n      const text = i < lines.length - 1 ? line.replace(/\\\\$/u, \"\") : line;\n      // Code spans (a run of backticks to the same run) stay as written; the rest is unescaped.\n      return text\n        .split(/(`+[^`]*?`+)/u)\n        .map((piece, j) =>\n          j % 2 ? piece : piece.replace(/\\\\([!-/:-@[-`{-~])/gu, \"$1\"),\n        )\n        .join(\"\");\n    })\n    .join(\"\\n\");\n}\n",
+      "type": "registry:lib",
+      "target": "@lib/markdown-as-typed.ts"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Handing a person's stored message to a reader that isn't a Markdown renderer: a model's input, a chat bubble, a plain-text notification.",
+    "whenNotToUse": "Anything parsed back into an editor — keep the stored Markdown, which round-trips.",
+    "version": "0.66.0",
+    "integrity": "sha256-2/s/TBAQ4EjP6SNcGIpgw0dIEkG+iK5txq1y7RVIBvY="
+  },
+  "categories": [
+    "data"
+  ],
+  "type": "registry:lib"
+}

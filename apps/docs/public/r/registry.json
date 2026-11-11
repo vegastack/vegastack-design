@@ -2555,6 +2555,30 @@
       }
     },
     {
+      "name": "markdown-as-typed",
+      "type": "registry:lib",
+      "title": "Markdown As Typed",
+      "description": "Stored Markdown as the person typed it — markdownAsTyped keeps real formatting, drops the escapes the writer added only to keep plain text from reading as syntax (\\_\\_init\\_\\_ → __init__), turns hard breaks into newlines, and keeps code byte for byte. Pure strings, server-safe.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/markdown-as-typed.ts",
+          "type": "registry:lib",
+          "target": "@lib/markdown-as-typed.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Handing a person's stored message to a reader that isn't a Markdown renderer: a model's input, a chat bubble, a plain-text notification.",
+        "whenNotToUse": "Anything parsed back into an editor — keep the stored Markdown, which round-trips.",
+        "version": "0.66.0",
+        "integrity": "sha256-2/s/TBAQ4EjP6SNcGIpgw0dIEkG+iK5txq1y7RVIBvY="
+      }
+    },
+    {
       "name": "text-anchor",
       "type": "registry:lib",
       "title": "Text Anchor",
@@ -2723,7 +2747,7 @@
         "version": "0.57.1",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-bCBVsYMbFRiNFGwVpb/zLlABD71Vj8M1tqq7k4DEO9I="
+        "integrity": "sha256-TqPRceK5VNhEvRmkrg/ZGRIHwrW0dgBIQcGjICjBAJs="
       }
     },
     {
@@ -19750,7 +19774,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.60.0",
-        "integrity": "sha256-06D3g0GvtjDxTfsq4sUsaVPbvllZcVI1bfijcWiAYj4="
+        "integrity": "sha256-vvr9lKL7aEANtRMqjN5HvYGDc3Dhl7obnplE48kl7uk="
       }
     },
     {
