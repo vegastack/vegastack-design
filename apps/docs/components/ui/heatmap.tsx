@@ -1,4 +1,4 @@
-// @vegastack heatmap@0.63.0 sha256-6vtGXWkk4cZevF1gvItJavLITJTnIx0VpsSfDEfz8Uw=
+// @vegastack heatmap@0.63.0 sha256-uPymzK4QzIhKBn+duBt2TVrmQKZjZtCoIaUQvqniNZI=
 
 "use client";
 
@@ -112,8 +112,13 @@ export function columnLabelStep(
 ): number {
   if (!(cellWidth > 0)) return 1;
   const centred = labelWidth + 8;
-  // An edge name shifted inward by (label − cell) / 2 beside a centred one.
-  const edge = Math.max(centred, 1.5 * labelWidth - cellWidth / 2 + 4);
+  // An edge name shifted inward by (label − cell) / 2 beside a centred one, or the two edge names
+  // side by side when only they show (both shifted toward each other).
+  const edge = Math.max(
+    centred,
+    1.5 * labelWidth - cellWidth / 2 + 4,
+    2 * labelWidth - cellWidth - gap + 4,
+  );
   for (const step of LABEL_STEPS) {
     const between = step * (cellWidth + gap) - gap;
     if (between >= (step === 1 ? centred : edge)) return step;

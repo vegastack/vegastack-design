@@ -302,6 +302,8 @@ test("columnLabelStep picks the smallest step whose run fits the name", () => {
   expect(columnLabelStep(0, 2, 14)).toBe(1);
   // Thinned, the edge names sit inward, so the step leaves room for them too.
   expect(columnLabelStep(12, 2, 45)).toBe(6);
+  // Two edge names alone, both shifted inward toward each other, still don't touch.
+  expect(columnLabelStep(12, 2, 50)).toBe(8);
 });
 
 /* ------------------------------------------------------------------------------------------------
