@@ -379,3 +379,25 @@ test("overflow=menu: a strip that does not fit folds to the current tab and a me
   expect(onClick).toHaveBeenCalled();
   sheet.remove();
 });
+
+test("variant=line draws the underlined secondary strip; default stays the pills", async () => {
+  const tabs = [
+    { href: "/a", label: "Job" },
+    { href: "/a/access", label: "Access" },
+  ];
+  const screen = await render(
+    <>
+      <RouteTabs label="Page" tabs={tabs} currentHref="/a" />
+      <RouteTabs label="Sub" tabs={tabs} currentHref="/a" variant="line" />
+    </>,
+  );
+  const [pills, line] = Array.from(
+    screen.container.querySelectorAll<HTMLElement>('[data-slot="tabs-list"]'),
+  );
+  expect(pills).toHaveAttribute("data-variant", "default");
+  expect(pills!.classList.contains("bg-muted")).toBe(true);
+  expect(line).toHaveAttribute("data-variant", "line");
+  expect(line!.classList.contains("bg-muted")).toBe(false);
+  expect(line!.classList.contains("bg-transparent")).toBe(true);
+  await expectNoA11yViolations(screen.container);
+});

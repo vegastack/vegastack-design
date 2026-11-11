@@ -222,6 +222,21 @@ test("headingHidden keeps the list's heading for assistive technology only", asy
   const heading = screen.getByRole("heading", { name: "Version history" });
   await expect.element(heading).toBeInTheDocument();
   expect(heading.element().className).toContain("sr-only");
+  // No switch beside it: the header row takes no room, so the list starts at the top.
+  const header = screen.container.querySelector(
+    '[data-slot="version-list-header"]',
+  )!;
+  expect(header.classList.contains("sr-only")).toBe(true);
+  // With the Named only switch the row stays, the heading alone hidden.
+  await screen.rerender(
+    <VersionList
+      versions={[]}
+      headingHidden
+      namedOnly={false}
+      onNamedOnlyChange={() => {}}
+    />,
+  );
+  expect(header.classList.contains("sr-only")).toBe(false);
 });
 
 test('groupBy="day" puts the rows under a heading per day; an unnamed row shows its time; arrows walk across days', async () => {

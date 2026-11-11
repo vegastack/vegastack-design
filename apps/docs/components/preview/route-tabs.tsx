@@ -108,3 +108,43 @@ export function routeTabs(): ReactNode {
 export function routeTabsScroll(): ReactNode {
   return <Demo overflow="scroll" narrow />;
 }
+
+const SUB_TABS: RouteTab[] = [
+  { href: "/agent/settings", label: "Job" },
+  { href: "/agent/settings/access", label: "Access" },
+  { href: "/agent/settings/manage", label: "Manage" },
+];
+
+/** Two levels: the page's pill tabs, then its Settings sub-pages as underlined tabs. */
+export function routeTabsLine(): ReactNode {
+  const [path, setPath] = React.useState("/agent/settings/access");
+  return (
+    <Wrapper className="block">
+      <NavigateContext.Provider value={setPath}>
+        <div className="flex flex-col gap-4">
+          <RouteTabs
+            label="Agent"
+            tabs={[
+              { href: "/agent", label: "Chat" },
+              { href: "/agent/activity", label: "Activity" },
+              {
+                href: "/agent/settings",
+                label: "Settings",
+                also: SUB_TABS.map((t) => t.href),
+              },
+            ]}
+            currentHref={path}
+            linkRender={<DemoLink />}
+          />
+          <RouteTabs
+            label="Agent settings"
+            variant="line"
+            tabs={SUB_TABS}
+            currentHref={path}
+            linkRender={<DemoLink />}
+          />
+        </div>
+      </NavigateContext.Provider>
+    </Wrapper>
+  );
+}

@@ -25603,6 +25603,7 @@
                 "settings-section-actions",
                 "settings-section-content",
                 "settings-section-description",
+                "settings-section-grid",
                 "settings-section-header",
                 "settings-section-title"
               ]
@@ -44655,7 +44656,7 @@
             },
             {
               "name": "data-variant",
-              "values": ["default"]
+              "values": []
             }
           ],
           "cssVariables": []
