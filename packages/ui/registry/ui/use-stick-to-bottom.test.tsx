@@ -180,3 +180,99 @@ test("isAtScrollBottom measures the gap against the threshold", () => {
     ),
   ).toBe(true);
 });
+
+function Opener() {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <div style={{ height: open ? 600 : 40 }}>Folded answer</div>
+      <button type="button" aria-expanded={open} onClick={() => setOpen(true)}>
+        Show more
+      </button>
+    </div>
+  );
+}
+
+function OpenerThread() {
+  const stick = useStickToBottom({ follow: 0 });
+  return (
+    <MessageScrollerProvider defaultScrollPosition="end">
+      <MessageScroller className="h-64 w-72">
+        <MessageScrollerViewport ref={stick.attachViewport}>
+          <MessageScrollerContent ref={stick.attachContent} className="p-3">
+            <MessageScrollerItem messageId="a">
+              <div className="h-40" />
+            </MessageScrollerItem>
+            <MessageScrollerItem messageId="b">
+              <Opener />
+            </MessageScrollerItem>
+          </MessageScrollerContent>
+        </MessageScrollerViewport>
+      </MessageScroller>
+    </MessageScrollerProvider>
+  );
+}
+
+test("opening something the reader is reading (Show more) never moves the view", async () => {
+  const screen = await render(<OpenerThread />);
+  const viewport = screen.container.querySelector<HTMLElement>(
+    '[data-slot="message-scroller-viewport"]',
+  )!;
+  await expect.poll(() => isAtScrollBottom(viewport, 4)).toBe(true);
+  await wait(100);
+  const before = viewport.scrollTop;
+  screen.container.querySelector<HTMLButtonElement>("button")!.click();
+  await wait(200);
+  expect(viewport.scrollTop).toBe(before);
+  expect(isAtScrollBottom(viewport, 4)).toBe(false);
+});
+
+function PageThread({ controls }: { controls: { current: Controls | null } }) {
+  const [messages, setMessages] = React.useState(() =>
+    Array.from({ length: 8 }, (_, i) => `Message ${i} ${"word ".repeat(30)}`),
+  );
+  const [live, setLive] = React.useState("");
+  controls.current = {
+    stream: (words) => setLive((text) => text + words),
+    send: () => setMessages((all) => [...all, `Sent ${all.length}`]),
+    shrink: () => undefined,
+  };
+  const stick = useStickToBottom({ follow: messages.length, scroller: "page" });
+  return (
+    <div data-testid="page" className="h-64 w-72 overflow-y-auto">
+      <header className="h-10">Title</header>
+      <div ref={stick.attachContent} className="flex flex-col gap-3 p-3">
+        {messages.map((text, i) => (
+          <p key={i}>{text}</p>
+        ))}
+        <p>{live}</p>
+      </div>
+      <div className="sticky bottom-0 h-12 bg-background">
+        <span data-testid="at-bottom">{String(stick.atBottom)}</span>
+      </div>
+    </div>
+  );
+}
+
+test("page mode: the page's own scroller follows, lets go on scroll up, and atBottom says so", async () => {
+  const controls: { current: Controls | null } = { current: null };
+  const screen = await render(<PageThread controls={controls} />);
+  const pageEl = screen.container.querySelector<HTMLElement>(
+    '[data-testid="page"]',
+  )!;
+  const flag = () =>
+    screen.container.querySelector('[data-testid="at-bottom"]')!.textContent;
+  await expect.poll(() => isAtScrollBottom(pageEl, 4)).toBe(true);
+  await streamFor(controls.current!, 20);
+  expect(isAtScrollBottom(pageEl, 4)).toBe(true);
+  expect(flag()).toBe("true");
+  scrollUp(pageEl, 300);
+  await wait(50);
+  const held = pageEl.scrollTop;
+  await streamFor(controls.current!, 10);
+  expect(pageEl.scrollTop).toBe(held);
+  await expect.poll(flag).toBe("false");
+  controls.current!.send();
+  await expect.poll(() => isAtScrollBottom(pageEl, 4)).toBe(true);
+  await expect.poll(flag).toBe("true");
+});

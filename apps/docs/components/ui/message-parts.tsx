@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.60.0 sha256-w8O/N6dcKq+hjIlyz9WMFRqn3fq4BxEkRWuTY6xtIz8=
+// @vegastack message-parts@0.64.0 sha256-ORubJtomw60f6IHh803KVPUT0bkAhAnChrBls8ej5+c=
 
 "use client";
 
@@ -666,9 +666,38 @@ export interface MessageFoldProps extends React.ComponentProps<"div"> {
 }
 
 /**
+ * Where a fold of `element` at `limit` pixels should end so no line of text is cut through: the top
+ * of the first text line that crosses `limit`, or `limit` when none does. Text only, line by line
+ * (a Range over each text node), so a block's box never counts as a line; a cut that would keep
+ * less than half the fold (one tall unbroken line) stays at `limit`.
+ */
+export function foldLineCut(element: HTMLElement, limit: number): number {
+  if (typeof document === "undefined" || !document.createRange) return limit;
+  const top = element.getBoundingClientRect().top;
+  const range = document.createRange();
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  let cut = limit;
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    range.selectNodeContents(node);
+    const box = range.getBoundingClientRect();
+    // Text below the fold ends the walk; text wholly above the cut has no line to cut.
+    if (box.top - top >= limit) break;
+    if (box.bottom - top <= cut) continue;
+    for (const rect of range.getClientRects()) {
+      const lineTop = rect.top - top;
+      if (lineTop >= limit) break;
+      if (rect.height > 0 && lineTop < cut && rect.bottom - top > cut)
+        cut = lineTop;
+    }
+  }
+  return cut >= limit / 2 ? Math.floor(cut) : limit;
+}
+
+/**
  * `MessageFold` — holds a long message to 20rem, fading at the foot, with Show more. It measures:
- * content that fits is left alone, with no fade and no button. Tabbing to a link in the hidden part
- * opens it, so the keyboard never lands on something out of sight.
+ * content that fits is left alone, with no fade and no button. The fold ends between two lines of
+ * text, never through one, and the fade covers the last whole lines. Tabbing to a link in the hidden
+ * part opens it, so the keyboard never lands on something out of sight.
  *
  * @example
  * <MessageFold defaultOpen={streamedHere}>
@@ -696,6 +725,43 @@ export function MessageFold({
   const overflowing = useOverflow(content, { axis: "block", paused: open });
   const contentId = React.useId();
   const folded = !open && overflowing;
+  // The fold's height: 20rem, raised to the line boundary above it once laid out.
+  const [cut, setCut] = React.useState<number | null>(null);
+  React.useLayoutEffect(() => {
+    if (!folded || !content || typeof ResizeObserver === "undefined") {
+      setCut(null);
+      return;
+    }
+    const measure = () => {
+      // `max-h-80`: 20rem, read from the root size rather than the element, whose max-height is
+      // the last cut once one is set.
+      const limit =
+        20 * parseFloat(getComputedStyle(document.documentElement).fontSize);
+      if (!Number.isFinite(limit)) return;
+      // Content that now fits under 20rem needs no cut (and the fold lets it go).
+      const next =
+        content.scrollHeight <= limit ? null : foldLineCut(content, limit);
+      setCut((previous) => (previous === next ? previous : next));
+    };
+    measure();
+    // A width change rewraps the lines; the unclipped children change with the text.
+    const observer = new ResizeObserver(measure);
+    observer.observe(content);
+    for (const child of content.children) observer.observe(child);
+    const mutations = new MutationObserver(() => {
+      for (const child of content.children) observer.observe(child);
+      measure();
+    });
+    mutations.observe(content, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+    });
+    return () => {
+      observer.disconnect();
+      mutations.disconnect();
+    };
+  }, [folded, content]);
   return (
     <div
       data-slot="message-fold"
@@ -710,6 +776,7 @@ export function MessageFold({
         onFocusCapture={(event) => {
           if (folded && event.target.matches(":focus-visible")) setOpen(true);
         }}
+        style={folded && cut !== null ? { maxHeight: cut } : undefined}
         className={cn(
           "w-full min-w-0",
           !open && "max-h-80 overflow-hidden",

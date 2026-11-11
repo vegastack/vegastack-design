@@ -17,6 +17,7 @@ import {
   MessageChange,
   MessageDisclaimer,
   MessageFold,
+  foldLineCut,
   MessageHandoff,
   MessageNotice,
   MessagePlan,
@@ -577,4 +578,41 @@ test("activity opens while running, closes once a second after, and stays as the
   await page.getByRole("button", { name: "Toggle run" }).click();
   await new Promise((resolve) => setTimeout(resolve, 1300));
   await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+});
+
+test("a fold ends between two lines of text, never through one", async () => {
+  const screen = await render(
+    <div style={{ width: 240 }}>
+      <MessageFold>
+        <p style={{ lineHeight: "30px", fontSize: 14, margin: 0 }}>
+          {"word ".repeat(400)}
+        </p>
+      </MessageFold>
+    </div>,
+  );
+  const content = slot(screen.container, "message-fold-content")!;
+  await expect
+    .element(page.getByRole("button", { name: "Show more" }))
+    .toBeVisible();
+  // 20rem is 320px, which falls through the 11th 30px line (300–330): its text crosses it.
+  await expect
+    .poll(() => content.getBoundingClientRect().height)
+    .toBeLessThan(320);
+  const height = content.getBoundingClientRect().height;
+  const top = content.getBoundingClientRect().top;
+  const range = document.createRange();
+  range.selectNodeContents(content.querySelector("p")!.firstChild!);
+  const rects = [...range.getClientRects()];
+  expect(rects.length).toBeGreaterThan(11);
+  for (const rect of rects)
+    expect(rect.top - top < height && rect.bottom - top > height + 0.5).toBe(
+      false,
+    );
+});
+
+test("foldLineCut keeps the limit when no text crosses it", async () => {
+  const screen = await render(<div style={{ height: 400 }} />);
+  expect(
+    foldLineCut(screen.container.firstElementChild as HTMLElement, 320),
+  ).toBe(320);
 });

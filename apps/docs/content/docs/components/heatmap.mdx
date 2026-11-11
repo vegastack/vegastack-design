@@ -57,8 +57,10 @@ When every value is 0 the grid is replaced by `empty` (default: "No data").
 
 ### Narrow screens
 
-Columns share the width, never narrower than 12px. Below 640px only every third column header
-shows; the others stay in the grid for assistive technology.
+Columns share the width, never narrower than 12px. When the columns are narrower than their names,
+the heatmap measures its own width and shows only every second, third, fourth, sixth… name, each
+whole and centred over its column; the others stay in the grid for assistive technology. It follows
+the card it sits in, not the window, so a half-width card thins its names too.
 
 ## API Reference
 
