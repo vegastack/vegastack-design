@@ -81,7 +81,9 @@ tile's tone or series.
 
 ### Edge cases
 
-A long label wraps, a big value wraps rather than truncating, a tile with no value keeps its size,
+In a `KpiGrid` each tile's label, value, delta and sparkline share the row's lines, so the values in
+a row sit on one line even when one label wraps to two. A long label wraps, a big value wraps rather
+than truncating, a tile with no value keeps its size,
 and a narrow container stacks the tiles.
 
 <ComponentPreview name="kpiCardEdges" file="components/preview/kpi-card.tsx" />

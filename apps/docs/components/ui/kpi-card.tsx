@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.66.0 sha256-OssrFmgUG7Vy548Fy4pZUJ7TlbRmKt3Lv0i1OobFeDI=
+// @vegastack kpi-card@0.66.0 sha256-G5DF5V6YKlfIq49YcrgAPXo5k2KlSpZf4uZmpljGIAQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -139,6 +139,14 @@ const SPARK_SERIES: Record<KpiCardSeries, string> = {
   8: "text-chart-8",
 };
 
+/**
+ * In a `KpiGrid` a tile lends its four lines — label, value, delta, sparkline — to the row's
+ * shared tracks (`grid-rows-subgrid`), so every value in a row sits on one line however many lines
+ * a neighbour's label wraps to. On its own the tile is the same four lines, top-aligned.
+ */
+const TILE_GRID =
+  "grid content-start [[data-slot=kpi-grid]>&]:row-span-4 [[data-slot=kpi-grid]>&]:grid-rows-subgrid";
+
 const SPARK_MAX_POINTS = 120;
 const SPARK_HEIGHT = 24;
 /** Fewer points with data than this is not a trend: no sparkline. */
@@ -171,7 +179,15 @@ export function sparkPaths(
   };
 }
 
-function KpiSpark({ values, ink }: { values: readonly number[]; ink: string }) {
+function KpiSpark({
+  values,
+  ink,
+  className,
+}: {
+  values: readonly number[];
+  ink: string;
+  className?: string;
+}) {
   const paths = sparkPaths(values);
   if (paths === null) return null;
   return (
@@ -181,7 +197,7 @@ function KpiSpark({ values, ink }: { values: readonly number[]; ink: string }) {
       data-slot="kpi-card-spark"
       viewBox={`0 0 ${paths.count - 1} ${SPARK_HEIGHT}`}
       preserveAspectRatio="none"
-      className={cn("block h-6 w-full overflow-visible", ink)}
+      className={cn("block h-6 w-full overflow-visible", ink, className)}
     >
       <path d={paths.area} className="fill-current opacity-15" stroke="none" />
       <path
@@ -245,11 +261,15 @@ export function KpiCard({
         role="group"
         aria-label={label}
         aria-busy
-        className={cn("gap-2 px-3", className)}
+        className={cn(TILE_GRID, "gap-2 px-3", className)}
         {...props}
       >
-        <StatSkeleton size="lg" />
-        <Skeleton aria-hidden className="h-6 w-full" />
+        {/* The placeholders take the loaded tile's lines, so a row never shifts as tiles load. */}
+        <StatSkeleton
+          size="lg"
+          className="contents [&>[data-slot=stat-skeleton-label]]:row-start-1 [&>[data-slot=stat-skeleton-value]]:row-start-2"
+        />
+        <Skeleton aria-hidden className="row-start-4 h-6 w-full self-end" />
       </Card>
     );
   }
@@ -278,6 +298,8 @@ export function KpiCard({
         }
       : { "aria-label": name };
 
+  // A linked tile's content sits over its stretched link and lets clicks through to it.
+  const part = linkRender ? "pointer-events-none relative" : undefined;
   const template = linkRender as
     React.ReactElement<{ className?: string }> | undefined;
   const link = template
@@ -301,20 +323,17 @@ export function KpiCard({
       // would only announce the same name twice.
       role={link ? undefined : "group"}
       {...(link ? {} : naming)}
-      className={cn("relative gap-2 px-3", className)}
+      className={cn(TILE_GRID, "relative gap-2 px-3", className)}
       {...props}
     >
       {link}
-      <div
-        data-slot="kpi-card-content"
-        className={cn(
-          "flex min-w-0 flex-col gap-2",
-          link && "pointer-events-none relative",
-        )}
-      >
-        <Stat size="lg">
+      {/* The wrappers lend their children to the tile's grid (`contents`), each on its own line. */}
+      <div data-slot="kpi-card-content" className="contents">
+        <Stat size="lg" className="contents">
           {/* The label wraps rather than truncating; the hint stays on its first line. */}
-          <div className="flex min-w-0 items-start gap-1">
+          <div
+            className={cn("row-start-1 flex min-w-0 items-start gap-1", part)}
+          >
             <StatLabel id={`${id}-label`} className="min-w-0 wrap-break-word">
               {label}
             </StatLabel>
@@ -327,41 +346,43 @@ export function KpiCard({
               </InfoHint>
             ) : null}
           </div>
-          {value === null ? (
-            // No value: a muted dash at the value's own size, and the reason under it — one rule
-            // for every tile, so no tile puts a sentence where its number goes.
-            <>
+          <div className={cn("row-start-2 flex min-w-0 flex-col gap-1", part)}>
+            {value === null ? (
+              // No value: a muted dash at the value's own size, and the reason under it — one rule
+              // for every tile, so no tile puts a sentence where its number goes.
+              <>
+                <StatValue
+                  id={`${id}-value`}
+                  data-empty=""
+                  className="text-muted-foreground"
+                >
+                  <span aria-hidden>—</span>
+                  <span className="sr-only">No value</span>
+                </StatValue>
+                {empty ? (
+                  <StatEmpty className="text-xs">{empty}</StatEmpty>
+                ) : null}
+              </>
+            ) : (
+              // A value never truncates: a long text value wraps; a number stays on its one line.
               <StatValue
                 id={`${id}-value`}
-                data-empty=""
-                className="text-muted-foreground"
+                data-tone={tone}
+                className={cn(
+                  "min-w-0 tabular-nums wrap-break-word",
+                  VALUE_TONE[tone],
+                )}
               >
-                <span aria-hidden>—</span>
-                <span className="sr-only">No value</span>
+                {value}
               </StatValue>
-              {empty ? (
-                <StatEmpty className="text-xs">{empty}</StatEmpty>
-              ) : null}
-            </>
-          ) : (
-            // A value never truncates: a long text value wraps; a number stays on its one line.
-            <StatValue
-              id={`${id}-value`}
-              data-tone={tone}
-              className={cn(
-                "min-w-0 tabular-nums wrap-break-word",
-                VALUE_TONE[tone],
-              )}
-            >
-              {value}
-            </StatValue>
-          )}
+            )}
+          </div>
           {delta ? (
             <StatDelta
               id={`${id}-delta`}
               intent={delta.direction}
               data-tone={delta.tone}
-              className={TONE_CLASSES[delta.tone]}
+              className={cn("row-start-3", TONE_CLASSES[delta.tone], part)}
             >
               {delta.text}
             </StatDelta>
@@ -369,6 +390,7 @@ export function KpiCard({
         </Stat>
         {spark && value !== null ? (
           <KpiSpark
+            className={cn("row-start-4 self-end", part)}
             values={spark}
             ink={
               tone !== "neutral"
