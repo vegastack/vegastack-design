@@ -1,4 +1,4 @@
-// @vegastack info-hint@0.60.0 sha256-f1eQDVLBIMtoY9zRHRwNdklOBu26HlcmzXyw69ldx4A=
+// @vegastack info-hint@0.60.0 sha256-scSVmkN/iiInAPXXaADkEPmZ6C4eUZ7EpRxsRnCaKbI=
 
 "use client";
 
@@ -64,14 +64,24 @@ export function InfoHint({
   className,
   onKeyUp,
   onBlur,
-  onClick,
   ...props
 }: InfoHintProps) {
   const [open, setOpen] = React.useState(false);
-  // Opened by keyboard focus: it closes when focus leaves, keeps focus on the trigger, and a press
-  // (Enter, Space, a click) then keeps it open instead of closing it.
+  // Opened by keyboard focus and focus still on the trigger: a press or the pointer leaving keeps
+  // it open, and it closes when focus leaves (or on Escape, or a press outside).
   const byFocus = React.useRef(false);
-  const change = (next: boolean) => {
+  const popup = React.useRef<HTMLDivElement>(null);
+  const change = (
+    next: boolean,
+    details?: { reason: string; cancel: () => void },
+  ) => {
+    if (
+      !next &&
+      byFocus.current &&
+      (details?.reason === "trigger-press" ||
+        details?.reason === "trigger-hover")
+    )
+      return details.cancel();
     if (!next) byFocus.current = false;
     setOpen(next);
   };
@@ -90,18 +100,18 @@ export function InfoHint({
         }}
         onBlur={(event) => {
           onBlur?.(event);
-          const to = event.relatedTarget as Element | null;
-          if (
-            byFocus.current &&
-            !to?.closest?.('[data-slot="info-hint-content"]')
-          )
-            change(false);
-        }}
-        onClick={(event) => {
-          onClick?.(event);
-          if (!open || !byFocus.current) return;
-          byFocus.current = false;
-          event.preventBaseUIHandler();
+          if (!byFocus.current) return;
+          const trigger = event.currentTarget;
+          // Once focus settles: Tab into the hint passes through Base UI's focus guards first.
+          setTimeout(() => {
+            const now = document.activeElement;
+            if (
+              byFocus.current &&
+              now !== trigger &&
+              !popup.current?.contains(now)
+            )
+              change(false);
+          });
         }}
         render={
           <Button
@@ -119,8 +129,12 @@ export function InfoHint({
       </PopoverTrigger>
       <PopoverContent
         data-slot="info-hint-content"
-        // Opened by focus, focus stays on the trigger; opened by a press, the hint takes it.
-        initialFocus={() => !byFocus.current}
+        ref={popup}
+        // Opened by focus, focus stays on the trigger; opened by a tap, the hint itself takes it
+        // (Base UI's own touch default); opened by a click or a key, its first stop does.
+        initialFocus={(type) =>
+          byFocus.current ? false : type === "touch" ? popup.current : true
+        }
         side={side}
         align={align}
         className={cn("w-64 gap-1.5", contentClassName)}

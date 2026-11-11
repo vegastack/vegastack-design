@@ -18,8 +18,9 @@
 #     `data-overflow`. `scroll` is `AttachmentGroup`'s recipe (`min-w-0 scroll-fade-x
 #     scrollbar-none overflow-x-auto overscroll-x-contain`) plus `max-w-full` (a `w-fit` flex row's
 #     fit-content never narrows below its min-content), `justify-start` (a centred overflowing row
-#     clips its first tab), `overflow-y-hidden`, a 16px fade reveal (`--scroll-fade-reveal:
-#     --spacing(4)`: the utility's 96px default left a strip that overflows by less than that with
+#     clips its first tab), `overflow-y-hidden`, a fade reveal of 16px or the whole scroll range when it is shorter
+#     (`--scroll-fade-reveal: min(100%, --spacing(4))`; animation-range percentages are of the
+#     scroll range): the utility's 96px default left a strip that overflows by less than that with
 #     a sliver of an end fade, so its last tab read as clipped, not scrollable — Regent
 #     agents browser pass, 11-11-2026), and `bottom-[-4px]` on the triggers' line
 #     indicator, which upstream draws 1px below the list and a scroll box would clip — every one
@@ -74,7 +75,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/tabs.tsx b/tabs.tsx
-index c3262d3..44f64b5 100644
+index c3262d3..6dc4899 100644
 --- a/tabs.tsx
 +++ b/tabs.tsx
 @@ -1,8 +1,19 @@
@@ -134,7 +135,7 @@ index c3262d3..44f64b5 100644
 +        visible: "",
 +        menu: "",
 +        scroll:
-+          "relative not-data-vertical:max-w-full not-data-vertical:min-w-0 not-data-vertical:scroll-fade-x not-data-vertical:justify-start not-data-vertical:scrollbar-none not-data-vertical:overflow-x-auto not-data-vertical:overflow-y-hidden not-data-vertical:overscroll-x-contain not-data-vertical:[--scroll-fade-reveal:--spacing(4)] not-data-vertical:[&>*]:after:bottom-[-4px]",
++          "relative not-data-vertical:max-w-full not-data-vertical:min-w-0 not-data-vertical:scroll-fade-x not-data-vertical:justify-start not-data-vertical:scrollbar-none not-data-vertical:overflow-x-auto not-data-vertical:overflow-y-hidden not-data-vertical:overscroll-x-contain not-data-vertical:[--scroll-fade-reveal:min(100%,--spacing(4))] not-data-vertical:[&>*]:after:bottom-[-4px]",
 +      },
      },
      defaultVariants: {
