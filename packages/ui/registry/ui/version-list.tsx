@@ -1,4 +1,4 @@
-// @vegastack version-list@0.60.0 sha256-zXG5BU6g12jib5ZVGk/5809SoyMa6ydW8HOsButbzbM=
+// @vegastack version-list@0.60.0 sha256-7DIlkQMozPpEP0CfzNbyZUVA4cE7oPjorAl/ZxY4QLU=
 
 "use client";
 
@@ -320,7 +320,11 @@ export function VersionList({
     >
       <div
         data-slot="version-list-header"
-        className="flex min-h-8 items-center justify-between gap-2"
+        className={cn(
+          "flex min-h-8 items-center justify-between gap-2",
+          // A hidden heading with no switch beside it: nothing to show, so the row takes no room.
+          headingHidden && !onNamedOnlyChange && "sr-only",
+        )}
       >
         <h2
           id={headingId}

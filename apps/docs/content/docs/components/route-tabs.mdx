@@ -92,6 +92,17 @@ and keeps the current tab in view — counts arriving after the first paint incl
   file="components/preview/route-tabs.tsx"
 />
 
+### Sub-pages under page tabs
+
+`variant="line"` draws underlined tabs on a transparent strip: the second level when a page's own
+pill tabs already sit above it (a record's Settings tab and its Job, Access and Manage pages). Two
+pill strips stacked read as one row repeated; never stack them.
+
+<ComponentPreview
+  name="routeTabsLine"
+  file="components/preview/route-tabs.tsx"
+/>
+
 ## API Reference
 
 ### RouteTabs

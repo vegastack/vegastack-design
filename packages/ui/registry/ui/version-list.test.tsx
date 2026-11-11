@@ -2,6 +2,8 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+// Real Tailwind + tokens for the hidden header's geometry.
+import "../../test/stacking.css";
 import {
   VERSION_KIND_LABELS,
   VersionList,
@@ -222,6 +224,31 @@ test("headingHidden keeps the list's heading for assistive technology only", asy
   const heading = screen.getByRole("heading", { name: "Version history" });
   await expect.element(heading).toBeInTheDocument();
   expect(heading.element().className).toContain("sr-only");
+  // No switch beside it: the header row takes no room, so the list starts at the top.
+  const header = screen.container.querySelector(
+    '[data-slot="version-list-header"]',
+  )!;
+  expect(header.classList.contains("sr-only")).toBe(true);
+  // The empty line starts at the list's top: no header row above it.
+  const top = () =>
+    screen.container
+      .querySelector('[data-slot="version-list-empty"]')!
+      .getBoundingClientRect().top -
+    screen.container
+      .querySelector('[data-slot="version-list"]')!
+      .getBoundingClientRect().top;
+  expect(Math.round(top())).toBe(0);
+  // With the Named only switch the row stays, the heading alone hidden.
+  await screen.rerender(
+    <VersionList
+      versions={[]}
+      headingHidden
+      namedOnly={false}
+      onNamedOnlyChange={() => {}}
+    />,
+  );
+  expect(header.classList.contains("sr-only")).toBe(false);
+  expect(top()).toBeGreaterThanOrEqual(32);
 });
 
 test('groupBy="day" puts the rows under a heading per day; an unnamed row shows its time; arrows walk across days', async () => {

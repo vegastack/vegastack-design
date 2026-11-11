@@ -141,7 +141,7 @@ test("titleAs picks the heading level so a page keeps a valid outline", async ()
   expect(title?.classList.contains("font-medium")).toBe(true);
 });
 
-test("split: from 768px the header is a sticky left column of at most 18rem beside the content", async () => {
+test("split: a section 64rem wide puts the header in a sticky left column of at most 18rem beside the content", async () => {
   const section = (
     <SettingsSection
       layout="split"
@@ -149,7 +149,7 @@ test("split: from 768px the header is a sticky left column of at most 18rem besi
       title="Web access"
       description="Which sites the agent may open, and how it searches."
       actions={<button type="button">Reset</button>}
-      style={{ width: "100%", maxWidth: 960 }}
+      style={{ width: "100%", maxWidth: 1100 }}
     >
       <SettingsCard>
         <SettingsRow label="Search the web">
@@ -187,7 +187,7 @@ test("split: from 768px the header is a sticky left column of at most 18rem besi
   expect(Math.round(actions.left)).toBe(Math.round(h.left));
   await expectNoA11yViolations(screen.container);
 
-  // Below 768px it stacks like the default: header above, content full width under it.
+  // Below 48rem of section it stacks like the default: header above, content full width under it.
   await page.viewport(414, 896);
   expect(getComputedStyle(header).position).toBe("static");
   const hs = header.getBoundingClientRect();
@@ -201,6 +201,84 @@ test("split: from 768px the header is a sticky left column of at most 18rem besi
   expect(slot("settings-section").scrollWidth).toBeLessThanOrEqual(
     Math.ceil(ss.width),
   );
+});
+
+test("split follows the section's own width, not the viewport: 14rem beside, stacked when narrow", async () => {
+  await page.viewport(1280, 900);
+  const make = (width: number) => (
+    <SettingsSection
+      layout="split"
+      titleAs="h2"
+      title="Model"
+      description="Which model it uses."
+      style={{ width }}
+    >
+      <SettingsCard>
+        <SettingsRow label="Model" description="Set by your workspace.">
+          <Input aria-label="Model" />
+        </SettingsRow>
+      </SettingsCard>
+    </SettingsSection>
+  );
+  // 800px (a page beside a side panel on a wide screen): beside, with a 14rem column.
+  const screen = await render(make(800));
+  const slot = (name: string) =>
+    screen.container.querySelector<HTMLElement>(`[data-slot="${name}"]`)!;
+  expect(
+    Math.round(slot("settings-section-header").getBoundingClientRect().width),
+  ).toBe(224);
+  // 560px on the same 1280px viewport: stacked, the content as wide as the section, and the
+  // row's field keeps to half the row so its label is never squeezed.
+  await screen.rerender(make(560));
+  const header = slot("settings-section-header").getBoundingClientRect();
+  const content = slot("settings-section-content").getBoundingClientRect();
+  expect(getComputedStyle(slot("settings-section-header")).position).toBe(
+    "static",
+  );
+  expect(content.top).toBeGreaterThanOrEqual(header.bottom);
+  expect(Math.round(content.width)).toBe(560);
+  expect(
+    slot("settings-row-control").getBoundingClientRect().width,
+  ).toBeLessThanOrEqual(256);
+  // A 448px row is side by side, and its field takes half the row's inner width, not 256px.
+  await screen.rerender(make(448));
+  const inner = slot("settings-row").firstElementChild!.getBoundingClientRect();
+  const control = slot("settings-row-control").getBoundingClientRect();
+  const label = slot("settings-row-label").getBoundingClientRect();
+  expect(control.left).toBeGreaterThanOrEqual(label.right);
+  expect(Math.round(control.width)).toBe(Math.round(inner.width / 2));
+});
+
+test("split: the header stays stuck under the page header while its section scrolls past", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(
+    <div data-testid="scroller" style={{ height: 400, overflowY: "auto" }}>
+      <SettingsSection
+        layout="split"
+        titleAs="h2"
+        title="Versions"
+        description="Every saved change."
+        style={{ width: 1100 }}
+      >
+        <div style={{ height: 1200 }}>Tall content</div>
+      </SettingsSection>
+      <div style={{ height: 400 }} />
+    </div>,
+  );
+  const scroller = screen.container.querySelector<HTMLElement>(
+    '[data-testid="scroller"]',
+  )!;
+  const header = screen.container.querySelector<HTMLElement>(
+    '[data-slot="settings-section-header"]',
+  )!;
+  scroller.scrollTop = 300;
+  await new Promise((r) => requestAnimationFrame(r));
+  // `top-20`: 80px below the scroller's top, though the section's top scrolled 300px out.
+  expect(
+    Math.round(
+      header.getBoundingClientRect().top - scroller.getBoundingClientRect().top,
+    ),
+  ).toBe(80);
 });
 
 test("stacked (the default) keeps its children direct, with no content wrapper", async () => {
