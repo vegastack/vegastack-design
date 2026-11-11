@@ -1,4 +1,4 @@
-// @vegastack route-tabs@0.61.0 sha256-Epjw4H/VCA/x0zgb5Z7R8rk7LeauFrHZBe+w1/7u0lg=
+// @vegastack route-tabs@0.65.0 sha256-WAUqHwSKAiclkK0l/5ZDig7z9wB9jRyb4F/LQ8PzU1s=
 
 "use client";
 
@@ -19,7 +19,8 @@ import { useOverflowFold } from "@/components/ui/use-overflow-fold";
 
 /* ---
 `RouteTabs` are Tabs whose panels are pages: a named `nav` of links drawn as the
-default pill tabs, one URL per tab. Put them in the segment's layout so a switch swaps
+default pill tabs (or, `variant="line"`, underlined — the secondary strip under a page's own tabs),
+one URL per tab. Put them in the segment's layout so a switch swaps
 only the page below them.
 
 The router stays the app's. The current tab comes from `currentHref` (the pathname),
@@ -96,6 +97,13 @@ export interface RouteTabsProps extends Omit<
    */
   overflow?: "scroll" | "visible" | "menu";
   /**
+   * `default` draws the pill tabs; `line` draws underlined tabs on a transparent strip — the
+   * secondary level when a page's own tabs already sit above (a record's Settings tab and its
+   * sub-pages), so the two strips never read as one row repeated.
+   * @default "default"
+   */
+  variant?: "default" | "line";
+  /**
    * Formats a tab's count.
    * @default (n) => n.toLocaleString("en")
    */
@@ -168,8 +176,9 @@ function linkElement(
 }
 
 /**
- * `RouteTabs` — page tabs: a named `nav` of links drawn as the default pill tabs, the current one
- * marked `aria-current="page"`. A clicked tab is current at once — nothing flashes under it — until
+ * `RouteTabs` — page tabs: a named `nav` of links drawn as the default pill tabs (or underlined,
+ * `variant="line"`, for a second level under a page's own tabs), the current one marked
+ * `aria-current="page"`. A clicked tab is current at once — nothing flashes under it — until
  * the page arrives (`currentHref` changes); with `overflow="scroll"` the strip scrolls sideways and
  * keeps the current tab in view, counts arriving late included.
  *
@@ -193,6 +202,7 @@ export function RouteTabs({
   onPendingHrefChange,
   linkRender,
   overflow = "visible",
+  variant = "default",
   formatCount = (n) => n.toLocaleString("en"),
   className,
   ref,
@@ -285,13 +295,13 @@ export function RouteTabs({
         ref={stripRef}
         data-slot="tabs-list"
         data-orientation="horizontal"
-        data-variant="default"
+        data-variant={variant}
         data-overflow={overflow}
         data-fold-content={overflow === "menu" ? "" : undefined}
         aria-hidden={folded || undefined}
         className={cn(
           tabsListVariants({
-            variant: "default",
+            variant,
             overflow: overflow === "menu" ? "visible" : overflow,
           }),
           folded &&

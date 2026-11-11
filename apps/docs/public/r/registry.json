@@ -456,8 +456,8 @@
       "meta": {
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
         "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
-        "version": "0.60.0",
-        "integrity": "sha256-zXG5BU6g12jib5ZVGk/5809SoyMa6ydW8HOsButbzbM="
+        "version": "0.65.0",
+        "integrity": "sha256-+jTQ/V6LL16RW/TvDjoyOau8ajAsRZongQbyAo6MG2I="
       }
     },
     {
@@ -18692,8 +18692,8 @@
       "meta": {
         "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows, and a rows × channels matrix (Push / Email) of switches.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
-        "version": "0.62.0",
-        "integrity": "sha256-VVnnC2hQj9I7oM6tTo8kBAk8L+fhll3mI0vBBJomLtg="
+        "version": "0.65.0",
+        "integrity": "sha256-OSIGci7mLkbyFMr29MMLgYlxgZqokuPilk59OZPDVoE="
       }
     },
     {
@@ -23736,8 +23736,8 @@
       "meta": {
         "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
         "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
-        "version": "0.61.0",
-        "integrity": "sha256-Epjw4H/VCA/x0zgb5Z7R8rk7LeauFrHZBe+w1/7u0lg="
+        "version": "0.65.0",
+        "integrity": "sha256-WAUqHwSKAiclkK0l/5ZDig7z9wB9jRyb4F/LQ8PzU1s="
       }
     },
     {

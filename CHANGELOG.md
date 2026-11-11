@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.65.0] — November 11, 2026
+
+<!-- assembled from 2 changesets: b2aeeeaa3787 -->
+
+### 🔧 Changed components
+
+- **RouteTabs** takes `variant="line"`: underlined tabs on a transparent strip, for a page's sub-pages under its own pill tabs, so two strips never read as one row repeated.
+  [docs](https://design.vegastack.com/docs/components/route-tabs) ·
+  [`9c9220d`](https://github.com/VegaStack/vegastack-design/commit/9c9220d)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.64.0 → 0.65.0.
+
+### 🐛 Fixed
+
+- **SettingsSection** `layout="split"` splits by the section's own width (`@container/settings-section`, 48rem) instead of the viewport, so a page narrowed by a side panel stacks rather than squeezing its fields; the left column is 14rem, 18rem from 64rem. **SettingsRow** keeps a sized control to at most half the row, so a description never squeezes into a sliver beside a wide field. **VersionList** with `headingHidden` and no Named only switch no longer leaves an empty header row above the list.
+  [docs](https://design.vegastack.com/docs/components/settings-row) ·
+  [`9c9220d`](https://github.com/VegaStack/vegastack-design/commit/9c9220d)
+
 ## [0.64.0] — November 11, 2026
 
 <!-- assembled from 1 changeset: fac14b46757b -->

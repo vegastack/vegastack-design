@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.62.0 sha256-VVnnC2hQj9I7oM6tTo8kBAk8L+fhll3mI0vBBJomLtg=
+// @vegastack settings-row@0.65.0 sha256-OSIGci7mLkbyFMr29MMLgYlxgZqokuPilk59OZPDVoE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -51,9 +51,14 @@ export interface SettingsSectionProps extends Omit<
   actions?: React.ReactNode;
   /**
    * How the header sits against the content. `stacked` puts the title, description and actions
-   * above the children. `split` puts them in a left column (18rem at most) beside the children
-   * from the `md` breakpoint (768px), with the left column sticky under the page header
-   * (`top-20`) while the settings scroll past; below `md` it stacks exactly like `stacked`.
+   * above the children. `split` puts them in a left column beside the children once the SECTION
+   * itself is 48rem (768px) wide — a container query (`@container/settings-section`), not a
+   * viewport breakpoint, so a page squeezed by a side panel or a dialog stacks while the same page
+   * at full width splits. The left column is 14rem at most, 18rem once the section reaches 64rem,
+   * so the fields keep the room; it stays sticky under the page header (`top-20`) while the
+   * settings scroll past. Narrower, it stacks exactly like `stacked`. In `split`, `className` and
+   * `style` dress the section's own box (its spacing on the page, `scroll-mt-*`); the header and
+   * content sit in an inner `data-slot="settings-section-grid"`, which owns their gap.
    * Use `split` for a long settings page where each section is one setting with room to explain it.
    * @default "stacked"
    */
@@ -65,7 +70,8 @@ export interface SettingsSectionProps extends Omit<
  * `description` and right-aligned `actions` above its `children` (typically a `SettingsCard`).
  * The actions stay on the title row beside a long description (top-aligned to the title), and
  * wrap under it only when the header is too narrow for both. `layout="split"` moves the header
- * into a sticky left column beside the children from the `md` breakpoint.
+ * into a sticky left column beside the children once the section itself is 48rem wide (a
+ * container query, so a side panel or dialog that narrows the page stacks it).
  *
  * Pure presentational and server-safe — no hooks, no `'use client'`.
  *
@@ -93,77 +99,91 @@ export function SettingsSection({
   ...props
 }: SettingsSectionProps) {
   const split = layout === "split";
+  const header =
+    title != null || description != null || actions != null ? (
+      <div
+        data-slot="settings-section-header"
+        className={cn(
+          "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 has-data-[slot=settings-section-description]:items-start",
+          // Split: one sticky column, the actions under the text rather than beside it.
+          split &&
+            "@3xl/settings-section:sticky @3xl/settings-section:top-20 @3xl/settings-section:flex-col @3xl/settings-section:flex-nowrap @3xl/settings-section:items-start @3xl/settings-section:justify-start @3xl/settings-section:gap-y-3",
+        )}
+      >
+        <div
+          className={cn(
+            "flex min-w-0 flex-col gap-1 has-data-[slot=settings-section-description]:flex-[1_1_16rem]",
+            split &&
+              "@3xl/settings-section:has-data-[slot=settings-section-description]:flex-none",
+          )}
+        >
+          {title != null && (
+            <TitleTag
+              data-slot="settings-section-title"
+              className="font-heading text-base font-medium text-foreground"
+            >
+              {title}
+            </TitleTag>
+          )}
+          {description != null && (
+            <p
+              data-slot="settings-section-description"
+              className="text-xs leading-normal text-muted-foreground"
+            >
+              {description}
+            </p>
+          )}
+        </div>
+        {actions != null && (
+          <div
+            data-slot="settings-section-actions"
+            className={cn(
+              "ms-auto flex shrink-0 items-center gap-2",
+              split &&
+                "@3xl/settings-section:ms-0 @3xl/settings-section:flex-wrap",
+            )}
+          >
+            {actions}
+          </div>
+        )}
+      </div>
+    ) : null;
+  if (!split)
+    return (
+      <section
+        ref={ref}
+        data-slot="settings-section"
+        data-layout={layout}
+        className={cn("flex flex-col gap-4", className)}
+        {...props}
+      >
+        {header}
+        {children}
+      </section>
+    );
+  // Split: the section is the container its own width is measured on, so the columns follow the
+  // room the section is given (a side panel, a dialog), never the viewport.
   return (
     <section
       ref={ref}
       data-slot="settings-section"
       data-layout={layout}
-      className={cn(
-        "flex flex-col gap-4",
-        split &&
-          "md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start md:gap-x-8",
-        className,
-      )}
+      className={cn("@container/settings-section", className)}
       {...props}
     >
-      {(title != null || description != null || actions != null) && (
-        <div
-          data-slot="settings-section-header"
-          className={cn(
-            "flex flex-wrap items-center justify-between gap-x-4 gap-y-2 has-data-[slot=settings-section-description]:items-start",
-            // Split: one sticky column, the actions under the text rather than beside it.
-            split &&
-              "md:sticky md:top-20 md:flex-col md:flex-nowrap md:items-start md:justify-start md:gap-y-3",
-          )}
-        >
-          <div
-            className={cn(
-              "flex min-w-0 flex-col gap-1 has-data-[slot=settings-section-description]:flex-[1_1_16rem]",
-              split &&
-                "md:has-data-[slot=settings-section-description]:flex-none",
-            )}
-          >
-            {title != null && (
-              <TitleTag
-                data-slot="settings-section-title"
-                className="font-heading text-base font-medium text-foreground"
-              >
-                {title}
-              </TitleTag>
-            )}
-            {description != null && (
-              <p
-                data-slot="settings-section-description"
-                className="text-xs leading-normal text-muted-foreground"
-              >
-                {description}
-              </p>
-            )}
-          </div>
-          {actions != null && (
-            <div
-              data-slot="settings-section-actions"
-              className={cn(
-                "ms-auto flex shrink-0 items-center gap-2",
-                split && "md:ms-0 md:flex-wrap",
-              )}
-            >
-              {actions}
-            </div>
-          )}
-        </div>
-      )}
-      {split ? (
-        // One grid cell for every child, in the right column even when there is no header.
+      <div
+        data-slot="settings-section-grid"
+        className="flex flex-col gap-4 @3xl/settings-section:grid @3xl/settings-section:grid-cols-[minmax(0,14rem)_minmax(0,1fr)] @3xl/settings-section:items-start @3xl/settings-section:gap-x-8 @5xl/settings-section:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]"
+      >
+        {header}
+        {/* One grid cell for every child, in the right column even when there is no header. */}
         <div
           data-slot="settings-section-content"
-          className="flex min-w-0 flex-col gap-4 md:col-start-2"
+          className="flex min-w-0 flex-col gap-4 @3xl/settings-section:col-start-2"
         >
           {children}
         </div>
-      ) : (
-        children
-      )}
+      </div>
     </section>
   );
 }
@@ -213,7 +233,7 @@ const CONTROL_FILL = "w-full [&>:first-child]:min-w-0 [&>:first-child]:flex-1";
  * `data-slot` — written out literally, because Tailwind only generates the classes it can read.
  */
 const FIELD_CONTROL_DEFAULT =
-  "has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:w-full @sm/settings-row:has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:w-64 has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:[&>:first-child]:min-w-0 has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:[&>:first-child]:flex-1";
+  "has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:w-full @sm/settings-row:has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:w-64 @sm/settings-row:has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:max-w-1/2 has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:[&>:first-child]:min-w-0 has-[[data-slot=input],[data-slot=input-group],[data-slot=textarea],[data-slot=select-trigger],[data-slot=combobox-chips],[data-slot=native-select-wrapper],[data-slot=date-picker-trigger],[data-slot=date-range-picker-trigger],[data-slot=people-picker],[data-slot=searchable-select],[data-slot=country-select],[data-slot=region-select],[data-slot=number-field],[data-slot=chip-input-root]]:[&>:first-child]:flex-1";
 
 /** Props accepted by `SettingsRow`. */
 export interface SettingsRowProps extends React.ComponentProps<"div"> {
@@ -249,8 +269,10 @@ export interface SettingsRowProps extends React.ComponentProps<"div"> {
   labelProps?: React.ComponentProps<"label">;
   /**
    * The control's width once the row sits side by side, so every row's control shares one
-   * width and one right edge: `sm` 160px, `md` 256px, `lg` 320px — the first child of the control
-   * slot fills it (a trailing status icon or button keeps its own size). `auto` keeps the
+   * width and one right edge: `sm` 160px, `md` 256px, `lg` 320px, and never more than half the
+   * row, so a narrow row (a side panel open beside the page) keeps room for its label and
+   * description — the first child of the control slot fills it (a trailing status icon or button
+   * keeps its own size). `auto` keeps the
    * control's own width (a switch, a button, a read-only value). Below the row's side-by-side
    * width the control spans the row whatever the size. Never set a width class on the control
    * itself — pick a size.
@@ -272,7 +294,7 @@ export interface SettingsRowProps extends React.ComponentProps<"div"> {
  * breakpoint can't express. Works standalone (no `SettingsCard` required): the
  * outer element establishes the container, the inner layout row queries it.
  *
- * The control slot has one measure per `controlSize` (160/256/320px), so stacked rows line their
+ * The control slot has one measure per `controlSize` (160/256/320px, at most half the row), so stacked rows line their
  * controls up on one right edge AND one left edge. Left unset, a row holding a field control
  * (input, input group, textarea, select, combobox, date or people picker) takes `md`, detected
  * in CSS from the control's `data-slot`, and any other control keeps its own width.
@@ -344,6 +366,8 @@ export function SettingsRow({
                     controlSize === "sm" && "@sm/settings-row:w-40",
                     controlSize === "md" && "@sm/settings-row:w-64",
                     controlSize === "lg" && "@sm/settings-row:w-80",
+                    // Never more than half the row: the label and its description keep the rest.
+                    "@sm/settings-row:max-w-1/2",
                   ],
             )}
           >
