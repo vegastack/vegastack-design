@@ -5242,13 +5242,13 @@ test("long-names: a genuinely unbroken word stays inside every overlay", async (
 });
 
 /**
- * KpiGrid sizes its tracks by its own width, not the viewport (min 10rem): two tiles on a 358px
- * phone column and five in a 960px settings column. A long label and a long text value wrap
+ * KpiGrid sizes its tracks by its own width, not the viewport, and balances them: four tiles take
+ * two a row in a 358px phone column and four in a 960px column. A long label and a long value wrap
  * inside the tile — nothing truncates or overflows.
  */
 for (const [width, tracks] of [
   [358, 2],
-  [960, 5],
+  [960, 4],
 ] as const) {
   test(`KpiGrid at ${width}px: ${tracks} tiles a row, labels and values wrap`, async () => {
     const screen = await render(
@@ -5259,8 +5259,9 @@ for (const [width, tracks] of [
             value="12"
             hint="Why."
           />
-          <KpiCard label="Provider cost" value="Not enough ratings" />
+          <KpiCard label="Median run" value="12 h 41 min 9 s" />
           <KpiCard label="Runs" value="1,284" />
+          <KpiCard label="Helpful" value={null} empty="Needs 5 ratings" />
         </KpiGrid>
       </div>,
     );

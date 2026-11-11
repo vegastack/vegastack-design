@@ -5702,6 +5702,24 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
+        },
+        {
+          "name": "CHART_TONE_COLORS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/chart.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChartTone",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chart.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -5790,7 +5808,16 @@
           "cssVariables": []
         },
         "ChartTooltipContent": {
-          "attributes": [],
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "chart-tooltip-label",
+                "chart-tooltip-row",
+                "chart-tooltip-value"
+              ]
+            }
+          ],
           "cssVariables": ["--color-bg", "--color-border"]
         }
       }
@@ -22981,6 +23008,10 @@
         "ProgressTrack": {
           "attributes": [
             {
+              "name": "data-size",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["progress-track"]
             }
@@ -27318,6 +27349,51 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "KPI_SPARK_MIN_POINTS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "KpiCardSeries",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "KpiCardTone",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "kpiGridColumns",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "sparkPaths",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/kpi-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -27404,6 +27480,10 @@
         "KpiCard": {
           "attributes": [
             {
+              "name": "data-empty",
+              "values": [""]
+            },
+            {
               "name": "data-linked",
               "values": [""]
             },
@@ -27426,7 +27506,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["kpi-grid"]
+              "values": ["kpi-grid", "kpi-grid-frame"]
             }
           ],
           "cssVariables": []

@@ -1,4 +1,4 @@
-// @vegastack chart@0.60.0 sha256-UBv7EY3RxHsfwZaWu6AyTNqlgOxkOQ/unyLcmKi/Rfo=
+// @vegastack chart@0.60.0 sha256-PDohJ4i/ZIt4EsPrMSj52SZcxdT3HyvUf2ZkSr9uIsA=
 
 "use client";
 
@@ -13,14 +13,59 @@ const THEMES = { light: "", dark: ".dark" } as const;
 const INITIAL_DIMENSION = { width: 320, height: 200 } as const;
 type TooltipNameType = number | string;
 
+/**
+ * API-43: what a series means, as a typed tone rather than a colour string. `series-1`…`series-8`
+ * are the categorical palette (identity), `single` the one-series ink, and the status tones carry
+ * meaning (`success` done, `warning` attention, `danger` failed, `info`, `neutral` nothing
+ * happened). Each resolves to its token, so light and dark both hold.
+ */
+export type ChartTone =
+  | "series-1"
+  | "series-2"
+  | "series-3"
+  | "series-4"
+  | "series-5"
+  | "series-6"
+  | "series-7"
+  | "series-8"
+  | "single"
+  | "success"
+  | "warning"
+  | "danger"
+  | "info"
+  | "neutral";
+
+/** API-43: each tone's token. */
+export const CHART_TONE_COLORS: Record<ChartTone, string> = {
+  "series-1": "var(--chart-1)",
+  "series-2": "var(--chart-2)",
+  "series-3": "var(--chart-3)",
+  "series-4": "var(--chart-4)",
+  "series-5": "var(--chart-5)",
+  "series-6": "var(--chart-6)",
+  "series-7": "var(--chart-7)",
+  "series-8": "var(--chart-8)",
+  single: "var(--chart-single)",
+  success: "var(--success)",
+  warning: "var(--warning)",
+  danger: "var(--destructive)",
+  info: "var(--info)",
+  neutral: "var(--muted-foreground)",
+};
+
 export type ChartConfig = Record<
   string,
   {
     label?: React.ReactNode;
     icon?: React.ComponentType;
   } & (
-    | { color?: string; theme?: never }
-    | { color?: never; theme: Record<keyof typeof THEMES, string> }
+    | { tone: ChartTone; color?: never; theme?: never }
+    | { tone?: never; color?: string; theme?: never }
+    | {
+        tone?: never;
+        color?: never;
+        theme: Record<keyof typeof THEMES, string>;
+      }
   )
 >;
 
@@ -98,7 +143,7 @@ function ChartContainer({
 
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(
-    ([, config]) => config.theme ?? config.color,
+    ([, config]) => config.theme ?? config.color ?? config.tone,
   );
 
   if (!colorConfig.length) {
@@ -116,7 +161,8 @@ ${colorConfig
   .map(([key, itemConfig]) => {
     const color =
       itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ??
-      itemConfig.color;
+      itemConfig.color ??
+      (itemConfig.tone ? CHART_TONE_COLORS[itemConfig.tone] : undefined);
     return color ? `  --color-${key}: ${color};` : null;
   })
   .join("\n")}
@@ -142,6 +188,7 @@ function ChartTooltipContent({
   labelFormatter,
   labelClassName,
   formatter,
+  valueFormatter,
   color,
   nameKey,
   labelKey,
@@ -152,6 +199,16 @@ function ChartTooltipContent({
     indicator?: "line" | "dot" | "dashed";
     nameKey?: string;
     labelKey?: string;
+    /**
+     * API-43: formats one row's VALUE cell only ("$1.20", "14.4K · 2 failed"); the row keeps its
+     * indicator, its label and the gap between them. Prefer it to upstream's `formatter`, which
+     * replaces the whole row.
+     */
+    valueFormatter?: (
+      value: TooltipValueType,
+      name: TooltipNameType,
+      item: unknown,
+    ) => React.ReactNode;
   } & Omit<
     RechartsPrimitive.DefaultTooltipContentProps<
       TooltipValueType,
@@ -206,7 +263,8 @@ function ChartTooltipContent({
   return (
     <div
       className={cn(
-        "grid min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+        // API-43: a tooltip never grows past 20rem; a long series name truncates in its cell.
+        "grid max-w-80 min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
         className,
       )}
     >
@@ -222,8 +280,16 @@ function ChartTooltipContent({
             return (
               <div
                 key={index}
+                data-slot="chart-tooltip-row"
                 className={cn(
-                  "flex w-full flex-wrap items-stretch gap-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
+                  // API-43: the row is a grid — indicator · label · value — with a built-in gap,
+                  // so a long label can never run into its number ("Claude Haiku 5.514,392").
+                  "grid w-full items-stretch gap-x-2 [&>svg]:h-2.5 [&>svg]:w-2.5 [&>svg]:text-muted-foreground",
+                  formatter
+                    ? "flex flex-wrap"
+                    : itemConfig?.icon || !hideIndicator
+                      ? "grid-cols-[auto_minmax(0,1fr)]"
+                      : "grid-cols-[minmax(0,1fr)]",
                   indicator === "dot" && "items-center",
                 )}
               >
@@ -257,21 +323,29 @@ function ChartTooltipContent({
                     )}
                     <div
                       className={cn(
-                        "flex flex-1 justify-between leading-none",
+                        "grid min-w-0 grid-cols-[minmax(0,1fr)_auto] gap-x-4 leading-none",
                         nestLabel ? "items-end" : "items-center",
                       )}
                     >
-                      <div className="grid gap-1.5">
+                      <div className="grid min-w-0 gap-1.5">
                         {nestLabel ? tooltipLabel : null}
-                        <span className="text-muted-foreground">
+                        <span
+                          data-slot="chart-tooltip-label"
+                          className="truncate text-muted-foreground"
+                        >
                           {itemConfig?.label ?? item.name}
                         </span>
                       </div>
                       {item.value != null && (
-                        <span className="font-mono font-medium text-foreground tabular-nums">
-                          {typeof item.value === "number"
-                            ? item.value.toLocaleString()
-                            : String(item.value)}
+                        <span
+                          data-slot="chart-tooltip-value"
+                          className="text-end font-mono font-medium whitespace-nowrap text-foreground tabular-nums"
+                        >
+                          {valueFormatter
+                            ? valueFormatter(item.value, item.name ?? key, item)
+                            : typeof item.value === "number"
+                              ? item.value.toLocaleString()
+                              : String(item.value)}
                         </span>
                       )}
                     </div>
@@ -306,7 +380,8 @@ function ChartLegendContent({
   return (
     <div
       className={cn(
-        "flex items-center justify-center gap-4",
+        // API-43: legend items wrap onto more lines instead of overflowing the chart.
+        "flex flex-wrap items-center justify-center gap-x-4 gap-y-1",
         verticalAlign === "top" ? "pb-3" : "pt-3",
         className,
       )}
@@ -321,7 +396,7 @@ function ChartLegendContent({
             <div
               key={index}
               className={cn(
-                "flex items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
+                "flex min-w-0 items-center gap-1.5 [&>svg]:h-3 [&>svg]:w-3 [&>svg]:text-muted-foreground",
               )}
             >
               {itemConfig?.icon && !hideIcon ? (
@@ -334,7 +409,7 @@ function ChartLegendContent({
                   }}
                 />
               )}
-              {itemConfig?.label}
+              <span className="max-w-40 truncate">{itemConfig?.label}</span>
             </div>
           );
         })}

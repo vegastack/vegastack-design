@@ -444,3 +444,52 @@ export function chartRtl(): ReactNode {
     </Wrapper>
   );
 }
+
+/** API-43: tones by meaning, and a tooltip whose long label never runs into its value. */
+const outcomeConfig = {
+  finished: { label: "Finished", tone: "success" },
+  failed: { label: "Failed", tone: "danger" },
+  stopped: {
+    label: "Stopped by someone before it finished its work",
+    tone: "warning",
+  },
+} satisfies ChartConfig;
+
+const outcomeData = [
+  { day: "Mon", finished: 42, failed: 3, stopped: 1 },
+  { day: "Tue", finished: 51, failed: 1, stopped: 0 },
+  { day: "Wed", finished: 38, failed: 6, stopped: 2 },
+];
+
+export function chartTones(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch">
+      <ChartContainer config={outcomeConfig} className="min-h-[200px] w-full">
+        <BarChart accessibilityLayer data={outcomeData}>
+          <CartesianGrid vertical={false} />
+          <XAxis
+            dataKey="day"
+            tickLine={false}
+            axisLine={false}
+            tickMargin={10}
+          />
+          <ChartTooltip
+            defaultIndex={2}
+            content={
+              <ChartTooltipContent valueFormatter={(v) => `${v} runs`} />
+            }
+          />
+          {(["finished", "failed", "stopped"] as const).map((key) => (
+            <Bar
+              key={key}
+              dataKey={key}
+              stackId="a"
+              fill={`var(--color-${key})`}
+            />
+          ))}
+          <ChartLegend content={<ChartLegendContent />} />
+        </BarChart>
+      </ChartContainer>
+    </Wrapper>
+  );
+}

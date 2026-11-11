@@ -62,8 +62,9 @@ from the root.
 
 ### Tone
 
-`tone` colours the indicator: `default`, `warning` for a bar nearing a limit, `danger` for one that
-reached it. The caller picks the tone, because only it knows what the value means. Say the same thing
+`tone` colours the indicator: `default`, `success` for a bar well within its limit, `warning` for one
+nearing it, `danger` for one that reached it. `size="lg"` is the thicker track a page's headline meter
+wears. The caller picks the tone, because only it knows what the value means. Say the same thing
 in words: a label, a `ProgressValue` or text nearby.
 
 <ComponentPreview name="progressTone" file="components/preview/progress.tsx" />
@@ -133,6 +134,8 @@ Upstream's file plus `packages/ui/upstream/patches/progress.patch`. Every hunk:
 
 - **API-41** — `Progress` and `ProgressIndicator` take `tone`, written as `data-tone`; the indicator's
   fill moves into `progressIndicatorVariants`.
+- **API-42** — `tone="success"` (`bg-success`), and `size` (`default` · `lg`) on `Progress` and
+  `ProgressTrack`, written as `data-size`; the `lg` track is `h-2`.
 - **NO OTHER STYLING HUNK** — Progress has no interactive element at all: no focus, no cursor, no
   disabled state, so no exception in the plan's matrix reaches it. `transition-all` on the indicator
   is upstream's, and the global reduced-motion reset (MOT-5) neutralises it.
