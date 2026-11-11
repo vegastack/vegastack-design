@@ -18216,7 +18216,7 @@
         "whenToUse": "One sentence that explains a heading, label or setting on demand — on click, tap or keyboard — with an optional link to the full help article.",
         "whenNotToUse": "Naming an icon-only control (Tooltip), text people must read to complete a task (FieldDescription or inline copy), or rich content and actions (Popover or HoverCard).",
         "version": "0.60.0",
-        "integrity": "sha256-scSVmkN/iiInAPXXaADkEPmZ6C4eUZ7EpRxsRnCaKbI="
+        "integrity": "sha256-xh/x5DHMNcKFunmpXGJj1XZJ9EoCeOrmF+4LWOnBPWc="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack info-hint@0.60.0 sha256-scSVmkN/iiInAPXXaADkEPmZ6C4eUZ7EpRxsRnCaKbI=
+// @vegastack info-hint@0.60.0 sha256-xh/x5DHMNcKFunmpXGJj1XZJ9EoCeOrmF+4LWOnBPWc=
 
 "use client";
 
@@ -71,6 +71,8 @@ export function InfoHint({
   // it open, and it closes when focus leaves (or on Escape, or a press outside).
   const byFocus = React.useRef(false);
   const popup = React.useRef<HTMLDivElement>(null);
+  const settle = React.useRef<ReturnType<typeof setTimeout>>(undefined);
+  React.useEffect(() => () => clearTimeout(settle.current), []);
   const change = (
     next: boolean,
     details?: { reason: string; cancel: () => void },
@@ -103,7 +105,8 @@ export function InfoHint({
           if (!byFocus.current) return;
           const trigger = event.currentTarget;
           // Once focus settles: Tab into the hint passes through Base UI's focus guards first.
-          setTimeout(() => {
+          clearTimeout(settle.current);
+          settle.current = setTimeout(() => {
             const now = document.activeElement;
             if (
               byFocus.current &&
