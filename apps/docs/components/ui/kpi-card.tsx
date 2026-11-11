@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.63.1 sha256-ZsqnB+/g0UnEljtFVRdfF4t8BzIT6EQpwatutQNFcSM=
+// @vegastack kpi-card@0.63.1 sha256-5XvGrDu7ismw5XoFj0I6kbH+Rwd/dv2eHjCXbjDPerY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -402,13 +402,9 @@ const KPI_COLUMNS: Record<number, string> = {
 /** The balanced column classes for `n` tiles, or `null` past six (then the grid auto-fills). */
 export function kpiGridColumns(n: number): string[] | null {
   if (n > 6) return null;
-  return (
-    [2, 3, 4, 5, 6]
-      // Divisors fill every row; five tiles also take two a row before they stack, since one
-      // column of five is worse than a short last row.
-      .filter((c) => c <= n && (n % c === 0 || (c === 2 && n === 5)))
-      .map((c) => KPI_COLUMNS[c] as string)
-  );
+  return [2, 3, 4, 5, 6]
+    .filter((c) => c <= n && n % c === 0)
+    .map((c) => KPI_COLUMNS[c] as string);
 }
 
 /**
@@ -424,25 +420,36 @@ export function kpiGridColumns(n: number): string[] | null {
  *   <KpiCard label="Failures" value="12" />
  * </KpiGrid>
  */
-export function KpiGrid({ className, children, ...props }: KpiGridProps) {
-  const n = React.Children.toArray(children).filter(
-    React.isValidElement,
-  ).length;
-  const columns = kpiGridColumns(n);
+/** How many tiles a grid holds: fragments are flattened, as they are in the grid itself. */
+function tileCount(children: React.ReactNode): number {
+  let n = 0;
+  React.Children.forEach(children, (child) => {
+    if (!React.isValidElement(child)) return;
+    n +=
+      child.type === React.Fragment
+        ? tileCount((child.props as { children?: React.ReactNode }).children)
+        : 1;
+  });
+  return n;
+}
+
+export function KpiGrid({ className, children, ref, ...props }: KpiGridProps) {
+  const columns = kpiGridColumns(tileCount(children));
+  // The frame is the container the column queries measure; the grid itself keeps `className`,
+  // `ref` and the rest, so a consumer's layout classes still reach the tiles' grid.
   return (
-    <div
-      data-slot="kpi-grid"
-      className={cn("@container/kpi-grid min-w-0", className)}
-      {...props}
-    >
+    <div data-slot="kpi-grid-frame" className="@container/kpi-grid min-w-0">
       <div
-        data-slot="kpi-grid-tiles"
+        ref={ref}
+        data-slot="kpi-grid"
         className={cn(
           "grid gap-3",
           columns
             ? ["grid-cols-1", ...columns]
             : "grid-cols-[repeat(auto-fill,minmax(min(100%,--spacing(40)),1fr))]",
+          className,
         )}
+        {...props}
       >
         {children}
       </div>

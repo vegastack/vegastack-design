@@ -212,22 +212,6 @@ cell, and the value sits right-aligned in `tabular-nums`, so a long name never r
 keeps that structure; upstream's `formatter` replaces the whole row and is kept only for upstream's
 blocks — don't hand-roll a row.
 
-#### Tones
-
-A series' colour says what it means. Give each config entry a typed `tone` instead of a colour
-string: `series-1`…`series-8` for identity (one measure keeps one hue everywhere), `single` for one
-series, and `success` · `warning` · `danger` · `info` · `neutral` for state — finished is `success`,
-failed `danger`. Each resolves to its token, so it holds in light and dark.
-
-```tsx
-const config = {
-  finished: { label: "Finished", tone: "success" },
-  failed: { label: "Failed", tone: "danger" },
-} satisfies ChartConfig;
-```
-
-<ComponentPreview name="chartTones" file="components/preview/chart.tsx" />
-
 Use `labelKey` and `nameKey` when the config key lives in the data row rather than in the series key:
 
 ```tsx
@@ -248,6 +232,22 @@ const chartConfig = {
 ```
 
 <ComponentPreview name="chartTooltip" file="components/preview/chart.tsx" />
+
+### Tones
+
+A series' colour says what it means. Give each config entry a typed `tone` instead of a colour
+string: `series-1`…`series-8` for identity (one measure keeps one hue everywhere), `single` for one
+series, and `success` · `warning` · `danger` · `info` · `neutral` for state — finished is `success`,
+failed `danger`. Each resolves to its token, so it holds in light and dark.
+
+```tsx
+const config = {
+  finished: { label: "Finished", tone: "success" },
+  failed: { label: "Failed", tone: "danger" },
+} satisfies ChartConfig;
+```
+
+<ComponentPreview name="chartTones" file="components/preview/chart.tsx" />
 
 ### Legend
 

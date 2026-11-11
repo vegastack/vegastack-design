@@ -233,7 +233,7 @@ test("KpiGrid sizes tiles to its container, and labels and values wrap, never tr
   await expect.element(grid).toHaveAttribute("data-slot", "kpi-grid");
   expect(ref.current).toBe(grid.element());
   // Container-sized, balanced tracks, never viewport breakpoints.
-  const tiles = grid.element().querySelector('[data-slot="kpi-grid-tiles"]')!;
+  const tiles = grid.element();
   expect(tiles.className).toContain("@min-[20.75rem]/kpi-grid:grid-cols-2");
   for (const cls of ["sm:grid-cols-3", "lg:grid-cols-4", "xl:grid-cols-7"])
     expect(tiles.classList.contains(cls)).toBe(false);
@@ -253,6 +253,13 @@ test("kpiGridColumns: only counts that fill every row", () => {
     "@min-[42.25rem]/kpi-grid:grid-cols-4",
   ]);
   expect(kpiGridColumns(3)).toEqual(["@min-[31.5rem]/kpi-grid:grid-cols-3"]);
+  expect(kpiGridColumns(1)).toEqual([]);
+  expect(kpiGridColumns(5)).toEqual(["@min-[53rem]/kpi-grid:grid-cols-5"]);
+  expect(kpiGridColumns(6)).toEqual([
+    "@min-[20.75rem]/kpi-grid:grid-cols-2",
+    "@min-[31.5rem]/kpi-grid:grid-cols-3",
+    "@min-[63.75rem]/kpi-grid:grid-cols-6",
+  ]);
   expect(kpiGridColumns(9)).toBeNull();
 });
 
@@ -260,9 +267,11 @@ test("four tiles in a 560px container sit two by two, never three and one", asyn
   const screen = await render(
     <div style={{ width: 560 }}>
       <KpiGrid>
-        {["A", "B", "C", "D"].map((l) => (
-          <KpiCard key={l} label={l} value="1" />
-        ))}
+        <>
+          {["A", "B", "C", "D"].map((l) => (
+            <KpiCard key={l} label={l} value="1" />
+          ))}
+        </>
       </KpiGrid>
     </div>,
   );

@@ -27505,7 +27505,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["kpi-grid", "kpi-grid-tiles"]
+              "values": ["kpi-grid", "kpi-grid-frame"]
             }
           ],
           "cssVariables": []
