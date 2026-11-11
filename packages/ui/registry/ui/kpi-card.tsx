@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.66.0 sha256-av46LRmqoO3j8VOZG8HzYH0qxKoH42xe7aVQMXcWjqw=
+// @vegastack kpi-card@0.66.0 sha256-G5DF5V6YKlfIq49YcrgAPXo5k2KlSpZf4uZmpljGIAQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -264,8 +264,12 @@ export function KpiCard({
         className={cn(TILE_GRID, "gap-2 px-3", className)}
         {...props}
       >
-        <StatSkeleton size="lg" />
-        <Skeleton aria-hidden className="h-6 w-full" />
+        {/* The placeholders take the loaded tile's lines, so a row never shifts as tiles load. */}
+        <StatSkeleton
+          size="lg"
+          className="contents [&>[data-slot=stat-skeleton-label]]:row-start-1 [&>[data-slot=stat-skeleton-value]]:row-start-2"
+        />
+        <Skeleton aria-hidden className="row-start-4 h-6 w-full self-end" />
       </Card>
     );
   }

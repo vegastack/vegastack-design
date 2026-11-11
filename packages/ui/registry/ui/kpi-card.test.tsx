@@ -330,3 +330,25 @@ test("values sit on one line across a row, however far a neighbour's label wraps
     parseFloat(getComputedStyle(label).lineHeight) * 1.5,
   );
 });
+
+test("a loading tile's placeholders take the loaded tiles' lines: values line up in a mixed row", async () => {
+  const screen = await render(
+    <div style={{ width: 720 }}>
+      <KpiGrid>
+        <KpiCard label="Runs" value="12" />
+        <KpiCard label="Waiting on you" value="3" loading />
+        <KpiCard label="Helpful" value="98%" />
+        <KpiCard label="Median run" value="4 s" />
+      </KpiGrid>
+    </div>,
+  );
+  const value = screen.container.querySelector<HTMLElement>(
+    '[data-slot="stat-value"]',
+  )!;
+  const bar = screen.container.querySelector<HTMLElement>(
+    '[data-slot="stat-skeleton-value"]',
+  )!;
+  expect(Math.round(bar.getBoundingClientRect().top)).toBe(
+    Math.round(value.getBoundingClientRect().top),
+  );
+});
