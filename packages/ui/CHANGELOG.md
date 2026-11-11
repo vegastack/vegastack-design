@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.65.0
+
+### Minor Changes
+
+- [#951](https://github.com/vegastack/vegastack-design/pull/951) [`9c9220d`](https://github.com/vegastack/vegastack-design/commit/9c9220d8abac844244709fcf3fd5bcd04f60a90a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **RouteTabs** takes `variant="line"`: underlined tabs on a transparent strip, for a page's sub-pages under its own pill tabs, so two strips never read as one row repeated.
+  [docs](https://design.vegastack.com/docs/components/route-tabs)
+
+### Patch Changes
+
+- [#951](https://github.com/vegastack/vegastack-design/pull/951) [`9c9220d`](https://github.com/vegastack/vegastack-design/commit/9c9220d8abac844244709fcf3fd5bcd04f60a90a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **SettingsSection** `layout="split"` splits by the section's own width (`@container/settings-section`, 48rem) instead of the viewport, so a page narrowed by a side panel stacks rather than squeezing its fields; the left column is 14rem, 18rem from 64rem. **SettingsRow** keeps a sized control to at most half the row, so a description never squeezes into a sliver beside a wide field. **VersionList** with `headingHidden` and no Named only switch no longer leaves an empty header row above the list.
+  [docs](https://design.vegastack.com/docs/components/settings-row)
+
 ## 0.64.0
 
 ### Minor Changes
