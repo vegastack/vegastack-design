@@ -2277,6 +2277,27 @@
       }
     },
     {
+      "name": "markdown-as-typed",
+      "type": "registry:lib",
+      "title": "Markdown As Typed",
+      "description": "Stored Markdown as the person typed it — markdownAsTyped keeps real formatting, drops the escapes the writer added only to keep plain text from reading as syntax (\\_\\_init\\_\\_ → __init__), turns hard breaks into newlines, and keeps code byte for byte. Pure strings, server-safe.",
+      "categories": ["data"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/markdown-as-typed.ts",
+          "type": "registry:lib",
+          "target": "@lib/markdown-as-typed.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Handing a person's stored message to a reader that isn't a Markdown renderer: a model's input, a chat bubble, a plain-text notification.",
+        "whenNotToUse": "Anything parsed back into an editor — keep the stored Markdown, which round-trips.",
+        "version": "0.66.0"
+      }
+    },
+    {
       "name": "text-anchor",
       "type": "registry:lib",
       "title": "Text Anchor",

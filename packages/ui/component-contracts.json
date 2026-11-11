@@ -12,12 +12,12 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 798,
+    "totalRegistryItems": 799,
     "components": 207,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
-    "libs": 22,
+    "libs": 23,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
@@ -54572,6 +54572,724 @@
       }
     },
     {
+      "name": "disclosure-trigger",
+      "registryType": "registry:lib",
+      "title": "Disclosure Trigger",
+      "summary": "The one class recipe for a ghost Button that expands a section in place — clears the popup-open grey that aria-expanded paints, so an open section never looks pressed — shared by RecordAsideSection, SectionToggle, AgentPanel and ShareDialog.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/disclosure-trigger.ts"],
+      "publicSymbols": [
+        {
+          "name": "disclosureTriggerClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/disclosure-trigger.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Class strings: consumers own the DOM and state; this recipe styles it."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the disclosure Button's aria-expanded comes from Collapsible or the caller."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["expanded", "hover"],
+          "evidence": "aria-expanded clears the ghost bg-muted while not hovered; hover keeps the variant's fill."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": [
+        "packages/ui/registry/lib/disclosure-trigger.test.ts",
+        "packages/ui/registry/ui/record-aside.test.tsx",
+        "packages/ui/registry/ui/data-table-parts.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "drag-item",
+      "registryType": "registry:lib",
+      "title": "Drag Item",
+      "summary": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines on all four edges, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/drag-item.ts"],
+      "publicSymbols": [
+        {
+          "name": "dragItemClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/drag-item.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "dropIndicatorClasses",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/drag-item.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "A class string: the hook owns the state machine and writes the data attributes this recipe styles."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the announcements and roles belong to use-drag-reorder and its consumers."
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "drop-edge-top",
+            "drop-edge-bottom",
+            "drop-edge-left",
+            "drop-edge-right",
+            "dragging",
+            "drag-pending"
+          ],
+          "evidence": "The six data-attribute selectors the string spells: the four ::before drop hairlines (horizontal lines above/below for a vertical axis, vertical lines left/right for a horizontal one), the lift dim, and the pending pulse."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": [
+        "packages/ui/registry/lib/drag-item.test.ts",
+        "packages/ui/registry/ui/sortable-list.test.tsx",
+        "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "embed-providers",
+      "registryType": "registry:lib",
+      "title": "Embed Providers",
+      "summary": "The video hosts a document may embed — YouTube (played from youtube-nocookie.com) and Loom: matchEmbed reads a URL's provider, video id and YouTube start time; each provider's src rebuilds the player URL from the id alone; EMBED_FRAME_ORIGINS is the frame-src allowlist and EMBED_FRAME_ATTRIBUTES the player frame's sandbox, allow and referrer policy. No dependencies; server-safe.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/embed-providers.ts"],
+      "publicSymbols": [
+        {
+          "name": "EmbedProviderId",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmbedSrcOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmbedProvider",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmbedProviders",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmbedMatch",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "parseYouTubeTime",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "EMBED_PROVIDERS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "EMBED_PROVIDER_IDS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "EMBED_FRAME_ORIGINS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "EMBED_FRAME_ATTRIBUTES",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "matchEmbed",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure functions over a URL; no state."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — TextEdit and MarkdownView own the semantics of what they render."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns ids, URLs and attribute values; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/embed-providers.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "emoji-data",
+      "registryType": "registry:lib",
+      "title": "Emoji Data",
+      "summary": "The curated emoji set behind EmojiPicker and Reactions, in nine categories, plus a lookup by character and a search matcher. Pure data, loaded lazily by the picker.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/emoji-data.ts"],
+      "publicSymbols": [
+        {
+          "name": "EmojiEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EmojiCategory",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "EMOJI",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "EMOJI_CATEGORIES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "getEmoji",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Function exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "matchesEmoji",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Function exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the picker owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/emoji-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "file-kind",
+      "registryType": "registry:lib",
+      "title": "File Kind",
+      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, text/plain treated as generic; 25 kinds from images and PDFs to CAD, photometric and design files) and FileTypeIcon/FileKindTile (the lucide icon, tint and label per kind) — shared by Attachment rows, FileViewer, UploadPanel, UploadDialog, AvatarPicker and FolderTree.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/file-kind.ts"],
+      "publicSymbols": [
+        {
+          "name": "FILE_KIND_LABEL",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "FileKind",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FormatBytesOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatBytes",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "fileKindOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "FileTypeIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FileTypeIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a lucide icon element; refs are not part of its contract."
+          }
+        },
+        {
+          "name": "FileKindTile",
+          "kind": "component",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Spread onto the root div."
+          }
+        },
+        {
+          "name": "FileKindTileProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure helpers and one stateless icon: no state machine."
+        },
+        "accessibility": {
+          "status": "observed",
+          "values": ["decorative-icon"],
+          "evidence": "FileTypeIcon renders aria-hidden; the file name beside it carries the meaning."
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "One muted icon per kind; a className text-* overrides the ink."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.13.0"],
+      "testFiles": [
+        "packages/ui/registry/lib/file-kind.test.ts",
+        "packages/ui/registry/ui/file-viewer.test.tsx"
+      ],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "geo-data",
+      "registryType": "registry:lib",
+      "title": "Geo Data",
+      "summary": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/geo-data.ts"],
+      "publicSymbols": [
+        {
+          "name": "Country",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Region",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "COUNTRIES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "REGIONS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "getCountryByCode",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "getRegions",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/geo-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "This exported helper is not a rendered component root."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the consuming select owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/geo-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
       "name": "grid-clipboard",
       "registryType": "registry:lib",
       "title": "Grid Clipboard",
@@ -54735,66 +55453,21 @@
       }
     },
     {
-      "name": "geo-data",
+      "name": "icon-components",
       "registryType": "registry:lib",
-      "title": "Geo Data",
-      "summary": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
+      "title": "Icon Components",
+      "summary": "Explicit imports preserve a bounded glyph catalogue without loading picker UI.",
       "family": "lib",
       "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/geo-data.ts"],
+      "sourceFiles": ["packages/ui/registry/lib/icon-components.ts"],
       "publicSymbols": [
         {
-          "name": "Country",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/geo-data.ts",
+          "name": "ICON_COMPONENTS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/icon-components.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "Region",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "COUNTRIES",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "REGIONS",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "getCountryByCode",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "getRegions",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
+            "rationale": "Data, type or internal presentation export."
           }
         }
       ],
@@ -54817,7 +55490,7 @@
         }
       },
       "engines": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/icon-data"],
       "docsSlug": "/docs/guides/components",
       "states": {
         "behavior": {
@@ -54828,7 +55501,7 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — the consuming select owns every ARIA contract."
+          "evidence": "No DOM — the picker owns every ARIA contract."
         },
         "visual": {
           "status": "not-applicable",
@@ -54841,8 +55514,8 @@
         "risks": [],
         "rationale": "No DOM of its own; consumers own layout."
       },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/geo-data.test.ts"],
+      "npmDependencies": ["lucide-react@^1.47.0"],
+      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -54850,69 +55523,71 @@
         "navigation": "exempt",
         "preview": "exempt",
         "vrt": "exempt"
-      }
+      },
+      "since": "0.23.127",
+      "dataAttributes": {}
     },
     {
-      "name": "emoji-data",
+      "name": "icon-data",
       "registryType": "registry:lib",
-      "title": "Emoji Data",
-      "summary": "The curated emoji set behind EmojiPicker and Reactions, in nine categories, plus a lookup by character and a search matcher. Pure data, loaded lazily by the picker.",
+      "title": "Icon Data",
+      "summary": "Curated catalogue metadata. Upstream tags pinned to Lucide revision 1fae58d0a9c661a338036838caf3399b5507bab6.",
       "family": "lib",
       "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/emoji-data.ts"],
+      "sourceFiles": ["packages/ui/registry/lib/icon-data.ts"],
       "publicSymbols": [
         {
-          "name": "EmojiEntry",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "name": "ICON_CATEGORIES",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/icon-data.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Data, type or internal presentation export."
           }
         },
         {
-          "name": "EmojiCategory",
+          "name": "IconCategory",
           "kind": "type",
-          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "source": "packages/ui/registry/lib/icon-data.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Data, type or internal presentation export."
           }
         },
         {
-          "name": "EMOJI",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "name": "ICON_CATALOGUE",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/icon-data.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+            "rationale": "Data, type or internal presentation export."
           }
         },
         {
-          "name": "EMOJI_CATEGORIES",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "name": "IconName",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/icon-data.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+            "rationale": "Data, type or internal presentation export."
           }
         },
         {
-          "name": "getEmoji",
+          "name": "IconValue",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/icon-data.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "isIconName",
           "kind": "function",
-          "source": "packages/ui/registry/lib/emoji-data.ts",
+          "source": "packages/ui/registry/lib/icon-data.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Function exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "matchesEmoji",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/emoji-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Function exports do not render or accept runtime refs."
+            "rationale": "Data, type or internal presentation export."
           }
         }
       ],
@@ -54960,7 +55635,82 @@
         "rationale": "No DOM of its own; consumers own layout."
       },
       "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/emoji-data.test.ts"],
+      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "since": "0.23.127",
+      "dataAttributes": {}
+    },
+    {
+      "name": "markdown-as-typed",
+      "registryType": "registry:lib",
+      "title": "Markdown As Typed",
+      "summary": "Stored Markdown as the person typed it — markdownAsTyped keeps real formatting, drops the escapes the writer added only to keep plain text from reading as syntax (\\_\\_init\\_\\_ → __init__), turns hard breaks into newlines, and keeps code byte for byte. Pure strings, server-safe.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/markdown-as-typed.ts"],
+      "publicSymbols": [
+        {
+          "name": "markdownAsTyped",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/markdown-as-typed.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "A pure function over a string; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the reader of the text (a bubble, a model) owns its semantics."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns a string; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/markdown-as-typed.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -54971,30 +55721,338 @@
       }
     },
     {
-      "name": "drag-item",
+      "name": "media-probe",
       "registryType": "registry:lib",
-      "title": "Drag Item",
-      "summary": "The one visual recipe for a use-drag-reorder item — drop-edge hairlines on all four edges, the lift dim, and the pending shimmer — shared by Board and SortableList instead of copied into each.",
+      "title": "Media Probe",
+      "summary": "Upload-time reads in the browser, dependency-free — probeVideo (duration, size and a JPEG poster frame via video + canvas), probeAudio (duration and up to 200 waveform peaks via OfflineAudioContext, skipped over 50 MB) and extractPptxThumbnail (an Office file's docProps/thumbnail.jpeg via a zip central-directory reader and DecompressionStream).",
       "family": "lib",
       "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/drag-item.ts"],
+      "sourceFiles": ["packages/ui/registry/lib/media-probe.ts"],
       "publicSymbols": [
         {
-          "name": "dragItemClasses",
+          "name": "VideoProbe",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ProbeVideoOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AudioProbe",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ProbeAudioOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "probeVideo",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "probeAudio",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "extractPptxThumbnail",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/media-probe.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A pure module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Async browser reads over a Blob; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the player, grid and FileViewer that show the results own the semantics."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Returns numbers and Blobs; renders nothing."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/media-probe.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "page-layout",
+      "registryType": "registry:lib",
+      "title": "Page Layout",
+      "summary": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/page-layout.ts"],
+      "publicSymbols": [
+        {
+          "name": "definePageWidths",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LAYOUT_TIERS",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "LayoutTier",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "layoutTierOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "layoutTierQuery",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "matchRoute",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "PAGE_WIDTHS",
           "kind": "component-constant",
-          "source": "packages/ui/registry/lib/drag-item.ts",
+          "source": "packages/ui/registry/lib/page-layout.ts",
           "ref": {
             "status": "not-applicable",
             "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
-          "name": "dropIndicatorClasses",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/drag-item.ts",
+          "name": "pageGutterOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/page-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "PageWidth",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PageWidths",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RAIL_COLLAPSED_QUERY",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/page-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function or value; it renders nothing and takes no ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Plain functions over a route map: no DOM and no state."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — AppShellPage renders the page container."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the widths are AppShellPage's classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/page-layout.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "picker-preferences",
+      "registryType": "registry:lib",
+      "title": "Picker Preferences",
+      "summary": "Best-effort storage for picker conveniences; never a record's source of truth.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/picker-preferences.ts"],
+      "publicSymbols": [
+        {
+          "name": "readPickerPreference",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-preferences.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "writePickerPreference",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-preferences.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "readPickerRecents",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-preferences.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "rememberPickerRecent",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-preferences.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
           }
         }
       ],
@@ -55023,24 +56081,17 @@
         "behavior": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "A class string: the hook owns the state machine and writes the data attributes this recipe styles."
+          "evidence": "Frozen data plus two pure lookups; no state machine."
         },
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — the announcements and roles belong to use-drag-reorder and its consumers."
+          "evidence": "No DOM — the picker owns every ARIA contract."
         },
         "visual": {
-          "status": "observed",
-          "values": [
-            "drop-edge-top",
-            "drop-edge-bottom",
-            "drop-edge-left",
-            "drop-edge-right",
-            "dragging",
-            "drag-pending"
-          ],
-          "evidence": "The six data-attribute selectors the string spells: the four ::before drop hairlines (horizontal lines above/below for a vertical axis, vertical lines left/right for a horizontal one), the lift dim, and the pending pulse."
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
         }
       },
       "responsive": {
@@ -55049,11 +56100,7 @@
         "rationale": "No DOM of its own; consumers own layout."
       },
       "npmDependencies": [],
-      "testFiles": [
-        "packages/ui/registry/lib/drag-item.test.ts",
-        "packages/ui/registry/ui/sortable-list.test.tsx",
-        "packages/ui/registry/ui/text-edit.test.tsx"
-      ],
+      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -55061,7 +56108,93 @@
         "navigation": "exempt",
         "preview": "exempt",
         "vrt": "exempt"
-      }
+      },
+      "since": "0.23.127",
+      "dataAttributes": {}
+    },
+    {
+      "name": "picker-search",
+      "registryType": "registry:lib",
+      "title": "Picker Search",
+      "summary": "Searchable catalogue content, shared by icon and emoji panels.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/picker-search.ts"],
+      "publicSymbols": [
+        {
+          "name": "PickerSearchEntry",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/picker-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        },
+        {
+          "name": "filterPickerEntries",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/picker-search.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Data, type or internal presentation export."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data/recipe module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": [],
+      "docsSlug": "/docs/guides/components",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Frozen data plus two pure lookups; no state machine."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the picker owns every ARIA contract."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM and no classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      },
+      "since": "0.23.127",
+      "dataAttributes": {}
     },
     {
       "name": "text-anchor",
@@ -55909,111 +57042,84 @@
       }
     },
     {
-      "name": "embed-providers",
+      "name": "text-edit-markdown",
       "registryType": "registry:lib",
-      "title": "Embed Providers",
-      "summary": "The video hosts a document may embed — YouTube (played from youtube-nocookie.com) and Loom: matchEmbed reads a URL's provider, video id and YouTube start time; each provider's src rebuilds the player URL from the id alone; EMBED_FRAME_ORIGINS is the frame-src allowlist and EMBED_FRAME_ATTRIBUTES the player frame's sandbox, allow and referrer policy. No dependencies; server-safe.",
+      "title": "Text Edit Markdown",
+      "summary": "VegaStack Markdown v1 in and out of a TextEdit document, identical in a browser and on a server — markdownToDoc, docToMarkdown, normalizeMarkdown, docToText, an isolated marked instance, minimal escaping, raw HTML as text, and the editor’s VegaStackMarkdown extension.",
       "family": "lib",
       "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/embed-providers.ts"],
+      "sourceFiles": ["packages/ui/registry/lib/text-edit-markdown.ts"],
       "publicSymbols": [
         {
-          "name": "EmbedProviderId",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "EmbedSrcOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "EmbedProvider",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "EmbedProviders",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "EmbedMatch",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "parseYouTubeTime",
+          "name": "createMarkdownManager",
           "kind": "function",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
           }
         },
         {
-          "name": "EMBED_PROVIDERS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "name": "MarkdownToDocOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
-          "name": "EMBED_PROVIDER_IDS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "EMBED_FRAME_ORIGINS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "EMBED_FRAME_ATTRIBUTES",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "matchEmbed",
+          "name": "markdownToDoc",
           "kind": "function",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "docToMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "normalizeMarkdown",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "docToText",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "VegaStackMarkdown",
+          "kind": "constant",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "DocToMarkdownOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -56035,14 +57141,27 @@
           "rationale": "No component-owned motion mechanism observed."
         }
       },
-      "engines": [],
-      "registryDependencies": [],
+      "engines": [
+        {
+          "package": "tiptap",
+          "role": "Markdown manager"
+        },
+        {
+          "package": "marked",
+          "role": "markdown lexer engine (a private instance)"
+        }
+      ],
+      "registryDependencies": [
+        "@vegastack/text-edit-schema",
+        "@vegastack/text-anchor-doc",
+        "@vegastack/text-edit-grammar"
+      ],
       "docsSlug": "/docs/guides/components",
       "states": {
         "behavior": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Pure functions over a URL; no state."
+          "evidence": "Pure conversion over immutable documents; one shared manager per process."
         },
         "accessibility": {
           "status": "not-applicable",
@@ -56052,7 +57171,7 @@
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Returns ids, URLs and attribute values; renders nothing."
+          "evidence": "Returns documents, strings and extensions; renders nothing."
         }
       },
       "responsive": {
@@ -56060,8 +57179,16 @@
         "risks": [],
         "rationale": "No DOM of its own; consumers own layout."
       },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/embed-providers.test.ts"],
+      "npmDependencies": [
+        "@tiptap/core@^3.31.4",
+        "@tiptap/markdown@^3.31.4",
+        "@tiptap/pm@^3.31.4",
+        "marked@^17.0.1"
+      ],
+      "testFiles": [
+        "packages/ui/registry/lib/text-edit-markdown.test.ts",
+        "packages/ui/registry/ui/text-edit.test.tsx"
+      ],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -56305,711 +57432,6 @@
       }
     },
     {
-      "name": "text-edit-markdown",
-      "registryType": "registry:lib",
-      "title": "Text Edit Markdown",
-      "summary": "VegaStack Markdown v1 in and out of a TextEdit document, identical in a browser and on a server — markdownToDoc, docToMarkdown, normalizeMarkdown, docToText, an isolated marked instance, minimal escaping, raw HTML as text, and the editor’s VegaStackMarkdown extension.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/text-edit-markdown.ts"],
-      "publicSymbols": [
-        {
-          "name": "createMarkdownManager",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "MarkdownToDocOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "markdownToDoc",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "docToMarkdown",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "normalizeMarkdown",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "docToText",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "VegaStackMarkdown",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "DocToMarkdownOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A pure module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A pure module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [
-        {
-          "package": "tiptap",
-          "role": "Markdown manager"
-        },
-        {
-          "package": "marked",
-          "role": "markdown lexer engine (a private instance)"
-        }
-      ],
-      "registryDependencies": [
-        "@vegastack/text-edit-schema",
-        "@vegastack/text-anchor-doc",
-        "@vegastack/text-edit-grammar"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure conversion over immutable documents; one shared manager per process."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — TextEdit and MarkdownView own the semantics of what they render."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Returns documents, strings and extensions; renders nothing."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [
-        "@tiptap/core@^3.31.4",
-        "@tiptap/markdown@^3.31.4",
-        "@tiptap/pm@^3.31.4",
-        "marked@^17.0.1"
-      ],
-      "testFiles": [
-        "packages/ui/registry/lib/text-edit-markdown.test.ts",
-        "packages/ui/registry/ui/text-edit.test.tsx"
-      ],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
-      "name": "file-kind",
-      "registryType": "registry:lib",
-      "title": "File Kind",
-      "summary": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, text/plain treated as generic; 25 kinds from images and PDFs to CAD, photometric and design files) and FileTypeIcon/FileKindTile (the lucide icon, tint and label per kind) — shared by Attachment rows, FileViewer, UploadPanel, UploadDialog, AvatarPicker and FolderTree.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/file-kind.ts"],
-      "publicSymbols": [
-        {
-          "name": "FILE_KIND_LABEL",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "FileKind",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FormatBytesOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "formatBytes",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "fileKindOf",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "FileTypeIconProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FileTypeIcon",
-          "kind": "component",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders a lucide icon element; refs are not part of its contract."
-          }
-        },
-        {
-          "name": "FileKindTile",
-          "kind": "component",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Spread onto the root div."
-          }
-        },
-        {
-          "name": "FileKindTileProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/file-kind.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure helpers and one stateless icon: no state machine."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["decorative-icon"],
-          "evidence": "FileTypeIcon renders aria-hidden; the file name beside it carries the meaning."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default"],
-          "evidence": "One muted icon per kind; a className text-* overrides the ink."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.13.0"],
-      "testFiles": [
-        "packages/ui/registry/lib/file-kind.test.ts",
-        "packages/ui/registry/ui/file-viewer.test.tsx"
-      ],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
-      "name": "upload-progress",
-      "registryType": "registry:lib",
-      "title": "Upload Progress",
-      "summary": "The arithmetic behind an upload time left: createRateEstimator (an EWMA of acknowledged bytes over 1 s ticks that ignores the first 3 s, reports after 5 s and 2%, and moves only on a 15% change), formatTimeLeft and formatBytesProgress.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/upload-progress.ts"],
-      "publicSymbols": [
-        {
-          "name": "createRateEstimator",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/upload-progress.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "RateEstimator",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/upload-progress.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RateEstimatorOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/upload-progress.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "formatTimeLeft",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/upload-progress.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "formatBytesProgress",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/upload-progress.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": ["@vegastack/file-kind"],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure functions and a closure over samples the caller passes; no clock of its own."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Renders nothing."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Renders nothing."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/upload-progress.test.ts"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
-      "name": "media-probe",
-      "registryType": "registry:lib",
-      "title": "Media Probe",
-      "summary": "Upload-time reads in the browser, dependency-free — probeVideo (duration, size and a JPEG poster frame via video + canvas), probeAudio (duration and up to 200 waveform peaks via OfflineAudioContext, skipped over 50 MB) and extractPptxThumbnail (an Office file's docProps/thumbnail.jpeg via a zip central-directory reader and DecompressionStream).",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/media-probe.ts"],
-      "publicSymbols": [
-        {
-          "name": "VideoProbe",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/media-probe.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ProbeVideoOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/media-probe.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AudioProbe",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/media-probe.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ProbeAudioOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/media-probe.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "probeVideo",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/media-probe.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "probeAudio",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/media-probe.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "extractPptxThumbnail",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/media-probe.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A pure module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A pure module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Async browser reads over a Blob; no state machine."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — the player, grid and FileViewer that show the results own the semantics."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Returns numbers and Blobs; renders nothing."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/media-probe.test.ts"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
-      "name": "page-layout",
-      "registryType": "registry:lib",
-      "title": "Page Layout",
-      "summary": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/page-layout.ts"],
-      "publicSymbols": [
-        {
-          "name": "definePageWidths",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "LAYOUT_TIERS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "LayoutTier",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "layoutTierOf",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "layoutTierQuery",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "matchRoute",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "PAGE_WIDTHS",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "pageGutterOf",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "PageWidth",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PageWidths",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RAIL_COLLAPSED_QUERY",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Plain functions over a route map: no DOM and no state."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — AppShellPage renders the page container."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — the widths are AppShellPage's classes."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/page-layout.test.ts"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
       "name": "tile-overlay",
       "registryType": "registry:lib",
       "title": "Tile Overlay",
@@ -57146,21 +57568,57 @@
       }
     },
     {
-      "name": "disclosure-trigger",
+      "name": "upload-progress",
       "registryType": "registry:lib",
-      "title": "Disclosure Trigger",
-      "summary": "The one class recipe for a ghost Button that expands a section in place — clears the popup-open grey that aria-expanded paints, so an open section never looks pressed — shared by RecordAsideSection, SectionToggle, AgentPanel and ShareDialog.",
+      "title": "Upload Progress",
+      "summary": "The arithmetic behind an upload time left: createRateEstimator (an EWMA of acknowledged bytes over 1 s ticks that ignores the first 3 s, reports after 5 s and 2%, and moves only on a 15% change), formatTimeLeft and formatBytesProgress.",
       "family": "lib",
       "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/disclosure-trigger.ts"],
+      "sourceFiles": ["packages/ui/registry/lib/upload-progress.ts"],
       "publicSymbols": [
         {
-          "name": "disclosureTriggerClasses",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/disclosure-trigger.ts",
+          "name": "createRateEstimator",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "RateEstimator",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RateEstimatorOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "formatTimeLeft",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
+          }
+        },
+        {
+          "name": "formatBytesProgress",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/upload-progress.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "function symbols do not expose a rendered DOM instance or ref contract."
           }
         }
       ],
@@ -57183,23 +57641,23 @@
         }
       },
       "engines": [],
-      "registryDependencies": [],
+      "registryDependencies": ["@vegastack/file-kind"],
       "docsSlug": "/docs/guides/components",
       "states": {
         "behavior": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "Class strings: consumers own the DOM and state; this recipe styles it."
+          "evidence": "Pure functions and a closure over samples the caller passes; no clock of its own."
         },
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — the disclosure Button's aria-expanded comes from Collapsible or the caller."
+          "evidence": "Renders nothing."
         },
         "visual": {
-          "status": "observed",
-          "values": ["expanded", "hover"],
-          "evidence": "aria-expanded clears the ghost bg-muted while not hovered; hover keeps the variant's fill."
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Renders nothing."
         }
       },
       "responsive": {
@@ -57208,11 +57666,7 @@
         "rationale": "No DOM of its own; consumers own layout."
       },
       "npmDependencies": [],
-      "testFiles": [
-        "packages/ui/registry/lib/disclosure-trigger.test.ts",
-        "packages/ui/registry/ui/record-aside.test.tsx",
-        "packages/ui/registry/ui/data-table-parts.test.tsx"
-      ],
+      "testFiles": ["packages/ui/registry/lib/upload-progress.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -57221,387 +57675,6 @@
         "preview": "exempt",
         "vrt": "exempt"
       }
-    },
-    {
-      "name": "icon-data",
-      "registryType": "registry:lib",
-      "title": "Icon Data",
-      "summary": "Curated catalogue metadata. Upstream tags pinned to Lucide revision 1fae58d0a9c661a338036838caf3399b5507bab6.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/icon-data.ts"],
-      "publicSymbols": [
-        {
-          "name": "ICON_CATEGORIES",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/icon-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "IconCategory",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/icon-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "ICON_CATALOGUE",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/icon-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "IconName",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/icon-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "IconValue",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/icon-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "isIconName",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/icon-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Frozen data plus two pure lookups; no state machine."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — the picker owns every ARIA contract."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM and no classes."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      },
-      "since": "0.23.127",
-      "dataAttributes": {}
-    },
-    {
-      "name": "icon-components",
-      "registryType": "registry:lib",
-      "title": "Icon Components",
-      "summary": "Explicit imports preserve a bounded glyph catalogue without loading picker UI.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/icon-components.ts"],
-      "publicSymbols": [
-        {
-          "name": "ICON_COMPONENTS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/icon-components.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": ["@vegastack/icon-data"],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Frozen data plus two pure lookups; no state machine."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — the picker owns every ARIA contract."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM and no classes."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": ["lucide-react@^1.47.0"],
-      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      },
-      "since": "0.23.127",
-      "dataAttributes": {}
-    },
-    {
-      "name": "picker-search",
-      "registryType": "registry:lib",
-      "title": "Picker Search",
-      "summary": "Searchable catalogue content, shared by icon and emoji panels.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/picker-search.ts"],
-      "publicSymbols": [
-        {
-          "name": "PickerSearchEntry",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/picker-search.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "filterPickerEntries",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/picker-search.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Frozen data plus two pure lookups; no state machine."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — the picker owns every ARIA contract."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM and no classes."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      },
-      "since": "0.23.127",
-      "dataAttributes": {}
-    },
-    {
-      "name": "picker-preferences",
-      "registryType": "registry:lib",
-      "title": "Picker Preferences",
-      "summary": "Best-effort storage for picker conveniences; never a record's source of truth.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/picker-preferences.ts"],
-      "publicSymbols": [
-        {
-          "name": "readPickerPreference",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/picker-preferences.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "writePickerPreference",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/picker-preferences.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "readPickerRecents",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/picker-preferences.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        },
-        {
-          "name": "rememberPickerRecent",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/picker-preferences.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Data, type or internal presentation export."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Frozen data plus two pure lookups; no state machine."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — the picker owns every ARIA contract."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM and no classes."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/icon-data.test.ts"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      },
-      "since": "0.23.127",
-      "dataAttributes": {}
     }
   ],
   "chartBlocks": {
