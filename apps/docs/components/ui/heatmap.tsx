@@ -1,4 +1,4 @@
-// @vegastack heatmap@0.63.0 sha256-kQKilo+U4LkJmGmIeU4e2CkKSnKvCAJ1NmWnLm/LmHg=
+// @vegastack heatmap@0.63.0 sha256-6vtGXWkk4cZevF1gvItJavLITJTnIx0VpsSfDEfz8Uw=
 
 "use client";
 
@@ -100,8 +100,10 @@ function bucketer(values: readonly number[]): (value: number) => number {
 const LABEL_STEPS = [1, 2, 3, 4, 6, 8, 12, 24] as const;
 
 /**
- * The smallest step from `LABEL_STEPS` at which a name `labelWidth` wide fits the run of columns it
- * heads (`cellWidth` each, `gap` between), with a 4px breath on each side.
+ * The smallest step from `LABEL_STEPS` at which names `labelWidth` wide, over columns `cellWidth`
+ * wide with `gap` between, never touch (4px breath each side). Unthinned, each name centres over its
+ * column. Thinned, the first starts at its column and the last shown ends at its column (so neither
+ * leaves the grid), which brings each a little closer to its neighbour: the step leaves room for it.
  */
 export function columnLabelStep(
   cellWidth: number,
@@ -109,8 +111,13 @@ export function columnLabelStep(
   labelWidth: number,
 ): number {
   if (!(cellWidth > 0)) return 1;
-  for (const step of LABEL_STEPS)
-    if (step * cellWidth + (step - 1) * gap >= labelWidth + 8) return step;
+  const centred = labelWidth + 8;
+  // An edge name shifted inward by (label − cell) / 2 beside a centred one.
+  const edge = Math.max(centred, 1.5 * labelWidth - cellWidth / 2 + 4);
+  for (const step of LABEL_STEPS) {
+    const between = step * (cellWidth + gap) - gap;
+    if (between >= (step === 1 ? centred : edge)) return step;
+  }
   return LABEL_STEPS[LABEL_STEPS.length - 1] as number;
 }
 
@@ -183,6 +190,8 @@ export function Heatmap({
   // Every `labelStep`th column name shows; measured from the grid's own width (a card, not the
   // viewport), so names never truncate to "0…".
   const [labelStep, setLabelStep] = React.useState(1);
+  // The last column whose name shows.
+  const lastShown = Math.floor(Math.max(0, lastCol) / labelStep) * labelStep;
   const drawn =
     rows.length > 0 && columns.length > 0 && flat.some((v) => v !== 0);
   React.useLayoutEffect(() => {
@@ -313,7 +322,7 @@ export function Heatmap({
                     ? "justify-center"
                     : c === 0
                       ? "justify-start"
-                      : c === lastCol
+                      : c === lastShown
                         ? "justify-end"
                         : "justify-center",
                 )}

@@ -271,6 +271,12 @@ test("column names thin out by measure when the columns are narrower than the na
   const rects = shown().map((name) => name.getBoundingClientRect());
   for (let i = 1; i < rects.length; i++)
     expect(rects[i]!.left).toBeGreaterThan(rects[i - 1]!.right);
+  // No name runs past the last cell.
+  const cells = document.querySelectorAll('[data-slot="heatmap-cell"]');
+  const lastCell = cells[cells.length - 1]!.getBoundingClientRect();
+  expect(rects[rects.length - 1]!.right).toBeLessThanOrEqual(
+    lastCell.right + 0.5,
+  );
   for (const name of shown()) expect(name.textContent).toMatch(/^\d\d$/);
   // Every name stays in the grid for assistive technology.
   expect(
@@ -294,6 +300,8 @@ test("columnLabelStep picks the smallest step whose run fits the name", () => {
   expect(columnLabelStep(30, 2, 14)).toBe(1);
   expect(columnLabelStep(8, 2, 14)).toBe(3);
   expect(columnLabelStep(0, 2, 14)).toBe(1);
+  // Thinned, the edge names sit inward, so the step leaves room for them too.
+  expect(columnLabelStep(12, 2, 45)).toBe(6);
 });
 
 /* ------------------------------------------------------------------------------------------------

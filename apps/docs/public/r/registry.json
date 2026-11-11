@@ -19040,7 +19040,7 @@
         "whenToUse": "Showing when or where activity concentrates across two dimensions — runs by weekday and hour, events by agent and day.",
         "whenNotToUse": "A trend over one dimension (Chart), exact values people compare or sort (Table or DataList), or more than a few hundred cells.",
         "version": "0.63.0",
-        "integrity": "sha256-kQKilo+U4LkJmGmIeU4e2CkKSnKvCAJ1NmWnLm/LmHg="
+        "integrity": "sha256-6vtGXWkk4cZevF1gvItJavLITJTnIx0VpsSfDEfz8Uw="
       },
       "registryDependencies": [
         "@vegastack/tooltip"
