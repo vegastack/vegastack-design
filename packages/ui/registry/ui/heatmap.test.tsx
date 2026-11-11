@@ -1,3 +1,4 @@
+import "../../test/geometry.css";
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
@@ -6,7 +7,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import primitives from "../../../design-tokens/tokens/primitives.tokens.json";
 import lightTokens from "../../../design-tokens/tokens/semantic.tokens.json";
 import darkTokens from "../../../design-tokens/tokens/semantic.dark.tokens.json";
-import { HEATMAP_STEPS, Heatmap } from "./heatmap";
+import { columnLabelStep, HEATMAP_STEPS, Heatmap } from "./heatmap";
 
 const DAYS = ["Mon", "Tue", "Wed"];
 const HOURS = ["00", "01", "02", "03"];
@@ -244,26 +245,55 @@ test("with no `empty`, an all-zero heatmap reads 'No data'", async () => {
   await expect.element(screen.getByText("No data")).toBeInTheDocument();
 });
 
-test("column headers: below 640px only every third shows, the rest stay readable", async () => {
-  await render(
-    <Heatmap
-      label="Runs"
-      rows={["a"]}
-      columns={["00", "01", "02", "03", "04"]}
-      values={[[1, 2, 3, 4, 5]]}
-      cellLabel={() => "cell"}
-    />,
+test("column names thin out by measure when the columns are narrower than the names", async () => {
+  const hours = Array.from({ length: 24 }, (_, h) =>
+    String(h).padStart(2, "0"),
   );
-  const spans = [
-    ...document.querySelectorAll('[data-slot="heatmap-column-header"] > span'),
-  ];
-  expect(spans.map((s) => s.classList.contains("max-sm:sr-only"))).toEqual([
-    false,
-    true,
-    true,
-    false,
-    true,
-  ]);
+  const shown = () =>
+    [
+      ...document.querySelectorAll<HTMLElement>(
+        '[data-slot="heatmap-column-header"] > span',
+      ),
+    ].filter((s) => !s.classList.contains("sr-only"));
+  const screen = await render(
+    <div style={{ width: 280 }}>
+      <Heatmap
+        label="Runs"
+        rows={["Mon"]}
+        columns={hours}
+        values={[hours.map((_, i) => i + 1)]}
+        cellLabel={() => "cell"}
+      />
+    </div>,
+  );
+  // Narrow: some names hide, and the shown ones are whole and never touch each other.
+  await expect.poll(() => shown().length).toBeLessThan(24);
+  const rects = shown().map((name) => name.getBoundingClientRect());
+  for (let i = 1; i < rects.length; i++)
+    expect(rects[i]!.left).toBeGreaterThan(rects[i - 1]!.right);
+  for (const name of shown()) expect(name.textContent).toMatch(/^\d\d$/);
+  // Every name stays in the grid for assistive technology.
+  expect(
+    document.querySelectorAll('[data-slot="heatmap-column-header"] > span'),
+  ).toHaveLength(24);
+  await screen.rerender(
+    <div style={{ width: 1200 }}>
+      <Heatmap
+        label="Runs"
+        rows={["Mon"]}
+        columns={hours}
+        values={[hours.map((_, i) => i + 1)]}
+        cellLabel={() => "cell"}
+      />
+    </div>,
+  );
+  await expect.poll(() => shown().length).toBe(24);
+});
+
+test("columnLabelStep picks the smallest step whose run fits the name", () => {
+  expect(columnLabelStep(30, 2, 14)).toBe(1);
+  expect(columnLabelStep(8, 2, 14)).toBe(3);
+  expect(columnLabelStep(0, 2, 14)).toBe(1);
 });
 
 /* ------------------------------------------------------------------------------------------------

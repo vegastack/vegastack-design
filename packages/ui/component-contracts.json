@@ -27469,6 +27469,15 @@
             "status": "not-applicable",
             "rationale": "A data constant, not a rendered component root."
           }
+        },
+        {
+          "name": "columnLabelStep",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/heatmap.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -31997,6 +32006,15 @@
         {
           "name": "MessageTimeProps",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "foldLineCut",
+          "kind": "function",
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
@@ -51584,6 +51602,15 @@
         {
           "name": "UseStickToBottomResult",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "scrollParentOf",
+          "kind": "function",
           "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
           "ref": {
             "status": "not-applicable",

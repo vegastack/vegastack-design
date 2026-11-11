@@ -237,6 +237,37 @@ const { attachViewport, attachContent, scrollToBottom } = useStickToBottom({
 </MessageScrollerProvider>;
 ```
 
+When the reader opens something inside the thread — Show more on a folded answer, an activity
+block — the view stays where they are reading; it never jumps to the bottom because the thread grew.
+
+#### A Full-Page Chat
+
+A chat that is the whole page scrolls with the page, like a document, not in an inset box. Pass
+`scroller: "page"` and leave `MessageScroller` out: the hook follows the nearest scrolling ancestor of
+the content (the app shell's content region), and `atBottom` drives the page's own Jump to latest
+button. Keep the header and the composer sticky so they stay put while the thread scrolls under them.
+A side panel keeps its own pane and the engine.
+
+```tsx
+const { attachContent, scrollToBottom, atBottom } = useStickToBottom({
+  follow: lastOwnMessageId,
+  scroller: "page",
+});
+
+<div ref={attachContent} role="log" aria-label="Messages">
+  {/* messages */}
+</div>
+<div className="sticky bottom-0 bg-background">
+  {atBottom ? null : (
+    <Button variant="secondary" size="icon-sm" onClick={() => scrollToBottom({ behavior: "smooth" })}>
+      <ArrowDownIcon />
+      <span className="sr-only">Jump to latest</span>
+    </Button>
+  )}
+  <ChatComposer />
+</div>;
+```
+
 ```tsx
 <MessageScrollerContent aria-busy={status === "streaming"}>
   {/* messages */}

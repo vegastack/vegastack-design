@@ -1,4 +1,4 @@
-// @vegastack use-stick-to-bottom@0.61.0 sha256-v0A+njJEMgsuipJHriG09duLs37AXSuMbZKPUyAHd2w=
+// @vegastack use-stick-to-bottom@0.61.0 sha256-JPqwuqBhw6VkU3NDE37TxCmWfr5x215U7XqrndUAPU0=
 
 "use client";
 
@@ -28,6 +28,13 @@ MECHANISM — the stick-to-bottom pattern:
   bottom, so it stays pinned. Reaching the bottom again — by hand or with Jump to latest — re-pins.
 - `follow` re-pins and scrolls: pass the id of the reader's newest message, and a send always shows
   it, wherever they had scrolled.
+- The reader opening something (a press on a control with `aria-expanded` or `aria-controls` inside
+  the content: Show more, an activity block) never moves the view: the growth that follows is
+  theirs, so the view stays where they are reading and only lets go if it is no longer at the bottom.
+- `scroller: "page"` follows the page instead of a pane: the nearest scrolling ancestor of the
+  content (the app shell's content region, or the document) is the viewport, so a full-page chat
+  scrolls like a document with the composer pinned under it. `atBottom` then drives the page's own
+  Jump to latest button, since the engine's button only watches its own viewport.
 --- */
 
 /** Options accepted by `useStickToBottom`. */
@@ -44,6 +51,13 @@ export interface UseStickToBottomOptions {
    * @default 8
    */
   threshold?: number;
+  /**
+   * What scrolls: `"viewport"`, the element passed to `attachViewport` (a `MessageScroller` pane);
+   * `"page"`, the nearest scrolling ancestor of the element passed to `attachContent` — the page
+   * itself — with no `MessageScroller` engine around the thread.
+   * @default "viewport"
+   */
+  scroller?: "viewport" | "page";
 }
 
 /** What `useStickToBottom` returns. */
@@ -63,10 +77,35 @@ export interface UseStickToBottomResult<
    * an instant jump under `prefers-reduced-motion`.
    */
   scrollToBottom: (options?: { behavior?: ScrollBehavior }) => void;
+  /**
+   * The view is within `threshold` of the bottom. Drives a Jump to latest button the engine does
+   * not own (`scroller: "page"`); a `MessageScroller` pane's own button already knows.
+   */
+  atBottom: boolean;
 }
 
 /** How long an upward gesture that moved nothing waits before it counts as no release at all. */
 const GESTURE_SETTLE_MS = 250;
+
+/** How long after the reader opens something its growth is theirs, not the thread's. */
+const OPEN_HOLD_MS = 600;
+
+/** The nearest ancestor of `node` that scrolls vertically, or the document's scrolling element. */
+export function scrollParentOf(node: HTMLElement): HTMLElement {
+  for (let el = node.parentElement; el; el = el.parentElement) {
+    const { overflowY } = getComputedStyle(el);
+    if (
+      overflowY === "auto" ||
+      overflowY === "scroll" ||
+      overflowY === "overlay"
+    )
+      return el;
+  }
+  return (
+    (document.scrollingElement as HTMLElement | null) ??
+    document.documentElement
+  );
+}
 
 /** Within `threshold` pixels of the bottom of `element`'s scroll range. */
 export function isAtScrollBottom(
@@ -101,6 +140,22 @@ export function isAtScrollBottom(
  *     />
  *   </MessageScroller>
  * </MessageScrollerProvider>
+ *
+ * @example
+ * // A full-page chat: the page scrolls, the composer is sticky at its foot.
+ * const { attachContent, scrollToBottom, atBottom } = useStickToBottom({
+ *   follow: lastOwnMessageId,
+ *   scroller: "page",
+ * });
+ * <div ref={attachContent} role="log">…</div>
+ * <div className="sticky bottom-0">
+ *   {atBottom ? null : (
+ *     <Button variant="secondary" size="icon-sm" onClick={() => scrollToBottom({ behavior: "smooth" })}>
+ *       <ArrowDownIcon />
+ *     </Button>
+ *   )}
+ *   <ChatComposer />
+ * </div>
  */
 export function useStickToBottom<
   Viewport extends HTMLElement = HTMLDivElement,
@@ -108,15 +163,29 @@ export function useStickToBottom<
 >({
   follow,
   threshold = 8,
+  scroller = "viewport",
 }: UseStickToBottomOptions = {}): UseStickToBottomResult<Viewport, Content> {
-  const [viewport, setViewport] = React.useState<Viewport | null>(null);
+  const [ownViewport, setViewport] = React.useState<Viewport | null>(null);
   const [content, setContent] = React.useState<Content | null>(null);
+  const pageScroller = React.useMemo(
+    () => (scroller === "page" && content ? scrollParentOf(content) : null),
+    [scroller, content],
+  );
+  const viewport: HTMLElement | null =
+    scroller === "page" ? pageScroller : ownViewport;
   const pinned = React.useRef(true);
+  const [atBottom, setAtBottom] = React.useState(true);
   const reducedMotion = usePrefersReducedMotion();
 
   React.useEffect(() => {
     if (!viewport) return;
+    // The document's scrolling element reports its scrolls on the window.
+    const events: HTMLElement | Window =
+      viewport === document.scrollingElement ? window : viewport;
+    const report = () => setAtBottom(isAtScrollBottom(viewport, threshold));
     let lastTop = viewport.scrollTop;
+    // Until when a resize is the reader's own opening of something (`OPEN_HOLD_MS`).
+    let heldUntil = 0;
     let touchY: number | null = null;
     // Where an upward gesture let go. If the view never moved from there (a nested scroller took
     // the wheel, a pinch), the release was only provisional and the next resize pins it again.
@@ -136,6 +205,26 @@ export function useStickToBottom<
       else if (top < lastTop - 1) pinned.current = false;
       if (Math.abs(top - lastTop) > 1) gesture = null;
       lastTop = top;
+      report();
+    };
+    // The reader opened or closed something: what grows is theirs to read, so the view stays put.
+    // The browser's own scroll anchoring would keep a node below the opened part in place and so
+    // push the opened text up out of view (measured: a Show more near the bottom moved the view
+    // ~100px a frame later), so it is off for the hold too.
+    let unhold: number | undefined;
+    const anchoring = viewport.style.overflowAnchor;
+    const onPress = (event: Event) => {
+      const target = event.target as Element | null;
+      if (!target?.closest?.("[aria-expanded],[aria-controls]")) return;
+      heldUntil = performance.now() + OPEN_HOLD_MS;
+      viewport.style.overflowAnchor = "none";
+      window.clearTimeout(unhold);
+      unhold = window.setTimeout(() => {
+        viewport.style.overflowAnchor = anchoring;
+      }, OPEN_HOLD_MS);
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Enter" || event.key === " ") onPress(event);
     };
     // An upward gesture lets go before its scroll lands, so a resize in between can't undo it.
     const onWheel = (event: WheelEvent) => {
@@ -158,6 +247,11 @@ export function useStickToBottom<
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(() => {
+            if (performance.now() < heldUntil) {
+              pinned.current = isAtScrollBottom(viewport, threshold);
+              report();
+              return;
+            }
             if (
               !pinned.current &&
               gesture &&
@@ -168,19 +262,32 @@ export function useStickToBottom<
               gesture = null;
             }
             if (pinned.current) toBottom();
+            report();
           });
     observer?.observe(viewport);
     if (content) observer?.observe(content);
-    viewport.addEventListener("scroll", onScroll, { passive: true });
-    viewport.addEventListener("wheel", onWheel, { passive: true });
-    viewport.addEventListener("touchstart", onTouchStart, { passive: true });
-    viewport.addEventListener("touchmove", onTouchMove, { passive: true });
+    events.addEventListener("scroll", onScroll, { passive: true });
+    events.addEventListener("wheel", onWheel as EventListener, {
+      passive: true,
+    });
+    events.addEventListener("touchstart", onTouchStart as EventListener, {
+      passive: true,
+    });
+    events.addEventListener("touchmove", onTouchMove as EventListener, {
+      passive: true,
+    });
+    content?.addEventListener("click", onPress, { capture: true });
+    content?.addEventListener("keydown", onKey, { capture: true });
     return () => {
+      window.clearTimeout(unhold);
+      viewport.style.overflowAnchor = anchoring;
       observer?.disconnect();
-      viewport.removeEventListener("scroll", onScroll);
-      viewport.removeEventListener("wheel", onWheel);
-      viewport.removeEventListener("touchstart", onTouchStart);
-      viewport.removeEventListener("touchmove", onTouchMove);
+      events.removeEventListener("scroll", onScroll);
+      events.removeEventListener("wheel", onWheel as EventListener);
+      events.removeEventListener("touchstart", onTouchStart as EventListener);
+      events.removeEventListener("touchmove", onTouchMove as EventListener);
+      content?.removeEventListener("click", onPress, { capture: true });
+      content?.removeEventListener("keydown", onKey, { capture: true });
     };
   }, [viewport, content, threshold]);
 
@@ -189,6 +296,7 @@ export function useStickToBottom<
     if (!viewport) return;
     pinned.current = true;
     viewport.scrollTop = viewport.scrollHeight;
+    setAtBottom(true);
   }, [follow, viewport]);
 
   const scrollToBottom = React.useCallback(
@@ -207,5 +315,6 @@ export function useStickToBottom<
     attachViewport: setViewport,
     attachContent: setContent,
     scrollToBottom,
+    atBottom,
   };
 }
