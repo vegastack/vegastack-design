@@ -211,7 +211,8 @@ for a single version. `formatPosition` can say more: `Previous answer (1 of 2)`.
 ### Long messages
 
 `MessageFold` holds a long message to 20rem with a fade and Show more. It measures, so content that
-fits is left alone. Open a turn streamed in this session with `defaultOpen`: only history folds, and
+fits is left alone, and it ends the fold between two lines of text, never through one, so the fade
+covers whole lines. Open a turn streamed in this session with `defaultOpen`: only history folds, and
 an answer never shuts while someone is reading it.
 
 <ComponentPreview

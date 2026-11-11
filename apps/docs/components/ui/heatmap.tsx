@@ -1,4 +1,4 @@
-// @vegastack heatmap@0.63.0 sha256-huLrcmXr5oGMYRvaSbOC8+1Rh07SIgmglqJr9glxAPA=
+// @vegastack heatmap@0.63.0 sha256-uPymzK4QzIhKBn+duBt2TVrmQKZjZtCoIaUQvqniNZI=
 
 "use client";
 
@@ -45,7 +45,10 @@ const ZERO_CLASS = "bg-muted";
 export interface HeatmapProps {
   /** Row names, top to bottom ("Mon" … "Sun"). Shown as row headers on the left. */
   rows: readonly string[];
-  /** Column names, left to right ("00" … "23"). Shown on top; below 640px every third shows. */
+  /**
+   * Column names, left to right ("00" … "23"). Shown on top; when the columns are narrower than
+   * their names, only every second, third, fourth, sixth… shows (measured), so no name is cut.
+   */
   columns: readonly string[];
   /** One array per row, one number per column. Missing cells count as 0. */
   values: readonly (readonly number[])[];
@@ -91,6 +94,36 @@ function bucketer(values: readonly number[]): (value: number) => number {
     for (const bound of bounds) if (v > bound) step++;
     return step;
   };
+}
+
+/** Steps between shown column names, smallest first. */
+const LABEL_STEPS = [1, 2, 3, 4, 6, 8, 12, 24] as const;
+
+/**
+ * The smallest step from `LABEL_STEPS` at which names `labelWidth` wide, over columns `cellWidth`
+ * wide with `gap` between, never touch (4px breath each side). Unthinned, each name centres over its
+ * column. Thinned, the first starts at its column and the last shown ends at its column (so neither
+ * leaves the grid), which brings each a little closer to its neighbour: the step leaves room for it.
+ */
+export function columnLabelStep(
+  cellWidth: number,
+  gap: number,
+  labelWidth: number,
+): number {
+  if (!(cellWidth > 0)) return 1;
+  const centred = labelWidth + 8;
+  // An edge name shifted inward by (label − cell) / 2 beside a centred one, or the two edge names
+  // side by side when only they show (both shifted toward each other).
+  const edge = Math.max(
+    centred,
+    1.5 * labelWidth - cellWidth / 2 + 4,
+    2 * labelWidth - cellWidth - gap + 4,
+  );
+  for (const step of LABEL_STEPS) {
+    const between = step * (cellWidth + gap) - gap;
+    if (between >= (step === 1 ? centred : edge)) return step;
+  }
+  return LABEL_STEPS[LABEL_STEPS.length - 1] as number;
 }
 
 function cellValue(
@@ -158,6 +191,45 @@ export function Heatmap({
       )
       ?.focus();
   }, [activeRow, activeCol]);
+
+  // Every `labelStep`th column name shows; measured from the grid's own width (a card, not the
+  // viewport), so names never truncate to "0…".
+  const [labelStep, setLabelStep] = React.useState(1);
+  // The last column whose name shows.
+  const lastShown = Math.floor(Math.max(0, lastCol) / labelStep) * labelStep;
+  const drawn =
+    rows.length > 0 && columns.length > 0 && flat.some((v) => v !== 0);
+  React.useLayoutEffect(() => {
+    const grid = gridRef.current;
+    if (!grid || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const headers = grid.querySelectorAll<HTMLElement>(
+        '[data-slot="heatmap-column-header"]',
+      );
+      const first = headers[0];
+      if (!first) return;
+      let labelWidth = 0;
+      for (const header of headers) {
+        const name = header.firstElementChild as HTMLElement | null;
+        // A hidden (sr-only) name is 1px wide; its text is measured through a Range instead.
+        if (!name) continue;
+        const range = document.createRange();
+        range.selectNodeContents(name);
+        labelWidth = Math.max(labelWidth, range.getBoundingClientRect().width);
+      }
+      const gap = parseFloat(getComputedStyle(grid).columnGap) || 0;
+      const next = columnLabelStep(
+        first.getBoundingClientRect().width,
+        gap,
+        labelWidth,
+      );
+      setLabelStep((previous) => (previous === next ? previous : next));
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(grid);
+    return () => observer.disconnect();
+  }, [drawn, columns]);
 
   const allZero = flat.every((v) => v === 0);
   if (rows.length === 0 || columns.length === 0 || allZero) {
@@ -247,14 +319,25 @@ export function Heatmap({
                 role="columnheader"
                 aria-colindex={c + 2}
                 data-slot="heatmap-column-header"
-                className="min-w-0 text-center text-xs text-muted-foreground"
+                className={cn(
+                  "flex min-w-0 text-xs text-muted-foreground",
+                  // Thinned, the first and last names keep inside the grid (never over the row
+                  // names or past the scroll edge); the rest centre over their columns.
+                  labelStep === 1
+                    ? "justify-center"
+                    : c === 0
+                      ? "justify-start"
+                      : c === lastShown
+                        ? "justify-end"
+                        : "justify-center",
+                )}
               >
-                {/* Below 640px only every third header shows; the rest stay readable to assistive
-                  technology. */}
+                {/* A shown name may run past its narrow column, centred over it, into the hidden
+                  neighbours' space; the hidden ones stay readable to assistive technology. */}
                 <span
                   className={cn(
-                    "block truncate",
-                    c % 3 !== 0 && "max-sm:sr-only",
+                    "whitespace-nowrap",
+                    c % labelStep !== 0 && "sr-only",
                   )}
                 >
                   {column}
