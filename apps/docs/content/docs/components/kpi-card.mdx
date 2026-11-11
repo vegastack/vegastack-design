@@ -51,10 +51,40 @@ value per cell, no card chrome — and for `Chart` when the trend itself is the 
 
 ### Grid
 
-Seven tiles fill one row on a wide screen. A tile with `value={null}` reads "No data", never a dash
-or a zero.
+Group tiles: key numbers in one `KpiGrid`, secondary ones in another. Up to six tiles, a grid takes
+only column counts that fill every row (four: 4, then 2 × 2, then one a row; three: 3, then one a
+row), measured from its own width, so a row never ends in an empty slot — with a side panel open
+too. Past six it fits as many 10rem tiles as there is room for.
 
 <ComponentPreview name="kpiCardGrid" file="components/preview/kpi-card.tsx" />
+
+### Tone and series
+
+`tone` (`neutral` · `success` · `warning` · `danger`) says what the number means, by a threshold you
+state once in code: it inks the value with the family's `-text` ink and the sparkline with its fill.
+`series` (1–8) gives a measure's sparkline its palette hue — tokens, cost — so the tile matches that
+measure's charts. A `tone` other than `neutral` wins. Never colour a tile with classes.
+
+<ComponentPreview name="kpiCardTones" file="components/preview/kpi-card.tsx" />
+
+### No value
+
+`value={null}` shows a muted "—" at the value's size, and `empty` says why under it ("Needs 5
+ratings", "No runs yet"). It is one rule for every tile: never a sentence where the number goes,
+never a 0 for a value that is not known.
+
+### Sparkline
+
+`spark` draws only when at least three points hold data: one or two days of data after weeks of
+zeros reads as a flat line and a cliff, not a trend. It is a line over a soft area, from zero, in the
+tile's tone or series.
+
+### Edge cases
+
+A long label wraps, a big value wraps rather than truncating, a tile with no value keeps its size,
+and a narrow container stacks the tiles.
+
+<ComponentPreview name="kpiCardEdges" file="components/preview/kpi-card.tsx" />
 
 ### Delta tone
 
@@ -123,6 +153,11 @@ loading as loaded.
 />
 
 <DoDont
-  do="Pass null when the value is unknown, so the tile reads No data."
-  dont="Show 0 or a dash for a value that failed to load."
+  do="Pass value={null} with an empty line (Needs 5 ratings) when there is no value."
+  dont="Put a sentence such as Not enough ratings in the value, or show 0 for an unknown value."
+/>
+
+<DoDont
+  do="Set tone from a threshold stated once, and series for a measure's hue."
+  dont="Colour a value or a sparkline with classes."
 />

@@ -25,10 +25,10 @@ export function kpiCard(): ReactNode {
   );
 }
 
-/** Seven tiles in the grid: 2 columns on a phone, 3 from sm, 4 from lg, 7 from xl. */
+/** Key numbers in one grid, secondary ones in another: each balanced, never a ragged last row. */
 export function kpiCardGrid(): ReactNode {
   return (
-    <Wrapper className="items-stretch">
+    <Wrapper className="flex-col items-stretch gap-3">
       <KpiGrid className="w-full">
         <KpiCard
           label="Runs"
@@ -37,32 +37,86 @@ export function kpiCardGrid(): ReactNode {
           spark={TREND}
         />
         <KpiCard
-          label="Success rate"
+          label="Success"
           value="97.8%"
+          tone="success"
           delta={{ text: "No change", direction: "flat", tone: "neutral" }}
           spark={[97, 98, 97, 98, 98, 97, 98]}
         />
         <KpiCard
-          label="Failures"
-          value="28"
-          delta={{ text: "↑ 9", direction: "up", tone: "negative" }}
-          spark={[2, 3, 1, 4, 6, 5, 7]}
-        />
-        <KpiCard
-          label="p95 latency"
-          value="4.2 s"
-          delta={{ text: "↓ 0.6 s", direction: "down", tone: "positive" }}
-          spark={[6, 5.8, 5.1, 4.9, 4.6, 4.4, 4.2]}
-        />
-        <KpiCard
-          label="Cost"
+          label="Provider cost"
           value="$41.20"
+          series={2}
           delta={{ text: "↓ 8%", direction: "down", tone: "positive" }}
           spark={[52, 49, 47, 46, 44, 43, 41]}
         />
-        <KpiCard label="Approvals waiting" value="3" />
-        <KpiCard label="Tokens" value={null} />
+        <KpiCard label="Median run" value="4.2 s" />
       </KpiGrid>
+      <KpiGrid className="w-full">
+        <KpiCard label="Slowest runs (p95)" value="12 s" />
+        <KpiCard label="Waiting on you" value="3" />
+        <KpiCard label="Helpful" value={null} empty="Needs 5 ratings" />
+      </KpiGrid>
+    </Wrapper>
+  );
+}
+
+/** Tone by threshold: the value and the spark take the status family; words still carry it. */
+export function kpiCardTones(): ReactNode {
+  return (
+    <Wrapper className="items-start gap-3">
+      <KpiCard
+        className="w-48"
+        label="Success"
+        value="98%"
+        tone="success"
+        spark={[96, 97, 98, 98]}
+      />
+      <KpiCard
+        className="w-48"
+        label="Success"
+        value="84%"
+        tone="warning"
+        spark={[92, 90, 87, 84]}
+      />
+      <KpiCard
+        className="w-48"
+        label="Success"
+        value="61%"
+        tone="danger"
+        spark={[80, 72, 66, 61]}
+      />
+    </Wrapper>
+  );
+}
+
+/** Edge cases: a long label, a big value, no value, and a narrow container. */
+export function kpiCardEdges(): ReactNode {
+  return (
+    <Wrapper className="items-start gap-3">
+      <KpiCard
+        className="w-40"
+        label="Median time to decide on an approval request"
+        value="1 h 12 min"
+      />
+      <KpiCard
+        className="w-40"
+        label="Tokens"
+        value="1,284,903,112"
+        series={3}
+      />
+      <KpiCard
+        className="w-40"
+        label="Helpful"
+        value={null}
+        empty="Needs 5 ratings"
+      />
+      <div className="w-36">
+        <KpiGrid>
+          <KpiCard label="Runs" value="12" />
+          <KpiCard label="Waiting" value="0" />
+        </KpiGrid>
+      </div>
     </Wrapper>
   );
 }
@@ -90,12 +144,12 @@ export function kpiCardLinked(): ReactNode {
   );
 }
 
-/** Loading and empty: the skeleton holds the tile's height; a missing value reads "No data". */
+/** Loading and empty: the skeleton holds the tile's height; a missing value is a muted dash. */
 export function kpiCardStates(): ReactNode {
   return (
     <Wrapper className="items-start gap-3">
       <KpiCard className="w-56" label="Runs" value="1,284" loading />
-      <KpiCard className="w-56" label="Tokens" value={null} />
+      <KpiCard className="w-56" label="Runs" value={null} empty="No runs yet" />
     </Wrapper>
   );
 }

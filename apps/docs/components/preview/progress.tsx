@@ -57,7 +57,7 @@ export function progressTone(): ReactNode {
   return (
     <Wrapper>
       <div className="flex w-full max-w-sm flex-col gap-6">
-        <Progress value={40}>
+        <Progress value={40} tone="success" size="lg">
           <ProgressLabel>Storage used</ProgressLabel>
           <ProgressValue />
         </Progress>

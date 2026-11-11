@@ -682,3 +682,77 @@ test("no a11y violations: the legend content, with and without icons", async () 
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("API-43 Tooltip: a long label never runs into its value — a gap, a truncated label, a right-aligned tabular value", async () => {
+  const screen = await render(
+    <ChartContainer
+      config={{
+        s0: {
+          label: "Claude Haiku 5.5 with a very long model name",
+          tone: "series-1",
+        },
+      }}
+      style={FIXED_SIZE}
+    >
+      <ChartTooltipContent
+        active
+        hideLabel
+        nameKey="slot"
+        payload={[
+          payloadRow({
+            dataKey: "value",
+            name: "s0",
+            value: 14392,
+            payload: { slot: "s0", value: 14392 },
+          }),
+        ]}
+      />
+    </ChartContainer>,
+  );
+  const label = screen.container.querySelector<HTMLElement>(
+    '[data-slot="chart-tooltip-label"]',
+  )!;
+  const value = screen.container.querySelector<HTMLElement>(
+    '[data-slot="chart-tooltip-value"]',
+  )!;
+  expect(value.className).toContain("tabular-nums");
+  expect(value.className).toContain("text-end");
+  expect(label.className).toContain("truncate");
+  const gap =
+    value.getBoundingClientRect().left - label.getBoundingClientRect().right;
+  expect(gap).toBeGreaterThanOrEqual(12);
+  expect(value.textContent).toBe("14,392");
+});
+
+test("API-43 Tooltip: `valueFormatter` formats the value cell only; the row keeps its label", async () => {
+  const screen = await render(
+    <ChartContainer config={CONFIG} style={FIXED_SIZE}>
+      <ChartTooltipContent
+        active
+        hideLabel
+        payload={[payloadRow()]}
+        valueFormatter={(v) => `USD ${Number(v).toFixed(2)}`}
+      />
+    </ChartContainer>,
+  );
+  const text = screen.container.textContent ?? "";
+  expect(text).toContain("Desktop");
+  expect(text).toContain("USD 186.00");
+});
+
+test("API-43 Theming: a typed `tone` resolves to its token", async () => {
+  const screen = await render(
+    <ChartStyle
+      id="t"
+      config={{
+        done: { label: "Done", tone: "success" },
+        failed: { label: "Failed", tone: "danger" },
+        tokens: { label: "Tokens", tone: "series-3" },
+      }}
+    />,
+  );
+  const css = screen.container.querySelector("style")?.textContent ?? "";
+  expect(css).toContain("--color-done: var(--success);");
+  expect(css).toContain("--color-failed: var(--destructive);");
+  expect(css).toContain("--color-tokens: var(--chart-3);");
+});

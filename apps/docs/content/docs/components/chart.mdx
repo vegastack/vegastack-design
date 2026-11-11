@@ -197,13 +197,36 @@ them and reads every name and colour from the config.
 <ChartTooltip content={<ChartTooltipContent />} />
 ```
 
-| Prop            | Type                          | Description                                  |
-| :-------------- | :---------------------------- | :------------------------------------------- |
-| `labelKey`      | `string`                      | The config or data key to use for the label. |
-| `nameKey`       | `string`                      | The config or data key to use for the name.  |
-| `indicator`     | `"dot" \| "line" \| "dashed"` | The indicator style for the tooltip.         |
-| `hideLabel`     | `boolean`                     | Whether to hide the label.                   |
-| `hideIndicator` | `boolean`                     | Whether to hide the indicator.               |
+| Prop             | Type                               | Description                                           |
+| :--------------- | :--------------------------------- | :---------------------------------------------------- |
+| `labelKey`       | `string`                           | The config or data key to use for the label.          |
+| `nameKey`        | `string`                           | The config or data key to use for the name.           |
+| `indicator`      | `"dot" \| "line" \| "dashed"`      | The indicator style for the tooltip.                  |
+| `hideLabel`      | `boolean`                          | Whether to hide the label.                            |
+| `hideIndicator`  | `boolean`                          | Whether to hide the indicator.                        |
+| `valueFormatter` | `(value, name, item) => ReactNode` | Formats the value cell only (`"$1.20"`, `"14 runs"`). |
+
+Each row is a grid — indicator · label · value — with a built-in gap: a long label truncates in its
+cell, and the value sits right-aligned in `tabular-nums`, so a long name never runs into its number
+("Claude Haiku 5.5" then "14,392", never "5.514,392"). Format a value with `valueFormatter`, which
+keeps that structure; upstream's `formatter` replaces the whole row and is kept only for upstream's
+blocks — don't hand-roll a row.
+
+#### Tones
+
+A series' colour says what it means. Give each config entry a typed `tone` instead of a colour
+string: `series-1`…`series-8` for identity (one measure keeps one hue everywhere), `single` for one
+series, and `success` · `warning` · `danger` · `info` · `neutral` for state — finished is `success`,
+failed `danger`. Each resolves to its token, so it holds in light and dark.
+
+```tsx
+const config = {
+  finished: { label: "Finished", tone: "success" },
+  failed: { label: "Failed", tone: "danger" },
+} satisfies ChartConfig;
+```
+
+<ComponentPreview name="chartTones" file="components/preview/chart.tsx" />
 
 Use `labelKey` and `nameKey` when the config key lives in the data row rather than in the series key:
 
@@ -327,11 +350,15 @@ Upstream's file plus `packages/ui/upstream/patches/chart.patch`. Every hunk:
 - **FOC-9** — `[&_svg:focus-visible]:-outline-offset-2`. The plot fills the surface edge to edge, so
   the global outward `outline-offset: 1px` would be drawn over the chart's own frame. FOC-9 is the
   one permitted local deviation, and it moves the offset only — width and colour stay in `base.css`.
+- **API-43** — `ChartConfig` takes a typed `tone` (resolved by `ChartStyle` through
+  `CHART_TONE_COLORS`); a tooltip row is a grid with a gap, the label truncating and the value
+  right-aligned in `tabular-nums`; `valueFormatter`; the tooltip caps at 20rem; legend items wrap and
+  truncate.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.
 
-Nothing else. `ChartTooltipContent`'s `shadow-xl`, `border-border/50` and `rounded-lg` are upstream's
+Nothing else besides those. `ChartTooltipContent`'s `shadow-xl`, `border-border/50` and `rounded-lg` are upstream's
 verbatim (BRD-1, BRD-4 and DOC-10 all resolve as **shadcn**), and the `#ccc` / `#fff` attribute
 selectors retarget Recharts' own hard-coded defaults — those are Recharts' values being matched in a
 selector, not colours being authored here. The `--chart-1` … `--chart-8` and `--chart-single` palette

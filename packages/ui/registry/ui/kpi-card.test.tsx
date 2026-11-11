@@ -3,7 +3,8 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { KpiCard, KpiGrid } from "./kpi-card";
+import "../../test/geometry.css";
+import { KpiCard, KpiGrid, kpiGridColumns, sparkPaths } from "./kpi-card";
 
 test("names the tile 'label: value, delta' and renders the Stat parts", async () => {
   const ref = React.createRef<HTMLDivElement>();
@@ -92,15 +93,38 @@ test("delta tone sets the ink, independent of direction", async () => {
   expect(cls("No change")).toContain("text-muted-foreground");
 });
 
-test("value null reads 'No data' through StatEmpty, never a dash or a zero", async () => {
-  const screen = await render(<KpiCard label="Cost" value={null} />);
-  const empty = screen.getByText("No data");
-  await expect.element(empty).toHaveAttribute("data-slot", "stat-empty");
+test("no value: a muted dash at the value's size with the reason under it, one rule", async () => {
+  const screen = await render(
+    <KpiCard
+      label="Helpful"
+      value={null}
+      empty="Needs 5 ratings"
+      tone="success"
+    />,
+  );
+  const value = document.querySelector<HTMLElement>(
+    '[data-slot="stat-value"]',
+  )!;
+  expect(value.dataset.empty).toBe("");
+  expect(value.className).toContain("text-muted-foreground");
+  expect(value.className).not.toContain("text-success-text");
+  expect(value.textContent).toContain("—");
+  await expect.element(screen.getByText("Needs 5 ratings")).toBeVisible();
   await expect
-    .element(screen.getByRole("group", { name: "Cost: No data" }))
+    .element(
+      screen.getByRole("group", { name: "Helpful: No value, Needs 5 ratings" }),
+    )
     .toBeInTheDocument();
-  expect(document.querySelector('[data-slot="stat-value"]')).toBeNull();
   await expectNoA11yViolations(screen.container);
+});
+
+test("tone inks the value with the family's text ink", async () => {
+  await render(<KpiCard label="Success" value="62%" tone="danger" />);
+  const value = document.querySelector<HTMLElement>(
+    '[data-slot="stat-value"]',
+  )!;
+  expect(value.dataset.tone).toBe("danger");
+  expect(value.className).toContain("text-destructive-text");
 });
 
 test("loading shows the large StatSkeleton plus a spark-height skeleton, busy", async () => {
@@ -116,23 +140,45 @@ test("loading shows the large StatSkeleton plus a spark-height skeleton, busy", 
   await expectNoA11yViolations(screen.container);
 });
 
-test("spark draws an aria-hidden polyline in the single-series ink, last 120 points", async () => {
-  const many = Array.from({ length: 150 }, (_, i) => i % 7);
-  const screen = await render(<KpiCard label="Runs" value="12" spark={many} />);
+test("spark draws a line over a soft area in the tile's ink, last 120 points", async () => {
+  const many = Array.from({ length: 150 }, (_, i) => (i % 7) + 1);
+  const screen = await render(
+    <KpiCard label="Tokens" value="12K" spark={many} series={3} />,
+  );
   const svg = screen.container.querySelector('[data-slot="kpi-card-spark"]');
   expect(svg).not.toBeNull();
   expect(svg?.getAttribute("aria-hidden")).toBe("true");
-  expect(svg?.classList.contains("h-6")).toBe(true);
-  const line = svg?.querySelector("polyline");
-  expect(line?.getAttribute("class")).toContain("stroke-chart-single");
-  expect(line?.getAttribute("points")?.split(" ")).toHaveLength(120);
+  expect(svg?.getAttribute("class")).toContain("text-chart-3");
+  expect(svg?.querySelectorAll("path")).toHaveLength(2);
+  expect(sparkPaths(many)?.count).toBe(120);
 });
 
-test("a spark with fewer than two points draws nothing", async () => {
-  const screen = await render(<KpiCard label="Runs" value="12" spark={[4]} />);
+test("a spark draws only with at least three points of data: no flat line and a cliff", async () => {
+  const screen = await render(
+    <KpiCard label="Runs" value="12" spark={[0, 0, 0, 0, 0, 0, 9, 4]} />,
+  );
   expect(
     screen.container.querySelector('[data-slot="kpi-card-spark"]'),
   ).toBeNull();
+  expect(sparkPaths([0, 2, 0, 3, 5])).not.toBeNull();
+  expect(sparkPaths([4])).toBeNull();
+});
+
+test("a tone wins over a series for the spark", async () => {
+  const screen = await render(
+    <KpiCard
+      label="Success"
+      value="98%"
+      tone="success"
+      series={2}
+      spark={[1, 2, 3]}
+    />,
+  );
+  expect(
+    screen.container
+      .querySelector('[data-slot="kpi-card-spark"]')
+      ?.getAttribute("class"),
+  ).toContain("text-success");
 });
 
 test("hint renders an InfoHint beside the label", async () => {
@@ -186,10 +232,11 @@ test("KpiGrid sizes tiles to its container, and labels and values wrap, never tr
   const grid = screen.getByTestId("grid");
   await expect.element(grid).toHaveAttribute("data-slot", "kpi-grid");
   expect(ref.current).toBe(grid.element());
-  // Container-sized tracks, never viewport breakpoints (real CSS: test/geometry.browser.test.tsx).
-  expect(grid.element().className).toContain("grid-cols-[repeat(auto-fill,");
+  // Container-sized, balanced tracks, never viewport breakpoints.
+  const tiles = grid.element().querySelector('[data-slot="kpi-grid-tiles"]')!;
+  expect(tiles.className).toContain("@min-[20.75rem]/kpi-grid:grid-cols-2");
   for (const cls of ["sm:grid-cols-3", "lg:grid-cols-4", "xl:grid-cols-7"])
-    expect(grid.element().classList.contains(cls)).toBe(false);
+    expect(tiles.classList.contains(cls)).toBe(false);
   // Neither the label nor the value truncates.
   for (const slot of ["stat-label", "stat-value"])
     expect(
@@ -198,4 +245,31 @@ test("KpiGrid sizes tiles to its container, and labels and values wrap, never tr
         .querySelector(`[data-slot="${slot}"]`)!
         .classList.contains("truncate"),
     ).toBe(false);
+});
+
+test("kpiGridColumns: only counts that fill every row", () => {
+  expect(kpiGridColumns(4)).toEqual([
+    "@min-[20.75rem]/kpi-grid:grid-cols-2",
+    "@min-[42.25rem]/kpi-grid:grid-cols-4",
+  ]);
+  expect(kpiGridColumns(3)).toEqual(["@min-[31.5rem]/kpi-grid:grid-cols-3"]);
+  expect(kpiGridColumns(9)).toBeNull();
+});
+
+test("four tiles in a 560px container sit two by two, never three and one", async () => {
+  const screen = await render(
+    <div style={{ width: 560 }}>
+      <KpiGrid>
+        {["A", "B", "C", "D"].map((l) => (
+          <KpiCard key={l} label={l} value="1" />
+        ))}
+      </KpiGrid>
+    </div>,
+  );
+  const tops = [
+    ...screen.container.querySelectorAll('[data-slot="kpi-card"]'),
+  ].map((t) => Math.round(t.getBoundingClientRect().top));
+  expect(new Set(tops).size).toBe(2);
+  expect(tops[0]).toBe(tops[1]);
+  expect(tops[2]).toBe(tops[3]);
 });

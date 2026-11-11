@@ -311,3 +311,23 @@ test("a tone leaves the bar's name and value as they were", async () => {
   expect(root.getAttribute("aria-valuenow")).toBe("90");
   await expectNoA11yViolations(screen.container);
 });
+
+test('API-42: `success` fills with the success family, and `size="lg"` is the thicker track', async () => {
+  const screen = await render(
+    <Progress
+      value={40}
+      tone="success"
+      size="lg"
+      aria-label="Allowance used"
+    />,
+  );
+  const indicator = screen.container.querySelector<HTMLElement>(
+    '[data-slot="progress-indicator"]',
+  )!;
+  expect(indicator.className).toContain("bg-success");
+  const track = screen.container.querySelector<HTMLElement>(
+    '[data-slot="progress-track"]',
+  )!;
+  expect(track.dataset.size).toBe("lg");
+  expect(track.className).toContain("data-[size=lg]:h-2");
+});

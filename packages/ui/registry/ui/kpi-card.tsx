@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.63.1 sha256-UzH8lDMXPUVirPmPjaf0QHIAQ3dVyHlIx21qnC924RM=
+// @vegastack kpi-card@0.63.1 sha256-ZsqnB+/g0UnEljtFVRdfF4t8BzIT6EQpwatutQNFcSM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -38,6 +38,16 @@ export interface KpiCardDelta {
   tone: "positive" | "negative" | "neutral";
 }
 
+/**
+ * What a KPI's number means, by a threshold the caller states once: `success` healthy, `warning`
+ * attention, `danger` failing, `neutral` (the default) just a number. It inks the value and the
+ * sparkline; it is never the only signal — the delta and the hint carry the words.
+ */
+export type KpiCardTone = "neutral" | "success" | "warning" | "danger";
+
+/** A categorical palette slot (`--chart-1`…`8`): one measure keeps one hue across tiles and charts. */
+export type KpiCardSeries = 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8;
+
 /** Props for `KpiCard`. */
 export interface KpiCardProps extends Omit<
   React.ComponentPropsWithRef<"div">,
@@ -45,8 +55,29 @@ export interface KpiCardProps extends Omit<
 > {
   /** What the number counts ("Runs", "Cost", "p95 latency"). */
   label: string;
-  /** The value, already formatted. `null` reads "No data" — never a dash or a zero. */
+  /**
+   * The value, already formatted — a number or a short figure ("1,284", "92%", "$4.10", "3 min").
+   * `null` when there is none yet: the tile shows a muted "—" and the `empty` line, never prose in
+   * the value's place.
+   */
   value: React.ReactNode | null;
+  /**
+   * Why there is no value, or what it needs, under the "—" ("Needs 5 ratings", "No runs yet").
+   * Only read when `value` is `null`.
+   * @default undefined
+   */
+  empty?: string;
+  /**
+   * What the number means: inks the value and the sparkline with the status family.
+   * @default "neutral"
+   */
+  tone?: KpiCardTone;
+  /**
+   * The palette hue of a measure's sparkline (tokens, cost), so it matches that measure's charts.
+   * A `tone` other than `neutral` wins.
+   * @default undefined
+   */
+  series?: KpiCardSeries;
   /**
    * One sentence explaining the KPI, opened from an (i) beside the label.
    * @default undefined
@@ -58,7 +89,9 @@ export interface KpiCardProps extends Omit<
    */
   delta?: KpiCardDelta;
   /**
-   * A trend for the sparkline under the value: 2 to 120 points (only the last 120 are drawn).
+   * A trend for the sparkline under the value, one point per period (only the last 120 are drawn).
+   * It draws only when at least 3 points hold data (non-zero) — fewer reads as a flat line and a
+   * cliff, not a trend — as a line over a soft area, from zero, in the tile's tone or series.
    * Decorative; the value and delta carry the meaning.
    * @default undefined
    */
@@ -81,56 +114,91 @@ const TONE_CLASSES: Record<KpiCardDelta["tone"], string> = {
   neutral: "text-muted-foreground",
 };
 
+/** The value's ink per tone: the family's `-text` ink, which holds AA on the card (A11Y-13). */
+const VALUE_TONE: Record<KpiCardTone, string | undefined> = {
+  neutral: undefined,
+  success: "text-success-text",
+  warning: "text-warning-text",
+  danger: "text-destructive-text",
+};
+
+/** The sparkline's ink (`currentColor`): the tone's fill, else the series hue, else one ink. */
+const SPARK_TONE: Record<Exclude<KpiCardTone, "neutral">, string> = {
+  success: "text-success",
+  warning: "text-warning",
+  danger: "text-destructive",
+};
+const SPARK_SERIES: Record<KpiCardSeries, string> = {
+  1: "text-chart-1",
+  2: "text-chart-2",
+  3: "text-chart-3",
+  4: "text-chart-4",
+  5: "text-chart-5",
+  6: "text-chart-6",
+  7: "text-chart-7",
+  8: "text-chart-8",
+};
+
 const SPARK_MAX_POINTS = 120;
 const SPARK_HEIGHT = 24;
+/** Fewer points with data than this is not a trend: no sparkline. */
+export const KPI_SPARK_MIN_POINTS = 3;
 
-function sparkPoints(values: readonly number[]): string | null {
+/** The sparkline's line and area paths, or `null` when there is no trend to draw. */
+export function sparkPaths(
+  values: readonly number[],
+): { line: string; area: string; count: number } | null {
   const points = values
     .slice(-SPARK_MAX_POINTS)
-    .filter((v) => Number.isFinite(v));
-  if (points.length < 2) return null;
-  const min = Math.min(...points);
-  const max = Math.max(...points);
-  const span = max - min;
+    .map((v) => (Number.isFinite(v) ? v : 0));
+  if (points.filter((v) => v !== 0).length < KPI_SPARK_MIN_POINTS) return null;
+  // From zero, so a small change never reads as a cliff.
+  const min = Math.min(0, ...points);
+  const max = Math.max(0, ...points);
+  const span = max - min || 1;
   // One unit of headroom top and bottom so the stroke is never clipped at the extremes.
   const usable = SPARK_HEIGHT - 2;
-  return points
-    .map((v, i) => {
-      const y =
-        span === 0 ? SPARK_HEIGHT / 2 : 1 + usable * (1 - (v - min) / span);
-      return `${i},${Math.round(y * 100) / 100}`;
-    })
+  const y = (v: number) =>
+    Math.round((1 + usable * (1 - (v - min) / span)) * 100) / 100;
+  const line = points
+    .map((v, i) => `${i === 0 ? "M" : "L"}${i},${y(v)}`)
     .join(" ");
+  const base = y(Math.max(min, 0));
+  return {
+    line,
+    area: `${line} L${points.length - 1},${base} L0,${base} Z`,
+    count: points.length,
+  };
 }
 
-function KpiSpark({ values }: { values: readonly number[] }) {
-  const points = sparkPoints(values);
-  if (points === null) return null;
-  const count = points.split(" ").length;
+function KpiSpark({ values, ink }: { values: readonly number[]; ink: string }) {
+  const paths = sparkPaths(values);
+  if (paths === null) return null;
   return (
     <svg
       aria-hidden
       focusable="false"
       data-slot="kpi-card-spark"
-      viewBox={`0 0 ${count - 1} ${SPARK_HEIGHT}`}
+      viewBox={`0 0 ${paths.count - 1} ${SPARK_HEIGHT}`}
       preserveAspectRatio="none"
-      className="block h-6 w-full overflow-visible"
+      className={cn("block h-6 w-full overflow-visible", ink)}
     >
-      <polyline
-        points={points}
+      <path d={paths.area} className="fill-current opacity-15" stroke="none" />
+      <path
+        d={paths.line}
         fill="none"
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
         vectorEffect="non-scaling-stroke"
-        className="stroke-chart-single"
+        className="stroke-current"
       />
     </svg>
   );
 }
 
 function valueText(value: React.ReactNode | null): string | null {
-  if (value === null) return "No data";
+  if (value === null) return "No value";
   if (typeof value === "string" || typeof value === "number")
     return String(value);
   return null;
@@ -155,6 +223,9 @@ export function KpiCard({
   label,
   value,
   hint,
+  empty,
+  tone = "neutral",
+  series,
   delta,
   spark,
   linkRender,
@@ -186,6 +257,7 @@ export function KpiCard({
   const text = valueText(value);
   const name = [
     text === null ? label : `${label}: ${text}`,
+    value === null && empty ? empty : null,
     delta ? delta.text : null,
   ]
     .filter(Boolean)
@@ -256,12 +328,31 @@ export function KpiCard({
             ) : null}
           </div>
           {value === null ? (
-            <StatEmpty id={`${id}-value`} className="flex h-8 items-center">
-              No data
-            </StatEmpty>
+            // No value: a muted dash at the value's own size, and the reason under it — one rule
+            // for every tile, so no tile puts a sentence where its number goes.
+            <>
+              <StatValue
+                id={`${id}-value`}
+                data-empty=""
+                className="text-muted-foreground"
+              >
+                <span aria-hidden>—</span>
+                <span className="sr-only">No value</span>
+              </StatValue>
+              {empty ? (
+                <StatEmpty className="text-xs">{empty}</StatEmpty>
+              ) : null}
+            </>
           ) : (
             // A value never truncates: a long text value wraps; a number stays on its one line.
-            <StatValue id={`${id}-value`} className="min-w-0 wrap-break-word">
+            <StatValue
+              id={`${id}-value`}
+              data-tone={tone}
+              className={cn(
+                "min-w-0 tabular-nums wrap-break-word",
+                VALUE_TONE[tone],
+              )}
+            >
               {value}
             </StatValue>
           )}
@@ -276,7 +367,18 @@ export function KpiCard({
             </StatDelta>
           ) : null}
         </Stat>
-        {spark ? <KpiSpark values={spark} /> : null}
+        {spark && value !== null ? (
+          <KpiSpark
+            values={spark}
+            ink={
+              tone !== "neutral"
+                ? SPARK_TONE[tone]
+                : series
+                  ? SPARK_SERIES[series]
+                  : "text-chart-single"
+            }
+          />
+        ) : null}
       </div>
     </Card>
   );
@@ -286,9 +388,35 @@ export function KpiCard({
 export type KpiGridProps = React.ComponentPropsWithRef<"div">;
 
 /**
- * `KpiGrid` — the grid of `KpiCard`s, sized by its own width rather than the viewport: as many
- * tiles per row as fit at 10rem or wider (two on a phone, about five in a 960px settings column),
- * one per row when the container is narrower than a tile.
+ * Columns a grid of `n` tiles may take, as container-query classes: only counts that fill every
+ * row (the divisors of `n`), so a row never ends in a gap. Literal strings, so Tailwind generates each. A tile is at least 10rem; the gap 0.75rem.
+ */
+const KPI_COLUMNS: Record<number, string> = {
+  2: "@min-[20.75rem]/kpi-grid:grid-cols-2",
+  3: "@min-[31.5rem]/kpi-grid:grid-cols-3",
+  4: "@min-[42.25rem]/kpi-grid:grid-cols-4",
+  5: "@min-[53rem]/kpi-grid:grid-cols-5",
+  6: "@min-[63.75rem]/kpi-grid:grid-cols-6",
+};
+
+/** The balanced column classes for `n` tiles, or `null` past six (then the grid auto-fills). */
+export function kpiGridColumns(n: number): string[] | null {
+  if (n > 6) return null;
+  return (
+    [2, 3, 4, 5, 6]
+      // Divisors fill every row; five tiles also take two a row before they stack, since one
+      // column of five is worse than a short last row.
+      .filter((c) => c <= n && (n % c === 0 || (c === 2 && n === 5)))
+      .map((c) => KPI_COLUMNS[c] as string)
+  );
+}
+
+/**
+ * `KpiGrid` — a row of `KpiCard`s, sized by its own width rather than the viewport, and balanced:
+ * up to six tiles take only column counts that fill every row (four tiles: 4, then 2 × 2, then
+ * one per row; three: 3, then 1), so a row never ends in an empty slot. Past six it fits as many
+ * 10rem tiles as there is room for. Group tiles into rows of related numbers — key numbers in one
+ * grid, secondary ones in another — rather than one long grid.
  *
  * @example
  * <KpiGrid>
@@ -296,15 +424,28 @@ export type KpiGridProps = React.ComponentPropsWithRef<"div">;
  *   <KpiCard label="Failures" value="12" />
  * </KpiGrid>
  */
-export function KpiGrid({ className, ...props }: KpiGridProps) {
+export function KpiGrid({ className, children, ...props }: KpiGridProps) {
+  const n = React.Children.toArray(children).filter(
+    React.isValidElement,
+  ).length;
+  const columns = kpiGridColumns(n);
   return (
     <div
       data-slot="kpi-grid"
-      className={cn(
-        "grid grid-cols-[repeat(auto-fill,minmax(min(100%,--spacing(40)),1fr))] gap-3",
-        className,
-      )}
+      className={cn("@container/kpi-grid min-w-0", className)}
       {...props}
-    />
+    >
+      <div
+        data-slot="kpi-grid-tiles"
+        className={cn(
+          "grid gap-3",
+          columns
+            ? ["grid-cols-1", ...columns]
+            : "grid-cols-[repeat(auto-fill,minmax(min(100%,--spacing(40)),1fr))]",
+        )}
+      >
+        {children}
+      </div>
+    </div>
   );
 }

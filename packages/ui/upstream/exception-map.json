@@ -250,6 +250,8 @@
     "API-39": ["toggle", "toggle-group"],
     "API-40": ["textarea"],
     "API-41": ["progress"],
+    "API-42": ["progress"],
+    "API-43": ["chart"],
     "A11Y-25": ["calendar"],
     "API-37": ["item"],
     "FRM-17": ["input"],

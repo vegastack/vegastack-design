@@ -1,4 +1,4 @@
-// @vegastack progress@0.60.0 sha256-IqCllkRvYmUig1M86Zxepj/M7ZK/RU//ucJfI4MSJr0=
+// @vegastack progress@0.60.0 sha256-5AWmogkFPwrI/ThwkXiZq1yENRpZWEImyNcQChCNlys=
 
 "use client";
 
@@ -10,6 +10,8 @@ const progressIndicatorVariants = cva("h-full transition-all", {
   variants: {
     tone: {
       default: "bg-primary",
+      // API-42: a meter that is fine says so too (a limit well within reach).
+      success: "bg-success",
       warning: "bg-warning",
       danger: "bg-destructive",
     },
@@ -26,8 +28,13 @@ function Progress({
   children,
   value,
   tone = "default",
+  size = "default",
   ...props
-}: ProgressPrimitive.Root.Props & { tone?: ProgressTone }) {
+}: ProgressPrimitive.Root.Props & {
+  tone?: ProgressTone;
+  /** API-42: `lg` is the thicker meter a page's headline limit wears. */
+  size?: ProgressSize;
+}) {
   return (
     <ProgressPrimitive.Root
       value={value}
@@ -37,21 +44,28 @@ function Progress({
       {...props}
     >
       {children}
-      <ProgressTrack>
+      <ProgressTrack size={size}>
         <ProgressIndicator tone={tone} />
       </ProgressTrack>
     </ProgressPrimitive.Root>
   );
 }
 
-function ProgressTrack({ className, ...props }: ProgressPrimitive.Track.Props) {
+type ProgressSize = "default" | "lg";
+
+function ProgressTrack({
+  className,
+  size = "default",
+  ...props
+}: ProgressPrimitive.Track.Props & { size?: ProgressSize }) {
   return (
     <ProgressPrimitive.Track
       className={cn(
-        "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted",
+        "relative flex h-1 w-full items-center overflow-x-hidden rounded-full bg-muted data-[size=lg]:h-2",
         className,
       )}
       data-slot="progress-track"
+      data-size={size}
       {...props}
     />
   );
