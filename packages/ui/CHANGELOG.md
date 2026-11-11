@@ -1,5 +1,12 @@
 # @vegastack/ui
 
+## 0.66.1
+
+### Patch Changes
+
+- [#953](https://github.com/vegastack/vegastack-design/pull/953) [`66cc1f7`](https://github.com/vegastack/vegastack-design/commit/66cc1f7e65bf63062ce006a623c1a7f950f6205e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **KpiCard + KpiGrid**: values in a row sit on one line whatever the label length. In a `KpiGrid` each tile's label, value, delta and sparkline share the row's tracks (`grid-rows-subgrid`), so a label that wraps to two lines ("Transcription and other services") no longer pushes its value below its neighbours'.
+  [docs](https://design.vegastack.com/docs/components/kpi-card)
+
 ## 0.66.0
 
 ### Minor Changes

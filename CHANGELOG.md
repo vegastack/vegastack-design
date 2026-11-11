@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.66.1] — November 11, 2026
+
+<!-- assembled from 1 changeset: ac661c7995cc -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.66.0 → 0.66.1.
+
+### 🐛 Fixed
+
+- **KpiCard + KpiGrid**: values in a row sit on one line whatever the label length. In a `KpiGrid` each tile's label, value, delta and sparkline share the row's tracks (`grid-rows-subgrid`), so a label that wraps to two lines ("Transcription and other services") no longer pushes its value below its neighbours'.
+  [docs](https://design.vegastack.com/docs/components/kpi-card) ·
+  [`66cc1f7`](https://github.com/VegaStack/vegastack-design/commit/66cc1f7)
+
 ## [0.66.0] — November 11, 2026
 
 <!-- assembled from 1 changeset: 54c354174fe8 -->
