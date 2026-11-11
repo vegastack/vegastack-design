@@ -61,4 +61,7 @@ test("markdownAsTyped: only a real link keeps its destination; spans stay in the
     "one ` *a*\n\ntwo `",
   );
   expect(markdownAsTyped("one ` \\*a\\*\n\ntwo `")).toBe("one ` *a*\n\ntwo `");
+  expect(markdownAsTyped('> one [\n>\n> two ](a "\\*b\\*")')).toBe(
+    '> one [\n>\n> two ](a "*b*")',
+  );
 });

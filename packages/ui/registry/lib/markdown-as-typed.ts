@@ -1,4 +1,4 @@
-// @vegastack markdown-as-typed@0.66.0 sha256-zgM+havMjuxI0bdzev7kUaE1FDhbDjo6XAhm9h0wUGA=
+// @vegastack markdown-as-typed@0.66.0 sha256-DFvBOChujXfyFA2n95NCsEVpiNda9nU5+e+yldvEBTA=
 
 /* ---
 `markdown-as-typed.ts` — stored Markdown as the person typed it. Pure strings, no dependencies, so
@@ -156,6 +156,8 @@ function inlineAsTyped(text: string): string {
         continue;
       }
     }
+    // Like a code span, a link never runs over a line in the writer's Markdown.
+    if (ch === "\n") openers = 0;
     if (ch === "[") openers++;
     const closesLink = ch === "]" && openers > 0;
     if (closesLink) openers--;
