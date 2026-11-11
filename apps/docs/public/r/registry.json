@@ -2575,7 +2575,7 @@
         "whenToUse": "Handing a person's stored message to a reader that isn't a Markdown renderer: a model's input, a chat bubble, a plain-text notification.",
         "whenNotToUse": "Anything parsed back into an editor — keep the stored Markdown, which round-trips.",
         "version": "0.66.0",
-        "integrity": "sha256-2/s/TBAQ4EjP6SNcGIpgw0dIEkG+iK5txq1y7RVIBvY="
+        "integrity": "sha256-jjo1fRvQV1RAV0PLrkJAH+0yA6D9G1LZuq3uiydeJzg="
       }
     },
     {
