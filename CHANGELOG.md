@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.63.1] — November 11, 2026
+
+<!-- assembled from 1 changeset: c53280eb7ed7 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.13.1`** (was `0.13.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.63.0 → 0.63.1.
+
+### 🐛 Fixed
+
+- **KpiCard + KpiGrid**: labels and text values now wrap instead of truncating ("Not enough ratings" no longer reads "Not e…"), with the `hint` kept on the label's first line. `KpiGrid` sizes tiles to its own width rather than the viewport — as many 10rem-or-wider tiles per row as fit, two on a phone — so it works inside a settings column instead of squeezing 7 tiles into it.
+  [docs](https://design.vegastack.com/docs/components/kpi-card) ·
+  [`1f9403c`](https://github.com/VegaStack/vegastack-design/commit/1f9403c)
+
 ## [0.63.0] — November 10, 2026
 
 <!-- assembled from 1 changeset: ab8f0b90aeec -->

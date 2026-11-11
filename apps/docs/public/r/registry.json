@@ -19006,8 +19006,8 @@
       "meta": {
         "whenToUse": "A row of headline numbers at the top of a dashboard or report, each with its own trend, change and optional link to the list behind it.",
         "whenNotToUse": "A compact strip of counts on a home page (StatGroup), the facts of one record (Stat or PropertyList), or a full chart (Chart).",
-        "version": "0.63.0",
-        "integrity": "sha256-Ghi5H+QPslaLCHWnVD49MT0hqtysoZ9B0QSwOOaMYfs="
+        "version": "0.63.1",
+        "integrity": "sha256-UzH8lDMXPUVirPmPjaf0QHIAQ3dVyHlIx21qnC924RM="
       },
       "registryDependencies": [
         "@vegastack/card",
