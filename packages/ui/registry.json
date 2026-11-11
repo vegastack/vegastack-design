@@ -2294,7 +2294,7 @@
       "meta": {
         "whenToUse": "Handing a person's stored message to a reader that isn't a Markdown renderer: a model's input, a chat bubble, a plain-text notification.",
         "whenNotToUse": "Anything parsed back into an editor — keep the stored Markdown, which round-trips.",
-        "version": "0.66.0"
+        "version": "0.66.2"
       }
     },
     {
@@ -16224,7 +16224,7 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.60.0"
+        "version": "0.66.2"
       }
     },
     {

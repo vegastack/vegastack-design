@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.66.2] — November 11, 2026
+
+<!-- assembled from 1 changeset: 48b00e701c8a -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.66.1 → 0.66.2.
+
+### 🐛 Fixed
+
+- **markdown-as-typed (new lib) + ChatComposer**: `markdownAsTyped(markdown)` turns stored Markdown into the text as the person typed it, for a reader that isn't a Markdown renderer (a model reading a chat message, a bubble): real formatting stays, escapes the writer added only to keep plain text from reading as syntax are dropped (`\_\_init\_\_` → `__init__`), hard breaks become newlines, and code keeps every backslash. The serializer itself is unchanged, so comments, pages and a composer's Edit still round-trip.
+  [`7380718`](https://github.com/VegaStack/vegastack-design/commit/7380718)
+
 ## [0.66.1] — November 11, 2026
 
 <!-- assembled from 1 changeset: ac661c7995cc -->

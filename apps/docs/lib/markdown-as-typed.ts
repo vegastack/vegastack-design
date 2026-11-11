@@ -1,4 +1,4 @@
-// @vegastack markdown-as-typed@0.66.0 sha256-DFvBOChujXfyFA2n95NCsEVpiNda9nU5+e+yldvEBTA=
+// @vegastack markdown-as-typed@0.66.2 sha256-a7bSeIRXWIrsmM0hbsEhMLcKgFy7JwsygGpTx+53jkY=
 
 /* ---
 `markdown-as-typed.ts` — stored Markdown as the person typed it. Pure strings, no dependencies, so

@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.66.2
+
+### Patch Changes
+
+- [#954](https://github.com/vegastack/vegastack-design/pull/954) [`7380718`](https://github.com/vegastack/vegastack-design/commit/7380718fe0649aa83b5d2c4576bcf0aabff85b92) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **markdown-as-typed (new lib) + ChatComposer**: `markdownAsTyped(markdown)` turns stored Markdown into the text as the person typed it, for a reader that isn't a Markdown renderer (a model reading a chat message, a bubble): real formatting stays, escapes the writer added only to keep plain text from reading as syntax are dropped (`\_\_init\_\_` → `__init__`), hard breaks become newlines, and code keeps every backslash. The serializer itself is unchanged, so comments, pages and a composer's Edit still round-trip.
+
 ## 0.66.1
 
 ### Patch Changes
