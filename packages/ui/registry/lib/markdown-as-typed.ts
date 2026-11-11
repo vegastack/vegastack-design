@@ -1,4 +1,4 @@
-// @vegastack markdown-as-typed@0.66.0 sha256-jjo1fRvQV1RAV0PLrkJAH+0yA6D9G1LZuq3uiydeJzg=
+// @vegastack markdown-as-typed@0.66.0 sha256-zgM+havMjuxI0bdzev7kUaE1FDhbDjo6XAhm9h0wUGA=
 
 /* ---
 `markdown-as-typed.ts` — stored Markdown as the person typed it. Pure strings, no dependencies, so
@@ -24,7 +24,15 @@ export function markdownAsTyped(markdown: string): string {
   let fence: { char: string; length: number } | null = null;
   let prose: string[] = [];
   const flush = () => {
-    if (prose.length) out.push(inlineAsTyped(prose.join("\n")));
+    // Paragraphs one at a time: a code span or a link never spans a blank line.
+    if (prose.length)
+      out.push(
+        prose
+          .join("\n")
+          .split(/(\n[ \t]*\n)/u)
+          .map((part, k) => (k % 2 ? part : inlineAsTyped(part)))
+          .join(""),
+      );
     prose = [];
   };
   for (const line of lines) {
@@ -83,6 +91,8 @@ const BREAK = /^<br\s*\/?>/iu;
 function inlineAsTyped(text: string): string {
   let out = "";
   let i = 0;
+  // Unescaped `[`s still open: only one of them makes a `](` a link's destination.
+  let openers = 0;
   while (i < text.length) {
     const ch = text[i]!;
     if (ch === "\\") {
@@ -146,7 +156,10 @@ function inlineAsTyped(text: string): string {
         continue;
       }
     }
-    if (ch === "]" && text[i + 1] === "(") {
+    if (ch === "[") openers++;
+    const closesLink = ch === "]" && openers > 0;
+    if (closesLink) openers--;
+    if (closesLink && text[i + 1] === "(") {
       // A link's destination and title are kept as written, to the matching `)`.
       const end = destinationEnd(text, i + 2);
       if (end !== -1) {
@@ -161,10 +174,14 @@ function inlineAsTyped(text: string): string {
   return out;
 }
 
-/** Where a run of exactly `length` backticks starts at or after `from`, or -1. */
+/**
+ * Where a run of exactly `length` backticks starts at or after `from` on the same line, or -1. The
+ * writer never breaks a code span over lines (a hard break ends the code mark), so a run on a
+ * later line — another paragraph, a quote's next line, a heading — never closes this one.
+ */
 function closingRun(text: string, from: number, length: number): number {
   let i = from;
-  while (i < text.length) {
+  while (i < text.length && text[i] !== "\n") {
     if (text[i] !== "`") {
       i++;
       continue;
@@ -177,21 +194,49 @@ function closingRun(text: string, from: number, length: number): number {
   return -1;
 }
 
-/** The index of the `)` closing a link destination that starts at `from`, or -1. */
+/**
+ * The index of the `)` closing a link's destination and optional title that start at `from`, or
+ * -1: an angle-bracketed destination runs to its `>`, a bare one to a space or an unmatched `)`,
+ * then a title in quotes or parentheses.
+ */
 function destinationEnd(text: string, from: number): number {
-  let depth = 0;
-  for (let i = from; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === "\\") {
-      i++;
-      continue;
+  let i = from;
+  const skipSpace = () => {
+    while (text[i] === " " || text[i] === "\t" || text[i] === "\n") i++;
+  };
+  skipSpace();
+  if (text[i] === "<") {
+    for (i++; i < text.length && text[i] !== ">"; i++) {
+      if (text[i] === "\\") i++;
+      else if (text[i] === "\n" || text[i] === "<") return -1;
     }
-    if (ch === "\n") return -1;
-    if (ch === "(") depth++;
-    else if (ch === ")") {
-      if (depth === 0) return i;
-      depth--;
+    if (text[i] !== ">") return -1;
+    i++;
+  } else {
+    let depth = 0;
+    for (; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === "\\") {
+        i++;
+        continue;
+      }
+      if (ch === " " || ch === "\t" || ch === "\n") break;
+      if (ch === "(") depth++;
+      else if (ch === ")") {
+        if (depth === 0) break;
+        depth--;
+      }
     }
   }
-  return -1;
+  skipSpace();
+  const quote = text[i];
+  if (quote === '"' || quote === "'" || quote === "(") {
+    const end = quote === "(" ? ")" : quote;
+    for (i++; i < text.length && text[i] !== end; i++)
+      if (text[i] === "\\") i++;
+    if (text[i] !== end) return -1;
+    i++;
+    skipSpace();
+  }
+  return text[i] === ")" ? i : -1;
 }

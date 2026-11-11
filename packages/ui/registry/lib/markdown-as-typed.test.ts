@@ -28,7 +28,12 @@ test("markdownAsTyped: code spans, fences, links, autolinks, entities and breaks
   expect(markdownAsTyped("\\`a\\` and ``a`b\\_c``")).toBe(
     "`a` and ``a`b\\_c``",
   );
-  expect(markdownAsTyped("`x\\_\ny\\_`")).toBe("`x\\_\ny\\_`");
+  // A span never runs over a line: the writer ends a code mark at a break.
+  expect(markdownAsTyped("`x\\_\ny\\_`")).toBe("`x_\ny_`");
+  expect(markdownAsTyped("> one ` \\*a\\*\n>\n> two `")).toBe(
+    "> one ` *a*\n>\n> two `",
+  );
+  expect(markdownAsTyped("one ` \\*a\\*\n# two `")).toBe("one ` *a*\n# two `");
   // A ~~~ fence closes only on a line that is just the fence.
   expect(markdownAsTyped("~~~\n~~~oops \\_\nkeep \\_\n~~~\nafter \\_")).toBe(
     "~~~\n~~~oops \\_\nkeep \\_\n~~~\nafter _",
@@ -45,4 +50,15 @@ test("markdownAsTyped: code spans, fences, links, autolinks, entities and breaks
   expect(markdownAsTyped("R&amp;amp;D &#32;x&#92;")).toBe("R&amp;D  x\\");
   // A <br> (headings, table cells) and a hard break are newlines.
   expect(markdownAsTyped("# a<br>b")).toBe("# a\nb");
+});
+
+test("markdownAsTyped: only a real link keeps its destination; spans stay in their paragraph", () => {
+  expect(markdownAsTyped("\\[a](b \\*c\\*)")).toBe("[a](b *c*)");
+  expect(markdownAsTyped('[x](<https://x.test/a(b> "&amp;")')).toBe(
+    '[x](<https://x.test/a(b> "&amp;")',
+  );
+  expect(markdownAsTyped("one \\` \\*a\\*\n\ntwo \\`")).toBe(
+    "one ` *a*\n\ntwo `",
+  );
+  expect(markdownAsTyped("one ` \\*a\\*\n\ntwo `")).toBe("one ` *a*\n\ntwo `");
 });
