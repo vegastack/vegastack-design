@@ -282,3 +282,20 @@ test("four tiles in a 560px container sit two by two, never three and one", asyn
   expect(tops[0]).toBe(tops[1]);
   expect(tops[2]).toBe(tops[3]);
 });
+
+test("a narrowed grid measures its own width: four tiles at 320px stack", async () => {
+  const screen = await render(
+    <div style={{ width: 800 }}>
+      <KpiGrid style={{ width: 320 }}>
+        {["A", "B", "C", "D"].map((l) => (
+          <KpiCard key={l} label={l} value="1" />
+        ))}
+      </KpiGrid>
+    </div>,
+  );
+  const tops = [
+    ...screen.container.querySelectorAll('[data-slot="kpi-card"]'),
+  ].map((t) => Math.round(t.getBoundingClientRect().top));
+  // Under 20.75rem one a row, never the parent's four columns.
+  expect(new Set(tops).size).toBe(4);
+});

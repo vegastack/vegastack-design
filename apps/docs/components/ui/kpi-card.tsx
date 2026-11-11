@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.63.1 sha256-5XvGrDu7ismw5XoFj0I6kbH+Rwd/dv2eHjCXbjDPerY=
+// @vegastack kpi-card@0.63.1 sha256-W1ZbkhwQ7rxd3Vg/FJP0LiQyviHbv/endIzyX196fGA=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -407,19 +407,6 @@ export function kpiGridColumns(n: number): string[] | null {
     .map((c) => KPI_COLUMNS[c] as string);
 }
 
-/**
- * `KpiGrid` — a row of `KpiCard`s, sized by its own width rather than the viewport, and balanced:
- * up to six tiles take only column counts that fill every row (four tiles: 4, then 2 × 2, then
- * one per row; three: 3, then 1), so a row never ends in an empty slot. Past six it fits as many
- * 10rem tiles as there is room for. Group tiles into rows of related numbers — key numbers in one
- * grid, secondary ones in another — rather than one long grid.
- *
- * @example
- * <KpiGrid>
- *   <KpiCard label="Runs" value="1,284" />
- *   <KpiCard label="Failures" value="12" />
- * </KpiGrid>
- */
 /** How many tiles a grid holds: fragments are flattened, as they are in the grid itself. */
 function tileCount(children: React.ReactNode): number {
   let n = 0;
@@ -433,12 +420,37 @@ function tileCount(children: React.ReactNode): number {
   return n;
 }
 
-export function KpiGrid({ className, children, ref, ...props }: KpiGridProps) {
+/**
+ * `KpiGrid` — a row of `KpiCard`s, sized by its own width rather than the viewport, and balanced:
+ * up to six tiles take only column counts that fill every row (four tiles: 4, then 2 × 2, then
+ * one per row; three: 3, then 1), so a row never ends in an empty slot. The columns and the gap
+ * are the grid's own: `className` and `style` size the grid's box (its width is what the columns
+ * measure), and nothing reaches inside to change the columns. Past six it fits as many
+ * 10rem tiles as there is room for. Group tiles into rows of related numbers — key numbers in one
+ * grid, secondary ones in another — rather than one long grid.
+ *
+ * @example
+ * <KpiGrid>
+ *   <KpiCard label="Runs" value="1,284" />
+ *   <KpiCard label="Failures" value="12" />
+ * </KpiGrid>
+ */
+export function KpiGrid({
+  className,
+  style,
+  children,
+  ref,
+  ...props
+}: KpiGridProps) {
   const columns = kpiGridColumns(tileCount(children));
-  // The frame is the container the column queries measure; the grid itself keeps `className`,
-  // `ref` and the rest, so a consumer's layout classes still reach the tiles' grid.
+  // The frame is the box a consumer sizes (`className`, `style`) and the container the column
+  // queries measure, so a narrowed grid takes fewer columns; the grid inside owns its columns.
   return (
-    <div data-slot="kpi-grid-frame" className="@container/kpi-grid min-w-0">
+    <div
+      data-slot="kpi-grid-frame"
+      className={cn("@container/kpi-grid min-w-0", className)}
+      style={style}
+    >
       <div
         ref={ref}
         data-slot="kpi-grid"
@@ -447,7 +459,6 @@ export function KpiGrid({ className, children, ref, ...props }: KpiGridProps) {
           columns
             ? ["grid-cols-1", ...columns]
             : "grid-cols-[repeat(auto-fill,minmax(min(100%,--spacing(40)),1fr))]",
-          className,
         )}
         {...props}
       >
