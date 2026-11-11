@@ -27264,7 +27264,7 @@
       "name": "kpi-card",
       "registryType": "registry:ui",
       "title": "KPI Card",
-      "summary": "A dashboard KPI tile — a large Stat in Card chrome with an optional hint, delta line, sparkline and whole-tile link — plus KpiGrid, the responsive 2/3/4/7-column grid of tiles.",
+      "summary": "A dashboard KPI tile — a large Stat in Card chrome with an optional hint, delta line, sparkline and whole-tile link — plus KpiGrid, the grid of tiles sized by its container width.",
       "status": "stable",
       "since": "0.63.0",
       "family": "display",
@@ -27367,7 +27367,7 @@
           "responsive-or-container-layout",
           "text-truncation-and-flex-shrink"
         ],
-        "rationale": "KpiGrid is 2 columns below sm, 3 from sm, 4 from lg and 7 from xl; the label and value truncate inside a tile."
+        "rationale": "KpiGrid fits as many 10rem-or-wider tiles per row as its container allows (two on a phone), never by viewport breakpoints; the label and a text value wrap inside a tile and never truncate."
       },
       "motion": {
         "status": "not-applicable",

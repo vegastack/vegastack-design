@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.63.0 sha256-U/tDaBjw0MDTNK6jXxdBnNYEqwMawEdNngmUtXVSWZs=
+// @vegastack kpi-card@0.63.0 sha256-Ghi5H+QPslaLCHWnVD49MT0hqtysoZ9B0QSwOOaMYfs=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -241,8 +241,9 @@ export function KpiCard({
         )}
       >
         <Stat size="lg">
-          <div className="flex min-w-0 items-center gap-1">
-            <StatLabel id={`${id}-label`} className="min-w-0 truncate">
+          {/* The label wraps rather than truncating; the hint stays on its first line. */}
+          <div className="flex min-w-0 items-start gap-1">
+            <StatLabel id={`${id}-label`} className="min-w-0 wrap-break-word">
               {label}
             </StatLabel>
             {hint ? (
@@ -259,7 +260,8 @@ export function KpiCard({
               No data
             </StatEmpty>
           ) : (
-            <StatValue id={`${id}-value`} className="truncate">
+            // A value never truncates: a long text value wraps; a number stays on its one line.
+            <StatValue id={`${id}-value`} className="min-w-0 wrap-break-word">
               {value}
             </StatValue>
           )}
@@ -284,8 +286,9 @@ export function KpiCard({
 export type KpiGridProps = React.ComponentPropsWithRef<"div">;
 
 /**
- * `KpiGrid` — the responsive grid of `KpiCard`s: 2 columns on a phone, 3 from `sm`, 4 from `lg`
- * and 7 from `xl`.
+ * `KpiGrid` — the grid of `KpiCard`s, sized by its own width rather than the viewport: as many
+ * tiles per row as fit at 10rem or wider (two on a phone, about five in a 960px settings column),
+ * one per row when the container is narrower than a tile.
  *
  * @example
  * <KpiGrid>
@@ -298,7 +301,7 @@ export function KpiGrid({ className, ...props }: KpiGridProps) {
     <div
       data-slot="kpi-grid"
       className={cn(
-        "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7",
+        "grid grid-cols-[repeat(auto-fill,minmax(min(100%,--spacing(40)),1fr))] gap-3",
         className,
       )}
       {...props}
