@@ -2,6 +2,8 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+// Real Tailwind + tokens for the hidden header's geometry.
+import "../../test/stacking.css";
 import {
   VERSION_KIND_LABELS,
   VersionList,
@@ -227,6 +229,15 @@ test("headingHidden keeps the list's heading for assistive technology only", asy
     '[data-slot="version-list-header"]',
   )!;
   expect(header.classList.contains("sr-only")).toBe(true);
+  // The empty line starts at the list's top: no header row above it.
+  const top = () =>
+    screen.container
+      .querySelector('[data-slot="version-list-empty"]')!
+      .getBoundingClientRect().top -
+    screen.container
+      .querySelector('[data-slot="version-list"]')!
+      .getBoundingClientRect().top;
+  expect(Math.round(top())).toBe(0);
   // With the Named only switch the row stays, the heading alone hidden.
   await screen.rerender(
     <VersionList
@@ -237,6 +248,7 @@ test("headingHidden keeps the list's heading for assistive technology only", asy
     />,
   );
   expect(header.classList.contains("sr-only")).toBe(false);
+  expect(top()).toBeGreaterThanOrEqual(32);
 });
 
 test('groupBy="day" puts the rows under a heading per day; an unnamed row shows its time; arrows walk across days', async () => {

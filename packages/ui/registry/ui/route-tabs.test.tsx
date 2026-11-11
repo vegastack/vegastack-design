@@ -2,6 +2,8 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+// Real Tailwind + tokens: the line variant's underline is a compiled `::after`.
+import "../../test/stacking.css";
 import {
   RouteTabs,
   RouteTabsPanel,
@@ -399,5 +401,32 @@ test("variant=line draws the underlined secondary strip; default stays the pills
   expect(line).toHaveAttribute("data-variant", "line");
   expect(line!.classList.contains("bg-muted")).toBe(false);
   expect(line!.classList.contains("bg-transparent")).toBe(true);
+  // The line strip's current tab carries a drawn underline; the pills' does not.
+  const underline = (list: HTMLElement, name: string) =>
+    getComputedStyle(
+      Array.from(list.querySelectorAll("a")).find(
+        (a) => a.textContent === name,
+      )!,
+      "::after",
+    );
+  // (The underline fades in: poll past its transition.)
+  await expect.poll(() => underline(line!, "Job").opacity).toBe("1");
+  expect(parseFloat(underline(line!, "Job").height)).toBeGreaterThan(0);
+  expect(underline(line!, "Access").opacity).toBe("0");
+  expect(underline(pills!, "Job").opacity).toBe("0");
+  // It follows the current page.
+  await screen.rerender(
+    <>
+      <RouteTabs label="Page" tabs={tabs} currentHref="/a/access" />
+      <RouteTabs
+        label="Sub"
+        tabs={tabs}
+        currentHref="/a/access"
+        variant="line"
+      />
+    </>,
+  );
+  await expect.poll(() => underline(line!, "Access").opacity).toBe("1");
+  await expect.poll(() => underline(line!, "Job").opacity).toBe("0");
   await expectNoA11yViolations(screen.container);
 });

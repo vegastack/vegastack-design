@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.62.0 sha256-9tl/sD54yMYgduHgibJGBewZLotN3AlJGUjisnGGx3o=
+// @vegastack settings-row@0.62.0 sha256-GKgNwREIkD0IcPlxsNBk94pNDxzAQU6QRtdIuBOJWKM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -56,7 +56,9 @@ export interface SettingsSectionProps extends Omit<
    * viewport breakpoint, so a page squeezed by a side panel or a dialog stacks while the same page
    * at full width splits. The left column is 14rem at most, 18rem once the section reaches 64rem,
    * so the fields keep the room; it stays sticky under the page header (`top-20`) while the
-   * settings scroll past. Narrower, it stacks exactly like `stacked`.
+   * settings scroll past. Narrower, it stacks exactly like `stacked`. In `split`, `className` and
+   * `style` dress the section's own box (its spacing on the page, `scroll-mt-*`); the header and
+   * content sit in an inner `data-slot="settings-section-grid"`, which owns their gap.
    * Use `split` for a long settings page where each section is one setting with room to explain it.
    * @default "stacked"
    */

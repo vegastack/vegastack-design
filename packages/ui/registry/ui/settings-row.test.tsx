@@ -249,6 +249,38 @@ test("split follows the section's own width, not the viewport: 14rem beside, sta
   expect(Math.round(control.width)).toBe(Math.round(inner.width / 2));
 });
 
+test("split: the header stays stuck under the page header while its section scrolls past", async () => {
+  await page.viewport(1280, 900);
+  const screen = await render(
+    <div data-testid="scroller" style={{ height: 400, overflowY: "auto" }}>
+      <SettingsSection
+        layout="split"
+        titleAs="h2"
+        title="Versions"
+        description="Every saved change."
+        style={{ width: 1100 }}
+      >
+        <div style={{ height: 1200 }}>Tall content</div>
+      </SettingsSection>
+      <div style={{ height: 400 }} />
+    </div>,
+  );
+  const scroller = screen.container.querySelector<HTMLElement>(
+    '[data-testid="scroller"]',
+  )!;
+  const header = screen.container.querySelector<HTMLElement>(
+    '[data-slot="settings-section-header"]',
+  )!;
+  scroller.scrollTop = 300;
+  await new Promise((r) => requestAnimationFrame(r));
+  // `top-20`: 80px below the scroller's top, though the section's top scrolled 300px out.
+  expect(
+    Math.round(
+      header.getBoundingClientRect().top - scroller.getBoundingClientRect().top,
+    ),
+  ).toBe(80);
+});
+
 test("stacked (the default) keeps its children direct, with no content wrapper", async () => {
   const screen = await render(
     <SettingsSection title="Notifications">

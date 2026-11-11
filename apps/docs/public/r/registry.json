@@ -18693,7 +18693,7 @@
         "whenToUse": "Settings/preferences screens — titled sections, bordered cards, label/description + control rows, and a rows × channels matrix (Push / Email) of switches.",
         "whenNotToUse": "Free-form content surfaces (Card), data tables, or complex multi-field forms.",
         "version": "0.62.0",
-        "integrity": "sha256-9tl/sD54yMYgduHgibJGBewZLotN3AlJGUjisnGGx3o="
+        "integrity": "sha256-GKgNwREIkD0IcPlxsNBk94pNDxzAQU6QRtdIuBOJWKM="
       }
     },
     {
