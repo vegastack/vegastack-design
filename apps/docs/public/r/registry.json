@@ -2503,7 +2503,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.39.0",
-        "integrity": "sha256-HcC5E9caoc1pkr2LLNZXPRaxPLsH7qyzHTlvQHYWn1Y="
+        "integrity": "sha256-eUKh5oy5ZmzFsrKu6YhLlqMp0gt17+fn4yON14K15EI="
       }
     },
     {
@@ -18216,7 +18216,7 @@
         "whenToUse": "One sentence that explains a heading, label or setting on demand — on click, tap or keyboard — with an optional link to the full help article.",
         "whenNotToUse": "Naming an icon-only control (Tooltip), text people must read to complete a task (FieldDescription or inline copy), or rich content and actions (Popover or HoverCard).",
         "version": "0.60.0",
-        "integrity": "sha256-CAMSp2sueZDuXA+/TbR2iE9hee+9WrVgef2YwYWGPsI="
+        "integrity": "sha256-xh/x5DHMNcKFunmpXGJj1XZJ9EoCeOrmF+4LWOnBPWc="
       }
     },
     {
@@ -19286,7 +19286,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.60.0",
-        "integrity": "sha256-mA0edRS08zVEkkr5H0s3OAkkq1Zf5lsrmnvjqKk34Zo="
+        "integrity": "sha256-gS2+n/pK3dbMhqBSJzl+z4osh5ZwjM7wMlHVpXb+xfg="
       }
     },
     {

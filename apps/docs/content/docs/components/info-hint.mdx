@@ -93,6 +93,8 @@ const nameRef = useRef<HTMLInputElement>(null);
 - `label` is required and names the trigger; write it as "About &lt;topic&gt;".
 - The trigger is a real button, so it opens on click, tap, <kbd>Enter</kbd> or <kbd>Space</kbd>, and
   reports `aria-expanded`.
+- Like a tooltip, it also opens on hover and when the keyboard focuses it, and closes when the pointer
+  or focus leaves; focus stays on the trigger. A press while it is open that way keeps it open.
 
 | Key               | Action                                              |
 | ----------------- | --------------------------------------------------- |

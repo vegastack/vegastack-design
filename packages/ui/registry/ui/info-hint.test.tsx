@@ -101,4 +101,94 @@ test("inside a Dialog, initialFocus keeps focus off the hint in the title", asyn
   await expect
     .poll(() => document.activeElement)
     .toBe(screen.getByRole("textbox", { name: "Name" }).element());
+  await expect
+    .element(screen.getByRole("button", { name: "About spaces" }))
+    .toHaveAttribute("aria-expanded", "false");
+});
+
+test("hover opens the sentence without taking focus, like a tooltip", async () => {
+  const screen = await render(
+    <InfoHint label="About runners">The script runner is down.</InfoHint>,
+  );
+  const trigger = screen.getByRole("button", { name: "About runners" });
+  await userEvent.hover(trigger);
+  await expect
+    .element(screen.getByText("The script runner is down."))
+    .toBeVisible();
+  expect(document.activeElement).not.toBe(trigger.element());
+  await userEvent.unhover(trigger);
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+});
+
+test("keyboard focus opens it and keeps focus on the trigger; Enter keeps it open; Tab away closes it", async () => {
+  const screen = await render(
+    <>
+      <button type="button">Before</button>
+      <InfoHint label="About runners">The script runner is down.</InfoHint>
+      <button type="button">After</button>
+    </>,
+  );
+  (
+    screen.getByRole("button", { name: "Before" }).element() as HTMLElement
+  ).focus();
+  await userEvent.tab();
+  const trigger = screen.getByRole("button", { name: "About runners" });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect
+    .element(screen.getByText("The script runner is down."))
+    .toBeVisible();
+  expect(document.activeElement).toBe(trigger.element());
+  await userEvent.keyboard("{Enter}");
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  (
+    screen.getByRole("button", { name: "After" }).element() as HTMLElement
+  ).focus();
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+});
+
+test("Tab from a focus-opened hint reaches its link; Tab past the link closes it", async () => {
+  const screen = await render(
+    <>
+      <button type="button">Before</button>
+      <InfoHint label="About runners" href="https://help.example.com/runners">
+        The script runner is down.
+      </InfoHint>
+      <button type="button">After</button>
+    </>,
+  );
+  (
+    screen.getByRole("button", { name: "Before" }).element() as HTMLElement
+  ).focus();
+  await userEvent.tab();
+  const trigger = screen.getByRole("button", { name: "About runners" });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await userEvent.tab();
+  const link = screen.getByRole("link", {
+    name: "Learn more (opens in a new tab)",
+  });
+  await expect.poll(() => document.activeElement).toBe(link.element());
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await userEvent.tab();
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+});
+
+test("a press or the pointer leaving keeps a focus-opened hint open", async () => {
+  const screen = await render(
+    <>
+      <button type="button">Before</button>
+      <InfoHint label="About runners">The script runner is down.</InfoHint>
+    </>,
+  );
+  (
+    screen.getByRole("button", { name: "Before" }).element() as HTMLElement
+  ).focus();
+  await userEvent.tab();
+  const trigger = screen.getByRole("button", { name: "About runners" });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await userEvent.hover(trigger);
+  await userEvent.unhover(trigger);
+  await new Promise((resolve) => setTimeout(resolve, 400));
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await userEvent.keyboard("{Enter}");
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
 });

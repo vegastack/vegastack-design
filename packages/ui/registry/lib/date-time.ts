@@ -1,4 +1,4 @@
-// @vegastack date-time@0.39.0 sha256-HcC5E9caoc1pkr2LLNZXPRaxPLsH7qyzHTlvQHYWn1Y=
+// @vegastack date-time@0.39.0 sha256-eUKh5oy5ZmzFsrKu6YhLlqMp0gt17+fn4yON14K15EI=
 
 export type DateInput = Date | string | number;
 
@@ -154,8 +154,21 @@ const UNITS: ReadonlyArray<
   [SEC, "s", "second"],
 ];
 
-function pickUnit(absMs: number) {
-  for (const u of UNITS) if (absMs >= u[0]) return u;
+/**
+ * The unit a span reads in. The future rounds to the nearest (`unitCount`), so it moves up a unit
+ * only once it rounds past that unit's own size in the finer one: a request that expires in 7 days
+ * reads "in 7 days" both a moment after it is made and a moment before, never "in 1 week" for
+ * one of them. Only where the finer unit divides the coarser one (s→m→h→d→w); a month is no
+ * whole number of weeks.
+ */
+function pickUnit(absMs: number, future = false) {
+  for (let i = 0; i < UNITS.length; i++) {
+    const unit = UNITS[i]!;
+    const finer = UNITS[i + 1];
+    const whole = finer && unit[0] % finer[0] === 0;
+    if ((future && whole ? absMs - finer[0] / 2 : absMs) >= unit[0])
+      return unit;
+  }
   return UNITS[UNITS.length - 1]!;
 }
 
@@ -170,7 +183,7 @@ function unitCount(absMs: number, ms: number, future: boolean): number {
 
 /** Minimal unit string for a positive span: "2m", "3h", "5d", "1w", "2mo", "1y". */
 function shortSpan(absMs: number, future = false): string {
-  const [ms, short] = pickUnit(absMs);
+  const [ms, short] = pickUnit(absMs, future);
   return `${unitCount(absMs, ms, future)}${short}`;
 }
 
@@ -186,7 +199,7 @@ export function formatRelative(
   const style = options.style ?? "minimal";
   if (abs < NOW_THRESHOLD) return "now";
   if (style === "long") {
-    const [ms, , unit] = pickUnit(abs);
+    const [ms, , unit] = pickUnit(abs, delta > 0);
     const n = unitCount(abs, ms, delta > 0);
     return new Intl.RelativeTimeFormat(options.locale ?? DEFAULT_LOCALE, {
       numeric: "always",
