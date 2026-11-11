@@ -15534,7 +15534,7 @@
       "name": "kpi-card",
       "type": "registry:ui",
       "title": "KPI Card",
-      "description": "A dashboard KPI tile — a large Stat in Card chrome with an optional hint, delta line, sparkline and whole-tile link — plus KpiGrid, the responsive 2/3/4/7-column grid of tiles.",
+      "description": "A dashboard KPI tile — a large Stat in Card chrome with an optional hint, delta line, sparkline and whole-tile link — plus KpiGrid, the grid of tiles sized by its container width.",
       "categories": ["display"],
       "dependencies": [
         "@vegastack/design@^0.13.0",

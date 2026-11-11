@@ -175,7 +175,7 @@ test("linkRender makes the whole tile one link named like the tile; the hint sta
   await expectNoA11yViolations(screen.container);
 });
 
-test("KpiGrid lays tiles out 2 → 3 (sm) → 4 (lg) → 7 (xl) columns", async () => {
+test("KpiGrid sizes tiles to its container, and labels and values wrap, never truncate", async () => {
   const ref = React.createRef<HTMLDivElement>();
   const screen = await render(
     <KpiGrid ref={ref} data-testid="grid">
@@ -186,11 +186,16 @@ test("KpiGrid lays tiles out 2 → 3 (sm) → 4 (lg) → 7 (xl) columns", async 
   const grid = screen.getByTestId("grid");
   await expect.element(grid).toHaveAttribute("data-slot", "kpi-grid");
   expect(ref.current).toBe(grid.element());
-  for (const cls of [
-    "grid-cols-2",
-    "sm:grid-cols-3",
-    "lg:grid-cols-4",
-    "xl:grid-cols-7",
-  ])
-    expect(grid.element().classList.contains(cls)).toBe(true);
+  // Container-sized tracks, never viewport breakpoints (real CSS: test/geometry.browser.test.tsx).
+  expect(grid.element().className).toContain("grid-cols-[repeat(auto-fill,");
+  for (const cls of ["sm:grid-cols-3", "lg:grid-cols-4", "xl:grid-cols-7"])
+    expect(grid.element().classList.contains(cls)).toBe(false);
+  // Neither the label nor the value truncates.
+  for (const slot of ["stat-label", "stat-value"])
+    expect(
+      grid
+        .element()
+        .querySelector(`[data-slot="${slot}"]`)!
+        .classList.contains("truncate"),
+    ).toBe(false);
 });

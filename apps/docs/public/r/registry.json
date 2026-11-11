@@ -18988,7 +18988,7 @@
       "name": "kpi-card",
       "type": "registry:ui",
       "title": "KPI Card",
-      "description": "A dashboard KPI tile — a large Stat in Card chrome with an optional hint, delta line, sparkline and whole-tile link — plus KpiGrid, the responsive 2/3/4/7-column grid of tiles.",
+      "description": "A dashboard KPI tile — a large Stat in Card chrome with an optional hint, delta line, sparkline and whole-tile link — plus KpiGrid, the grid of tiles sized by its container width.",
       "categories": [
         "display"
       ],
@@ -19007,7 +19007,7 @@
         "whenToUse": "A row of headline numbers at the top of a dashboard or report, each with its own trend, change and optional link to the list behind it.",
         "whenNotToUse": "A compact strip of counts on a home page (StatGroup), the facts of one record (Stat or PropertyList), or a full chart (Chart).",
         "version": "0.63.0",
-        "integrity": "sha256-U/tDaBjw0MDTNK6jXxdBnNYEqwMawEdNngmUtXVSWZs="
+        "integrity": "sha256-Ghi5H+QPslaLCHWnVD49MT0hqtysoZ9B0QSwOOaMYfs="
       },
       "registryDependencies": [
         "@vegastack/card",

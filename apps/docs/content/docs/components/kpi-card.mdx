@@ -31,7 +31,9 @@ import { KpiCard, KpiGrid } from "@/components/ui/kpi-card";
 
 `KpiCard` is one headline number at the top of a dashboard: the `lg` `Stat` inside a `Card`, with
 an optional (i) hint beside the label, a delta line, a sparkline and a link to the list behind the
-number. `KpiGrid` lays tiles out 2 across on a phone, 3 from `sm`, 4 from `lg` and 7 from `xl`.
+number. `KpiGrid` sizes tiles to its own width, not the viewport: as many 10rem-or-wider tiles per row as fit,
+two across on a phone, so it works inside a narrow settings column too. Labels and text values wrap
+rather than truncate.
 
 <ComponentPreview name="kpiCard" file="components/preview/kpi-card.tsx" />
 

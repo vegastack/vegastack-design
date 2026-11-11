@@ -19,6 +19,7 @@ import { Checkbox } from "../registry/ui/checkbox";
 import { Chip } from "../registry/ui/chip";
 import { EditableCell } from "../registry/ui/editable-cell";
 import { Kbd } from "../registry/ui/kbd";
+import { KpiCard, KpiGrid } from "../registry/ui/kpi-card";
 import { navigationMenuTriggerStyle } from "../registry/ui/navigation-menu";
 import { stepperNodeVariants } from "../registry/ui/stepper";
 import { Switch } from "../registry/ui/switch";
@@ -5239,3 +5240,58 @@ test("long-names: a genuinely unbroken word stays inside every overlay", async (
   );
   await searchableList.unmount();
 });
+
+/**
+ * KpiGrid sizes its tracks by its own width, not the viewport (min 10rem): two tiles on a 358px
+ * phone column and five in a 960px settings column. A long label and a long text value wrap
+ * inside the tile — nothing truncates or overflows.
+ */
+for (const [width, tracks] of [
+  [358, 2],
+  [960, 5],
+] as const) {
+  test(`KpiGrid at ${width}px: ${tracks} tiles a row, labels and values wrap`, async () => {
+    const screen = await render(
+      <div style={{ width: `${width}px` }}>
+        <KpiGrid>
+          <KpiCard
+            label="Waiting on you for a decision"
+            value="12"
+            hint="Why."
+          />
+          <KpiCard label="Provider cost" value="Not enough ratings" />
+          <KpiCard label="Runs" value="1,284" />
+        </KpiGrid>
+      </div>,
+    );
+    const grid = screen.container.querySelector<HTMLElement>(
+      '[data-slot="kpi-grid"]',
+    )!;
+    expect(getComputedStyle(grid).gridTemplateColumns.split(" ").length).toBe(
+      tracks,
+    );
+    const box = grid.getBoundingClientRect();
+    for (const el of grid.querySelectorAll<HTMLElement>(
+      '[data-slot="stat-label"], [data-slot="stat-value"]',
+    )) {
+      expect(getComputedStyle(el).textOverflow).not.toBe("ellipsis");
+      expect(el.scrollWidth).toBeLessThanOrEqual(el.clientWidth);
+      expect(el.getBoundingClientRect().right).toBeLessThanOrEqual(
+        box.right + 0.5,
+      );
+    }
+    if (width === 358) {
+      // At the phone width both long strings take more than one line.
+      const label = grid.querySelector<HTMLElement>(
+        '[data-slot="stat-label"]',
+      )!;
+      const value = grid.querySelectorAll<HTMLElement>(
+        '[data-slot="stat-value"]',
+      )[1]!;
+      for (const el of [label, value])
+        expect(el.getBoundingClientRect().height).toBeGreaterThan(
+          parseFloat(getComputedStyle(el).fontSize) * 1.9,
+        );
+    }
+  });
+}
