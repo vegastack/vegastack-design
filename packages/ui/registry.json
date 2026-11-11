@@ -1151,7 +1151,7 @@
       "meta": {
         "whenToUse": "Visualizing series data (trends, comparisons, breakdowns) with a Line/Bar/Area/Pie/Radar chart that needs to match the design system's theme automatically in light and dark. Draw a one-series chart in --chart-single and reach for --chart-1…--chart-8 from two series up.",
         "whenNotToUse": "Tabular/exact-value data a user needs to read precisely (Table), a single KPI number (a stat tile), or a progress/completion metric (Progress).",
-        "version": "0.60.0"
+        "version": "0.66.0"
       }
     },
     {
@@ -14456,7 +14456,7 @@
       "meta": {
         "whenToUse": "Completion of a measurable task — uploads, multi-step forms, onboarding.",
         "whenNotToUse": "Indefinite waits (Spinner) or radial percentage display (out of scope).",
-        "version": "0.60.0"
+        "version": "0.66.0"
       }
     },
     {
@@ -15550,7 +15550,7 @@
       "meta": {
         "whenToUse": "A row of headline numbers at the top of a dashboard or report, each with its own trend, change and optional link to the list behind it.",
         "whenNotToUse": "A compact strip of counts on a home page (StatGroup), the facts of one record (Stat or PropertyList), or a full chart (Chart).",
-        "version": "0.63.1"
+        "version": "0.66.0"
       },
       "registryDependencies": [
         "@vegastack/card",
