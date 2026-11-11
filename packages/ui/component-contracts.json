@@ -56384,6 +56384,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "markdownAsTyped",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-markdown.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {

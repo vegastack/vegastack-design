@@ -2723,7 +2723,7 @@
         "version": "0.57.1",
         "whenToUse": "Converting between Markdown and a TextEdit document on a server — import, export, search text, a collaboration server’s read copy.",
         "whenNotToUse": "Rendering Markdown to read — use MarkdownView.",
-        "integrity": "sha256-TqPRceK5VNhEvRmkrg/ZGRIHwrW0dgBIQcGjICjBAJs="
+        "integrity": "sha256-bCBVsYMbFRiNFGwVpb/zLlABD71Vj8M1tqq7k4DEO9I="
       }
     },
     {
@@ -19750,7 +19750,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.60.0",
-        "integrity": "sha256-nsMr0eiQWbY9kBYR7UbB5cuVJKBDzpR35E4IFu+2vFo="
+        "integrity": "sha256-06D3g0GvtjDxTfsq4sUsaVPbvllZcVI1bfijcWiAYj4="
       }
     },
     {
