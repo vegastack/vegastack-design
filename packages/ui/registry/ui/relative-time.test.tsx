@@ -819,6 +819,15 @@ test("formatRelative counts the past in whole units and rounds the future", () =
   expect(
     formatRelative(now + 6 * day + 2 * 3_600_000, { now, style: "long" }),
   ).toBe("in 6 days");
+  // Exactly 7 days out, or a little past: still "in 7 days", never "in 1 week" for the same
+  // deadline; a week only once it rounds past 7 days.
+  expect(formatRelative(now + 7 * day, { now, style: "long" })).toBe(
+    "in 7 days",
+  );
+  expect(formatRelative(now + 7 * day + 60_000, { now })).toBe("in 7d");
+  expect(formatRelative(now + 8 * day, { now, style: "long" })).toBe(
+    "in 1 week",
+  );
   // The past still counts completed units.
   expect(formatRelative(now - 7 * day + 60_000, { now, style: "long" })).toBe(
     "6 days ago",

@@ -102,3 +102,43 @@ test("inside a Dialog, initialFocus keeps focus off the hint in the title", asyn
     .poll(() => document.activeElement)
     .toBe(screen.getByRole("textbox", { name: "Name" }).element());
 });
+
+test("hover opens the sentence without taking focus, like a tooltip", async () => {
+  const screen = await render(
+    <InfoHint label="About runners">The script runner is down.</InfoHint>,
+  );
+  const trigger = screen.getByRole("button", { name: "About runners" });
+  await userEvent.hover(trigger);
+  await expect
+    .element(screen.getByText("The script runner is down."))
+    .toBeVisible();
+  expect(document.activeElement).not.toBe(trigger.element());
+  await userEvent.unhover(trigger);
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+});
+
+test("keyboard focus opens it and keeps focus on the trigger; Enter keeps it open; Tab away closes it", async () => {
+  const screen = await render(
+    <>
+      <button type="button">Before</button>
+      <InfoHint label="About runners">The script runner is down.</InfoHint>
+      <button type="button">After</button>
+    </>,
+  );
+  (
+    screen.getByRole("button", { name: "Before" }).element() as HTMLElement
+  ).focus();
+  await userEvent.tab();
+  const trigger = screen.getByRole("button", { name: "About runners" });
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  await expect
+    .element(screen.getByText("The script runner is down."))
+    .toBeVisible();
+  expect(document.activeElement).toBe(trigger.element());
+  await userEvent.keyboard("{Enter}");
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
+  (
+    screen.getByRole("button", { name: "After" }).element() as HTMLElement
+  ).focus();
+  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
+});

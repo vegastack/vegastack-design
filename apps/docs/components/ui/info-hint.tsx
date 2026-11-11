@@ -1,6 +1,8 @@
-// @vegastack info-hint@0.60.0 sha256-CAMSp2sueZDuXA+/TbR2iE9hee+9WrVgef2YwYWGPsI=
+// @vegastack info-hint@0.60.0 sha256-f1eQDVLBIMtoY9zRHRwNdklOBu26HlcmzXyw69ldx4A=
 
-import type * as React from "react";
+"use client";
+
+import * as React from "react";
 import { InfoIcon } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -13,9 +15,10 @@ import {
 /* ------------------------------------------------------------------------------------------------
  * InfoHint — a small muted (i) beside a heading or label that opens one sentence of explanation and,
  * optionally, a "Learn more" link. It is a Popover, not a Tooltip: it opens on click, tap, Enter or
- * Space, so it works on touch and the link inside it is reachable. It never takes initial focus on
- * its own; inside a Dialog, point the dialog's `initialFocus` at the first field so the hint in the
- * title is not focused first.
+ * Space, so it works on touch and the link inside it is reachable. Like a tooltip, it also opens on
+ * hover and when the keyboard focuses it, and closes when the pointer or focus leaves, so a hint is
+ * never only behind a press. It never takes initial focus on its own; inside a Dialog, point the
+ * dialog's `initialFocus` at the first field so the hint in the title is not focused first.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props for `InfoHint`. */
@@ -59,11 +62,47 @@ export function InfoHint({
   align = "start",
   contentClassName,
   className,
+  onKeyUp,
+  onBlur,
+  onClick,
   ...props
 }: InfoHintProps) {
+  const [open, setOpen] = React.useState(false);
+  // Opened by keyboard focus: it closes when focus leaves, keeps focus on the trigger, and a press
+  // (Enter, Space, a click) then keeps it open instead of closing it.
+  const byFocus = React.useRef(false);
+  const change = (next: boolean) => {
+    if (!next) byFocus.current = false;
+    setOpen(next);
+  };
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={change}>
       <PopoverTrigger
+        openOnHover
+        closeDelay={150}
+        // Tabbed to: the Tab key's release lands on the element it moved focus to. Focus that
+        // comes back on its own (Escape, a click) never opens it.
+        onKeyUp={(event) => {
+          onKeyUp?.(event);
+          if (event.key !== "Tab" || open) return;
+          byFocus.current = true;
+          setOpen(true);
+        }}
+        onBlur={(event) => {
+          onBlur?.(event);
+          const to = event.relatedTarget as Element | null;
+          if (
+            byFocus.current &&
+            !to?.closest?.('[data-slot="info-hint-content"]')
+          )
+            change(false);
+        }}
+        onClick={(event) => {
+          onClick?.(event);
+          if (!open || !byFocus.current) return;
+          byFocus.current = false;
+          event.preventBaseUIHandler();
+        }}
         render={
           <Button
             type="button"
@@ -80,6 +119,8 @@ export function InfoHint({
       </PopoverTrigger>
       <PopoverContent
         data-slot="info-hint-content"
+        // Opened by focus, focus stays on the trigger; opened by a press, the hint takes it.
+        initialFocus={() => !byFocus.current}
         side={side}
         align={align}
         className={cn("w-64 gap-1.5", contentClassName)}
