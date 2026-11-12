@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.67.2 sha256-ZYH5aYuyyhjYT3oZsVNTzwXd1oOGuQDRCxrq9QbXcBc=
+// @vegastack message-parts@0.67.2 sha256-QU8J+KVP7IIf96bxcLiOJ5015dRXlGavGweR1zL5bwQ=
 
 "use client";
 
@@ -1126,9 +1126,15 @@ const formatMs = (ms: number) => formatDuration(ms, { unit: "milliseconds" });
 const omittedWords = (count: number) =>
   `+${count} more ${count === 1 ? "step" : "steps"}`;
 
-/** A step's own time: tenths under a second ("0.4s"), the shared words above it. */
+/**
+ * A step's own time in the activity's words. The default words give tenths under a second
+ * ("0.4s"), which whole seconds would round to "0s" or "1s"; a caller's `formatDuration` is used
+ * as is.
+ */
 function stepTime(ms: number, format: (ms: number) => string): string {
-  return ms < 1000 ? `${(Math.round(ms / 100) / 10).toFixed(1)}s` : format(ms);
+  return format === formatMs && ms < 1000
+    ? `${(Math.round(ms / 100) / 10).toFixed(1)}s`
+    : format(ms);
 }
 
 /** The shortest time a step or note shows; anything quicker reads as instant. */
@@ -1622,7 +1628,7 @@ export function MessageActivityStep({
                     size="sm"
                     className={cn(
                       disclosureTriggerClasses,
-                      "group/message-activity-step -ms-2 max-w-full min-w-0 justify-start gap-2 self-start text-sm font-normal",
+                      "group/message-activity-step -ms-2 max-w-full min-w-0 shrink justify-start gap-2 self-start text-sm font-normal",
                     )}
                   />
                 }

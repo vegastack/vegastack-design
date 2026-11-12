@@ -612,6 +612,33 @@ test("activity step words: verb, target in ink, summary muted, time from half a 
   await expectNoA11yViolations(screen.container);
 });
 
+test("in a narrow column a step with children, a long target and a time keeps the time inside the row", async () => {
+  const screen = await render(
+    <div style={{ width: 320 }}>
+      <MessageActivity
+        defaultOpen
+        summary="Worked"
+        formatDuration={(ms) => `${ms} ms`}
+      >
+        <MessageActivityStep
+          verb="Searched the workspace"
+          target={"a very long query that cannot fit ".repeat(4)}
+          ms={600}
+        >
+          <MessageActivityResults results={SOURCES.slice(0, 1)} />
+        </MessageActivityStep>
+      </MessageActivity>
+    </div>,
+  );
+  const step = slot(screen.container, "message-activity-step")!;
+  const time = slot(screen.container, "message-activity-step-time")!;
+  // A caller's words are used for every time, under a second too.
+  expect(time.textContent).toBe("600 ms");
+  expect(time.getBoundingClientRect().right).toBeLessThanOrEqual(
+    step.getBoundingClientRect().right + 0.5,
+  );
+});
+
 test("a thinking note has its heading and time, and a long one opens with Show more", async () => {
   const long = `${"I'll check what's open first. ".repeat(50)}The end.`;
   const screen = await render(
