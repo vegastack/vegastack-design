@@ -1,4 +1,4 @@
-// @vegastack board-card@0.61.0 sha256-suk2OT3/mJqQhzom+qz0OE2ctHoyjcB+RZ3hWBEjpus=
+// @vegastack board-card@0.61.0 sha256-3l8VGjgnC8MNZW3HTNcOfKhFi6DB7oZ1yrwqebSMiTg=
 
 "use client";
 
@@ -15,6 +15,7 @@ import {
 } from "@/lib/date-time";
 import { CalendarDays, Flag, UserRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useDateFormat } from "@/components/ui/relative-time";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   HoverCard,
@@ -299,11 +300,13 @@ export function BoardCard({
   className,
   ...props
 }: BoardCardProps) {
+  const dateFormat = useDateFormat();
+  const dueOptions = { dateFormat, ...dateOptions };
   const hasTick =
     status == null && (done !== undefined || onDoneChange !== undefined);
   const hasLead = status != null || hasTick;
   const dueLabel =
-    due != null && due !== "" ? formatDueLabel(due, dateOptions) : null;
+    due != null && due !== "" ? formatDueLabel(due, dueOptions) : null;
   const hasDefaultRow = Boolean(
     renderField != null || (dueLabel && dueLabel.label) || priority || assignee,
   );
@@ -315,7 +318,7 @@ export function BoardCard({
     dueLabel && dueLabel.label ? (
       <Badge
         data-slot="board-card-due"
-        variant={done ? "outline" : dueVariant(due as DateInput, dateOptions)}
+        variant={done ? "outline" : dueVariant(due as DateInput, dueOptions)}
       >
         {dueLabel.label}
       </Badge>

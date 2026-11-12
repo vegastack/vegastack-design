@@ -1,10 +1,12 @@
-// @vegastack date-picker@0.60.0 sha256-v8Hld+h3PioPpzqXMEPm9bq24cCEOov9CVPRVt4wbwY=
+// @vegastack date-picker@0.60.0 sha256-Mpr/bePvSLChAWOBfjRfOLx6x6i7aTkHRYre+5P+oF0=
 
 "use client";
 
 import * as React from "react";
 import {
   DEFAULT_LOCALE,
+  formatCalendarDate,
+  formatDateTime,
   formatTimeValue,
   fromZoned,
   localeHourCycle,
@@ -13,6 +15,7 @@ import {
   toCalendarDay,
   zonedParts,
   zonedToday,
+  type DateFormat,
   type TimeHourCycle,
 } from "@/lib/date-time";
 import type { DateRange, DayButton, Matcher } from "react-day-picker";
@@ -32,7 +35,7 @@ import {
   PopoverContent,
 } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
-import { useTimeZone } from "@/components/ui/relative-time";
+import { useDateFormat, useTimeZone } from "@/components/ui/relative-time";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 /* ------------------------------------------------------------------------------------------------
@@ -127,18 +130,24 @@ function CalendarBody({
  * ----------------------------------------------------------------------------------------------*/
 
 /** Default single-date display format: e.g. "Jun 21, 2026". */
-const DEFAULT_DATE_FORMAT: Intl.DateTimeFormatOptions = {
+const DEFAULT_TRIGGER_FORMAT: Intl.DateTimeFormatOptions = {
   year: "numeric",
   month: "short",
   day: "numeric",
 };
 
-/** Format a single date with `Intl.DateTimeFormat`. */
+/**
+ * Format a single date with `Intl.DateTimeFormat`, or — for the default face under a
+ * `TimeZoneProvider` `dateFormat` — in the workspace's order ("12 Nov 2026", "2026-11-12").
+ */
 function formatDate(
   date: Date,
   options: Intl.DateTimeFormatOptions,
   locale?: string,
+  dateFormat?: DateFormat,
 ): string {
+  if (dateFormat && options === DEFAULT_TRIGGER_FORMAT)
+    return formatCalendarDate(toCalendarDay(date), { dateFormat });
   return new Intl.DateTimeFormat(locale ?? DEFAULT_LOCALE, options).format(
     date,
   );
@@ -149,10 +158,12 @@ function formatRange(
   range: DateRange,
   options: Intl.DateTimeFormatOptions,
   locale?: string,
+  dateFormat?: DateFormat,
 ): string {
   if (!range.from) return "";
-  if (!range.to) return formatDate(range.from, options, locale);
-  return `${formatDate(range.from, options, locale)} – ${formatDate(range.to, options, locale)}`;
+  const one = (date: Date) => formatDate(date, options, locale, dateFormat);
+  if (!range.to) return one(range.from);
+  return `${one(range.from)} – ${one(range.to)}`;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -577,7 +588,7 @@ export function DatePicker({
   open: openProp,
   onOpenChange,
   placeholder = "Pick a date",
-  formatOptions = DEFAULT_DATE_FORMAT,
+  formatOptions = DEFAULT_TRIGGER_FORMAT,
   locale,
   presets,
   disabledDates,
@@ -617,6 +628,7 @@ export function DatePicker({
     ...calendarRestProps
   } = calendarProps ?? {};
   const today = useZonedToday(open, calendarRestProps);
+  const dateFormat = useDateFormat();
 
   const handleSelect = (date: Date | undefined) => {
     onValueChange?.(date);
@@ -675,7 +687,7 @@ export function DatePicker({
                 <span className="min-w-0 truncate">
                   {value
                     ? (renderValue?.(value) ??
-                      formatDate(value, formatOptions, locale))
+                      formatDate(value, formatOptions, locale, dateFormat))
                     : placeholder}
                 </span>
               </Button>
@@ -998,7 +1010,9 @@ export function DateTimePicker({
   const labels = { ...DEFAULT_DATE_TIME_LABELS, ...labelsProp };
   const readerZone = useTimeZone();
   const timeZone = timeZoneProp ?? readerZone;
-  const hourCycle = hourCycleProp ?? localeHourCycle(locale);
+  const dateFormat = useDateFormat();
+  const hourCycle =
+    hourCycleProp ?? dateFormat?.hourCycle ?? localeHourCycle(locale);
   const [openState, setOpenState] = React.useState(false);
   const open = openProp ?? openState;
   const setOpen = (next: boolean) => {
@@ -1072,14 +1086,24 @@ export function DateTimePicker({
     [current?.time, defaultTime],
   );
 
+  // The default face under a provider's `dateFormat` reads in the workspace's order:
+  // "12 Nov 2026, 15:40".
   const face = valid
-    ? new Intl.DateTimeFormat(locale, {
-        ...formatOptions,
-        hourCycle,
-        timeZone,
-      })
-        .format(valid)
-        .replace(/[  ]/g, " ")
+    ? dateFormat && formatOptions === DEFAULT_DATE_TIME_FORMAT
+      ? formatDateTime(valid, {
+          timeZone,
+          dateFormat: { ...dateFormat, hourCycle },
+          relativeDay: false,
+          withYear: true,
+          separator: "comma",
+        })
+      : new Intl.DateTimeFormat(locale, {
+          ...formatOptions,
+          hourCycle,
+          timeZone,
+        })
+          .format(valid)
+          .replace(/[  ]/g, " ")
     : placeholder;
 
   const picker = (
@@ -1369,7 +1393,7 @@ export function DateRangePicker({
   value,
   onValueChange,
   placeholder = "Pick a date range",
-  formatOptions = DEFAULT_DATE_FORMAT,
+  formatOptions = DEFAULT_TRIGGER_FORMAT,
   locale,
   presets,
   disabledDates,
@@ -1396,6 +1420,7 @@ export function DateRangePicker({
     ...calendarRestProps
   } = calendarProps ?? {};
   const today = useZonedToday(open, calendarRestProps);
+  const dateFormat = useDateFormat();
 
   const handleOpenChange = (nextOpen: boolean) => {
     rangeSelectionStartedRef.current = false;
@@ -1415,7 +1440,7 @@ export function DateRangePicker({
   };
 
   const label = value?.from
-    ? formatRange(value, formatOptions, locale)
+    ? formatRange(value, formatOptions, locale, dateFormat)
     : placeholder;
 
   return (

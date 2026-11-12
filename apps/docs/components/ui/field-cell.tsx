@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.60.2 sha256-nhUGh+IZW49Ve0cBPBxZjkVCN2lN69Zw64gsKOWcc80=
+// @vegastack field-cell@0.60.2 sha256-JljiNX4i8+56nTxMCMYCLLr/Il8ahgVqIByDVnWNHGg=
 
 "use client";
 
@@ -57,7 +57,7 @@ import {
   PopoverAnchor,
   PopoverContent,
 } from "@/components/ui/popover";
-import { useTimeZone } from "@/components/ui/relative-time";
+import { useDateFormat, useTimeZone } from "@/components/ui/relative-time";
 import { SearchableSelect } from "@/components/ui/searchable-select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -93,6 +93,7 @@ import {
   parseCalendarDay,
   toCalendarDay,
   zonedToday,
+  type DateFormat,
 } from "@/lib/date-time";
 import { FileKindTile } from "@/lib/file-kind";
 import { typedFirstLine } from "@/lib/text-edit-grammar";
@@ -850,6 +851,7 @@ export function FieldCellDisplay({
   className,
 }: FieldCellDisplayProps) {
   const timeZone = useTimeZone();
+  const dateFormat = useDateFormat();
   const cell = variant === "cell";
   // Inside a grid the cell is the tab stop (`TruncationFocusProvider focusable={false}`); a
   // standalone display's checkbox and links are reachable themselves.
@@ -964,8 +966,8 @@ export function FieldCellDisplay({
       if (typeof value !== "string" || !value) return empty;
       const text =
         type === "date"
-          ? formatCalendarDate(value)
-          : formatDateTime(value, { timeZone });
+          ? formatCalendarDate(value, { dateFormat })
+          : formatDateTime(value, { timeZone, dateFormat });
       return root(
         cell ? (
           <span className="min-w-0 overflow-hidden text-clip whitespace-nowrap tabular-nums">
@@ -2194,8 +2196,12 @@ function markdownLiteral(key: string): string {
   return /^[\\`*_{}[\]()#+\-.!|>~<&=]$/.test(key) ? `\\${key}` : key;
 }
 
-/** Whether the reader's locale writes a numeric date month first ("3/12" is 12 March). */
-function monthFirst(): boolean {
+/**
+ * Whether a numeric date is written month first ("3/12" is 12 March): the workspace's
+ * `dateFormat` decides (`mdy` and `ymd` put the month before the day), else the reader's locale.
+ */
+function monthFirst(dateFormat?: DateFormat): boolean {
+  if (dateFormat) return dateFormat.dateStyle !== "dmy";
   const parts = new Intl.DateTimeFormat(undefined, {
     year: "numeric",
     month: "numeric",
@@ -2207,9 +2213,10 @@ function monthFirst(): boolean {
   return order[0] === "month";
 }
 
-/** A typed date's pattern, in the reader's locale ("mm/dd/yyyy"): the typed field's hint. */
-function typedDatePattern(): string {
-  return monthFirst() ? "mm/dd/yyyy" : "dd/mm/yyyy";
+/** A typed date's pattern, in the workspace's order or the reader's locale ("mm/dd/yyyy"): the typed field's hint. */
+function typedDatePattern(dateFormat?: DateFormat): string {
+  if (dateFormat?.dateStyle === "ymd") return "yyyy-mm-dd";
+  return monthFirst(dateFormat) ? "mm/dd/yyyy" : "dd/mm/yyyy";
 }
 
 /** A month named in the reader's locale or English, from its first three letters. */
@@ -2235,6 +2242,7 @@ function parseTypedDay(
   input: string,
   timeZone?: string,
   at: Date = new Date(),
+  dateFormat?: DateFormat,
 ): string | undefined {
   // "Today" (and a year left out) is the reader's day in their time zone, not the runtime's.
   const now = zonedToday(at, timeZone);
@@ -2269,7 +2277,7 @@ function parseTypedDay(
   if (match) {
     const [a, b] = [Number(match[1]), Number(match[2])];
     const year = yearOf(match[3]);
-    return monthFirst() ? day(year, a, b) : day(year, b, a);
+    return monthFirst(dateFormat) ? day(year, a, b) : day(year, b, a);
   }
   match = /^(\d{1,2}) ([a-z\u00c0-\u024f.]+)(?: (\d{2}|\d{4}))?$/.exec(text);
   if (match) {
@@ -2339,6 +2347,7 @@ export function FieldCellEditor({
   // day it names.
   const typedDate = type === "date" && Boolean(seed);
   const timeZone = useTimeZone();
+  const dateFormat = useDateFormat();
   // Type-to-edit replaces the value: long text and a typed date start from the key itself.
   const [draft, setDraft] = React.useState<FieldValue>(() =>
     seed && type === "long_text"
@@ -2476,7 +2485,9 @@ export function FieldCellEditor({
   // The move a picker's choice carries: Enter (down, Shift+Enter up) chose it, a click didn't.
   const pickMove = React.useRef<EditableCellMove | undefined>(undefined);
   const typedText = typedDate && typeof draft === "string" ? draft.trim() : "";
-  const typedDay = typedText ? parseTypedDay(typedText, timeZone) : undefined;
+  const typedDay = typedText
+    ? parseTypedDay(typedText, timeZone, undefined, dateFormat)
+    : undefined;
   const typedNumber =
     cellNumber && typeof draft === "string" ? readNumberDraft(draft) : null;
   const valid = typedDate
@@ -2748,7 +2759,7 @@ export function FieldCellEditor({
           autoComplete="off"
           aria-label={label}
           aria-invalid={!valid || undefined}
-          placeholder={typedDatePattern()}
+          placeholder={typedDatePattern(dateFormat)}
           value={typeof draft === "string" ? draft : ""}
           className="h-7 w-full"
           onChange={(event) => setDraft(event.target.value)}

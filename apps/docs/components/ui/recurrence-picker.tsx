@@ -1,4 +1,4 @@
-// @vegastack recurrence-picker@0.60.0 sha256-9sHd8CJNkuntu8KbdgEL/x1Ly8GSds0mFGv2zd0sIGk=
+// @vegastack recurrence-picker@0.60.0 sha256-9yP08nWxfjTE3Fp/cmhS1g69Li8C/ByCV01U6cNeUBY=
 
 "use client";
 
@@ -282,7 +282,7 @@ export interface RecurrencePickerProps {
    * @default 15
    */
   timeStep?: number;
-  /** The time field's clock: `12` or `24`. Omit it and the locale decides.
+  /** The time field's clock: `12` or `24`. Omit it and a `TimeZoneProvider`'s `dateFormat` decides, else the locale.
    * @default undefined
    */
   hourCycle?: 12 | 24;

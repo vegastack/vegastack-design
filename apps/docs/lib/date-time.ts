@@ -1,12 +1,15 @@
-// @vegastack date-time@0.66.3 sha256-tjiuw8LlJa5RIYErbikfbaKMufzWg/0UBCn6kjX4bgA=
+// @vegastack date-time@0.66.3 sha256-aBMShEhFhxN50OEGmaiMxJf7wn4rIIxfxag+J2KYIiI=
 
 export type DateInput = Date | string | number;
 
 /**
  * Dates & times — the one formatting module. Plain functions (server + client), built on `Intl`,
  * no date library. Shared rules:
- * - the year shows only when it is not the current year;
- * - a 12-hour clock with no leading zero ("9:04 AM");
+ * - the year shows only when it is not the current year (a `ymd` date always carries it);
+ * - a 12-hour clock with no leading zero ("9:04 AM"), or with `hourCycle: "h23"` a 24-hour one
+ *   ("09:04");
+ * - `dateFormat` fixes the date order ("12 Nov 2026", "Nov 12, 2026", "2026-11-12") and the clock,
+ *   whatever the locale; without it, `locale` (default `en-US`) decides as before;
  * - minimal units s/m/h/d/w/mo/y with no space before the unit ("2m", "3h");
  * - calendar days are decided in `timeZone` (the viewer's zone), else the runtime's;
  * - anything under 45 seconds reads "now".
@@ -15,14 +18,43 @@ export type DateInput = Date | string | number;
  * before a file's first statement, so a module doc placed first never reaches the consumer.
  */
 
+/** A 12-hour ("9:30 AM") or 24-hour ("09:30") clock. */
+export type TimeHourCycle = "h12" | "h23";
+
+/** The order a date is written in: `dmy` "12 Nov 2026" · `mdy` "Nov 12, 2026" · `ymd` "2026-11-12". */
+export type DateStyle = "dmy" | "mdy" | "ymd";
+
+/**
+ * A workspace's date and time format: the date order and the clock. Every formatter takes it as
+ * `dateFormat`; `TimeZoneProvider` hands it to every date component.
+ */
+export interface DateFormat {
+  dateStyle: DateStyle;
+  hourCycle: TimeHourCycle;
+}
+
+/**
+ * `mdy` with a 12-hour clock: the house format before `dateFormat` existed, byte for byte the
+ * default `en-US` output ("Nov 12", "3:40 PM").
+ */
+export const DEFAULT_DATE_FORMAT: DateFormat = {
+  dateStyle: "mdy",
+  hourCycle: "h12",
+};
+
 /** Options every formatter takes. */
 export interface DateTimeOptions {
   /** IANA zone that decides the calendar day and the clock. Defaults to the runtime zone. */
   timeZone?: string;
-  /** BCP-47 locale. English only for now. @default "en-US" */
+  /** BCP-47 locale. English only for now. Ignored for order and clock when `dateFormat` is set. @default "en-US" */
   locale?: string;
   /** Reference instant (epoch ms or Date). @default Date.now() */
   now?: DateInput;
+  /**
+   * The date order and clock ("12 Nov · 15:40"). Omit it and `locale` decides.
+   * @default undefined
+   */
+  dateFormat?: DateFormat;
 }
 
 const SEC = 1_000;
@@ -112,16 +144,49 @@ function isCurrentYear(date: Date, opts: DateTimeOptions): boolean {
   );
 }
 
+/** A month's English name, short ("Nov") or long ("November"). */
+function monthName(month: number, length: "short" | "long"): string {
+  return dtf("en-US", { month: length, timeZone: "UTC" }).format(
+    Date.UTC(2000, month, 1),
+  );
+}
+
+/**
+ * A calendar day written in a `DateStyle`: `dmy` "12 Nov 2026" · `mdy` "Nov 12, 2026" ·
+ * `ymd` "2026-11-12". `ymd` always carries its year: "11-12" alone reads as nothing.
+ */
+function styledDay(
+  [y, m, d]: [number, number, number],
+  style: DateStyle,
+  { month = "short", year }: { month?: "short" | "long"; year: boolean },
+): string {
+  if (style === "ymd")
+    return `${String(y).padStart(4, "0")}-${pad2(m + 1)}-${pad2(d)}`;
+  const name = monthName(m, month);
+  if (style === "dmy") return year ? `${d} ${name} ${y}` : `${d} ${name}`;
+  return year ? `${name} ${d}, ${y}` : `${name} ${d}`;
+}
+
 /** "Sep 25", or "Dec 20, 2026" outside the current year. */
 function monthDay(
   date: Date,
-  opts: DateTimeOptions,
+  opts: DateTimeOptions & Pick<FormatDateOptions, "month">,
   withYear?: boolean,
 ): string {
   const year = withYear ?? !isCurrentYear(date, opts);
+  const month = opts.month ?? "short";
+  if (opts.dateFormat)
+    return styledDay(
+      calendarDay(date, opts.timeZone),
+      opts.dateFormat.dateStyle,
+      {
+        month,
+        year,
+      },
+    );
   return clean(
     dtf(opts.locale, {
-      month: "short",
+      month,
       day: "numeric",
       ...(year ? { year: "numeric" } : {}),
       timeZone: opts.timeZone,
@@ -348,6 +413,12 @@ export interface FormatCalendarDateOptions {
    * @default "short"
    */
   format?: "short" | "long" | "numeric";
+  /**
+   * The date order, which wins over `locale`'s: `numeric` reads "8/10/2026" (`dmy`),
+   * "10/8/2026" (`mdy`) or "2026-10-08" (`ymd`).
+   * @default undefined
+   */
+  dateFormat?: DateFormat;
 }
 
 const CALENDAR_FORMATS: Record<
@@ -369,10 +440,18 @@ const CALENDAR_FORMATS: Record<
  */
 export function formatCalendarDate(
   isoDay: string,
-  { locale, format = "short" }: FormatCalendarDateOptions = {},
+  { locale, format = "short", dateFormat }: FormatCalendarDateOptions = {},
 ): string {
   const parts = calendarDayParts(isoDay);
   if (!parts) return "";
+  if (dateFormat) {
+    const style = dateFormat.dateStyle;
+    if (format !== "numeric")
+      return styledDay(parts, style, { month: format, year: true });
+    const [y, m, d] = parts;
+    if (style === "ymd") return styledDay(parts, style, { year: true });
+    return style === "dmy" ? `${d}/${m + 1}/${y}` : `${m + 1}/${d}/${y}`;
+  }
   return clean(
     dtf(locale, { ...CALENDAR_FORMATS[format], timeZone: "UTC" }).format(
       utcMidnight(parts[0], parts[1], parts[2]),
@@ -389,6 +468,8 @@ export interface FormatDateOptions extends DateTimeOptions {
   looseFuture?: boolean;
   /** Skip Today/Yesterday/weekday words and always print the date. */
   absolute?: boolean;
+  /** The month's length in a printed date: "Sep 25" or "September 25". @default "short" */
+  month?: "short" | "long";
 }
 
 /** Date: Today · Tomorrow · Yesterday · Mon · Last Fri · Sep 25 · Dec 20, 2026. */
@@ -425,8 +506,9 @@ export function formatDate(
 
 /**
  * Long date for page headers and greetings: "Thursday, September 24" — with the year outside the
- * current year ("Thursday, September 24, 2025"). The day/month order follows `locale`:
- * `en-IN` / `en-GB` read "Thursday, 24 September".
+ * current year ("Thursday, September 24, 2025"). The day/month order follows `dateFormat`
+ * ("Thursday, 24 September", "Thursday, 2026-09-24"), else `locale`: `en-IN` / `en-GB` read
+ * "Thursday, 24 September".
  */
 export function formatLongDate(
   date: DateInput,
@@ -440,14 +522,21 @@ export function formatLongDate(
       timeZone: options.timeZone,
     }).format(target),
   );
-  const day = clean(
-    dtf(options.locale, {
-      month: "long",
-      day: "numeric",
-      ...(isCurrentYear(target, options) ? {} : { year: "numeric" }),
-      timeZone: options.timeZone,
-    }).format(target),
-  );
+  const year = !isCurrentYear(target, options);
+  const day = options.dateFormat
+    ? styledDay(
+        calendarDay(target, options.timeZone),
+        options.dateFormat.dateStyle,
+        { month: "long", year },
+      )
+    : clean(
+        dtf(options.locale, {
+          month: "long",
+          day: "numeric",
+          ...(year ? { year: "numeric" } : {}),
+          timeZone: options.timeZone,
+        }).format(target),
+      );
   return `${weekday}, ${day}`;
 }
 
@@ -468,15 +557,24 @@ export function hourOfDay(
   return Number(hour);
 }
 
-/** Time of day: 2:30 PM. */
+/** Time of day: 2:30 PM, or 14:30 with `dateFormat.hourCycle` `h23`. */
 export function formatTimeOfDay(
   date: DateInput,
   options: DateTimeOptions = {},
 ): string {
   const target = toDate(date);
   if (Number.isNaN(target.getTime())) return "";
+  if (options.dateFormat?.hourCycle === "h23")
+    return clean(
+      dtf("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23",
+        timeZone: options.timeZone,
+      }).format(target),
+    );
   return clean(
-    dtf(options.locale, {
+    dtf(options.dateFormat ? undefined : options.locale, {
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
@@ -554,9 +652,11 @@ export interface FormatDateRangeOptions extends DateTimeOptions {
   withTime?: boolean;
 }
 
-/** Hour label that drops ":00" inside ranges: "2", "3:30". */
+/** Hour label that drops ":00" inside ranges: "2", "3:30"; a 24-hour clock keeps it ("14:00"). */
 function rangeClock(date: Date, opts: DateTimeOptions) {
-  const parts = dtf(opts.locale, {
+  if (opts.dateFormat?.hourCycle === "h23")
+    return { clock: formatTimeOfDay(date, opts), period: "" };
+  const parts = dtf(opts.dateFormat ? undefined : opts.locale, {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
@@ -571,7 +671,11 @@ function rangeClock(date: Date, opts: DateTimeOptions) {
   };
 }
 
-/** Range: Sep 25 · 2–3:30 PM · Sep 25–28 · Sep 25 – Oct 3 · Dec 28, 2026 – Jan 4, 2027. */
+/**
+ * Range: Sep 25 · 2–3:30 PM · Sep 25–28 · Sep 25 – Oct 3 · Dec 28, 2026 – Jan 4, 2027. With
+ * `dateFormat`: `dmy` 25–28 Sep · 25 Sep – 3 Oct 2026; `ymd` 2026-09-25 – 2026-09-28; `h23`
+ * 14:00–15:30.
+ */
 export function formatDateRange(
   start: DateInput,
   end: DateInput,
@@ -595,8 +699,9 @@ export function formatDateRange(
     if (!withTime) return day;
     const s = rangeClock(a, options);
     const e = rangeClock(b, options);
-    const time =
-      s.period === e.period
+    const time = !e.period
+      ? `${s.clock}–${e.clock}`
+      : s.period === e.period
         ? `${s.clock}–${e.clock} ${e.period}`
         : `${s.clock} ${s.period} – ${e.clock} ${e.period}`;
     return `${day} · ${time}`;
@@ -606,13 +711,21 @@ export function formatDateRange(
       formatDateTime(d, { ...options, relativeDay: false, withYear: showYear });
     return `${f(a)} – ${f(b)}`;
   }
+  const style = options.dateFormat?.dateStyle;
+  if (style === "ymd")
+    return `${monthDay(a, options, true)} – ${monthDay(b, options, true)}`;
   if (ay === by && am === bm) {
     const endDay = calendarDay(b, options.timeZone)[2];
+    if (style === "dmy") {
+      const startDay = calendarDay(a, options.timeZone)[2];
+      const tail = `${monthName(am, "short")}${showYear ? ` ${ay}` : ""}`;
+      return `${startDay}–${endDay} ${tail}`;
+    }
     const head = monthDay(a, options, false);
     return showYear ? `${head}–${endDay}, ${ay}` : `${head}–${endDay}`;
   }
   if (ay === by) {
-    const tail = showYear ? `, ${ay}` : "";
+    const tail = showYear ? `${style === "dmy" ? " " : ", "}${ay}` : "";
     return `${monthDay(a, options, false)} – ${monthDay(b, options, false)}${tail}`;
   }
   return `${monthDay(a, options, true)} – ${monthDay(b, options, true)}`;
@@ -750,6 +863,35 @@ export function getTimeZone(
   return isValidTimeZone(decoded) ? decoded : fallback;
 }
 
+/** Zones whose region writes month-first dates and a 12-hour clock: the US and Canada. */
+const NORTH_AMERICA =
+  /^(US\/|Canada\/|America\/(New_York|Chicago|Denver|Phoenix|Los_Angeles|Anchorage|Adak|Boise|Detroit|Juneau|Sitka|Yakutat|Nome|Metlakatla|Menominee|Indiana\/.+|Indianapolis|Fort_Wayne|Knox_IN|Atka|Shiprock|Kentucky\/.+|Louisville|North_Dakota\/.+|Toronto|Montreal|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Moncton|Glace_Bay|Goose_Bay|Whitehorse|Dawson|Dawson_Creek|Fort_Nelson|Creston|Cambridge_Bay|Inuvik|Iqaluit|Rankin_Inlet|Resolute|Swift_Current|Atikokan|Coral_Harbour|Blanc-Sablon|Nipigon|Thunder_Bay|Rainy_River|Pangnirtung|Yellowknife)$)|^Pacific\/(Honolulu|Johnston)$|^(EST|MST|HST|EST5EDT|CST6CDT|MST7MDT|PST8PDT|Navajo)$/;
+/** Zones whose region writes year-first dates: China, Japan, Korea, Taiwan, Hungary, Lithuania, Sweden. */
+const YEAR_FIRST =
+  /^(Asia\/(Shanghai|Chongqing|Chungking|Harbin|Urumqi|Kashgar|Tokyo|Seoul|Taipei)|Europe\/(Budapest|Vilnius|Stockholm)|PRC|Japan|ROK|ROC)$/;
+/** Zones beyond North America whose region uses a 12-hour clock: India, Australia, New Zealand, the Philippines, Pakistan, Bangladesh, Egypt, Saudi Arabia. */
+const TWELVE_HOUR =
+  /^(Asia\/(Kolkata|Calcutta|Manila|Karachi|Dhaka|Dacca|Riyadh)|Australia\/.+|Antarctica\/Macquarie|Pacific\/(Auckland|Chatham)|NZ|NZ-CHAT|Africa\/Cairo|Egypt)$/;
+
+/**
+ * The format a zone's region writes in, for a workspace on **Automatic**: month-first in the US
+ * and Canada, year-first in China, Japan, Korea, Taiwan, Hungary, Lithuania and Sweden, else
+ * day-first; a 12-hour clock in the US, Canada, India, Australia, New Zealand, the Philippines,
+ * Pakistan, Bangladesh, Egypt and Saudi Arabia, else 24-hour. A fixed table, not the runtime's
+ * locale data, so the server and every browser agree.
+ *
+ * @example
+ * dateFormatDefaults("Asia/Kolkata"); // { dateStyle: "dmy", hourCycle: "h12" }
+ * dateFormatDefaults("Europe/Berlin"); // { dateStyle: "dmy", hourCycle: "h23" }
+ */
+export function dateFormatDefaults(timeZone: string): DateFormat {
+  const northAmerica = NORTH_AMERICA.test(timeZone);
+  return {
+    dateStyle: northAmerica ? "mdy" : YEAR_FIRST.test(timeZone) ? "ymd" : "dmy",
+    hourCycle: northAmerica || TWELVE_HOUR.test(timeZone) ? "h12" : "h23",
+  };
+}
+
 function safeDecode(value: string): string {
   try {
     return decodeURIComponent(value);
@@ -844,9 +986,6 @@ export function fromZoned(
       : undefined;
   return new Date(kept ?? fits[0]!).toISOString();
 }
-
-/** A 12-hour ("9:30 AM") or 24-hour ("09:30") clock. */
-export type TimeHourCycle = "h12" | "h23";
 
 const padTime = (n: number) => String(n).padStart(2, "0");
 

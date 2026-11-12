@@ -24,7 +24,8 @@ const [time, setTime] = useState<string | null>("09:00");
 ```
 
 The value is always `"HH:mm"` on a 24-hour clock, whatever the field shows: `hourCycle={12}` shows
-"9:30 AM", `24` shows "09:30", and the `locale` decides when it is left out. Typing accepts "9",
+"9:30 AM", `24` shows "09:30", and a `TimeZoneProvider` `dateFormat`, else the `locale`, decides
+when it is left out. Typing accepts "9",
 "930", "9:30", "9.30 pm" or "21:30"; <kbd>Enter</kbd> or leaving the field sets it. A typed time
 outside `min`/`max` moves inside, and text that is not a time is marked invalid until it is fixed or
 left, when the field shows the value again. Clearing the field sends `null`. `min` is not after
