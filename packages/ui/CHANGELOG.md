@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.67.1
+
+### Patch Changes
+
+- [#957](https://github.com/vegastack/vegastack-design/pull/957) [`be8e40f`](https://github.com/vegastack/vegastack-design/commit/be8e40fbadd3a32d34470cad7e77473423ac803b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `MessageActions` makes every button, copy button and toggle in the row one 28px square with a 16px icon, whatever size it was given ([Message parts](/docs/components/message-parts)), so Copy, Retry, 👍 and 👎 always match.
+
 ## 0.67.0
 
 ### Minor Changes

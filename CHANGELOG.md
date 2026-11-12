@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.67.1] — November 12, 2026
+
+<!-- assembled from 1 changeset: 387f1711d2f0 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.67.0 → 0.67.1.
+
+### 🐛 Fixed
+
+- `MessageActions` makes every button, copy button and toggle in the row one 28px square with a 16px icon, whatever size it was given ([Message parts](/docs/components/message-parts)), so Copy, Retry, 👍 and 👎 always match.
+  [`be8e40f`](https://github.com/VegaStack/vegastack-design/commit/be8e40f)
+
 ## [0.67.0] — November 12, 2026
 
 <!-- assembled from 1 changeset: c8ed65c14e4c -->

@@ -19813,8 +19813,8 @@
       "meta": {
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
-        "version": "0.64.0",
-        "integrity": "sha256-NwF6eDSOs6CAFLy3QXDeX8xd6fn1WxpAw0YsuRgiNIM="
+        "version": "0.67.1",
+        "integrity": "sha256-AOl9upidgh4zSrlSMk7uBkFjjM7EEXhGiaMUJvIOahY="
       }
     },
     {
