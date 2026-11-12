@@ -19776,8 +19776,8 @@
       "meta": {
         "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
         "whenNotToUse": "An agent asking to act (ApprovalCard, RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
-        "version": "0.69.0",
-        "integrity": "sha256-WA7UBeCyKQqVmDNqaN06RPZknI54DkUD0zfahGduoSY="
+        "version": "0.70.0",
+        "integrity": "sha256-ncu7F1tGgVUMa62laSmT5hUh3poPK1BpUM66GTVXcIc="
       }
     },
     {

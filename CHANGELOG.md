@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.70.0] — November 12, 2026
+
+<!-- assembled from 1 changeset: faf86b8055b2 -->
+
+### 🧩 New components
+
+- `MemoryNote`: one quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory notebook. Seven tones with their own lead words, text actions (Undo · Edit · Why? · Open, Retry), a filled Keep for suggestions only, `busy` and the settled states `undone`, `kept`, `dismissed` and `edited`, a `note` for readers who can't act, and a `compact` form for lists. Also exports `MEMORY_NOTE_TONES`.
+  [`3fa93e1`](https://github.com/VegaStack/vegastack-design/commit/3fa93e1)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.69.0 → 0.70.0.
+
 ## [0.69.0] — November 12, 2026
 
 <!-- assembled from 1 changeset: 9183802e78b4 -->
