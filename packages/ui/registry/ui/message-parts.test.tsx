@@ -12,6 +12,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import {
   MessageActions,
   MessageActivity,
+  MessageActivityFold,
+  MessageActivityGroup,
   MessageActivityNote,
   MessageActivityResults,
   MessageActivityStep,
@@ -545,6 +547,170 @@ test("activity: a done summary with its time opens to notes and steps; a step op
   )!;
   expect(failed.textContent).toContain("Failed:");
   expect(failed.textContent).toContain("No answer.");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("activity: a problem stays on the closed line in warning ink; left-out steps end the timeline", async () => {
+  const screen = await render(
+    <MessageActivity
+      summary="Worked · 4 steps"
+      warning="1 didn't finish"
+      omitted={12}
+      ms={14_000}
+    >
+      <MessageActivityStep verb="Updated" target="TTB-12" />
+    </MessageActivity>,
+  );
+  const trigger = page.getByRole("button", {
+    name: /Worked · 4 steps · 1 didn't finish · 14s/,
+  });
+  const warning = slot(screen.container, "message-activity-warning")!;
+  expect(warning.className).toContain("text-warning-text");
+  await trigger.click();
+  await expect.element(page.getByText("+12 more steps")).toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("activity step words: verb, target in ink, summary muted, time from half a second, reason with its action", async () => {
+  const screen = await render(
+    <MessageActivity defaultOpen summary="Worked">
+      <MessageActivityStep
+        verb="Updated"
+        target="TTB-12"
+        summary="Status → Done"
+        ms={2_000}
+      />
+      <MessageActivityStep verb="Read" target="TTB-14" ms={400} />
+      <MessageActivityStep verb="Read" target="TTB-15" ms={600} />
+      <MessageActivityStep
+        status="failed"
+        verb="Sent email to"
+        target="ana@example.com"
+        summary="didn't send"
+        reason="Gmail isn't connected for you."
+        action={<a href="#connect">Connect Gmail</a>}
+      />
+    </MessageActivity>,
+  );
+  const steps = screen.container.querySelectorAll<HTMLElement>(
+    "[data-slot=message-activity-step]",
+  );
+  expect(steps[0]!.textContent).toBe("Done:UpdatedTTB-12· Status → Done2s");
+  const time = (step: HTMLElement) =>
+    step.querySelector("[data-slot=message-activity-step-time]")?.textContent;
+  expect(time(steps[0]!)).toBe("2s");
+  expect(time(steps[1]!)).toBeUndefined();
+  expect(time(steps[2]!)).toBe("0.6s");
+  expect(steps[0]!.querySelector(".text-foreground")!.textContent).toBe(
+    "TTB-12",
+  );
+  expect(steps[3]!.textContent).toContain("Failed:");
+  expect(steps[3]!.textContent).toContain("Gmail isn't connected for you.");
+  await expect
+    .element(page.getByRole("link", { name: "Connect Gmail" }))
+    .toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("in a narrow column a step with children, a long target and a time keeps the time inside the row", async () => {
+  const screen = await render(
+    <div style={{ width: 320 }}>
+      <MessageActivity
+        defaultOpen
+        summary="Worked"
+        formatDuration={(ms) => `${ms} ms`}
+      >
+        <MessageActivityStep
+          verb="Searched the workspace"
+          target={"a very long query that cannot fit ".repeat(4)}
+          ms={600}
+        >
+          <MessageActivityResults results={SOURCES.slice(0, 1)} />
+        </MessageActivityStep>
+      </MessageActivity>
+    </div>,
+  );
+  const step = slot(screen.container, "message-activity-step")!;
+  const time = slot(screen.container, "message-activity-step-time")!;
+  // A caller's words are used for every time, under a second too.
+  expect(time.textContent).toBe("600 ms");
+  expect(time.getBoundingClientRect().right).toBeLessThanOrEqual(
+    step.getBoundingClientRect().right + 0.5,
+  );
+});
+
+test("a thinking note has its heading and time, and a long one opens with Show more", async () => {
+  const long = `${"I'll check what's open first. ".repeat(50)}The end.`;
+  const screen = await render(
+    <MessageActivity defaultOpen summary="Thought for 6s">
+      <MessageActivityNote label="Thinking" ms={3_000}>
+        {long}
+      </MessageActivityNote>
+    </MessageActivity>,
+  );
+  expect(
+    slot(screen.container, "message-activity-note-label")!.textContent,
+  ).toBe("Thinking· 3s");
+  const text = slot(screen.container, "message-activity-note-text")!;
+  expect(text.textContent!.length).toBeLessThanOrEqual(1201);
+  expect(text.textContent).toMatch(/…$/);
+  expect(text.textContent).not.toContain("The end.");
+  const more = page.getByRole("button", { name: "Show more" });
+  await expect.element(more).toHaveAttribute("aria-expanded", "false");
+  await more.click();
+  expect(text.textContent).toContain("The end.");
+  await expect
+    .element(page.getByRole("button", { name: "Show less" }))
+    .toHaveAttribute("aria-expanded", "true");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("Subagents nest under their step with a count line; a fold names three and opens on its steps", async () => {
+  const screen = await render(
+    <MessageActivity defaultOpen summary="Worked · 2 steps">
+      <MessageActivityStep verb="Ran Subagents" summary="4 of 4 done">
+        <MessageActivityGroup
+          label="Subagents"
+          summary="Subagents: 4 of 4 done"
+        >
+          <MessageActivityStep verb="Triaged" target="Billing tickets">
+            <MessageActivityGroup label="Steps">
+              <MessageActivityStep verb="Read" target="TKT-1" />
+            </MessageActivityGroup>
+          </MessageActivityStep>
+          <MessageActivityStep verb="Triaged" target="Login tickets" />
+        </MessageActivityGroup>
+      </MessageActivityStep>
+      <MessageActivityFold
+        verb="Read 5 records"
+        names={["TTB-12", "TTB-14", "TTB-15", "TTB-16", "TTB-17"]}
+      >
+        <MessageActivityStep verb="Read" target="TTB-12" />
+        <MessageActivityStep verb="Read" target="TTB-14" />
+      </MessageActivityFold>
+    </MessageActivity>,
+  );
+  const subagents = page.getByRole("button", { name: /Done: Ran Subagents/ });
+  (subagents.element() as HTMLElement).focus();
+  await userEvent.keyboard("{Enter}");
+  const group = page.getByRole("list", { name: "Subagents" });
+  await expect.element(group).toBeVisible();
+  await expect
+    .element(group)
+    .toHaveAccessibleDescription("Subagents: 4 of 4 done");
+  // A Subagent opens on its own steps.
+  await page.getByRole("button", { name: /Triaged Billing tickets/ }).click();
+  await expect.element(page.getByText("TKT-1")).toBeVisible();
+  const fold = page.getByRole("button", {
+    name: /Read 5 records TTB-12, TTB-14, TTB-15 \+2/,
+  });
+  await fold.click();
+  await expect
+    .element(page.getByRole("list", { name: "Steps" }).last())
+    .toBeVisible();
+  expect(slot(screen.container, "message-activity-fold")!.dataset.status).toBe(
+    "done",
+  );
   await expectNoA11yViolations(screen.container);
 });
 
