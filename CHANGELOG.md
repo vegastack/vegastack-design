@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.76.1] — November 12, 2026
+
+<!-- assembled from 1 changeset: 4b857f05dabc -->
+
+### 🧩 New components
+
+- `PermissionRow`'s button on a paused line reads **Keep** (was Confirm): the line waits because the person who gave it stopped maintaining the agent, and a remaining maintainer keeps it.
+  [`e47b7c9`](https://github.com/VegaStack/vegastack-design/commit/e47b7c9)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.76.0 → 0.76.1.
+
 ## [0.76.0] — November 12, 2026
 
 <!-- assembled from 1 changeset: 3945ac111543 -->

@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.76.1
+
+### Patch Changes
+
+- [#968](https://github.com/vegastack/vegastack-design/pull/968) [`e47b7c9`](https://github.com/vegastack/vegastack-design/commit/e47b7c9b857e5fe8ca41dbc8908d0d48d64ac28c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `PermissionRow`'s button on a paused line reads **Keep** (was Confirm): the line waits because the person who gave it stopped maintaining the agent, and a remaining maintainer keeps it.
+
 ## 0.76.0
 
 ### Minor Changes
