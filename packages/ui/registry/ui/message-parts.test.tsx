@@ -8,6 +8,7 @@ import { Citation } from "./cited-list";
 import { CopyButton } from "./copy-button";
 import { Message, MessageContent } from "./message";
 import { Toggle } from "./toggle";
+import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
 import {
   MessageActions,
   MessageActivity,
@@ -430,7 +431,7 @@ test("an answer's time shows on hover or focus, like its actions", async () => {
   await vi.waitFor(() => expect(getComputedStyle(time).opacity).toBe("1"));
 });
 
-test("every button, copy button and toggle in the actions row is one 28px square with a 16px icon", async () => {
+test("every button in the actions row, wrapped in a trigger or not, is one 28px square with a 16px icon", async () => {
   const icon = <svg aria-hidden viewBox="0 0 24 24" />;
   const screen = await render(
     <MessageActions reveal="always">
@@ -444,9 +445,12 @@ test("every button, copy button and toggle in the actions row is one 28px square
       <Toggle size="sm" aria-label="Helpful">
         {icon}
       </Toggle>
-      <Toggle aria-label="Not helpful">
-        <span>{icon}</span>
-      </Toggle>
+      <Tooltip>
+        <TooltipTrigger render={<Toggle aria-label="Not helpful" />}>
+          <span>{icon}</span>
+        </TooltipTrigger>
+        <TooltipContent>Not helpful</TooltipContent>
+      </Tooltip>
     </MessageActions>,
   );
   const buttons = Array.from(
