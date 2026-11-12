@@ -2506,7 +2506,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.66.3",
-        "integrity": "sha256-YZ3e5Q1EBT4Q/76MMC+WtbOarPTK8HUOBsi881ImSfc="
+        "integrity": "sha256-oY1NYu/LtRIXG/f09+gyddkcyh2vGSzOESQiRkkNI50="
       }
     },
     {
@@ -18474,7 +18474,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.60.0",
-        "integrity": "sha256-wN/PBd0LozwdP5YFRHgJXViMNShklcCg9+DlIA/1rIc="
+        "integrity": "sha256-uqlZUJCdEPJhs+hC9MhDbvZBHHhGM6PJwSeKbnFvae0="
       }
     },
     {

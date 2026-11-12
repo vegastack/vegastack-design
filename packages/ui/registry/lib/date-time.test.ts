@@ -207,6 +207,19 @@ describe("dateFormat", () => {
   });
 
   test("dateFormatDefaults follows the zone's region", () => {
+    // A zone's old names classify as the zone itself.
+    for (const alias of [
+      "America/Atka",
+      "America/Fort_Wayne",
+      "America/Knox_IN",
+      "America/Shiprock",
+      "US/Pacific",
+      "Canada/Eastern",
+    ])
+      expect(dateFormatDefaults(alias)).toEqual({
+        dateStyle: "mdy",
+        hourCycle: "h12",
+      });
     expect(dateFormatDefaults("America/New_York")).toEqual({
       dateStyle: "mdy",
       hourCycle: "h12",

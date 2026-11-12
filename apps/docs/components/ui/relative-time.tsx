@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.60.0 sha256-wN/PBd0LozwdP5YFRHgJXViMNShklcCg9+DlIA/1rIc=
+// @vegastack relative-time@0.60.0 sha256-uqlZUJCdEPJhs+hC9MhDbvZBHHhGM6PJwSeKbnFvae0=
 
 "use client";
 
@@ -329,7 +329,8 @@ function formatDay(
       absolute: true,
       month: "long",
     });
-    return withTime ? `${day}, ${time}` : day;
+    // Joined as `Intl` joins a date and its time in en-US ("March 15 at 3:05 PM").
+    return withTime ? `${day} at ${time}` : day;
   }
   const sameYear = ty === ny;
   // `dateStyle`/`timeStyle` cannot be combined with component fields (`Intl` throws), so a style

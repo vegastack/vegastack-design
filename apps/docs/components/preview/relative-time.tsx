@@ -472,11 +472,17 @@ export function dateTimeFormats(): ReactNode {
 }
 
 export function dateTimeFormatProvider(): ReactNode {
-  const now = Date.now();
+  // Fixed instants and a request clock, so the server render and hydration agree.
+  const now = NOW;
   return (
     <Wrapper className="flex-col items-start gap-4 text-sm">
       {FORMATS.map(([name, dateFormat]) => (
-        <TimeZoneProvider key={name} timeZone={TZ} dateFormat={dateFormat}>
+        <TimeZoneProvider
+          key={name}
+          timeZone={TZ}
+          dateFormat={dateFormat}
+          referenceNow={NOW}
+        >
           <div className="flex flex-wrap items-center gap-6">
             <code className="w-24 text-muted-foreground">{name}</code>
             <DateTime date={new Date(now - 10 * DAY)} variant="datetime" />
