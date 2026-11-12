@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.75.0
+
+### Minor Changes
+
+- [#965](https://github.com/vegastack/vegastack-design/pull/965) [`7f00fa9`](https://github.com/vegastack/vegastack-design/commit/7f00fa902184220981424dc9ad2e59478b1cedcf) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `PlanCard`, `EffectPill` and `ComposerChip` for agent plan mode. `PlanCard` puts an agent's plan to the person before it acts: goal, numbered steps with an effect pill and what each touches, assumptions, what it won't do, what it will still ask, the risk, a version diff (new, changed, removed), per-step comments, and Accept · Accept and allow these in this chat · Request changes · Reject, closing to one settled line. `EffectPill` names a step's effect (read, draft, change, send, remove, spend). `ComposerChip` is the composer toolbar's chip: the Plan toggle, the model picker's trigger, or a model shown read-only.
+
 ## 0.74.0
 
 ### Minor Changes

@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.75.0] — November 12, 2026
+
+<!-- assembled from 1 changeset: 6d946539d442 -->
+
+### 🧩 New components
+
+- `PlanCard`, `EffectPill` and `ComposerChip` for agent plan mode. `PlanCard` puts an agent's plan to the person before it acts: goal, numbered steps with an effect pill and what each touches, assumptions, what it won't do, what it will still ask, the risk, a version diff (new, changed, removed), per-step comments, and Accept · Accept and allow these in this chat · Request changes · Reject, closing to one settled line. `EffectPill` names a step's effect (read, draft, change, send, remove, spend). `ComposerChip` is the composer toolbar's chip: the Plan toggle, the model picker's trigger, or a model shown read-only.
+  [`7f00fa9`](https://github.com/VegaStack/vegastack-design/commit/7f00fa9)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.74.0 → 0.75.0.
+
 ## [0.74.0] — November 12, 2026
 
 <!-- assembled from 1 changeset: 9f45a35801aa -->
