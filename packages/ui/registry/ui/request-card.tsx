@@ -1,4 +1,4 @@
-// @vegastack request-card@0.67.0 sha256-fwSm3hCBwQhiXh8vKjIkGuu7Z2tD0sfk7I7dNA6pZvc=
+// @vegastack request-card@0.67.0 sha256-XPLDkE+KNWrGHzMjQAiELwuK8tynrMj1GGMp6kjzflM=
 
 "use client";
 
@@ -772,7 +772,7 @@ export function RequestCard({
             loading={loading("action")}
             disabled={busy && pressed !== "action"}
             onClick={() => press("action", action)}
-            className="h-auto px-0 text-sm"
+            className="-my-1 px-0 text-sm"
           >
             {ACTION_LABEL[line.action]}
           </Button>
