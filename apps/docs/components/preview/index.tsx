@@ -41,6 +41,7 @@ export * from "./code-block";
 export * from "./tool-call-chip";
 export * from "./suggestion-card";
 export * from "./memory-note";
+export * from "./run-usage";
 export * from "./task-list";
 export * from "./chat-composer";
 export * from "./message-parts";

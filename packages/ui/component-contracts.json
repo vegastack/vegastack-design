@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 802,
-    "components": 210,
+    "totalRegistryItems": 803,
+    "components": 211,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 20,
+    "AI/chat": 21,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -258,7 +258,8 @@
       "agent-question-form",
       "request-card",
       "memory-note",
-      "task-list"
+      "task-list",
+      "run-usage"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -31975,6 +31976,307 @@
             {
               "name": "data-waiting",
               "values": [""]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "run-usage",
+      "registryType": "registry:ui",
+      "title": "Run Usage",
+      "summary": "What one agent run used: a chip under the answer (steps, context, cache, optional money), a panel by model with cache per step and Subagents, and a table with one row per model call.",
+      "status": "stable",
+      "since": "0.74.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/run-usage.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RunUsageBasis",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageCacheResult",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageCall",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageFormat",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageModel",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsagePanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsagePanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageSummary",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageTable",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageTableProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunUsageTokens",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-usage.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "part",
+            "values": ["chip", "panel", "table"]
+          }
+        ],
+        "rationale": "Three parts over one data shape: the chip, the panel and the per-call table."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container; the panel's grids stack in a narrow column."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "ready",
+            "loading",
+            "error",
+            "empty",
+            "no-money",
+            "estimated",
+            "subagents",
+            "partial-totals-left-blank"
+          ],
+          "evidence": "packages/ui/registry/ui/run-usage.tsx + packages/ui/registry/ui/run-usage.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "captioned-table",
+            "column-and-row-headers",
+            "named-scroll-region",
+            "estimated-read-as-about",
+            "loading-status",
+            "browser-accessibility-test",
+            "error-announced-on-change"
+          ],
+          "evidence": "packages/ui/registry/ui/run-usage.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["chip", "panel", "table", "narrow", "dark"],
+          "evidence": "packages/ui/registry/ui/run-usage.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "horizontal-overflow"],
+        "rationale": "The panel's grids follow its container width; the table scrolls sideways inside its own focusable region."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion beyond the skeleton pulse."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/run-usage",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/date-time",
+        "@vegastack/skeleton",
+        "@vegastack/table",
+        "@vegastack/use-announcer",
+        "@vegastack/use-overflow"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/run-usage.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "run-usage",
+      "dataAttributes": {
+        "RunUsageChip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["run-usage-chip"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RunUsagePanel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "run-usage-activity",
+                "run-usage-as-of",
+                "run-usage-cache",
+                "run-usage-cache-miss",
+                "run-usage-empty",
+                "run-usage-model",
+                "run-usage-models",
+                "run-usage-panel",
+                "run-usage-totals",
+                "run-usage-tree"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["empty"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RunUsageTable": {
+          "attributes": [
+            {
+              "name": "data-basis",
+              "values": ["reported"]
+            },
+            {
+              "name": "data-cache",
+              "values": []
+            },
+            {
+              "name": "data-scrollable",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "run-usage-cache-result",
+                "run-usage-empty",
+                "run-usage-loading",
+                "run-usage-row",
+                "run-usage-scroll",
+                "run-usage-table"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": ["empty", "ready"]
             }
           ],
           "cssVariables": []
