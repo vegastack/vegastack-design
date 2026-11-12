@@ -19781,6 +19781,42 @@
       }
     },
     {
+      "name": "task-list",
+      "type": "registry:ui",
+      "title": "Task List",
+      "description": "An agent's live checklist for a longer job: the live item on top, the next two, finished items folded into a count and the rest into +N more, a waiting badge, Subagent progress, and a sticky progress bar.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/disclosure-trigger",
+        "@vegastack/date-time",
+        "@vegastack/spinner",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/task-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/task-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
+        "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
+        "version": "0.73.0",
+        "integrity": "sha256-bEe6pUjLzMCxkIXYmtMZgmxFaKXvQGRaH72Ihzsc7Vw="
+      }
+    },
+    {
       "name": "chat-composer",
       "type": "registry:ui",
       "title": "Chat Composer",
