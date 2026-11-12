@@ -334,7 +334,7 @@ const allowed: PermissionView[] = [
     title: "Post in #sales",
     uses: 2,
     lastUsed: "9 Nov",
-    paused: "Paused: the owner changed",
+    paused: "Paused: Ravi is no longer a maintainer",
     confirmable: true,
   },
 ];
