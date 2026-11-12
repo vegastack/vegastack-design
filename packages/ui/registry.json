@@ -16228,6 +16228,91 @@
       }
     },
     {
+      "name": "effect-pill",
+      "type": "registry:ui",
+      "title": "Effect Pill",
+      "description": "What one step of an agent's plan does, in one word and an icon: read, draft, change, send, remove or spend, hued by reach.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": ["@vegastack/badge"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/effect-pill.tsx",
+          "type": "registry:ui",
+          "target": "@ui/effect-pill.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Label a plan step or a pending action by its effect, in a PlanCard or a task list.",
+        "whenNotToUse": "A status (Badge), or a choice the person makes (ComposerChip).",
+        "version": "0.75.0"
+      }
+    },
+    {
+      "name": "composer-chip",
+      "type": "registry:ui",
+      "title": "Composer Chip",
+      "description": "A small round chip for the chat composer's toolbar: a mode toggle such as Plan, a picker trigger such as the model, or the same words shown read-only.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/composer-chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/composer-chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A mode or a choice in ChatComposer's toolbar: the Plan toggle, the model picker's trigger, a model shown read-only.",
+        "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
+        "version": "0.75.0"
+      }
+    },
+    {
+      "name": "plan-card",
+      "type": "registry:ui",
+      "title": "Plan Card",
+      "description": "An agent's plan before it acts: goal, numbered steps with effects and what they touch, assumptions, what it won't do, what it will ask, risk, and Accept, Accept and allow these in this chat, Request changes or Reject.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/effect-pill",
+        "@vegastack/person-avatar",
+        "@vegastack/textarea",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/plan-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/plan-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
+        "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
+        "version": "0.75.0"
+      }
+    },
+    {
       "name": "task-list",
       "type": "registry:ui",
       "title": "Task List",

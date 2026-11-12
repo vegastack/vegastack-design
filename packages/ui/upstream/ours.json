@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 148,
+    "total": 151,
     "fromExtras": 46
   },
   "items": {
@@ -1019,6 +1019,24 @@
       "family": "chat",
       "source": "VegaStack agent harness DS1 Task D.5 (run usage chip, panel and table) — operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no run usage view. A presentational composition over upstream table parts, skeleton and button with our table-scroll-region: one data shape drawn as a chip, a panel (totals, by model, activity, cache per step, total with Subagents) and a per-call table; no patch."
+    },
+    "effect-pill": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "rationale": "Upstream ships no effect label. A thin composition of upstream badge with a lucide icon per effect and a fixed variant per effect; no patch."
+    },
+    "composer-chip": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "rationale": "Upstream ships no composer mode chip. A composition of upstream toggle, button and tooltip sized to the composer's toolbar; no patch."
+    },
+    "plan-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "rationale": "Upstream ships no plan approval. Shares RequestCard's shell (card, agent hexagon, stacking answers, announced settled line) over upstream button and textarea with our effect-pill, person-avatar and use-announcer; no patch."
     }
   }
 }

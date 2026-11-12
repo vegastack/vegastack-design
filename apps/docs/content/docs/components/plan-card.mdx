@@ -1,0 +1,111 @@
+---
+title: Plan Card
+description: An agent's plan before it acts, with its steps, effects, risk and Accept, Accept and allow these in this chat, Request changes or Reject.
+audience: public
+registry: plan-card
+status: stable
+since: 0.75.0
+a11y: labelled region; settled line announced
+preview: planCard
+---
+
+## Install
+
+<InstallSteps name="plan-card" />
+
+## Usage
+
+```tsx
+import { PlanCard } from "@/components/ui/plan-card";
+
+<PlanCard
+  plan={plan}
+  state={state}
+  answeredBy={answeredBy}
+  busy={pending}
+  onAccept={() => answer({ kind: "accept" })}
+  onAcceptAndAllow={() => answer({ kind: "accept", allow: true })}
+  onRequestChanges={(request) => answer({ kind: "changes", ...request })}
+  onReject={() => answer({ kind: "reject" })}
+/>;
+```
+
+The plan is data (`PlanSpec`), the same words the web, Slack and the phone draw. The host computes
+the risk and what the agent will still ask about, and owns the answer: it passes `busy` while the
+answer travels and the new `state` once it lands. Accept and allow these in this chat is offered only
+when `onAcceptAndAllow` is passed. For a single action an agent asks to take, use
+[`RequestCard`](/docs/components/request-card); for the live checklist once work starts, a task list.
+
+<ComponentPreview name="planCard" file="components/preview/plan-card.tsx" />
+
+## Examples
+
+### A revised plan
+
+From v2 on, the agent's revision note leads the steps. A new or changed step carries a dot (and
+"New" or "Changed" for screen readers); a removed step stays in place, struck through.
+
+<ComponentPreview
+  name="planCardRevised"
+  file="components/preview/plan-card.tsx"
+/>
+
+### A long plan
+
+Six steps show; the rest fold into "+ 3 more steps", which opens in place along with each step's
+detail. The card never scrolls on its own.
+
+<ComponentPreview name="planCardLong" file="components/preview/plan-card.tsx" />
+
+### States
+
+`busy` spins the pressed answer and turns the others off. Someone who can't answer sees the plan
+and who it waits for. Once answered, the card closes to one line in the same words on every
+channel, with the plan one click away under Show plan. `error` sits under the card.
+
+<ComponentPreview
+  name="planCardStates"
+  file="components/preview/plan-card.tsx"
+/>
+
+### On a phone
+
+Under 28rem the effect pill becomes its icon (its word stays for screen readers), what a step
+touches wraps under it, and the answers stack with Accept on top, full width.
+
+<ComponentPreview
+  name="planCardNarrow"
+  file="components/preview/plan-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/plan-card.tsx"
+  name="PlanCardProps"
+/>
+
+## Accessibility
+
+- The card is a region named by the plan's title, and every answer is described by it, so two plans
+  in one chat never share a name.
+- Steps are an ordered list. Each step's number, its change ("New: ", "Changed: ") and its effect are
+  read in words; the dots and icons are decorative.
+- Each step's comment button is named "Comment on step 3"; it opens the change note with that step's
+  own note focused. Cancel returns focus to Request changes.
+- The settled line is announced through one polite live region when it changes on screen, never on
+  first paint.
+
+| Key              | Action                                           |
+| ---------------- | ------------------------------------------------ |
+| <kbd>Tab</kbd>   | Move through the steps' comments and the answers |
+| <kbd>Enter</kbd> | Run the focused answer, or open a fold           |
+
+<StatesTested name="plan-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep Accept the one primary answer: the card shows the whole plan, so the click is informed."
+  dont="Offer Accept and allow these in this chat for actions a workspace rule always asks about."
+/>

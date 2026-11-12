@@ -1,0 +1,79 @@
+---
+title: Composer Chip
+description: A small round chip for the chat composer's toolbar, for a mode such as Plan or a choice such as the model.
+audience: public
+registry: composer-chip
+status: stable
+since: 0.75.0
+a11y: aria-pressed toggle; menu trigger named by choice
+preview: composerChip
+---
+
+## Install
+
+<InstallSteps name="composer-chip" />
+
+## Usage
+
+```tsx
+import { ComposerChip } from "@/components/ui/composer-chip";
+
+<ComposerChip
+  icon={<ListChecks />}
+  pressed={plan}
+  onPressedChange={setPlan}
+  tooltip="Plan first: it changes nothing until you accept"
+>
+  Plan
+</ComposerChip>;
+```
+
+One look, three forms. With `pressed` or `defaultPressed` it is a toggle: a quiet outline when off,
+the primary tint when on. With `menu` it is a picker's trigger with a chevron, and it spreads every
+prop onto its button so a menu can render it (`render={<ComposerChip menu … />}`). With `readOnly` it
+shows the same words with no control, for a reader who may not change them. Pass the chips to
+`ChatComposer`'s toolbar. For what travels with the message, use the composer's own chips.
+
+<ComponentPreview
+  name="composerChip"
+  file="components/preview/composer-chip.tsx"
+/>
+
+## Examples
+
+### States
+
+Off, on, a menu trigger, disabled, and read-only.
+
+<ComponentPreview
+  name="composerChipStates"
+  file="components/preview/composer-chip.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/composer-chip.tsx"
+  name="ComposerChipProps"
+/>
+
+## Accessibility
+
+- The toggle is a button with `aria-pressed`. The menu trigger takes the menu's own attributes; give
+  it a name that says the choice, "Model: Haiku 5.5".
+- Read-only is plain text: it takes no focus.
+- `tooltip` opens on hover and on keyboard focus.
+
+| Key              | Action                            |
+| ---------------- | --------------------------------- |
+| <kbd>Tab</kbd>   | Move to the chip                  |
+| <kbd>Space</kbd> | Flip the toggle, or open the menu |
+
+<StatesTested name="composer-chip" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the toolbar to two or three chips: a mode and the model."
+  dont="Use a chip for an action that sends or changes something; that is a button."
+/>

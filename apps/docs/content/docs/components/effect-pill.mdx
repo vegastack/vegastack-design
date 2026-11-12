@@ -1,0 +1,61 @@
+---
+title: Effect Pill
+description: What one step of an agent's plan does, in a word and an icon, hued by how far it reaches.
+audience: public
+registry: effect-pill
+status: stable
+since: 0.75.0
+a11y: the word is always in the accessible text
+preview: effectPill
+---
+
+## Install
+
+<InstallSteps name="effect-pill" />
+
+## Usage
+
+```tsx
+import { EffectPill } from "@/components/ui/effect-pill";
+
+<EffectPill effect="send" />;
+```
+
+Six effects, least reach first: `read`, `draft`, `change`, `send`, `remove`, `spend`. Reading and
+drafting are quiet, a change is informational, sending and spending warn, and removing is
+destructive. The word carries the meaning; the colour only repeats it.
+[`PlanCard`](/docs/components/plan-card) gives every step one.
+
+<ComponentPreview name="effectPill" file="components/preview/effect-pill.tsx" />
+
+## Examples
+
+### Icon only
+
+For a narrow column, `iconOnly` keeps the icon and leaves the word to screen readers.
+
+<ComponentPreview
+  name="effectPillIconOnly"
+  file="components/preview/effect-pill.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/effect-pill.tsx"
+  name="EffectPillProps"
+/>
+
+## Accessibility
+
+- The pill is text, not a control. Its word is read in place, also when only the icon shows.
+- The icon is decorative.
+
+<StatesTested name="effect-pill" />
+
+## Do / Don't
+
+<DoDont
+  do="Pick the effect with the widest reach: a step that drafts and then sends is send."
+  dont="Use the pill as a status or a button; it names what a step does."
+/>

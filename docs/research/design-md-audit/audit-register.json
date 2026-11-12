@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "cb29f4e52b40a74d101d18727b0389a0d79b9ae496dde104a7098ba4fa348b17",
+  "contractSha256": "8b703d6295f69c64924bf1c3474ee79d2b980bfbeed0a5f25a2626a37fdc5b59",
   "expectedCounts": {
-    "totalRegistryItems": 803,
-    "components": 211,
+    "totalRegistryItems": 806,
+    "components": 214,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -1548,6 +1548,39 @@
         "packages/ui/registry/ui/memory-note.tsx"
       ],
       "docsSlug": "/docs/components/memory-note",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "effect-pill",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/effect-pill.tsx"
+      ],
+      "docsSlug": "/docs/components/effect-pill",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "composer-chip",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/composer-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/composer-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "plan-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/plan-card.tsx"
+      ],
+      "docsSlug": "/docs/components/plan-card",
       "contractStatus": "reconciled"
     },
     {

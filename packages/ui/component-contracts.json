@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 803,
-    "components": 211,
+    "totalRegistryItems": 806,
+    "components": 214,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 21,
+    "AI/chat": 24,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -259,7 +259,10 @@
       "request-card",
       "memory-note",
       "task-list",
-      "run-usage"
+      "run-usage",
+      "effect-pill",
+      "composer-chip",
+      "plan-card"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -31746,6 +31749,539 @@
             },
             {
               "name": "data-tone",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "effect-pill",
+      "registryType": "registry:ui",
+      "title": "Effect Pill",
+      "summary": "A small pill naming one plan step's effect (read, draft, change, send, remove, spend) with an icon, hued by reach; icon-only for narrow columns.",
+      "status": "stable",
+      "since": "0.75.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/effect-pill.tsx"],
+      "publicSymbols": [
+        {
+          "name": "EffectPill",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/effect-pill.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "span",
+            "rationale": "Props, including ref, spread onto Badge's root span."
+          }
+        },
+        {
+          "name": "EffectPillProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/effect-pill.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanEffect",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/effect-pill.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PLAN_EFFECTS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/effect-pill.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant array, not a component."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "effect",
+            "values": ["read", "draft", "change", "send", "remove", "spend"]
+          },
+          {
+            "name": "iconOnly",
+            "values": ["false", "true"]
+          }
+        ],
+        "rationale": "The effect sets the icon, word and hue; iconOnly keeps the word for screen readers only."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Badge's one height."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["effects", "icon-only", "custom-label"],
+          "evidence": "packages/ui/registry/ui/effect-pill.tsx + packages/ui/registry/ui/effect-pill.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "word-always-in-name",
+            "icon-decorative",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/effect-pill.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["effects", "icon-only"],
+          "evidence": "packages/ui/registry/ui/effect-pill.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A fixed-height pill; the host chooses iconOnly for narrow columns."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion beyond the spinner."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/effect-pill",
+      "registryDependencies": ["@vegastack/badge"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/effect-pill.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "effect-pill",
+      "dataAttributes": {
+        "EffectPill": {
+          "attributes": [
+            {
+              "name": "data-effect",
+              "values": []
+            },
+            {
+              "name": "data-icon",
+              "values": ["inline-start"]
+            },
+            {
+              "name": "data-icon-only",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["effect-pill"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "composer-chip",
+      "registryType": "registry:ui",
+      "title": "Composer Chip",
+      "summary": "A round toolbar chip for the chat composer: a toggle (Plan), a menu trigger with a chevron (the model), or read-only words, with an optional tooltip.",
+      "status": "stable",
+      "since": "0.75.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/composer-chip.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ComposerChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/composer-chip.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Props, including ref, spread onto the toggle or button (a span when readOnly)."
+          }
+        },
+        {
+          "name": "ComposerChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/composer-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "kind",
+            "values": ["toggle", "menu", "button", "read-only"]
+          }
+        ],
+        "rationale": "pressed/defaultPressed make a toggle, menu adds a chevron, readOnly drops the control."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The composer toolbar's one height."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["off", "on", "menu", "read-only", "disabled", "tooltip"],
+          "evidence": "packages/ui/registry/ui/composer-chip.tsx + packages/ui/registry/ui/composer-chip.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "aria-pressed",
+            "menu-trigger-name",
+            "read-only-not-focusable",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/composer-chip.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["off", "on", "menu", "read-only", "disabled"],
+          "evidence": "packages/ui/registry/ui/composer-chip.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The words truncate inside the chip in a narrow toolbar."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion beyond the spinner."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/composer-chip",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/composer-chip.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "composer-chip",
+      "dataAttributes": {
+        "ComposerChip": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": ["button", "menu", "toggle"]
+            },
+            {
+              "name": "data-read-only",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["composer-chip"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "plan-card",
+      "registryType": "registry:ui",
+      "title": "Plan Card",
+      "summary": "An agent's plan put to the person: goal, steps with effect pills and touches, assumptions, won't do, will ask, risk, a version diff, per-step comments, four answers and settled lines.",
+      "status": "stable",
+      "since": "0.75.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/plan-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PlanCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Props, including ref, spread onto the root section."
+          }
+        },
+        {
+          "name": "PlanCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanSpec",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanStep",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanAgent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanChangeRequest",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanCardLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanCardState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanRisk",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlanStepChange",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/plan-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": [
+              "pending",
+              "accepted",
+              "accepted_allowed",
+              "changes_requested",
+              "rejected",
+              "replaced",
+              "expired"
+            ]
+          },
+          {
+            "name": "risk",
+            "values": ["low", "medium", "high"]
+          }
+        ],
+        "rationale": "The state picks the answers or the settled line; the risk the dot and its word."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "pending",
+            "answers",
+            "busy",
+            "request-changes",
+            "step-comments",
+            "fold",
+            "full-plan",
+            "version-diff",
+            "settled",
+            "show-plan",
+            "waiting",
+            "error"
+          ],
+          "evidence": "packages/ui/registry/ui/plan-card.tsx + packages/ui/registry/ui/plan-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labelled-section",
+            "answers-described-by-title",
+            "settled-line-announced",
+            "step-comment-names",
+            "focus-returns-on-cancel",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/plan-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["pending", "diff", "request-changes", "settled", "narrow"],
+          "evidence": "packages/ui/registry/ui/plan-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "A container query: under 28rem the effect pill becomes its icon, touches wrap under the step and the answers stack full width."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion beyond the spinner."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/plan-card",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/effect-pill",
+        "@vegastack/person-avatar",
+        "@vegastack/textarea",
+        "@vegastack/use-announcer"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/plan-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "plan-card",
+      "dataAttributes": {
+        "PlanCard": {
+          "attributes": [
+            {
+              "name": "data-answer",
+              "values": [
+                "accept",
+                "accept-allow",
+                "reject",
+                "request-changes",
+                "send-changes"
+              ]
+            },
+            {
+              "name": "data-change",
+              "values": []
+            },
+            {
+              "name": "data-effect",
+              "values": []
+            },
+            {
+              "name": "data-risk",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "plan-card",
+                "plan-card-actions",
+                "plan-card-changes",
+                "plan-card-eyebrow",
+                "plan-card-fold",
+                "plan-card-goal",
+                "plan-card-header",
+                "plan-card-notes",
+                "plan-card-revision",
+                "plan-card-risk",
+                "plan-card-status",
+                "plan-card-step",
+                "plan-card-step-change",
+                "plan-card-step-comment",
+                "plan-card-step-detail",
+                "plan-card-step-note",
+                "plan-card-steps",
+                "plan-card-title",
+                "plan-card-toggle",
+                "plan-card-will-ask"
+              ]
+            },
+            {
+              "name": "data-state",
               "values": []
             }
           ],
