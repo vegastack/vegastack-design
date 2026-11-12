@@ -1026,6 +1026,12 @@
       "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) — operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no effect label. A thin composition of upstream badge with a lucide icon per effect and a fixed variant per effect; no patch."
     },
+    "context-ring": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent harness DS1 Task D.1 (the chat memory ring in the composer) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "rationale": "Upstream ships no context meter. A composition of upstream button and popover with our use-announcer: upload-panel's masked conic ring in three tones (blue under 75%, amber from 75%, red from 90%) and an empty outline, a breakdown with Summarize now; no patch."
+    },
     "composer-chip": {
       "disposition": "keep",
       "family": "chat",

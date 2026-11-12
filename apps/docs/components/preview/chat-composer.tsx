@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { SquareCheck, X } from "lucide-react";
+import { ListChecks, SquareCheck, X } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/chat-composer` (dogfoods the registry) → auto-scanned.
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import {
   splitChipIconActionClassName,
 } from "@/components/ui/record-chip";
 import type { TextEditMentions } from "@/components/ui/text-edit";
+import { ComposerChip } from "@/components/ui/composer-chip";
+import { ContextRing } from "@/components/ui/context-ring";
 
 const mentions: TextEditMentions = {
   kinds: [
@@ -183,5 +185,52 @@ export function chatComposerNotice(): ReactNode {
         />
       </div>
     </Wrapper>
+  );
+}
+
+export function chatComposerToolbar(): ReactNode {
+  function Demo(): ReactNode {
+    const [plan, setPlan] = useState(true);
+    return (
+      <ChatComposer
+        placeholder={
+          plan ? "Describe the job. I'll plan it first." : "Ask a follow-up…"
+        }
+        onAttach={() => {}}
+        onSubmit={() => {}}
+        toolbarStart={
+          <>
+            <ComposerChip
+              icon={<ListChecks />}
+              pressed={plan}
+              onPressedChange={setPlan}
+              tooltip="Plan first: it reads and proposes, and changes nothing until you accept"
+            >
+              Plan
+            </ComposerChip>
+            <ComposerChip menu aria-label="Model: Haiku 5.5">
+              Haiku 5.5
+            </ComposerChip>
+          </>
+        }
+        toolbarEnd={
+          <ContextRing
+            used={81_000}
+            window={100_000}
+            parts={[
+              { label: "Instructions & tools", tokens: 14_000 },
+              { label: "Conversation", tokens: 52_000 },
+              { label: "Tool results", tokens: 15_000 },
+            ]}
+            onSummarize={() => {}}
+          />
+        }
+      />
+    );
+  }
+  return (
+    <Column>
+      <Demo />
+    </Column>
   );
 }

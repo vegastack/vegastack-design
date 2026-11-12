@@ -475,3 +475,39 @@ test("Backspace in the empty box takes the last attachment off; with text it del
   await userEvent.keyboard("ab{Backspace}");
   expect(remove).toHaveBeenCalledOnce();
 });
+
+test("toolbarStart follows 📎 and toolbarEnd sits just before Send", async () => {
+  const screen = await mount({
+    onSubmit: () => {},
+    onAttach: () => {},
+    toolbarStart: <Button size="xs">Plan</Button>,
+    toolbarEnd: <Button size="xs">Ring</Button>,
+  });
+  const order = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="chat-composer-toolbar"] button',
+    ),
+  ].map((button) => button.getAttribute("aria-label") ?? button.textContent);
+  expect(order).toEqual(["Add files", "Plan", "Ring", "Send"]);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("at a phone's width the end slot keeps Send on the toolbar's line", async () => {
+  const screen = await render(
+    <div style={{ width: 320 }}>
+      <ChatComposer
+        onSubmit={() => {}}
+        onAttach={() => {}}
+        toolbarStart={<Button size="xs">A long mode name that wraps</Button>}
+        toolbarEnd={<Button size="xs">Ring</Button>}
+      />
+    </div>,
+  );
+  const toolbar = screen.container.querySelector<HTMLElement>(
+    '[data-slot="chat-composer-toolbar"]',
+  )!;
+  const sendBox = send().element().getBoundingClientRect();
+  const bar = toolbar.getBoundingClientRect();
+  expect(sendBox.right).toBeLessThanOrEqual(bar.right + 0.5);
+  expect(sendBox.top).toBeGreaterThanOrEqual(bar.top - 0.5);
+});

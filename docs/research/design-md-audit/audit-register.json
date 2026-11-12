@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8b703d6295f69c64924bf1c3474ee79d2b980bfbeed0a5f25a2626a37fdc5b59",
+  "contractSha256": "791be4d3a66c95455a7b7db7327049c0c379273aa53b803ddff222dcec859c4a",
   "expectedCounts": {
-    "totalRegistryItems": 806,
-    "components": 214,
+    "totalRegistryItems": 807,
+    "components": 215,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -1570,6 +1570,17 @@
         "packages/ui/registry/ui/composer-chip.tsx"
       ],
       "docsSlug": "/docs/components/composer-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "context-ring",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/context-ring.tsx"
+      ],
+      "docsSlug": "/docs/components/context-ring",
       "contractStatus": "reconciled"
     },
     {

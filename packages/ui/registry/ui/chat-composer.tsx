@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.66.2 sha256-SMSNQFnplsYVTx54UqMB3Cd9FKtnYIC1n40EmuzL2VM=
+// @vegastack chat-composer@0.66.2 sha256-4amgua6+0Nn2mVi4vXCMC+zWTPyYB7TUsVGbSNS5HiM=
 
 "use client";
 
@@ -111,6 +111,17 @@ export interface ChatComposerProps extends Omit<
   hasAttachments?: boolean;
   /** What travels with the message, above the text: the page's chip, attached files. @default undefined */
   chips?: React.ReactNode;
+  /**
+   * Tools after 📎 and @ at the start of the toolbar: a mode chip (`ComposerChip`, Plan), the model
+   * picker's chip. @default undefined
+   */
+  toolbarStart?: React.ReactNode;
+  /**
+   * Controls just before Send or Stop: the chat memory ring (`ContextRing`), a model chip. Keep it
+   * to small, icon-height controls; they stay on the toolbar's one line.
+   * @default undefined
+   */
+  toolbarEnd?: React.ReactNode;
   /** The 📎 button: open the host's uploads picker. Without it, there is no button. @default undefined */
   onAttach?: () => void;
   /** Files pasted or dropped on the box. Without it, they go nowhere. @default undefined */
@@ -309,9 +320,10 @@ function ToolButton({
 
 /**
  * `ChatComposer` — the box a person talks to an agent in: chips for what travels with the message,
- * the text with `@` mentions, 📎 and @ at the start of its toolbar, and Send at the end, which turns
- * into Stop while the agent answers. Enter sends and Shift+Enter breaks the line, except on a phone,
- * where return breaks the line and the button sends. It grows to about eight lines, then scrolls.
+ * the text with `@` mentions, 📎 and @ at the start of its toolbar (then `toolbarStart`), and Send at
+ * the end (after `toolbarEnd`), which turns into Stop while the agent answers. Enter sends and
+ * Shift+Enter breaks the line, except on a phone, where return breaks the line and the button sends.
+ * It grows to about eight lines, then scrolls.
  *
  * @example
  * <ChatComposer
@@ -333,6 +345,8 @@ export function ChatComposer({
   submitDisabledReason,
   hasAttachments = false,
   chips,
+  toolbarStart,
+  toolbarEnd,
   onAttach,
   onFiles,
   dropTypes,
@@ -685,7 +699,21 @@ export function ChatComposer({
                 <AtSign aria-hidden />
               </ToolButton>
             ) : null}
-            <span className="ms-auto inline-flex">{action}</span>
+            {toolbarStart ? (
+              <div
+                data-slot="chat-composer-toolbar-start"
+                className="flex min-w-0 items-center gap-1"
+              >
+                {toolbarStart}
+              </div>
+            ) : null}
+            <div
+              data-slot="chat-composer-toolbar-end"
+              className="ms-auto flex shrink-0 items-center gap-1"
+            >
+              {toolbarEnd}
+              <span className="inline-flex">{action}</span>
+            </div>
           </div>
         </TextEdit>
         {dragging ? (

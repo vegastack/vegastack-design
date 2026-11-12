@@ -46,6 +46,7 @@ export * from "./composer-chip";
 export * from "./plan-card";
 export * from "./run-usage";
 export * from "./task-list";
+export * from "./context-ring";
 export * from "./chat-composer";
 export * from "./message-parts";
 export * from "./approval-card";
