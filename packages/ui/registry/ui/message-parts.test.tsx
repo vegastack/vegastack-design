@@ -440,7 +440,7 @@ test("every button in the actions row, wrapped in a trigger or not, is one 28px 
       </Button>
       <CopyButton value="An answer" size="icon-xs" />
       <Button size="icon-sm" variant="ghost" aria-label="Retry">
-        {icon}
+        <svg aria-hidden data-icon="inline-end" viewBox="0 0 24 24" />
       </Button>
       <Toggle aria-label="Helpful">
         <svg aria-hidden data-icon="inline-start" viewBox="0 0 24 24" />
