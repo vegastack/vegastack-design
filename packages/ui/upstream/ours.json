@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 147,
+    "total": 148,
     "fromExtras": 46
   },
   "items": {
@@ -1013,6 +1013,12 @@
       "family": "chat",
       "source": "VegaStack agent harness DS1 Task D.3 (the live task list) — operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no agent task list. A composition of upstream badge, button, collapsible and spinner with our use-announcer: a windowed checklist (live item on top, done and later items folded, problems never folded), a waiting badge, Subagent progress and a sticky progress bar; no patch."
+    },
+    "run-usage": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent harness DS1 Task D.5 (run usage chip, panel and table) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "rationale": "Upstream ships no run usage view. A presentational composition over upstream table parts, skeleton and button with our table-scroll-region: one data shape drawn as a chip, a panel (totals, by model, activity, cache per step, total with Subagents) and a per-call table; no patch."
     }
   }
 }

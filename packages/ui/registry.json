@@ -16261,6 +16261,37 @@
       }
     },
     {
+      "name": "run-usage",
+      "type": "registry:ui",
+      "title": "Run Usage",
+      "description": "What one agent run used: a chip under the answer (steps, context, cache, optional money), a panel by model with cache per step and Subagents, and a table with one row per model call.",
+      "categories": ["chat"],
+      "dependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/date-time",
+        "@vegastack/skeleton",
+        "@vegastack/table",
+        "@vegastack/use-announcer",
+        "@vegastack/use-overflow"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/run-usage.tsx",
+          "type": "registry:ui",
+          "target": "@ui/run-usage.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show what an agent run used: the chip under an answer, the panel in a run drawer, the table of model calls for maintainers and admins.",
+        "whenNotToUse": "Workspace-wide spend over time (a chart) or a single context gauge in the composer (ContextRing).",
+        "version": "0.73.0"
+      }
+    },
+    {
       "name": "chat-composer",
       "type": "registry:ui",
       "title": "Chat Composer",

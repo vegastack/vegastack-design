@@ -1,0 +1,137 @@
+---
+title: Run Usage
+description: What one agent run used, in three sizes over one data shape — a chip under the answer, a panel by model, and a table of model calls.
+audience: public
+registry: run-usage
+status: stable
+since: 0.74.0
+a11y: named region; captioned table; estimates read "about"
+preview: runUsage
+---
+
+## Install
+
+<InstallSteps name="run-usage" />
+
+## Usage
+
+```tsx
+import {
+  RunUsageChip,
+  RunUsagePanel,
+  RunUsageTable,
+} from "@/components/ui/run-usage";
+
+<RunUsageChip
+  summary={{
+    steps: 3,
+    contextTokens: 62000,
+    contextWindow: 100000,
+    cachedRatio: 0.92,
+  }}
+/>;
+<RunUsagePanel
+  summary={summary}
+  models={models}
+  calls={calls}
+  asOf="Data as of 14:02"
+/>;
+<RunUsageTable calls={calls} />;
+```
+
+Every number is the host's. Money is optional in every part: leave `cost` out and no money shows,
+so a reader who may see tokens but not dollars gets the same parts. A number with
+`basis: "estimated"` reads "~". For the context gauge in the composer, use
+the composer's context ring.
+
+<ComponentPreview name="runUsage" file="components/preview/run-usage.tsx" />
+
+## Anatomy
+
+<Anatomy name="run-usage" />
+
+## Examples
+
+### Chip
+
+One muted line under an answer: steps, the peak context and its share of the working window, the
+cache share and, when passed, money. Each part shows only when its number is passed.
+
+<ComponentPreview name="runUsageChip" file="components/preview/run-usage.tsx" />
+
+### Without money
+
+The same panel for a reader who sees tokens and context but never dollars.
+
+<ComponentPreview
+  name="runUsagePanelNoMoney"
+  file="components/preview/run-usage.tsx"
+/>
+
+### Table
+
+One row per model call, with the Subagent that made it, the four token kinds, the cache result,
+time and cost, and a total row. Numbers are right-aligned in tabular figures.
+
+<ComponentPreview
+  name="runUsageTable"
+  file="components/preview/run-usage.tsx"
+/>
+
+### States
+
+An empty run, loading placeholders, and an error with Try again.
+
+<ComponentPreview
+  name="runUsageStates"
+  file="components/preview/run-usage.tsx"
+/>
+
+### On a phone
+
+In a narrow column the panel's grids stack and the table scrolls sideways inside its own region.
+
+<ComponentPreview
+  name="runUsageNarrow"
+  file="components/preview/run-usage.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/run-usage.tsx"
+  name="RunUsagePanelProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/run-usage.tsx"
+  name="RunUsageChipProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/run-usage.tsx"
+  name="RunUsageTableProps"
+/>
+
+## Accessibility
+
+- The panel is a region named by its heading ("Run usage"); its totals are description lists, so
+  each number is read with its label.
+- The table has a caption, column headers and a row header on the total. When it is wider than its
+  column it scrolls inside a region named by the caption, which takes focus only while it scrolls.
+- An estimated number shows "~" and is read as "about".
+- Loading sets `aria-busy` and carries a status, "Loading usage"; the placeholders are hidden.
+
+| Key                                          | Action                                   |
+| -------------------------------------------- | ---------------------------------------- |
+| <kbd>Tab</kbd>                               | Move to the table's scroll region, Retry |
+| <kbd>ArrowLeft</kbd> / <kbd>ArrowRight</kbd> | Scroll the focused table sideways        |
+
+<StatesTested name="run-usage" />
+
+## Do / Don't
+
+<DoDont
+  do="Leave cost out for readers who may not see money: every part drops it cleanly."
+  dont="Show a provider's raw token names or model ids: pass display names and plain purposes."
+/>
