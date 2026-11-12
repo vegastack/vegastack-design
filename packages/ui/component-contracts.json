@@ -44615,7 +44615,7 @@
       "name": "agent-question-form",
       "registryType": "registry:ui",
       "title": "Agent Question Form",
-      "summary": "An agent asks one to five questions at once: options with their descriptions in view, the first recommended, own words and a note per question, previews, steps and a review; and the read-only answers.",
+      "summary": "An agent asks one to five questions at once: options with their descriptions in view, the first recommended unless turned off, own words and a note per question, previews, steps and a review; and the read-only answers.",
       "status": "stable",
       "since": "0.59.0",
       "family": "chat",
@@ -44725,7 +44725,8 @@
             "submitting",
             "error",
             "sent",
-            "disabled"
+            "disabled",
+            "no-recommendation"
           ],
           "evidence": "packages/ui/registry/ui/agent-question-form.tsx + packages/ui/registry/ui/agent-question-form.test.tsx"
         },

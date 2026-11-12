@@ -42,7 +42,8 @@ answered with `AgentQuestionAnswers`.
 
 ## Scope
 
-- The first option is the recommended one and carries the badge. Order the options so it is.
+- The first option is the recommended one and carries the badge. Order the options so it is. When
+  no option is better than another, `recommended={false}` drops the badge.
 - Every option shows its description in full. Nothing hides behind a tooltip.
 - The person can always answer in their own words (Other), and add a note to any question.
 - Every word is a prop in `labels`, with an English default.
@@ -60,6 +61,16 @@ sends it at once. Other opens a box for the person's own words with a Send butto
 
 <ComponentPreview
   name="agentQuestionFormCompact"
+  file="components/preview/agent-question-form.tsx"
+/>
+
+### No recommendation
+
+Some questions have no right answer: a person's role, how they like answers. `recommended={false}`
+marks no option; nothing else changes.
+
+<ComponentPreview
+  name="agentQuestionFormNoRecommendation"
   file="components/preview/agent-question-form.tsx"
 />
 

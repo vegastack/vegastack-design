@@ -31,6 +31,18 @@ const one: AgentQuestionFormQuestion[] = [
   },
 ];
 
+const role: AgentQuestionFormQuestion[] = [
+  {
+    header: "Role",
+    question: "What's your role?",
+    options: [
+      { label: "Sales", description: "Quotes, follow-ups and client calls." },
+      { label: "Design", description: "Layouts, lighting plans and samples." },
+      { label: "Operations", description: "Orders, stock and deliveries." },
+    ],
+  },
+];
+
 const layoutA = `┌──────────────┬───────────────────────────┐
 │ Sidebar      │ Task list                 │
 │ ▸ Inbox      │ ☐ Order 3000 K samples    │
@@ -131,6 +143,21 @@ export function agentQuestionFormCompact(): ReactNode {
     <Column>
       <AgentQuestionForm
         questions={one}
+        onSubmit={async () => {
+          await wait(600);
+          return null;
+        }}
+      />
+    </Column>
+  );
+}
+
+export function agentQuestionFormNoRecommendation(): ReactNode {
+  return (
+    <Column>
+      <AgentQuestionForm
+        questions={role}
+        recommended={false}
         onSubmit={async () => {
           await wait(600);
           return null;

@@ -112,6 +112,38 @@ test("one single-choice question without previews is compact, with descriptions 
   expect(options[0]!.hasAttribute("data-disabled")).toBe(true);
 });
 
+test("recommended={false} marks no option, compact or full", async () => {
+  const compact = await render(
+    <AgentQuestionForm
+      questions={one}
+      recommended={false}
+      onSubmit={async () => null}
+    />,
+  );
+  expect(slots(compact.container, "agent-question-form-option")).toHaveLength(
+    2,
+  );
+  expect(
+    slots(compact.container, "agent-question-form-recommended"),
+  ).toHaveLength(0);
+  await compact.unmount();
+
+  const full = await render(
+    <AgentQuestionForm
+      questions={batch}
+      recommended={false}
+      onSubmit={async () => null}
+    />,
+  );
+  expect(slot(full.container, "agent-question-form")!.dataset.mode).toBe(
+    "full",
+  );
+  expect(slots(full.container, "agent-question-form-recommended")).toHaveLength(
+    0,
+  );
+  await expectNoA11yViolations(full.container);
+});
+
 test("compact Other reveals a box and sends the person's own words", async () => {
   const onSubmit = vi.fn(async () => null);
   const screen = await render(
