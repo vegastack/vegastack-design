@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.60.0 sha256-Lm3vycCvjw60P0TSpdJGWdGdrdH+HO17PVu0L4OkGDY=
+// @vegastack relative-time@0.60.0 sha256-wN/PBd0LozwdP5YFRHgJXViMNShklcCg9+DlIA/1rIc=
 
 "use client";
 
@@ -22,6 +22,7 @@ import {
   formatRelative,
   formatTimeOfDay,
   formatTooltip,
+  type DateFormat,
   type DueTone,
   type FormatDateOptions,
   type FormatDateTimeOptions,
@@ -30,6 +31,11 @@ import {
 
 /** The viewer's IANA zone, provided once at the root. */
 const TimeZoneContext = React.createContext<string | undefined>(undefined);
+
+/** The workspace's date order and clock, provided once at the root. */
+const DateFormatContext = React.createContext<DateFormat | undefined>(
+  undefined,
+);
 
 const ReferenceClockContext = React.createContext<number | undefined>(
   undefined,
@@ -150,27 +156,47 @@ export function useDateTimeNow(): number | undefined {
 }
 
 /**
- * `TimeZoneProvider` — hand every date component (and `useTimeZone`) the viewer's zone. On the
- * server, read it with `getTimeZone(cookies().get("tz")?.value, config.orgTimeZone)`.
+ * `TimeZoneProvider` — hand every date component (and `useTimeZone`, `useDateFormat`) the viewer's
+ * zone and the workspace's date format. On the server, read the zone with
+ * `getTimeZone(cookies().get("tz")?.value, config.orgTimeZone)`.
  *
  * @example
- * <TimeZoneProvider timeZone={timeZone}>{children}</TimeZoneProvider>
+ * <TimeZoneProvider timeZone={timeZone} dateFormat={{ dateStyle: "dmy", hourCycle: "h23" }}>
+ *   {children}
+ * </TimeZoneProvider>
  */
 export function TimeZoneProvider({
   timeZone,
+  dateFormat,
   referenceNow,
   children,
 }: {
   timeZone: string;
+  /**
+   * The date order and clock every date component writes in ("12 Nov · 15:40"). Omit it and each
+   * component's `locale` decides.
+   * @default undefined
+   */
+  dateFormat?: DateFormat;
   /** Request timestamp serialized with the page, for stable relative SSR and hydration. */
   referenceNow?: number;
   children: React.ReactNode;
 }) {
+  const dateStyle = dateFormat?.dateStyle;
+  const hourCycle = dateFormat?.hourCycle;
+  // A stable value while the format holds, so a parent's re-render (a new object literal) does
+  // not re-render every date below it.
+  const format = React.useMemo(
+    () => (dateStyle && hourCycle ? { dateStyle, hourCycle } : undefined),
+    [dateStyle, hourCycle],
+  );
   return (
     <TimeZoneContext.Provider value={timeZone}>
-      <ReferenceClockContext.Provider value={referenceNow}>
-        {children}
-      </ReferenceClockContext.Provider>
+      <DateFormatContext.Provider value={format}>
+        <ReferenceClockContext.Provider value={referenceNow}>
+          {children}
+        </ReferenceClockContext.Provider>
+      </DateFormatContext.Provider>
     </TimeZoneContext.Provider>
   );
 }
@@ -178,6 +204,18 @@ export function TimeZoneProvider({
 /** The zone from the nearest `TimeZoneProvider`, or `undefined` (the runtime's zone). */
 export function useTimeZone(): string | undefined {
   return React.useContext(TimeZoneContext);
+}
+
+/**
+ * The date format from the nearest `TimeZoneProvider`, or `undefined` (each helper's `locale`
+ * decides). Pass it to the `@/lib/date-time` helpers as `dateFormat`.
+ *
+ * @example
+ * const dateFormat = useDateFormat();
+ * formatDateTime(at, { timeZone, dateFormat }); // "12 Nov · 15:40"
+ */
+export function useDateFormat(): DateFormat | undefined {
+  return React.useContext(DateFormatContext);
 }
 
 /**
@@ -261,22 +299,37 @@ function formatDay(
   timeZone: string | undefined,
   formatOptions: Intl.DateTimeFormatOptions,
   withTime: boolean,
+  dateFormat: DateFormat | undefined,
 ): string {
   const [ty, tm, td] = calendarDay(target, timeZone);
   const [ny, nm, nd] = calendarDay(now, timeZone);
   const dayDelta = Math.round(
     (Date.UTC(ty, tm, td) - Date.UTC(ny, nm, nd)) / MS.day,
   );
-  const time = withTime
-    ? new Intl.DateTimeFormat(locale, { ...TIME_FORMAT, timeZone }).format(
-        target,
-      )
-    : "";
+  const time = !withTime
+    ? ""
+    : dateFormat
+      ? formatTimeOfDay(target, { timeZone, dateFormat })
+      : new Intl.DateTimeFormat(locale, { ...TIME_FORMAT, timeZone }).format(
+          target,
+        );
 
   if (Math.abs(dayDelta) <= 1) {
     // numeric: 'auto' yields "today"/"yesterday"/"tomorrow" for -1..1.
     const word = rtf.format(dayDelta, "day");
     return withTime ? `${word}, ${time}` : word;
+  }
+  // The workspace's format writes the default day in its own order ("15 March", "2026-03-15");
+  // a caller's own `formatOptions` still win.
+  if (dateFormat && formatOptions === DEFAULT_DAY_FORMAT) {
+    const day = formatDate(target, {
+      timeZone,
+      dateFormat,
+      now,
+      absolute: true,
+      month: "long",
+    });
+    return withTime ? `${day}, ${time}` : day;
   }
   const sameYear = ty === ny;
   // `dateStyle`/`timeStyle` cannot be combined with component fields (`Intl` throws), so a style
@@ -292,6 +345,7 @@ function formatDay(
         ? { timeStyle: formatOptions.timeStyle ?? "short" }
         : { hour: "numeric", minute: "2-digit" }
       : {}),
+    ...(withTime && dateFormat ? { hourCycle: dateFormat.hourCycle } : {}),
     timeZone: timeZone ?? formatOptions.timeZone,
   }).format(target);
 }
@@ -462,6 +516,7 @@ export function RelativeTime({
   const isFocusable = useTruncationFocusable(focusable);
   const contextZone = useTimeZone();
   const timeZone = timeZoneProp ?? contextZone;
+  const dateFormat = useDateFormat();
   const target = React.useMemo(() => toDate(date), [date]);
   const targetMs = target.getTime();
   const localeKey = Array.isArray(locale) ? locale.join(",") : locale;
@@ -511,6 +566,7 @@ export function RelativeTime({
     : isPendingHydration
       ? clockFreeLabel(target, withTime ? "datetime" : "date", {
           timeZone,
+          dateFormat,
           locale: Array.isArray(locale) ? locale[0] : locale,
         })
       : mode === "day"
@@ -522,6 +578,7 @@ export function RelativeTime({
             timeZone,
             formatOptions,
             withTime,
+            dateFormat,
           )
         : formatRelative(target, {
             now: nowMs,
@@ -565,7 +622,9 @@ export function RelativeTime({
   if (!hasTooltip) return timeEl;
 
   const tooltipLabel =
-    typeof title === "string" ? title : formatTooltip(target, { timeZone });
+    typeof title === "string"
+      ? title
+      : formatTooltip(target, { timeZone, dateFormat });
 
   return (
     <TooltipProvider delay={tooltipDelay}>
@@ -664,6 +723,8 @@ export function DateTime({
   const isFocusable = useTruncationFocusable(focusable);
   const contextZone = useTimeZone();
   const timeZone = timeZoneProp ?? contextZone;
+  const contextFormat = useDateFormat();
+  const dateFormat = options?.dateFormat ?? contextFormat;
   const target = toDate(date);
   const valid = !Number.isNaN(target.getTime());
   // A time of day and an `absolute` date never need a clock; the rest re-render at most every
@@ -672,7 +733,7 @@ export function DateTime({
     options?.now === undefined && variant !== "time" && !options?.absolute;
   const clock = useDateTimeClock(needsClock, 15 * 60_000);
   const referenceNow = options?.now ?? clock;
-  const opts = { ...options, timeZone, now: referenceNow };
+  const opts = { ...options, timeZone, dateFormat, now: referenceNow };
   const label = !valid
     ? ""
     : referenceNow === undefined
@@ -697,7 +758,7 @@ export function DateTime({
   return (
     <WithTooltip
       title={valid && title}
-      label={valid ? formatTooltip(target, { timeZone }) : ""}
+      label={valid ? formatTooltip(target, { timeZone, dateFormat }) : ""}
     >
       {el}
     </WithTooltip>
@@ -797,6 +858,7 @@ export function DueLabel({
   const isFocusable = useTruncationFocusable(focusable);
   const contextZone = useTimeZone();
   const timeZone = timeZoneProp ?? contextZone;
+  const dateFormat = useDateFormat();
   const target = toDate(date);
   const valid = !Number.isNaN(target.getTime());
   // Due labels change at the viewer's midnight, so a quarter-hour bucket is fine-grained enough.
@@ -805,10 +867,10 @@ export function DueLabel({
     ? { label: "", tone: "normal" }
     : now === undefined
       ? {
-          label: `Due ${clockFreeLabel(target, "date", { timeZone })}`,
+          label: `Due ${clockFreeLabel(target, "date", { timeZone, dateFormat })}`,
           tone: "normal",
         }
-      : formatDueLabel(target, { timeZone, now });
+      : formatDueLabel(target, { timeZone, dateFormat, now });
   const el = (
     <time
       data-slot="due-label"
@@ -828,7 +890,7 @@ export function DueLabel({
   return (
     <WithTooltip
       title={valid && title}
-      label={valid ? formatTooltip(target, { timeZone }) : ""}
+      label={valid ? formatTooltip(target, { timeZone, dateFormat }) : ""}
     >
       {el}
     </WithTooltip>

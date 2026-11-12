@@ -110,7 +110,9 @@ pressing <kbd>Enter</kbd>, closes it. Picking a time first lands it on today.
 The value is an instant (a `Date`), shown and edited on the clock of `timeZone` — the reader's zone
 from `TimeZoneProvider` when it is left out. A wall time the zone skips (02:30 on the spring change
 in New York) moves forward past the gap; a repeated one keeps the offset the value had. The clock
-is the locale's, 12- or 24-hour, unless `hourCycle` fixes one, and the chosen time is marked the
+is the `TimeZoneProvider` `dateFormat`'s, else the locale's, 12- or 24-hour, unless `hourCycle`
+fixes one; under a `dateFormat` the default trigger faces read in its order too ("12 Nov 2026",
+"12 Nov 2026, 15:40"). The chosen time is marked the
 way a chosen `SelectItem` is: a trailing check and no fill. A chosen day keeps its
 `primary-foreground` label on hover in both themes.
 

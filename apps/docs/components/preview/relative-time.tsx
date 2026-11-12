@@ -8,8 +8,10 @@ import {
   DueLabel,
   Duration,
   RelativeTime,
+  TimeZoneProvider,
 } from "@/components/ui/relative-time";
 import {
+  formatCalendarDate,
   formatDate,
   formatDateRange,
   formatDateTime,
@@ -19,6 +21,7 @@ import {
   formatRelative,
   formatTimeOfDay,
   groupByDay,
+  type DateFormat,
 } from "@/lib/date-time";
 
 // A fixed reference instant so the showcase renders stable, predictable strings
@@ -424,6 +427,65 @@ export function dateTimeComponents(): ReactNode {
       <Duration value={4500} />
       <Duration value={4504} clock />
       <DueLabel date={new Date(now + DAY)} />
+    </Wrapper>
+  );
+}
+
+const FORMATS: ReadonlyArray<readonly [string, DateFormat]> = [
+  ["dmy · h23", { dateStyle: "dmy", hourCycle: "h23" }],
+  ["dmy · h12", { dateStyle: "dmy", hourCycle: "h12" }],
+  ["mdy · h12", { dateStyle: "mdy", hourCycle: "h12" }],
+  ["ymd · h23", { dateStyle: "ymd", hourCycle: "h23" }],
+];
+
+export function dateTimeFormats(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-start gap-6">
+      {FORMATS.map(([name, dateFormat]) => {
+        const o = { ...O, dateFormat };
+        return (
+          <div key={name} className="flex w-full max-w-md flex-col gap-2">
+            <div className="text-xs font-medium text-muted-foreground">
+              {name}
+            </div>
+            <Rows
+              rows={[
+                ["formatDate", formatDate(offset(-10 * DAY), o)],
+                ["formatDateTime", formatDateTime(offset(-10 * DAY), o)],
+                ["formatTimeOfDay", formatTimeOfDay(offset(0), o)],
+                ["formatLongDate", formatLongDate(offset(0), o)],
+                [
+                  "formatDateRange",
+                  formatDateRange(offset(2 * DAY), offset(5 * DAY), o),
+                ],
+                [
+                  "formatCalendarDate",
+                  formatCalendarDate("2026-10-08", { dateFormat }),
+                ],
+              ]}
+            />
+          </div>
+        );
+      })}
+    </Wrapper>
+  );
+}
+
+export function dateTimeFormatProvider(): ReactNode {
+  const now = Date.now();
+  return (
+    <Wrapper className="flex-col items-start gap-4 text-sm">
+      {FORMATS.map(([name, dateFormat]) => (
+        <TimeZoneProvider key={name} timeZone={TZ} dateFormat={dateFormat}>
+          <div className="flex flex-wrap items-center gap-6">
+            <code className="w-24 text-muted-foreground">{name}</code>
+            <DateTime date={new Date(now - 10 * DAY)} variant="datetime" />
+            <DateTime date={new Date(now)} variant="time" />
+            <DueLabel date={new Date(now + 12 * DAY)} />
+            <RelativeTime date={new Date(now - 2 * HOUR)} />
+          </div>
+        </TimeZoneProvider>
+      ))}
     </Wrapper>
   );
 }

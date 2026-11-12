@@ -4074,7 +4074,8 @@
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
-        "@vegastack/link-provider"
+        "@vegastack/link-provider",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -10554,7 +10555,8 @@
         "@vegastack/popover",
         "@vegastack/searchable-select",
         "@vegastack/toast",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -12418,7 +12420,8 @@
       "docsSlug": "/docs/components/time-field",
       "registryDependencies": [
         "@vegastack/date-time",
-        "@vegastack/input-group"
+        "@vegastack/input-group",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -14559,7 +14562,8 @@
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
         "@vegastack/use-overflow",
-        "@vegastack/date-time"
+        "@vegastack/date-time",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.11.0",
@@ -24204,6 +24208,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "useDateFormat",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/relative-time.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],
@@ -54865,6 +54878,42 @@
         {
           "name": "TimeHourCycle",
           "kind": "type",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DateFormat",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "dateFormatDefaults",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DateStyle",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/date-time.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DEFAULT_DATE_FORMAT",
+          "kind": "component-constant",
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",

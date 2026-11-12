@@ -1,6 +1,16 @@
 import { describe, expect, test } from "vitest";
 import {
+  DEFAULT_DATE_FORMAT,
+  dateFormatDefaults,
   formatCalendarDate,
+  formatDate,
+  formatDateRange,
+  formatDateTime,
+  formatDueLabel,
+  formatLongDate,
+  formatTimeOfDay,
+  formatTooltip,
+  type DateFormat,
   parseCalendarDay,
   toCalendarDay,
   formatTimeValue,
@@ -90,5 +100,156 @@ describe("parseTimeOfDay reads back what formatTimeValue writes", () => {
   test("the day word may lead and the digits may be the locale's", () => {
     expect(parseTimeOfDay("오전 9:30", "ko")).toBe("09:30");
     expect(parseTimeOfDay("٩:٣٠ م", "ar-EG")).toBe("21:30");
+  });
+});
+
+describe("dateFormat", () => {
+  const now = Date.parse("2026-11-12T10:10:00Z"); // Thu 12 Nov 2026, 15:40 in Kolkata
+  const timeZone = "Asia/Kolkata";
+  const at = (iso: string) => Date.parse(iso);
+  const samples = [
+    "2026-11-12T10:10:00Z",
+    "2026-11-11T03:34:00Z",
+    "2026-11-09T18:00:00Z",
+    "2026-09-25T09:00:00Z",
+    "2025-12-20T04:05:00Z",
+    "2027-01-04T22:30:00Z",
+  ];
+
+  test("DEFAULT_DATE_FORMAT writes byte for byte what the en-US default writes", () => {
+    const base = { now, timeZone };
+    const styled = { ...base, dateFormat: DEFAULT_DATE_FORMAT };
+    for (const iso of samples) {
+      for (const absolute of [false, true])
+        expect(formatDate(iso, { ...styled, absolute })).toBe(
+          formatDate(iso, { ...base, absolute }),
+        );
+      expect(formatDateTime(iso, styled)).toBe(formatDateTime(iso, base));
+      expect(formatTooltip(iso, styled)).toBe(formatTooltip(iso, base));
+      expect(formatTimeOfDay(iso, styled)).toBe(formatTimeOfDay(iso, base));
+      expect(formatLongDate(iso, styled)).toBe(formatLongDate(iso, base));
+      expect(formatDueLabel(iso, styled)).toEqual(formatDueLabel(iso, base));
+      for (const end of samples)
+        for (const withTime of [undefined, false, true])
+          expect(formatDateRange(iso, end, { ...styled, withTime })).toBe(
+            formatDateRange(iso, end, { ...base, withTime }),
+          );
+    }
+    for (const format of ["short", "long", "numeric"] as const)
+      expect(
+        formatCalendarDate("2026-10-08", {
+          format,
+          dateFormat: DEFAULT_DATE_FORMAT,
+        }),
+      ).toBe(formatCalendarDate("2026-10-08", { format }));
+  });
+
+  test.each<[DateFormat, string[]]>([
+    [
+      { dateStyle: "dmy", hourCycle: "h23" },
+      [
+        "25 Sep",
+        "20 Dec 2025",
+        "25 Sep · 14:30",
+        "Thursday, 12 November",
+        "8 Oct 2026",
+        "8/10/2026",
+        "25–28 Sep",
+        "25 Sep – 3 Oct 2026",
+        "Today · 09:05–15:40",
+      ],
+    ],
+    [
+      { dateStyle: "mdy", hourCycle: "h12" },
+      [
+        "Sep 25",
+        "Dec 20, 2025",
+        "Sep 25 · 2:30 PM",
+        "Thursday, November 12",
+        "Oct 8, 2026",
+        "10/8/2026",
+        "Sep 25–28",
+        "Sep 25 – Oct 3, 2026",
+        "Today · 9:05 AM – 3:40 PM",
+      ],
+    ],
+    [
+      { dateStyle: "ymd", hourCycle: "h23" },
+      [
+        "2026-09-25",
+        "2025-12-20",
+        "2026-09-25 · 14:30",
+        "Thursday, 2026-11-12",
+        "2026-10-08",
+        "2026-10-08",
+        "2026-09-25 – 2026-09-28",
+        "2026-09-25 – 2026-10-03",
+        "Today · 09:05–15:40",
+      ],
+    ],
+  ])("%o writes every helper in its order and clock", (dateFormat, want) => {
+    const o = { now, timeZone, dateFormat };
+    const got = [
+      formatDate(at("2026-09-25T09:00:00Z"), o),
+      formatDate(at("2025-12-20T04:05:00Z"), o),
+      formatDateTime(at("2026-09-25T09:00:00Z"), o),
+      formatLongDate(now, o),
+      formatCalendarDate("2026-10-08", { dateFormat }),
+      formatCalendarDate("2026-10-08", { dateFormat, format: "numeric" }),
+      formatDateRange("2026-09-25T09:00:00Z", "2026-09-28T09:00:00Z", o),
+      formatDateRange("2026-09-25T09:00:00Z", "2026-10-03T09:00:00Z", {
+        ...o,
+        now: at("2025-06-01T00:00:00Z"),
+      }),
+      `Today · ${formatDateRange("2026-11-12T03:35:00Z", "2026-11-12T10:10:00Z", o).split(" · ")[1]}`,
+    ];
+    expect(got).toEqual(want);
+  });
+
+  test("dateFormatDefaults follows the zone's region", () => {
+    expect(dateFormatDefaults("America/New_York")).toEqual({
+      dateStyle: "mdy",
+      hourCycle: "h12",
+    });
+    expect(dateFormatDefaults("America/Toronto")).toEqual({
+      dateStyle: "mdy",
+      hourCycle: "h12",
+    });
+    expect(dateFormatDefaults("America/Indiana/Indianapolis")).toEqual({
+      dateStyle: "mdy",
+      hourCycle: "h12",
+    });
+    expect(dateFormatDefaults("Asia/Kolkata")).toEqual({
+      dateStyle: "dmy",
+      hourCycle: "h12",
+    });
+    expect(dateFormatDefaults("Asia/Calcutta")).toEqual({
+      dateStyle: "dmy",
+      hourCycle: "h12",
+    });
+    expect(dateFormatDefaults("Australia/Sydney")).toEqual({
+      dateStyle: "dmy",
+      hourCycle: "h12",
+    });
+    expect(dateFormatDefaults("Asia/Tokyo")).toEqual({
+      dateStyle: "ymd",
+      hourCycle: "h23",
+    });
+    expect(dateFormatDefaults("Europe/Stockholm")).toEqual({
+      dateStyle: "ymd",
+      hourCycle: "h23",
+    });
+    expect(dateFormatDefaults("Europe/Berlin")).toEqual({
+      dateStyle: "dmy",
+      hourCycle: "h23",
+    });
+    expect(dateFormatDefaults("America/Mexico_City")).toEqual({
+      dateStyle: "dmy",
+      hourCycle: "h23",
+    });
+    expect(dateFormatDefaults("UTC")).toEqual({
+      dateStyle: "dmy",
+      hourCycle: "h23",
+    });
   });
 });
