@@ -360,8 +360,12 @@ export function RunUsageChip({
 /**
  * Announces the error line when the parts move into `error` after mounting (a load that failed
  * while the reader watched); an error present at first paint is part of the page and stays quiet.
+ * Answers the live region as an element, so hosts with React's static-components rule accept it.
  */
-function useErrorAnnouncement(state: RunUsageState, message: string) {
+function useErrorAnnouncement(
+  state: RunUsageState,
+  message: string,
+): React.ReactNode {
   const { announce, Announcer } = useAnnouncer();
   const [previous, setPrevious] = React.useState(state);
   React.useEffect(() => {
@@ -369,7 +373,7 @@ function useErrorAnnouncement(state: RunUsageState, message: string) {
     setPrevious(state);
     if (state === "error") announce(message);
   }, [state, previous, message, announce]);
-  return Announcer;
+  return <Announcer />;
 }
 
 /* ------------------------------------------------------------------------------------------------
@@ -496,7 +500,7 @@ export function RunUsagePanel({
   ...props
 }: RunUsagePanelProps) {
   const { l, f } = words(labels, format);
-  const ErrorAnnouncer = useErrorAnnouncement(state, l.error);
+  const errorAnnouncer = useErrorAnnouncement(state, l.error);
   const headingId = React.useId();
   const est = l.estimated;
   const empty = state === "ready" && (!summary || summary.steps === 0);
@@ -529,7 +533,7 @@ export function RunUsagePanel({
       )}
       {...props}
     >
-      <ErrorAnnouncer />
+      {errorAnnouncer}
       <h3 id={headingId} className="text-sm font-medium text-foreground">
         {heading ?? l.usage}
       </h3>
@@ -786,7 +790,7 @@ export function RunUsageTable({
   ...props
 }: RunUsageTableProps) {
   const { l, f } = words(labels, format);
-  const ErrorAnnouncer = useErrorAnnouncement(state, l.error);
+  const errorAnnouncer = useErrorAnnouncement(state, l.error);
   const [scroller, setScroller] = React.useState<HTMLDivElement | null>(null);
   const scrollable = useOverflow(scroller, { axis: "inline" });
   const est = l.estimated;
@@ -815,7 +819,7 @@ export function RunUsageTable({
         )}
         {...props}
       >
-        <ErrorAnnouncer />
+        {errorAnnouncer}
         {state === "ready" ? (
           <p
             data-slot="run-usage-empty"
@@ -846,7 +850,7 @@ export function RunUsageTable({
       className={cn("min-w-0", className)}
       {...props}
     >
-      <ErrorAnnouncer />
+      {errorAnnouncer}
       <div
         ref={setScroller}
         data-slot="run-usage-scroll"
