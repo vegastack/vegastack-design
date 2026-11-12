@@ -5,6 +5,7 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import { Citation } from "./cited-list";
+import { CopyButton } from "./copy-button";
 import { Message, MessageContent } from "./message";
 import { Toggle } from "./toggle";
 import {
@@ -429,31 +430,35 @@ test("an answer's time shows on hover or focus, like its actions", async () => {
   await vi.waitFor(() => expect(getComputedStyle(time).opacity).toBe("1"));
 });
 
-test("every button and toggle in the actions row is one 28px square with a 16px icon", async () => {
+test("every button, copy button and toggle in the actions row is one 28px square with a 16px icon", async () => {
   const icon = <svg aria-hidden viewBox="0 0 24 24" />;
   const screen = await render(
     <MessageActions reveal="always">
       <Button size="icon-xs" variant="ghost" aria-label="Copy">
         {icon}
       </Button>
+      <CopyButton value="An answer" size="icon-xs" />
       <Button size="icon-sm" variant="ghost" aria-label="Retry">
         {icon}
       </Button>
       <Toggle size="sm" aria-label="Helpful">
         {icon}
       </Toggle>
-      <Toggle aria-label="Not helpful">{icon}</Toggle>
+      <Toggle aria-label="Not helpful">
+        <span>{icon}</span>
+      </Toggle>
     </MessageActions>,
   );
   const buttons = Array.from(
     screen.container.querySelectorAll<HTMLElement>("button"),
   );
-  expect(buttons).toHaveLength(4);
+  expect(buttons).toHaveLength(5);
   for (const button of buttons) {
     const box = button.getBoundingClientRect();
     expect([box.width, box.height]).toEqual([28, 28]);
-    const glyph = button.querySelector("svg")!.getBoundingClientRect();
-    expect([glyph.width, glyph.height]).toEqual([16, 16]);
+    // The computed size, not the box: CopyButton's icon pops in with a scale.
+    const glyph = getComputedStyle(button.querySelector("svg")!);
+    expect([glyph.width, glyph.height]).toEqual(["16px", "16px"]);
   }
 });
 

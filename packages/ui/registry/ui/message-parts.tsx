@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.64.0 sha256-Sk+23jFb0tbJQeZ0M5ZhN1kn1JHgzdlWoLiTb5NWFq4=
+// @vegastack message-parts@0.64.0 sha256-NwF6eDSOs6CAFLy3QXDeX8xd6fn1WxpAw0YsuRgiNIM=
 
 "use client";
 
@@ -520,13 +520,13 @@ const REVEAL_ON_HOVER =
   "opacity-0 transition-opacity duration-150 group-hover/message:opacity-100 group-focus-within/message:opacity-100 hover:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100";
 
 /**
- * One button style in the actions row, whatever size a host passes: every `Button` and `Toggle` is
- * the 28px square of `Button size="icon-sm"` with a 16px icon, so Copy, Retry, 👍 and 👎 always
- * match. The icon rule outranks a button's own size rule (an `icon-xs` button's 12px icon); an icon
- * given its own `size-*` class keeps it.
+ * One button style in the actions row, whatever size a host passes: every `Button`, `CopyButton`
+ * and `Toggle` is the 28px square of `Button size="icon-sm"` with a 16px icon, so Copy, Retry, 👍
+ * and 👎 always match. The icon rule outranks a button's own size rule (an `icon-xs` button's 12px
+ * icon), wrapped in a span or not; an icon given its own `size-*` class keeps it.
  */
 const ONE_BUTTON_SIZE =
-  "[&_:is([data-slot=button],[data-slot=toggle])]:size-7 [&_:is([data-slot=button],[data-slot=toggle])]:min-w-7 [&_:is([data-slot=button],[data-slot=toggle])]:px-0 [&_:is([data-slot=button],[data-slot=toggle])]:rounded-[min(var(--radius-md),12px)] [&_:is([data-slot=button],[data-slot=toggle])>svg:not([class*='size-'])]:size-4";
+  "[&_:is([data-slot=button],[data-slot=copy-button],[data-slot=toggle])]:size-7 [&_:is([data-slot=button],[data-slot=copy-button],[data-slot=toggle])]:min-w-7 [&_:is([data-slot=button],[data-slot=copy-button],[data-slot=toggle])]:px-0 [&_:is([data-slot=button],[data-slot=copy-button],[data-slot=toggle])]:rounded-[min(var(--radius-md),12px)] [&_:is([data-slot=button],[data-slot=copy-button],[data-slot=toggle])_svg:not([class*='size-'])]:size-4";
 
 /**
  * `MessageActions` — Copy, Retry and the rest, in a row under the message. Pass a ghost `Button`
