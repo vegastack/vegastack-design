@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.69.0
+
+### Minor Changes
+
+- [#959](https://github.com/vegastack/vegastack-design/pull/959) [`1fd5387`](https://github.com/vegastack/vegastack-design/commit/1fd53878354626242834f51ba52928b4b43f5e37) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `TextEdit` memory mode. `blocks` limits an editor to the kinds it names: the `/` menu, Turn into, the bubble, the block menu, uploads, embeds, bookmarks, mentions and Markdown shortcuts offer nothing else, and a paste or drop is rewritten to fit before it lands (a table becomes "cell · cell" lines, an image a link, a code block plain lines, an H1 an H2), with `onBlockConverted` naming what changed. `toAllowedBlocks(doc, blocks)` in `text-edit-schema` is the same rewrite for a server. `lineAside` shows quiet facts at the end of a list line on hover or focus (a tap on touch), never moving or covering text; `lineMenu` adds a ⋯ menu per list line, its rows also first in the block menu.
+
 ## 0.68.0
 
 ### Minor Changes
