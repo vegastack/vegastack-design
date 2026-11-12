@@ -62,8 +62,8 @@ function AgentHeader({ name = "Assistant" }: { name?: string }): ReactNode {
 }
 
 function Actions({ reveal }: { reveal?: "hover" | "always" }): ReactNode {
-  // One button style: icon-sm ghost buttons for actions, toggles for the rating — the row sizes
-  // every toggle to the same 28px square.
+  // Ghost buttons for actions, toggles for the rating — the row makes every one the same 28px
+  // square with a 16px icon.
   return (
     <MessageActions reveal={reveal}>
       <Button size="icon-sm" variant="ghost" aria-label="Copy">

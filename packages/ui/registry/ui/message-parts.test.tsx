@@ -5,6 +5,7 @@ import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import { Citation } from "./cited-list";
+import { CopyButton } from "./copy-button";
 import { Message, MessageContent } from "./message";
 import { Toggle } from "./toggle";
 import {
@@ -429,22 +430,36 @@ test("an answer's time shows on hover or focus, like its actions", async () => {
   await vi.waitFor(() => expect(getComputedStyle(time).opacity).toBe("1"));
 });
 
-test("toggles in the actions row take the icon button's 28px square", async () => {
+test("every button, copy button and toggle in the actions row is one 28px square with a 16px icon", async () => {
+  const icon = <svg aria-hidden viewBox="0 0 24 24" />;
   const screen = await render(
     <MessageActions reveal="always">
-      <Button size="icon-sm" variant="ghost" aria-label="Copy">
-        C
+      <Button size="icon-xs" variant="ghost" aria-label="Copy">
+        {icon}
       </Button>
-      <Toggle aria-label="Good answer">+</Toggle>
+      <CopyButton value="An answer" size="icon-xs" />
+      <Button size="icon-sm" variant="ghost" aria-label="Retry">
+        {icon}
+      </Button>
+      <Toggle size="sm" aria-label="Helpful">
+        {icon}
+      </Toggle>
+      <Toggle aria-label="Not helpful">
+        <span>{icon}</span>
+      </Toggle>
     </MessageActions>,
   );
-  const [button, toggle] = Array.from(
+  const buttons = Array.from(
     screen.container.querySelectorAll<HTMLElement>("button"),
   );
-  expect(toggle!.getBoundingClientRect().width).toBe(28);
-  expect(toggle!.getBoundingClientRect().height).toBe(
-    button!.getBoundingClientRect().height,
-  );
+  expect(buttons).toHaveLength(5);
+  for (const button of buttons) {
+    const box = button.getBoundingClientRect();
+    expect([box.width, box.height]).toEqual([28, 28]);
+    // The computed size, not the box: CopyButton's icon pops in with a scale.
+    const glyph = getComputedStyle(button.querySelector("svg")!);
+    expect([glyph.width, glyph.height]).toEqual(["16px", "16px"]);
+  }
 });
 
 test("the source list: closed, three icons and a count; open, numbered links with a globe for a missing icon", async () => {
