@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.67.2
+
+### Patch Changes
+
+- [#958](https://github.com/vegastack/vegastack-design/pull/958) [`0efb50e`](https://github.com/vegastack/vegastack-design/commit/0efb50efddddc2c03c7ef2fb274d1cd7a58775c4) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `MessageActions` sizes every button in the row, so a 👍 or 👎 `Toggle` inside a `TooltipTrigger` or `PopoverTrigger` (which rename its `data-slot`) is the same 28px square as Copy and Retry ([Message parts](/docs/components/message-parts)).
+
 ## 0.67.1
 
 ### Patch Changes
