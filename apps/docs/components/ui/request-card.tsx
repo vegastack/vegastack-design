@@ -1,4 +1,4 @@
-// @vegastack request-card@0.67.0 sha256-XPLDkE+KNWrGHzMjQAiELwuK8tynrMj1GGMp6kjzflM=
+// @vegastack request-card@0.67.0 sha256-YTiLuXZk4RWByNHA1KL2dssLHIAz+k8xQxb4FM7MWCg=
 
 "use client";
 
@@ -937,9 +937,9 @@ export interface PermissionView {
   lastUsed?: string | null;
   /** When it was set: "set 10 Nov". @default null */
   setOn?: string | null;
-  /** Why it's paused: "Paused by a rule", "Paused: the owner changed". @default null */
+  /** Why it's paused: "Paused by a rule", "Paused: Ravi is no longer a maintainer". @default null */
   paused?: string | null;
-  /** A paused line the viewer can confirm (the owner changed). @default false */
+  /** A paused line the viewer can keep (its giver stopped maintaining the agent). @default false */
   confirmable?: boolean;
 }
 
@@ -952,7 +952,7 @@ export interface PermissionRowProps extends Omit<
   permission: PermissionView;
   /** Revoke an Always or undo a Never; the button reads Revoke or Undo. @default undefined */
   onRevoke?: () => void;
-  /** Confirm a line paused because the owner changed. @default undefined */
+  /** Keep a line paused because its giver stopped maintaining the agent. @default undefined */
   onConfirm?: () => void;
   /** An answer is on its way: the buttons are disabled. @default false */
   busy?: boolean;
@@ -968,8 +968,8 @@ function permissionMeta(p: PermissionView): string {
 
 /**
  * `PermissionRow` — one line of What I've allowed: what it allows (and for which agent), how often
- * it was used and when, why it's paused, and Revoke — or Undo for a Never, and Confirm for a line
- * the owner change paused.
+ * it was used and when, why it's paused, and Revoke — or Undo for a Never, and Keep for a line
+ * paused because its giver stopped maintaining the agent.
  *
  * @example
  * <PermissionRow
@@ -1042,7 +1042,7 @@ export function PermissionRow({
             disabled={busy}
             onClick={() => onConfirm()}
           >
-            Confirm
+            Keep
           </Button>
         ) : null}
         {onRevoke ? (
@@ -1074,7 +1074,7 @@ export interface PermissionListProps extends Omit<
   empty?: string;
   /** Revoke (or undo) a line. @default undefined */
   onRevoke?: (id: string) => void;
-  /** Confirm a line the owner change paused. @default undefined */
+  /** Keep a line paused because its giver stopped maintaining the agent. @default undefined */
   onConfirm?: (id: string) => void;
   /** The line whose answer is on its way. @default null */
   busyId?: string | null;

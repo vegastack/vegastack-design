@@ -23807,7 +23807,7 @@
         "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
         "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
         "version": "0.67.0",
-        "integrity": "sha256-XPLDkE+KNWrGHzMjQAiELwuK8tynrMj1GGMp6kjzflM="
+        "integrity": "sha256-YTiLuXZk4RWByNHA1KL2dssLHIAz+k8xQxb4FM7MWCg="
       }
     },
     {

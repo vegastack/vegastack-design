@@ -322,7 +322,7 @@ test("compact: one row with the title, from and small buttons", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("What I've allowed: uses, last used, paused, Revoke, Undo and Confirm", async () => {
+test("What I've allowed: uses, last used, paused, Revoke, Undo and Keep", async () => {
   const onRevoke = vi.fn();
   const onConfirm = vi.fn();
   const screen = await render(
@@ -382,7 +382,7 @@ test("What I've allowed: uses, last used, paused, Revoke, Undo and Confirm", asy
   expect(onRevoke).toHaveBeenCalledWith("p1");
   await screen.getByRole("button", { name: "Undo" }).click();
   expect(onRevoke).toHaveBeenCalledWith("n1");
-  await screen.getByRole("button", { name: "Confirm" }).click();
+  await screen.getByRole("button", { name: "Keep" }).click();
   expect(onConfirm).toHaveBeenCalledWith("p2");
 });
 
