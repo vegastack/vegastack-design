@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 806,
-    "components": 214,
+    "totalRegistryItems": 807,
+    "components": 215,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 24,
+    "AI/chat": 25,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -262,7 +262,8 @@
       "run-usage",
       "effect-pill",
       "composer-chip",
-      "plan-card"
+      "plan-card",
+      "context-ring"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -32024,6 +32025,184 @@
       }
     },
     {
+      "name": "context-ring",
+      "registryType": "registry:ui",
+      "title": "Context Ring",
+      "summary": "How full a chat's working memory is: a ring for the composer's toolbar in three tones (blue under 75%, amber from 75%, red from 90%) and an empty outline, with a breakdown and Summarize now.",
+      "status": "stable",
+      "since": "0.76.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/context-ring.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ContextRing",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-ring.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Props, including ref, spread onto the ring's button."
+          }
+        },
+        {
+          "name": "ContextRingProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/context-ring.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ContextRingPart",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/context-ring.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ContextRingLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/context-ring.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "ContextRingTone",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/context-ring.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "contextRingTone",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/context-ring.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A pure function, not a component."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "tone",
+            "values": ["empty", "info", "warning", "danger"]
+          }
+        ],
+        "rationale": "The tone follows the share used; the host never sets it."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["default", "sm"]
+          }
+        ],
+        "rationale": "sm for a dense toolbar."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "empty",
+            "info",
+            "warning",
+            "danger",
+            "breakdown",
+            "summarize",
+            "summarizing",
+            "read-only",
+            "on-open",
+            "drop-announced"
+          ],
+          "evidence": "packages/ui/registry/ui/context-ring.tsx + packages/ui/registry/ui/context-ring.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "button-named-with-share",
+            "popover-focus",
+            "escape-returns",
+            "polite-drop-announcement",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/context-ring.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["empty", "info", "warning", "danger", "breakdown", "sm"],
+          "evidence": "packages/ui/registry/ui/context-ring.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "A fixed-size ring; the breakdown's part names truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion beyond the popover's own and the button's spinner."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/context-ring",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/popover",
+        "@vegastack/use-announcer"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/context-ring.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "context-ring",
+      "dataAttributes": {
+        "ContextRing": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "context-ring",
+                "context-ring-bar",
+                "context-ring-breakdown",
+                "context-ring-parts",
+                "context-ring-summarize",
+                "context-ring-threshold"
+              ]
+            },
+            {
+              "name": "data-tone",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "plan-card",
       "registryType": "registry:ui",
       "title": "Plan Card",
@@ -33017,7 +33196,9 @@
                 "chat-composer-notice-slot",
                 "chat-composer-send",
                 "chat-composer-stop",
-                "chat-composer-toolbar"
+                "chat-composer-toolbar",
+                "chat-composer-toolbar-end",
+                "chat-composer-toolbar-start"
               ]
             },
             {

@@ -16282,6 +16282,34 @@
       }
     },
     {
+      "name": "context-ring",
+      "type": "registry:ui",
+      "title": "Context Ring",
+      "description": "How full a chat's working memory is: a small ring for the composer's toolbar, blue under 75%, amber from 75%, red from 90%, with a breakdown and Summarize now.",
+      "categories": ["chat"],
+      "dependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/popover",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/context-ring.tsx",
+          "type": "registry:ui",
+          "target": "@ui/context-ring.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposer's toolbarEnd, with what fills it and Summarize now.",
+        "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
+        "version": "0.75.0"
+      }
+    },
+    {
       "name": "plan-card",
       "type": "registry:ui",
       "title": "Plan Card",

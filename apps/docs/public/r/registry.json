@@ -19843,6 +19843,37 @@
       }
     },
     {
+      "name": "context-ring",
+      "type": "registry:ui",
+      "title": "Context Ring",
+      "description": "How full a chat's working memory is: a small ring for the composer's toolbar, blue under 75%, amber from 75%, red from 90%, with a breakdown and Summarize now.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/popover",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/context-ring.tsx",
+          "type": "registry:ui",
+          "target": "@ui/context-ring.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposer's toolbarEnd, with what fills it and Summarize now.",
+        "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
+        "version": "0.75.0",
+        "integrity": "sha256-l4nkTqwinqI0US5k2YO5pHS+kAD3IwLnbHM6rVS3e1Y="
+      }
+    },
+    {
       "name": "plan-card",
       "type": "registry:ui",
       "title": "Plan Card",
@@ -19975,7 +20006,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.66.2",
-        "integrity": "sha256-SMSNQFnplsYVTx54UqMB3Cd9FKtnYIC1n40EmuzL2VM="
+        "integrity": "sha256-gZwsLA649LcFtCB+2caJYQjMdo+fisbpNDpNcaAhmnE="
       }
     },
     {

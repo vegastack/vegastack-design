@@ -1,0 +1,112 @@
+---
+title: Context Ring
+description: How full a chat's working memory is, as a small ring in the composer's toolbar, with what fills it and Summarize now.
+audience: public
+registry: context-ring
+status: stable
+since: 0.76.0
+a11y: button named with the share used; drop announced once
+preview: contextRing
+---
+
+## Install
+
+<InstallSteps name="context-ring" />
+
+## Usage
+
+```tsx
+import { ChatComposer } from "@/components/ui/chat-composer";
+import { ContextRing } from "@/components/ui/context-ring";
+
+<ChatComposer
+  onSubmit={send}
+  toolbarEnd={
+    <ContextRing
+      used={62_000}
+      window={100_000}
+      parts={[
+        { label: "Instructions & tools", tokens: 12_000 },
+        { label: "Conversation", tokens: 40_000 },
+        { label: "Tool results", tokens: 10_000 },
+      ]}
+      onSummarize={summarize}
+      summarizing={summarizing}
+    />
+  }
+/>;
+```
+
+`used` is what the last request carried and `window` the chat's working window, both in tokens.
+The ring sits in `ChatComposer`'s `toolbarEnd`, just left of Send. It shows tokens and percentages
+only, never money, so everyone who can read the chat may see it. Pass `onSummarize` only to people
+who can send in the chat, and keep `summarizing` in the host: the composer's toolbar mounts afresh
+when a message sends, so a promise held inside the ring would be forgotten. For upload or task progress use [`Progress`](/docs/components/progress);
+for what a run cost use [`RunUsage`](/docs/components/run-usage).
+
+<ComponentPreview
+  name="contextRing"
+  file="components/preview/context-ring.tsx"
+/>
+
+## Examples
+
+### Tones
+
+The colour follows the share: blue under 75%, amber from 75%, red from 90%. Before the chat's first
+answer `used` is `null` and the ring is a grey outline.
+
+<ComponentPreview
+  name="contextRingTones"
+  file="components/preview/context-ring.tsx"
+/>
+
+### Summarize now
+
+Pressed, the ring shows the tokens used against the window, the parts that fill it, where older
+messages get summarized (`threshold`, 90% by default) and Summarize now. A returned promise keeps
+the button busy. When `used` drops, as it does after a summary, the ring says the new share once.
+
+<ComponentPreview
+  name="contextRingSummarize"
+  file="components/preview/context-ring.tsx"
+/>
+
+### Read only and small
+
+Without `onSummarize` the breakdown has no button, for a reader who can't send. `size="sm"` fits a
+dense toolbar. On a phone pass `onOpen` to open the host's own sheet instead of the popover.
+
+<ComponentPreview
+  name="contextRingReadOnly"
+  file="components/preview/context-ring.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/context-ring.tsx"
+  name="ContextRingProps"
+/>
+
+## Accessibility
+
+- The ring is a button named with the share used, "Chat memory 62% used", or "Chat memory, not
+  measured yet". The colour is never the only cue: the name and the breakdown say the number.
+- The breakdown is a popover: focus moves into it and Escape returns to the ring.
+- When the share drops it is announced once through a polite region; growth is not announced.
+
+| Key               | Action                          |
+| ----------------- | ------------------------------- |
+| <kbd>Enter</kbd>  | Open the breakdown              |
+| <kbd>Tab</kbd>    | Move to Summarize now           |
+| <kbd>Escape</kbd> | Close it and return to the ring |
+
+<StatesTested name="context-ring" />
+
+## Do / Don't
+
+<DoDont
+  do="Show tokens and the share to everyone who can read the chat, and Summarize now only to people who can send."
+  dont="Show money in the ring, or colour it yourself: the tones are the bands."
+/>

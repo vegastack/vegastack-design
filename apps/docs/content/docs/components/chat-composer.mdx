@@ -55,6 +55,18 @@ the one muted line under the box: who can see the chat and the AI disclaimer, wr
   file="components/preview/chat-composer.tsx"
 />
 
+### Toolbar slots
+
+`toolbarStart` follows 📎 and @: a mode chip such as Plan and the model picker's chip
+([`ComposerChip`](/docs/components/composer-chip)). `toolbarEnd` sits just before Send or Stop: the
+chat memory ring ([`ContextRing`](/docs/components/context-ring)). Keep both to small, chip-height
+controls; on a phone the start slot gives way first and Send stays on the toolbar's line.
+
+<ComponentPreview
+  name="chatComposerToolbar"
+  file="components/preview/chat-composer.tsx"
+/>
+
 ### While the agent answers
 
 With `status="streaming"` the send button is Stop, and the person can keep typing their next
