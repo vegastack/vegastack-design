@@ -204,6 +204,7 @@
     "request-card",
     "suggestion-card",
     "memory-note",
+    "task-list",
     "agent-edit-banner",
     "agent-panel",
     "agent-question-form",

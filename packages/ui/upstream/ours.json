@@ -1007,6 +1007,12 @@
       "family": "chat",
       "source": "Regent agent memory M3 (memory on the web), Task 3.1 — operator approval 2026-11-12 (go-dark batch \"Agent memory\")",
       "rationale": "Upstream ships no memory outcome. A presentational row over upstream button and spinner: tone-specific lead words, host handlers decide which text actions show, Keep is the one filled action, settled states swap actions for a muted outcome; no patch."
+    },
+    "task-list": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent harness DS1 Task D.3 (the live task list) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "rationale": "Upstream ships no agent task list. A composition of upstream badge, button, collapsible and spinner with our use-announcer: a windowed checklist (live item on top, done and later items folded, problems never folded), a waiting badge, Subagent progress and a sticky progress bar; no patch."
     }
   }
 }

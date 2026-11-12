@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 801,
-    "components": 209,
+    "totalRegistryItems": 802,
+    "components": 210,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 19,
+    "AI/chat": 20,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -257,7 +257,8 @@
       "suggestion-card",
       "agent-question-form",
       "request-card",
-      "memory-note"
+      "memory-note",
+      "task-list"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -31745,6 +31746,235 @@
             {
               "name": "data-tone",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "task-list",
+      "registryType": "registry:ui",
+      "title": "Task List",
+      "summary": "An agent's live checklist for a longer job: the live item on top, the next two, finished items folded into a count and the rest into +N more, a waiting badge, Subagent progress, and a sticky progress bar.",
+      "status": "stable",
+      "since": "0.73.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/task-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "TaskList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the Collapsible root div."
+          }
+        },
+        {
+          "name": "TaskListProgress",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "button",
+            "rationale": "Props, including ref, spread onto the Button."
+          }
+        },
+        {
+          "name": "TaskListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TaskListProgressProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TaskListItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TaskListLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TaskListItemStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "TaskListState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": ["working", "done", "stopped"]
+          }
+        ],
+        "rationale": "The list-level state sets the header, the folds and the amber rows."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container; a container query drops the time column below 24rem."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "working",
+            "done",
+            "stopped",
+            "waiting",
+            "never-fold-5",
+            "windowed",
+            "expanded",
+            "problems-never-fold",
+            "subagent-progress",
+            "auto-close",
+            "throttled-announce"
+          ],
+          "evidence": "packages/ui/registry/ui/task-list.tsx + packages/ui/registry/ui/task-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-list",
+            "state-words-before-each-item",
+            "polite-throttled-live-region",
+            "disclosure-button",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/task-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "sizes-3-5-9-12",
+            "stopped",
+            "waiting",
+            "subagents",
+            "done",
+            "narrow"
+          ],
+          "evidence": "packages/ui/registry/ui/task-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Rows wrap; below 24rem the time column hides; the header truncates."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["keyed-presence"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "motion-pop-in on a tick and motion-enter-up on a row entering the window fire only on a live change; base.css collapses both under reduced motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/task-list",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/disclosure-trigger",
+        "@vegastack/date-time",
+        "@vegastack/spinner",
+        "@vegastack/use-announcer"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/task-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "task-list",
+      "dataAttributes": {
+        "TaskList": {
+          "attributes": [
+            {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "task-list",
+                "task-list-content",
+                "task-list-meta",
+                "task-list-note",
+                "task-list-summary",
+                "task-list-trigger"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "TaskListProgress": {
+          "attributes": [
+            {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["task-list-progress", "task-list-progress-track"]
+            },
+            {
+              "name": "data-waiting",
+              "values": [""]
             }
           ],
           "cssVariables": []

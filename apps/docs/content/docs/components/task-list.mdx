@@ -1,0 +1,137 @@
+---
+title: Task List
+description: An agent's live checklist for a longer job, above its answer, with the live item always on top.
+audience: public
+registry: task-list
+status: stable
+since: 0.73.0
+a11y: named list; state words first; throttled live region
+preview: taskList
+---
+
+## Install
+
+<InstallSteps name="task-list" />
+
+## Usage
+
+```tsx
+import { TaskList } from "@/components/ui/task-list";
+
+<TaskList
+  startedAt={run.startedAt}
+  items={[
+    { text: "Find my open tasks", status: "completed", ms: 4000 },
+    {
+      text: "Create the PDF",
+      status: "in_progress",
+      doing: "Creating the PDF",
+    },
+    { text: "Reply with the file", status: "pending" },
+  ]}
+/>;
+```
+
+Pass the whole list each time the agent rewrites it; the list decides what shows. The header names
+the live item ("Creating the PDF…") with the count and a live timer. For what the agent did step by
+step, use [`MessageActivity`](/docs/components/message-parts); for a plan waiting for an answer, use
+a request card.
+
+<ComponentPreview name="taskList" file="components/preview/task-list.tsx" />
+
+## Anatomy
+
+<Anatomy name="task-list" />
+
+## Examples
+
+### Long lists
+
+Five or fewer rows never fold. A longer list keeps the live item on top: finished items fold into
+"✓ N done", the next two to do follow the live item, and the rest fold into "+N more". Opening
+either fold shows every row, with Show less to fold them back. Closed while working, the header
+reads "Step 3 of 9 · Create the PDF".
+
+<ComponentPreview
+  name="taskListSizes"
+  file="components/preview/task-list.tsx"
+/>
+
+### States
+
+`done` closes the list a second after it finishes, to "Done · 4 of 4 steps". `stopped` keeps it open
+and turns the item that didn't finish amber; the items not reached say "not done". A `waiting` item
+shows the "Waiting for you" badge and its action, and the header says so. Skipped items are struck
+through. Neither a skipped, unfinished nor waiting item ever folds. `note` adds a muted line under
+the list.
+
+<ComponentPreview
+  name="taskListStates"
+  file="components/preview/task-list.tsx"
+/>
+
+### Subagents
+
+`progress` shows how an item's Subagents are doing; with `onOpenProgress` it is a button that opens
+their steps.
+
+<ComponentPreview
+  name="taskListSubagents"
+  file="components/preview/task-list.tsx"
+/>
+
+### Progress bar
+
+`TaskListProgress` is the slim bar that stays in view while a long chat scrolls the list away. The
+host pins it (`sticky top-0`), scrolls back to the list on click and removes it when the run ends.
+
+<ComponentPreview
+  name="taskListProgress"
+  file="components/preview/task-list.tsx"
+/>
+
+### On a phone
+
+Below 24rem the time column goes and rows wrap; the header truncates.
+
+<ComponentPreview
+  name="taskListNarrow"
+  file="components/preview/task-list.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/task-list.tsx"
+  name="TaskListProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/task-list.tsx"
+  name="TaskListProgressProps"
+/>
+
+## Accessibility
+
+- The header is a disclosure button; the rows are a list named "Task list". Each item is read with
+  its state first ("In progress: Create the PDF"), since the icon is what shows it.
+- One polite live region says when the live item changes ("Step 3 of 9: Create the PDF"), at most
+  once every 3 seconds, and the end once. Nothing is announced when the list first appears.
+- A tick pops and a row entering the window rises only on a live change; with reduced motion both
+  are instant.
+- Colour is never the only cue: an amber row says "didn't finish".
+
+| Key              | Action                                 |
+| ---------------- | -------------------------------------- |
+| <kbd>Tab</kbd>   | Move to the header, the folds, actions |
+| <kbd>Enter</kbd> | Open or close the list, open a fold    |
+| <kbd>Space</kbd> | Same as <kbd>Enter</kbd>               |
+
+<StatesTested name="task-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the latest version of the whole list each time, with one item in progress."
+  dont="Show tool names or ids in an item, or use the list for a two-step job: just do it."
+/>
