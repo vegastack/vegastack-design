@@ -2506,7 +2506,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.66.3",
-        "integrity": "sha256-oY1NYu/LtRIXG/f09+gyddkcyh2vGSzOESQiRkkNI50="
+        "integrity": "sha256-aBMShEhFhxN50OEGmaiMxJf7wn4rIIxfxag+J2KYIiI="
       }
     },
     {

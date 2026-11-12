@@ -213,6 +213,7 @@ describe("dateFormat", () => {
       "America/Fort_Wayne",
       "America/Knox_IN",
       "America/Shiprock",
+      "Pacific/Johnston",
       "US/Pacific",
       "Canada/Eastern",
     ])

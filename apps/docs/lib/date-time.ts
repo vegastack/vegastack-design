@@ -1,4 +1,4 @@
-// @vegastack date-time@0.66.3 sha256-oY1NYu/LtRIXG/f09+gyddkcyh2vGSzOESQiRkkNI50=
+// @vegastack date-time@0.66.3 sha256-aBMShEhFhxN50OEGmaiMxJf7wn4rIIxfxag+J2KYIiI=
 
 export type DateInput = Date | string | number;
 
@@ -865,7 +865,7 @@ export function getTimeZone(
 
 /** Zones whose region writes month-first dates and a 12-hour clock: the US and Canada. */
 const NORTH_AMERICA =
-  /^(US\/|Canada\/|America\/(New_York|Chicago|Denver|Phoenix|Los_Angeles|Anchorage|Adak|Boise|Detroit|Juneau|Sitka|Yakutat|Nome|Metlakatla|Menominee|Indiana\/.+|Indianapolis|Fort_Wayne|Knox_IN|Atka|Shiprock|Kentucky\/.+|Louisville|North_Dakota\/.+|Toronto|Montreal|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Moncton|Glace_Bay|Goose_Bay|Whitehorse|Dawson|Dawson_Creek|Fort_Nelson|Creston|Cambridge_Bay|Inuvik|Iqaluit|Rankin_Inlet|Resolute|Swift_Current|Atikokan|Coral_Harbour|Blanc-Sablon|Nipigon|Thunder_Bay|Rainy_River|Pangnirtung|Yellowknife)$)|^Pacific\/Honolulu$|^(EST|MST|HST|EST5EDT|CST6CDT|MST7MDT|PST8PDT|Navajo)$/;
+  /^(US\/|Canada\/|America\/(New_York|Chicago|Denver|Phoenix|Los_Angeles|Anchorage|Adak|Boise|Detroit|Juneau|Sitka|Yakutat|Nome|Metlakatla|Menominee|Indiana\/.+|Indianapolis|Fort_Wayne|Knox_IN|Atka|Shiprock|Kentucky\/.+|Louisville|North_Dakota\/.+|Toronto|Montreal|Vancouver|Edmonton|Winnipeg|Halifax|St_Johns|Regina|Moncton|Glace_Bay|Goose_Bay|Whitehorse|Dawson|Dawson_Creek|Fort_Nelson|Creston|Cambridge_Bay|Inuvik|Iqaluit|Rankin_Inlet|Resolute|Swift_Current|Atikokan|Coral_Harbour|Blanc-Sablon|Nipigon|Thunder_Bay|Rainy_River|Pangnirtung|Yellowknife)$)|^Pacific\/(Honolulu|Johnston)$|^(EST|MST|HST|EST5EDT|CST6CDT|MST7MDT|PST8PDT|Navajo)$/;
 /** Zones whose region writes year-first dates: China, Japan, Korea, Taiwan, Hungary, Lithuania, Sweden. */
 const YEAR_FIRST =
   /^(Asia\/(Shanghai|Chongqing|Chungking|Harbin|Urumqi|Kashgar|Tokyo|Seoul|Taipei)|Europe\/(Budapest|Vilnius|Stockholm)|PRC|Japan|ROK|ROC)$/;
