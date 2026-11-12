@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.64.0 sha256-ORubJtomw60f6IHh803KVPUT0bkAhAnChrBls8ej5+c=
+// @vegastack message-parts@0.64.0 sha256-Sk+23jFb0tbJQeZ0M5ZhN1kn1JHgzdlWoLiTb5NWFq4=
 
 "use client";
 
@@ -520,9 +520,18 @@ const REVEAL_ON_HOVER =
   "opacity-0 transition-opacity duration-150 group-hover/message:opacity-100 group-focus-within/message:opacity-100 hover:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100";
 
 /**
- * `MessageActions` — Copy, Retry and the rest, in a row under the message. One button style: pass
- * `Button size="icon-sm" variant="ghost"` for an action and a `Toggle` for a rating (👍, 👎); the
- * row sizes every toggle to the same 28px square. Their place is kept while they are hidden, so the
+ * One button style in the actions row, whatever size a host passes: every `Button` and `Toggle` is
+ * the 28px square of `Button size="icon-sm"` with a 16px icon, so Copy, Retry, 👍 and 👎 always
+ * match. The icon rule outranks a button's own size rule (an `icon-xs` button's 12px icon); an icon
+ * given its own `size-*` class keeps it.
+ */
+const ONE_BUTTON_SIZE =
+  "[&_:is([data-slot=button],[data-slot=toggle])]:size-7 [&_:is([data-slot=button],[data-slot=toggle])]:min-w-7 [&_:is([data-slot=button],[data-slot=toggle])]:px-0 [&_:is([data-slot=button],[data-slot=toggle])]:rounded-[min(var(--radius-md),12px)] [&_:is([data-slot=button],[data-slot=toggle])>svg:not([class*='size-'])]:size-4";
+
+/**
+ * `MessageActions` — Copy, Retry and the rest, in a row under the message. Pass a ghost `Button`
+ * for an action and a `Toggle` for a rating (👍, 👎); the row makes every one the same 28px square
+ * with a 16px icon, whatever size it was given. Their place is kept while they are hidden, so the
  * conversation never jumps. Hover reveals them across the whole `Message`; outside one, only over
  * the row itself.
  *
@@ -546,8 +555,7 @@ export function MessageActions({
       aria-label={label}
       className={cn(
         "flex min-w-0 items-center gap-0.5 text-muted-foreground",
-        // One button style: a `Toggle` (👍, 👎) takes the 28px square of a `Button size="icon-sm"`.
-        "[&_[data-slot=toggle]]:size-7 [&_[data-slot=toggle]]:min-w-7 [&_[data-slot=toggle]]:px-0",
+        ONE_BUTTON_SIZE,
         reveal === "hover" && REVEAL_ON_HOVER,
         className,
       )}
