@@ -43359,6 +43359,7 @@
               "values": [
                 "request-card",
                 "request-card-actions",
+                "request-card-body",
                 "request-card-bundle",
                 "request-card-footnote",
                 "request-card-from",

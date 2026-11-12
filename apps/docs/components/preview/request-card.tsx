@@ -266,7 +266,7 @@ export function requestCardCompact(): ReactNode {
   // One row for Home and Inbox: the title, where it came from and the buttons.
   return (
     <Wrapper className="flex-col items-stretch">
-      <div className="flex max-w-2xl flex-col divide-y divide-border rounded-lg border border-border px-3">
+      <div className="flex w-full max-w-2xl flex-col divide-y divide-border rounded-lg border border-border px-3">
         <Live compact />
         <RequestCard
           spec={{ ...spec, title: "Inbox assistant wants to (09:46 run):" }}
@@ -298,7 +298,7 @@ export function requestCardNarrow(): ReactNode {
   // Under 28rem the buttons stack full width.
   return (
     <Wrapper className="flex-col items-stretch">
-      <div className="max-w-90">
+      <div className="w-full max-w-90">
         <Live />
       </div>
     </Wrapper>
@@ -354,7 +354,7 @@ export function permissionList(): ReactNode {
   const [nevers, setNevers] = useState(never);
   return (
     <Wrapper className="flex-col items-stretch gap-4">
-      <div className="flex max-w-2xl flex-col gap-4">
+      <div className="flex w-full max-w-2xl flex-col gap-4">
         <PermissionList
           title="Allowed"
           items={items}

@@ -1,4 +1,4 @@
-// @vegastack request-card@0.67.0 sha256-IOtL2X73UL2B4rKJwPkUtjQ4i8qWZxBH1HLlXV3VWj8=
+// @vegastack request-card@0.67.0 sha256-fwSm3hCBwQhiXh8vKjIkGuu7Z2tD0sfk7I7dNA6pZvc=
 
 "use client";
 
@@ -330,7 +330,7 @@ function PreviewBlock({ preview }: { preview: CardPreview }) {
         <blockquote
           data-slot="request-card-preview"
           data-kind="quote"
-          className="line-clamp-6 rounded-lg bg-muted px-3 py-2 whitespace-pre-line wrap-anywhere"
+          className="rounded-lg bg-muted px-3 py-2 whitespace-pre-line wrap-anywhere"
         >
           “{preview.text}”
         </blockquote>
@@ -481,17 +481,27 @@ export function RequestCard({
         ? onDoItNow
         : undefined;
 
-  // Announce the settled line when the state changes on screen — never on first paint.
-  const lineRef = React.useRef<HTMLSpanElement | null>(null);
-  const previous = React.useRef(state);
+  // Announce the settled line whenever it changes on screen (a new state, who answered, or the
+  // host's own words) — never on first paint.
+  const outcome = pending ? null : (statusText ?? line.text);
+  const previous = React.useRef(outcome);
   React.useEffect(() => {
-    if (previous.current === state) return;
-    previous.current = state;
-    if (state !== "pending") {
+    if (previous.current === outcome) return;
+    previous.current = outcome;
+    if (outcome) {
       setNoting(false);
-      announce(lineRef.current?.textContent?.trim() || line.text);
+      announce(outcome);
     }
-  }, [state, line.text, announce]);
+  }, [outcome, announce]);
+
+  // Cancelling a note returns focus to Decline.
+  const declineRef = React.useRef<HTMLButtonElement | null>(null);
+  const [refocus, setRefocus] = React.useState(false);
+  React.useEffect(() => {
+    if (!refocus || noting) return;
+    setRefocus(false);
+    declineRef.current?.focus();
+  }, [refocus, noting]);
 
   const press = (which: Exclude<Pressed, null>, run: () => void) => {
     if (busy) return;
@@ -500,7 +510,9 @@ export function RequestCard({
   };
   const loading = (which: Exclude<Pressed, null>) => busy && pressed === which;
   const size = compact ? "sm" : "default";
-  const full = "w-full @md/request-card:w-auto";
+  // A compact row lines its body up under the title, past the avatar.
+  const indent = compact ? "ps-8.5 @2xl/request-card:ps-0" : undefined;
+  const full = compact ? "" : "w-full @md/request-card:w-auto";
 
   const allowOnce = onAllowOnce ? (
     <Button
@@ -539,7 +551,7 @@ export function RequestCard({
           key="always"
           data-answer="always"
           aria-label="Always allow"
-          className={cn("min-w-0", full)}
+          className={cn("min-w-0 max-w-full", full)}
         >
           <Button
             variant="outline"
@@ -595,8 +607,9 @@ export function RequestCard({
       variant="outline"
       size={size}
       aria-describedby={titleId}
-      loading={loading("decline")}
-      disabled={busy && pressed !== "decline"}
+      ref={declineRef}
+      loading={loading("decline") || loading("never")}
+      disabled={busy && pressed !== "decline" && pressed !== "never"}
       onClick={() => press("decline", () => onDecline())}
       className={cn(
         spec.hard || isBundle
@@ -618,7 +631,7 @@ export function RequestCard({
       key="decline"
       data-answer="decline"
       aria-label="Decline"
-      className={cn("min-w-0", full)}
+      className={cn("min-w-0 max-w-full", full)}
     >
       {declineButton}
       <DropdownMenu>
@@ -661,8 +674,9 @@ export function RequestCard({
         size={size}
         aria-describedby={titleId}
         data-answer="review"
-        disabled={busy}
-        onClick={() => onReviewEach()}
+        loading={loading("review")}
+        disabled={busy && pressed !== "review"}
+        onClick={() => press("review", onReviewEach)}
         className={full}
       >
         Review each
@@ -679,7 +693,11 @@ export function RequestCard({
     noting && onDecline ? (
       <div
         data-slot="request-card-note"
-        className="flex min-w-0 flex-col gap-2"
+        className={cn(
+          "flex min-w-0 flex-col gap-2",
+          indent,
+          compact && "@2xl/request-card:basis-full",
+        )}
       >
         <Textarea
           id={noteId}
@@ -695,7 +713,10 @@ export function RequestCard({
             variant="ghost"
             size={size}
             disabled={busy}
-            onClick={() => setNoting(false)}
+            onClick={() => {
+              setNoting(false);
+              setRefocus(true);
+            }}
             className={full}
           >
             Cancel
@@ -717,7 +738,13 @@ export function RequestCard({
     ) : (
       <div
         data-slot="request-card-actions"
-        className="flex min-w-0 flex-col gap-2 @md/request-card:flex-row @md/request-card:flex-wrap @md/request-card:items-center"
+        className={cn(
+          "flex min-w-0 gap-2",
+          compact
+            ? "flex-row flex-wrap items-center"
+            : "flex-col @md/request-card:flex-row @md/request-card:flex-wrap @md/request-card:items-center",
+          indent,
+        )}
       >
         {buttons}
       </div>
@@ -725,12 +752,13 @@ export function RequestCard({
   ) : (
     <p
       data-slot="request-card-status"
-      className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1"
+      className={cn(
+        "flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-1",
+        indent,
+      )}
     >
       {line.icon}
-      <span ref={lineRef} className="min-w-0 wrap-anywhere">
-        {statusText ?? line.text}
-      </span>
+      <span className="min-w-0 wrap-anywhere">{statusText ?? line.text}</span>
       {line.action && action && !statusText ? (
         <>
           <span aria-hidden className="text-muted-foreground">
@@ -744,7 +772,7 @@ export function RequestCard({
             loading={loading("action")}
             disabled={busy && pressed !== "action"}
             onClick={() => press("action", action)}
-            className="h-auto px-0"
+            className="h-auto px-0 text-sm"
           >
             {ACTION_LABEL[line.action]}
           </Button>
@@ -754,10 +782,12 @@ export function RequestCard({
   );
 
   const nudge =
-    answering && spec.nudge && always ? (
+    answering && spec.nudge && always && !compact ? (
       <p
         data-slot="request-card-nudge"
-        className="flex min-w-0 items-start gap-1.5 rounded-md bg-info/10 px-2.5 py-1.5 text-xs text-info-text dark:bg-info/20"
+        className={cn(
+          "flex min-w-0 items-start gap-1.5 rounded-md bg-info/10 px-2.5 py-1.5 text-xs text-info-text dark:bg-info/20",
+        )}
       >
         <Sparkles aria-hidden className="mt-px size-3.5 shrink-0" />
         <span className="min-w-0">{spec.nudge}</span>
@@ -792,73 +822,91 @@ export function RequestCard({
       data-compact={compact || undefined}
       aria-labelledby={titleId}
       className={cn(
-        "@container/request-card flex min-w-0 flex-col text-sm text-card-foreground",
-        compact
-          ? "gap-2 py-2"
-          : "gap-3 rounded-xl border border-border bg-card p-4",
+        "@container/request-card w-full min-w-0 text-sm text-card-foreground",
+        compact ? "py-2" : "rounded-xl border border-border bg-card p-4",
         className,
       )}
       {...props}
     >
       <div
-        data-slot="request-card-header"
-        className="flex min-w-0 items-start gap-2.5"
+        data-slot="request-card-body"
+        className={cn(
+          "flex min-w-0 flex-col",
+          compact
+            ? "gap-2 @2xl/request-card:flex-row @2xl/request-card:flex-wrap @2xl/request-card:items-center @2xl/request-card:gap-x-4"
+            : "gap-3",
+        )}
       >
-        <PersonAvatar
-          person={agentPerson(spec.agent)}
-          size={compact ? "sm" : "default"}
-          aria-hidden
-        />
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+        <div
+          data-slot="request-card-header"
+          className={cn(
+            "flex min-w-0 items-start gap-2.5",
+            compact && "@2xl/request-card:flex-1",
+          )}
+        >
+          <PersonAvatar
+            person={agentPerson(spec.agent)}
+            size={compact ? "sm" : "default"}
+            aria-hidden
+          />
+          <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <p
+              id={titleId}
+              data-slot="request-card-title"
+              className={cn(
+                "font-medium wrap-anywhere",
+                compact && "line-clamp-2",
+              )}
+            >
+              {spec.title}
+            </p>
+            <p
+              data-slot="request-card-from"
+              className="text-xs text-muted-foreground wrap-anywhere"
+            >
+              {compact && isBundle
+                ? `${bundle!.items.length} things · ${spec.from}`
+                : spec.from}
+            </p>
+          </div>
+          {spec.hard && !compact ? (
+            <Badge variant="outline" className="shrink-0">
+              Always asks
+            </Badge>
+          ) : null}
+        </div>
+        {bundleList}
+        {!compact && spec.why ? (
+          <p data-slot="request-card-why" className="text-muted-foreground">
+            {spec.why}
+          </p>
+        ) : null}
+        {!compact && spec.preview && !isBundle ? (
+          <PreviewBlock preview={spec.preview} />
+        ) : null}
+        {nudge}
+        {actions}
+        {!compact && answering && spec.footnote && !noting ? (
           <p
-            id={titleId}
-            data-slot="request-card-title"
+            data-slot="request-card-footnote"
+            className="text-xs text-muted-foreground"
+          >
+            {spec.footnote}
+          </p>
+        ) : null}
+        {error ? (
+          <p
+            role="alert"
             className={cn(
-              "font-medium wrap-anywhere",
-              compact && "line-clamp-2",
+              "text-xs text-destructive-text",
+              indent,
+              compact && "@2xl/request-card:basis-full",
             )}
           >
-            {spec.title}
+            {error}
           </p>
-          <p
-            data-slot="request-card-from"
-            className="text-xs text-muted-foreground wrap-anywhere"
-          >
-            {compact && isBundle
-              ? `${bundle!.items.length} things · ${spec.from}`
-              : spec.from}
-          </p>
-        </div>
-        {spec.hard && !compact ? (
-          <Badge variant="outline" className="shrink-0">
-            Always asks
-          </Badge>
         ) : null}
       </div>
-      {bundleList}
-      {!compact && spec.why ? (
-        <p data-slot="request-card-why" className="text-muted-foreground">
-          {spec.why}
-        </p>
-      ) : null}
-      {!compact && spec.preview && !isBundle ? (
-        <PreviewBlock preview={spec.preview} />
-      ) : null}
-      {nudge}
-      {actions}
-      {!compact && answering && spec.footnote && !noting ? (
-        <p
-          data-slot="request-card-footnote"
-          className="text-xs text-muted-foreground"
-        >
-          {spec.footnote}
-        </p>
-      ) : null}
-      {error ? (
-        <p role="alert" className="text-xs text-destructive-text">
-          {error}
-        </p>
-      ) : null}
       <Announcer />
     </section>
   );
@@ -945,7 +993,7 @@ export function PermissionRow({
       data-effect={p.effect}
       data-paused={p.paused ? true : undefined}
       className={cn(
-        "@container/permission-row flex min-h-12 min-w-0 items-center gap-3 px-3 py-2 text-sm",
+        "flex min-h-12 min-w-0 items-center gap-3 px-3 py-2 text-sm",
         className,
       )}
       {...props}
@@ -975,7 +1023,11 @@ export function PermissionRow({
             </span>
           ) : null}
           {p.paused ? (
-            <Badge variant="warning" data-slot="permission-row-paused">
+            <Badge
+              variant="warning"
+              data-slot="permission-row-paused"
+              className="h-auto max-w-full shrink py-0.5 text-start whitespace-normal"
+            >
               {p.paused}
             </Badge>
           ) : null}

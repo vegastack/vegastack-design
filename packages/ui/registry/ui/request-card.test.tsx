@@ -385,3 +385,89 @@ test("What I've allowed: uses, last used, paused, Revoke, Undo and Confirm", asy
   await screen.getByRole("button", { name: "Confirm" }).click();
   expect(onConfirm).toHaveBeenCalledWith("p2");
 });
+
+test("an error shows under the card, and a same-state change of words is announced", async () => {
+  const screen = await render(
+    <RequestCard spec={spec} state="allowed_once" answeredBy="you" />,
+  );
+  const region = () =>
+    screen.container.querySelector("[role=status]")?.textContent ?? "";
+  await screen.rerender(
+    <RequestCard
+      spec={spec}
+      state="allowed_once"
+      answeredBy="you"
+      statusText="Already answered by Priya"
+      error="Couldn't answer. Try again."
+    />,
+  );
+  await expect.poll(region).toBe("Already answered by Priya");
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Couldn't answer. Try again.");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("Never allow this keeps Decline busy while it is on its way", async () => {
+  function Host() {
+    const [busy, setBusy] = React.useState(false);
+    return (
+      <RequestCard
+        spec={spec}
+        state="pending"
+        busy={busy}
+        onAllowOnce={vi.fn()}
+        onDecline={vi.fn()}
+        onNever={() => setBusy(true)}
+      />
+    );
+  }
+  const screen = await render(<Host />);
+  await screen.getByRole("button", { name: "More ways to decline" }).click();
+  await screen.getByRole("menuitem", { name: "Never allow this" }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Decline", exact: true }))
+    .toHaveAttribute("aria-busy", "true");
+  await expect
+    .element(screen.getByRole("button", { name: "Allow once" }))
+    .toBeDisabled();
+});
+
+test("cancelling a note returns focus to Decline", async () => {
+  const screen = await render(
+    <RequestCard
+      spec={spec}
+      state="pending"
+      onAllowOnce={vi.fn()}
+      onDecline={vi.fn()}
+    />,
+  );
+  await screen.getByRole("button", { name: "More ways to decline" }).click();
+  await screen.getByRole("menuitem", { name: "Decline with a note…" }).click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "A note for the agent" }))
+    .toHaveFocus();
+  await screen.getByRole("button", { name: "Cancel" }).click();
+  await expect
+    .element(screen.getByRole("button", { name: "Decline", exact: true }))
+    .toHaveFocus();
+});
+
+test("compact: the title and the answers share a row in a wide container", async () => {
+  const screen = await render(
+    <div style={{ width: "48rem" }}>
+      <RequestCard
+        spec={spec}
+        state="pending"
+        compact
+        onAllowOnce={vi.fn()}
+        onAlways={vi.fn()}
+        onDecline={vi.fn()}
+      />
+    </div>,
+  );
+  const title = slot(screen.container, "title")!.getBoundingClientRect();
+  const actions = slot(screen.container, "actions")!.getBoundingClientRect();
+  expect(actions.left).toBeGreaterThan(title.left);
+  expect(actions.top).toBeLessThan(title.bottom);
+});
