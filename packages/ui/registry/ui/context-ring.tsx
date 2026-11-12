@@ -169,6 +169,7 @@ function Ring({
  *         { label: "Tool results", tokens: 10_000 },
  *       ]}
  *       onSummarize={summarize}
+ *       summarizing={summarizing}
  *     />
  *   }
  * />

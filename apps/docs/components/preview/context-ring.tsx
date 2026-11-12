@@ -32,7 +32,7 @@ export function contextRingTones(): ReactNode {
           key={String(used)}
           className="inline-flex items-center gap-1 text-sm text-muted-foreground"
         >
-          <ContextRing used={used} window={100_000} parts={parts} />
+          <ContextRing used={used} window={100_000} />
           {used === null ? "Empty" : `${used / 1000}%`}
         </span>
       ))}
@@ -81,8 +81,8 @@ export function contextRingSummarize(): ReactNode {
 export function contextRingReadOnly(): ReactNode {
   return (
     <Wrapper className="gap-6">
-      <ContextRing used={48_000} window={100_000} parts={parts} />
-      <ContextRing used={48_000} window={100_000} size="sm" parts={parts} />
+      <ContextRing used={62_000} window={100_000} parts={parts} />
+      <ContextRing used={62_000} window={100_000} size="sm" parts={parts} />
     </Wrapper>
   );
 }

@@ -31,6 +31,7 @@ import { ContextRing } from "@/components/ui/context-ring";
         { label: "Tool results", tokens: 10_000 },
       ]}
       onSummarize={summarize}
+      summarizing={summarizing}
     />
   }
 />;
@@ -39,7 +40,8 @@ import { ContextRing } from "@/components/ui/context-ring";
 `used` is what the last request carried and `window` the chat's working window, both in tokens.
 The ring sits in `ChatComposer`'s `toolbarEnd`, just left of Send. It shows tokens and percentages
 only, never money, so everyone who can read the chat may see it. Pass `onSummarize` only to people
-who can send in the chat. For upload or task progress use [`Progress`](/docs/components/progress);
+who can send in the chat, and keep `summarizing` in the host: the composer's toolbar mounts afresh
+when a message sends, so a promise held inside the ring would be forgotten. For upload or task progress use [`Progress`](/docs/components/progress);
 for what a run cost use [`RunUsage`](/docs/components/run-usage).
 
 <ComponentPreview
