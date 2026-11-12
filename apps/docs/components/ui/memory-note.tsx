@@ -1,4 +1,4 @@
-// @vegastack memory-note@0.69.0 sha256-MSmvCb4Rxb3BoNpjAUU/NMuHeepRf2DfUcokzipSsPg=
+// @vegastack memory-note@0.69.0 sha256-+wRoZcpSDDU8OfIi1LINZ3/NPj8/ZbghTpprrX5SaLI=
 
 "use client";
 
@@ -67,8 +67,9 @@ export interface MemoryNoteProps extends Omit<
   source?: string;
   /**
    * `busy` — an action is running: the actions hold still, disabled, behind a spinner. `undone`,
-   * `kept`, `dismissed` and `edited` — settled: the actions give way to a muted outcome, and
-   * `undone` strikes the line through.
+   * `kept`, `dismissed` and `edited` — settled: the actions give way to a muted outcome in their
+   * own box, and `undone` strikes the line through. Keep passing the handlers when settled: the
+   * hidden actions are what hold the row's size.
    * @default "idle"
    */
   state?: MemoryNoteState;
@@ -220,14 +221,74 @@ export function MemoryNote({
     .filter(Boolean)
     .join(" ");
 
+  // The actions stay mounted through a settled state, hidden and inert, so the outcome takes
+  // their box and the row keeps its width and height. The spinner's slot is held at rest for the
+  // same reason: going busy must not push the actions onto a second line.
+  const actionRow = actions.length ? (
+    <span
+      data-slot="memory-note-actions"
+      inert={settled ? true : undefined}
+      className={cn(
+        "col-start-1 row-start-1 inline-flex min-h-6 shrink-0 items-center gap-1.5 whitespace-nowrap",
+        // The buttons' own transition-all would carry the inherited visibility over its
+        // duration, leaving them painted under the outcome; they hide at once.
+        settled && "invisible transition-none **:transition-none",
+      )}
+    >
+      {busy ? (
+        <Spinner
+          data-slot="memory-note-spinner"
+          aria-label="Working"
+          className="size-3.5 shrink-0 text-muted-foreground"
+        />
+      ) : (
+        <span aria-hidden className="size-3.5 shrink-0" />
+      )}
+      {actions.map((key, index) => {
+        const filled = key === "keep";
+        const prev = actions[index - 1];
+        return (
+          <React.Fragment key={key}>
+            {index > 0 && !filled && prev !== "keep" ? (
+              <span aria-hidden className="text-muted-foreground">
+                ·
+              </span>
+            ) : null}
+            <Button
+              variant={filled ? "default" : "link"}
+              size="xs"
+              data-action={key}
+              disabled={busy}
+              aria-label={`${LABEL[key]}: ${leadName}`}
+              aria-describedby={lineId}
+              onClick={handlers[key]}
+              className={cn(
+                !filled && "px-0 text-sm",
+                !filled &&
+                  (key === "retry"
+                    ? "text-destructive-text"
+                    : "text-muted-foreground hover:text-foreground"),
+              )}
+            >
+              {LABEL[key]}
+            </Button>
+          </React.Fragment>
+        );
+      })}
+    </span>
+  ) : null;
+
   let end: React.ReactNode = null;
   if (settled) {
     end = (
-      <span
-        data-slot="memory-note-outcome"
-        className="inline-flex min-h-6 items-center text-muted-foreground"
-      >
-        {outcome ?? settled}
+      <span className="grid justify-items-end">
+        {actionRow}
+        <span
+          data-slot="memory-note-outcome"
+          className="col-start-1 row-start-1 inline-flex min-h-6 items-center text-muted-foreground"
+        >
+          {outcome ?? settled}
+        </span>
       </span>
     );
   } else if (note) {
@@ -239,52 +300,8 @@ export function MemoryNote({
         {note}
       </span>
     );
-  } else if (actions.length) {
-    end = (
-      <span
-        data-slot="memory-note-actions"
-        className="inline-flex min-h-6 shrink-0 items-center gap-1.5 whitespace-nowrap"
-      >
-        {busy ? (
-          <Spinner
-            data-slot="memory-note-spinner"
-            aria-label="Working"
-            className="size-3.5 text-muted-foreground"
-          />
-        ) : null}
-        {actions.map((key, index) => {
-          const filled = key === "keep";
-          const prev = actions[index - 1];
-          return (
-            <React.Fragment key={key}>
-              {index > 0 && !filled && prev !== "keep" ? (
-                <span aria-hidden className="text-muted-foreground">
-                  ·
-                </span>
-              ) : null}
-              <Button
-                variant={filled ? "default" : "link"}
-                size="xs"
-                data-action={key}
-                disabled={busy}
-                aria-label={`${LABEL[key]}: ${leadName}`}
-                aria-describedby={lineId}
-                onClick={handlers[key]}
-                className={cn(
-                  !filled && "px-0 text-sm",
-                  !filled &&
-                    (key === "retry"
-                      ? "text-destructive-text"
-                      : "text-muted-foreground hover:text-foreground"),
-                )}
-              >
-                {LABEL[key]}
-              </Button>
-            </React.Fragment>
-          );
-        })}
-      </span>
-    );
+  } else {
+    end = actionRow;
   }
 
   const icon = compact ? null : tone === "queued" ? (
@@ -314,7 +331,6 @@ export function MemoryNote({
       data-compact={compact ? "" : undefined}
       role="group"
       aria-label={sentence}
-      aria-busy={busy || tone === "queued" || undefined}
       className={cn(
         "flex w-full min-w-0 flex-wrap items-start gap-x-3 gap-y-1 text-sm",
         compact ? "py-0.5" : "rounded-md border border-border px-2.5 py-1.5",

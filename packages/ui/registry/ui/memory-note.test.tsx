@@ -118,35 +118,46 @@ test("buttons are named by what they act on and described by the line", async ()
   void screen;
 });
 
-test("a settled state replaces the actions with its outcome, at the same height", async () => {
+const visibleButtons = (root: HTMLElement) =>
+  [...root.querySelectorAll("button")].filter(
+    (b) => getComputedStyle(b).visibility !== "hidden",
+  );
+
+test("a settled state replaces the actions with its outcome, at the same size", async () => {
   const props = {
     tone: "remembered" as const,
     notebook: "Personal memory",
-    line: "First names",
+    line: "You write to customers informally, first names",
     ...all,
   };
-  const wide = (node: React.ReactNode) => (
-    <div style={{ width: 960 }}>{node}</div>
-  );
-  const screen = await render(wide(<MemoryNote {...props} />));
-  const root = slot(screen.container, "memory-note")!;
-  const height = root.getBoundingClientRect().height;
-  for (const [state, words] of [
-    ["undone", "Undone"],
-    ["kept", "Kept"],
-    ["dismissed", "Dismissed"],
-    ["edited", "Edited"],
-  ] as const) {
-    await screen.rerender(wide(<MemoryNote {...props} state={state} />));
-    expect(root.querySelectorAll("button")).toHaveLength(0);
-    expect(slot(root, "memory-note-outcome")!.textContent).toBe(words);
-    expect(root.getBoundingClientRect().height).toBe(height);
+  // Every width from a phone to a desktop column, so a state change near the wrap point counts.
+  for (let width = 280; width <= 760; width += 20) {
+    const at = (node: React.ReactNode) => <div style={{ width }}>{node}</div>;
+    const screen = await render(at(<MemoryNote {...props} />));
+    const root = slot(screen.container, "memory-note")!;
+    const height = root.getBoundingClientRect().height;
+    for (const [state, words] of [
+      ["undone", "Undone"],
+      ["kept", "Kept"],
+      ["dismissed", "Dismissed"],
+      ["edited", "Edited"],
+    ] as const) {
+      await screen.rerender(at(<MemoryNote {...props} state={state} />));
+      expect(visibleButtons(root)).toHaveLength(0);
+      expect(slot(root, "memory-note-outcome")!.textContent).toBe(words);
+      expect(root.getBoundingClientRect().height, `${state} at ${width}`).toBe(
+        height,
+      );
+    }
+    await screen.unmount();
   }
-  await screen.rerender(
-    wide(<MemoryNote {...props} state="kept" outcome="Kept by Priya" />),
+  const screen = await render(
+    <MemoryNote {...props} state="kept" outcome="Kept by Priya" />,
   );
+  const root = slot(screen.container, "memory-note")!;
   expect(slot(root, "memory-note-outcome")!.textContent).toBe("Kept by Priya");
-  await screen.rerender(wide(<MemoryNote {...props} state="undone" />));
+  expect(page.getByRole("button").elements()).toHaveLength(0);
+  await screen.rerender(<MemoryNote {...props} state="undone" />);
   expect(slot(root, "memory-note-line")!.className).toContain("line-through");
   await expectNoA11yViolations(screen.container);
 });
@@ -155,24 +166,32 @@ test("busy keeps the actions in place, disabled, behind a spinner", async () => 
   const props = {
     tone: "suggested" as const,
     notebook: "Sales memory",
-    line: "INR",
+    line: "Asha signs off every discount over 10%",
     ...all,
   };
-  const wide = (node: React.ReactNode) => (
-    <div style={{ width: 960 }}>{node}</div>
-  );
-  const screen = await render(wide(<MemoryNote {...props} />));
+  for (let width = 280; width <= 760; width += 20) {
+    const at = (node: React.ReactNode) => <div style={{ width }}>{node}</div>;
+    const screen = await render(at(<MemoryNote {...props} />));
+    const root = slot(screen.container, "memory-note")!;
+    const height = root.getBoundingClientRect().height;
+    const left = slot(root, "memory-note-actions")!.getBoundingClientRect()
+      .left;
+    await screen.rerender(at(<MemoryNote {...props} state="busy" />));
+    expect(root.getBoundingClientRect().height, `at ${width}`).toBe(height);
+    expect(
+      slot(root, "memory-note-actions")!.getBoundingClientRect().left,
+    ).toBe(left);
+    await screen.unmount();
+  }
+  const screen = await render(<MemoryNote {...props} state="busy" />);
   const root = slot(screen.container, "memory-note")!;
-  const height = root.getBoundingClientRect().height;
-  await screen.rerender(wide(<MemoryNote {...props} state="busy" />));
   const buttons = [...root.querySelectorAll("button")];
   expect(buttons.length).toBeGreaterThan(0);
   expect(buttons.every((b) => b.hasAttribute("data-disabled"))).toBe(true);
   await expect
     .element(page.getByRole("status", { name: "Working" }))
     .toBeVisible();
-  expect(root.getAttribute("aria-busy")).toBe("true");
-  expect(root.getBoundingClientRect().height).toBe(height);
+  expect(root.hasAttribute("aria-busy")).toBe(false);
   await expectNoA11yViolations(screen.container);
 });
 
@@ -189,7 +208,7 @@ test("a note replaces the actions; source and before read as muted suffixes", as
     />,
   );
   const root = slot(screen.container, "memory-note")!;
-  expect(root.querySelectorAll("button")).toHaveLength(0);
+  expect(visibleButtons(root)).toHaveLength(0);
   expect(slot(root, "memory-note-note")!.textContent).toBe(
     "Suggested for Sales: waiting for a reviewer",
   );
