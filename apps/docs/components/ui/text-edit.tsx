@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.61.0 sha256-aiKOgRwP0lEm8gjhm1RUjtIbsymxakXy0KtLNCwRk9A=
+// @vegastack text-edit@0.61.0 sha256-tv2dHDpDZVvvilgYUaoraWNkCXe+1WWOX/fAHrysqKY=
 
 "use client";
 
@@ -25,12 +25,15 @@ import type { EmbedProviders } from "@/lib/embed-providers";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { AvatarHue } from "@/components/ui/avatar";
 import type { TextAnchor } from "@/lib/text-anchor";
+import type { TextEditBlock } from "@/lib/text-edit-schema";
 import type { TaskInlinePerson } from "@/components/ui/task-inline";
 import type { Doc as YDoc } from "yjs";
 import type { Awareness } from "y-protocols/awareness";
 
 export type { LiveBlockKind, MentionKind } from "@/lib/text-edit-grammar";
 export type { TextAnchor } from "@/lib/text-anchor";
+// Type only: the schema module (and Tiptap) stays out of the light first paint.
+export type { TextEditBlock } from "@/lib/text-edit-schema";
 
 /* ------------------------------------------------------------------------------------------------
  * Slash commands
@@ -357,6 +360,32 @@ export interface TextEditSlashAction {
   group?: string;
   /** Chosen: the typed `/query` is already gone. */
   onSelect: (ctx: TextEditSlashActionContext) => void;
+}
+
+/** A list line, as `lineAside` and `lineMenu` see it. */
+export interface TextEditLine {
+  /** The line's own text (its nested lines left out). */
+  text: string;
+  /** The item's stable `blockId`; "" while it has none (a line just typed, outside collaboration). */
+  blockId: string;
+  /** Its place among the document's list lines, top to bottom, from 0. */
+  index: number;
+}
+
+/** One row of a `lineMenu`. */
+export interface TextEditMenuItem {
+  /** Stable id, unique within the menu. */
+  id: string;
+  /** The row's text ("Forget this"). */
+  label: string;
+  /** A lucide icon before the label. @default undefined */
+  icon?: React.ReactNode;
+  /** Drawn in the destructive tone (a delete). @default false */
+  destructive?: boolean;
+  /** Shown but not choosable. @default false */
+  disabled?: boolean;
+  /** Chosen: the menu has closed. */
+  onSelect: () => void;
 }
 
 /**
@@ -1483,6 +1512,39 @@ export interface TextEditProps {
    */
   slashCommands?: readonly TextEditSlashCommand[];
   /**
+   * The only kinds this editor offers and keeps (`TEXT_EDIT_BLOCKS`): the `/` menu, Turn into, the
+   * bubble's marks and link, the block menu, uploads, embeds, bookmarks and mentions show only
+   * what it names; Markdown shortcuts for anything else stay text. Pasted or dropped content that
+   * holds anything else is rewritten to text and links (`toAllowedBlocks`: a table becomes
+   * "cell · cell" lines, an image a link, a code block plain lines, an H1 an H2), and so is
+   * anything a shortcut or a command makes. `paragraph` is always allowed. Omit it for every kind.
+   * @default undefined (everything)
+   */
+  blocks?: readonly TextEditBlock[];
+  /**
+   * Called after a paste or a drop was rewritten to fit `blocks`, with the kinds it held that
+   * `blocks` does not allow ("table", "image"), so the host can say why it looks different.
+   * @default undefined
+   */
+  onBlockConverted?: (kinds: TextEditBlock[]) => void;
+  /**
+   * Quiet facts about a list line, drawn muted at the end of its last row — "Saved 12 Nov ·
+   * Assistant" — while the pointer is over it or the caret is in it (on touch, a tap shows it).
+   * It sits in the room the line leaves free, truncating to fit, and never moves or covers text:
+   * a line too full for it shows nothing there (with `lineMenu`, its menu repeats it). Return
+   * null for none. Bullet and numbered list items only. Mounts the editor at once.
+   * @default undefined
+   */
+  lineAside?: (line: TextEditLine) => React.ReactNode | null;
+  /**
+   * A ⋯ menu for a list line, at the line's end on hover or while the caret is in it (on touch,
+   * a tap). The editor keeps a narrow gutter at the end of every list for it, so showing it never
+   * moves text. An empty list shows no button. Bullet and numbered list items only. Mounts the
+   * editor at once.
+   * @default undefined
+   */
+  lineMenu?: (line: TextEditLine) => readonly TextEditMenuItem[];
+  /**
    * The host's own `/` menu items, listed after the built-in ones and filtered by the same query
    * (label and `keywords`). Choosing one removes the typed `/query` and calls `onSelect`, which can
    * insert a mention chip at the caret through `ctx.insertMention` (a new sub-page, say). A
@@ -2176,12 +2238,15 @@ export function TextEdit(props: TextEditProps) {
   const diffing = props.diff !== undefined;
   // Section marks are decorations on the document model: a read-only document shows them too.
   const marking = (props.sectionMarks?.length ?? 0) > 0;
+  // Line asides and menus are drawn by the editor, over its own lines: at once, too.
+  const lined = props.lineAside !== undefined || props.lineMenu !== undefined;
   const eager =
     props.annotations !== undefined ||
     composer ||
     collaborative ||
     diffing ||
-    marking;
+    marking ||
+    lined;
   const boxed = variant === "boxed" || composer;
   const [field, setField] = React.useState<FieldAria>({});
   const disabled = disabledProp || field.disabled === true;

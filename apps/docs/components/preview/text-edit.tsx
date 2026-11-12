@@ -14,6 +14,8 @@ import {
   FilePlus,
   FileText,
   ListTodo,
+  Pencil,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/toast";
@@ -31,6 +33,7 @@ import type {
   TextEditCollaboration,
   TextEditAnnotation,
   TextEditAnnotationLayout,
+  TextEditBlock,
   TextEditHandle,
   TextEditOutlineItem,
   TextEditSectionMark,
@@ -1475,6 +1478,89 @@ export function textEditTasks(): ReactNode {
           setMarks((current) => current.filter((mark) => mark.key !== key));
           toast.add({ title: "Marked as fine for everyone" });
         }}
+      />
+    </Wrapper>
+  );
+}
+
+/** Memory mode: the blocks an agent reads fast — two heading levels, lists, a quote and a callout. */
+const MEMORY_BLOCKS: readonly TextEditBlock[] = [
+  "heading2",
+  "heading3",
+  "bulletList",
+  "orderedList",
+  "paragraph",
+  "bold",
+  "italic",
+  "link",
+  "mention",
+  "blockquote",
+  "callout",
+];
+
+const MEMORY_MARKDOWN = [
+  "## Summary",
+  "",
+  "Asha runs the Pune office and prefers short updates.",
+  "",
+  "## People",
+  "",
+  "- Asha Rao leads the Pune office and signs off every order above ₹5 lakh",
+  "- Prefers a call to a long email",
+  "- Weekly review on Mondays at 10:00",
+  "",
+  "### Projects",
+  "",
+  "1. Warehouse lighting retrofit, due end of March",
+  "2. Showroom refresh",
+].join("\n");
+
+/** Who saved each line, by its place among the list lines. */
+const MEMORY_SAVED = [
+  "Saved 12 Nov · Assistant",
+  "Saved 10 Nov · Asha Rao",
+  "Saved 3 Nov · Assistant",
+  "Saved 1 Nov · Sales agent",
+  "Saved 28 Oct · Assistant",
+];
+
+/**
+ * Memory mode: `blocks` limits the editor to simple text — the `/` menu lists two heading
+ * levels, the lists, a quote and a callout, and the bubble has no code — and a pasted table,
+ * image or code block lands as text and links, with the host's own note. Hover a list line for
+ * when it was saved (`lineAside`) and its ⋯ menu (`lineMenu`).
+ */
+export function textEditMemoryMode(): ReactNode {
+  return (
+    <Wrapper className="items-stretch">
+      <TextEdit
+        format="markdown"
+        typeScale="document"
+        defaultValue={MEMORY_MARKDOWN}
+        aria-label="Memory"
+        blocks={MEMORY_BLOCKS}
+        onBlockConverted={() =>
+          toast.add({
+            title: "Memory keeps simple text so agents can read it fast.",
+            timeout: 4000,
+          })
+        }
+        lineAside={(line) => MEMORY_SAVED[line.index] ?? null}
+        lineMenu={(line) => [
+          {
+            id: "edit",
+            label: "Edit line",
+            icon: <Pencil />,
+            onSelect: () => toast.add({ title: `Editing "${line.text}"` }),
+          },
+          {
+            id: "forget",
+            label: "Forget this",
+            icon: <Trash2 />,
+            destructive: true,
+            onSelect: () => toast.add({ title: "Forgotten" }),
+          },
+        ]}
       />
     </Wrapper>
   );

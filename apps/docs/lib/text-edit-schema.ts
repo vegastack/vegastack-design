@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.26.4 sha256-W3we7xZUAZSfn1B+tgNR4yftn4TUoYHBkPNBQqGyn5c=
+// @vegastack text-edit-schema@0.26.4 sha256-J6ZuQylyANWeaWdVb4vnZD8eVPgghtlJWnWAunYevJs=
 
 import {
   Extension,
@@ -2332,4 +2332,478 @@ let cachedDiffSchema: Schema | undefined;
 export function textEditDiffSchema(): Schema {
   cachedDiffSchema ??= getSchema(textEditExtensions({ diff: true }));
   return cachedDiffSchema;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Allowed blocks (`TextEdit`'s `blocks`): what an editor offers, and the mapping that turns
+ * anything else into text and links
+ * ----------------------------------------------------------------------------------------------*/
+
+/**
+ * Every block and inline kind a `TextEdit` document can hold, as `blocks` names them. `paragraph`
+ * is always allowed (it is what everything else falls back to). `heading5`/`heading6` are never
+ * named: those levels map to the nearest allowed heading. `diagram` is a ```mermaid code block;
+ * `file` is the upload path (a file chip is a link); `liveBlock` is a `taskQuery`.
+ */
+export const TEXT_EDIT_BLOCKS = [
+  "paragraph",
+  "heading1",
+  "heading2",
+  "heading3",
+  "heading4",
+  "bulletList",
+  "orderedList",
+  "taskList",
+  "blockquote",
+  "callout",
+  "toggle",
+  "codeBlock",
+  "diagram",
+  "table",
+  "image",
+  "video",
+  "audio",
+  "file",
+  "embed",
+  "bookmark",
+  "divider",
+  "liveBlock",
+  "bold",
+  "italic",
+  "strike",
+  "highlight",
+  "code",
+  "link",
+  "mention",
+] as const;
+
+/** One kind `TextEdit`'s `blocks` allows (`TEXT_EDIT_BLOCKS`). */
+export type TextEditBlock = (typeof TEXT_EDIT_BLOCKS)[number];
+
+const MARK_KINDS: ReadonlySet<string> = new Set([
+  "bold",
+  "italic",
+  "strike",
+  "highlight",
+  "code",
+  "link",
+]);
+
+/**
+ * The `blocks` kind of a node or mark by its type name (and a heading's level, a code block's
+ * language); null for the structure every document needs (doc, text, list and table items, a
+ * hard break) and for anything this list does not know, which is always kept.
+ */
+export function textEditBlockKind(
+  type: string,
+  attrs?: Record<string, unknown> | null,
+): TextEditBlock | null {
+  switch (type) {
+    case "heading": {
+      const level = Number(attrs?.level) || 1;
+      return level <= 4 ? (`heading${level}` as TextEditBlock) : "heading4";
+    }
+    case "codeBlock":
+      return attrs?.language === "mermaid" ? "diagram" : "codeBlock";
+    case "horizontalRule":
+      return "divider";
+    case "taskQuery":
+      return "liveBlock";
+    case "paragraph":
+    case "bulletList":
+    case "orderedList":
+    case "taskList":
+    case "blockquote":
+    case "callout":
+    case "toggle":
+    case "table":
+    case "image":
+    case "video":
+    case "audio":
+    case "embed":
+    case "bookmark":
+    case "mention":
+      return type;
+    default:
+      return MARK_KINDS.has(type) ? (type as TextEditBlock) : null;
+  }
+}
+
+/** Whether `blocks` allows a node or mark (a kind it does not name; `paragraph` always). */
+function allowsKind(
+  allowed: ReadonlySet<TextEditBlock>,
+  kind: TextEditBlock | null,
+): boolean {
+  return kind === null || kind === "paragraph" || allowed.has(kind);
+}
+
+/**
+ * The heading level a heading of `level` becomes: itself when allowed, else the nearest allowed
+ * level (the shallower one on a tie: H1 → H2, H4+ → H3 when only 2 and 3 are), or null for a
+ * paragraph when no heading is allowed.
+ */
+function allowedLevel(
+  allowed: ReadonlySet<TextEditBlock>,
+  level: number,
+): number | null {
+  const levels = [1, 2, 3, 4].filter((each) =>
+    allowed.has(`heading${each}` as TextEditBlock),
+  );
+  if (levels.length === 0) return null;
+  // H5 and H6 count as H4 (`textEditBlockKind`): kept wherever H4 is.
+  const as = Math.min(level, 4);
+  if (levels.includes(as)) return level;
+  return levels.reduce((best, each) =>
+    Math.abs(each - as) < Math.abs(best - as) ? each : best,
+  );
+}
+
+/** A URL's last path segment, for a link that has no text of its own. */
+function urlName(url: string): string {
+  try {
+    const name = decodeURIComponent(
+      new URL(url, "https://x.invalid").pathname.split("/").pop() ?? "",
+    );
+    return name || url;
+  } catch {
+    return url;
+  }
+}
+
+function isPMNode(node: JSONContent | PMNode): node is PMNode {
+  return typeof (node as PMNode).descendants === "function";
+}
+
+/**
+ * Whether a node (ProseMirror or its JSON) holds a kind `blocks` does not allow — anywhere inside
+ * it, marks included. The editor's quick check before it converts anything.
+ */
+export function hasDisallowedBlocks(
+  node: JSONContent | PMNode,
+  blocks: readonly TextEditBlock[],
+): boolean {
+  const allowed = new Set(blocks);
+  const refused = (
+    type: string,
+    attrs: Record<string, unknown> | null | undefined,
+  ) => !allowsKind(allowed, textEditBlockKind(type, attrs));
+  if (isPMNode(node)) {
+    const own = (each: PMNode) =>
+      refused(each.type.name, each.attrs) ||
+      each.marks.some((mark) => refused(mark.type.name, mark.attrs));
+    let found = own(node);
+    node.descendants((child) => {
+      found ||= own(child);
+      return !found;
+    });
+    return found;
+  }
+  const walk = (each: JSONContent): boolean =>
+    (each.type !== undefined && refused(each.type, each.attrs)) ||
+    (each.marks ?? []).some((mark) => refused(mark.type, mark.attrs)) ||
+    (each.content ?? []).some(walk);
+  return walk(node);
+}
+
+/**
+ * Rewrite a `TextEdit` document (its ProseMirror JSON, as `editor.getJSON()` or a Yjs fragment
+ * converted with `yXmlFragmentToProseMirrorRootNode(…).toJSON()` gives it) so it holds only what
+ * `blocks` allows, keeping every word. What the editor does to a paste or a drop, and what a
+ * server does to a document it stores, so a crafted update can't plant what the editor refuses.
+ *
+ * - A **table** becomes one paragraph per row, its non-empty cells joined by " · " (their text
+ *   and allowed marks kept).
+ * - An **image** becomes a paragraph linking its `src`, its alt text (else its file name) as the
+ *   link's text; **video**, **audio**, an **embed** and a **bookmark** become a link to their URL.
+ *   Without `link`, the text alone (or the URL as text).
+ * - A **code block** (and a diagram) becomes one plain paragraph per line.
+ * - A **heading** of a level not allowed becomes the nearest allowed level (H1 → H2, H4 → H3), or
+ *   a paragraph when no heading is.
+ * - A **checklist** becomes a bullet list (when allowed) of the same lines; a **bullet** or
+ *   **numbered list**, a **quote**, a **callout** and a **toggle** (its title first) give up their
+ *   wrapper and keep their lines.
+ * - A **divider** and a **live block** (no text of their own) are dropped.
+ * - A mark not allowed is dropped from its text; a **mention** not allowed becomes `@label` text.
+ *
+ * Anything this list does not know is kept as it is. `converted` names each kind that was
+ * rewritten, once, in document order — empty when the document was already allowed (and then
+ * `doc` is the very object passed in).
+ *
+ * @example
+ * const { doc, converted } = toAllowedBlocks(json, ["heading2", "bulletList", "link"]);
+ * if (converted.length > 0) store(doc);
+ */
+export function toAllowedBlocks(
+  doc: JSONContent,
+  blocks: readonly TextEditBlock[],
+): { doc: JSONContent; converted: TextEditBlock[] } {
+  if (!hasDisallowedBlocks(doc, blocks)) return { doc, converted: [] };
+  const allowed = new Set(blocks);
+  const converted = new Set<TextEditBlock>();
+  const allows = (kind: TextEditBlock) => allowsKind(allowed, kind);
+  const note = (kind: TextEditBlock | null) => {
+    if (kind) converted.add(kind);
+  };
+  const paragraph = (content: JSONContent[]): JSONContent =>
+    content.length > 0 ? { type: "paragraph", content } : { type: "paragraph" };
+  const text = (value: string, marks?: JSONContent["marks"]): JSONContent =>
+    marks && marks.length > 0
+      ? { type: "text", text: value, marks }
+      : { type: "text", text: value };
+  /** A paragraph linking `url` with `label` (or the URL itself) — just the text without `link`. */
+  const linkLine = (url: string, label: string): JSONContent[] => {
+    if (!url && !label) return [];
+    if (!url) return [paragraph([text(label)])];
+    if (!allows("link")) return [paragraph([text(label || url)])];
+    return [
+      paragraph([text(label || url, [{ type: "link", attrs: { href: url } }])]),
+    ];
+  };
+
+  const inline = (content: JSONContent[] | undefined): JSONContent[] => {
+    const out: JSONContent[] = [];
+    for (const node of content ?? []) {
+      if (node.type === "mention" && !allows("mention")) {
+        note("mention");
+        const label = String(node.attrs?.label ?? "");
+        if (label) out.push(text(`@${label}`, keptMarks(node.marks)));
+        continue;
+      }
+      out.push(node.marks ? { ...node, marks: keptMarks(node.marks) } : node);
+      if (out.at(-1)!.marks?.length === 0) delete out.at(-1)!.marks;
+    }
+    return out;
+  };
+  const keptMarks = (marks: JSONContent["marks"]) =>
+    (marks ?? []).filter((mark) => {
+      const kind = textEditBlockKind(mark.type, mark.attrs);
+      if (allowsKind(allowed, kind)) return true;
+      note(kind);
+      return false;
+    });
+
+  /** A list item's (or a cell's) blocks, flattened when its list goes. */
+  const itemBlocks = (item: JSONContent) => blockList(item.content);
+  const blockList = (content: JSONContent[] | undefined): JSONContent[] =>
+    (content ?? []).flatMap(block);
+
+  /** A container that must start with a paragraph (a list item) keeps one there. */
+  const leadingParagraph = (content: JSONContent[]): JSONContent[] =>
+    content[0]?.type === "paragraph" ? content : [paragraph([]), ...content];
+
+  const block = (node: JSONContent): JSONContent[] => {
+    const type = node.type ?? "";
+    const kind = textEditBlockKind(type, node.attrs);
+    switch (type) {
+      case "paragraph":
+        return [{ ...node, content: inline(node.content) }];
+      case "heading": {
+        const level = Number(node.attrs?.level) || 1;
+        const to = allowedLevel(allowed, level);
+        if (to !== level) note(kind);
+        const content = inline(node.content);
+        if (to === null)
+          return [
+            {
+              type: "paragraph",
+              ...(node.attrs?.blockId
+                ? { attrs: { blockId: node.attrs.blockId } }
+                : {}),
+              ...(content.length > 0 ? { content } : {}),
+            },
+          ];
+        return [
+          {
+            ...node,
+            attrs: { ...node.attrs, level: to },
+            ...(content.length > 0 ? { content } : {}),
+          },
+        ];
+      }
+      case "bulletList":
+      case "orderedList":
+        if (allows(kind!))
+          return [
+            {
+              ...node,
+              content: (node.content ?? []).map((item) => ({
+                ...item,
+                content: leadingParagraph(itemBlocks(item)),
+              })),
+            },
+          ];
+        note(kind);
+        return (node.content ?? []).flatMap(itemBlocks);
+      case "taskList":
+        if (allows("taskList"))
+          return [
+            {
+              ...node,
+              content: (node.content ?? []).map((item) => ({
+                ...item,
+                content: leadingParagraph(itemBlocks(item)),
+              })),
+            },
+          ];
+        note("taskList");
+        if (allows("bulletList"))
+          return [
+            {
+              type: "bulletList",
+              content: (node.content ?? []).map((item) => ({
+                type: "listItem",
+                content: leadingParagraph(itemBlocks(item)),
+              })),
+            },
+          ];
+        return (node.content ?? []).flatMap(itemBlocks);
+      case "listItem":
+      case "taskItem":
+        // Only at a slice's top: an item pasted on its own.
+        return [{ ...node, content: leadingParagraph(itemBlocks(node)) }];
+      case "blockquote":
+      case "callout": {
+        const inner = blockList(node.content);
+        if (allows(kind!))
+          return [
+            {
+              ...node,
+              content: inner.length > 0 ? inner : [paragraph([])],
+            },
+          ];
+        note(kind);
+        return inner;
+      }
+      case "toggle": {
+        const [summary, ...body] = node.content ?? [];
+        const inner = blockList(body);
+        if (allows("toggle"))
+          return [
+            {
+              ...node,
+              content: [
+                summary
+                  ? { ...summary, content: inline(summary.content) }
+                  : { type: "toggleSummary" },
+                ...(inner.length > 0 ? inner : [paragraph([])]),
+              ],
+            },
+          ];
+        note("toggle");
+        const title = inline(summary?.content);
+        return [...(title.length > 0 ? [paragraph(title)] : []), ...inner];
+      }
+      case "toggleSummary":
+        return [paragraph(inline(node.content))];
+      case "codeBlock": {
+        if (allows(kind!)) return [node];
+        note(kind);
+        const source = (node.content ?? [])
+          .map((each) => each.text ?? "")
+          .join("")
+          .replace(/\n+$/, "");
+        return source
+          .split("\n")
+          .map((line) => paragraph(line ? [text(line)] : []));
+      }
+      case "table": {
+        if (allows("table"))
+          return [
+            {
+              ...node,
+              content: (node.content ?? []).map((row) => ({
+                ...row,
+                content: (row.content ?? []).map((cell) => {
+                  const inner = blockList(cell.content);
+                  return {
+                    ...cell,
+                    content: inner.length > 0 ? inner : [paragraph([])],
+                  };
+                }),
+              })),
+            },
+          ];
+        note("table");
+        return (node.content ?? []).flatMap(row);
+      }
+      case "tableRow":
+        // Only at a slice's top: rows pasted without their table.
+        if (allows("table")) return [node];
+        note("table");
+        return row(node);
+      case "tableCell":
+      case "tableHeader":
+        if (allows("table")) return [node];
+        note("table");
+        return blockList(node.content);
+      case "image": {
+        if (allows("image")) return [node];
+        note("image");
+        const src = String(node.attrs?.src ?? "");
+        const alt = String(node.attrs?.alt ?? "").trim();
+        return linkLine(src, alt || (src ? urlName(src) : ""));
+      }
+      case "video":
+      case "audio": {
+        if (allows(kind!)) return [node];
+        note(kind);
+        const src = String(node.attrs?.src ?? "");
+        return linkLine(src, src ? urlName(src) : "");
+      }
+      case "embed":
+      case "bookmark": {
+        if (allows(kind!)) return [node];
+        note(kind);
+        const url = String(node.attrs?.url ?? "");
+        return linkLine(url, url);
+      }
+      case "horizontalRule":
+      case "taskQuery":
+        if (allows(kind!)) return [node];
+        note(kind);
+        return [];
+      default:
+        // An inline node at a slice's top (text pasted into a line) stays inline.
+        if (node.type === "text" || node.type === "mention")
+          return inline([node]);
+        return [node];
+    }
+  };
+  /** A block's inline content: a text block's own, else its blocks' joined by spaces. */
+  const inlineOf = (node: JSONContent): JSONContent[] => {
+    const children = node.content ?? [];
+    if (node.type === "paragraph" || node.type === "heading")
+      return children.filter((child) => child.type !== "hardBreak");
+    return children.flatMap((child, index) => {
+      const inner = inlineOf(child);
+      return index > 0 && inner.length > 0 ? [text(" "), ...inner] : inner;
+    });
+  };
+  /** A table row as one line: its non-empty cells' text, " · " between them. */
+  const row = (tableRow: JSONContent): JSONContent[] => {
+    const cells = (tableRow.content ?? [])
+      .map((cell) =>
+        inlineOf({ type: "tableCell", content: blockList(cell.content) }),
+      )
+      .filter((cell) => cell.length > 0);
+    if (cells.length === 0) return [];
+    return [
+      paragraph(
+        cells.flatMap((cell, index) => [
+          ...(index > 0 ? [text(" · ")] : []),
+          ...cell,
+        ]),
+      ),
+    ];
+  };
+
+  const content = blockList(doc.content);
+  return {
+    doc: {
+      ...doc,
+      content:
+        doc.type === "doc" && content.length === 0 ? [paragraph([])] : content,
+    },
+    converted: [...converted],
+  };
 }
