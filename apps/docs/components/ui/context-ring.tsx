@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.75.0 sha256-cYlx0OuvUg9qNPDtj0uWo/ki6btT4/h/itgZM67A9yA=
+// @vegastack context-ring@0.75.0 sha256-Eq+3WM6oBaJDT+qjbJCMefsOIXygL2cmwNUtChW0Hvs=
 
 "use client";
 
@@ -141,7 +141,7 @@ function Ring({
         backgroundImage:
           tone === "empty"
             ? `conic-gradient(${TONE_COLOR.empty} 100%, ${TONE_COLOR.empty} 0)`
-            : `conic-gradient(${TONE_COLOR[tone]} ${value}%, var(--color-muted) 0)`,
+            : `conic-gradient(${TONE_COLOR[tone]} ${value}%, ${TONE_COLOR.empty} 0)`,
       }}
     />
   );
