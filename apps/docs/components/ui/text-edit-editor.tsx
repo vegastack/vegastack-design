@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.61.0 sha256-C3HjePAON7VOf7n8YwlFBH83XhfVsSsSgYIOl7CAJSk=
+// @vegastack text-edit@0.61.0 sha256-697yZtQ8HpgDqD6ay1hEvdKbZqP1MXavEFnWPz8oR0k=
 
 "use client";
 
@@ -11243,10 +11243,14 @@ function allowedBlocksExtension(runtime: {
             before.doc.forEach((child) => kept.add(child));
             const tr = state.tr;
             const kinds = new Set<TextEditBlock>();
+            const touched: { node: PMNode; pos: number }[] = [];
             state.doc.forEach((child, offset) => {
               if (!kept.has(child) && hasDisallowedBlocks(child, blocks))
-                fitBlock(tr, child, offset, blocks, kinds);
+                touched.push({ node: child, pos: offset });
             });
+            // Last to first: a rewrite never moves a block still to come.
+            for (const { node, pos } of touched.reverse())
+              fitBlock(tr, node, pos, blocks, kinds);
             if (!tr.docChanged) return null;
             const pasted =
               runtime.pasting() ||
