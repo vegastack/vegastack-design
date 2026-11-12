@@ -43,6 +43,7 @@ export * from "./suggestion-card";
 export * from "./chat-composer";
 export * from "./message-parts";
 export * from "./approval-card";
+export * from "./request-card";
 export * from "./agent-edit-banner";
 export * from "./agent-panel";
 export * from "./agent-question-form";

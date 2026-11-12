@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 799,
-    "components": 207,
+    "totalRegistryItems": 800,
+    "components": 208,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 17,
+    "AI/chat": 18,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -255,7 +255,8 @@
       "message-parts",
       "chat-composer",
       "suggestion-card",
-      "agent-question-form"
+      "agent-question-form",
+      "request-card"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -43047,6 +43048,362 @@
             {
               "name": "data-status",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "request-card",
+      "registryType": "registry:ui",
+      "title": "Request Card",
+      "summary": "One card for every question an agent asks before it acts — Allow once · Always allow (one step wider from its menu) · Decline (with a note, or Never allow this) — its settled line in the same words on every channel, and What I've allowed with uses and Revoke.",
+      "status": "stable",
+      "since": "0.67.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/request-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RequestCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Props, including ref, spread onto the section root."
+          }
+        },
+        {
+          "name": "PermissionRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the div root."
+          }
+        },
+        {
+          "name": "PermissionList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "Props, including ref, spread onto the section root."
+          }
+        },
+        {
+          "name": "RequestCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PermissionRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PermissionListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CardSpec",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CardState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CardAnswers",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CardAgent",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "CardPreview",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AlwaysOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Place",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PlaceKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "AnsweredVia",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RequestCardBundleItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PermissionView",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One look; the request state, hard rule, bundle and compact size are data attributes, not variants."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container; `compact` is the one-row form for Home and Inbox, and the buttons stack full width under a 28rem container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "pending",
+            "bundle",
+            "hard",
+            "nudge",
+            "allowed_once",
+            "allowed_always",
+            "declined",
+            "never",
+            "skipped",
+            "withdrawn",
+            "cancelled",
+            "expired",
+            "refused",
+            "cannot-answer",
+            "busy",
+            "error",
+            "note",
+            "compact"
+          ],
+          "evidence": "packages/ui/registry/ui/request-card.tsx + packages/ui/registry/ui/request-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled-region",
+            "described-buttons",
+            "announced-outcome",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/request-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "pending",
+            "bundle",
+            "hard",
+            "nudge",
+            "settled",
+            "compact",
+            "narrow",
+            "permission-list"
+          ],
+          "evidence": "packages/ui/registry/ui/request-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "A container query stacks the buttons full width under 28rem; the Always label truncates inside its split button; record titles truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the busy spinner is Button`s."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/request-card",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/button-group",
+        "@vegastack/dropdown-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/textarea",
+        "@vegastack/use-announcer"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/request-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "request-card",
+      "dataAttributes": {
+        "RequestCard": {
+          "attributes": [
+            {
+              "name": "data-answer",
+              "values": [
+                "always",
+                "decline",
+                "never",
+                "once",
+                "review",
+                "status-action"
+              ]
+            },
+            {
+              "name": "data-bundle",
+              "values": []
+            },
+            {
+              "name": "data-compact",
+              "values": []
+            },
+            {
+              "name": "data-hard",
+              "values": []
+            },
+            {
+              "name": "data-scope",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "request-card",
+                "request-card-actions",
+                "request-card-bundle",
+                "request-card-footnote",
+                "request-card-from",
+                "request-card-header",
+                "request-card-note",
+                "request-card-nudge",
+                "request-card-status",
+                "request-card-title",
+                "request-card-why"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "PermissionRow": {
+          "attributes": [
+            {
+              "name": "data-effect",
+              "values": []
+            },
+            {
+              "name": "data-paused",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "permission-row",
+                "permission-row-meta",
+                "permission-row-paused",
+                "permission-row-title"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PermissionList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["permission-list", "permission-list-empty"]
             }
           ],
           "cssVariables": []

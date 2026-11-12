@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 145,
+    "total": 146,
     "fromExtras": 46
   },
   "items": {
@@ -995,6 +995,12 @@
       "disposition": "keep",
       "family": "hook",
       "source": "registry:hook — not a component, so extras.md does not list it"
+    },
+    "request-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent permissions P5 Task 5.1 (one request card on web, Slack and phone) — operator batch approval 12-11-2026 \"Agent permissions\"",
+      "rationale": "Upstream ships no agent permission request. A composition of upstream button, button-group, dropdown-menu, badge and textarea with our person-avatar and use-announcer: a data-only card (CardSpec + CardState) with Allow once, Always allow and Decline menus, a bundle, a hard variant, settled lines, and What I've allowed rows; no patch."
     }
   }
 }

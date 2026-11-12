@@ -23543,6 +23543,42 @@
       }
     },
     {
+      "name": "request-card",
+      "type": "registry:ui",
+      "title": "Request Card",
+      "description": "One card for every question an agent asks before it acts — Allow once · Always allow (one step wider from its menu) · Decline (with a note, or Never allow this) — its settled line in the same words on every channel, and What I've allowed with uses and Revoke.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/button-group",
+        "@vegastack/dropdown-menu",
+        "@vegastack/person-avatar",
+        "@vegastack/textarea",
+        "@vegastack/use-announcer"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/request-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/request-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
+        "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
+        "version": "0.67.0",
+        "integrity": "sha256-IOtL2X73UL2B4rKJwPkUtjQ4i8qWZxBH1HLlXV3VWj8="
+      }
+    },
+    {
       "name": "agent-edit-banner",
       "type": "registry:ui",
       "title": "Agent Edit Banner",
