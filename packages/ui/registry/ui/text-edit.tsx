@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.61.0 sha256-tv2dHDpDZVvvilgYUaoraWNkCXe+1WWOX/fAHrysqKY=
+// @vegastack text-edit@0.61.0 sha256-C3HjePAON7VOf7n8YwlFBH83XhfVsSsSgYIOl7CAJSk=
 
 "use client";
 
@@ -1531,7 +1531,7 @@ export interface TextEditProps {
    * Quiet facts about a list line, drawn muted at the end of its last row — "Saved 12 Nov ·
    * Assistant" — while the pointer is over it or the caret is in it (on touch, a tap shows it).
    * It sits in the room the line leaves free, truncating to fit, and never moves or covers text:
-   * a line too full for it shows nothing there (with `lineMenu`, its menu repeats it). Return
+   * a line too full for it shows nothing there (with `lineMenu`, its menu leads with it, in full). Return
    * null for none. Bullet and numbered list items only. Mounts the editor at once.
    * @default undefined
    */

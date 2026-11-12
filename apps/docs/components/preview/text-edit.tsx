@@ -1532,7 +1532,7 @@ const MEMORY_SAVED = [
  */
 export function textEditMemoryMode(): ReactNode {
   return (
-    <Wrapper className="items-stretch">
+    <Wrapper className="flex-col items-stretch">
       <TextEdit
         format="markdown"
         typeScale="document"

@@ -29959,7 +29959,7 @@
         },
         {
           "name": "TextEditBlock",
-          "kind": "component",
+          "kind": "type",
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",

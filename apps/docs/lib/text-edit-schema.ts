@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.26.4 sha256-J6ZuQylyANWeaWdVb4vnZD8eVPgghtlJWnWAunYevJs=
+// @vegastack text-edit-schema@0.26.4 sha256-yoLBnnJdJ9oaSITMfPqcMskg85hn8Igmqpsyu0BuXKU=
 
 import {
   Extension,
@@ -2380,6 +2380,13 @@ export const TEXT_EDIT_BLOCKS = [
 /** One kind `TextEdit`'s `blocks` allows (`TEXT_EDIT_BLOCKS`). */
 export type TextEditBlock = (typeof TEXT_EDIT_BLOCKS)[number];
 
+/** The inline nodes a text block holds. */
+const INLINE_TYPES: ReadonlySet<string> = new Set([
+  "text",
+  "mention",
+  "hardBreak",
+]);
+
 const MARK_KINDS: ReadonlySet<string> = new Set([
   "bold",
   "italic",
@@ -2612,13 +2619,7 @@ export function toAllowedBlocks(
               ...(content.length > 0 ? { content } : {}),
             },
           ];
-        return [
-          {
-            ...node,
-            attrs: { ...node.attrs, level: to },
-            ...(content.length > 0 ? { content } : {}),
-          },
-        ];
+        return [{ ...node, attrs: { ...node.attrs, level: to }, content }];
       }
       case "bulletList":
       case "orderedList":
@@ -2772,8 +2773,16 @@ export function toAllowedBlocks(
   /** A block's inline content: a text block's own, else its blocks' joined by spaces. */
   const inlineOf = (node: JSONContent): JSONContent[] => {
     const children = node.content ?? [];
-    if (node.type === "paragraph" || node.type === "heading")
-      return children.filter((child) => child.type !== "hardBreak");
+    // A text block (a paragraph, a heading, a code block, a toggle's title): its own text, a
+    // line break or a code line's end read as a space.
+    if (children.some((child) => INLINE_TYPES.has(child.type ?? "")))
+      return children.flatMap((child) =>
+        child.type === "hardBreak"
+          ? [text(" ")]
+          : child.type === "text"
+            ? [{ ...child, text: (child.text ?? "").replace(/\n+/g, " ") }]
+            : [child],
+      );
     return children.flatMap((child, index) => {
       const inner = inlineOf(child);
       return index > 0 && inner.length > 0 ? [text(" "), ...inner] : inner;

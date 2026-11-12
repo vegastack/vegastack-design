@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.61.0 sha256-tv2dHDpDZVvvilgYUaoraWNkCXe+1WWOX/fAHrysqKY=
+// @vegastack text-edit@0.61.0 sha256-C3HjePAON7VOf7n8YwlFBH83XhfVsSsSgYIOl7CAJSk=
 
 "use client";
 
@@ -282,6 +282,7 @@ import {
   blockId as newBlockId,
   EMBED_CONTAINERS,
   hasDisallowedBlocks,
+  textEditBlockKind,
   textEditExtensions,
   toAllowedBlocks,
   ychangeType,
@@ -11082,6 +11083,105 @@ function ruleExtensions(
 }
 
 /**
+ * Rewrite what `blocks` leaves out inside `node` (at `pos` in `tr.doc`), as narrowly as it can so
+ * the caret stays where it was: a mark is removed from its text, a heading or a one-line code
+ * block changes type in place, a mention becomes its text, and only a block that can't change in
+ * place (a table, an image, a list kind) is replaced, by `toAllowedBlocks`' text and links.
+ */
+function fitBlock(
+  tr: Transaction,
+  node: PMNode,
+  pos: number,
+  blocks: readonly TextEditBlock[],
+  kinds: Set<TextEditBlock>,
+) {
+  const allowed = new Set(blocks);
+  const fits = (type: string, attrs: Record<string, unknown>) => {
+    const kind = textEditBlockKind(type, attrs);
+    return kind === null || kind === "paragraph" || allowed.has(kind);
+  };
+  /** Each change at its position in `node`'s document, applied last to first. */
+  const changes: { pos: number; apply: () => void }[] = [];
+  const replace = (at: number, each: PMNode) => {
+    // An inline node (a mention) is rewritten inside a line, and keeps to it.
+    const json = each.toJSON() as JSONContent;
+    const { doc, converted } = toAllowedBlocks(
+      {
+        type: "doc",
+        content: [
+          each.isInline ? { type: "paragraph", content: [json] } : json,
+        ],
+      },
+      blocks,
+    );
+    for (const kind of converted) kinds.add(kind);
+    const content = doc.content ?? [];
+    changes.push({
+      pos: at,
+      apply: () =>
+        tr.replaceWith(
+          at,
+          at + each.nodeSize,
+          Fragment.fromJSON(
+            tr.doc.type.schema,
+            each.isInline ? (content[0]?.content ?? []) : content,
+          ),
+        ),
+    });
+  };
+  const visit = (each: PMNode, at: number): boolean => {
+    for (const mark of each.marks)
+      if (!fits(mark.type.name, mark.attrs)) {
+        kinds.add(textEditBlockKind(mark.type.name, mark.attrs)!);
+        changes.push({
+          pos: at,
+          apply: () => tr.removeMark(at, at + each.nodeSize, mark),
+        });
+      }
+    if (fits(each.type.name, each.attrs)) return true;
+    const kind = textEditBlockKind(each.type.name, each.attrs)!;
+    const { schema } = tr.doc.type;
+    if (each.type.name === "heading") {
+      const level = toAllowedBlocks(
+        { type: "doc", content: [{ type: "heading", attrs: each.attrs }] },
+        blocks,
+      ).doc.content?.[0];
+      kinds.add(kind);
+      changes.push({
+        pos: at,
+        apply: () =>
+          level?.type === "heading"
+            ? tr.setNodeMarkup(at, undefined, {
+                ...each.attrs,
+                level: level.attrs?.level,
+              })
+            : tr.setNodeMarkup(at, schema.nodes.paragraph, {
+                blockId: each.attrs.blockId ?? null,
+              }),
+      });
+      return true;
+    }
+    if (each.type.name === "codeBlock" && !each.textContent.includes("\n")) {
+      kinds.add(kind);
+      changes.push({
+        pos: at,
+        apply: () =>
+          tr.setNodeMarkup(at, schema.nodes.paragraph, {
+            blockId: each.attrs.blockId ?? null,
+          }),
+      });
+      return false;
+    }
+    replace(at, each);
+    return false;
+  };
+  if (visit(node, pos))
+    node.descendants((child, at) => visit(child, pos + 1 + at));
+  changes.sort((a, b) => b.pos - a.pos);
+  for (const change of changes) change.apply();
+}
+
+/**
  * `blocks`, kept: a paste or a drop is rewritten before it lands (`toAllowedBlocks`), and
  * whatever else makes a kind `blocks` leaves out — a shortcut, a command, Markdown pasted as text —
  * is rewritten in the same step (only the top-level blocks the step changed are looked at, so
@@ -11120,8 +11220,17 @@ function allowedBlocksExtension(runtime: {
                 blocks,
               );
               report(converted);
-              return Slice.maxOpen(
-                Fragment.fromJSON(view.state.schema, doc.content ?? []),
+              // As open as the paste was (a whole block stays a block), where the new content
+              // goes that deep.
+              const fragment = Fragment.fromJSON(
+                view.state.schema,
+                doc.content ?? [],
+              );
+              const most = Slice.maxOpen(fragment);
+              return new Slice(
+                fragment,
+                Math.min(slice.openStart, most.openStart),
+                Math.min(slice.openEnd, most.openEnd),
               );
             },
           },
@@ -11132,33 +11241,21 @@ function allowedBlocksExtension(runtime: {
               return null;
             const kept = new Set<PMNode>();
             before.doc.forEach((child) => kept.add(child));
-            const changed: { pos: number; node: PMNode }[] = [];
-            state.doc.forEach((child, offset) => {
-              if (!kept.has(child) && hasDisallowedBlocks(child, blocks))
-                changed.push({ pos: offset, node: child });
-            });
-            if (changed.length === 0) return null;
             const tr = state.tr;
             const kinds = new Set<TextEditBlock>();
-            for (const { pos, node } of changed.reverse()) {
-              const { doc, converted } = toAllowedBlocks(
-                { type: "doc", content: [node.toJSON() as JSONContent] },
-                blocks,
-              );
-              for (const kind of converted) kinds.add(kind);
-              tr.replaceWith(
-                pos,
-                pos + node.nodeSize,
-                Fragment.fromJSON(state.schema, doc.content ?? []),
-              );
-            }
+            state.doc.forEach((child, offset) => {
+              if (!kept.has(child) && hasDisallowedBlocks(child, blocks))
+                fitBlock(tr, child, offset, blocks, kinds);
+            });
+            if (!tr.docChanged) return null;
             const pasted =
               runtime.pasting() ||
               transactions.some((each) =>
                 ["paste", "drop"].includes(String(each.getMeta("uiEvent"))),
               );
             if (pasted) report([...kinds]);
-            return tr;
+            // A link this removes is never put back by autolink.
+            return tr.setMeta("preventAutolink", true);
           },
         }),
       ];
@@ -11270,9 +11367,9 @@ function LineControls({
       const pos = editor.isFocused ? caretBlockPos(editor.state) : null;
       setCaret(pos === null ? null : lineTargetAt(editor, pos + 1));
     };
-    const onScroll = () => {
-      if (!pinnedRef.current) setCaret(null);
-    };
+    // The caret's line stays through a scroll (a tap scrolls it into view on a phone): drawn
+    // where it is now.
+    const onScroll = () => redraw();
     dom.addEventListener("mousemove", onMove);
     dom.addEventListener("mouseleave", hideSoon);
     dom.addEventListener("click", onClick);
@@ -11294,12 +11391,25 @@ function LineControls({
   }, [editor, coarse, show, hideSoon, pinnedRef]);
 
   const target = blockNowOf(editor, open ?? hovered ?? caret);
+  // The open menu's line went from the page (deleted, a collaborator's edit): the menu goes with
+  // it, and the controls follow the pointer and the caret again.
+  const lost = open !== null && blockNowOf(editor, open) === null;
+  React.useEffect(() => {
+    if (!lost) return;
+    pinnedRef.current = false;
+    setOpen(null);
+  }, [lost, pinnedRef]);
   const line = target ? lineAt(editor.state.doc, target.pos) : null;
   const paragraph = target?.node.firstChild;
   if (!target || !line || paragraph?.type.name !== "paragraph") return null;
-  const paragraphDom = editor.view.nodeDOM(target.pos + 1);
-  if (!(paragraphDom instanceof HTMLElement)) return null;
-  const column = paragraphDom.getBoundingClientRect();
+  // The text column's end: the item's box short of its gutter (a paragraph is only as wide as
+  // its text; a nested item ends at its parent's column).
+  const itemBox = target.dom.getBoundingClientRect();
+  const column = {
+    right:
+      itemBox.right -
+      (Number.parseFloat(getComputedStyle(target.dom).paddingRight) || 0),
+  };
   const first = editor.view.coordsAtPos(target.pos + 2);
   const last = editor.view.coordsAtPos(target.pos + paragraph.nodeSize);
   const note = aside?.(line) ?? null;
@@ -11367,7 +11477,7 @@ function LineControls({
             }}
             className="w-auto max-w-72 min-w-44"
           >
-            {note !== null && !asideShown ? (
+            {note !== null ? (
               <>
                 <DropdownMenuGroup>
                   <DropdownMenuLabel className="truncate">
@@ -11733,12 +11843,20 @@ export function TextEditEditor({
   const [allowed] = React.useState<ReadonlySet<TextEditBlock> | null>(() =>
     blocks ? new Set(blocks) : null,
   );
-  const allowsKind = (kind: TextEditBlock) =>
-    !allowed || kind === "paragraph" || allowed.has(kind);
+  const allowsKind = React.useCallback(
+    (kind: TextEditBlock) =>
+      !allowed || kind === "paragraph" || allowed.has(kind),
+    [allowed],
+  );
   const mentions = allowsKind("mention") ? mentionsProp : undefined;
   const onImageUpload = allowsKind("image") ? onImageUploadProp : undefined;
   const onExternalImage = allowsKind("image") ? onExternalImageProp : undefined;
-  const onFileUpload = allowsKind("file") ? onFileUploadProp : undefined;
+  // One callback uploads files, video and audio: kept while any of them is allowed (each upload
+  // is checked for its own kind as it starts).
+  const onFileUpload =
+    allowsKind("file") || allowsKind("video") || allowsKind("audio")
+      ? onFileUploadProp
+      : undefined;
   const embeds = allowsKind("embed") ? embedsProp : undefined;
   const bookmarks = allowsKind("bookmark") && bookmarksProp;
   const blockViews = React.useMemo(() => {
@@ -12839,7 +12957,7 @@ export function TextEditEditor({
     ): boolean => {
       const ed = editorRef.current;
       const type = file.type.split(";")[0]!.trim().toLowerCase();
-      const kind: MediaKind =
+      const found: MediaKind =
         as ??
         (inlineImageTypesRef.current.includes(type)
           ? "image"
@@ -12848,6 +12966,13 @@ export function TextEditEditor({
             : INLINE_AUDIO_TYPES.includes(type)
               ? "audio"
               : "file");
+      // `blocks`: a kind it leaves out lands as a file chip where files are allowed, else not at all.
+      const kind: MediaKind | null = allowsKind(found)
+        ? found
+        : allowsKind("file")
+          ? "file"
+          : null;
+      if (kind === null) return false;
       const image = kind === "image";
       const { onImageUpload: uploadImage, onFileUpload: uploadFile } =
         callbacks.current;
