@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.68.0] — November 12, 2026
+
+<!-- assembled from 1 changeset: 747d0b9909ce -->
+
+### 🧩 New components
+
+- A workspace date and time format. `DateFormat` (`dateStyle` `dmy` "12 Nov 2026" · `mdy` "Nov 12, 2026" · `ymd` "2026-11-12", `hourCycle` `h12` "3:40 PM" · `h23` "15:40"), `DEFAULT_DATE_FORMAT` (today's output, byte for byte) and `dateFormatDefaults(timeZone)` (the zone's regional convention, from a fixed table). Every `@/lib/date-time` formatter takes `dateFormat`; `formatDate` takes `month: "long"`. `TimeZoneProvider` takes `dateFormat` and `useDateFormat()` reads it, so `RelativeTime`, `DateTime`, `DueLabel`, `DatePicker`, `DateRangePicker`, `DateTimePicker`, `TimeField`, `FieldCell`, `EditableCell`, `VersionList`, `Comments`, `BoardCard` and `DateRangeFilter` follow it. A comment's "Edited" tooltip now reads in the viewer's zone, like every other tooltip.
+  [`183155a`](https://github.com/VegaStack/vegastack-design/commit/183155a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.67.2 → 0.68.0.
+
 ## [0.67.2] — November 12, 2026
 
 <!-- assembled from 1 changeset: c04d4c3a9cb6 -->

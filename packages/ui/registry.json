@@ -323,7 +323,7 @@
       "meta": {
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
-        "version": "0.60.0"
+        "version": "0.68.0"
       }
     },
     {
@@ -913,7 +913,7 @@
       "meta": {
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
-        "version": "0.61.0"
+        "version": "0.68.0"
       }
     },
     {
@@ -1938,7 +1938,7 @@
       "meta": {
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
-        "version": "0.60.0"
+        "version": "0.68.0"
       }
     },
     {
@@ -2098,7 +2098,7 @@
       "meta": {
         "whenToUse": "Selecting a single date, a date with a time of day (DateTimePicker: the calendar and the time in one popup, on the reader's clock), or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
-        "version": "0.60.0"
+        "version": "0.68.0"
       }
     },
     {
@@ -2127,7 +2127,7 @@
       "meta": {
         "whenToUse": "A time of day on its own: a schedule's time, a reminder, opening hours. Typed (\"930\", \"9:30 pm\") or stepped with the arrow keys; the value is always HH:mm.",
         "whenNotToUse": "A date and a time together (DateTimePicker), a duration (NumberField with a unit), or an instant across time zones.",
-        "version": "0.60.0"
+        "version": "0.68.0"
       }
     },
     {
@@ -2163,7 +2163,7 @@
       "meta": {
         "whenToUse": "Choosing how something repeats — a Repeat property, a schedule, a reminder — inside the host's popover or ResponsiveDialog, with presets built from the record's date and the host's formatted next dates.",
         "whenNotToUse": "Picking one date (DatePicker) or a time alone (TimeField); computing occurrences (the host's RRULE engine).",
-        "version": "0.60.0"
+        "version": "0.68.0"
       }
     },
     {
@@ -2234,7 +2234,7 @@
       "meta": {
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
-        "version": "0.66.3"
+        "version": "0.68.0"
       }
     },
     {
@@ -2789,7 +2789,7 @@
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
-        "version": "0.60.0"
+        "version": "0.68.0"
       }
     },
     {
@@ -2843,7 +2843,7 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.60.2"
+        "version": "0.68.0"
       }
     },
     {
@@ -15079,7 +15079,7 @@
       "meta": {
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
-        "version": "0.60.0"
+        "version": "0.68.0"
       }
     },
     {
