@@ -1,4 +1,4 @@
-// @vegastack memory-note@0.69.0 sha256-+wRoZcpSDDU8OfIi1LINZ3/NPj8/ZbghTpprrX5SaLI=
+// @vegastack memory-note@0.69.0 sha256-WA7UBeCyKQqVmDNqaN06RPZknI54DkUD0zfahGduoSY=
 
 "use client";
 
@@ -195,6 +195,9 @@ export function MemoryNote({
   ...props
 }: MemoryNoteProps) {
   const lineId = React.useId();
+  const actionsRef = React.useRef<HTMLSpanElement>(null);
+  const outcomeRef = React.useRef<HTMLSpanElement>(null);
+  const hadFocus = React.useRef(false);
   const lead = leadFor(tone, notebook);
   const leadName = lead.replace(/[:.…]$/, "");
   const busy = state === "busy";
@@ -213,6 +216,17 @@ export function MemoryNote({
   };
   const actions = ACTIONS[tone].filter((key) => handlers[key]);
 
+  // Settling hides the actions; if one of them had focus, the outcome takes it, so the reader
+  // isn't dropped to the top of the page.
+  React.useLayoutEffect(() => {
+    if (!settled) return;
+    const active = document.activeElement;
+    const inside = actionsRef.current?.contains(active) ?? false;
+    if (inside || (hadFocus.current && active === document.body))
+      outcomeRef.current?.focus();
+    hadFocus.current = false;
+  }, [settled]);
+
   const sentence = [
     `${lead} ${line}`,
     tone === "updated" && before ? `(was ${before})` : null,
@@ -226,8 +240,20 @@ export function MemoryNote({
   // same reason: going busy must not push the actions onto a second line.
   const actionRow = actions.length ? (
     <span
+      ref={actionsRef}
       data-slot="memory-note-actions"
       inert={settled ? true : undefined}
+      onFocus={() => {
+        hadFocus.current = true;
+      }}
+      onBlur={(event) => {
+        // A blur caused by going inert keeps the flag, so the outcome can take focus over.
+        if (
+          !event.currentTarget.hasAttribute("inert") &&
+          !event.currentTarget.contains(event.relatedTarget)
+        )
+          hadFocus.current = false;
+      }}
       className={cn(
         "col-start-1 row-start-1 inline-flex min-h-6 shrink-0 items-center gap-1.5 whitespace-nowrap",
         // The buttons' own transition-all would carry the inherited visibility over its
@@ -278,17 +304,23 @@ export function MemoryNote({
     </span>
   ) : null;
 
+  // One wrapper in every state, so settling keeps the same button nodes rather than remounting
+  // them; the outcome then lays over the hidden actions in the wrapper's single cell.
   let end: React.ReactNode = null;
-  if (settled) {
+  if (settled || (actionRow && !note)) {
     end = (
       <span className="grid justify-items-end">
         {actionRow}
-        <span
-          data-slot="memory-note-outcome"
-          className="col-start-1 row-start-1 inline-flex min-h-6 items-center text-muted-foreground"
-        >
-          {outcome ?? settled}
-        </span>
+        {settled ? (
+          <span
+            ref={outcomeRef}
+            tabIndex={-1}
+            data-slot="memory-note-outcome"
+            className="col-start-1 row-start-1 inline-flex min-h-6 items-center text-muted-foreground"
+          >
+            {outcome ?? settled}
+          </span>
+        ) : null}
       </span>
     );
   } else if (note) {
@@ -300,8 +332,6 @@ export function MemoryNote({
         {note}
       </span>
     );
-  } else {
-    end = actionRow;
   }
 
   const icon = compact ? null : tone === "queued" ? (

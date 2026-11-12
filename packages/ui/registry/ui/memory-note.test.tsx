@@ -279,3 +279,23 @@ test("at 390px the actions take their own line and nothing overflows", async () 
     t.getBoundingClientRect().bottom,
   );
 });
+
+test("settling keeps the action nodes and hands focus to the outcome", async () => {
+  const props = {
+    tone: "remembered" as const,
+    notebook: "Personal memory",
+    line: "First names",
+    ...all,
+  };
+  const screen = await render(<MemoryNote {...props} />);
+  const undo =
+    screen.container.querySelector<HTMLButtonElement>("[data-action=undo]")!;
+  undo.focus();
+  await screen.rerender(<MemoryNote {...props} state="busy" />);
+  expect(document.activeElement).toBe(undo);
+  await screen.rerender(<MemoryNote {...props} state="undone" />);
+  expect(screen.container.querySelector("[data-action=undo]")).toBe(undo);
+  const outcome = slot(screen.container, "memory-note-outcome")!;
+  await expect.poll(() => document.activeElement).toBe(outcome);
+  await expectNoA11yViolations(screen.container);
+});
