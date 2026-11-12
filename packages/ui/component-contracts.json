@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 800,
-    "components": 208,
+    "totalRegistryItems": 801,
+    "components": 209,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 18,
+    "AI/chat": 19,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -256,7 +256,8 @@
       "chat-composer",
       "suggestion-card",
       "agent-question-form",
-      "request-card"
+      "request-card",
+      "memory-note"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -31552,6 +31553,197 @@
             },
             {
               "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "memory-note",
+      "registryType": "registry:ui",
+      "title": "Memory Note",
+      "summary": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory notebook, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
+      "status": "stable",
+      "since": "0.70.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/memory-note.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MemoryNote",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/memory-note.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "Props, including ref, spread onto the root div."
+          }
+        },
+        {
+          "name": "MemoryNoteProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/memory-note.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MemoryNoteTone",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/memory-note.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MemoryNoteState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/memory-note.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MEMORY_NOTE_TONES",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/memory-note.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A constant array, not a component."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "tone",
+            "values": [
+              "remembered",
+              "updated",
+              "suggested",
+              "forgot",
+              "would",
+              "queued",
+              "failed"
+            ]
+          },
+          {
+            "name": "compact",
+            "values": ["false", "true"]
+          }
+        ],
+        "rationale": "The tone sets the lead words, icon and actions; compact is the list form."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "idle",
+            "busy",
+            "undone",
+            "kept",
+            "dismissed",
+            "edited",
+            "note",
+            "handlers-gate-actions"
+          ],
+          "evidence": "packages/ui/registry/ui/memory-note.tsx + packages/ui/registry/ui/memory-note.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-group",
+            "action-names-carry-context",
+            "described-by-line",
+            "busy-spinner-status",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/memory-note.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["tones", "states", "compact", "narrow"],
+          "evidence": "packages/ui/registry/ui/memory-note.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The line wraps and is never cut; the actions keep one line and wrap below the text when the row is narrow."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion beyond the spinner."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/memory-note",
+      "registryDependencies": ["@vegastack/button", "@vegastack/spinner"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/memory-note.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "memory-note",
+      "dataAttributes": {
+        "MemoryNote": {
+          "attributes": [
+            {
+              "name": "data-action",
+              "values": []
+            },
+            {
+              "name": "data-compact",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "memory-note",
+                "memory-note-actions",
+                "memory-note-before",
+                "memory-note-icon",
+                "memory-note-lead",
+                "memory-note-line",
+                "memory-note-note",
+                "memory-note-outcome",
+                "memory-note-source",
+                "memory-note-spinner",
+                "memory-note-text"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-tone",
               "values": []
             }
           ],

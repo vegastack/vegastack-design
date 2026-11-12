@@ -40,6 +40,7 @@ export * from "./property-list";
 export * from "./code-block";
 export * from "./tool-call-chip";
 export * from "./suggestion-card";
+export * from "./memory-note";
 export * from "./chat-composer";
 export * from "./message-parts";
 export * from "./approval-card";
