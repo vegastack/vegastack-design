@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.76.0
+
+### Minor Changes
+
+- [#967](https://github.com/vegastack/vegastack-design/pull/967) [`8c92cd4`](https://github.com/vegastack/vegastack-design/commit/8c92cd4ce77c8bb4e7b7a0e1ae5b042be45e6224) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `ContextRing`: how full a chat's working memory is, as a small ring for the composer's toolbar. Blue under 75%, amber from 75%, red from 90%, a grey outline before anything is measured; pressed, the tokens used against the window, the parts that fill it and Summarize now, or the host's own surface with `onOpen`. `ChatComposer` gains `toolbarStart` (after 📎 and @) and `toolbarEnd` (just before Send or Stop) for the ring and composer chips.
+
 ## 0.75.0
 
 ### Minor Changes
