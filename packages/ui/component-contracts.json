@@ -29969,6 +29969,33 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "TextEditBlock",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TextEditLine",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TextEditMenuItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-edit.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -57756,6 +57783,51 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
+          }
+        },
+        {
+          "name": "hasDisallowedBlocks",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TEXT_EDIT_BLOCKS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TextEditBlock",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "textEditBlockKind",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "toAllowedBlocks",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/text-edit-schema.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

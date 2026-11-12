@@ -348,6 +348,7 @@ const DYNAMIC_DOM: Record<string, string> = {
   textEditEditorTools: ".ProseMirror[contenteditable]",
   textEditRoomyMenus: ".ProseMirror[contenteditable]",
   textEditBookmarks: ".ProseMirror[contenteditable]",
+  textEditMemoryMode: ".ProseMirror[contenteditable]",
   textEditErgonomics: ".ProseMirror[contenteditable]",
   textEditAnnotations: ".ProseMirror[contenteditable]",
   markdownBlockHandles: ".ProseMirror[contenteditable]",

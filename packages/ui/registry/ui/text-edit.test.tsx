@@ -1269,6 +1269,55 @@ test("pasting a URL over a selection links it; pasted HTML is sanitized", async 
   expect(box.element().querySelector("script,[onclick]")).toBeNull();
 });
 
+test("blocks: a pasted table, image, code block and H1 land as text and links, and the host hears which", async () => {
+  const onValueChange = vi.fn();
+  const onBlockConverted = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Start",
+    onValueChange,
+    onBlockConverted,
+    blocks: ["heading2", "heading3", "bulletList", "link", "bold"],
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await userEvent.click(box.element().querySelector("p")!);
+  await userEvent.keyboard(`${END}{Enter}`);
+  const html = new DataTransfer();
+  html.setData(
+    "text/html",
+    "<h1>Title</h1>" +
+      "<table><tr><th>Name</th><th>Role</th></tr><tr><td><b>Ada</b></td><td>Eng</td></tr></table>" +
+      '<img src="https://example.com/chart.png" alt="A chart">' +
+      "<pre><code>one\ntwo</code></pre>",
+  );
+  html.setData("text/plain", "Title");
+  box.element().dispatchEvent(
+    new ClipboardEvent("paste", {
+      clipboardData: html,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(
+      [
+        "Start",
+        "## Title",
+        "Name · Role",
+        "**Ada** · Eng",
+        "[A chart](https://example.com/chart.png)",
+        "one",
+        "two",
+      ].join("\n\n"),
+    ),
+  );
+  expect(box.element().querySelector("table,img,pre,h1")).toBeNull();
+  await vi.waitFor(() =>
+    expect(onBlockConverted).toHaveBeenCalledWith(
+      expect.arrayContaining(["heading1", "table", "image", "codeBlock"]),
+    ),
+  );
+});
+
 const TABLE = "| A   | B   |\n| --- | --- |\n| 1   | 2   |\n| 3   | 4   |";
 
 const tableMenu = () =>

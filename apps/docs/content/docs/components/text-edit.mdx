@@ -174,7 +174,8 @@ Inside, it composes these pieces:
 There is no toolbar. Type <kbd>/</kbd> for a filterable block menu under the headings Text
 (text, headings 1–4), Lists (bulleted, numbered, checklist), Blocks (quote, callout, toggle,
 divider, code block, diagram, table), Media (image, video, audio, file) and Insert (a link, then the
-host's own items); a filtered list drops the headings. `slashCommands` limits it.
+host's own items); a filtered list drops the headings. `slashCommands` limits it, and
+`blocks` limits every surface at once ([memory mode](#memory-mode-allowed-blocks-line-asides-and-line-menus)).
 Pasting from Notion keeps its to-dos as a checklist and its callouts as callouts (its HTML, and its Markdown's `<aside>`). Select text for a bubble menu with Turn into, bold, italic, strikethrough, inline code, link and
 clear formatting. Every menu floats in a portal on `<body>` and flips to stay in view, so no
 overflow container clips it. The editor has no view mode: leaving it calls `onCommit` when the text
@@ -206,6 +207,33 @@ save: the saved document becomes the baseline Escape reverts to and a commit com
 
 <ComponentPreview
   name="markdownBubbleMenu"
+  file="components/preview/text-edit.tsx"
+/>
+
+### Memory mode: allowed blocks, line asides and line menus
+
+`blocks` names the only kinds an editor offers and keeps (`TEXT_EDIT_BLOCKS` in
+`text-edit-schema` lists them all). The `/` menu, Turn into, the bubble's marks and link, the
+block menu, uploads, embeds, bookmarks and mentions show only what it names, and the Markdown
+shortcuts for the rest stay plain text. Without it nothing changes.
+
+Pasted or dropped content is rewritten to fit before it lands, keeping every word: a table becomes
+one line per row with its cells joined by " · ", an image a link to its file with the alt text as
+the link's text, a code block plain lines, an H1 an H2 (an H4 an H3), a checklist a bullet list,
+and a toggle, quote or callout that isn't allowed gives up its wrapper. `onBlockConverted` then
+gets the kinds it rewrote ("table", "image"), so the host can say why the text looks different.
+A server applies the same rewrite to a stored document with `toAllowedBlocks(doc, blocks)` from
+`text-edit-schema`, so a crafted update can't plant what the editor refuses.
+
+`lineAside` puts quiet facts at the end of a bullet or numbered line ("Saved 12 Nov ·
+Assistant"), muted and right-aligned in the room its last row leaves, on hover or while the caret
+is in it (a tap on touch). It floats, so it never moves or covers a word; a row too full for it
+shows nothing there. `lineMenu` adds a ⋯ menu beside the line in a gutter the list keeps for it;
+the block menu (<kbd>Mod</kbd> <kbd>/</kbd>) lists the same rows first, which is the keyboard's
+way in, and leads with the aside, in full. Paste a table or an image here to see the rewrite.
+
+<ComponentPreview
+  name="textEditMemoryMode"
   file="components/preview/text-edit.tsx"
 />
 

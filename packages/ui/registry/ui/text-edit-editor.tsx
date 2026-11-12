@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.61.0 sha256-aiKOgRwP0lEm8gjhm1RUjtIbsymxakXy0KtLNCwRk9A=
+// @vegastack text-edit@0.61.0 sha256-697yZtQ8HpgDqD6ay1hEvdKbZqP1MXavEFnWPz8oR0k=
 
 "use client";
 
@@ -15,6 +15,7 @@ import {
   useEditorState,
   EditorContent,
   Extension,
+  flattenExtensions,
   Node as TiptapNode,
   NodeViewContent,
   NodeViewWrapper,
@@ -198,7 +199,9 @@ import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuSub,
@@ -278,8 +281,12 @@ import {
 import {
   blockId as newBlockId,
   EMBED_CONTAINERS,
+  hasDisallowedBlocks,
+  textEditBlockKind,
   textEditExtensions,
+  toAllowedBlocks,
   ychangeType,
+  type TextEditBlock,
 } from "@/lib/text-edit-schema";
 import { matchEmbed, type EmbedProviders } from "@/lib/embed-providers";
 import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
@@ -306,6 +313,8 @@ import type {
   TextEditCollaboration,
   TextEditCollaborationUser,
   TextEditHandle,
+  TextEditLine,
+  TextEditMenuItem,
   TextEditProps,
   TextEditSlashAction,
   TextEditSlashCommand,
@@ -1295,6 +1304,25 @@ function blockViewOf(
   language: string | null | undefined,
 ): BlockView | undefined {
   return language ? blockViewsByEditor.get(editor)?.[language] : undefined;
+}
+
+/** Each editor's `blocks` (null: every kind), for its menus and commands. */
+const allowedByEditor = new WeakMap<
+  Editor,
+  ReadonlySet<TextEditBlock> | null
+>();
+
+/** Whether `editor`'s `blocks` allows `kind` (a paragraph always). */
+function allows(editor: Editor, kind: TextEditBlock): boolean {
+  const allowed = allowedByEditor.get(editor);
+  return !allowed || kind === "paragraph" || allowed.has(kind);
+}
+
+/** The `blocks` kind a slash command or a Turn into choice makes. */
+function commandKind(id: string): TextEditBlock {
+  if (id === "text") return "paragraph";
+  const level = /^h([1-4])$/.exec(id)?.[1];
+  return level ? (`heading${level}` as TextEditBlock) : (id as TextEditBlock);
 }
 
 /** Make the caret's block a `language` block view; an empty one gets the view's starter. */
@@ -7313,7 +7341,9 @@ function TurnIntoPanel({
       className={cn(MENU_SURFACE, "flex w-52 flex-col")}
     >
       {BLOCK_TYPES.filter(
-        (type) => type.id !== "diagram" || blockViewOf(editor, "mermaid"),
+        (type) =>
+          (type.id !== "diagram" || blockViewOf(editor, "mermaid")) &&
+          allows(editor, commandKind(type.id)),
       ).map((type) => {
         const Icon = type.icon;
         return (
@@ -7578,7 +7608,7 @@ function SelectionMenu({
           <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
         </>
       )}
-      {MARKS.map((mark) => {
+      {MARKS.filter((mark) => allows(editor, mark.id)).map((mark) => {
         const Icon = mark.icon;
         return (
           <MenuTip key={mark.id} label={`${mark.label} ${mark.shortcut}`}>
@@ -7598,21 +7628,23 @@ function SelectionMenu({
           </MenuTip>
         );
       })}
-      <MenuTip label="Link ⌘K">
-        <Toolbar.Button
-          render={
-            <Toggle
-              size="sm"
-              pressed={state?.link ?? false}
-              onPressedChange={() => onPanelChange("link")}
-              aria-label="Link"
-              className="min-w-7 px-0"
-            >
-              <LinkIcon />
-            </Toggle>
-          }
-        />
-      </MenuTip>
+      {allows(editor, "link") ? (
+        <MenuTip label="Link ⌘K">
+          <Toolbar.Button
+            render={
+              <Toggle
+                size="sm"
+                pressed={state?.link ?? false}
+                onPressedChange={() => onPanelChange("link")}
+                aria-label="Link"
+                className="min-w-7 px-0"
+              >
+                <LinkIcon />
+              </Toggle>
+            }
+          />
+        </MenuTip>
+      ) : null}
       <Toolbar.Separator className="mx-0.5 h-4 w-px bg-border" />
       <MenuTip label="Clear formatting">
         <Toolbar.Button
@@ -10038,6 +10070,8 @@ interface BlockMenuRuntime {
   makeTask: () => TextEditProps["onMakeTask"];
   /** The block menu opened or closed: the selection toolbar steps aside while it is open. */
   menuOpenChange: (open: boolean) => void;
+  /** `lineMenu`: the host's own rows for the list line at `pos` (none without it). */
+  lineMenu: (pos: number) => readonly TextEditMenuItem[];
 }
 
 /** A block kind the block menu marks as current: the turn-into kinds, a callout or a toggle. */
@@ -10172,7 +10206,9 @@ function blockMarkdown(editor: Editor, node: PMNode): string {
 interface BlockAction {
   key: string;
   label: string;
-  icon: React.ComponentType;
+  icon?: React.ComponentType;
+  /** A host row's own icon, drawn in place of `icon`. */
+  glyph?: React.ReactNode;
   run: () => void;
   shortcut?: string;
   disabled?: boolean;
@@ -10204,6 +10240,20 @@ function blockActions(
       moveNodeTo(editor.view, now.pos, step < 0 ? at - 1 : at + 2);
     });
   const actions: (BlockAction | null)[] = [];
+  // The host's rows for a list line (`lineMenu`) lead: the keyboard's way to the line's ⋯.
+  const hostRows = runtime.lineMenu(pos);
+  if (hostRows.length > 0)
+    actions.push(
+      ...hostRows.map((item) => ({
+        key: `line:${item.id}`,
+        label: item.label,
+        glyph: item.icon,
+        disabled: item.disabled,
+        destructive: item.destructive,
+        run: item.onSelect,
+      })),
+      null,
+    );
   if (makeTask && tasks.length > 0)
     actions.push(
       {
@@ -10296,6 +10346,12 @@ function blockActions(
   return actions;
 }
 
+/** A block menu row's icon: the host's own glyph, else the built-in one. */
+function BlockActionIcon({ action }: { action: BlockAction }) {
+  if (action.glyph !== undefined) return <>{action.glyph}</>;
+  return action.icon ? <action.icon /> : null;
+}
+
 /** The Turn into choices for `block`: the block types, then a callout (by tone) and a toggle. */
 function turnIntoChoices(editor: Editor, block: MenuBlock) {
   const current = blockKind(block.node);
@@ -10304,7 +10360,9 @@ function turnIntoChoices(editor: Editor, block: MenuBlock) {
     current,
     // Diagram only while the host draws ```mermaid (`blockViews.mermaid`).
     types: BLOCK_TYPES.filter(
-      (type) => type.id !== "diagram" || blockViewOf(editor, "mermaid"),
+      (type) =>
+        (type.id !== "diagram" || blockViewOf(editor, "mermaid")) &&
+        allows(editor, commandKind(type.id)),
     ).map((type) => ({
       key: type.id,
       label: type.label,
@@ -10314,13 +10372,16 @@ function turnIntoChoices(editor: Editor, block: MenuBlock) {
         type.run(editor);
       }),
     })),
-    tones: CALLOUT_TONES.map((tone) => ({
+    // Empty, and null, where `blocks` leaves callouts or toggles out.
+    tones: (allows(editor, "callout") ? CALLOUT_TONES : []).map((tone) => ({
       key: tone,
       label: CALLOUT_STYLE[tone].label,
       icon: CALLOUT_STYLE[tone].icon as React.ComponentType,
       run: live((now) => turnIntoCallout(editor, now.pos, tone)),
     })),
-    toggle: live((now) => turnIntoToggle(editor, now.pos)),
+    toggle: allows(editor, "toggle")
+      ? live((now) => turnIntoToggle(editor, now.pos))
+      : null,
   };
 }
 
@@ -10366,40 +10427,44 @@ function BlockMenuItems({
                   {type.label}
                 </DropdownMenuCheckboxItem>
               ))}
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger>
-                  <Info />
-                  Callout
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent
-                  data-text-edit-menu=""
-                  aria-label="Callout"
-                  className="w-auto min-w-40"
+              {choices.tones.length > 0 ? (
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Info />
+                    Callout
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent
+                    data-text-edit-menu=""
+                    aria-label="Callout"
+                    className="w-auto min-w-40"
+                  >
+                    {choices.tones.map((tone) => (
+                      <DropdownMenuCheckboxItem
+                        key={tone.key}
+                        checked={
+                          choices.current === "callout" &&
+                          block.node.attrs.tone === tone.key
+                        }
+                        closeOnClick
+                        onClick={tone.run}
+                      >
+                        <tone.icon />
+                        {tone.label}
+                      </DropdownMenuCheckboxItem>
+                    ))}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+              ) : null}
+              {choices.toggle ? (
+                <DropdownMenuCheckboxItem
+                  checked={choices.current === "toggle"}
+                  closeOnClick
+                  onClick={choices.toggle}
                 >
-                  {choices.tones.map((tone) => (
-                    <DropdownMenuCheckboxItem
-                      key={tone.key}
-                      checked={
-                        choices.current === "callout" &&
-                        block.node.attrs.tone === tone.key
-                      }
-                      closeOnClick
-                      onClick={tone.run}
-                    >
-                      <tone.icon />
-                      {tone.label}
-                    </DropdownMenuCheckboxItem>
-                  ))}
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
-              <DropdownMenuCheckboxItem
-                checked={choices.current === "toggle"}
-                closeOnClick
-                onClick={choices.toggle}
-              >
-                <ListCollapse />
-                Toggle
-              </DropdownMenuCheckboxItem>
+                  <ListCollapse />
+                  Toggle
+                </DropdownMenuCheckboxItem>
+              ) : null}
             </DropdownMenuSubContent>
           </DropdownMenuSub>
           <DropdownMenuSeparator />
@@ -10415,7 +10480,7 @@ function BlockMenuItems({
             disabled={action.disabled}
             onClick={action.run}
           >
-            <action.icon />
+            <BlockActionIcon action={action} />
             {action.label}
           </DropdownMenuCheckboxItem>
         ) : (
@@ -10425,7 +10490,7 @@ function BlockMenuItems({
             variant={action.destructive ? "destructive" : "default"}
             onClick={action.run}
           >
-            <action.icon />
+            <BlockActionIcon action={action} />
             {action.label}
             {action.shortcut ? (
               <DropdownMenuShortcut>{action.shortcut}</DropdownMenuShortcut>
@@ -10499,7 +10564,7 @@ function BlockMenuSheet({
                 aria-pressed={action.checked}
                 onClick={act(action.run)}
               >
-                <action.icon />
+                <BlockActionIcon action={action} />
                 <span className="flex-1">{action.label}</span>
                 {action.checked ? <Check aria-hidden /> : null}
               </Button>
@@ -10537,26 +10602,30 @@ function BlockMenuSheet({
             {choices.current === type.key ? <Check aria-hidden /> : null}
           </Button>
         ))}
-        <Button
-          variant="ghost"
-          type="button"
-          className={row}
-          onClick={() => setPage("callout")}
-        >
-          <Info />
-          <span className="flex-1">Callout</span>
-          <ChevronRight aria-hidden className="rtl:-scale-x-100" />
-        </Button>
-        <Button
-          variant="ghost"
-          type="button"
-          className={row}
-          onClick={act(choices.toggle)}
-        >
-          <ListCollapse />
-          <span className="flex-1">Toggle</span>
-          {choices.current === "toggle" ? <Check aria-hidden /> : null}
-        </Button>
+        {choices.tones.length > 0 ? (
+          <Button
+            variant="ghost"
+            type="button"
+            className={row}
+            onClick={() => setPage("callout")}
+          >
+            <Info />
+            <span className="flex-1">Callout</span>
+            <ChevronRight aria-hidden className="rtl:-scale-x-100" />
+          </Button>
+        ) : null}
+        {choices.toggle ? (
+          <Button
+            variant="ghost"
+            type="button"
+            className={row}
+            onClick={act(choices.toggle)}
+          >
+            <ListCollapse />
+            <span className="flex-1">Toggle</span>
+            {choices.current === "toggle" ? <Check aria-hidden /> : null}
+          </Button>
+        ) : null}
       </>
     );
   })();
@@ -10968,6 +11037,484 @@ function BlockHandle({
   );
 }
 
+/* --- allowed blocks (`blocks`) ------------------------------------------------------------------*/
+
+/** The extensions whose Markdown shortcuts (input and paste rules) make each kind. */
+const RULE_EXTENSIONS: Partial<Record<TextEditBlock, readonly string[]>> = {
+  bulletList: ["bulletList"],
+  orderedList: ["orderedList"],
+  taskList: ["taskList", "taskItem"],
+  blockquote: ["blockquote"],
+  callout: ["callout"],
+  toggle: ["toggle"],
+  codeBlock: ["codeBlock"],
+  divider: ["horizontalRule"],
+  image: ["image"],
+  bold: ["bold"],
+  italic: ["italic"],
+  strike: ["strike"],
+  highlight: ["highlight"],
+  code: ["code"],
+  link: ["link"],
+};
+
+/**
+ * The extensions whose input and paste rules stay on under `blocks` (Tiptap's
+ * `enableInputRules`): every one but those that make a kind it leaves out — `# ` still makes a
+ * heading while any level is allowed (and lands on an allowed level).
+ */
+function ruleExtensions(
+  extensions: AnyExtension[],
+  allowed: ReadonlySet<TextEditBlock>,
+): string[] {
+  const off = new Set<string>();
+  for (const [kind, names] of Object.entries(RULE_EXTENSIONS))
+    if (!allowed.has(kind as TextEditBlock))
+      for (const name of names!) off.add(name);
+  if (
+    ![1, 2, 3, 4].some((level) =>
+      allowed.has(`heading${level}` as TextEditBlock),
+    )
+  )
+    off.add("heading");
+  return flattenExtensions(extensions)
+    .map((extension) => extension.name)
+    .filter((name) => !off.has(name));
+}
+
+/**
+ * Rewrite what `blocks` leaves out inside `node` (at `pos` in `tr.doc`), as narrowly as it can so
+ * the caret stays where it was: a mark is removed from its text, a heading or a one-line code
+ * block changes type in place, a mention becomes its text, and only a block that can't change in
+ * place (a table, an image, a list kind) is replaced, by `toAllowedBlocks`' text and links.
+ */
+function fitBlock(
+  tr: Transaction,
+  node: PMNode,
+  pos: number,
+  blocks: readonly TextEditBlock[],
+  kinds: Set<TextEditBlock>,
+) {
+  const allowed = new Set(blocks);
+  const fits = (type: string, attrs: Record<string, unknown>) => {
+    const kind = textEditBlockKind(type, attrs);
+    return kind === null || kind === "paragraph" || allowed.has(kind);
+  };
+  /** Each change at its position in `node`'s document, applied last to first. */
+  const changes: { pos: number; apply: () => void }[] = [];
+  const replace = (at: number, each: PMNode) => {
+    // An inline node (a mention) is rewritten inside a line, and keeps to it.
+    const json = each.toJSON() as JSONContent;
+    const { doc, converted } = toAllowedBlocks(
+      {
+        type: "doc",
+        content: [
+          each.isInline ? { type: "paragraph", content: [json] } : json,
+        ],
+      },
+      blocks,
+    );
+    for (const kind of converted) kinds.add(kind);
+    const content = doc.content ?? [];
+    changes.push({
+      pos: at,
+      apply: () =>
+        tr.replaceWith(
+          at,
+          at + each.nodeSize,
+          Fragment.fromJSON(
+            tr.doc.type.schema,
+            each.isInline ? (content[0]?.content ?? []) : content,
+          ),
+        ),
+    });
+  };
+  const visit = (each: PMNode, at: number): boolean => {
+    for (const mark of each.marks)
+      if (!fits(mark.type.name, mark.attrs)) {
+        kinds.add(textEditBlockKind(mark.type.name, mark.attrs)!);
+        changes.push({
+          pos: at,
+          apply: () => tr.removeMark(at, at + each.nodeSize, mark),
+        });
+      }
+    if (fits(each.type.name, each.attrs)) return true;
+    const kind = textEditBlockKind(each.type.name, each.attrs)!;
+    const { schema } = tr.doc.type;
+    if (each.type.name === "heading") {
+      const level = toAllowedBlocks(
+        { type: "doc", content: [{ type: "heading", attrs: each.attrs }] },
+        blocks,
+      ).doc.content?.[0];
+      kinds.add(kind);
+      changes.push({
+        pos: at,
+        apply: () =>
+          level?.type === "heading"
+            ? tr.setNodeMarkup(at, undefined, {
+                ...each.attrs,
+                level: level.attrs?.level,
+              })
+            : tr.setNodeMarkup(at, schema.nodes.paragraph, {
+                blockId: each.attrs.blockId ?? null,
+              }),
+      });
+      return true;
+    }
+    if (each.type.name === "codeBlock" && !each.textContent.includes("\n")) {
+      kinds.add(kind);
+      changes.push({
+        pos: at,
+        apply: () =>
+          tr.setNodeMarkup(at, schema.nodes.paragraph, {
+            blockId: each.attrs.blockId ?? null,
+          }),
+      });
+      return false;
+    }
+    replace(at, each);
+    return false;
+  };
+  if (visit(node, pos))
+    node.descendants((child, at) => visit(child, pos + 1 + at));
+  changes.sort((a, b) => b.pos - a.pos);
+  for (const change of changes) change.apply();
+}
+
+/**
+ * `blocks`, kept: a paste or a drop is rewritten before it lands (`toAllowedBlocks`), and
+ * whatever else makes a kind `blocks` leaves out — a shortcut, a command, Markdown pasted as text —
+ * is rewritten in the same step (only the top-level blocks the step changed are looked at, so
+ * a document already holding such a block is never rewritten just for being opened). A
+ * collaborator's step is theirs to keep: never rewritten here. `converted` hears of a paste's or
+ * a drop's rewrites only, after the step.
+ */
+function allowedBlocksExtension(runtime: {
+  blocks: readonly TextEditBlock[];
+  converted: (kinds: TextEditBlock[]) => void;
+  /** True while the editor's own paste handler runs (Markdown pasted as text). */
+  pasting: () => boolean;
+}) {
+  const { blocks } = runtime;
+  const report = (kinds: readonly TextEditBlock[]) => {
+    if (kinds.length > 0) queueMicrotask(() => runtime.converted([...kinds]));
+  };
+  return Extension.create({
+    name: "textEditAllowedBlocks",
+    addProseMirrorPlugins() {
+      return [
+        new Plugin({
+          key: new PluginKey("textEditAllowedBlocks"),
+          props: {
+            transformPasted: (slice, view) => {
+              let disallowed = false;
+              slice.content.forEach((node) => {
+                disallowed ||= hasDisallowedBlocks(node, blocks);
+              });
+              if (!disallowed) return slice;
+              const { doc, converted } = toAllowedBlocks(
+                {
+                  type: "doc",
+                  content: slice.content.toJSON() as JSONContent[],
+                },
+                blocks,
+              );
+              report(converted);
+              // As open as the paste was (a whole block stays a block), where the new content
+              // goes that deep.
+              const fragment = Fragment.fromJSON(
+                view.state.schema,
+                doc.content ?? [],
+              );
+              const most = Slice.maxOpen(fragment);
+              return new Slice(
+                fragment,
+                Math.min(slice.openStart, most.openStart),
+                Math.min(slice.openEnd, most.openEnd),
+              );
+            },
+          },
+          appendTransaction: (transactions, before, state) => {
+            if (
+              !transactions.some((tr) => tr.docChanged && !isChangeOrigin(tr))
+            )
+              return null;
+            const kept = new Set<PMNode>();
+            before.doc.forEach((child) => kept.add(child));
+            const tr = state.tr;
+            const kinds = new Set<TextEditBlock>();
+            const touched: { node: PMNode; pos: number }[] = [];
+            state.doc.forEach((child, offset) => {
+              if (!kept.has(child) && hasDisallowedBlocks(child, blocks))
+                touched.push({ node: child, pos: offset });
+            });
+            // Last to first: a rewrite never moves a block still to come.
+            for (const { node, pos } of touched.reverse())
+              fitBlock(tr, node, pos, blocks, kinds);
+            if (!tr.docChanged) return null;
+            const pasted =
+              runtime.pasting() ||
+              transactions.some((each) =>
+                ["paste", "drop"].includes(String(each.getMeta("uiEvent"))),
+              );
+            if (pasted) report([...kinds]);
+            // A link this removes is never put back by autolink.
+            return tr.setMeta("preventAutolink", true);
+          },
+        }),
+      ];
+    },
+  });
+}
+
+/* --- line asides and menus (`lineAside`, `lineMenu`) --------------------------------------------*/
+
+/** The bullet or numbered list item at `pos`, as `lineAside` and `lineMenu` see it. */
+function lineAt(doc: PMNode, pos: number): TextEditLine | null {
+  const node = doc.nodeAt(pos);
+  if (node?.type.name !== "listItem") return null;
+  let index = -1;
+  let seen = 0;
+  doc.descendants((child, at) => {
+    if (index >= 0) return false;
+    if (child.type.name !== "listItem") return true;
+    if (at === pos) {
+      index = seen;
+      return false;
+    }
+    seen += 1;
+    return true;
+  });
+  const parts: string[] = [];
+  node.forEach((child) => {
+    if (!LIST_TYPES.has(child.type.name)) parts.push(child.textContent);
+  });
+  return {
+    text: parts.join(" ").trim(),
+    blockId: String(node.attrs.blockId ?? ""),
+    index,
+  };
+}
+
+/** The innermost bullet or numbered list item holding `pos`, as a hover target. */
+function lineTargetAt(editor: Editor, pos: number): BlockTarget | null {
+  const { doc } = editor.state;
+  const $pos = doc.resolve(Math.min(Math.max(pos, 0), doc.content.size));
+  for (let depth = $pos.depth; depth > 0; depth--) {
+    const node = $pos.node(depth);
+    if (node.type.name !== "listItem") continue;
+    const at = $pos.before(depth);
+    const dom = editor.view.nodeDOM(at);
+    return dom instanceof HTMLElement ? { pos: at, node, dom } : null;
+  }
+  return null;
+}
+
+/**
+ * With `lineMenu`, every outermost bullet or numbered item keeps a gutter at its end for the ⋯
+ * (nested items end at their parent's text column, inside it): showing it never moves a word.
+ */
+const LINE_MENU_GUTTER = "[&_li:not(li_li):not([data-type=taskItem])]:pe-7";
+
+/** The narrowest room a line aside is drawn in; a fuller line shows none there. */
+const ASIDE_MIN_WIDTH = 48;
+/** The gap between a line's last word and its aside. */
+const ASIDE_GAP = 12;
+
+/**
+ * A list line's quiet facts (`lineAside`) and its ⋯ menu (`lineMenu`), drawn over the hovered
+ * line, or the caret's (on touch, the tapped one). The aside sits after the line's last word on
+ * its last row, right-aligned and truncating in the room the row leaves; the ⋯ sits in the
+ * gutter the list keeps for it, beside the line's first row. Both float, so showing them never
+ * moves a word.
+ */
+function LineControls({
+  editor,
+  aside,
+  menu,
+}: {
+  editor: Editor;
+  aside?: (line: TextEditLine) => React.ReactNode | null;
+  menu?: (line: TextEditLine) => readonly TextEditMenuItem[];
+}) {
+  const coarse = useCoarsePointer();
+  const {
+    value: hovered,
+    show,
+    hideSoon,
+    keep,
+    pinnedRef,
+  } = useHover<BlockTarget>((a, b) => a.dom === b.dom && a.pos === b.pos);
+  const [caret, setCaret] = React.useState<BlockTarget | null>(null);
+  const [open, setOpen] = React.useState<BlockTarget | null>(null);
+  // Every change redraws: the line's last word moves as it is typed.
+  const [, redraw] = React.useReducer((count: number) => count + 1, 0);
+
+  React.useEffect(() => {
+    const dom = editor.view.dom;
+    const lineUnder = (event: MouseEvent) =>
+      lineTargetAt(
+        editor,
+        editor.view.posAtCoords({ left: event.clientX, top: event.clientY })
+          ?.pos ?? -1,
+      );
+    const onMove = (event: MouseEvent) => {
+      if (coarse || pinnedRef.current) return;
+      show(lineUnder(event));
+    };
+    // Touch (and a read-only page, where no caret is placed): a tap shows the tapped line's.
+    const onClick = (event: MouseEvent) => {
+      if (coarse && !pinnedRef.current) setCaret(lineUnder(event));
+    };
+    const onSelection = () => {
+      if (pinnedRef.current) return;
+      const pos = editor.isFocused ? caretBlockPos(editor.state) : null;
+      setCaret(pos === null ? null : lineTargetAt(editor, pos + 1));
+    };
+    // The caret's line stays through a scroll (a tap scrolls it into view on a phone): drawn
+    // where it is now.
+    const onScroll = () => redraw();
+    dom.addEventListener("mousemove", onMove);
+    dom.addEventListener("mouseleave", hideSoon);
+    dom.addEventListener("click", onClick);
+    window.addEventListener("scroll", onScroll, true);
+    editor.on("selectionUpdate", onSelection);
+    editor.on("focus", onSelection);
+    editor.on("blur", onSelection);
+    editor.on("transaction", redraw);
+    return () => {
+      dom.removeEventListener("mousemove", onMove);
+      dom.removeEventListener("mouseleave", hideSoon);
+      dom.removeEventListener("click", onClick);
+      window.removeEventListener("scroll", onScroll, true);
+      editor.off("selectionUpdate", onSelection);
+      editor.off("focus", onSelection);
+      editor.off("blur", onSelection);
+      editor.off("transaction", redraw);
+    };
+  }, [editor, coarse, show, hideSoon, pinnedRef]);
+
+  const target = blockNowOf(editor, open ?? hovered ?? caret);
+  // The open menu's line went from the page (deleted, a collaborator's edit): the menu goes with
+  // it, and the controls follow the pointer and the caret again.
+  const lost = open !== null && blockNowOf(editor, open) === null;
+  React.useEffect(() => {
+    if (!lost) return;
+    pinnedRef.current = false;
+    setOpen(null);
+  }, [lost, pinnedRef]);
+  const line = target ? lineAt(editor.state.doc, target.pos) : null;
+  const paragraph = target?.node.firstChild;
+  if (!target || !line || paragraph?.type.name !== "paragraph") return null;
+  // The text column's end: the item's box short of its gutter (a paragraph is only as wide as
+  // its text; a nested item ends at its parent's column).
+  const itemBox = target.dom.getBoundingClientRect();
+  const column = {
+    right:
+      itemBox.right -
+      (Number.parseFloat(getComputedStyle(target.dom).paddingRight) || 0),
+  };
+  const first = editor.view.coordsAtPos(target.pos + 2);
+  const last = editor.view.coordsAtPos(target.pos + paragraph.nodeSize);
+  const note = aside?.(line) ?? null;
+  const items = menu?.(line) ?? [];
+  const room = column.right - last.right - ASIDE_GAP;
+  const asideShown = note !== null && room >= ASIDE_MIN_WIDTH;
+  const rowHeight = (row: { top: number; bottom: number }) =>
+    row.bottom - row.top;
+
+  return (
+    <FloatingLayer>
+      {asideShown ? (
+        <div
+          data-slot="text-edit-line-aside"
+          aria-hidden
+          className="pointer-events-none fixed z-50 flex items-center justify-end text-xs text-muted-foreground"
+          style={{
+            left: last.right + ASIDE_GAP,
+            width: room,
+            top: last.top,
+            height: rowHeight(last),
+          }}
+        >
+          <span className="min-w-0 truncate">{note}</span>
+        </div>
+      ) : null}
+      {items.length > 0 ? (
+        <DropdownMenu
+          open={open !== null}
+          onOpenChange={(next) => {
+            pinnedRef.current = next;
+            setOpen(next ? target : null);
+            if (!next) hideSoon();
+          }}
+        >
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                data-slot="text-edit-line-menu"
+                aria-label="Line options"
+                // The caret stays in the text while the pointer presses it.
+                onMouseDown={(event) => event.preventDefault()}
+                onMouseEnter={keep}
+                onMouseLeave={() => {
+                  if (!pinnedRef.current) hideSoon();
+                }}
+                className="fixed z-50"
+                style={{
+                  left: column.right + 2,
+                  top: first.top + rowHeight(first) / 2 - 12,
+                }}
+              />
+            }
+          >
+            <Ellipsis />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            data-text-edit-menu=""
+            align="end"
+            finalFocus={() => {
+              if (editor.isEditable) editor.view.focus();
+              return false;
+            }}
+            className="w-auto max-w-72 min-w-44"
+          >
+            {note !== null ? (
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="truncate">
+                    {note}
+                  </DropdownMenuLabel>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+              </>
+            ) : null}
+            {items.map((item) => (
+              <DropdownMenuItem
+                key={item.id}
+                disabled={item.disabled}
+                variant={item.destructive ? "destructive" : "default"}
+                onClick={item.onSelect}
+              >
+                {item.icon}
+                {item.label}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : null}
+    </FloatingLayer>
+  );
+}
+
+/** A line target as it is now (`blockNow`), or null once it is gone or is no longer a line. */
+function blockNowOf(editor: Editor, target: BlockTarget | null) {
+  const now = target ? blockNow(editor, target) : null;
+  return now?.node.type.name === "listItem" ? now : null;
+}
+
 /**
  * Whether a selection gets the formatting toolbar: text selected (not a node, not cells, not in
  * code), and the editor editable or taking comments.
@@ -11228,7 +11775,7 @@ export function TextEditEditor({
   disabled = false,
   "aria-label": ariaLabel,
   variant = "document",
-  mentions,
+  mentions: mentionsProp,
   mentionHref,
   mentionImage,
   mentionLabel,
@@ -11238,13 +11785,13 @@ export function TextEditEditor({
   onTaskOpen,
   sectionMarks,
   onSectionMark,
-  onImageUpload,
-  onFileUpload,
+  onImageUpload: onImageUploadProp,
+  onFileUpload: onFileUploadProp,
   onUploadError,
-  onExternalImage,
+  onExternalImage: onExternalImageProp,
   fileLinkPrefix = "/api/files/",
   inlineImageTypes = INLINE_IMAGE_TYPES,
-  embeds,
+  embeds: embedsProp,
   renderTaskQuery,
   renderLiveBlock,
   liveBlockKinds,
@@ -11263,7 +11810,7 @@ export function TextEditEditor({
   onFailedUploadsChange,
   collaboration,
   diff,
-  blockViews,
+  blockViews: blockViewsProp,
   aria,
   surfaceClassName,
   hintClassName,
@@ -11285,11 +11832,49 @@ export function TextEditEditor({
   emoji = false,
   menuSize = "default",
   menuPresentation = "popover",
-  bookmarks = false,
+  bookmarks: bookmarksProp = false,
   bubbleActions,
   toolbar = "bubble",
   touchBlockMenu = "handle",
+  blocks,
+  onBlockConverted,
+  lineAside,
+  lineMenu,
 }: TextEditEditorProps) {
+  // `blocks`, fixed for the editor's life: what it leaves out is never offered — no upload, embed,
+  // bookmark, diagram or mention path for a kind it does not allow.
+  const [blockList] = React.useState(() => blocks);
+  const [allowed] = React.useState<ReadonlySet<TextEditBlock> | null>(() =>
+    blocks ? new Set(blocks) : null,
+  );
+  const allowsKind = React.useCallback(
+    (kind: TextEditBlock) =>
+      !allowed || kind === "paragraph" || allowed.has(kind),
+    [allowed],
+  );
+  const mentions = allowsKind("mention") ? mentionsProp : undefined;
+  const onImageUpload = allowsKind("image") ? onImageUploadProp : undefined;
+  const onExternalImage = allowsKind("image") ? onExternalImageProp : undefined;
+  // One callback uploads files, video and audio: kept while any of them is allowed (each upload
+  // is checked for its own kind as it starts).
+  const onFileUpload =
+    allowsKind("file") || allowsKind("video") || allowsKind("audio")
+      ? onFileUploadProp
+      : undefined;
+  const embeds = allowsKind("embed") ? embedsProp : undefined;
+  const bookmarks = allowsKind("bookmark") && bookmarksProp;
+  const blockViews = React.useMemo(() => {
+    if (!blockViewsProp || !allowed || allowed.has("diagram"))
+      return blockViewsProp;
+    const { mermaid: _diagram, ...rest } = blockViewsProp;
+    return rest;
+  }, [blockViewsProp, allowed]);
+  const blockConvertedRef = React.useRef(onBlockConverted);
+  blockConvertedRef.current = onBlockConverted;
+  const lineMenuRef = React.useRef(lineMenu);
+  lineMenuRef.current = lineMenu;
+  // True while the editor's own paste handler runs: what it inserts is a paste.
+  const pastingRef = React.useRef(false);
   const boxed = variant === "boxed" || variant === "composer";
   const editable = !readOnly && !disabled;
   // A shared document, fixed at creation: the Yjs document is the truth, so nothing here commits,
@@ -11384,9 +11969,10 @@ export function TextEditEditor({
         (command) =>
           (command !== "file" || onFileUpload) &&
           (command !== "diagram" || blockViews?.mermaid) &&
-          (command !== "bookmark" || bookmarks),
+          (command !== "bookmark" || bookmarks) &&
+          (!allowed || command === "text" || allowed.has(commandKind(command))),
       ),
-    [slashCommands, onFileUpload, blockViews, bookmarks],
+    [slashCommands, onFileUpload, blockViews, bookmarks, allowed],
   );
   const slashRef = React.useRef<readonly TextEditSlashCommand[]>(allowedSlash);
   slashRef.current = allowedSlash;
@@ -12062,6 +12648,15 @@ export function TextEditEditor({
         sectionMarksExtension((key) => sectionMarkRef.current?.(key)),
         taskOffersExtension(),
         editableWatchExtension(),
+        ...(blockList
+          ? [
+              allowedBlocksExtension({
+                blocks: blockList,
+                converted: (kinds) => blockConvertedRef.current?.(kinds),
+                pasting: () => pastingRef.current,
+              }),
+            ]
+          : []),
         pastedImagesExtension({
           take: () => {
             const images = importRef.current;
@@ -12182,6 +12777,12 @@ export function TextEditEditor({
       },
       makeTask: () => makeTaskRef.current,
       menuOpenChange: setBlockMenuOpen,
+      lineMenu: (pos) => {
+        const ed = editorRef.current;
+        const menu = lineMenuRef.current;
+        const line = ed && menu ? lineAt(ed.state.doc, pos) : null;
+        return line ? menu!(line) : [];
+      },
     }),
     [],
   );
@@ -12360,7 +12961,7 @@ export function TextEditEditor({
     ): boolean => {
       const ed = editorRef.current;
       const type = file.type.split(";")[0]!.trim().toLowerCase();
-      const kind: MediaKind =
+      const found: MediaKind =
         as ??
         (inlineImageTypesRef.current.includes(type)
           ? "image"
@@ -12369,6 +12970,13 @@ export function TextEditEditor({
             : INLINE_AUDIO_TYPES.includes(type)
               ? "audio"
               : "file");
+      // `blocks`: a kind it leaves out lands as a file chip where files are allowed, else not at all.
+      const kind: MediaKind | null = allowsKind(found)
+        ? found
+        : allowsKind("file")
+          ? "file"
+          : null;
+      if (kind === null) return false;
       const image = kind === "image";
       const { onImageUpload: uploadImage, onFileUpload: uploadFile } =
         callbacks.current;
@@ -12947,7 +13555,12 @@ export function TextEditEditor({
           return true;
         }
       }
-      if (mod && !event.shiftKey && event.key.toLowerCase() === "k") {
+      if (
+        mod &&
+        !event.shiftKey &&
+        event.key.toLowerCase() === "k" &&
+        allowsKind("link")
+      ) {
         event.preventDefault();
         // The editor's ⌘K is the link panel; an app's own ⌘K palette must not open too.
         event.stopPropagation();
@@ -13087,8 +13700,17 @@ export function TextEditEditor({
     transformPasted: (slice, view, plain) =>
       livePropsRef.current.transformPasted?.call(view, slice, view, plain) ??
       slice,
-    handlePaste: (view, event, slice) =>
-      livePropsRef.current.handlePaste?.call(view, view, event, slice) ?? false,
+    handlePaste: (view, event, slice) => {
+      pastingRef.current = true;
+      try {
+        return (
+          livePropsRef.current.handlePaste?.call(view, view, event, slice) ??
+          false
+        );
+      } finally {
+        pastingRef.current = false;
+      }
+    },
     handleDrop: (view, event, slice, moved) =>
       livePropsRef.current.handleDrop?.call(view, view, event, slice, moved) ??
       false,
@@ -13102,6 +13724,9 @@ export function TextEditEditor({
     ...stableHandlers,
   }));
 
+  const [ruleNames] = React.useState(() =>
+    allowed ? ruleExtensions(extensions, allowed) : null,
+  );
   const editor = useEditor({
     extensions,
     // A shared document's content is its Yjs document's: never seeded from here (a client-seeded
@@ -13116,6 +13741,10 @@ export function TextEditEditor({
           }),
     editable,
     immediatelyRender: false,
+    // `blocks`: no Markdown shortcut makes a kind it leaves out.
+    ...(ruleNames
+      ? { enableInputRules: ruleNames, enablePasteRules: ruleNames }
+      : {}),
     editorProps,
     onUpdate: ({ editor: ed }) => {
       // A shared document is never serialized per keystroke (E3): its Markdown is derived on save.
@@ -13169,6 +13798,7 @@ export function TextEditEditor({
   }, [editor, liveBlockRender]);
   // Its node views and commands read the host's block views from here, during their own render.
   if (editor) blockViewsByEditor.set(editor, blockViews ?? {});
+  if (editor) allowedByEditor.set(editor, allowed);
 
   // The document the host passed in is the committed one until something changes it.
   React.useEffect(() => {
@@ -14164,6 +14794,9 @@ export function TextEditEditor({
           <TableControls editor={editor} markdown={markdown} />
         </>
       ) : null}
+      {(lineAside || lineMenu) && editor && !diffing ? (
+        <LineControls editor={editor} aside={lineAside} menu={lineMenu} />
+      ) : null}
       {editor ? (
         <ImageMenus
           editor={editor}
@@ -14211,7 +14844,11 @@ export function TextEditEditor({
           if (!editor.chain().appendParagraphAfterLastBlock().focus().run())
             editor.commands.focus("end");
         }}
-        className={cn(contentClassName, findReplace && FIND_RESULT_CLASS)}
+        className={cn(
+          contentClassName,
+          findReplace && FIND_RESULT_CLASS,
+          lineMenu && LINE_MENU_GUTTER,
+        )}
         style={contentStyle}
         hidden={hidden}
       >
