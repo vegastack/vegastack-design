@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.76.2
+
+### Patch Changes
+
+- [#969](https://github.com/vegastack/vegastack-design/pull/969) [`6904820`](https://github.com/vegastack/vegastack-design/commit/69048202c8885bb02097f5c427aab4c0ee36011d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `RunUsagePanel` and `RunUsageTable` render their error announcer as an element, not a component made in render, so apps linting with React's `static-components` rule accept them. No visible change.
+
 ## 0.76.1
 
 ### Patch Changes

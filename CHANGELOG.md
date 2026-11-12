@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.76.2] — November 12, 2026
+
+<!-- assembled from 1 changeset: 056d755421e8 -->
+
+### 🧩 New components
+
+- `RunUsagePanel` and `RunUsageTable` render their error announcer as an element, not a component made in render, so apps linting with React's `static-components` rule accept them. No visible change.
+  [`6904820`](https://github.com/VegaStack/vegastack-design/commit/6904820)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.76.1 → 0.76.2.
+
 ## [0.76.1] — November 12, 2026
 
 <!-- assembled from 1 changeset: 4b857f05dabc -->

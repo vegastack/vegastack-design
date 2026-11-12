@@ -19973,8 +19973,8 @@
       "meta": {
         "whenToUse": "Show what an agent run used: the chip under an answer, the panel in a run drawer, the table of model calls for maintainers and admins.",
         "whenNotToUse": "Workspace-wide spend over time (a chart) or a single context gauge in the composer (ContextRing).",
-        "version": "0.74.0",
-        "integrity": "sha256-Y25NxQeMJi/XLmIWgK+bf3CCJ7FlbvCWCfiUGrMWpkw="
+        "version": "0.76.2",
+        "integrity": "sha256-BkvMqSygn7ktomQlvUqKr2PQkzK3Q7Yd36NdKXO3TA0="
       }
     },
     {
