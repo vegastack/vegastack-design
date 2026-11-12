@@ -133,26 +133,49 @@ test("the drop after a summary is said once; growth is not", async () => {
     .toHaveAttribute("data-tone", "info");
 });
 
-test("keyboard: Enter opens the breakdown and Escape closes it", async () => {
-  await render(
-    <ContextRing used={80_000} window={100_000} onSummarize={() => {}} />,
+const openPopup = () =>
+  document.querySelector<HTMLElement>(
+    '[data-slot="context-ring-breakdown"]:not([data-ending-style])',
   );
-  await userEvent.tab();
-  await userEvent.keyboard("{Enter}");
-  await vi.waitFor(() =>
-    expect(
-      document.querySelector('[data-slot="context-ring-breakdown"]'),
-    ).toBeTruthy(),
-  );
-  await userEvent.keyboard("{Escape}");
-  await vi.waitFor(() =>
-    expect(
-      document.querySelector(
-        '[data-slot="context-ring-breakdown"]:not([data-ending-style])',
-      ),
-    ).toBeNull(),
-  );
-});
+
+test.each([
+  ["with Summarize now", true],
+  ["read only", false],
+])(
+  "keyboard (%s): Enter opens the breakdown with focus inside, Escape returns to the ring",
+  async (_name, canSummarize) => {
+    await render(
+      <ContextRing
+        used={80_000}
+        window={100_000}
+        onSummarize={canSummarize ? () => {} : undefined}
+      />,
+    );
+    const trigger = page
+      .getByRole("button", { name: "Chat memory 80% used" })
+      .element();
+    await userEvent.tab();
+    expect(document.activeElement).toBe(trigger);
+    await userEvent.keyboard("{Enter}");
+    await vi.waitFor(() => {
+      expect(openPopup()).toBeTruthy();
+      expect(openPopup()!.contains(document.activeElement)).toBe(true);
+    });
+    if (canSummarize) {
+      const summarize = openPopup()!.querySelector<HTMLElement>(
+        '[data-slot="context-ring-summarize"]',
+      )!;
+      for (let i = 0; i < 3 && document.activeElement !== summarize; i++)
+        await userEvent.tab();
+      expect(document.activeElement).toBe(summarize);
+    }
+    await userEvent.keyboard("{Escape}");
+    await vi.waitFor(() => {
+      expect(openPopup()).toBeNull();
+      expect(document.activeElement).toBe(trigger);
+    });
+  },
+);
 
 test("labels and a custom formatter word it for the host", async () => {
   await render(

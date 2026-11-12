@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.66.2 sha256-4amgua6+0Nn2mVi4vXCMC+zWTPyYB7TUsVGbSNS5HiM=
+// @vegastack chat-composer@0.66.2 sha256-gZwsLA649LcFtCB+2caJYQjMdo+fisbpNDpNcaAhmnE=
 
 "use client";
 
@@ -113,12 +113,16 @@ export interface ChatComposerProps extends Omit<
   chips?: React.ReactNode;
   /**
    * Tools after 📎 and @ at the start of the toolbar: a mode chip (`ComposerChip`, Plan), the model
-   * picker's chip. @default undefined
+   * picker's chip. They shrink and truncate before the end slot gives way. Like the box, the
+   * toolbar mounts afresh when the box takes new text (a send, `setValue`), so keep what they show
+   * in the host: a controlled `pressed`, the ring's `summarizing`.
+   * @default undefined
    */
   toolbarStart?: React.ReactNode;
   /**
    * Controls just before Send or Stop: the chat memory ring (`ContextRing`), a model chip. Keep it
-   * to small, icon-height controls; they stay on the toolbar's one line.
+   * to small, icon-height controls; they stay on the toolbar's one line. State lives in the host,
+   * as for `toolbarStart`.
    * @default undefined
    */
   toolbarEnd?: React.ReactNode;
@@ -702,7 +706,9 @@ export function ChatComposer({
             {toolbarStart ? (
               <div
                 data-slot="chat-composer-toolbar-start"
-                className="flex min-w-0 items-center gap-1"
+                // Chips give way before the end does: each may shrink and truncate its words, and
+                // nothing paints past the slot into the ring or Send.
+                className="flex min-w-0 items-center gap-1 overflow-hidden *:min-w-0 *:shrink"
               >
                 {toolbarStart}
               </div>

@@ -510,4 +510,18 @@ test("at a phone's width the end slot keeps Send on the toolbar's line", async (
   const bar = toolbar.getBoundingClientRect();
   expect(sendBox.right).toBeLessThanOrEqual(bar.right + 0.5);
   expect(sendBox.top).toBeGreaterThanOrEqual(bar.top - 0.5);
+  // The start slot gives way: nothing in it paints into the end slot.
+  const start = toolbar
+    .querySelector<HTMLElement>('[data-slot="chat-composer-toolbar-start"]')!
+    .getBoundingClientRect();
+  const end = toolbar
+    .querySelector<HTMLElement>('[data-slot="chat-composer-toolbar-end"]')!
+    .getBoundingClientRect();
+  expect(start.right).toBeLessThanOrEqual(end.left + 0.5);
+  const chip = toolbar
+    .querySelector<HTMLElement>(
+      '[data-slot="chat-composer-toolbar-start"] > *',
+    )!
+    .getBoundingClientRect();
+  expect(chip.right).toBeLessThanOrEqual(start.right + 0.5);
 });

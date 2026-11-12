@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.75.0 sha256-Eq+3WM6oBaJDT+qjbJCMefsOIXygL2cmwNUtChW0Hvs=
+// @vegastack context-ring@0.75.0 sha256-C1qpWKMVKZQIy7lXsJ19m2RC4ym5xbgSXwf81irITrw=
 
 "use client";
 
@@ -77,7 +77,11 @@ export interface ContextRingProps extends Omit<
    * @default undefined
    */
   onSummarize?: () => void | Promise<unknown>;
-  /** A summary is under way (the host's own state, a live one included). @default false */
+  /**
+   * A summary is under way: the host's own state, a live one included. Prefer it to a returned
+   * promise inside `ChatComposer`, whose toolbar mounts afresh when a message sends.
+   * @default false
+   */
   summarizing?: boolean;
   /**
    * Pressing opens the host's own surface (a phone's sheet) instead of the breakdown popover.

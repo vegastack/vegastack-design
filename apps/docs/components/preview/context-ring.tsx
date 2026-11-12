@@ -47,11 +47,19 @@ export function contextRingSummarize(): ReactNode {
       <ContextRing
         used={used}
         window={100_000}
-        parts={[
-          { label: "Instructions & tools", tokens: 12_000 },
-          { label: "Conversation", tokens: used - 22_000 },
-          { label: "Tool results", tokens: 10_000 },
-        ]}
+        parts={
+          used > 20_000
+            ? [
+                { label: "Instructions & tools", tokens: 12_000 },
+                { label: "Conversation", tokens: 70_000 },
+                { label: "Tool results", tokens: 10_000 },
+              ]
+            : [
+                { label: "Instructions & tools", tokens: 12_000 },
+                { label: "Conversation", tokens: 6_000 },
+                { label: "Tool results", tokens: 2_000 },
+              ]
+        }
         onSummarize={() =>
           new Promise<void>((resolve) =>
             setTimeout(() => {

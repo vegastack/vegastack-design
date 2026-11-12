@@ -19870,7 +19870,7 @@
         "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposer's toolbarEnd, with what fills it and Summarize now.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
         "version": "0.75.0",
-        "integrity": "sha256-Eq+3WM6oBaJDT+qjbJCMefsOIXygL2cmwNUtChW0Hvs="
+        "integrity": "sha256-C1qpWKMVKZQIy7lXsJ19m2RC4ym5xbgSXwf81irITrw="
       }
     },
     {
@@ -20006,7 +20006,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.66.2",
-        "integrity": "sha256-4amgua6+0Nn2mVi4vXCMC+zWTPyYB7TUsVGbSNS5HiM="
+        "integrity": "sha256-gZwsLA649LcFtCB+2caJYQjMdo+fisbpNDpNcaAhmnE="
       }
     },
     {
