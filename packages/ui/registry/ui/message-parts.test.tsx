@@ -442,8 +442,8 @@ test("every button in the actions row, wrapped in a trigger or not, is one 28px 
       <Button size="icon-sm" variant="ghost" aria-label="Retry">
         {icon}
       </Button>
-      <Toggle size="sm" aria-label="Helpful">
-        {icon}
+      <Toggle aria-label="Helpful">
+        <svg aria-hidden data-icon="inline-start" viewBox="0 0 24 24" />
       </Toggle>
       <Tooltip>
         <TooltipTrigger render={<Toggle aria-label="Not helpful" />}>
@@ -460,6 +460,8 @@ test("every button in the actions row, wrapped in a trigger or not, is one 28px 
   for (const button of buttons) {
     const box = button.getBoundingClientRect();
     expect([box.width, box.height]).toEqual([28, 28]);
+    const { paddingLeft, paddingRight } = getComputedStyle(button);
+    expect([paddingLeft, paddingRight]).toEqual(["0px", "0px"]);
     // The computed size, not the box: CopyButton's icon pops in with a scale.
     const glyph = getComputedStyle(button.querySelector("svg")!);
     expect([glyph.width, glyph.height]).toEqual(["16px", "16px"]);

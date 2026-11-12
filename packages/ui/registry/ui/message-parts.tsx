@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.67.1 sha256-m+WzbFKGSxQpzrHBoTyh61U1si2+4ss+wqsLcxtrVZw=
+// @vegastack message-parts@0.67.1 sha256-Fbr7QD2HW/GmPIRpQqbGvLWtXB26UVrWf0jQbWRnP2A=
 
 "use client";
 
@@ -524,10 +524,11 @@ const REVEAL_ON_HOVER =
  * `CopyButton` or `Toggle`, bare or inside a `TooltipTrigger` or `PopoverTrigger`, which rename its
  * `data-slot`) is the 28px square of `Button size="icon-sm"` with a 16px icon, so Copy, Retry, 👍
  * and 👎 always match. The rules outrank a button's own size rules (an `icon-xs` button's 12px icon,
- * a `Toggle`'s 32px height); an icon given its own `size-*` class keeps it.
+ * a `Toggle`'s 32px height, the padding beside a `data-icon` icon: `:not([hidden])` lifts the
+ * padding rule past `has-data-[icon=…]:ps-*`); an icon given its own `size-*` class keeps it.
  */
 const ONE_BUTTON_SIZE =
-  "[&_button]:size-7 [&_button]:min-w-7 [&_button]:px-0 [&_button]:rounded-[min(var(--radius-md),12px)] [&_button_svg:not([class*='size-'])]:size-4";
+  "[&_button]:size-7 [&_button]:min-w-7 [&_button:not([hidden])]:px-0 [&_button]:rounded-[min(var(--radius-md),12px)] [&_button_svg:not([class*='size-'])]:size-4";
 
 /**
  * `MessageActions` — Copy, Retry and the rest, in a row under the message. Pass a ghost `Button`
