@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.74.0] — November 12, 2026
+
+### 🧩 New components
+
+- `RunUsage`: what one agent run used, in three parts over one data shape. `RunUsageChip` is one muted line under an answer ("3 steps · 62k context (62 %) · 92 % cached · $0.03"); `RunUsagePanel` shows totals, each model's new, cache read, cache write, 1-hour cache write and output tokens (thinking within it), searches, scripts, Subagents and retries, the cache result per step with why it missed, and the total with Subagents; `RunUsageTable` has one row per model call with a total. Money is optional everywhere, estimates read "~", and the panel and table have empty, loading and error states.
+  [`c8a3563`](https://github.com/VegaStack/vegastack-design/commit/c8a3563)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.73.0 → 0.74.0.
+
 ## [0.73.0] — November 12, 2026
 
 ### 🧩 New components

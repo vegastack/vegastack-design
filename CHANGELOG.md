@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.74.0] — November 12, 2026
+
+<!-- assembled from 1 changeset: 9f45a35801aa -->
+
+### 🧩 New components
+
+- `RunUsage`: what one agent run used, in three parts over one data shape. `RunUsageChip` is one muted line under an answer ("3 steps · 62k context (62 %) · 92 % cached · $0.03"); `RunUsagePanel` shows totals, each model's new, cache read, cache write, 1-hour cache write and output tokens (thinking within it), searches, scripts, Subagents and retries, the cache result per step with why it missed, and the total with Subagents; `RunUsageTable` has one row per model call with a total. Money is optional everywhere, estimates read "~", and the panel and table have empty, loading and error states.
+  [`c8a3563`](https://github.com/VegaStack/vegastack-design/commit/c8a3563)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.73.0 → 0.74.0.
+
 ## [0.73.0] — November 12, 2026
 
 <!-- assembled from 1 changeset: fa97e8acd2d9 -->
