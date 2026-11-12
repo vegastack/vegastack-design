@@ -1,0 +1,239 @@
+---
+title: Request Card
+description: One card for every question an agent asks before it acts — Allow once, Always allow, Decline — and What I've allowed with uses and Revoke.
+audience: public
+registry: request-card
+status: stable
+since: 0.67.0
+a11y: labelled region, described buttons, announced outcome
+preview: requestCard
+---
+
+## Install
+
+<InstallSteps name="request-card" />
+
+## Usage
+
+```tsx
+import { RequestCard } from "@/components/ui/request-card";
+
+<RequestCard
+  spec={request.card}
+  state={request.state}
+  answeredBy={request.answeredBy}
+  answeredVia={request.answeredVia}
+  busy={pending}
+  onAllowOnce={() => answer({ kind: "once" })}
+  onAlways={(option) => answer({ kind: "always", scope: option.scope })}
+  onDecline={(note) => answer({ kind: "decline", note })}
+  onNever={() => answer({ kind: "never" })}
+  onRevoke={() => revoke(request.permissionId)}
+  onDoItNow={() => doItNow(request.id)}
+/>;
+```
+
+The props are data only. `spec` is the `CardSpec` the server stores with each request
+(`agent_requests.card`), the same JSON the Slack blocks and the phone's sheet draw, and `state` is
+its `CardState`. Render times for the viewer before they reach the card ("From the 09:46 run ·
+asked 2 min ago"). The host owns the request: it sets `busy` while an answer is on its way and
+passes the new `state` back, with who answered (`answeredBy`: "you" or a name) and where
+(`answeredVia`: `web`, `phone` or `slack`). A lost race shows its own words through `statusText`
+("Already answered by Priya").
+
+## Scope
+
+- **One card for every request**: posting, sending, sharing, opening a site, moving records. The
+  same three answers everywhere: Allow once · Always allow ▾ · Decline ▾.
+- **Always allow** saves the exact place from its main button ("Always allow in #ops"); its menu
+  adds one step wider and, in a chat, "Allow for this chat". The options come from
+  `spec.answers.always`, narrowest first; `null` offers no Always.
+- **Decline** declines; its menu writes a note for the agent, or says "Never allow this" when
+  `spec.answers.never` is set.
+- **Neither Allow once nor Always is styled primary**, so a click-through is never the easy path.
+- A **hard-rule** request (`spec.hard`) shows Allow once and Decline only, and the badge "Always
+  asks".
+- A **bundle** is a run's requests together: Allow all once · Always allow these · Review each ·
+  Decline all.
+- `compact` is one row for Home and Inbox: the title, where it came from and the buttons.
+- `PermissionList` and `PermissionRow` are **What I've allowed**: each standing answer with how often
+  it was used, why it's paused, and Revoke, or Undo for a Never.
+
+| `CardState`      | The line                                      | Action    |
+| ---------------- | --------------------------------------------- | --------- |
+| `pending`        | the answers (or "Waiting for Manoj's answer") |           |
+| `allowed_once`   | ✓ Allowed once by Priya from Slack            |           |
+| `allowed_always` | ✓ Always allowed by you                       | Revoke    |
+| `declined`       | Declined by Priya                             |           |
+| `never`          | Never: set by you                             | Undo      |
+| `skipped`        | Skipped: no answer in 24 h                    | Do it now |
+| `expired`        | Expired: no answer in 7 days                  |           |
+| `refused`        | Not allowed: a workspace rule blocks this     |           |
+| `withdrawn`      | Withdrawn: a new message was sent             |           |
+| `cancelled`      | Cancelled: the agent was archived             |           |
+
+`CardPreview` is one of `quote` (text it would send), `recipients`, `items` (records, a move's linked
+items included), `file`, or `from_to` (something it would make visible more widely).
+
+## Anatomy
+
+<Anatomy name="request-card" />
+
+## Examples
+
+<ComponentPreview
+  name="requestCard"
+  file="components/preview/request-card.tsx"
+/>
+
+### Bundle
+
+One run asks two things: one card lists them, answered together or one by one.
+
+<ComponentPreview
+  name="requestCardBundle"
+  file="components/preview/request-card.tsx"
+/>
+
+### Hard rule
+
+Emailing outside the company after reading an email always asks: Allow once and Decline only.
+
+<ComponentPreview
+  name="requestCardHard"
+  file="components/preview/request-card.tsx"
+/>
+
+### Nudge
+
+After three Allow once answers to the same thing, `spec.nudge` shows above the buttons and Always
+comes first. It never grants anything by itself.
+
+<ComponentPreview
+  name="requestCardNudge"
+  file="components/preview/request-card.tsx"
+/>
+
+### Previews
+
+Records with their places, a file and where it goes, or from → to.
+
+<ComponentPreview
+  name="requestCardPreviews"
+  file="components/preview/request-card.tsx"
+/>
+
+### Settled states
+
+Answered, skipped, expired, refused, withdrawn or cancelled, the buttons give way to one line in the
+same words on the web, the phone and Slack. A viewer who can't answer sees whose answer it waits for.
+
+<ComponentPreview
+  name="requestCardStates"
+  file="components/preview/request-card.tsx"
+/>
+
+### Compact
+
+One row for Home and Inbox: from a 42rem container the title and the answers share a line;
+narrower, the answers sit under the title. A compact card leaves out the reason, the preview and the
+nudge's words, though the nudge still puts Always first.
+
+<ComponentPreview
+  name="requestCardCompact"
+  file="components/preview/request-card.tsx"
+/>
+
+### Narrow
+
+Under a 28rem container the buttons stack full width, and the Always label truncates inside its
+button.
+
+<ComponentPreview
+  name="requestCardNarrow"
+  file="components/preview/request-card.tsx"
+/>
+
+### What I've allowed
+
+`PermissionList` groups the lines (Allowed, Never) with their own empty line. A paused line shows
+why, and one paused because the owner changed has Confirm.
+
+<ComponentPreview
+  name="permissionList"
+  file="components/preview/request-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/request-card.tsx"
+  name="RequestCardProps"
+/>
+
+### CardSpec
+
+<ApiTable
+  path="../../packages/ui/registry/ui/request-card.tsx"
+  name="CardSpec"
+/>
+
+### CardAnswers
+
+<ApiTable
+  path="../../packages/ui/registry/ui/request-card.tsx"
+  name="CardAnswers"
+/>
+
+### AlwaysOption
+
+<ApiTable
+  path="../../packages/ui/registry/ui/request-card.tsx"
+  name="AlwaysOption"
+/>
+
+### PermissionView
+
+<ApiTable
+  path="../../packages/ui/registry/ui/request-card.tsx"
+  name="PermissionView"
+/>
+
+### PermissionRow
+
+<ApiTable
+  path="../../packages/ui/registry/ui/request-card.tsx"
+  name="PermissionRowProps"
+/>
+
+### PermissionList
+
+<ApiTable
+  path="../../packages/ui/registry/ui/request-card.tsx"
+  name="PermissionListProps"
+/>
+
+## Accessibility
+
+- The card is a region named by its title ("Inbox assistant wants to post in #ops"); every answer
+  button is described by the same title.
+- The menus are `DropdownMenu`s: their triggers are named "More ways to always allow" and "More ways
+  to decline".
+- An answer that settles while the card is on screen is announced politely; the first paint is not.
+- Status is never colour alone: each settled line is a sentence with its icon.
+
+| Key                                 | Action                                      |
+| ----------------------------------- | ------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through the answers and menu triggers. |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Answer, or open a menu.                     |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move through a menu's options.              |
+| <kbd>Esc</kbd>                      | Close a menu.                               |
+
+<StatesTested name="request-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Name the exact place in the title and the Always label, and say plainly when Always also covers runs that read outside text."
+  dont="Style Allow once or Always as the primary button, or offer Always on a hard-rule request."
+/>

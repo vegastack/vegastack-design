@@ -201,6 +201,7 @@
     "tool-call-chip",
     "cited-list",
     "approval-card",
+    "request-card",
     "suggestion-card",
     "agent-edit-banner",
     "agent-panel",
