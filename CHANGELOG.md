@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.67.0] — November 12, 2026
+
+<!-- assembled from 1 changeset: c8ed65c14e4c -->
+
+### 🧩 New components
+
+- `RequestCard`, `PermissionList` and `PermissionRow`: one card for every question an agent asks before it acts, drawn from a data-only `CardSpec` and `CardState` that the web, Slack and the phone share. Allow once · Always allow (the exact place, or one step wider from its menu, or this chat) · Decline (with a note, or Never allow this); a hard-rule card has two answers; a bundle answers a run's requests together; the nudge after three Allow once answers puts Always first; neither Allow once nor Always is primary. Answered, skipped, expired, refused, withdrawn or cancelled, the buttons give way to one line in the same words everywhere ("✓ Always allowed by you · Revoke", "Skipped: no answer in 24 h · Do it now"). `compact` is one row for Home and Inbox. `PermissionList` is What I've allowed: uses, when last used, paused lines with Confirm, Revoke and Undo.
+  [`dc4819c`](https://github.com/VegaStack/vegastack-design/commit/dc4819c)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.66.3 → 0.67.0.
+
 ## [0.66.3] — November 11, 2026
 
 <!-- assembled from 3 changesets: 0a5ee70c4b9b -->
