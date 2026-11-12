@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.71.0
+
+### Minor Changes
+
+- [#962](https://github.com/vegastack/vegastack-design/pull/962) [`cf9758b`](https://github.com/vegastack/vegastack-design/commit/cf9758b6cf7cdf1474b3448e2d6ef6a856752261) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AgentQuestionForm` takes `recommended` (default `true`). `false` puts the "Recommended" badge on no option, for questions with no right answer such as a person's role; nothing else changes.
+
 ## 0.70.0
 
 ### Minor Changes

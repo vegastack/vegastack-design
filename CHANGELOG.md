@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.71.0] — November 12, 2026
+
+<!-- assembled from 1 changeset: 1d08867efb7d -->
+
+### 🔧 Changed components
+
+- `AgentQuestionForm` takes `recommended` (default `true`). `false` puts the "Recommended" badge on no option, for questions with no right answer such as a person's role; nothing else changes.
+  [`cf9758b`](https://github.com/VegaStack/vegastack-design/commit/cf9758b)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.70.0 → 0.71.0.
+
 ## [0.70.0] — November 12, 2026
 
 <!-- assembled from 1 changeset: faf86b8055b2 -->
