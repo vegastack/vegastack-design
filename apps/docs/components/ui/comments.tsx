@@ -1,9 +1,9 @@
-// @vegastack comments@0.60.0 sha256-V4xebWldROKGApv2J0JNW/Rct0c1aZZlPyrAHK/fXR0=
+// @vegastack comments@0.60.0 sha256-TnlUkd5dx9SxVM9I+yN3zGJK6e9dLZgw6Yn3SGiOap8=
 
 "use client";
 
 import * as React from "react";
-import { DEFAULT_LOCALE, dayDelta, formatDate } from "@/lib/date-time";
+import { dayDelta, formatDate, formatTooltip } from "@/lib/date-time";
 import {
   ArrowUp,
   ArrowUpDown,
@@ -53,6 +53,7 @@ import {
 import { PersonBadge } from "@/components/ui/searchable-select";
 import {
   RelativeTime,
+  useDateFormat,
   useDateTimeNow,
   useTimeZone,
 } from "@/components/ui/relative-time";
@@ -392,6 +393,8 @@ export function CommentItem({
   const [error, setError] = React.useState<string | null>(null);
   // Reply sits in the menu on a touch screen only; with a mouse the reply box is right there.
   const coarse = useMediaQuery("(pointer: coarse)");
+  const timeZone = useTimeZone();
+  const dateFormat = useDateFormat();
   // An agent is its author's `kind`; the `agent` flag is the deprecated spelling of the same.
   const agent = comment.agent === true || comment.author.kind === "agent";
   const author: Person = agent
@@ -548,7 +551,7 @@ export function CommentItem({
                   </TooltipTrigger>
                   <TooltipContent>
                     Edited{" "}
-                    {new Date(comment.editedAt).toLocaleString(DEFAULT_LOCALE)}
+                    {formatTooltip(comment.editedAt, { timeZone, dateFormat })}
                   </TooltipContent>
                 </Tooltip>
               ) : null}
@@ -2447,10 +2450,11 @@ export function CommentThread({
  */
 function useDayClock(nowProp: number | undefined) {
   const timeZone = useTimeZone();
+  const dateFormat = useDateFormat();
   const clock = useDateTimeNow();
   if (clock === undefined && timeZone === undefined) return null;
   const now = nowProp ?? clock;
-  return now === undefined ? null : { now, timeZone };
+  return now === undefined ? null : { now, timeZone, dateFormat };
 }
 
 /** The calendar day an instant falls on, in the viewer's zone, as a comparable key. */
@@ -2483,14 +2487,14 @@ export function CommentDayDivider({
 }) {
   const day = useDayClock(nowProp);
   if (!day) return null;
-  const { now, timeZone } = day;
+  const { now, timeZone, dateFormat } = day;
   const delta = dayKey(date, now, timeZone);
   const label =
     delta === 0
       ? "Today"
       : delta === -1
         ? "Yesterday"
-        : formatDate(date, { absolute: true, now, timeZone });
+        : formatDate(date, { absolute: true, now, timeZone, dateFormat });
   return (
     <p
       role="separator"

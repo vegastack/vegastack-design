@@ -43,8 +43,9 @@ add the absolute time in a hover tooltip ("Sep 25, 2026 · 2:30 PM IST").
 
 ### Shared rules
 
-- The year shows only when it is not the current year.
-- 12-hour clock with no leading zero: "9:04 AM".
+- The year shows only when it is not the current year (a `ymd` date always carries it).
+- 12-hour clock with no leading zero: "9:04 AM", or a 24-hour one ("09:04") under `dateFormat`.
+- `dateFormat` fixes the date order and the clock for a workspace; see [Date format](#date-format).
 - Minimal units `s` `m` `h` `d` `w` `mo` `y`, no space before the unit.
 - Calendar days use the viewer's time zone (`timeZone` option on every function).
 - Anything under 45 seconds reads "now".
@@ -204,6 +205,49 @@ const timeZone = getTimeZone(
 `TimeZoneScript` writes the cookie on load and again when the tab becomes visible, so a changed
 zone reaches the next request. Client code reads the zone with `useTimeZone()`; server code passes
 `timeZone` to each function.
+
+### Date format
+
+A workspace can fix the date order and the clock, whatever the locale. Every function takes
+`dateFormat: { dateStyle, hourCycle }`, and `TimeZoneProvider` hands one to every date component
+(`RelativeTime`'s tooltip, `DateTime`, `DueLabel`, `DatePicker`, `DateTimePicker`, `TimeField`,
+`FieldCell`, `EditableCell`, `VersionList`, `Comments`, `BoardCard` and `DateRangeFilter`).
+Client code reads it with `useDateFormat()`.
+
+| `dateStyle` | Reads                        |
+| ----------- | ---------------------------- |
+| `dmy`       | 12 Nov · 12 Nov 2026         |
+| `mdy`       | Nov 12 · Nov 12, 2026        |
+| `ymd`       | 2026-11-12 (always the year) |
+
+`hourCycle` is `h12` ("3:40 PM") or `h23` ("15:40"). `DEFAULT_DATE_FORMAT` (`mdy`, `h12`) writes
+exactly what the functions write without one. For a workspace on "Automatic",
+`dateFormatDefaults(timeZone)` picks the zone's regional convention from a fixed table: `mdy` in the
+US and Canada; `ymd` in China, Japan, Korea, Taiwan, Hungary, Lithuania and Sweden; else `dmy`. The
+12-hour clock covers the US, Canada, India, Australia, New Zealand, the Philippines, Pakistan,
+Bangladesh, Egypt and Saudi Arabia; everywhere else is `h23`.
+
+```tsx
+<TimeZoneProvider
+  timeZone={timeZone}
+  dateFormat={{ dateStyle: "dmy", hourCycle: "h23" }}
+>
+  {children}
+</TimeZoneProvider>;
+
+formatDateTime(at, { timeZone, dateFormat }); // "12 Nov · 15:40"
+formatCalendarDate("2026-11-12", { dateFormat }); // "12 Nov 2026"
+```
+
+<ComponentPreview
+  name="dateTimeFormats"
+  file="components/preview/relative-time.tsx"
+/>
+
+<ComponentPreview
+  name="dateTimeFormatProvider"
+  file="components/preview/relative-time.tsx"
+/>
 
 `RelativeTime` renders a semantic `<time dateTime>` element and self-updates on a
 timer while the date is recent, with the exact date and time in the hover. It uses the

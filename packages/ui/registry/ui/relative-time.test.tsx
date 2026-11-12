@@ -13,6 +13,7 @@ import {
   useDateTimeNow,
 } from "./relative-time";
 import {
+  DEFAULT_DATE_FORMAT,
   formatDuration,
   formatLongDate,
   formatRelative,
@@ -835,4 +836,105 @@ test("formatRelative counts the past in whole units and rounds the future", () =
   expect(formatRelative(now - 7 * day + 60_000, { now, style: "suffix" })).toBe(
     "6d ago",
   );
+});
+
+test("TimeZoneProvider's DEFAULT_DATE_FORMAT renders what no dateFormat renders, byte for byte", () => {
+  const now = Date.UTC(2026, 2, 20, 12);
+  const cases: React.ReactElement[] = [
+    <RelativeTime
+      key="a"
+      mode="day"
+      date={Date.UTC(2026, 2, 15, 15, 5)}
+      now={now}
+      timeZone="UTC"
+      withTime
+      title={false}
+    />,
+    <RelativeTime
+      key="b"
+      mode="day"
+      date={Date.UTC(2025, 2, 15, 15, 5)}
+      now={now}
+      timeZone="UTC"
+      withTime
+      title={false}
+    />,
+    <RelativeTime
+      key="c"
+      mode="day"
+      date={Date.UTC(2026, 2, 19, 9, 0)}
+      now={now}
+      timeZone="UTC"
+      withTime
+      title={false}
+    />,
+    <RelativeTime
+      key="d"
+      mode="day"
+      date={Date.UTC(2026, 2, 1)}
+      now={now}
+      timeZone="UTC"
+      title={false}
+    />,
+    <DateTime
+      key="e"
+      date={Date.UTC(2026, 1, 3, 9, 4)}
+      variant="datetime"
+      options={{ now }}
+      timeZone="UTC"
+      title={false}
+    />,
+    <DueLabel
+      key="f"
+      date={Date.UTC(2026, 3, 30)}
+      timeZone="UTC"
+      title={false}
+    />,
+  ];
+  for (const element of cases) {
+    const bare = renderToString(
+      <TimeZoneProvider timeZone="UTC" referenceNow={now}>
+        {element}
+      </TimeZoneProvider>,
+    );
+    const styled = renderToString(
+      <TimeZoneProvider
+        timeZone="UTC"
+        referenceNow={now}
+        dateFormat={DEFAULT_DATE_FORMAT}
+      >
+        {element}
+      </TimeZoneProvider>,
+    );
+    expect(styled).toBe(bare);
+  }
+});
+
+test("TimeZoneProvider's dateFormat writes RelativeTime, DateTime and DueLabel in its order and clock", () => {
+  const now = Date.UTC(2026, 2, 20, 12);
+  const html = renderToString(
+    <TimeZoneProvider
+      timeZone="UTC"
+      referenceNow={now}
+      dateFormat={{ dateStyle: "dmy", hourCycle: "h23" }}
+    >
+      <RelativeTime
+        mode="day"
+        date={Date.UTC(2026, 2, 15, 15, 5)}
+        now={now}
+        withTime
+        title={false}
+      />
+      <DateTime
+        date={Date.UTC(2026, 1, 3, 9, 4)}
+        variant="datetime"
+        options={{ now }}
+        title={false}
+      />
+      <DueLabel date={Date.UTC(2026, 3, 30)} title={false} />
+    </TimeZoneProvider>,
+  );
+  expect(html).toContain("15 March at 15:05");
+  expect(html).toContain("3 Feb · 09:04");
+  expect(html).toContain("Due 30 Apr");
 });

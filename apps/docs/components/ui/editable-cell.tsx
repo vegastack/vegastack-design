@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.60.0 sha256-VvFfquSEbAW1hYuXZJX4iHWrEoLh29nrcwD3de5fyfk=
+// @vegastack editable-cell@0.60.0 sha256-avDhjtXEE+oG3EwHSmHoMQr9l9WpyOO3KBKpR6Bbt3E=
 
 "use client";
 
@@ -15,7 +15,13 @@ import {
 } from "@/components/ui/use-inline-edit";
 import { measureOverflow, useOverflow } from "@/components/ui/use-overflow";
 import { DatePicker } from "@/components/ui/date-picker";
-import { parseCalendarDay, toCalendarDay } from "@/lib/date-time";
+import {
+  formatCalendarDate,
+  parseCalendarDay,
+  toCalendarDay,
+  type DateFormat,
+} from "@/lib/date-time";
+import { useDateFormat } from "@/components/ui/relative-time";
 import type { AutoSaveStatus } from "@/components/ui/auto-save-input";
 import {
   Select,
@@ -965,17 +971,25 @@ function useHintPress() {
   };
 }
 
+/**
+ * A stored day for display: in the caller's `options`, else in the workspace's `dateFormat`
+ * ("12 Nov 2026"), else the locale's medium date ("Nov 12, 2026").
+ */
 function formatIsoDate(
   value: string,
-  options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  },
-  locale?: string,
+  options: Intl.DateTimeFormatOptions | undefined,
+  locale: string | undefined,
+  dateFormat: DateFormat | undefined,
 ): string {
+  if (!options && dateFormat)
+    return formatCalendarDate(value, { dateFormat }) || value;
   const date = parseCalendarDay(value);
-  return date ? new Intl.DateTimeFormat(locale, options).format(date) : value;
+  return date
+    ? new Intl.DateTimeFormat(
+        locale,
+        options ?? { year: "numeric", month: "short", day: "numeric" },
+      ).format(date)
+    : value;
 }
 
 /**
@@ -1057,6 +1071,7 @@ export function EditableCell({
   const commitSeq = React.useRef(0);
 
   const displayValue = pendingValue ?? value;
+  const dateFormat = useDateFormat();
   const name = label ?? "value";
 
   // The spinner is for SLOW saves only: a save that settles inside 300ms never shows it.
@@ -1247,7 +1262,12 @@ export function EditableCell({
         ? (editor.options.find((option) => option.value === displayValue)
             ?.label ?? displayValue)
         : editor.type === "date"
-          ? formatIsoDate(displayValue, editor.formatOptions, editor.locale)
+          ? formatIsoDate(
+              displayValue,
+              editor.formatOptions,
+              editor.locale,
+              dateFormat,
+            )
           : displayValue;
     const TextLeaf = isCustom ? InlineTextDisplay : InlineTextEditor;
     editorSurface = (

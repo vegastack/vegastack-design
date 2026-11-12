@@ -898,9 +898,10 @@
         "@vegastack/checkbox",
         "@vegastack/date-time",
         "@vegastack/hover-card",
+        "@vegastack/link-provider",
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
-        "@vegastack/link-provider"
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -1919,12 +1920,13 @@
         "@vegastack/chip",
         "@vegastack/date-time",
         "@vegastack/list-toolbar",
+        "@vegastack/page-layout",
         "@vegastack/people-picker",
         "@vegastack/popover",
+        "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/toast",
-        "@vegastack/use-media-query",
-        "@vegastack/page-layout"
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -2112,7 +2114,8 @@
       ],
       "registryDependencies": [
         "@vegastack/date-time",
-        "@vegastack/input-group"
+        "@vegastack/input-group",
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -2767,13 +2770,14 @@
         "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/date-picker",
+        "@vegastack/date-time",
+        "@vegastack/relative-time",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
-        "@vegastack/use-overflow",
-        "@vegastack/date-time"
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -16261,7 +16265,7 @@
       "meta": {
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
-        "version": "0.64.0"
+        "version": "0.67.2"
       }
     },
     {

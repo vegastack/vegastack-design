@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.60.0 sha256-VOY/0JKDF78hZCxVBd4Xf7CDz2tf9iABsIUV7owqq7A=
+// @vegastack filter-row@0.60.0 sha256-SvzF2uZYgd7Jokez7mf/aKuoRXRqboNsHzUzHNNwkTw=
 
 "use client";
 
@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/list-toolbar";
 import { toast } from "@/components/ui/toast";
 import { useMediaQuery } from "@/components/ui/use-media-query";
+import { useDateFormat } from "@/components/ui/relative-time";
 import { formatDateRange } from "@/lib/date-time";
 import { layoutTierQuery } from "@/lib/page-layout";
 
@@ -1501,8 +1502,15 @@ export function DateRangeFilter({
 
   const isCustom =
     value != null && (!value.preset || value.preset === "custom");
+  const dateFormat = useDateFormat();
   const day = (date: Date) =>
-    formatDateRange(date, date, { withTime: false, timeZone, locale, now });
+    formatDateRange(date, date, {
+      withTime: false,
+      timeZone,
+      locale,
+      dateFormat,
+      now,
+    });
   // An open-ended custom range reads its one bound ("Until Oct 29", "From Nov 3").
   const datesText = !value
     ? null
@@ -1511,6 +1519,7 @@ export function DateRangeFilter({
           withTime: false,
           timeZone,
           locale,
+          dateFormat,
           now,
         })
       : value.to

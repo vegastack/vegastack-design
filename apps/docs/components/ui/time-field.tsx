@@ -1,4 +1,4 @@
-// @vegastack time-field@0.60.0 sha256-eR7FmcRcv1wzPUCFtofz0FLmJtYZcvWId7u5V6LOV0U=
+// @vegastack time-field@0.60.0 sha256-CAanMrWc4wfI4Q1we0o+x2vKv8EI87RjYZF2fm5fluA=
 
 "use client";
 
@@ -16,6 +16,7 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
+import { useDateFormat } from "@/components/ui/relative-time";
 
 /* ------------------------------------------------------------------------------------------------
  * TimeField — a time of day, `"HH:mm"` (24-hour) in and out, shown on the locale's clock ("9:30 AM"
@@ -60,7 +61,8 @@ export interface TimeFieldProps {
    */
   step?: number;
   /**
-   * `12` shows "9:30 AM", `24` shows "09:30". Omit it and the locale decides.
+   * `12` shows "9:30 AM", `24` shows "09:30". Omit it and a `TimeZoneProvider`'s `dateFormat`
+   * decides, else the locale.
    * @default undefined
    */
   hourCycle?: 12 | 24;
@@ -151,12 +153,13 @@ export function TimeField({
   className,
   ref,
 }: TimeFieldProps) {
+  const dateFormat = useDateFormat();
   const cycle =
     hourCycleProp === 12
       ? "h12"
       : hourCycleProp === 24
         ? "h23"
-        : localeHourCycle(locale);
+        : (dateFormat?.hourCycle ?? localeHourCycle(locale));
   const every = Math.min(720, Math.max(1, Math.round(step) || 15));
   const minMinutes = toMinutes(min) ?? 0;
   const maxMinutes = Math.max(minMinutes, toMinutes(max) ?? DAY_MINUTES - 1);

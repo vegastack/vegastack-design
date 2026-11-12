@@ -357,7 +357,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.60.0",
-        "integrity": "sha256-V4xebWldROKGApv2J0JNW/Rct0c1aZZlPyrAHK/fXR0="
+        "integrity": "sha256-TnlUkd5dx9SxVM9I+yN3zGJK6e9dLZgw6Yn3SGiOap8="
       }
     },
     {
@@ -999,9 +999,10 @@
         "@vegastack/checkbox",
         "@vegastack/date-time",
         "@vegastack/hover-card",
+        "@vegastack/link-provider",
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
-        "@vegastack/link-provider"
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -1014,7 +1015,7 @@
         "whenToUse": "The content of a Board card (tasks, deals, tickets) — DataList's board view renders one per row — or a standalone work-item card.",
         "whenNotToUse": "A record with an image (MediaCard), a long body (Card), or a table row (DataList).",
         "version": "0.61.0",
-        "integrity": "sha256-suk2OT3/mJqQhzom+qz0OE2ctHoyjcB+RZ3hWBEjpus="
+        "integrity": "sha256-3l8VGjgnC8MNZW3HTNcOfKhFi6DB7oZ1yrwqebSMiTg="
       }
     },
     {
@@ -2156,12 +2157,13 @@
         "@vegastack/chip",
         "@vegastack/date-time",
         "@vegastack/list-toolbar",
+        "@vegastack/page-layout",
         "@vegastack/people-picker",
         "@vegastack/popover",
+        "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/toast",
-        "@vegastack/use-media-query",
-        "@vegastack/page-layout"
+        "@vegastack/use-media-query"
       ],
       "files": [
         {
@@ -2174,7 +2176,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.60.0",
-        "integrity": "sha256-VOY/0JKDF78hZCxVBd4Xf7CDz2tf9iABsIUV7owqq7A="
+        "integrity": "sha256-SvzF2uZYgd7Jokez7mf/aKuoRXRqboNsHzUzHNNwkTw="
       }
     },
     {
@@ -2351,7 +2353,7 @@
         "whenToUse": "Selecting a single date, a date with a time of day (DateTimePicker: the calendar and the time in one popup, on the reader's clock), or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.60.0",
-        "integrity": "sha256-v8Hld+h3PioPpzqXMEPm9bq24cCEOov9CVPRVt4wbwY="
+        "integrity": "sha256-Mpr/bePvSLChAWOBfjRfOLx6x6i7aTkHRYre+5P+oF0="
       }
     },
     {
@@ -2369,7 +2371,8 @@
       ],
       "registryDependencies": [
         "@vegastack/date-time",
-        "@vegastack/input-group"
+        "@vegastack/input-group",
+        "@vegastack/relative-time"
       ],
       "files": [
         {
@@ -2382,7 +2385,7 @@
         "whenToUse": "A time of day on its own: a schedule's time, a reminder, opening hours. Typed (\"930\", \"9:30 pm\") or stepped with the arrow keys; the value is always HH:mm.",
         "whenNotToUse": "A date and a time together (DateTimePicker), a duration (NumberField with a unit), or an instant across time zones.",
         "version": "0.60.0",
-        "integrity": "sha256-eR7FmcRcv1wzPUCFtofz0FLmJtYZcvWId7u5V6LOV0U="
+        "integrity": "sha256-CAanMrWc4wfI4Q1we0o+x2vKv8EI87RjYZF2fm5fluA="
       }
     },
     {
@@ -2421,7 +2424,7 @@
         "whenToUse": "Choosing how something repeats — a Repeat property, a schedule, a reminder — inside the host's popover or ResponsiveDialog, with presets built from the record's date and the host's formatted next dates.",
         "whenNotToUse": "Picking one date (DatePicker) or a time alone (TimeField); computing occurrences (the host's RRULE engine).",
         "version": "0.60.0",
-        "integrity": "sha256-9sHd8CJNkuntu8KbdgEL/x1Ly8GSds0mFGv2zd0sIGk="
+        "integrity": "sha256-9yP08nWxfjTE3Fp/cmhS1g69Li8C/ByCV01U6cNeUBY="
       }
     },
     {
@@ -2503,7 +2506,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.66.3",
-        "integrity": "sha256-tjiuw8LlJa5RIYErbikfbaKMufzWg/0UBCn6kjX4bgA="
+        "integrity": "sha256-aBMShEhFhxN50OEGmaiMxJf7wn4rIIxfxag+J2KYIiI="
       }
     },
     {
@@ -3117,13 +3120,14 @@
         "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/date-picker",
+        "@vegastack/date-time",
+        "@vegastack/relative-time",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
-        "@vegastack/use-overflow",
-        "@vegastack/date-time"
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -3136,7 +3140,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.60.0",
-        "integrity": "sha256-VvFfquSEbAW1hYuXZJX4iHWrEoLh29nrcwD3de5fyfk="
+        "integrity": "sha256-avDhjtXEE+oG3EwHSmHoMQr9l9WpyOO3KBKpR6Bbt3E="
       }
     },
     {
@@ -3193,7 +3197,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.60.2",
-        "integrity": "sha256-nhUGh+IZW49Ve0cBPBxZjkVCN2lN69Zw64gsKOWcc80="
+        "integrity": "sha256-JljiNX4i8+56nTxMCMYCLLr/Il8ahgVqIByDVnWNHGg="
       }
     },
     {
@@ -18470,7 +18474,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.60.0",
-        "integrity": "sha256-Lm3vycCvjw60P0TSpdJGWdGdrdH+HO17PVu0L4OkGDY="
+        "integrity": "sha256-uqlZUJCdEPJhs+hC9MhDbvZBHHhGM6PJwSeKbnFvae0="
       }
     },
     {
@@ -19813,8 +19817,8 @@
       "meta": {
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
-        "version": "0.64.0",
-        "integrity": "sha256-ORubJtomw60f6IHh803KVPUT0bkAhAnChrBls8ej5+c="
+        "version": "0.67.2",
+        "integrity": "sha256-/a/8zYdkKKqRc7E/lnnEpbpFo3luWZx4eMcFoSHDtFU="
       }
     },
     {
