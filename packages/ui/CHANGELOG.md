@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.73.0
+
+### Minor Changes
+
+- [#964](https://github.com/vegastack/vegastack-design/pull/964) [`d314ae2`](https://github.com/vegastack/vegastack-design/commit/d314ae2715b72d5eae338455ffd66968e635d5ae) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `TaskList`: an agent's live checklist for a longer job, above its answer. The live item stays on top with the next two, finished items fold into "✓ N done" and the rest into "+N more"; five or fewer rows never fold, and unfinished or skipped rows never fold. Working, done and stopped states, a "Waiting for you" badge with an action, per-item Subagent progress, a note line, ticks that animate only on a live change, and a polite announcement at most every 3 seconds. Also exports `TaskListProgress`, the sticky "Step 3 of 9" bar.
+
 ## 0.72.0
 
 ### Minor Changes

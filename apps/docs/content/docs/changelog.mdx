@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.73.0] — November 12, 2026
+
+### 🧩 New components
+
+- `TaskList`: an agent's live checklist for a longer job, above its answer. The live item stays on top with the next two, finished items fold into "✓ N done" and the rest into "+N more"; five or fewer rows never fold, and unfinished or skipped rows never fold. Working, done and stopped states, a "Waiting for you" badge with an action, per-item Subagent progress, a note line, ticks that animate only on a live change, and a polite announcement at most every 3 seconds. Also exports `TaskListProgress`, the sticky "Step 3 of 9" bar.
+  [`d314ae2`](https://github.com/VegaStack/vegastack-design/commit/d314ae2)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.72.0 → 0.73.0.
+
 ## [0.72.0] — November 12, 2026
 
 ### 🧩 New components
