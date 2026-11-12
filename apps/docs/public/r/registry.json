@@ -19974,7 +19974,7 @@
         "whenToUse": "Show what an agent run used: the chip under an answer, the panel in a run drawer, the table of model calls for maintainers and admins.",
         "whenNotToUse": "Workspace-wide spend over time (a chart) or a single context gauge in the composer (ContextRing).",
         "version": "0.74.0",
-        "integrity": "sha256-l8pr7KnHPrNnn8DtTUxpepz+iBIiLhywO9y/5rQqxuI="
+        "integrity": "sha256-Y25NxQeMJi/XLmIWgK+bf3CCJ7FlbvCWCfiUGrMWpkw="
       }
     },
     {
