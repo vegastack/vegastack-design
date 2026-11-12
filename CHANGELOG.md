@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.72.0] — November 12, 2026
+
+<!-- assembled from 1 changeset: 755bc870a982 -->
+
+### 🧩 New components
+
+- `MessageActivity` gains the states of an agent's steps row: a `warning` part on the closed line in warning ink ("1 didn't finish") and an `omitted` count that ends the timeline ("+10 more steps"). `MessageActivityStep` takes `verb`, `target`, `summary` and `ms` (shown from half a second), plus `reason` and an `action` for a step that didn't finish; `label`, `detail`, `meta` and `error` keep working. `MessageActivityNote` takes a `label` and `ms` for thinking notes, cut at 1,200 characters with Show more. New: `MessageActivityGroup` (nested steps, such as Subagents, with a count line) and `MessageActivityFold` (consecutive steps of one kind as one row).
+  [`977f5af`](https://github.com/VegaStack/vegastack-design/commit/977f5af)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.71.0 → 0.72.0.
+
 ## [0.71.0] — November 12, 2026
 
 <!-- assembled from 1 changeset: 1d08867efb7d -->
