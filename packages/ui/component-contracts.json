@@ -32334,6 +32334,51 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "MessageActivityFold",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityFoldProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageActivityNoteProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -32373,7 +32418,15 @@
             "folded",
             "unfolded",
             "fits",
-            "focus-opens-fold"
+            "focus-opens-fold",
+            "activity-warning",
+            "activity-omitted",
+            "step-time",
+            "step-reason-action",
+            "thinking-note",
+            "thinking-show-more",
+            "nested-subagents",
+            "fold-row"
           ],
           "evidence": "packages/ui/registry/ui/message-parts.tsx + packages/ui/registry/ui/message-parts.test.tsx"
         },
@@ -32626,9 +32679,11 @@
               "values": [
                 "message-activity",
                 "message-activity-content",
+                "message-activity-omitted",
                 "message-activity-summary",
                 "message-activity-time",
-                "message-activity-trigger"
+                "message-activity-trigger",
+                "message-activity-warning"
               ]
             }
           ],
@@ -32638,7 +32693,12 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["message-activity-note"]
+              "values": [
+                "message-activity-note",
+                "message-activity-note-label",
+                "message-activity-note-more",
+                "message-activity-note-text"
+              ]
             }
           ],
           "cssVariables": []
@@ -32649,14 +32709,37 @@
               "name": "data-slot",
               "values": [
                 "message-activity-step",
+                "message-activity-step-action",
                 "message-activity-step-content",
                 "message-activity-step-error",
+                "message-activity-step-time",
                 "message-activity-step-trigger"
               ]
             },
             {
               "name": "data-status",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageActivityGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "message-activity-group",
+                "message-activity-group-summary"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MessageActivityFold": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["message-activity-fold"]
             }
           ],
           "cssVariables": []

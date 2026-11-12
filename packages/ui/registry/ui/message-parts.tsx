@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.67.2 sha256-/a/8zYdkKKqRc7E/lnnEpbpFo3luWZx4eMcFoSHDtFU=
+// @vegastack message-parts@0.67.2 sha256-ZYH5aYuyyhjYT3oZsVNTzwXd1oOGuQDRCxrq9QbXcBc=
 
 "use client";
 
@@ -1085,6 +1085,20 @@ export interface MessageActivityProps extends Omit<
    */
   summary: React.ReactNode;
   /**
+   * A part of the closed line that needs a look, after the summary in warning ink: "1 didn't
+   * finish". It stays on the line while the timeline is closed, so a problem is never hidden.
+   * @default undefined
+   */
+  warning?: React.ReactNode;
+  /**
+   * How many steps were left out of the timeline (a long run keeps its first ones). The timeline
+   * ends with a muted "+12 more steps" row.
+   * @default undefined
+   */
+  omitted?: number;
+  /** Words for the left-out steps. @default (n) => `+${n} more step(s)` */
+  omittedLabel?: (count: number) => string;
+  /**
    * The turn is still working: the line shimmers and a live timer counts. Uncontrolled, the block
    * opens when work starts and closes once, a second after it ends; once the reader closes it, it
    * never opens by itself again.
@@ -1108,6 +1122,20 @@ export interface MessageActivityProps extends Omit<
 }
 
 const formatMs = (ms: number) => formatDuration(ms, { unit: "milliseconds" });
+
+const omittedWords = (count: number) =>
+  `+${count} more ${count === 1 ? "step" : "steps"}`;
+
+/** A step's own time: tenths under a second ("0.4s"), the shared words above it. */
+function stepTime(ms: number, format: (ms: number) => string): string {
+  return ms < 1000 ? `${(Math.round(ms / 100) / 10).toFixed(1)}s` : format(ms);
+}
+
+/** The shortest time a step or note shows; anything quicker reads as instant. */
+const MIN_SHOWN_MS = 500;
+
+/** The activity's duration words, shared with its notes and steps. */
+const ActivityFormat = React.createContext<(ms: number) => string>(formatMs);
 
 /** How long a finished block stays open before it closes by itself. */
 const AUTO_CLOSE_MS = 1000;
@@ -1151,6 +1179,9 @@ function useElapsed(
  */
 export function MessageActivity({
   summary,
+  warning,
+  omitted,
+  omittedLabel = omittedWords,
   running = false,
   startedAt,
   ms,
@@ -1242,6 +1273,15 @@ export function MessageActivity({
         >
           {summary}
         </span>
+        {warning != null ? (
+          <span
+            data-slot="message-activity-warning"
+            className="shrink-0 text-warning-text"
+          >
+            {`· `}
+            {warning}
+          </span>
+        ) : null}
         {time ? (
           <span
             data-slot="message-activity-time"
@@ -1260,9 +1300,24 @@ export function MessageActivity({
         data-slot="message-activity-content"
         className="w-full min-w-0"
       >
-        <ol aria-label={label} className="flex min-w-0 flex-col pt-0.5">
-          {children}
-        </ol>
+        <ActivityFormat.Provider value={format}>
+          <ol aria-label={label} className="flex min-w-0 flex-col pt-0.5">
+            {children}
+            {omitted ? (
+              <li
+                data-slot="message-activity-omitted"
+                className={cn(TIMELINE_ITEM, "pb-1")}
+              >
+                <span aria-hidden className={cn(TIMELINE_MARKER, "h-6")}>
+                  <span className="size-1 rounded-full bg-muted-foreground/60" />
+                </span>
+                <span className="min-w-0 flex-1 text-sm/6 text-muted-foreground">
+                  {omittedLabel(omitted)}
+                </span>
+              </li>
+            ) : null}
+          </ol>
+        </ActivityFormat.Provider>
       </CollapsibleContent>
     </Collapsible>
   );
@@ -1278,18 +1333,64 @@ const TIMELINE_ITEM =
 const TIMELINE_MARKER =
   "relative z-10 inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground [&_svg:not([class*='size-'])]:size-3.5";
 
+/** Props accepted by `MessageActivityNote`. */
+export interface MessageActivityNoteProps extends Omit<
+  React.ComponentProps<"li">,
+  "children"
+> {
+  /**
+   * The note. A string longer than `limit` shows its start, cut at a word, and a Show more button.
+   * @default undefined
+   */
+  children?: React.ReactNode;
+  /**
+   * A muted heading over the note: "Thinking". With it, or with `ms`, the note has a heading line.
+   * @default undefined
+   */
+  label?: React.ReactNode;
+  /** How long the note took, after the heading ("Thinking · 3s"); shown from half a second. @default undefined */
+  ms?: number | null;
+  /** How many characters of a string note show before Show more. @default 1200 */
+  limit?: number;
+  /** @default "Show more" */
+  showMoreLabel?: string;
+  /** @default "Show less" */
+  showLessLabel?: string;
+}
+
+/** Where a long note is cut: the last word break before `limit`, so no word is split. */
+function cutNote(text: string, limit: number): string {
+  const head = text.slice(0, limit);
+  const space = head.search(/\s\S*$/);
+  return `${(space > limit / 2 ? head.slice(0, space) : head).trimEnd()}…`;
+}
+
 /**
  * `MessageActivityNote` — a note the agent wrote while working ("Planning a search for TM-21."),
- * in muted body text on the timeline.
+ * in muted body text on the timeline. With `label` and `ms` it is a thinking note: a heading
+ * ("Thinking · 3s") over the provider's summary, cut at `limit` characters with Show more.
  *
  * @example
  * <MessageActivityNote>Planning a search for LM-80 and TM-21.</MessageActivityNote>
+ * <MessageActivityNote label="Thinking" ms={3000}>
+ *   I'll check what's open for Q4 first, then update the late ones.
+ * </MessageActivityNote>
  */
 export function MessageActivityNote({
+  label,
+  ms,
+  limit = 1200,
+  showMoreLabel = "Show more",
+  showLessLabel = "Show less",
   className,
   children,
   ...props
-}: React.ComponentProps<"li">) {
+}: MessageActivityNoteProps) {
+  const format = React.useContext(ActivityFormat);
+  const [open, setOpen] = React.useState(false);
+  const textId = React.useId();
+  const long = typeof children === "string" && children.length > limit;
+  const time = ms != null && ms >= MIN_SHOWN_MS ? stepTime(ms, format) : null;
   return (
     <li
       data-slot="message-activity-note"
@@ -1299,9 +1400,42 @@ export function MessageActivityNote({
       <span aria-hidden className={cn(TIMELINE_MARKER, "h-6")}>
         <span className="size-1.5 rounded-full bg-muted-foreground/60" />
       </span>
-      <span className="min-w-0 flex-1 text-sm/6 whitespace-pre-wrap text-muted-foreground">
-        {children}
-      </span>
+      <div className="flex min-w-0 flex-1 flex-col items-start">
+        {label != null || time ? (
+          <span
+            data-slot="message-activity-note-label"
+            className="flex min-h-6 items-center gap-1 text-sm text-muted-foreground"
+          >
+            {label}
+            {time ? (
+              <span className="tabular-nums">
+                {label != null ? "· " : null}
+                {time}
+              </span>
+            ) : null}
+          </span>
+        ) : null}
+        <span
+          id={textId}
+          data-slot="message-activity-note-text"
+          className="min-w-0 text-sm/6 whitespace-pre-wrap text-muted-foreground"
+        >
+          {long && !open ? cutNote(children, limit) : children}
+        </span>
+        {long ? (
+          <Button
+            variant="ghost"
+            size="xs"
+            aria-controls={textId}
+            aria-expanded={open}
+            onClick={() => setOpen(!open)}
+            data-slot="message-activity-note-more"
+            className="-ms-2 text-muted-foreground hover:text-foreground"
+          >
+            {open ? showLessLabel : showMoreLabel}
+          </Button>
+        ) : null}
+      </div>
     </li>
   );
 }
@@ -1311,12 +1445,24 @@ export interface MessageActivityStepProps extends Omit<
   React.ComponentProps<"li">,
   "children"
 > {
-  /** What the step did, in muted type: "Searched the web", "Opened", "Used skill". */
-  label: React.ReactNode;
+  /**
+   * What the step did, in muted type: "Searched the web", "Updated". `verb` is the same slot under
+   * the name the step words use; pass one or the other.
+   * @default undefined
+   */
+  label?: React.ReactNode;
+  /** The step's verb, present tense while running ("Searching tasks"), past once done ("Updated"). Wins over `label`. @default undefined */
+  verb?: React.ReactNode;
   /** What it did it to, in body ink: the query, the page, the skill. @default undefined */
   detail?: React.ReactNode;
+  /** What the step acted on, in body ink: "TTB-12", "\"Q4 launch\"". Wins over `detail`. @default undefined */
+  target?: React.ReactNode;
   /** A short result after it: "8 results". @default undefined */
   meta?: React.ReactNode;
+  /** The result in plain words, muted after the target: "Status → Done", "6 results". Wins over `meta`. @default undefined */
+  summary?: React.ReactNode;
+  /** How long the step took, at the row's end in tabular figures; shown from half a second. @default undefined */
+  ms?: number | null;
   /**
    * The step's marker once done (a magnifier, a globe). Running shows a spinner, pending a faint
    * circle, failed a cross, stopped a dash.
@@ -1327,12 +1473,20 @@ export interface MessageActivityStepProps extends Omit<
   status?: MessageStepStatus;
   /** Why a failed step failed, under it in muted text. @default undefined */
   error?: React.ReactNode;
+  /** Why the step failed, in plain words ("Gmail isn't connected for you."). Wins over `error`. @default undefined */
+  reason?: React.ReactNode;
+  /** The next step after the reason: a link or a small button ("Connect Gmail"). @default undefined */
+  action?: React.ReactNode;
   /**
    * The words a screen reader hears for each status, read before the step.
    * @default { pending: "Not started", running: "Running", done: "Done", failed: "Failed", stopped: "Stopped" }
    */
   statusLabels?: Partial<Record<MessageStepStatus, string>>;
-  /** What opens under the step (`MessageActivityResults`). With it, the step is a disclosure. @default undefined */
+  /**
+   * What opens under the step: `MessageActivityResults`, or a `MessageActivityGroup` of nested
+   * steps (Subagents, a fold). With it, the step is a disclosure.
+   * @default undefined
+   */
   children?: React.ReactNode;
   /** Start open. @default false */
   defaultOpen?: boolean;
@@ -1344,22 +1498,29 @@ export interface MessageActivityStepProps extends Omit<
 
 /**
  * `MessageActivityStep` — one thing the agent did, on `MessageActivity`'s timeline: its marker,
- * what it did and what to. A step with children is a button that opens them in place — a search's
- * results — indented on a rule of their own.
+ * the verb, what it acted on in ink, the result muted and its time at the end. A failed step says
+ * why under it, with the next step. A step with children is a button that opens them in place — a
+ * search's results, or a `MessageActivityGroup` of nested steps for Subagents — indented on a rule
+ * of their own.
  *
  * @example
- * <MessageActivityStep icon={<Search />} label="Searched the web" detail="TM-21 projection" meta="8 results">
- *   <MessageActivityResults results={results} />
- * </MessageActivityStep>
- * <MessageActivityStep status="failed" icon={<Globe />} label="Opened" detail="ies.org" error="The site didn't answer." />
+ * <MessageActivityStep icon={<Pencil />} verb="Updated" target="TTB-12" summary="Status → Done" ms={2000} />
+ * <MessageActivityStep status="failed" icon={<Mail />} verb="Sent email to" target="ana@…"
+ *   summary="didn't send" reason="Gmail isn't connected for you." action={<a href="/connect">Connect Gmail</a>} />
  */
 export function MessageActivityStep({
   label,
+  verb,
   detail,
+  target,
   meta,
+  summary,
+  ms,
   icon,
   status = "done",
   error,
+  reason: reasonProp,
+  action,
   statusLabels,
   children,
   defaultOpen,
@@ -1368,47 +1529,72 @@ export function MessageActivityStep({
   className,
   ...props
 }: MessageActivityStepProps) {
+  const format = React.useContext(ActivityFormat);
+  const lead = verb ?? label;
+  const object = target ?? detail;
+  const result = summary ?? meta;
+  const why = reasonProp ?? error;
   const marker =
     status === "done" ? (icon ?? STEP_ICONS.done) : STEP_ICONS[status];
+  const time = ms != null && ms >= MIN_SHOWN_MS ? stepTime(ms, format) : null;
   const words = (
     <>
       <span className="sr-only">
         {statusLabels?.[status] ?? STEP_STATUS_LABELS[status]}:
       </span>
-      <span
-        className={cn(
-          "shrink-0 text-muted-foreground",
-          status === "running" && "text-foreground",
-        )}
-      >
-        {label}
-      </span>
-      {detail != null ? (
+      {lead != null ? (
+        <span
+          className={cn(
+            "shrink-0 text-muted-foreground",
+            status === "running" && "text-foreground",
+          )}
+        >
+          {lead}
+        </span>
+      ) : null}
+      {object != null ? (
         <span
           className={cn(
             "min-w-0 truncate text-foreground",
             status === "pending" && "text-muted-foreground",
           )}
         >
-          {detail}
+          {object}
         </span>
       ) : null}
-      {meta != null ? (
+      {result != null ? (
         // In a narrow column the object reads first: the count steps aside.
         <span className="shrink-0 text-muted-foreground @max-sm/message-activity:sr-only">
-          · {meta}
+          · {result}
         </span>
       ) : null}
     </>
   );
-  const reason = error ? (
+  const timeSpan = time ? (
     <span
-      data-slot="message-activity-step-error"
-      className="text-xs text-muted-foreground"
+      data-slot="message-activity-step-time"
+      className="ms-auto shrink-0 ps-2 text-xs text-muted-foreground tabular-nums"
     >
-      {error}
+      {time}
     </span>
   ) : null;
+  const reason =
+    why != null || action != null ? (
+      <span
+        data-slot="message-activity-step-error"
+        className="flex min-w-0 flex-wrap items-center gap-x-2 text-xs text-muted-foreground"
+      >
+        {why != null ? <span className="min-w-0">{why}</span> : null}
+        {action != null ? (
+          <span
+            data-slot="message-activity-step-action"
+            className="inline-flex shrink-0 items-center"
+          >
+            {action}
+          </span>
+        ) : null}
+      </span>
+    ) : null;
   return (
     <li
       data-slot="message-activity-step"
@@ -1427,25 +1613,28 @@ export function MessageActivityStep({
             onOpenChange={onOpenChange}
             className="flex min-w-0 flex-col"
           >
-            <CollapsibleTrigger
-              data-slot="message-activity-step-trigger"
-              render={
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className={cn(
-                    disclosureTriggerClasses,
-                    "group/message-activity-step -ms-2 max-w-full min-w-0 justify-start gap-2 self-start text-sm font-normal",
-                  )}
+            <div className="flex min-w-0 items-center">
+              <CollapsibleTrigger
+                data-slot="message-activity-step-trigger"
+                render={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      disclosureTriggerClasses,
+                      "group/message-activity-step -ms-2 max-w-full min-w-0 justify-start gap-2 self-start text-sm font-normal",
+                    )}
+                  />
+                }
+              >
+                {words}
+                <ChevronRight
+                  aria-hidden
+                  className="text-muted-foreground transition-transform group-aria-expanded/message-activity-step:rotate-90"
                 />
-              }
-            >
-              {words}
-              <ChevronRight
-                aria-hidden
-                className="text-muted-foreground transition-transform group-aria-expanded/message-activity-step:rotate-90"
-              />
-            </CollapsibleTrigger>
+              </CollapsibleTrigger>
+              {timeSpan}
+            </div>
             {reason}
             <CollapsibleContent
               data-slot="message-activity-step-content"
@@ -1458,12 +1647,125 @@ export function MessageActivityStep({
           <>
             <div className="flex min-h-7 max-w-full min-w-0 items-center gap-2 text-sm">
               {words}
+              {timeSpan}
             </div>
             {reason}
           </>
         )}
       </div>
     </li>
+  );
+}
+
+/** Props accepted by `MessageActivityGroup`. */
+export interface MessageActivityGroupProps extends React.ComponentProps<"ol"> {
+  /** Names the nested list for a screen reader: "Subagents", "Records read". */
+  label: string;
+  /** A muted count line over the list: "Subagents: 4 of 4 done". @default undefined */
+  summary?: React.ReactNode;
+}
+
+/**
+ * `MessageActivityGroup` — a nested timeline inside a `MessageActivityStep`: the Subagents a step
+ * started, each its own step that opens on its own steps, or the steps a fold stands for. It
+ * draws the same rule and markers one level in.
+ *
+ * @example
+ * <MessageActivityStep icon={<Users />} verb="Ran Subagents" summary="4 of 4 done">
+ *   <MessageActivityGroup label="Subagents" summary="Subagents: 4 of 4 done">
+ *     <MessageActivityStep verb="Triaged" target="Billing tickets" summary="12 tickets" />
+ *   </MessageActivityGroup>
+ * </MessageActivityStep>
+ */
+export function MessageActivityGroup({
+  label,
+  summary,
+  className,
+  children,
+  ...props
+}: MessageActivityGroupProps) {
+  const id = React.useId();
+  return (
+    <div data-slot="message-activity-group" className="flex min-w-0 flex-col">
+      {summary != null ? (
+        <span
+          id={id}
+          data-slot="message-activity-group-summary"
+          className="pb-0.5 text-xs text-muted-foreground"
+        >
+          {summary}
+        </span>
+      ) : null}
+      <ol
+        aria-label={label}
+        aria-describedby={summary != null ? id : undefined}
+        className={cn("flex min-w-0 flex-col", className)}
+        {...props}
+      >
+        {children}
+      </ol>
+    </div>
+  );
+}
+
+/** Props accepted by `MessageActivityFold`. */
+export interface MessageActivityFoldProps extends Omit<
+  MessageActivityStepProps,
+  "target" | "detail" | "children"
+> {
+  /** The names the folded steps acted on, in order; the first `visible` show on the row. */
+  names: readonly React.ReactNode[];
+  /** How many names show before "+N". @default 3 */
+  visible?: number;
+  /** Names the nested list for a screen reader. @default "Steps" */
+  groupLabel?: string;
+  /** The folded steps, shown when the row opens. Without them the row is plain. @default undefined */
+  children?: React.ReactNode;
+}
+
+/**
+ * `MessageActivityFold` — consecutive steps of one kind folded into a single row: "Read 5
+ * records · TTB-12, TTB-14, TTB-15 +2". The row opens on the steps it stands for.
+ *
+ * @example
+ * <MessageActivityFold icon={<FileText />} verb="Read 5 records" names={["TTB-12", "TTB-14", "TTB-15", "TTB-16", "TTB-17"]}>
+ *   <MessageActivityStep icon={<FileText />} verb="Read" target="TTB-12" />
+ * </MessageActivityFold>
+ */
+export function MessageActivityFold({
+  names,
+  visible = 3,
+  groupLabel = "Steps",
+  children,
+  ...props
+}: MessageActivityFoldProps) {
+  const shown = names.slice(0, visible);
+  const rest = names.length - shown.length;
+  const target = (
+    <>
+      {shown.map((name, index) => (
+        <React.Fragment key={index}>
+          {index > 0 ? ", " : null}
+          {name}
+        </React.Fragment>
+      ))}
+      {rest > 0 ? (
+        <span className="text-muted-foreground">{` +${rest}`}</span>
+      ) : null}
+    </>
+  );
+  return (
+    <MessageActivityStep
+      data-slot="message-activity-fold"
+      target={target}
+      {...props}
+    >
+      {children ? (
+        <MessageActivityGroup label={groupLabel}>
+          {children}
+        </MessageActivityGroup>
+      ) : undefined}
+    </MessageActivityStep>
   );
 }
 

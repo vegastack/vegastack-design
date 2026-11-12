@@ -8,6 +8,9 @@ import {
   CopyIcon,
   FileText,
   Globe,
+  Mail,
+  Pencil,
+  Users,
   RefreshCcwIcon,
   Search,
   Sparkles,
@@ -29,6 +32,8 @@ import { MarkdownView } from "@/components/ui/markdown-view";
 import {
   MessageActions,
   MessageActivity,
+  MessageActivityFold,
+  MessageActivityGroup,
   MessageActivityNote,
   MessageActivityResults,
   MessageActivityStep,
@@ -324,6 +329,216 @@ export function messagePartsActivityRunning(): ReactNode {
     </Wrapper>
   );
 }
+
+export function messagePartsActivityError(): ReactNode {
+  // Done with a step that didn't finish: the closed line keeps the warning; the step says why and
+  // what to do next. Consecutive reads fold into one row.
+  return (
+    <Wrapper className="items-start justify-start">
+      <MessageActivity
+        defaultOpen
+        icon={<Sparkles />}
+        summary="Worked for 14s · 4 steps"
+        warning="1 didn't finish"
+        className="w-full max-w-xl"
+      >
+        <MessageActivityNote label="Thinking" ms={3_000}>
+          I'll check what's open for Q4 first, then update the late ones and
+          tell Ana.
+        </MessageActivityNote>
+        <MessageActivityStep
+          icon={<Search />}
+          verb="Searched the workspace"
+          target="“Q4 launch”"
+          summary="6 results"
+          ms={1_200}
+        />
+        <MessageActivityFold
+          icon={<FileText />}
+          verb="Read 5 records"
+          names={["TTB-12", "TTB-14", "TTB-15", "TTB-16", "TTB-17"]}
+          ms={400}
+        >
+          {["TTB-12", "TTB-14", "TTB-15", "TTB-16", "TTB-17"].map((ref) => (
+            <MessageActivityStep
+              key={ref}
+              icon={<FileText />}
+              verb="Read"
+              target={ref}
+            />
+          ))}
+        </MessageActivityFold>
+        <MessageActivityStep
+          icon={<Pencil />}
+          verb="Updated"
+          target="TTB-12"
+          summary="Status → Done"
+          ms={2_000}
+        />
+        <MessageActivityStep
+          status="failed"
+          verb="Sent email to"
+          target="ana@example.com"
+          summary="didn't send"
+          reason="Gmail isn't connected for you."
+          action={
+            <Button variant="link" size="xs" className="px-0">
+              Connect Gmail
+            </Button>
+          }
+        />
+      </MessageActivity>
+    </Wrapper>
+  );
+}
+
+export function messagePartsActivityThinking(): ReactNode {
+  // Only thinking: the closed line is the time it took; open, the provider's summary, cut with
+  // Show more past 1,200 characters.
+  return (
+    <Wrapper className="items-start justify-start">
+      <MessageActivity
+        defaultOpen
+        icon={<Sparkles />}
+        summary="Thought for 6s"
+        className="w-full max-w-xl"
+      >
+        <MessageActivityNote label="Thinking" ms={6_000}>
+          {THINKING}
+        </MessageActivityNote>
+      </MessageActivity>
+    </Wrapper>
+  );
+}
+
+export function messagePartsActivityOneStep(): ReactNode {
+  // One step: the closed line names it.
+  return (
+    <Wrapper className="items-start justify-start">
+      <MessageActivity
+        icon={<Pencil />}
+        summary="Updated task TTB-12"
+        ms={3_000}
+        className="w-full max-w-xl"
+      >
+        <MessageActivityStep
+          icon={<Pencil />}
+          verb="Updated"
+          target="TTB-12"
+          summary="Status → Done"
+          ms={3_000}
+        />
+      </MessageActivity>
+    </Wrapper>
+  );
+}
+
+export function messagePartsActivitySubagents(): ReactNode {
+  // Subagents nest under the step that started them, each opening on its own steps.
+  return (
+    <Wrapper className="items-start justify-start">
+      <MessageActivity
+        defaultOpen
+        icon={<Sparkles />}
+        summary="Worked for 48s · 2 steps"
+        className="w-full max-w-xl"
+      >
+        <MessageActivityStep
+          icon={<Search />}
+          verb="Searched tickets"
+          target="“open, this week”"
+          summary="38 results"
+          ms={900}
+        />
+        <MessageActivityStep
+          defaultOpen
+          icon={<Users />}
+          verb="Ran Subagents"
+          summary="4 of 4 done"
+          ms={41_000}
+        >
+          <MessageActivityGroup
+            label="Subagents"
+            summary="Subagents: 4 of 4 done"
+          >
+            <MessageActivityStep
+              defaultOpen
+              icon={<Users />}
+              verb="Triaged"
+              target="Billing tickets"
+              summary="12 tickets"
+              ms={18_000}
+            >
+              <MessageActivityGroup label="Steps">
+                <MessageActivityStep
+                  icon={<FileText />}
+                  verb="Read"
+                  target="12 tickets"
+                  ms={2_000}
+                />
+                <MessageActivityStep
+                  icon={<Pencil />}
+                  verb="Labelled"
+                  target="12 tickets"
+                  summary="Billing"
+                  ms={4_000}
+                />
+              </MessageActivityGroup>
+            </MessageActivityStep>
+            <MessageActivityStep
+              icon={<Users />}
+              verb="Triaged"
+              target="Login tickets"
+              summary="9 tickets"
+              ms={15_000}
+            />
+            <MessageActivityStep
+              icon={<Users />}
+              verb="Triaged"
+              target="Export tickets"
+              summary="11 tickets"
+              ms={21_000}
+            />
+            <MessageActivityStep
+              icon={<Users />}
+              verb="Triaged"
+              target="Other tickets"
+              summary="6 tickets"
+              ms={12_000}
+            />
+          </MessageActivityGroup>
+        </MessageActivityStep>
+      </MessageActivity>
+    </Wrapper>
+  );
+}
+
+export function messagePartsActivityLong(): ReactNode {
+  // A 70-step run: the timeline keeps the first 60 and ends with the count of the rest.
+  return (
+    <Wrapper className="items-start justify-start">
+      <MessageActivity
+        defaultOpen
+        icon={<Sparkles />}
+        summary="Worked for 4m · 70 steps"
+        omitted={10}
+        className="w-full max-w-xl"
+      >
+        {Array.from({ length: 60 }, (_, index) => (
+          <MessageActivityStep
+            key={index}
+            icon={index % 3 === 0 ? <Mail /> : <Pencil />}
+            verb={index % 3 === 0 ? "Drafted reply to" : "Updated"}
+            target={`TTB-${100 + index}`}
+            ms={600 + ((index * 137) % 2_400)}
+          />
+        ))}
+      </MessageActivity>
+    </Wrapper>
+  );
+}
+
+const THINKING = `${"The person wants every task due before today in Ops moved to Backlog with a note. I'll search Ops for tasks with a due date before today, read the ones that come back to check none is already closed, then move them and add the note. ".repeat(7)}Last, I'll post one summary line.`;
 
 export function messagePartsSourceList(): ReactNode {
   // Closed, then open: numbered rows of icon, title and site, each the link. The last icon

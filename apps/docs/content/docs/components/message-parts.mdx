@@ -126,6 +126,49 @@ shimmer and a live timer. Open it for the person who asked and close it when the
   file="components/preview/message-parts.tsx"
 />
 
+A step reads as a sentence: the `verb`, what it acted on (`target`, in ink), the result (`summary`,
+muted) and its time (`ms`, from half a second) at the row's end. A step that didn't finish says why
+(`reason`) and what to do next (`action`), and the closed line keeps the problem in warning ink
+(`warning`), so it shows even while the timeline is closed. Consecutive steps of one kind fold into
+one `MessageActivityFold` row that names the first three and opens on the rest.
+
+<ComponentPreview
+  name="messagePartsActivityError"
+  file="components/preview/message-parts.tsx"
+/>
+
+When the turn only thought, the closed line is the time it took ("Thought for 6s"). A note with a
+`label` and `ms` is a thinking note: a heading with its time over the provider's summary, cut at
+1,200 characters with Show more.
+
+<ComponentPreview
+  name="messagePartsActivityThinking"
+  file="components/preview/message-parts.tsx"
+/>
+
+A one-step turn names that step on the closed line.
+
+<ComponentPreview
+  name="messagePartsActivityOneStep"
+  file="components/preview/message-parts.tsx"
+/>
+
+Subagents nest under the step that started them: a `MessageActivityGroup` with its own count line
+("Subagents: 4 of 4 done"), and each Subagent a step that opens on its own steps.
+
+<ComponentPreview
+  name="messagePartsActivitySubagents"
+  file="components/preview/message-parts.tsx"
+/>
+
+A long run keeps its first steps; pass the rest as `omitted` and the timeline ends with "+10 more
+steps".
+
+<ComponentPreview
+  name="messagePartsActivityLong"
+  file="components/preview/message-parts.tsx"
+/>
+
 ### Web sources
 
 `MessageSourceList` lists the pages an answer cites, numbered as its `[[n]]` pills. Closed, it is one
@@ -234,6 +277,21 @@ an answer never shuts while someone is reading it.
 
 <ApiTable
   path="../../packages/ui/registry/ui/message-parts.tsx"
+  name="MessageActivityNoteProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/message-parts.tsx"
+  name="MessageActivityGroupProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/message-parts.tsx"
+  name="MessageActivityFoldProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/message-parts.tsx"
   name="MessageActivityResultsProps"
 />
 
@@ -294,7 +352,7 @@ an answer never shuts while someone is reading it.
 
 `MessageStatus` and `MessageNotice` take [`StatusLine`](/docs/components/status-line)'s props.
 `MessageBubble` takes [`Bubble`](/docs/components/bubble)'s, defaulting to `variant="muted"` and
-`align="end"`; `MessageActivityNote` takes an `li`'s.
+`align="end"`.
 
 ## Accessibility
 
@@ -311,6 +369,9 @@ an answer never shuts while someone is reading it.
   `aria-expanded`, opened by Enter or Space, nested ones included. A step's status is read before it
   ("Failed: Opened ies.org"). The live timer is hidden from screen readers while it ticks; the
   host announces the answer.
+- A warning on the closed line is part of the button's name, so it is heard before the timeline
+  opens. A nested group is a list named by its `label` and described by its count line.
+- A thinking note's Show more is a button with `aria-expanded` that controls the note's text.
 - Source and result rows are links that say they open a new tab; site icons are decorative.
 - Tabbing to a link inside a folded message opens the fold.
 
