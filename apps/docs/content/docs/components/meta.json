@@ -203,6 +203,7 @@
     "approval-card",
     "request-card",
     "suggestion-card",
+    "memory-note",
     "agent-edit-banner",
     "agent-panel",
     "agent-question-form",

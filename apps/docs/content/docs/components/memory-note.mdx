@@ -1,0 +1,113 @@
+---
+title: Memory Note
+description: One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot, with Undo, Edit and Why? at its end.
+audience: public
+registry: memory-note
+status: stable
+since: 0.70.0
+a11y: named group; every action named with its context
+preview: memoryNote
+---
+
+## Install
+
+<InstallSteps name="memory-note" />
+
+## Usage
+
+```tsx
+import { MemoryNote } from "@/components/ui/memory-note";
+
+<MemoryNote
+  tone="remembered"
+  notebook="Personal memory"
+  line="you write to customers informally, first names"
+  onUndo={undo}
+  onEdit={edit}
+  onWhy={why}
+/>;
+```
+
+The lead words are the note's own, one set per `tone`. The notebook, the line and any outcome come
+from the host. An action shows only when its handler is passed, so a reader who can't undo simply
+gets no Undo. For an agent asking before it acts, use [`RequestCard`](/docs/components/request-card)
+or [`ApprovalCard`](/docs/components/approval-card); for a next step that isn't a memory line, use
+[`SuggestionCard`](/docs/components/suggestion-card).
+
+<ComponentPreview name="memoryNote" file="components/preview/memory-note.tsx" />
+
+## Examples
+
+### Tones
+
+`remembered` and `updated` offer Undo · Edit · Why?, and `updated` shows the old line muted.
+`suggested` is the one tone with a filled action, Keep, then Edit · Dismiss. `forgot` offers Undo ·
+Why?. `would` is a dry run: muted, no actions. `queued` is saving and resolves live. `failed` offers
+Retry. Every tone but `would` and `queued` takes Open, which opens the notebook.
+
+<ComponentPreview
+  name="memoryNoteTones"
+  file="components/preview/memory-note.tsx"
+/>
+
+### States
+
+`busy` keeps the actions in place, turned off, behind a spinner. `undone`, `kept`, `dismissed` and
+`edited` swap the actions for a muted outcome in the same box, so the row doesn't jump; `outcome`
+changes the words ("Kept by Priya"), and `undone` strikes the line through. `note` replaces the
+actions with a muted line, for someone who can see a suggestion but can't review it.
+
+<ComponentPreview
+  name="memoryNoteStates"
+  file="components/preview/memory-note.tsx"
+/>
+
+### In a list
+
+`compact` drops the icon and the border, for rows in a list such as Needs you or Learned this week.
+
+<ComponentPreview
+  name="memoryNoteCompact"
+  file="components/preview/memory-note.tsx"
+/>
+
+### On a phone
+
+In a narrow column the line wraps and the actions move to their own line. An action never breaks
+inside its word, and the line is never cut.
+
+<ComponentPreview
+  name="memoryNoteNarrow"
+  file="components/preview/memory-note.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/memory-note.tsx"
+  name="MemoryNoteProps"
+/>
+
+## Accessibility
+
+- The row is a group named by its whole sentence: "Remembered in Personal memory: you write to
+  customers informally". It is not a live region; announce an outcome through the conversation's
+  own `useAnnouncer` region.
+- Each action is named with what it acts on, "Undo: Remembered in Personal memory", and described
+  by the line, so two notes in one thread never share a name. The visible word stays short.
+- `busy` turns the actions off but keeps them focusable, and its spinner is a status named
+  "Working". The icon is decorative.
+
+| Key              | Action                   |
+| ---------------- | ------------------------ |
+| <kbd>Tab</kbd>   | Move through the actions |
+| <kbd>Enter</kbd> | Run the focused action   |
+
+<StatesTested name="memory-note" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass only the handlers this reader may use: no Undo for someone who can't edit the notebook."
+  dont="Add a second filled button, or put the note in a card: it is a quiet line under the message."
+/>

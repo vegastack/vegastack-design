@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "c4d0192576b5d638fa260477b4afed3171caabf740eb789ed40d44e1dd1908e8",
+  "contractSha256": "a143df841594af3ce93f11b3b6c312aa92cceb4bb49f0582c8c79a272ca24e32",
   "inventory": {
-    "expected": 800,
-    "actual": 800,
-    "unique": 800
+    "expected": 801,
+    "actual": 801,
+    "unique": 801
   },
   "classes": {
-    "components": 208,
+    "components": 209,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -249,8 +249,8 @@
       ]
     },
     "AI/chat": {
-      "expected": 18,
-      "actual": 18,
+      "expected": 19,
+      "actual": 19,
       "members": [
         "agent-edit-banner",
         "agent-panel",
@@ -262,6 +262,7 @@
         "cited-list",
         "delegate-popover",
         "marker",
+        "memory-note",
         "message",
         "message-parts",
         "message-scroller",
@@ -860,7 +861,7 @@
       ]
     }
   },
-  "componentRoutes": 202,
+  "componentRoutes": 203,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }
