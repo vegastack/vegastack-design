@@ -19434,7 +19434,7 @@
       "name": "agent-question-form",
       "type": "registry:ui",
       "title": "Agent Question Form",
-      "description": "An agent asks one to five questions at once: options with their descriptions in view, the first recommended, own words and a note per question, previews, steps and a review; and the read-only answers.",
+      "description": "An agent asks one to five questions at once: options with their descriptions in view, the first recommended unless turned off, own words and a note per question, previews, steps and a review; and the read-only answers.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",

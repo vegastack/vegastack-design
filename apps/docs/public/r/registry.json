@@ -23698,7 +23698,7 @@
       "name": "agent-question-form",
       "type": "registry:ui",
       "title": "Agent Question Form",
-      "description": "An agent asks one to five questions at once: options with their descriptions in view, the first recommended, own words and a note per question, previews, steps and a review; and the read-only answers.",
+      "description": "An agent asks one to five questions at once: options with their descriptions in view, the first recommended unless turned off, own words and a note per question, previews, steps and a review; and the read-only answers.",
       "categories": [
         "chat"
       ],
@@ -23724,7 +23724,7 @@
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (ApprovalCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
         "version": "0.60.0",
-        "integrity": "sha256-vG/HInIvkOHbu+3EMKmIwMG8DkzGj826wsqynPMgr/U="
+        "integrity": "sha256-kBR7obSer3G7bePqJV+OFlDBcIfUhxmKMkl7hZqxDo8="
       }
     },
     {

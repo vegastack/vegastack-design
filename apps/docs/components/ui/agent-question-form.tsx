@@ -1,4 +1,4 @@
-// @vegastack agent-question-form@0.60.0 sha256-vG/HInIvkOHbu+3EMKmIwMG8DkzGj826wsqynPMgr/U=
+// @vegastack agent-question-form@0.60.0 sha256-kBR7obSer3G7bePqJV+OFlDBcIfUhxmKMkl7hZqxDo8=
 
 "use client";
 
@@ -24,8 +24,9 @@ import { Textarea } from "@/components/ui/textarea";
 
 /* ------------------------------------------------------------------------------------------------
  * AgentQuestionForm — an agent asks a person one to five questions at once and waits for the
- * answers. Each question offers two to four options, the first one recommended, each with its
- * description in view; the person may always answer in their own words and add a note.
+ * answers. Each question offers two to four options, the first one recommended unless
+ * `recommended` is false, each with its description in view; the person may always answer in their
+ * own words and add a note.
  *
  * One single-choice question with no previews is COMPACT: the options are cards and picking one
  * sends it. Anything else is the FULL form, one question at a time over `Questionnaire`: header
@@ -55,7 +56,7 @@ export type AgentQuestionFormQuestion = {
   question: string;
   /** Checkboxes instead of radios: any number of options may be chosen. @default false */
   multiSelect?: boolean;
-  /** Two to four options; the first is the recommended one. */
+  /** Two to four options; the first is the recommended one, unless the form's `recommended` is false. */
   options: AgentQuestionFormOption[];
 };
 
@@ -126,6 +127,11 @@ export interface AgentQuestionFormProps {
   limits?: { other?: number; notes?: number };
   /** Nothing can be changed or sent: answered elsewhere, or the question expired. @default false */
   disabled?: boolean;
+  /**
+   * Each question's first option carries the "Recommended" badge. `false` marks no option, for
+   * questions with no right answer ("What's your role?"). @default true
+   */
+  recommended?: boolean;
   /** The words, each with an English default. @default {} */
   labels?: Partial<AgentQuestionFormLabels>;
   /** Classes on the root. @default undefined */
@@ -295,6 +301,7 @@ function CompactForm({
   onSubmit,
   limit,
   disabled,
+  recommended,
   labels,
   className,
 }: {
@@ -302,6 +309,7 @@ function CompactForm({
   onSubmit: AgentQuestionFormProps["onSubmit"];
   limit: number;
   disabled: boolean;
+  recommended: boolean;
   labels: AgentQuestionFormLabels;
   className?: string;
 }) {
@@ -365,7 +373,9 @@ function CompactForm({
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <OptionHeading
                   label={option.label}
-                  recommended={index === 0 ? labels.recommended : null}
+                  recommended={
+                    recommended && index === 0 ? labels.recommended : null
+                  }
                 />
                 {option.description ? (
                   <span
@@ -505,6 +515,7 @@ function QuestionStep({
   update,
   locked,
   limits,
+  recommended,
   labels,
 }: {
   question: AgentQuestionFormQuestion;
@@ -513,6 +524,7 @@ function QuestionStep({
   update: (index: number, change: (draft: Draft) => Draft) => void;
   locked: boolean;
   limits: { other: number; notes: number };
+  recommended: boolean;
   labels: AgentQuestionFormLabels;
 }) {
   const id = React.useId();
@@ -557,7 +569,9 @@ function QuestionStep({
         >
           <OptionHeading
             label={option.label}
-            recommended={optionIndex === 0 ? labels.recommended : null}
+            recommended={
+              recommended && optionIndex === 0 ? labels.recommended : null
+            }
           />
           {option.description ? (
             <QuestionnaireChoiceDescription className="text-pretty wrap-anywhere">
@@ -693,6 +707,7 @@ function FullForm({
   onSubmit,
   limits,
   disabled,
+  recommended,
   labels,
   className,
 }: {
@@ -700,6 +715,7 @@ function FullForm({
   onSubmit: AgentQuestionFormProps["onSubmit"];
   limits: { other: number; notes: number };
   disabled: boolean;
+  recommended: boolean;
   labels: AgentQuestionFormLabels;
   className?: string;
 }) {
@@ -813,6 +829,7 @@ function FullForm({
           update={update}
           locked={locked}
           limits={limits}
+          recommended={recommended}
           labels={labels}
         />
       ))}
@@ -877,6 +894,7 @@ function AgentQuestionForm({
   onSubmit,
   limits,
   disabled = false,
+  recommended = true,
   labels,
   className,
 }: AgentQuestionFormProps) {
@@ -899,6 +917,7 @@ function AgentQuestionForm({
         onSubmit={onSubmit}
         limit={bounds.other}
         disabled={disabled}
+        recommended={recommended}
         labels={words}
         className={className}
       />
@@ -910,6 +929,7 @@ function AgentQuestionForm({
       onSubmit={onSubmit}
       limits={bounds}
       disabled={disabled}
+      recommended={recommended}
       labels={words}
       className={className}
     />
