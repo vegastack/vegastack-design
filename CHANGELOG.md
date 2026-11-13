@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.81.1] — November 13, 2026
+
+<!-- assembled from 1 changeset: c927ad6854af -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.81.0 → 0.81.1.
+
+### 🐛 Fixed
+
+- `MessageParts` and `UserBubble` read a file's name from `providerMetadata.vegastack.filename` when the part has no `filename` (a streamed `file` chunk carries none), and `ChatTurn.waitingOn` accepts `null`, which the chat sends once a turn stops waiting.
+  [`3f112f8`](https://github.com/VegaStack/vegastack-design/commit/3f112f8)
+
 ## [0.81.0] — November 13, 2026
 
 <!-- assembled from 2 changesets: 810c9178bdde -->

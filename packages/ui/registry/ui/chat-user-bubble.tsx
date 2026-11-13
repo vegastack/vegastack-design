@@ -1,4 +1,4 @@
-// @vegastack chat-user-bubble@0.81.0 sha256-oCWymzUv6zm3T77JuxxKEkQN75FvrkQvrLwSLnr8dPM=
+// @vegastack chat-user-bubble@0.81.1 sha256-0SMWIqYwRR/QIgn8RGqoDKtbhGypbNXZQLqt7/f8dvs=
 
 "use client";
 
@@ -16,7 +16,12 @@ export interface UserBubbleFile {
   url: string;
   mediaType: string;
   filename?: string;
+  /** A chat keeps a file's name here when the part has no `filename` (a streamed `file` chunk carries none). */
+  providerMetadata?: { vegastack?: { filename?: string } };
 }
+
+const nameOf = (file: UserBubbleFile) =>
+  file.filename ?? file.providerMetadata?.vegastack?.filename;
 
 /** Props accepted by `UserBubble`. */
 export interface UserBubbleProps {
@@ -102,7 +107,7 @@ function UserBubble({
               key={file.url}
               variant="ghost"
               onClick={() => onOpenFile?.(file)}
-              aria-label={`Open ${file.filename ?? "image"}`}
+              aria-label={`Open ${nameOf(file) ?? "image"}`}
               className="size-14 overflow-hidden rounded-lg border border-chat-hairline p-0"
             >
               <img
@@ -121,7 +126,7 @@ function UserBubble({
             <ChatChip
               key={file.url}
               icon={<FileText aria-hidden="true" strokeWidth={1.5} />}
-              label={file.filename ?? file.mediaType}
+              label={nameOf(file) ?? file.mediaType}
               onClick={onOpenFile ? () => onOpenFile(file) : undefined}
             />
           ))}

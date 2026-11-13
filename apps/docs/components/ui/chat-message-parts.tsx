@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.81.0 sha256-EAGM1NbPIQ3zq34dNfqoSux/aIy4JFtgXS85+u1Sf8o=
+// @vegastack chat-message-parts@0.81.1 sha256-mUviJPCNsX+vo2zjYW5S3o76Fvbt5e1JGeTi9sbUQl4=
 
 "use client";
 
@@ -61,8 +61,8 @@ export interface ChatTurn {
     changed?: string;
     retryable?: boolean;
   };
-  /** What a running turn waits on. */
-  waitingOn?: "subagents" | "person" | "limit" | "model";
+  /** What a running turn waits on; `null` once it isn't waiting (a streamed update can't drop a key). */
+  waitingOn?: "subagents" | "person" | "limit" | "model" | null;
   /** When the last event arrived (ISO); the stuck line shows 45s later. */
   lastEventAt?: string;
 }

@@ -19994,8 +19994,8 @@
       "meta": {
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
-        "version": "0.81.0",
-        "integrity": "sha256-EAGM1NbPIQ3zq34dNfqoSux/aIy4JFtgXS85+u1Sf8o="
+        "version": "0.81.1",
+        "integrity": "sha256-mUviJPCNsX+vo2zjYW5S3o76Fvbt5e1JGeTi9sbUQl4="
       }
     },
     {
@@ -20185,8 +20185,8 @@
       "meta": {
         "whenToUse": "A message the person sent in an agent chat.",
         "whenNotToUse": "Agent replies, which are never clipped (MessageParts).",
-        "version": "0.81.0",
-        "integrity": "sha256-oCWymzUv6zm3T77JuxxKEkQN75FvrkQvrLwSLnr8dPM="
+        "version": "0.81.1",
+        "integrity": "sha256-0SMWIqYwRR/QIgn8RGqoDKtbhGypbNXZQLqt7/f8dvs="
       }
     },
     {
