@@ -1348,11 +1348,21 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
               ? /^\s*([\w$]+)\s*$/.exec(scan.slice(cls.from, cls.to))?.[1]
               : null;
           if (name) {
+            // The nearest declaration still in scope at the tag: one whose block has not closed
+            // between it and the tag (braces counted on the string- and comment-masked source).
+            const visible = (at) => {
+              let depth = 0;
+              for (let k = at; k < tag.index; k += 1) {
+                if (scan[k] === "{") depth += 1;
+                else if (scan[k] === "}" && (depth -= 1) < 0) return false;
+              }
+              return true;
+            };
             let decl = null;
             for (const d of scan.matchAll(
               new RegExp(`\\b(?:const|let)\\s+${name}\\s*=`, "g"),
             ))
-              if (d.index < tag.index) decl = d;
+              if (d.index < tag.index && visible(d.index)) decl = d;
             if (decl) {
               let depth = 0;
               let k = decl.index + decl[0].length;
@@ -1365,7 +1375,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
                 } else if ((c === ";" || c === "\n") && depth === 0) break;
               }
               for (const token of greenClasses(
-                read.slice(decl.index + decl[0].length, k),
+                src.slice(decl.index + decl[0].length, k),
               ))
                 greenChecks.push({
                   file,
