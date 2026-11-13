@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.79.0 sha256-nP6XKopvGYLX88ygEsnQTb0ZmbwFlVSPvlS32vcLfg0=
+// @vegastack chat-message-parts@0.79.0 sha256-UCJj4ZWbq67ZyTJ4wPQNRVwpOWl7KXIahTWs5LebDUs=
 
 "use client";
 
@@ -233,7 +233,10 @@ function MessageParts({
   const [wasLive, setWasLive] = React.useState(showLive);
   if (showLive && !wasLive) setWasLive(true);
   // A turn that showed its live line keeps its line once settled, even with only Subagents.
-  const showWork = showLive || workParts.length > 0 || wasLive;
+  const showWork =
+    showLive ||
+    workParts.length > 0 ||
+    (wasLive && (subagents.length > 0 || turn.summary != null));
   const summary =
     turn.summary ??
     (turn.workedMs != null && !live
@@ -391,4 +394,3 @@ function MessageParts({
 }
 
 export { MessageParts };
-export type { ChatDetail, ChatPart, ChatToolPart };

@@ -2,11 +2,8 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import {
-  MessageParts,
-  type ChatMessageLike,
-  type ChatToolPart,
-} from "./chat-message-parts";
+import { MessageParts, type ChatMessageLike } from "./chat-message-parts";
+import type { ChatToolPart } from "./chat-work-log";
 
 const tool = (
   callId: string,
@@ -272,4 +269,20 @@ test("a turn of only Subagents keeps its line when the answer starts", async () 
   const line = screen.container.querySelector('[data-slot="work-summary"]')!;
   expect(line.textContent).toBe("Ran 1 Subagent");
   expect(line.tagName).toBe("P");
+});
+
+test("a text-only turn shows no work line once it answers", async () => {
+  const screen = await render(<MessageParts message={message([])} live />);
+  expect(
+    screen.container.querySelector('[data-slot="live-line"]'),
+  ).not.toBeNull();
+  await screen.rerender(
+    <MessageParts
+      message={message([{ type: "text", text: "Hi", state: "streaming" }])}
+      live
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="message-work"]'),
+  ).toBeNull();
 });

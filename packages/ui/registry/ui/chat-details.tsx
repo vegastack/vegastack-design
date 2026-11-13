@@ -1,4 +1,4 @@
-// @vegastack chat-details@0.79.0 sha256-b9rDuZZ6KHnlNpLms3Ioo2x67ZmLOGAgn5omUubY1tI=
+// @vegastack chat-details@0.79.0 sha256-l+KdyiXueaflxRHOVq7lMMyqqMJsdsKH/6BU3yrap4U=
 
 "use client";
 
@@ -66,7 +66,7 @@ export interface ChatDetailsSectionProps {
   empty?: React.ReactNode;
   /** Extra classes on the section. @default undefined */
   className?: string;
-  /** The rows. */
+  /** The rows. @default undefined */
   children?: React.ReactNode;
 }
 

@@ -32703,35 +32703,8 @@
           }
         },
         {
-          "name": "ChatDetail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ChatMessageLike",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatPart",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatToolPart",
-          "kind": "component",
           "source": "packages/ui/registry/ui/chat-message-parts.tsx",
           "ref": {
             "status": "not-applicable",
