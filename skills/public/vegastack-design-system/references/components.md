@@ -232,14 +232,14 @@ starts with `icon-` is a component and never an icon.
 - **`chat-card`** — The chat's one card surface (ChatCard), one line of work (ChatRow) and a fold of work that opens and closes smoothly (ChatGroup).
 - **`chat-chip`** — A compact pill for background work and counts on the chat card surface, with an attention tone that never fills.
 - **`chat-composer`** — The box a person talks to an agent in: + and Send inside, files above the text, steers above the box, Send that morphs into Stop.
-- **`chat-details`** — The chat details panel beside the thread: quiet sections (Context, Outputs, Subagents and background work, Connectors) of icon, name and meta rows with Show more, and a back header for a Subagent's steps.
+- **`chat-details`** — The chat details panel: sections of outputs, Subagents, context and connectors.
 - **`chat-menu`** — A menu with the chat's density: tight rows, a blue ✓ and a number shortcut in one right slot, submenus that open on hover or →.
-- **`chat-message-parts`** — One agent turn drawn straight from its AI SDK UIMessage parts: the task list, one live line (or its settled sentence) over the work log, the Subagents block, the answer never folded, files and the app's cards for data parts. Summary, Normal and Verbose reader settings; at most one spinner per message.
-- **`chat-skeleton`** — A chat thread while it loads in the shapes it will take (ChatSkeleton), and ScrollToLatest, the round ↓ back to the latest message with a new-words dot.
-- **`chat-subagents`** — A turn's Subagents as one block whose rows open beside the chat (status word, title, quiet meta, waiting on you, Retry), and BackgroundWork in Claude Code's two weights: a chip while live, a muted line once settled.
-- **`chat-task-list`** — An agent's task list as the turn's progress (task list v2): a hairline box with a count-and-time header, ✓ ◐ ◌ ⊘ rows with reasons inside the row, folding on the chat motion. Data is the chat contract's data-tasklist payload.
-- **`chat-user-bubble`** — The person's own chat message: Markdown rendered, images as thumbnails above it, clipped at about nine lines with a soft fade into Show more, Copy and Edit on hover.
-- **`chat-work-log`** — A turn's work read as sentences: LiveLine (the turn's one moving thing — braille spinner, words, timer, the stuck line), WorkSummary (the settled sentence in the same 28px), WorkLog (muted verb, subject, meta rows and muted thinking notes), ErrorRow and StuckRow, and ChatClock.
+- **`chat-message-parts`** — One agent turn from its AI SDK parts: live line or summary, work log, Subagents, answer, cards.
+- **`chat-skeleton`** — A loading chat thread in its own shapes, and the round button back to the latest message.
+- **`chat-subagents`** — A turn's Subagents as one block of rows that open beside the chat; BackgroundWork.
+- **`chat-task-list`** — An agent's task list as the turn's progress, with reasons inside skipped rows.
+- **`chat-user-bubble`** — The person's chat message: Markdown, images, a long message fading into Show more.
+- **`chat-work-log`** — A turn's work as sentences: LiveLine, WorkSummary, WorkLog, ErrorRow, StuckRow.
 - **`cited-list`** — An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render.
 - **`composer-chip`** — A round toolbar chip for the chat composer: a toggle (Plan), a menu trigger with a chevron (the model), or read-only words, with an optional tooltip.
 - **`composer-meta`** — The quiet line under a chat's composer: a privacy note, then Plan, the model and effort, and the memory ring.
