@@ -1,7 +1,7 @@
 import "./contrast.css"; // compiled Tailwind + the @vegastack token theme and @utility layer
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { cdp } from "vitest/browser";
+import { cdp, server } from "vitest/browser";
 import { afterEach, expect, test } from "vitest";
 import { isTransparent } from "./color";
 
@@ -36,13 +36,17 @@ function Fixture() {
 const el = (id: string) =>
   document.querySelector<HTMLElement>(`[data-testid="${id}"]`)!;
 
+// The two system preferences are emulated through CDP, which only Chromium speaks; the manual
+// Firefox and WebKit lanes still run the default and native-glass cases.
+const chromium = server.browser === "chromium";
+
 async function emulate(features: { name: string; value: string }[]) {
   await cdp().send("Emulation.setEmulatedMedia", { features });
 }
 
 afterEach(async () => {
   document.documentElement.removeAttribute("data-native-glass");
-  await emulate([]);
+  if (chromium) await emulate([]);
 });
 
 test("surface-glass is an opaque popover fill without a native glass backing", async () => {
@@ -63,30 +67,36 @@ test("surface-glass is transparent over native glass", async () => {
   );
 });
 
-test("Reduce Transparency turns surface-glass opaque over native glass", async () => {
-  document.documentElement.setAttribute("data-native-glass", "");
-  await emulate([{ name: "prefers-reduced-transparency", value: "reduce" }]);
-  await render(<Fixture />);
-  expect(matchMedia("(prefers-reduced-transparency: reduce)").matches).toBe(
-    true,
-  );
-  expect(getComputedStyle(el("glass")).backgroundColor).toBe(
-    getComputedStyle(el("popover")).backgroundColor,
-  );
-});
+test.skipIf(!chromium)(
+  "Reduce Transparency turns surface-glass opaque over native glass",
+  async () => {
+    document.documentElement.setAttribute("data-native-glass", "");
+    await emulate([{ name: "prefers-reduced-transparency", value: "reduce" }]);
+    await render(<Fixture />);
+    expect(matchMedia("(prefers-reduced-transparency: reduce)").matches).toBe(
+      true,
+    );
+    expect(getComputedStyle(el("glass")).backgroundColor).toBe(
+      getComputedStyle(el("popover")).backgroundColor,
+    );
+  },
+);
 
-test("Increase Contrast turns surface-glass opaque with a glass-edge border", async () => {
-  document.documentElement.setAttribute("data-native-glass", "");
-  await emulate([{ name: "prefers-contrast", value: "more" }]);
-  await render(<Fixture />);
-  expect(matchMedia("(prefers-contrast: more)").matches).toBe(true);
-  const glass = getComputedStyle(el("glass"));
-  expect(glass.backgroundColor).toBe(
-    getComputedStyle(el("popover")).backgroundColor,
-  );
-  expect(glass.borderTopWidth).toBe("1px");
-  expect(glass.borderTopStyle).toBe("solid");
-  expect(glass.borderTopColor).toBe(
-    getComputedStyle(el("edge")).borderTopColor,
-  );
-});
+test.skipIf(!chromium)(
+  "Increase Contrast turns surface-glass opaque with a glass-edge border",
+  async () => {
+    document.documentElement.setAttribute("data-native-glass", "");
+    await emulate([{ name: "prefers-contrast", value: "more" }]);
+    await render(<Fixture />);
+    expect(matchMedia("(prefers-contrast: more)").matches).toBe(true);
+    const glass = getComputedStyle(el("glass"));
+    expect(glass.backgroundColor).toBe(
+      getComputedStyle(el("popover")).backgroundColor,
+    );
+    expect(glass.borderTopWidth).toBe("1px");
+    expect(glass.borderTopStyle).toBe("solid");
+    expect(glass.borderTopColor).toBe(
+      getComputedStyle(el("edge")).borderTopColor,
+    );
+  },
+);

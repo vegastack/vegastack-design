@@ -463,6 +463,11 @@
         "globalInputGroups": ["shared-runtime"]
       },
       {
+        "file": "packages/ui/test/surface-glass.browser.test.tsx",
+        "owners": [],
+        "globalInputGroups": ["tokens"]
+      },
+      {
         "file": "packages/ui/test/toast-manager-binding.browser.test.tsx",
         "owners": ["toast", "provider"],
         "globalInputGroups": ["shared-runtime"]

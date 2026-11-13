@@ -546,6 +546,14 @@ export function checkTheme(css) {
       for (const inkName of GLASS_INKS) {
         const ink = need(theme, vars, inkName, "a glass ink");
         if (!ink || !surface) continue;
+        // The contrast maths reads L/C/H only, so a translucent ink would be measured as if it
+        // were solid. Glass ink must be opaque: it is the one thing on the surface that is.
+        if (ink[3] !== 1) {
+          fail(
+            `${theme}: ${inkName} must be opaque (got alpha ${ink[3]}) — fail-closed`,
+          );
+          continue;
+        }
         gate(
           theme,
           ink,
@@ -664,6 +672,10 @@ function selfTest(themePath) {
     failsWith(swap("glass-ink-muted", "oklch(0.708 0 0)", ".dark")),
   );
   claim(
+    "a translucent glass ink is rejected rather than measured as solid",
+    failsWith(swap("glass-ink", "oklch(0.145 0 0 / 0)")),
+  );
+  claim(
     "a missing glass ink is rejected rather than skipped",
     failsWith(drop("glass-ink")),
   );
@@ -691,7 +703,7 @@ function selfTest(themePath) {
     );
     return 1;
   }
-  console.log("✓ contrast-check:selftest: 18 claims observed");
+  console.log("✓ contrast-check:selftest: 19 claims observed");
   return 0;
 }
 
