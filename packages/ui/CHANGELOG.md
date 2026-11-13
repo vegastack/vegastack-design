@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.79.1
+
+### Patch Changes
+
+- [#977](https://github.com/vegastack/vegastack-design/pull/977) [`9dc0ff9`](https://github.com/vegastack/vegastack-design/commit/9dc0ff9938148c433e1d998497a06ba8354addc6) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 Shorter summaries and page descriptions for the agent chat thread renderers, so the docs' `llms.txt` index stays under its size tripwire and the docs deploy again.
+
 ## 0.79.0
 
 ### Minor Changes
