@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.80.1] — November 13, 2026
+
+<!-- assembled from 1 changeset: bb186361ce31 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.80.0 → 0.80.1.
+
+### 🐛 Fixed
+
+- `QuestionCard` draws a hairline between its option rows, as in the reference card; the rows' own `border-0` had hidden the list's dividers.
+  [`9025860`](https://github.com/VegaStack/vegastack-design/commit/9025860)
+
 ## [0.80.0] — November 13, 2026
 
 <!-- assembled from 2 changesets: 269f23e48c83 -->

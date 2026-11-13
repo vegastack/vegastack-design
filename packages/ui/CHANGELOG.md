@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.80.1
+
+### Patch Changes
+
+- [#978](https://github.com/vegastack/vegastack-design/pull/978) [`9025860`](https://github.com/vegastack/vegastack-design/commit/9025860a41d942dadae504efa13df825e1db1c83) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `QuestionCard` draws a hairline between its option rows, as in the reference card; the rows' own `border-0` had hidden the list's dividers.
+
 ## 0.80.0
 
 ### Minor Changes

@@ -16669,7 +16669,7 @@
       "meta": {
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
-        "version": "0.80.0"
+        "version": "0.80.1"
       }
     },
     {
