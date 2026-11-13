@@ -278,3 +278,17 @@ test("Skip and Submit are one decision; a send that throws lets the person try a
     .toBeDisabled();
   expect(onSkip).toHaveBeenCalledOnce();
 });
+
+test("a hairline sits between options and never under the last one, with Other open or closed", async () => {
+  const screen = await render(
+    <QuestionCard data={DATA} onSubmit={() => {}} onSkip={() => {}} />,
+  );
+  const lines = () =>
+    screen
+      .getByRole("radio")
+      .elements()
+      .map((row) => !row.className.split(" ").includes("border-b-0"));
+  expect(lines()).toEqual([true, true, false]);
+  await userEvent.click(screen.getByRole("radio", { name: "Other" }));
+  expect(lines()).toEqual([true, true, false]);
+});

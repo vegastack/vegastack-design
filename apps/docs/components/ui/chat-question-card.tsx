@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.80.0 sha256-MmYZwm7nA4rfuhu8584neyoqz2b2kjm8UXGtlWoI0WI=
+// @vegastack chat-question-card@0.80.0 sha256-Tm6NePb1KbqrP4vj8AsDVWrfV9jXa36MpSzjCjPK+z8=
 
 "use client";
 
@@ -370,6 +370,7 @@ function QuestionForm({
           <OptionRow
             key={option.id}
             index={i}
+            last={!question.allowOther && i === question.options.length - 1}
             label={option.label}
             description={option.description}
             shortcut={i < 9 ? String(i + 1) : undefined}
@@ -385,6 +386,7 @@ function QuestionForm({
           <div className="flex min-w-0 flex-col">
             <OptionRow
               index={question.options.length}
+              last
               label="Other"
               muted
               shortcut={
@@ -449,6 +451,7 @@ function OptionRow({
   selected,
   multi,
   muted = false,
+  last = false,
   tabbable,
   disabled,
   onPick,
@@ -461,6 +464,8 @@ function OptionRow({
   selected: boolean;
   multi?: boolean;
   muted?: boolean;
+  /** The last row draws no hairline under it, whatever follows it in the DOM (the Other field). */
+  last?: boolean;
   tabbable: boolean;
   disabled: boolean;
   onPick: () => void;
@@ -482,8 +487,9 @@ function OptionRow({
       className={cn(
         // A hairline between options, as in the reference card; the Button's own border-0 would
         // otherwise defeat the list's divide-y.
-        "h-auto min-h-11 w-full min-w-0 justify-start gap-3 rounded-none border-0 border-b border-chat-hairline px-2 py-3 text-start last:border-b-0 font-normal whitespace-normal",
+        "h-auto min-h-11 w-full min-w-0 justify-start gap-3 rounded-none border-0 border-b border-chat-hairline px-2 py-3 text-start font-normal whitespace-normal",
         selected && "bg-state-selected",
+        last && "border-b-0",
       )}
     >
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">
