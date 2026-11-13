@@ -420,3 +420,20 @@ test("an alert dialog opened inside another draws its own backdrop (OVL-23)", as
     document.querySelectorAll('[data-slot="alert-dialog-overlay"]'),
   ).toHaveLength(2);
 });
+
+test("OVL-25: the backdrop is a quiet dim with no blur, deeper in dark", async () => {
+  await render(<Subject defaultOpen />);
+  await expect
+    .poll(() => document.querySelector('[data-slot="alert-dialog-overlay"]'))
+    .not.toBeNull();
+  const overlay = document.querySelector<HTMLElement>(
+    '[data-slot="alert-dialog-overlay"]',
+  ) as HTMLElement;
+  expect(overlay.className).not.toContain("backdrop-blur");
+  expect(overlay.classList.contains("bg-black/20")).toBe(true);
+  expect(overlay.classList.contains("dark:bg-black/50")).toBe(true);
+  const style = getComputedStyle(overlay);
+  expect(style.backdropFilter === "none" || style.backdropFilter === "").toBe(
+    true,
+  );
+});

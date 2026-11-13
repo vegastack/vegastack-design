@@ -440,6 +440,70 @@ test("`!` on the project's own components and plain elements, and JS `!`, are no
   assert.deepEqual(compositionOf(root).important, []);
 });
 
+test("COL-25: a lucide check in a success or green ink is reported, inline or paired in a map", () => {
+  const root = project({
+    ...UI,
+    "src/result.tsx": [
+      `import { Check, CircleCheck as Done, BookmarkCheckIcon } from "lucide-react";`,
+      `<Check className="size-4 text-success-text" />`,
+      `<Done className={cn("size-4", ok && "text-green-600")} />`,
+      `<BookmarkCheckIcon className="text-info-text" />`,
+      `<Check className="text-emerald-500" />`,
+    ].join("\n"),
+    "src/status.ts": [
+      `import { CheckCircle2, Clock } from "lucide-react";`,
+      `export const STATUS = {`,
+      `  active: { icon: CheckCircle2, tone: "text-success-text" },`,
+      `  queued: { icon: Clock, tone: "text-muted-foreground" },`,
+      `};`,
+    ].join("\n"),
+    // Green that is not on a check, a word that only mentions success, and a map entry whose
+    // class is blue, pass.
+    "src/fine.tsx": [
+      `import { Check, Circle } from "lucide-react";`,
+      `<Circle className="text-success-text" />`,
+      `<Check className="text-info-text" aria-label="success" />`,
+      `const ROW = { icon: Check, className: "text-info-text", label: "success" };`,
+    ].join("\n"),
+    // A className read from a const.
+    "src/via.tsx": [
+      `import { Check } from "lucide-react";`,
+      `function Bad() {`,
+      `  const cls = cn(`,
+      `    "size-4",`,
+      `    "text-success-text",`,
+      `  );`,
+      `  return <Check className={cls} />;`,
+      `}`,
+      `function Good() {`,
+      `  const cls = cn(/* "text-success-text" */ "text-info-text");`,
+      `  return <Check className={cls} />;`,
+      `}`,
+    ].join("\n"),
+    // A module-level green const is still the one a later tag sees after another function's own.
+    "src/scope.tsx": [
+      `import { Check } from "lucide-react";`,
+      `const tint = "text-success-text";`,
+      `function Other() {`,
+      `  const tint = "text-info-text";`,
+      `  return <Check className={tint} />;`,
+      `}`,
+      `export const Late = () => <Check className={tint} />;`,
+    ].join("\n"),
+  });
+  assert.deepEqual(lines(compositionOf(root).greenChecks), [
+    "src/result.tsx:2 <Check> text-success-text",
+    "src/result.tsx:3 <Done> text-green-600",
+    "src/result.tsx:5 <Check> text-emerald-500",
+    "src/scope.tsx:7 <Check> text-success-text",
+    "src/status.ts:3 text-success-text",
+    "src/via.tsx:7 <Check> text-success-text",
+  ]);
+  const verdict = run(["--dir", root]);
+  assert.equal(verdict.code, 1, verdict.output);
+  assert.match(verdict.output, /✗ check colour — 6 check icon/);
+});
+
 test("a width class on a popover, menu or select popup is reported; other parts are not", () => {
   const root = project({
     ...UI,

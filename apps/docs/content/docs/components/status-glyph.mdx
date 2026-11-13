@@ -1,0 +1,69 @@
+---
+title: Status Glyph
+description: "One glyph per state in agent UI: a check for done in the blue accent, then not started, running, skipped, failed and needs you. Never green, never a fill."
+audience: public
+registry: status-glyph
+status: stable
+since: 0.77.0
+a11y: named by the state, or decorative beside words
+preview: statusGlyph
+---
+
+## Install
+
+<InstallSteps name="status-glyph" />
+
+## Usage
+
+```tsx
+import { StatusGlyph } from "@/components/ui/status-glyph";
+
+<p className="flex items-center gap-2 text-sm">
+  <StatusGlyph status="done" /> Found 12 makers
+</p>;
+```
+
+Agent UI speaks one quiet status language (COL-25). Every check — done, selected, approved,
+allowed, remembered, uploaded — is the blue accent, never green. Not started, skipped and failed are
+muted, and failed always comes with words that say why. Only ⚠ takes a status ink, as a glyph.
+Nothing here is ever a coloured fill. For a record's workflow status use
+[`StatusIcon`](/docs/components/status-icon); for the live loop use
+[`TextSpinner`](/docs/components/text-spinner).
+
+<ComponentPreview
+  name="statusGlyph"
+  file="components/preview/status-glyph.tsx"
+/>
+
+## Examples
+
+### Sizes
+
+16px in a row, 14px in a meta line.
+
+<ComponentPreview
+  name="statusGlyphSizes"
+  file="components/preview/status-glyph.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/status-glyph.tsx"
+  name="StatusGlyphProps"
+/>
+
+## Accessibility
+
+- The glyph is an image named with its state ("Done", "Needs you"), so colour is never the only
+  cue. Pass `label={null}` when the words beside it already say the state.
+- Running is drawn still: a turn's one moving thing is its live line.
+
+<StatesTested name="status-glyph" />
+
+## Do / Don't
+
+<DoDont
+  do="Draw every check with StatusGlyph so it is the blue accent everywhere."
+  dont="Colour a check green, or put a state on a red, amber or green fill."
+/>

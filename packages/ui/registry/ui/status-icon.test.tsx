@@ -10,7 +10,7 @@ test("maps each status to the system's standard semantic text token", async () =
     ["todo", "text-foreground"],
     ["progress", "text-warning-text"],
     ["review", "text-info-text"],
-    ["done", "text-success-text"],
+    ["done", "text-info-text"],
     ["canceled", "text-muted-foreground"],
     ["duplicate", "text-muted-foreground"],
     ["triage", "text-tag-orange-text"],

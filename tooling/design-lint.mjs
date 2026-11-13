@@ -19,8 +19,8 @@
 // upstream ships both in its own source. What is still banned inside them is a hex colour, a raw
 // palette step, or an arbitrary FONT SIZE. Each rule is observed failing by
 // `tooling/verify-design-lint-structural.mjs`.
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import ts from "typescript";
 
 import { ROOT as REPO_ROOT, walk as walkTree } from "./lib/fs.mjs";
@@ -593,6 +593,22 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
 ]);
 
 const RAW_INTERACTIVE_TAGS = new Set(["button", "input", "select", "textarea"]);
+
+// COL-25 / MOT-14 (operator, 2026-11-13). The agent component set: the chat, its cards and the
+// agent panels. `no-status-fill` and `chat-motion-tokens` read only these files; `no-success-check`
+// reads all registry source.
+const AGENT_UI_FILE =
+  /^(?:message-[\w-]+|task-list|plan-card|request-card|approval-card|memory-[\w-]+|agent-[\w-]+|chat-[\w-]+|activity-feed|status-icon|status-glyph|text-spinner|upload-panel|context-ring|run-usage|tool-call-chip|cited-list|file-card)\.tsx$/;
+const CHECK_ICON =
+  /^(?:Check|CheckCheck|CircleCheck|CircleCheckBig|CheckCircle2?|BookmarkCheck|SquareCheck|SquareCheckBig|ListChecks|CopyCheck|BadgeCheck)(?:Icon)?$/;
+// Tested against a token's utility with its variants removed (`utilityOf`), so
+// `data-[state=error]:bg-warning/10` and `[&>span]:duration-150` are read as what they apply.
+const GREEN_INK =
+  /^-?(?:text|bg|fill|stroke|border|ring|outline|decoration)-(?:success|green|emerald|tag-green)(?:-|\/|$)/;
+const STATUS_FILL = /^bg-(?:success|warning|destructive)(?:\/\d+)?$/;
+const RAW_CHAT_MOTION =
+  /^(?:duration-(?:\d+|_)|ease-(?:_|linear|in-out|in|out))$/;
+const VENDOR_UI = "vendor/shadcn/4.21.0/ui";
 
 // §7.6 Base UI render contract — a wrapper over a SINGLE Base UI root MUST keep Base UI's
 // polymorphic `render` prop in its public API.
@@ -1501,6 +1517,251 @@ for (const root of tokenCssRoots) {
             );
             violations++;
           }
+        }
+      }
+
+      // ── COL-25 / MOT-14 — status and motion in agent UI (operator, 2026-11-13) ─────────────────
+      //
+      // "stop using green checks everywhere its ai slop. use primary checkmarks only" — every check
+      // is the blue accent (`StatusGlyph`, `text-info-text`), status hues are a glyph and never a
+      // fill in agent UI, and agent components take their motion from the chat set. Three rules:
+      //
+      //   no-success-check  — anywhere in registry source: a lucide check icon (Check, CircleCheck,
+      //                       BookmarkCheck, ListChecks …) whose className — a literal, `cn()`
+      //                       arguments, or a module-level map or cva it reads — names success,
+      //                       green or emerald; also an object literal pairing a check icon with
+      //                       such a class (`{ Icon: BookmarkCheck, className: "text-success-text" }`).
+      //   no-status-fill    — in the agent component set: `bg-success|warning|destructive`
+      //                       (and `/NN`) — a status colour as a fill.
+      //   chat-motion-tokens — in the agent components that are ours: an arbitrary or numeric
+      //                       duration and an arbitrary or stock ease; use `duration-quick|state|…`
+      //                       and `ease-enter|exit|standard`.
+      if (canonicalRegistryFile) {
+        const base = file.split("/").pop() ?? "";
+        const agentFile = AGENT_UI_FILE.test(base);
+        const upstreamBacked = existsSync(join(REPO_ROOT, VENDOR_UI, base));
+        const checkLocals = new Set();
+        for (const statement of sf.statements) {
+          if (!ts.isImportDeclaration(statement)) continue;
+          if (statement.moduleSpecifier.text !== "lucide-react") continue;
+          const bindings = statement.importClause?.namedBindings;
+          if (!bindings || !ts.isNamedImports(bindings)) continue;
+          for (const element of bindings.elements) {
+            const imported = element.propertyName?.text ?? element.name.text;
+            if (CHECK_ICON.test(imported)) checkLocals.add(element.name.text);
+          }
+        }
+        // A className is followed to the class strings it can produce: literals, `cn()` and
+        // conditional arguments, and any `const` it reads — resolved lexically (the nearest
+        // enclosing scope that declares the name), with a map read by a known key narrowed to that
+        // entry. Comparison operands (`status === "success"`) and object keys are not classes.
+        const declarationOf = (identifier) => {
+          for (let scope = identifier.parent; scope; scope = scope.parent) {
+            // A parameter, loop or catch binding of the same name shadows anything further out,
+            // and its value is not knowable here: stop.
+            const binds = (name) =>
+              ts.isIdentifier(name)
+                ? name.text === identifier.text
+                : ts.isObjectBindingPattern(name) ||
+                    ts.isArrayBindingPattern(name)
+                  ? name.elements.some(
+                      (element) =>
+                        !ts.isOmittedExpression(element) && binds(element.name),
+                    )
+                  : false;
+            if (
+              ts.isFunctionLike(scope) &&
+              scope.parameters?.some((parameter) => binds(parameter.name))
+            )
+              return null;
+            if (
+              (ts.isForOfStatement(scope) ||
+                ts.isForInStatement(scope) ||
+                ts.isForStatement(scope)) &&
+              scope.initializer &&
+              ts.isVariableDeclarationList(scope.initializer) &&
+              scope.initializer.declarations.some((declaration) =>
+                binds(declaration.name),
+              )
+            )
+              return null;
+            if (
+              ts.isCatchClause(scope) &&
+              scope.variableDeclaration &&
+              binds(scope.variableDeclaration.name)
+            )
+              return null;
+            const statements =
+              ts.isSourceFile(scope) ||
+              ts.isBlock(scope) ||
+              ts.isModuleBlock(scope)
+                ? scope.statements
+                : ts.isCaseClause(scope) || ts.isDefaultClause(scope)
+                  ? scope.statements
+                  : null;
+            if (!statements) continue;
+            for (const statement of statements) {
+              if (!ts.isVariableStatement(statement)) continue;
+              for (const declaration of statement.declarationList.declarations)
+                if (
+                  ts.isIdentifier(declaration.name) &&
+                  declaration.name.text === identifier.text &&
+                  declaration.initializer
+                )
+                  return declaration.initializer;
+            }
+          }
+          return null;
+        };
+        const COMPARISON = new Set([
+          ts.SyntaxKind.EqualsEqualsEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsEqualsToken,
+          ts.SyntaxKind.EqualsEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsToken,
+        ]);
+        const stringsIn = (node, seen = new Set()) => {
+          const out = [];
+          const visit = (n) => {
+            if (!n) return;
+            if (ts.isStringLiteralLike(n)) return void out.push(n.text);
+            if (ts.isTemplateExpression(n)) {
+              out.push(n.head.text);
+              for (const span of n.templateSpans) {
+                out.push(span.literal.text);
+                visit(span.expression);
+              }
+              return;
+            }
+            if (
+              ts.isBinaryExpression(n) &&
+              COMPARISON.has(n.operatorToken.kind)
+            )
+              return;
+            if (ts.isConditionalExpression(n)) {
+              visit(n.whenTrue);
+              visit(n.whenFalse);
+              return;
+            }
+            if (ts.isPropertyAssignment(n)) return void visit(n.initializer);
+            if (ts.isIdentifier(n)) {
+              const target = !seen.has(n) && declarationOf(n);
+              if (target) {
+                seen.add(n);
+                visit(target);
+              }
+              return;
+            }
+            // `MAP.done` / `MAP["done"]`: only that entry, when the map is an object literal here.
+            const key = ts.isPropertyAccessExpression(n)
+              ? n.name.text
+              : ts.isElementAccessExpression(n) &&
+                  ts.isStringLiteralLike(n.argumentExpression)
+                ? n.argumentExpression.text
+                : null;
+            const base =
+              ts.isPropertyAccessExpression(n) ||
+              ts.isElementAccessExpression(n)
+                ? n.expression
+                : null;
+            if (key && base && ts.isIdentifier(base)) {
+              const map = declarationOf(base);
+              if (map && ts.isObjectLiteralExpression(map)) {
+                const entry = map.properties.find(
+                  (property) =>
+                    ts.isPropertyAssignment(property) &&
+                    (ts.isIdentifier(property.name) ||
+                      ts.isStringLiteralLike(property.name)) &&
+                    property.name.text === key,
+                );
+                if (entry) return void visit(entry.initializer);
+              }
+            }
+            ts.forEachChild(n, visit);
+          };
+          visit(node);
+          return out;
+        };
+        const greenClass = (text) =>
+          text
+            .split(/\s+/)
+            .some((token) => token && GREEN_INK.test(utilityOf(token)));
+        const lineOf = (node) =>
+          sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
+        const visitChecks = (node) => {
+          if (
+            (ts.isJsxOpeningElement(node) ||
+              ts.isJsxSelfClosingElement(node)) &&
+            ts.isIdentifier(node.tagName) &&
+            checkLocals.has(node.tagName.text)
+          ) {
+            for (const attribute of node.attributes.properties) {
+              if (
+                !ts.isJsxAttribute(attribute) ||
+                attribute.name.getText(sf) !== "className" ||
+                !attribute.initializer
+              )
+                continue;
+              if (stringsIn(attribute.initializer).some(greenClass)) {
+                console.log(
+                  `${file}:${lineOf(node)} [no-success-check] a check in success/green ink (COL-25): every check is the blue accent — \`text-info-text\` or StatusGlyph — never green`,
+                );
+                violations++;
+              }
+            }
+          }
+          if (ts.isObjectLiteralExpression(node)) {
+            const pairsCheck = node.properties.some(
+              (property) =>
+                ts.isPropertyAssignment(property) &&
+                ts.isIdentifier(property.initializer) &&
+                checkLocals.has(property.initializer.text),
+            );
+            if (
+              pairsCheck &&
+              node.properties.some(
+                (property) =>
+                  ts.isPropertyAssignment(property) &&
+                  stringsIn(property.initializer).some(greenClass),
+              )
+            ) {
+              console.log(
+                `${file}:${lineOf(node)} [no-success-check] a check icon paired with a success/green class (COL-25): every check is the blue accent — \`text-info-text\` or StatusGlyph — never green`,
+              );
+              violations++;
+            }
+          }
+          ts.forEachChild(node, visitChecks);
+        };
+        visitChecks(sf);
+        if (agentFile) {
+          const visitLiterals = (node) => {
+            const texts = ts.isStringLiteralLike(node)
+              ? [node.text]
+              : ts.isTemplateExpression(node)
+                ? [
+                    node.head.text,
+                    ...node.templateSpans.map((span) => span.literal.text),
+                  ]
+                : [];
+            for (const token of texts.flatMap((text) => text.split(/\s+/))) {
+              if (!token) continue;
+              const utility = utilityOf(token);
+              if (STATUS_FILL.test(utility)) {
+                console.log(
+                  `${file}:${lineOf(node)} [no-status-fill] "${token}" paints a status colour as a fill in agent UI (COL-25): a status hue is a glyph or words, never a fill — use \`bg-chat-card\`, \`bg-muted\` or no fill`,
+                );
+                violations++;
+              }
+              if (!upstreamBacked && RAW_CHAT_MOTION.test(utility)) {
+                console.log(
+                  `${file}:${lineOf(node)} [chat-motion-tokens] "${token}" sets its own motion in agent UI (MOT-14): use the chat set — \`duration-instant|quick|quick-exit|state|state-exit|layout\` with \`ease-enter|exit|standard\``,
+                );
+                violations++;
+              }
+            }
+            ts.forEachChild(node, visitLiterals);
+          };
+          visitLiterals(sf);
         }
       }
 

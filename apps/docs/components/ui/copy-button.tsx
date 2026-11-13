@@ -1,4 +1,4 @@
-// @vegastack copy-button@0.60.0 sha256-TzB8lr8rG1wkEKONgmWeDv6dmaBsonkjjmNjdz2XwEE=
+// @vegastack copy-button@0.60.0 sha256-bbdXjh7duCQ3EtEJcLTOiK8XDbDHjilQyxHg6L4N1vo=
 
 "use client";
 
@@ -74,8 +74,8 @@ export type CopyButtonProps = Omit<
  * Wraps `Button` — `size="icon-sm"` by default, `size="sm"` when `showLabel` is set — and swaps the
  * `lucide-react`
  * `Copy` icon for a `Check` for ~1.5s after a successful copy, tinting it
- * `text-primary` for that window. Copying is neutral action feedback rather than a
- * semantic success status. The accessible label switches from `"Copy"` to
+ * `text-info-text` (the blue accent every check wears, COL-25) for that window. Copying is
+ * action feedback rather than a semantic success status, so it is never green. The accessible label switches from `"Copy"` to
  * `"Copied"` so screen readers announce the result; the icon itself is decorative
  * (`aria-hidden`). The confirmation is spoken by the shared `useAnnouncer` live region —
  * `aria-label` changes on the button itself are not reliably announced by screen readers.
@@ -138,7 +138,7 @@ export function CopyButton({
     "data-label-visible": showLabel ? "" : undefined,
     "aria-label": copied ? copiedLabel : copyLabel,
     onClick: handleClick,
-    className: cn(copied && "text-primary hover:text-primary", className),
+    className: cn(copied && "text-info-text hover:text-info-text", className),
   } as unknown as ButtonOwnProps;
 
   return (

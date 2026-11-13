@@ -1,4 +1,4 @@
-// @vegastack sheet@0.60.0 sha256-Ro/3f7NOqAGxebvVPtJZIVdUfNpQjHo/OB5iSFsHZRI=
+// @vegastack sheet@0.60.0 sha256-tyJ/MOYkwik8RtdNjX54wO2T93c7yAANzBYEz/QDgvg=
 
 "use client";
 
@@ -45,7 +45,7 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
     <SheetPrimitive.Backdrop
       data-slot="sheet-overlay"
       className={cn(
-        "fixed inset-0 z-50 bg-black/10 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs",
+        "fixed inset-0 z-50 bg-black/20 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:bg-black/50",
         className,
       )}
       {...props}

@@ -1189,6 +1189,35 @@ function lineIndex(text) {
 }
 
 /**
+ * COL-25 (operator, 2026-11-13): every check is the blue accent and never green. The lucide check
+ * icons, by the name they are imported under, and the inks that make one green.
+ */
+const CHECK_ICON =
+  /^(?:Check|CheckCheck|CircleCheck|CircleCheckBig|CheckCircle2?|BookmarkCheck|SquareCheck|SquareCheckBig|ListChecks|CopyCheck|BadgeCheck)(?:Icon)?$/;
+// Read against a class token's utility (variants removed), so a word like "success" in a label or
+// a comparison is not an ink.
+const GREEN_INK =
+  /^-?(?:text|bg|fill|stroke|border|ring|outline|decoration)-(?:success|green|emerald|tag-green)(?:-|\/|$)/;
+const greenToken = (token) => GREEN_INK.test(utilityOf(token));
+const greenClasses = (text) =>
+  [...text.matchAll(/(["'`])((?:(?!\1)[^\\]|\\.)*)\1/g)]
+    .flatMap((m) => m[2].split(/\s+/))
+    .filter((token) => token && greenToken(token));
+
+/** The local names a file imports lucide's check icons under. */
+export function checkIconLocals(src) {
+  const names = new Set();
+  for (const m of src.matchAll(
+    /\bimport\s+(?:type\s+)?\{([^}]*)\}\s*from\s*["']lucide-react["']/g,
+  ))
+    for (const part of m[1].split(",")) {
+      const p = /^\s*(?:type\s+)?([\w$]+)(?:\s+as\s+([\w$]+))?\s*$/.exec(part);
+      if (p && CHECK_ICON.test(p[1])) names.add(p[2] ?? p[1]);
+    }
+  return names;
+}
+
+/**
  * The four composition rules over the project's own source (the ui alias dirs, node_modules and
  * build output skipped): `!` on a DS part, a width class on a popover or menu popup, a hand-written
  * `<header>` inside an overlay panel, and an `AppShellPage size` that disagrees with the route map.
@@ -1236,6 +1265,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
   const important = [];
   const widths = [];
   const headers = [];
+  const greenChecks = [];
   const pages = [];
   const map = new Map();
   const conflicts = [];
@@ -1267,6 +1297,26 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
             hint: `${known.file}:${known.line} already says "${known.width}"`,
           });
       }
+    const checks = checkIconLocals(src);
+    if (checks.size > 0) {
+      // A check icon paired with a green class in one object — `{ icon: CircleCheck, tone:
+      // "text-success-text" }` — the map a status table renders from.
+      const names = [...checks].join("|");
+      for (const m of src.matchAll(
+        new RegExp(`\\{[^{}]*\\b(?:${names})\\b[^{}]*\\}`, "g"),
+      )) {
+        // A JSX expression (`{ok && <CircleCheck … />}`) is the tag rule's, not a map.
+        if (m[0].includes("<")) continue;
+        const [green] = greenClasses(m[0]);
+        if (green)
+          greenChecks.push({
+            file,
+            line: lineAt(m.index + m[0].indexOf(green)),
+            match: green,
+            hint: "a check icon paired with a green class",
+          });
+      }
+    }
     if (!/\.[jt]sx$/.test(full) || !read.includes("<")) continue;
 
     const imports = uiImports(src, full, { uiAliases, uiDirs });
@@ -1280,6 +1330,62 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
           if (at !== -1) overlays.splice(at, 1);
         }
         continue;
+      }
+      if (checks.has(tag.name)) {
+        const cls = tagAttributes(tag, scan).get("className");
+        if (cls && cls.kind !== "flag") {
+          for (const { token, at } of classTokens(cls, scan, read))
+            if (greenToken(token))
+              greenChecks.push({
+                file,
+                line: lineAt(at),
+                match: `<${tag.name}> ${token}`,
+              });
+          // `className={cls}`: the nearest `const cls = …` above the tag (its own scope in
+          // practice), read to the end of its initializer, across lines.
+          const name =
+            cls.kind === "expr"
+              ? /^\s*([\w$]+)\s*$/.exec(scan.slice(cls.from, cls.to))?.[1]
+              : null;
+          if (name) {
+            // The nearest declaration still in scope at the tag: one whose block has not closed
+            // between it and the tag (braces counted on the string- and comment-masked source).
+            const visible = (at) => {
+              let depth = 0;
+              for (let k = at; k < tag.index; k += 1) {
+                if (scan[k] === "{") depth += 1;
+                else if (scan[k] === "}" && (depth -= 1) < 0) return false;
+              }
+              return true;
+            };
+            let decl = null;
+            for (const d of scan.matchAll(
+              new RegExp(`\\b(?:const|let)\\s+${name}\\s*=`, "g"),
+            ))
+              if (d.index < tag.index && visible(d.index)) decl = d;
+            if (decl) {
+              let depth = 0;
+              let k = decl.index + decl[0].length;
+              for (; k < scan.length; k += 1) {
+                const c = scan[k];
+                if ("([{".includes(c)) depth += 1;
+                else if (")]}".includes(c)) {
+                  if (depth === 0) break;
+                  depth -= 1;
+                } else if ((c === ";" || c === "\n") && depth === 0) break;
+              }
+              for (const token of greenClasses(
+                src.slice(decl.index + decl[0].length, k),
+              ))
+                greenChecks.push({
+                  file,
+                  line: lineAt(tag.index),
+                  match: `<${tag.name}> ${token}`,
+                  hint: `via ${name}`,
+                });
+            }
+          }
+        }
       }
       if (tag.name === "header" && overlays.length > 0) {
         const inside = overlays[overlays.length - 1];
@@ -1380,6 +1486,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     important: important.sort(byPlace),
     widths: widths.sort(byPlace),
     headers: headers.sort(byPlace),
+    greenChecks: greenChecks.sort(byPlace),
     routeMap: {
       rows: map.size,
       files: [...new Set([...map.values()].map((r) => r.file))].sort(),
@@ -1674,6 +1781,21 @@ export function main(argv = []) {
     "use the overlay's own header part (SheetHeader · DrawerHeader · DialogHeader · AlertDialogHeader), or RecordPeek for a record panel",
     "no overlay content hand-writes a <header> (same-file nesting only)",
   );
+  // A green check is a failure whatever --strict says (COL-25): the rule is the operator's, and a
+  // check has one colour.
+  if (composition.greenChecks.length === 0)
+    ok("check colour", "no check icon is drawn in a success or green ink");
+  else
+    results.push({
+      level: "fail",
+      name: "check colour",
+      detail: `${composition.greenChecks.length} check icon(s) in a success or green ink`,
+      fix: "a check is the blue accent — `text-info-text`, or the StatusGlyph registry item — never `text-success*` or green (COL-25)",
+      findings: composition.greenChecks.map(
+        (f) =>
+          `${f.file}:${f.line}  ${f.match}${f.hint ? `  →  ${f.hint}` : ""}`,
+      ),
+    });
   const rm = composition.routeMap;
   const coverage = `${rm.compared} App Router page/layout size(s) compared${
     rm.dynamic ? `, ${rm.dynamic} dynamic size={…} skipped` : ""

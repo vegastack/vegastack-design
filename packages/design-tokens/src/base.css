@@ -217,6 +217,23 @@
   ::view-transition-new(*) {
     animation: none !important;
   }
+
+  /* MOT-14: the chat motion set reads as zero too, so a component that computes a delay or a
+   * timer from these tokens (a stream fade, a loader cadence, a settle) sees "no motion" rather
+   * than a real length the global reset above would only partly cancel. No `!important`: these
+   * are custom properties, and a later theme override restating them is the consumer's choice. */
+  :root,
+  .dark {
+    --duration-instant: 0ms;
+    --duration-quick: 0ms;
+    --duration-quick-exit: 0ms;
+    --duration-state: 0ms;
+    --duration-state-exit: 0ms;
+    --duration-layout: 0ms;
+    --duration-stream-word: 0ms;
+    --duration-loader-frame: 0ms;
+    --duration-loader-dots: 0ms;
+  }
 }
 
 /* INT-13 (ours) — NO iOS FOCUS ZOOM (MK 2026-09-26).

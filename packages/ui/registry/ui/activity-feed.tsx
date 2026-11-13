@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.60.0 sha256-l2iNh0Dp+MOuWVKC5+5j7DpreJ4lR1mpnzVocJe9RyY=
+// @vegastack activity-feed@0.60.0 sha256-Z8OSf5ikePQn+JINvIJJN2C5axGC4fr9hy6W+qnApoI=
 
 "use client";
 
@@ -612,14 +612,14 @@ const KIND_ICONS: Record<
 
 /** Semantic kinds keep their colour (an agent run's in its status tone); the rest are muted. */
 const KIND_TONES: Partial<Record<ActivityKind, string>> = {
-  approved: "text-success",
-  rejected: "text-destructive",
-  requested: "text-warning",
+  approved: "text-info-text",
+  rejected: "text-muted-foreground",
+  requested: "text-warning-text",
   delegated: "text-tag-purple-text",
-  "agent-working": "text-info",
-  "agent-needs-you": "text-warning",
-  "agent-done": "text-success",
-  "agent-failed": "text-destructive",
+  "agent-working": "text-info-text",
+  "agent-needs-you": "text-warning-text",
+  "agent-done": "text-info-text",
+  "agent-failed": "text-muted-foreground",
 };
 
 /**
@@ -1412,7 +1412,7 @@ export function ActivityJumpToLatest({
         onFocus={() => setEngaged(true)}
         onBlur={() => setEngaged(false)}
         className={cn(
-          "inline-flex transition-[opacity,translate] duration-200 ease-out",
+          "inline-flex transition-[opacity,translate] duration-quick ease-enter",
           shown
             ? "pointer-events-auto -translate-y-full opacity-100"
             : "-translate-y-1/2 opacity-0",

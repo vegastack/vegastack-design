@@ -1,6 +1,9 @@
 # component: drawer
-# decisions: A11Y-9, DOC-1, DOC-2, OVL-13, OVL-21, LAY-17
+# decisions: A11Y-9, DOC-1, DOC-2, OVL-13, OVL-21, LAY-17, OVL-25
 # hunks:
+#   OVL-25 (operator, 2026-11-13, agent chat ground up §4.1 "no blur behind dialogs"): the backdrop
+#     is `bg-black/20`, `dark:bg-black/50`, with upstream's `supports-backdrop-filter:backdrop-blur-xs`
+#     removed, so the page behind a modal stays legible and still and dark mode no longer smears.
 #   OVL-13: `DrawerPortal` reads `useInternalThemeScope()` and wraps its children in a
 #     `display: contents` element carrying that class.
 #   A11Y-9: `DrawerContent` mirrors Base UI's `data-base-ui-inert` markers onto native `inert`
@@ -17,7 +20,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/drawer.tsx b/drawer.tsx
-index 42d7186..c26b617 100644
+index 42d7186..ea8c608 100644
 --- a/drawer.tsx
 +++ b/drawer.tsx
 @@ -1,42 +1,47 @@
@@ -117,11 +120,13 @@ index 42d7186..c26b617 100644
  }
  
  function DrawerOverlay({
-@@ -72,11 +83,11 @@ function DrawerOverlay({
+@@ -71,12 +82,12 @@ function DrawerOverlay({
+     <DrawerPrimitive.Backdrop
        data-slot="drawer-overlay"
        className={cn(
-         "fixed inset-0 z-50 min-h-dvh bg-black/10 opacity-[max(var(--drawer-overlay-min-opacity,0),calc(1-var(--drawer-swipe-progress)))] transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] select-none data-ending-style:pointer-events-none data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-snap-points:[--drawer-overlay-min-opacity:0.5] data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-xs supports-[-webkit-touch-callout:none]:absolute",
+-        "fixed inset-0 z-50 min-h-dvh bg-black/10 opacity-[max(var(--drawer-overlay-min-opacity,0),calc(1-var(--drawer-swipe-progress)))] transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] select-none data-ending-style:pointer-events-none data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-snap-points:[--drawer-overlay-min-opacity:0.5] data-starting-style:opacity-0 data-swiping:duration-0 supports-backdrop-filter:backdrop-blur-xs supports-[-webkit-touch-callout:none]:absolute",
 -        className
++        "fixed inset-0 z-50 min-h-dvh bg-black/20 opacity-[max(var(--drawer-overlay-min-opacity,0),calc(1-var(--drawer-swipe-progress)))] transition-opacity duration-450 ease-[cubic-bezier(0.32,0.72,0,1)] select-none data-ending-style:pointer-events-none data-ending-style:opacity-0 data-ending-style:duration-[calc(var(--drawer-swipe-strength)*400ms)] data-snap-points:[--drawer-overlay-min-opacity:0.5] data-starting-style:opacity-0 data-swiping:duration-0 dark:bg-black/50 supports-[-webkit-touch-callout:none]:absolute",
 +        className,
        )}
        {...props}

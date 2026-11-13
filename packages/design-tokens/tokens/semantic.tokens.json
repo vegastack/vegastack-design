@@ -224,6 +224,24 @@
     },
     "$description": "COL-24: inner tiles (an icon tile in a row, a count chip) — translucent, so a tile stays one step above its row in every row state and never inverts on hover."
   },
+  "chat-card": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.03
+    },
+    "$description": "Chat surface rule (COL-25, operator 2026-11-13, agent chat ground up, Round 1): the ONE card surface in agent UI, for the things a person acts on or opens (a waiting request, question or plan, the task list, a file preview). The foreground at 3% over whatever is underneath, the same formula in both themes, so a card sits exactly one faint step off the page in light and in dark (light ≈ #f7f7f7 on white). Paired with `chat-hairline` and `rounded-chat-card`; no shadow inside a thread. Read it as `bg-chat-card`."
+  },
+  "chat-hairline": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.1
+    },
+    "$description": "COL-25: the chat card's hairline, guide lines inside a fold and dividers inside a card — the foreground at 10%, the same formula in both themes. Read it as `border-chat-hairline` / `bg-chat-hairline`."
+  },
   "state-focus": {
     "$type": "color",
     "$value": {
@@ -672,7 +690,7 @@
       "value": 1200,
       "unit": "ms"
     },
-    "$description": "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
+    "$description": "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-frames`, the TextSpinner, MOT-14). Not an interaction duration: interactions use fast/base/slow."
   },
   "motion-ease-standard": {
     "$type": "cubicBezier",
@@ -690,5 +708,90 @@
     "$type": "easing",
     "$value": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)",
     "$description": "CSS linear() spring with a very small overshoot — the success-bounce/appear curve for state-feedback micro-interactions (Phase M). Subtle by design: dense dev-tool aesthetic, not playful."
+  },
+  "duration-instant": {
+    "$type": "duration",
+    "$value": {
+      "value": 100,
+      "unit": "ms"
+    },
+    "$description": "MOT-14 chat motion (operator 2026-11-13): hover and press fills, icon colour, a toggle's knob. Pairs with `ease-standard`."
+  },
+  "duration-quick": {
+    "$type": "duration",
+    "$value": {
+      "value": 160,
+      "unit": "ms"
+    },
+    "$description": "MOT-14: menus, popovers and tooltips in; a live line crossfading to done; a check appearing. Pairs with `ease-enter`."
+  },
+  "duration-quick-exit": {
+    "$type": "duration",
+    "$value": {
+      "value": 120,
+      "unit": "ms"
+    },
+    "$description": "MOT-14: the same things leaving (an exit is never slower than its enter). Pairs with `ease-exit`."
+  },
+  "duration-state": {
+    "$type": "duration",
+    "$value": {
+      "value": 220,
+      "unit": "ms"
+    },
+    "$description": "MOT-14: a fold opening (height + opacity), its chevron, Send↔Stop, a card settling to its one-line form, Show more. Pairs with `ease-enter`."
+  },
+  "duration-state-exit": {
+    "$type": "duration",
+    "$value": {
+      "value": 160,
+      "unit": "ms"
+    },
+    "$description": "MOT-14: a fold closing. Pairs with `ease-exit`."
+  },
+  "duration-layout": {
+    "$type": "duration",
+    "$value": {
+      "value": 280,
+      "unit": "ms"
+    },
+    "$description": "MOT-14: a new message or card arriving (opacity + 6px rise), a side sheet sliding in. Pairs with `ease-enter`."
+  },
+  "duration-stream-word": {
+    "$type": "duration",
+    "$value": {
+      "value": 180,
+      "unit": "ms"
+    },
+    "$description": "MOT-14: one streamed word fading in, prose only (never code, tables or maths); removed when the stream ends."
+  },
+  "duration-loader-frame": {
+    "$type": "duration",
+    "$value": {
+      "value": 80,
+      "unit": "ms"
+    },
+    "$description": "MOT-14: one frame of the braille TextSpinner (⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)."
+  },
+  "duration-loader-dots": {
+    "$type": "duration",
+    "$value": {
+      "value": 300,
+      "unit": "ms"
+    },
+    "$description": "MOT-14: one frame of the dots TextSpinner (· ·· ···)."
+  },
+  "motion-ease-enter": {
+    "$type": "cubicBezier",
+    "$value": [0.16, 1, 0.3, 1],
+    "$description": "MOT-14: the chat's entrance curve (a fast start that settles softly) for quick, state and layout arrivals; every exit uses `motion-ease-exit`."
+  },
+  "chat-card-radius": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.75,
+      "unit": "rem"
+    },
+    "$description": "COL-25: the chat card's corner, 12px, bridged as `rounded-chat-card`."
   }
 }

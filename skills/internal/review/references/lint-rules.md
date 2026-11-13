@@ -232,6 +232,26 @@ that catch bugs nobody can see in review.
     `class-whitespace` violation. Not a violation: `"text-" + size` (a deliberate build, not two
     literals) and a prose message split across lines (no class context on either side).
 
+26. **`no-success-check`** (AST, COL-25, **new 2026-11-13**) — anywhere in canonical registry
+    source, a `lucide-react` check icon (`Check`, `CircleCheck`, `CheckCircle2`, `BookmarkCheck`,
+    `ListChecks`, `CopyCheck`, `BadgeCheck` … and their `*Icon` names, under any local alias) whose
+    `className` — a literal, `cn()` arguments, or any `const` it reads, module map or local class
+    string alike — names `success`, `green` or `emerald`; and an object literal pairing a check icon
+    with such a class (`{ Icon: BookmarkCheck, className: "text-success-text" }`). The operator's
+    rule: every check is the blue accent (`text-info-text`, `StatusGlyph`), never green.
+    `vegastack-design doctor` runs the same pattern over an app's own code as a failure.
+27. **`no-status-fill`** (COL-25, **new 2026-11-13**) — in the agent component set (`message-*`,
+    `task-list`, `plan-card`, `request-card`, `approval-card`, `memory-*`, `agent-*`, `chat-*`,
+    `activity-feed`, `status-icon`, `status-glyph`, `text-spinner`, `upload-panel`, `context-ring`,
+    `run-usage`, `tool-call-chip`, `cited-list`, `file-card`): `bg-success`, `bg-warning` or
+    `bg-destructive`, with any variant and `/NN`. A status hue in agent UI is a glyph or words; a card
+    is `bg-chat-card`. The `-text` inks are not fills and are not matched.
+28. **`chat-motion-tokens`** (MOT-14, **new 2026-11-13**) — in the agent component set, excluding
+    upstream-backed files (their timings are upstream's): a numeric or arbitrary `duration-*` and a
+    stock or arbitrary `ease-*` (`ease-in`, `ease-out`, `ease-in-out`, `ease-linear`, `ease-[…]`).
+    Use `duration-instant|quick|quick-exit|state|state-exit|layout` with
+    `ease-enter|exit|standard`.
+
 ### Deleted by the reset, and why (do not report these)
 
 `removed-radius-xl` (BRD-6), `raw-control-size` (LAY-1), `raw-icon-size` and `direct-lucide-size`

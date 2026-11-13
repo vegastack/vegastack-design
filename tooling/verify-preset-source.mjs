@@ -53,11 +53,13 @@ const ASSERTIONS = [
   // `bg-success/10` and `bg-destructive/10`, described the pre-reset tinted toast. Upstream's
   // toast paints `bg-popover` and tints nothing — and `bg-destructive/10` kept passing anyway,
   // because Button's own destructive variant is in the same bundle, so half the probe had
-  // silently stopped testing the Toaster at all. `text-success-text` is the COL-12 icon ink and
-  // `rounded-2xl` the toast root's radius; neither is spelled anywhere else in this dist.
+  // silently stopped testing the Toaster at all. `text-warning-text` is the COL-12 icon ink of a
+  // warning toast and `rounded-2xl` the toast root's radius; neither is spelled anywhere else in
+  // this dist. (Retargeted 2026-11-13 from `text-success-text`: COL-25 draws the success toast's
+  // check in the blue accent, and `text-info-text` is in this bundle elsewhere.)
   {
-    label: "Toaster (@vegastack/ui dist) — text-success-text",
-    test: (css) => /\.text-success-text\s*\{/.test(css),
+    label: "Toaster (@vegastack/ui dist) — text-warning-text",
+    test: (css) => /\.text-warning-text\s*\{/.test(css),
   },
   {
     label: "Toaster (@vegastack/ui dist) — rounded-2xl",

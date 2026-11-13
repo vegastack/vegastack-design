@@ -271,7 +271,7 @@ test("approval, failed, blocked: each state's line and actions", async () => {
     failedLine
       .querySelector("[data-slot=agent-state-icon]")!
       .getAttribute("class"),
-  ).toContain("text-destructive-text");
+  ).toContain("text-muted-foreground"); // COL-25: failed is muted and says so in words
   // One action: Retry. Remove stays in the ⋯ menu.
   await failed.getByRole("button", { name: "Retry" }).click();
   expect(onRetry).toHaveBeenCalledTimes(1);
@@ -697,7 +697,7 @@ test("chip: the agent and its state as one pill, or the dashed Delegate pill", a
   await expectNoA11yViolations(screen.container);
 });
 
-test("badge and ring: icon and word; amber ring for needs you, red for failed, none otherwise", async () => {
+test("badge and ring: icon and word; amber ring for needs you, none otherwise (failed says so in words, COL-25)", async () => {
   const screen = await render(
     <div>
       <AgentStateBadge state="done" />
@@ -718,13 +718,13 @@ test("badge and ring: icon and word; amber ring for needs you, red for failed, n
   );
   expect(badges).toHaveLength(1);
   expect(badges[0]!.textContent).toBe("Done");
-  expect(badges[0]!.className).toContain("text-success-text");
+  expect(badges[0]!.className).toContain("text-info-text");
   const rings = screen.container.querySelectorAll<HTMLElement>(
     "[data-slot=agent-state-ring]",
   );
   expect(rings[0]!.className).toContain("ring-warning");
   expect(rings[0]!.textContent).toContain("Needs you");
-  expect(rings[1]!.className).toContain("ring-destructive");
+  expect(rings[1]!.className).not.toContain("ring-2");
   expect(rings[1]!.textContent).toBe("");
   expect(rings[2]!.className).not.toContain("ring-2");
   // Around an agent's hexagon the circle ring stands down; the avatar draws it in its own shape.
@@ -769,7 +769,7 @@ test("ring glyph: a ringed state's icon on the avatar's corner; none for the qui
   ).toContain("text-warning-text");
   expect(
     glyphOf(rings[1]!)?.querySelector("svg")?.getAttribute("class"),
-  ).toContain("text-destructive-text");
+  ).toContain("text-muted-foreground");
   expect(glyphOf(rings[2]!)).toBeNull();
   expect(glyphOf(rings[3]!)).toBeNull();
   // The state is still said once, in words.

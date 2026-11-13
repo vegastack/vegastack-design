@@ -675,6 +675,124 @@ export const emailCss = "@media (prefers-color-scheme:dark){.vs-text{color:#fafa
     );
   }
 
+  // COL-25 / MOT-14 (operator, 2026-11-13) — status and motion in agent UI. Each of the three
+  // rules must fail on its own specimens, in a file named like an agent component, and pass on
+  // the sanctioned spellings beside them.
+  const agentDir = join(scratch, "agent-status", "packages/ui/registry/ui");
+  mkdirSync(agentDir, { recursive: true });
+  writeFileSync(
+    join(agentDir, "task-list.tsx"),
+    `import { Check, CircleCheck as Done, BookmarkCheck, ListChecksIcon } from 'lucide-react';
+import { cn } from '@vegastack/design';
+
+const INK = { done: 'text-success-text', pending: 'text-muted-foreground' };
+const NOTE = { remembered: { Icon: BookmarkCheck, className: 'text-emerald-600' } };
+
+export function Bad({ tone }: { tone: 'done' | 'pending' }) {
+  const cls = cn('size-4', INK[tone]);
+  return <>
+    <Check className="text-success" />
+    <Done className={cn('size-4', 'text-green-600')} />
+    <ListChecksIcon className={INK[tone]} />
+    <Check className={cls} />
+    <div className="bg-success/10" />
+    <div className="rounded-md bg-warning p-2" />
+    <div className="hover:bg-destructive" />
+    <div className="transition-opacity duration-150" />
+    <div className="transition-all ease-[cubic-bezier(0.2,0,0,1)]" />
+    <div className="transition-colors ease-in-out" />
+    <div className="data-[state=error]:bg-warning/10 [&>span]:bg-destructive/10" />
+    <div className="data-[state=open]:duration-150" />
+  </>;
+}
+
+// Shadowing: the nearer \`cls\` decides. Bad's is green; Good's, declared later, is blue.
+export function ShadowBad() {
+  const cls = 'text-success-text';
+  return <Check className={cls} />;
+}
+export function ShadowGood() {
+  const cls = 'text-info-text';
+  return <Check className={cls} />;
+}
+
+// A multi-class string and a variant still read as green.
+export function Multi() {
+  return <Check className="size-4 hover:text-success-text" />;
+}
+
+// A parameter shadows the module's green const: not knowable, not flagged.
+const tint = 'text-success-text';
+export function Param({ tint }: { tint: string }) {
+  return <Check className={tint} />;
+}
+
+// Not violations: a comparison operand is not a class, and a map read by a known key is that entry.
+const TONE = { done: 'text-info-text', ok: 'text-success-text' };
+export function Fine({ status }: { status: string }) {
+  return <>
+    <Check className={status === 'success' ? 'text-info-text' : 'text-muted-foreground'} />
+    <Check className={TONE.done} />
+  </>;
+}
+`,
+  );
+  const agentBad = run(agentDir);
+  const count = (id) =>
+    agentBad.output.split("\n").filter((line) => line.includes(`[${id}]`))
+      .length;
+  const agentCounts = {
+    "no-success-check": count("no-success-check"),
+    "no-status-fill": count("no-status-fill"),
+    "chat-motion-tokens": count("chat-motion-tokens"),
+  };
+  if (
+    agentBad.status === 0 ||
+    agentCounts["no-success-check"] !== 7 ||
+    agentCounts["no-status-fill"] !== 5 ||
+    agentCounts["chat-motion-tokens"] !== 4
+  ) {
+    console.error(
+      `  observed ${JSON.stringify(agentCounts)} of {"no-success-check":7,"no-status-fill":5,"chat-motion-tokens":4}`,
+    );
+    fail(
+      "design-lint accepted a green check, a status fill or hand-set motion in agent UI (COL-25 / MOT-14)",
+      agentBad.output,
+    );
+  }
+  writeFileSync(
+    join(agentDir, "task-list.tsx"),
+    `import { Check, CircleCheck } from 'lucide-react';
+import { cn } from '@vegastack/design';
+
+export function Good({ done }: { done: boolean }) {
+  return <>
+    <Check className="text-info-text" />
+    <CircleCheck className={cn('size-4', done && 'text-info-text')} />
+    <div className="bg-chat-card border border-chat-hairline rounded-chat-card" />
+    <span className="text-warning-text">needs you</span>
+    <div className="transition-[height,opacity] duration-state ease-enter data-ending-style:duration-state-exit data-ending-style:ease-exit" />
+  </>;
+}
+`,
+  );
+  // A green check is wrong anywhere in the registry, but a fill and hand-set motion only in agent
+  // UI: the same file under a non-agent name passes those two.
+  writeFileSync(
+    join(agentDir, "badge-row.tsx"),
+    `export function Row() {
+  return <div className="bg-success/10 transition-colors duration-150 ease-in-out" />;
+}
+`,
+  );
+  const agentGood = run(agentDir);
+  if (agentGood.status !== 0) {
+    fail(
+      "design-lint rejected the sanctioned agent UI spellings (a blue check, the chat card surface, a warning glyph ink, the chat motion set), or read a non-agent file as agent UI",
+      agentGood.output,
+    );
+  }
+
   console.log(
     `✓ design-lint structural specimens: ${requiredIds.length} structural + ${vocabularyIds.length} ` +
       `token-vocabulary rules fail closed, all 5 focus-ring-glow forms and all 5 loader-circle ` +
@@ -687,7 +805,10 @@ export const emailCss = "@media (prefers-color-scheme:dark){.vs-text{color:#fafa
       `hover vocabulary, avatar's ring-2 gap, a border surface, prose that mentions a ring, a "ring" VALUE inside a ` +
       `class builder (a call argument, an element-access key, a cva matcher or default), prose ending in "!", plus all ` +
       `three spellings of naming an icon Button through its host; the email kit's generated ` +
-      `colour module alone may carry hex and \`!important\``,
+      `colour module alone may carry hex and \`!important\`; and in agent UI a green check (7 spellings, ` +
+      `shadowing resolved lexically), a status fill (5, variants included) and hand-set motion (4) are ` +
+      `rejected while the blue check, a comparison operand, a keyed map entry, the chat card surface ` +
+      `and the chat motion set pass (COL-25, MOT-14)`,
   );
 } finally {
   rmSync(scratch, { recursive: true, force: true });

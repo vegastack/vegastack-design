@@ -1,6 +1,9 @@
 # component: sheet
-# decisions: A11Y-9, API-21, API-29, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, LAY-10, API-36, OVL-22
+# decisions: A11Y-9, API-21, API-29, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, LAY-10, API-36, OVL-22, OVL-25
 # hunks:
+#   OVL-25 (operator, 2026-11-13, agent chat ground up §4.1 "no blur behind dialogs"): the backdrop
+#     is `bg-black/20`, `dark:bg-black/50`, with upstream's `supports-backdrop-filter:backdrop-blur-xs`
+#     removed, so the page behind a modal stays legible and still and dark mode no longer smears.
 #   OVL-22 (MK 2026-10-26, Regent product-cohesion W1-DS2): below the `tablet` tier (40rem, `sm`)
 #     a side sheet is the whole screen — full width (already, OVL-16), no side border, its panel
 #     padded by the top and bottom safe-area insets, and its corner close moved below the top inset.
@@ -48,7 +51,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/sheet.tsx b/sheet.tsx
-index 1972cc1..1609f32 100644
+index 1972cc1..039deca 100644
 --- a/sheet.tsx
 +++ b/sheet.tsx
 @@ -1,26 +1,41 @@
@@ -105,11 +108,13 @@ index 1972cc1..1609f32 100644
  }
  
  function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
-@@ -29,32 +44,91 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
+@@ -28,33 +43,92 @@ function SheetOverlay({ className, ...props }: SheetPrimitive.Backdrop.Props) {
+     <SheetPrimitive.Backdrop
        data-slot="sheet-overlay"
        className={cn(
-         "fixed inset-0 z-50 bg-black/10 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs",
+-        "fixed inset-0 z-50 bg-black/10 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 supports-backdrop-filter:backdrop-blur-xs",
 -        className
++        "fixed inset-0 z-50 bg-black/20 transition-opacity duration-150 data-ending-style:opacity-0 data-starting-style:opacity-0 dark:bg-black/50",
 +        className,
        )}
        {...props}

@@ -566,3 +566,20 @@ test("no a11y violations — non-modal", async () => {
   await openDrawer(screen);
   await expectNoA11yViolations(document.body);
 });
+
+test("OVL-25: the backdrop is a quiet dim with no blur, deeper in dark", async () => {
+  await render(<Example defaultOpen />);
+  await expect
+    .poll(() => document.querySelector('[data-slot="drawer-overlay"]'))
+    .not.toBeNull();
+  const overlay = document.querySelector<HTMLElement>(
+    '[data-slot="drawer-overlay"]',
+  ) as HTMLElement;
+  expect(overlay.className).not.toContain("backdrop-blur");
+  expect(overlay.classList.contains("bg-black/20")).toBe(true);
+  expect(overlay.classList.contains("dark:bg-black/50")).toBe(true);
+  const style = getComputedStyle(overlay);
+  expect(style.backdropFilter === "none" || style.backdropFilter === "").toBe(
+    true,
+  );
+});

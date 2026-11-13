@@ -1,0 +1,70 @@
+---
+title: Text Spinner
+description: "The one inline text loader: a monospace braille spinner one character wide, or three dots. CSS only, and still under reduced motion."
+audience: public
+registry: text-spinner
+status: stable
+since: 0.77.0
+a11y: glyph hidden; the label is read once
+preview: textSpinner
+---
+
+## Install
+
+<InstallSteps name="text-spinner" />
+
+## Usage
+
+```tsx
+import { TextSpinner } from "@/components/ui/text-spinner";
+
+<p className="flex items-center gap-2 text-sm text-muted-foreground">
+  <TextSpinner label="" /> Searching the web · 12s
+</p>;
+```
+
+A chat turn has one moving thing: its live line, led by this spinner. It is one frame wide and
+monospace, so the words and the timer beside it never move. It is CSS only (the frames step on the
+`motion-frames` utility), so it renders on the server and never re-renders. A running task or
+Subagent row is a still ◐ ([`StatusGlyph`](/docs/components/status-glyph)), and page or section
+loading stays [`Spinner`](/docs/components/spinner).
+
+<ComponentPreview
+  name="textSpinner"
+  file="components/preview/text-spinner.tsx"
+/>
+
+## Examples
+
+### Variants
+
+`braille` (⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏, 80ms a frame) is the live line and Send while it sends. `dots`
+(· ·· ···, 300ms a frame) is what comes before the first event: "·· Thinking", "·· Reconnecting", a
+composer notice.
+
+<ComponentPreview
+  name="textSpinnerVariants"
+  file="components/preview/text-spinner.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/text-spinner.tsx"
+  name="TextSpinnerProps"
+/>
+
+## Accessibility
+
+- The glyph is hidden from assistive technology. The label (`Working` by default) is visually hidden
+  text; pass `label=""` when the words beside the spinner already say what is happening.
+- Under reduced motion the frames are replaced by a still `…` and the loader tokens read 0ms.
+
+<StatesTested name="text-spinner" />
+
+## Do / Don't
+
+<DoDont
+  do="Show one spinner per turn, on the live line, with words that say what is happening."
+  dont="Put a spinner on every running row, or use it for page loading: running rows are a still ◐, pages use Spinner."
+/>

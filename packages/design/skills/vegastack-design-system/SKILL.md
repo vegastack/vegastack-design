@@ -394,6 +394,12 @@ contract.
 - Use `Icon`/`BrandIcon` from `@vegastack/design/icons`, or `lucide-react` directly for internal
   chrome.
 - Implement every applicable state: default, hover, focus, loading, empty, error, success, disabled.
+- Draw every check — done, selected, approved, allowed, uploaded — in the blue accent
+  (`text-info-text`, or `StatusGlyph`), never green; in agent UI a status hue is a glyph or words,
+  never a fill, and a card is `ChatCard` only for something to act on or open (COL-25). The
+  doctor fails on a green check.
+- In a chat, move on the chat motion set (`duration-quick|state|layout`, `ease-enter|exit`) and show
+  one loader per turn, the braille `TextSpinner`; a running row is a still ◐ (MOT-14).
 - Put `truncate` on an inner span, with `min-w-0` on the flex container.
 - Let the parent decide a form control's width — every control is `w-full`.
 - Give a row's, card's or inline block's actions `secondary` (the main one) and `outline` (the

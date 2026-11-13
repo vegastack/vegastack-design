@@ -16310,6 +16310,135 @@
       }
     },
     {
+      "name": "text-spinner",
+      "type": "registry:ui",
+      "title": "Text Spinner",
+      "description": "The one inline text loader: a monospace braille spinner (⠋ ⠙ ⠹ …) one character wide, or three dots, CSS only, a still … under reduced motion.",
+      "categories": ["chat"],
+      "dependencies": [
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/text-spinner.tsx",
+          "type": "registry:ui",
+          "target": "@ui/text-spinner.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The one moving thing on a chat turn's live line, Send while it sends, or dots before the first event (\"·· Thinking\", \"·· Reconnecting\").",
+        "whenNotToUse": "Page or section loading (Spinner), a running task-list or Subagent row (StatusGlyph running, drawn still), or progress with a known amount (Progress).",
+        "version": "0.76.3"
+      }
+    },
+    {
+      "name": "status-glyph",
+      "type": "registry:ui",
+      "title": "Status Glyph",
+      "description": "One glyph per state in agent UI: ✓ done in the blue accent, ◌ not started, ◐ running (still), ⊘ skipped, ✗ failed, ⚠ needs you — never green, never a fill.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/status-glyph.tsx",
+          "type": "registry:ui",
+          "target": "@ui/status-glyph.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The state of a chat step, task, Subagent, request or upload, in a row or a meta line.",
+        "whenNotToUse": "Workflow status of a record (StatusIcon), a live loop (TextSpinner), or a pass/fail result outside agent UI (Badge).",
+        "version": "0.76.3"
+      }
+    },
+    {
+      "name": "chat-card",
+      "type": "registry:ui",
+      "title": "Chat Card",
+      "description": "The chat's one card surface and its parts: ChatCard for what a person acts on or opens, ChatRow for one line of work, ChatGroup for a fold of work that opens and closes smoothly.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/status-glyph",
+        "@vegastack/text-spinner"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/chat-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chat-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A waiting request, question or plan, the task list or a file preview (ChatCard); a line of work with its verb, subject, meta and duration (ChatRow); a fold of work behind one summary line (ChatGroup).",
+        "whenNotToUse": "Settled work, memory saves, answered asks and errors, which are flat lines in the column; a record or settings card outside a chat (Card).",
+        "version": "0.76.3"
+      }
+    },
+    {
+      "name": "chat-chip",
+      "type": "registry:ui",
+      "title": "Chat Chip",
+      "description": "A compact pill for background work and counts — \"7 background commands done, 3 running ›\" — on the chat card surface, with an attention tone that never adds a status fill.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": ["@vegastack/button"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/chat-chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chat-chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Live or partly failed background work, Subagents running, or a count that opens a panel.",
+        "whenNotToUse": "Settled work (a muted line), a person's own things such as a Doc or a PR (a resource pill), or a filter or tag (Chip).",
+        "version": "0.76.3"
+      }
+    },
+    {
+      "name": "chat-menu",
+      "type": "registry:ui",
+      "title": "Chat Menu",
+      "description": "A menu with the chat's density: one column of tight rows, a blue ✓ and a number shortcut sharing the right slot, submenus that open on hover or →.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.13.0",
+        "@vegastack/design-tokens@^0.11.0"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/chat-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/chat-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
+        "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
+        "version": "0.76.3"
+      }
+    },
+    {
       "name": "plan-card",
       "type": "registry:ui",
       "title": "Plan Card",

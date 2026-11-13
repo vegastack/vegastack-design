@@ -993,7 +993,7 @@ test("an agent actor reads agent-first, for its owner, with no label; the agent 
   expect(icons[0]!.classList).toContain("lucide-bot");
   expect(icons[0]!.classList).toContain("text-tag-purple-text");
   expect(icons[1]!.classList).toContain("lucide-circle-alert");
-  expect(icons[1]!.classList).toContain("text-warning");
+  expect(icons[1]!.classList).toContain("text-warning-text");
   await expectNoA11yViolations(screen.container);
 });
 
