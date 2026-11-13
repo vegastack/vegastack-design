@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.76.3
+
+### Patch Changes
+
+- [#970](https://github.com/vegastack/vegastack-design/pull/970) [`0580824`](https://github.com/vegastack/vegastack-design/commit/058082440fadd922a95b96ca0b99bf27bf935124) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `RequestCard` (and `PermissionList` rows) and `PlanCard` draw the asking agent's own face: `CardAgent` and `PlanAgent` take optional `mark` (a glyph node or an image object) and `hue`, passed to its `PersonAvatar`, so an agent without an image shows its glyph on its colour instead of the fallback bot. `avatar` works as before.
+
 ## 0.76.2
 
 ### Patch Changes

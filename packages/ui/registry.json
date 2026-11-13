@@ -16337,7 +16337,7 @@
       "meta": {
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
         "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
-        "version": "0.75.0"
+        "version": "0.76.3"
       }
     },
     {
@@ -19529,7 +19529,7 @@
       "meta": {
         "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
         "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.76.1"
+        "version": "0.76.3"
       }
     },
     {
