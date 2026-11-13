@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.79.0 sha256-zqKDEqsb6HNqp/UPH65h0XoJ/Vx0SELJSeDYJSoqDLk=
+// @vegastack chat-message-parts@0.79.0 sha256-nP6XKopvGYLX88ygEsnQTb0ZmbwFlVSPvlS32vcLfg0=
 
 "use client";
 
@@ -232,12 +232,15 @@ function MessageParts({
   // The settled line fades in only when it replaces a live line, never on a history load.
   const [wasLive, setWasLive] = React.useState(showLive);
   if (showLive && !wasLive) setWasLive(true);
-  const showWork = showLive || workParts.length > 0;
+  // A turn that showed its live line keeps its line once settled, even with only Subagents.
+  const showWork = showLive || workParts.length > 0 || wasLive;
   const summary =
     turn.summary ??
     (turn.workedMs != null && !live
       ? `Worked for ${formatChatDuration(turn.workedMs)}`
-      : `${plural(workParts.length, "step")}${live ? " so far" : ""}`);
+      : workParts.length
+        ? `${plural(workParts.length, "step")}${live ? " so far" : ""}`
+        : `Ran ${plural(subagents.length, "Subagent")}`);
 
   const body: React.ReactNode[] = [];
   let subagentsPlaced = false;
@@ -362,7 +365,7 @@ function MessageParts({
             <WorkSummary
               summary={summary}
               open={open}
-              onToggle={toggle}
+              onToggle={workParts.length ? toggle : undefined}
               animate={wasLive}
             />
           )}

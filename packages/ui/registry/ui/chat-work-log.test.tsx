@@ -198,3 +198,13 @@ test("ChatClock counts working time on from the server's count, and holds while 
   expect(clocks[0]!.textContent).toBe("0:35");
   expect(clocks[1]!.textContent).toBe("0:30");
 });
+
+test("ChatClock without a server count holds its reading while paused", async () => {
+  const startedAt = new Date(Date.now() - 9_400).toISOString();
+  const screen = await render(<ChatClock startedAt={startedAt} />);
+  const clock = () =>
+    screen.container.querySelector('[data-slot="chat-clock"]')!.textContent;
+  expect(clock()).toBe("0:09");
+  await screen.rerender(<ChatClock startedAt={startedAt} running={false} />);
+  expect(clock()).toBe("0:09");
+});

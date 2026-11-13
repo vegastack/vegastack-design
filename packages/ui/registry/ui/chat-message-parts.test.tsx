@@ -251,3 +251,25 @@ test("a settled turn loaded from history doesn't animate its line", async () => 
     screen.container.querySelector('[data-slot="work-summary"]')!.className,
   ).not.toContain("animate-in");
 });
+
+test("a turn of only Subagents keeps its line when the answer starts", async () => {
+  const subagents = [subagent("s1", "running", "Hublit and Halonix")];
+  const screen = await render(
+    <MessageParts message={message(subagents)} live />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="live-line"]'),
+  ).not.toBeNull();
+  await screen.rerender(
+    <MessageParts
+      message={message([
+        ...subagents,
+        { type: "text", text: "Found them", state: "streaming" },
+      ])}
+      live
+    />,
+  );
+  const line = screen.container.querySelector('[data-slot="work-summary"]')!;
+  expect(line.textContent).toBe("Ran 1 Subagent");
+  expect(line.tagName).toBe("P");
+});

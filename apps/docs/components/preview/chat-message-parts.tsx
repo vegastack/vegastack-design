@@ -63,7 +63,7 @@ const WORK = [
     output: {},
     resultProviderMetadata: words(
       "Read",
-      "task #193 · Prospect research",
+      "task R-193 · Prospect research",
       undefined,
       900,
     ),

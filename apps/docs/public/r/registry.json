@@ -19993,7 +19993,7 @@
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
         "version": "0.79.0",
-        "integrity": "sha256-zqKDEqsb6HNqp/UPH65h0XoJ/Vx0SELJSeDYJSoqDLk="
+        "integrity": "sha256-nP6XKopvGYLX88ygEsnQTb0ZmbwFlVSPvlS32vcLfg0="
       }
     },
     {
@@ -20188,7 +20188,7 @@
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
         "version": "0.79.0",
-        "integrity": "sha256-6+la55wt0nch38GLTnpWjht2w6lDJW++mFcwZYYLlN0="
+        "integrity": "sha256-DYV8XiWG+eSt7mkug9gldMySo89i2sv4uFZzFTMGvrw="
       }
     },
     {

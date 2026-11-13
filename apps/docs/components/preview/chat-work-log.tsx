@@ -64,7 +64,7 @@ const PARTS = [
     state: "input-available" as const,
     input: { id: 193 },
     callProviderMetadata: {
-      vegastack: { verb: "Reading", subject: "task #193 · Prospect research" },
+      vegastack: { verb: "Reading", subject: "task R-193 · Prospect research" },
     },
   },
 ];
@@ -74,7 +74,7 @@ function Live() {
   return (
     <div className="flex w-full max-w-180 flex-col">
       <LiveLine
-        words="Reading task #193"
+        words="Reading task R-193"
         startedAt={ago(9_000)}
         open={open}
         onToggle={() => setOpen(!open)}

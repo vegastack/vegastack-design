@@ -26,7 +26,7 @@ const LONG = [
 const IMAGE =
   "data:image/svg+xml;utf8," +
   encodeURIComponent(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="112" height="112"><rect width="112" height="112" fill="#8a8f98"/><circle cx="40" cy="44" r="14" fill="#c9ccd1"/><path d="M0 112 L44 64 L72 92 L88 76 L112 100 L112 112Z" fill="#5d626b"/></svg>',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="112" height="112"><rect width="112" height="112" fill="slategray"/><circle cx="40" cy="44" r="14" fill="lightgray"/><path d="M0 112 L44 64 L72 92 L88 76 L112 100 L112 112Z" fill="dimgray"/></svg>',
   );
 
 export function chatUserBubble(): ReactNode {

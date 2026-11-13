@@ -1,4 +1,4 @@
-// @vegastack chat-work-log@0.79.0 sha256-6+la55wt0nch38GLTnpWjht2w6lDJW++mFcwZYYLlN0=
+// @vegastack chat-work-log@0.79.0 sha256-DYV8XiWG+eSt7mkug9gldMySo89i2sv4uFZzFTMGvrw=
 
 "use client";
 
@@ -212,11 +212,12 @@ function ChatClock({
   const counted = workedMs != null && countedAt != null;
   const ticking = running && (counted || startedAt != null);
   const now = useNow(ticking);
-  const reading = counted
-    ? workedMs + (running ? sinceMs(countedAt, now) : 0)
-    : ticking
-      ? sinceMs(startedAt, now)
-      : (ms ?? workedMs ?? 0);
+  // Without a server count, a paused wall clock holds its last reading rather than dropping to 0.
+  const held = React.useRef(0);
+  let reading: number;
+  if (counted) reading = workedMs + (running ? sinceMs(countedAt, now) : 0);
+  else if (ticking) reading = held.current = sinceMs(startedAt, now);
+  else reading = ms ?? workedMs ?? held.current;
   return (
     <span
       data-slot="chat-clock"
@@ -407,8 +408,8 @@ export interface WorkSummaryProps {
   summary: React.ReactNode;
   /** Whether the work log is open. */
   open: boolean;
-  /** Opens or closes the work log. */
-  onToggle: () => void;
+  /** Opens or closes the work log; without it the line is plain text (no log to open). @default undefined */
+  onToggle?: () => void;
   /** Fade in: only when it replaces a live line, never on a history load. @default false */
   animate?: boolean;
   /** Extra classes on the line. @default undefined */
@@ -429,6 +430,19 @@ function WorkSummary({
   animate = false,
   className,
 }: WorkSummaryProps) {
+  if (!onToggle)
+    return (
+      <p
+        data-slot="work-summary"
+        className={cn(
+          LINE,
+          animate && "animate-in duration-quick fade-in-0",
+          className,
+        )}
+      >
+        <span className="min-w-0 truncate">{summary}</span>
+      </p>
+    );
   return (
     <Button
       variant="ghost"
@@ -452,9 +466,9 @@ function WorkSummary({
 function WorkNote({ text, clamp }: { text: string; clamp: boolean }) {
   const [open, setOpen] = React.useState(false);
   const [overflows, setOverflows] = React.useState(false);
-  const textRef = React.useRef<HTMLSpanElement>(null);
+  // A callback ref: the measured span remounts when the note turns into a button and back.
+  const [node, setNode] = React.useState<HTMLSpanElement | null>(null);
   React.useLayoutEffect(() => {
-    const node = textRef.current;
     if (!clamp || !node) return;
     const measure = () => {
       // Measured while clamped; once opened the answer is already known.
@@ -465,10 +479,10 @@ function WorkNote({ text, clamp }: { text: string; clamp: boolean }) {
     const observer = new ResizeObserver(measure);
     observer.observe(node);
     return () => observer.disconnect();
-  }, [clamp, text]);
+  }, [clamp, text, node]);
   const body = (
     <span
-      ref={textRef}
+      ref={setNode}
       className={cn("min-w-0", clamp && !open && "line-clamp-2")}
     >
       {text}
