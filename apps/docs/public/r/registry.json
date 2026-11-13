@@ -20021,7 +20021,7 @@
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
         "version": "0.78.0",
-        "integrity": "sha256-/Yv1hJDbhhluIAcLYEQsDzwt1tzcxrh0lDA/MMh66iI="
+        "integrity": "sha256-kReoNmY93++X1HYB7o0L2J3XTYQ6wz1njIqTz5c6r3o="
       }
     },
     {

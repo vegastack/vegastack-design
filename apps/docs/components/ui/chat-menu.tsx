@@ -1,4 +1,4 @@
-// @vegastack chat-menu@0.78.0 sha256-/Yv1hJDbhhluIAcLYEQsDzwt1tzcxrh0lDA/MMh66iI=
+// @vegastack chat-menu@0.78.0 sha256-kReoNmY93++X1HYB7o0L2J3XTYQ6wz1njIqTz5c6r3o=
 
 "use client";
 
@@ -162,8 +162,8 @@ export interface ChatMenuItemProps {
 }
 
 /**
- * One row of a `ChatMenu`: the words, an optional hint, and a right slot holding the ✓ (primary)
- * and the number shortcut.
+ * One row of a `ChatMenu`: the words, an optional hint, and one right slot holding the ✓
+ * (primary) on the selected row or its number shortcut on the others.
  *
  * @example
  * <ChatMenuItem selected shortcut="1" onSelect={pickSonnet}>Sonnet 5.5</ChatMenuItem>
@@ -228,7 +228,8 @@ function ChatMenuItem({
               className="text-primary"
             />
           ) : null}
-          {shortcut ? (
+          {/* The ✓ takes the slot: a selected row shows no number (its key still works). */}
+          {shortcut && !selected ? (
             <span
               aria-hidden="true"
               className="w-3 text-center text-xs text-muted-foreground tabular-nums"

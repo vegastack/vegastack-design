@@ -67,6 +67,14 @@ test("a string trigger opens a menu of tight rows; the selected ✓ is primary",
   expect(check.getAttribute("class")).toContain("text-primary");
   expect(check.getAttribute("class")).not.toMatch(/success|green/);
   expect(selected.getAttribute("aria-keyshortcuts")).toBe("1");
+  // The ✓ takes the one right slot: no number beside it; the others show theirs.
+  expect(
+    selected.querySelector('[data-slot="chat-menu-item-end"]')!.textContent,
+  ).toBe("");
+  expect(
+    document.querySelectorAll('[data-slot="chat-menu-item-end"]')[1]!
+      .textContent,
+  ).toBe("2");
 });
 
 test("a number key picks its item and closes the menu", async () => {
