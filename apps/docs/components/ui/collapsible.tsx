@@ -1,4 +1,4 @@
-// @vegastack collapsible@0.29.1 sha256-lnPaI2r/j2z8qg8pGXJmXk070Fw51Shs5zGtjolcRnc=
+// @vegastack collapsible@0.29.1 sha256-bgocGkDQaCCCPhoFyApFcC3ps+RXdYlbqU5MuPyuE40=
 
 "use client";
 
@@ -17,17 +17,21 @@ function CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {
 
 function CollapsibleContent({
   className,
+  children,
   ...props
-}: CollapsiblePrimitive.Panel.Props) {
+}: Omit<CollapsiblePrimitive.Panel.Props, "className"> & {
+  className?: string;
+}) {
   return (
     <CollapsiblePrimitive.Panel
       data-slot="collapsible-content"
-      className={cn(
-        "h-(--collapsible-panel-height) overflow-hidden transition-[height,opacity] duration-state ease-enter data-ending-style:h-0 data-ending-style:opacity-0 data-ending-style:duration-state-exit data-ending-style:ease-exit data-starting-style:h-0 data-starting-style:opacity-0",
-        className,
-      )}
+      className="h-(--collapsible-panel-height) w-full min-w-0 overflow-hidden transition-[height,opacity] duration-state ease-enter data-ending-style:h-0 data-ending-style:opacity-0 data-ending-style:duration-state-exit data-ending-style:ease-exit data-starting-style:h-0 data-starting-style:opacity-0"
       {...props}
-    />
+    >
+      <div data-slot="collapsible-content-body" className={cn(className)}>
+        {children}
+      </div>
+    </CollapsiblePrimitive.Panel>
   );
 }
 

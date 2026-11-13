@@ -1466,7 +1466,7 @@
         "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
         "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
         "version": "0.29.1",
-        "integrity": "sha256-lnPaI2r/j2z8qg8pGXJmXk070Fw51Shs5zGtjolcRnc="
+        "integrity": "sha256-bgocGkDQaCCCPhoFyApFcC3ps+RXdYlbqU5MuPyuE40="
       }
     },
     {

@@ -5,15 +5,20 @@
 #     and opacity both ways on Base UI's `--collapsible-panel-height` and its starting/ending style
 #     attributes, the idiom upstream's own Accordion uses: `duration-state` + `ease-enter` in,
 #     `duration-state-exit` + `ease-exit` out, `overflow-hidden` so the content is clipped while it
-#     grows. Upstream's panel is unstyled, so every fold snapped. Reduced motion collapses both
-#     transitions through base.css (MOT-5), so nothing here restates it.
+#     grows. Upstream's panel is unstyled, so every fold snapped. The caller's `className` lands on
+#     an inner `collapsible-content-body` wrapper, the shape upstream's Accordion uses, so padding,
+#     gap and flex layout the caller adds sit INSIDE the animated box: a padded panel collapses to
+#     zero rather than to its padding, and a `hiddenUntilFound` panel leaves no blank band while
+#     closed; the panel itself takes `w-full min-w-0` (it fills its row even in an `items-start`
+#     column, and never forces it wider), since a caller's `w-full min-w-0` now sits one level in. Reduced motion collapses both transitions through base.css (MOT-5), so nothing here
+#     restates it.
 #   DOC-2: the `cn` import from `@vegastack/design`, needed now that the panel merges a className.
 #   DOC-1: prettier's reflow plus the provenance header the three-copy model needs.
 diff --git a/collapsible.tsx b/collapsible.tsx
-index 488fb33..3432232 100644
+index 488fb33..43fa7a3 100644
 --- a/collapsible.tsx
 +++ b/collapsible.tsx
-@@ -1,21 +1,32 @@
+@@ -1,21 +1,36 @@
 -"use client"
 +"use client";
  
@@ -36,19 +41,23 @@ index 488fb33..3432232 100644
 -function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
 +function CollapsibleContent({
 +  className,
++  children,
 +  ...props
-+}: CollapsiblePrimitive.Panel.Props) {
++}: Omit<CollapsiblePrimitive.Panel.Props, "className"> & {
++  className?: string;
++}) {
    return (
 -    <CollapsiblePrimitive.Panel data-slot="collapsible-content" {...props} />
 -  )
 +    <CollapsiblePrimitive.Panel
 +      data-slot="collapsible-content"
-+      className={cn(
-+        "h-(--collapsible-panel-height) overflow-hidden transition-[height,opacity] duration-state ease-enter data-ending-style:h-0 data-ending-style:opacity-0 data-ending-style:duration-state-exit data-ending-style:ease-exit data-starting-style:h-0 data-starting-style:opacity-0",
-+        className,
-+      )}
++      className="h-(--collapsible-panel-height) w-full min-w-0 overflow-hidden transition-[height,opacity] duration-state ease-enter data-ending-style:h-0 data-ending-style:opacity-0 data-ending-style:duration-state-exit data-ending-style:ease-exit data-starting-style:h-0 data-starting-style:opacity-0"
 +      {...props}
-+    />
++    >
++      <div data-slot="collapsible-content-body" className={cn(className)}>
++        {children}
++      </div>
++    </CollapsiblePrimitive.Panel>
 +  );
  }
  

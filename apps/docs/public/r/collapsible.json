@@ -11,7 +11,7 @@
   "files": [
     {
       "path": "packages/ui/registry/ui/collapsible.tsx",
-      "content": "// @vegastack collapsible@0.29.1 sha256-lnPaI2r/j2z8qg8pGXJmXk070Fw51Shs5zGtjolcRnc=\n\n\"use client\";\n\nimport { Collapsible as CollapsiblePrimitive } from \"@base-ui/react/collapsible\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {\n  return (\n    <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />\n  );\n}\n\nfunction CollapsibleContent({\n  className,\n  ...props\n}: CollapsiblePrimitive.Panel.Props) {\n  return (\n    <CollapsiblePrimitive.Panel\n      data-slot=\"collapsible-content\"\n      className={cn(\n        \"h-(--collapsible-panel-height) overflow-hidden transition-[height,opacity] duration-state ease-enter data-ending-style:h-0 data-ending-style:opacity-0 data-ending-style:duration-state-exit data-ending-style:ease-exit data-starting-style:h-0 data-starting-style:opacity-0\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
+      "content": "// @vegastack collapsible@0.29.1 sha256-bgocGkDQaCCCPhoFyApFcC3ps+RXdYlbqU5MuPyuE40=\n\n\"use client\";\n\nimport { Collapsible as CollapsiblePrimitive } from \"@base-ui/react/collapsible\";\nimport { cn } from \"@vegastack/design\";\n\nfunction Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {\n  return <CollapsiblePrimitive.Root data-slot=\"collapsible\" {...props} />;\n}\n\nfunction CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {\n  return (\n    <CollapsiblePrimitive.Trigger data-slot=\"collapsible-trigger\" {...props} />\n  );\n}\n\nfunction CollapsibleContent({\n  className,\n  children,\n  ...props\n}: Omit<CollapsiblePrimitive.Panel.Props, \"className\"> & {\n  className?: string;\n}) {\n  return (\n    <CollapsiblePrimitive.Panel\n      data-slot=\"collapsible-content\"\n      className=\"h-(--collapsible-panel-height) w-full min-w-0 overflow-hidden transition-[height,opacity] duration-state ease-enter data-ending-style:h-0 data-ending-style:opacity-0 data-ending-style:duration-state-exit data-ending-style:ease-exit data-starting-style:h-0 data-starting-style:opacity-0\"\n      {...props}\n    >\n      <div data-slot=\"collapsible-content-body\" className={cn(className)}>\n        {children}\n      </div>\n    </CollapsiblePrimitive.Panel>\n  );\n}\n\nexport { Collapsible, CollapsibleTrigger, CollapsibleContent };\n",
       "type": "registry:ui",
       "target": "@ui/collapsible.tsx"
     }
@@ -20,7 +20,7 @@
     "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
     "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
     "version": "0.29.1",
-    "integrity": "sha256-lnPaI2r/j2z8qg8pGXJmXk070Fw51Shs5zGtjolcRnc="
+    "integrity": "sha256-bgocGkDQaCCCPhoFyApFcC3ps+RXdYlbqU5MuPyuE40="
   },
   "categories": [
     "data-display"

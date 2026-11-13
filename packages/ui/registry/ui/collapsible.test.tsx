@@ -217,9 +217,15 @@ test("DOC-1: the root and trigger are pass-throughs; the panel adds only its mot
   expect(
     (slot("collapsible-trigger", styled.container) as HTMLElement).className,
   ).toBe("trigger-only");
+  // The caller's class lands on the inner body, inside the animated box, so padding collapses too.
   const panel = slot("collapsible-content", styled.container) as HTMLElement;
-  // The caller's class is merged last, after the motion classes.
-  expect(panel.className.endsWith(" panel-only")).toBe(true);
+  const body = slot(
+    "collapsible-content-body",
+    styled.container,
+  ) as HTMLElement;
+  expect(panel.className).not.toContain("panel-only");
+  expect(body.className).toBe("panel-only");
+  expect(body.parentElement).toBe(panel);
 });
 
 test("MOT-14: the panel animates its height and opacity both ways on the chat motion tokens", async () => {
@@ -227,6 +233,8 @@ test("MOT-14: the panel animates its height and opacity both ways on the chat mo
   const panel = slot("collapsible-content", screen.container) as HTMLElement;
   for (const cls of [
     "h-(--collapsible-panel-height)",
+    "w-full",
+    "min-w-0",
     "overflow-hidden",
     "transition-[height,opacity]",
     "duration-state",

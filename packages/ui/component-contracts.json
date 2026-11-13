@@ -6549,7 +6549,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["collapsible-content"]
+              "values": ["collapsible-content", "collapsible-content-body"]
             }
           ],
           "cssVariables": []
