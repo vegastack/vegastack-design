@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.60.0 sha256-rXeIBLTwdEBM7180l2y+OXlijvUpWucRJACDc09P0T8=
+// @vegastack upload-panel@0.60.0 sha256-mavpVdP3+YYYSuHQNV3KMfBzPAINR7bDXzcmaBBcAHw=
 
 "use client";
 
@@ -492,7 +492,7 @@ export function UploadItem({
           aria-hidden
           data-slot="upload-done-icon"
           className={cn(
-            "size-5 text-success-text",
+            "size-5 text-info-text",
             !mountedDone && "motion-pop-in",
           )}
         />
@@ -691,10 +691,7 @@ export function UploadGroup({
     state = (
       <CircleCheckIcon
         aria-hidden
-        className={cn(
-          "size-5 text-success-text",
-          !mountedDone && "motion-pop-in",
-        )}
+        className={cn("size-5 text-info-text", !mountedDone && "motion-pop-in")}
       />
     );
   else if (status === "failed")
@@ -1031,10 +1028,7 @@ export function UploadPanel({
 
   const glyph =
     summary.status === "done" ? (
-      <CircleCheckIcon
-        aria-hidden
-        className="size-5 shrink-0 text-success-text"
-      />
+      <CircleCheckIcon aria-hidden className="size-5 shrink-0 text-info-text" />
     ) : summary.status === "failed" ? (
       <CircleAlertIcon
         aria-hidden

@@ -50,6 +50,35 @@ A rest fill never carries state, and an inner tile never swaps its fill when its
 Solid fills keep stepping their own colour (`hover:bg-primary/80 active:bg-primary/70`,
 `bg-destructive/10 hover:bg-destructive/20`).
 
+## Status in agent UI
+
+Agent UI speaks one quiet status language (COL-25; the operator: "stop using green checks
+everywhere … use primary checkmarks only"). [`StatusGlyph`](/docs/components/status-glyph) draws it.
+
+| State                                                   | Glyph             | Ink                                 |
+| ------------------------------------------------------- | ----------------- | ----------------------------------- |
+| done, selected, approved, allowed, remembered, uploaded | ✓ `Check`         | `text-info-text` — the blue accent  |
+| running (drawn still)                                   | ◐ `Contrast`      | `text-info-text`                    |
+| not started                                             | ◌ `CircleDashed`  | `text-muted-foreground`             |
+| skipped                                                 | ⊘ `CircleSlash`   | `text-muted-foreground`             |
+| failed — always with words                              | ✗ `X`             | `text-muted-foreground`             |
+| needs you, partial, a cost warning                      | ⚠ `TriangleAlert` | `text-warning-text`, the glyph only |
+
+`success`, `warning` and `destructive` are never a fill in agent UI and never the ink of a check;
+red text stays for destructive buttons and form errors. `design-lint` enforces it in the registry
+(`no-success-check`, `no-status-fill`) and `vegastack-design doctor` in an app's own code (`check
+colour`, a failure).
+
+### The chat surface
+
+A card in a chat is only for something a person acts on or opens — a waiting request, question or
+plan, the task list, a file preview — and it is one surface, the same in both themes:
+`--chat-card` is the foreground at 3% over the page, `--chat-hairline` the foreground at 10%, with
+`rounded-chat-card` (12px), 16px padding (12px under 640px) and no shadow. Because both are a
+translucent layer of the foreground, a card sits exactly one faint step off the page in light and
+in dark — where the page's own `--card` is white on white in light and a lift in dark. See
+[`ChatCard`](/docs/components/chat-card).
+
 ## The hairline
 
 `--border` is a real token, not a derived alpha: `oklch(0.922 0 0)` in light, and white at 10% in

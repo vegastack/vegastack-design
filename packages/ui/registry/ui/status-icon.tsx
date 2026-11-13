@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.60.0 sha256-sbDR+4MLqL96DPwPx8e8pNIeyu5bTLPYxgJ5s4iZBPA=
+// @vegastack status-icon@0.60.0 sha256-cQ/yVPqiALqcj+DyB6xBOFkYPUNJ++2sgy83J9sShAM=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -13,7 +13,7 @@ import { cn } from "@vegastack/design";
  * through `currentColor`, so every status maps to one of the system's standard semantic text tokens
  * (operator, 09-10-2026 — Linear's shapes, not its palette): `backlog`, `canceled` and `duplicate` →
  * `text-muted-foreground`, `todo` → `text-foreground`, `progress` → `text-warning-text`, `review` →
- * `text-info-text`, `done` → `text-success-text`, `triage` → `text-tag-orange-text`. The marks
+ * `text-info-text`, `done` → `text-info-text` (COL-25: a check is the blue accent, never green), `triage` → `text-tag-orange-text`. The marks
  * drawn on a filled disc (`done`'s check, `canceled`'s cross, `triage`'s arrow) take `stroke-background`.
  *
  * `blocked` and `cancelled` are deprecated aliases kept so the change ships without a break:
@@ -26,7 +26,7 @@ export const statusIconVariants = cva("inline-block shrink-0", {
       todo: "text-foreground",
       progress: "text-warning-text",
       review: "text-info-text",
-      done: "text-success-text",
+      done: "text-info-text",
       canceled: "text-muted-foreground",
       duplicate: "text-muted-foreground",
       triage: "text-tag-orange-text",
@@ -144,7 +144,7 @@ export interface StatusIconProps
    * - `todo` → empty ring, `text-foreground`
    * - `progress` → ring with a half-filled pie, `text-warning-text`
    * - `review` → ring with a three-quarter pie, `text-info-text`
-   * - `done` → filled disc with a check, `text-success-text`
+   * - `done` → filled disc with a check, `text-info-text`
    * - `canceled` → filled disc with a cross, `text-muted-foreground`
    * - `duplicate` → ring with two diagonal strokes, `text-muted-foreground`
    * - `triage` → filled disc with a left-right arrow, `text-tag-orange-text`

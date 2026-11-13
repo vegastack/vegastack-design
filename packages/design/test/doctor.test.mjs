@@ -440,6 +440,41 @@ test("`!` on the project's own components and plain elements, and JS `!`, are no
   assert.deepEqual(compositionOf(root).important, []);
 });
 
+test("COL-25: a lucide check in a success or green ink is reported, inline or paired in a map", () => {
+  const root = project({
+    ...UI,
+    "src/result.tsx": [
+      `import { Check, CircleCheck as Done, BookmarkCheckIcon } from "lucide-react";`,
+      `<Check className="size-4 text-success-text" />`,
+      `<Done className={cn("size-4", ok && "text-green-600")} />`,
+      `<BookmarkCheckIcon className="text-info-text" />`,
+      `<Check className="text-emerald-500" />`,
+    ].join("\n"),
+    "src/status.ts": [
+      `import { CheckCircle2, Clock } from "lucide-react";`,
+      `export const STATUS = {`,
+      `  active: { icon: CheckCircle2, tone: "text-success-text" },`,
+      `  queued: { icon: Clock, tone: "text-muted-foreground" },`,
+      `};`,
+    ].join("\n"),
+    // Green that is not on a check, and a check whose word only mentions success, pass.
+    "src/fine.tsx": [
+      `import { Check, Circle } from "lucide-react";`,
+      `<Circle className="text-success-text" />`,
+      `<Check className="text-info-text" aria-label="success" />`,
+    ].join("\n"),
+  });
+  assert.deepEqual(lines(compositionOf(root).greenChecks), [
+    "src/result.tsx:2 <Check> text-success-text",
+    "src/result.tsx:3 <Done> text-green-600",
+    "src/result.tsx:5 <Check> text-emerald-500",
+    `src/status.ts:3 "text-success-text"`,
+  ]);
+  const verdict = run(["--dir", root]);
+  assert.equal(verdict.code, 1, verdict.output);
+  assert.match(verdict.output, /✗ check colour — 4 check icon/);
+});
+
 test("a width class on a popover, menu or select popup is reported; other parts are not", () => {
   const root = project({
     ...UI,

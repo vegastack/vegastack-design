@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.61.0 sha256-rL8XGymyun2eYMQ7sKKVMDY33gF7SmrPiNhosiXmAcA=
+// @vegastack markdown-view@0.61.0 sha256-TTMUwhTQKX2WjuOPuZSuuMyUWDGXYcwTyehb6MFsczI=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -186,7 +186,7 @@ function decode(text: string): string {
  * ----------------------------------------------------------------------------------------------*/
 
 /**
- * A callout is an `Alert`: the tone picks the alert variant (note → info, tip → success,
+ * A callout is an `Alert`: the tone picks the alert variant (note → info, tip → default,
  * important → default, warning → warning, caution → destructive), the icon and the label.
  */
 export const CALLOUT_STYLE: Record<
@@ -208,12 +208,13 @@ export const CALLOUT_STYLE: Record<
     iconClassName: "text-info-text",
     washClassName: "hover:bg-info/10 aria-expanded:bg-info/10",
   },
+  // COL-25: a tip is advice, not a pass — no green; it reads like Important, with its own icon.
   tip: {
-    variant: "success",
+    variant: "default",
     icon: Lightbulb,
     label: "Tip",
-    iconClassName: "text-success-text",
-    washClassName: "hover:bg-success/10 aria-expanded:bg-success/10",
+    iconClassName: "text-foreground",
+    washClassName: "state-layer aria-expanded:bg-state-selected",
   },
   important: {
     variant: "default",

@@ -1,4 +1,4 @@
-// @vegastack plan-card@0.76.3 sha256-UJbp6IUiSLcDs3RVBKMn01050aSKDgMTMzlE+bEzYsk=
+// @vegastack plan-card@0.76.3 sha256-pvNtZV3PJqzNQVuzANyy4gCyEECtj5mpAiIHaxEiWhQ=
 
 "use client";
 
@@ -12,6 +12,7 @@ import {
   MessageSquare,
   PencilLine,
   Replace,
+  TriangleAlert,
 } from "lucide-react";
 import { cn } from "@vegastack/design";
 
@@ -208,16 +209,11 @@ const LABELS: PlanCardLabels = {
 
 const ICON = "size-4 shrink-0";
 
-const RISK_DOT: Record<PlanRisk, string> = {
-  low: "bg-success",
-  medium: "bg-warning",
-  high: "bg-destructive",
-};
-
+// COL-25: risk is words, with the ⚠ glyph in the warning ink from medium up — never a coloured dot.
 const RISK_TEXT: Record<PlanRisk, string> = {
-  low: "text-success-text",
-  medium: "text-warning-text",
-  high: "text-destructive-text",
+  low: "text-foreground",
+  medium: "text-foreground",
+  high: "font-medium text-foreground",
 };
 
 /** How many steps show before "+ N more steps". */
@@ -277,12 +273,16 @@ function settledLine(
     case "accepted":
       return {
         text: words.accepted(by, live),
-        icon: <CircleCheck aria-hidden className={cn(ICON, "text-success")} />,
+        icon: (
+          <CircleCheck aria-hidden className={cn(ICON, "text-info-text")} />
+        ),
       };
     case "accepted_allowed":
       return {
         text: words.acceptedAllowed(by, live),
-        icon: <CircleCheck aria-hidden className={cn(ICON, "text-success")} />,
+        icon: (
+          <CircleCheck aria-hidden className={cn(ICON, "text-info-text")} />
+        ),
       };
     case "changes_requested":
       return {
@@ -646,10 +646,13 @@ export function PlanCard({
         className="flex min-w-0 flex-wrap items-center gap-x-1.5"
       >
         <span className="text-muted-foreground">{words.risk}</span>
-        <span
-          aria-hidden
-          className={cn("size-2 rounded-full", RISK_DOT[plan.risk])}
-        />
+        {plan.risk === "low" ? null : (
+          <TriangleAlert
+            aria-hidden
+            data-icon-tone=""
+            className="size-3.5 shrink-0 text-warning-text"
+          />
+        )}
         <span className={RISK_TEXT[plan.risk]}>{words.risks[plan.risk]}</span>
         {plan.riskReason ? (
           <span className="min-w-0 text-muted-foreground wrap-anywhere">

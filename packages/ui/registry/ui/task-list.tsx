@@ -1,4 +1,4 @@
-// @vegastack task-list@0.73.0 sha256-bEe6pUjLzMCxkIXYmtMZgmxFaKXvQGRaH72Ihzsc7Vw=
+// @vegastack task-list@0.73.0 sha256-9CAVXijbgoB3JaA8zX4dOxOfYD9jrZWyFZcnOp9WDsc=
 
 "use client";
 
@@ -266,7 +266,7 @@ function RowIcon({ tone, ticked }: { tone: RowTone; ticked: boolean }) {
       return (
         <CircleCheck
           aria-hidden
-          className={cn("text-success-text", ticked && "motion-pop-in")}
+          className={cn("text-info-text", ticked && "motion-pop-in")}
         />
       );
     case "skipped":
@@ -505,11 +505,7 @@ export function TaskList({
   let headerCount: string | null = labels.count(doneCount, total);
   if (state === "done") {
     headerIcon = (
-      <CircleCheck
-        aria-hidden
-        data-icon-tone=""
-        className="text-success-text"
-      />
+      <CircleCheck aria-hidden data-icon-tone="" className="text-info-text" />
     );
     headerText = labels.done(total);
     headerCount = null;
@@ -595,13 +591,7 @@ export function TaskList({
         >
           {headerIcon}
         </span>
-        <span
-          data-slot="task-list-summary"
-          className={cn(
-            "min-w-0 truncate",
-            state === "stopped" && "text-warning-text",
-          )}
-        >
+        <span data-slot="task-list-summary" className={cn("min-w-0 truncate")}>
           {headerText}
           {state === "stopped" && reason != null ? <> · {reason}</> : null}
         </span>
@@ -635,7 +625,7 @@ export function TaskList({
                 <CircleCheck
                   aria-hidden
                   data-icon-tone=""
-                  className="text-success-text"
+                  className="text-info-text"
                 />
               }
             >
@@ -771,13 +761,16 @@ function TaskListRow({
             tone === "pending" && "text-muted-foreground",
             tone === "completed" && "text-muted-foreground",
             tone === "skipped" && "text-muted-foreground line-through",
-            tone === "unfinished" && "text-warning-text",
+            tone === "unfinished" && "text-foreground",
             tone === "waiting" && "text-foreground",
           )}
         >
           {item.text}
           {tone === "unfinished" ? (
-            <span className="text-warning-text"> · {labels.didntFinish}</span>
+            <span className="text-muted-foreground">
+              {" "}
+              · {labels.didntFinish}
+            </span>
           ) : null}
           {stoppedPending ? (
             <span className="text-muted-foreground"> · {labels.notDone}</span>
@@ -809,7 +802,7 @@ function TaskListRow({
             data-slot="task-list-item-waiting"
             className="inline-flex items-center gap-2"
           >
-            <Badge variant="warning">{labels.waiting}</Badge>
+            <Badge variant="outline">{labels.waiting}</Badge>
             {item.waitingAction}
           </span>
         ) : null}
@@ -904,7 +897,7 @@ export function TaskListProgress({
       >
         <span
           data-slot="task-list-progress-track"
-          className="block h-full bg-primary transition-[width] duration-200"
+          className="block h-full bg-primary transition-[width] duration-state ease-enter"
           style={{ width: `${share}%` }}
         />
       </span>

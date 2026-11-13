@@ -14,9 +14,36 @@ not an optional one.
 
 - **Duration** — `--duration-fast` (150ms), `--duration-base` (200ms), `--duration-slow` (300ms)
 - **Easing** — `--ease-standard`, `--ease-emphasized`, `--ease-exit`, `--ease-spring` (a `linear()`
-  spring with a tiny ~1.05 overshoot — the arrival/success curve) — bridged from `--motion-ease-*`
+  spring with a tiny ~1.05 overshoot — the arrival/success curve), `--ease-enter` — bridged from
+  `--motion-ease-*`
 
 <MotionSpecimen />
+
+## Chat motion
+
+Agent UI moves on one set (MOT-14), and no chat component sets its own duration — `design-lint`'s
+`chat-motion-tokens` rule rejects a numeric or arbitrary duration or ease there.
+
+| Token                                      | Value         | Easing                     | Used for                                                                                   |
+| ------------------------------------------ | ------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
+| `duration-instant`                         | 100ms         | `ease-standard`            | hover and press fills, icon colour, a toggle's knob                                        |
+| `duration-quick` / `duration-quick-exit`   | 160ms / 120ms | `ease-enter` / `ease-exit` | menus, popovers, tooltips (opacity, scale .98→1, 4px from the trigger); a check appearing  |
+| `duration-state` / `duration-state-exit`   | 220ms / 160ms | `ease-enter` / `ease-exit` | a fold opening and closing, its chevron, Send↔Stop, a card settling to its line, Show more |
+| `duration-layout`                          | 280ms         | `ease-enter`               | a new message or card arriving (opacity + 6px rise), a side sheet sliding in               |
+| `--duration-stream-word`                   | 180ms         | `ease-enter`               | a streamed word fading in, prose only (never code, tables or maths)                        |
+| `--duration-loader-frame` / `-loader-dots` | 80ms / 300ms  | steps                      | one frame of the braille or dots [`TextSpinner`](/docs/components/text-spinner)            |
+
+`--motion-ease-enter` is `cubic-bezier(0.16, 1, 0.3, 1)`: a fast start that settles softly. Every
+exit uses `ease-exit`, and an exit is never slower than its enter. The stream and loader cadences
+are animation lengths, read as `var(--duration-*)`; the others are also `duration-*` utilities.
+
+- **No layout shift.** Glyphs are fixed width and figures tabular; the done line replaces the live
+  line in the same 28px.
+- **Completion is a state change**, not a celebration: no bounce, no confetti.
+- **Nothing animates on history load** — only what arrives while you watch.
+- **One moving thing per turn**: the live line's braille spinner. A running row is a still ◐.
+- `CollapsibleContent` animates its height both ways on `duration-state` / `duration-state-exit`,
+  so every fold built on it — `ChatGroup` among them — opens and closes smoothly.
 
 ## Motion at a glance
 
@@ -59,8 +86,9 @@ on every new error.
 
 ## Sanctioned utilities
 
-`motion-pop-in`, `motion-enter-up`, `motion-shake`, `motion-flash` and `motion-indeterminate` (from
-`@vegastack/design-tokens/utilities.css`) are our mount-animation classes, and `motion-dock-in` /
+`motion-pop-in`, `motion-enter-up`, `motion-shake`, `motion-flash`, `motion-indeterminate` and
+`motion-frames` (the `TextSpinner`'s frame strip, the second sanctioned loop) — from
+`@vegastack/design-tokens/utilities.css` — are our mount-animation classes, and `motion-dock-in` /
 `motion-dock-out` — from the same file — are our one _transition_ pair, for a docked control that
 stays mounted and flips `data-active`.
 
@@ -96,6 +124,13 @@ The raw duration tokens live under `--duration-*`, but the `@theme inline` block
   --transition-duration-fast: var(--duration-fast);
   --transition-duration-base: var(--duration-base);
   --transition-duration-slow: var(--duration-slow);
+  /* MOT-14 — the chat set */
+  --transition-duration-instant: var(--duration-instant);
+  --transition-duration-quick: var(--duration-quick);
+  --transition-duration-quick-exit: var(--duration-quick-exit);
+  --transition-duration-state: var(--duration-state);
+  --transition-duration-state-exit: var(--duration-state-exit);
+  --transition-duration-layout: var(--duration-layout);
 }
 ```
 
@@ -110,5 +145,6 @@ both compile to the same `150ms`:
 
 `prefers-reduced-motion: reduce` is enforced globally in `@vegastack/design-tokens/base.css`: every
 `animation-duration` / `transition-duration` collapses to `0.01ms` with a single iteration, so no
-component opts out by accident. The specimen above also carries `motion-reduce:animate-none`
+component opts out by accident. The chat set's tokens also read `0ms` there, so a component that
+computes a delay or a cadence from them sees no motion; `TextSpinner` shows a still `…`. The specimen above also carries `motion-reduce:animate-none`
 defensively.

@@ -100,6 +100,22 @@ scale. A card that holds a section wears its padding through `--card-spacing`, n
 `p-*`, so a `size="sm"` card tightens every part at once. `FieldGroup` and `Field` already space
 fields and their parts; an override on one form is the drift this recipe exists to prevent.
 
+## Chat density
+
+A chat sits on the 4px grid with no tokens of its own:
+
+| Between                                             | Space                   | Utility          |
+| --------------------------------------------------- | ----------------------- | ---------------- |
+| rows inside a group (work rows, task rows, legends) | 4px                     | `gap-1`          |
+| the author line and the first part                  | 8px                     | `gap-2`          |
+| parts inside a turn (work line, text, card, files)  | 12px                    | `gap-3`          |
+| turns                                               | 32px                    | `gap-8`          |
+| inside a card                                       | 16px · 12px under 640px | `p-4 max-sm:p-3` |
+
+The reading column is at most 720px with 16px gutters, on a page, in a side panel or on a tablet.
+Rows are drawn 28–32px tall (`min-h-7`). Type stays on the stock ramp: body `text-sm`, meta and
+captions `text-xs`, titles `text-sm font-semibold`.
+
 ## Related
 
 - [Radius](/docs/foundations/radius) — the corner-rounding ramp, derived from one `--radius`, that

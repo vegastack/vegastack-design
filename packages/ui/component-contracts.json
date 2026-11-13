@@ -33221,6 +33221,10 @@
               "values": []
             },
             {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
               "name": "data-risk",
               "values": []
             },

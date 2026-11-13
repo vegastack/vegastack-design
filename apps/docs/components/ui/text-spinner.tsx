@@ -1,4 +1,4 @@
-// @vegastack text-spinner@0.76.3 sha256-DbOWaRKin8PTwYzk1oJF7NISpVlpzobzZziHErlDSkY=
+// @vegastack text-spinner@0.76.3 sha256-C/D2YmnrwcUGe6ojFgezMUl8Wy1L5dgYV0RShF+gJCA=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -54,7 +54,7 @@ function TextSpinner({
       data-slot="text-spinner"
       data-variant={variant}
       className={cn(
-        "inline-flex h-lh shrink-0 overflow-y-clip align-bottom font-mono text-muted-foreground tabular-nums select-none",
+        "inline-flex h-lh shrink-0 items-start overflow-y-clip align-bottom font-mono text-muted-foreground tabular-nums select-none",
         className,
       )}
       {...props}
@@ -63,14 +63,14 @@ function TextSpinner({
         aria-hidden="true"
         data-slot="text-spinner-frames"
         className={cn(
-          "flex flex-col motion-frames motion-reduce:hidden",
+          "flex shrink-0 flex-col motion-frames motion-reduce:hidden",
           variant === "dots"
             ? "[--vs-frame-count:3] [--vs-frame-duration:var(--duration-loader-dots)]"
             : "[--vs-frame-count:10]",
         )}
       >
         {frames.map((frame) => (
-          <span key={frame} className="h-lh whitespace-pre">
+          <span key={frame} className="h-lh shrink-0 whitespace-pre">
             {frame}
           </span>
         ))}

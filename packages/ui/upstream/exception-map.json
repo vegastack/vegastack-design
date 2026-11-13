@@ -302,6 +302,7 @@
     "OVL-24": ["kbd", "tooltip"],
     "OVL-25": ["alert-dialog", "dialog", "drawer", "sheet"],
     "MOT-14": ["collapsible"],
+    "COL-25": ["toast"],
     "LAY-20": ["item"],
     "FOC-15": ["questionnaire"]
   },

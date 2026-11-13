@@ -54,3 +54,22 @@ test("no a11y violations — static, button and link", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("native props reach every host: an aria-label overrides the name on a button and a link", async () => {
+  const screen = await render(
+    <>
+      <ChatChip
+        label="7"
+        aria-label="7 background commands"
+        onClick={() => {}}
+      />
+      <ChatChip label="1" aria-label="1 failed command" href="#work" />
+    </>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "7 background commands" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("link", { name: "1 failed command" }))
+    .toBeInTheDocument();
+});

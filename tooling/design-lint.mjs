@@ -19,8 +19,8 @@
 // upstream ships both in its own source. What is still banned inside them is a hex colour, a raw
 // palette step, or an arbitrary FONT SIZE. Each rule is observed failing by
 // `tooling/verify-design-lint-structural.mjs`.
-import { readFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, readFileSync } from "node:fs";
+import { join, resolve } from "node:path";
 import ts from "typescript";
 
 import { ROOT as REPO_ROOT, walk as walkTree } from "./lib/fs.mjs";
@@ -593,6 +593,20 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
 ]);
 
 const RAW_INTERACTIVE_TAGS = new Set(["button", "input", "select", "textarea"]);
+
+// COL-25 / MOT-14 (operator, 2026-11-13). The agent component set: the chat, its cards and the
+// agent panels. `no-status-fill` and `chat-motion-tokens` read only these files; `no-success-check`
+// reads all registry source.
+const AGENT_UI_FILE =
+  /^(?:message-[\w-]+|task-list|plan-card|request-card|approval-card|memory-[\w-]+|agent-[\w-]+|chat-[\w-]+|activity-feed|status-icon|status-glyph|text-spinner|upload-panel|context-ring|run-usage|tool-call-chip|cited-list|file-card)\.tsx$/;
+const CHECK_ICON =
+  /^(?:Check|CheckCheck|CircleCheck|CircleCheckBig|CheckCircle2?|BookmarkCheck|SquareCheck|SquareCheckBig|ListChecks|CopyCheck|BadgeCheck)(?:Icon)?$/;
+const GREEN_INK = /success|green|emerald/;
+const STATUS_FILL =
+  /(?:^|\s)(?:[\w-]+:)*bg-(?:success|warning|destructive)(?:\/\d+)?(?=$|[\s"'`])/;
+const RAW_CHAT_MOTION =
+  /(?:^|\s)(?:[\w-]+:)*(?:duration-(?:\d+|\[[^\]\s]*\])|ease-(?:\[[^\]\s]*\]|linear|in-out|in|out))(?=$|[\s"'`])/;
+const VENDOR_UI = "vendor/shadcn/4.21.0/ui";
 
 // §7.6 Base UI render contract — a wrapper over a SINGLE Base UI root MUST keep Base UI's
 // polymorphic `render` prop in its public API.
@@ -1501,6 +1515,164 @@ for (const root of tokenCssRoots) {
             );
             violations++;
           }
+        }
+      }
+
+      // ── COL-25 / MOT-14 — status and motion in agent UI (operator, 2026-11-13) ─────────────────
+      //
+      // "stop using green checks everywhere its ai slop. use primary checkmarks only" — every check
+      // is the blue accent (`StatusGlyph`, `text-info-text`), status hues are a glyph and never a
+      // fill in agent UI, and agent components take their motion from the chat set. Three rules:
+      //
+      //   no-success-check  — anywhere in registry source: a lucide check icon (Check, CircleCheck,
+      //                       BookmarkCheck, ListChecks …) whose className — a literal, `cn()`
+      //                       arguments, or a module-level map or cva it reads — names success,
+      //                       green or emerald; also an object literal pairing a check icon with
+      //                       such a class (`{ Icon: BookmarkCheck, className: "text-success-text" }`).
+      //   no-status-fill    — in the agent component set: `bg-success|warning|destructive`
+      //                       (and `/NN`) — a status colour as a fill.
+      //   chat-motion-tokens — in the agent components that are ours: an arbitrary or numeric
+      //                       duration and an arbitrary or stock ease; use `duration-quick|state|…`
+      //                       and `ease-enter|exit|standard`.
+      if (canonicalRegistryFile) {
+        const base = file.split("/").pop() ?? "";
+        const agentFile = AGENT_UI_FILE.test(base);
+        const upstreamBacked = existsSync(join(REPO_ROOT, VENDOR_UI, base));
+        const checkLocals = new Set();
+        for (const statement of sf.statements) {
+          if (!ts.isImportDeclaration(statement)) continue;
+          if (statement.moduleSpecifier.text !== "lucide-react") continue;
+          const bindings = statement.importClause?.namedBindings;
+          if (!bindings || !ts.isNamedImports(bindings)) continue;
+          for (const element of bindings.elements) {
+            const imported = element.propertyName?.text ?? element.name.text;
+            if (CHECK_ICON.test(imported)) checkLocals.add(element.name.text);
+          }
+        }
+        // Every `const x = …` in the file, module-level maps and a component's local class
+        // string alike (`const cls = cn("size-4", TONE_TEXT[tone])`), so a className that reads
+        // one is followed to the strings it can produce.
+        const topLevel = new Map();
+        const collectDeclarations = (node) => {
+          if (
+            ts.isVariableDeclaration(node) &&
+            ts.isIdentifier(node.name) &&
+            node.initializer
+          )
+            topLevel.set(node.name.text, node.initializer);
+          ts.forEachChild(node, collectDeclarations);
+        };
+        collectDeclarations(sf);
+        const stringsIn = (node, seen = new Set()) => {
+          const out = [];
+          const visit = (n) => {
+            if (ts.isStringLiteralLike(n)) out.push(n.text);
+            else if (ts.isTemplateExpression(n)) {
+              out.push(n.head.text);
+              for (const span of n.templateSpans) {
+                out.push(span.literal.text);
+                visit(span.expression);
+              }
+              return;
+            } else if (
+              ts.isIdentifier(n) &&
+              topLevel.has(n.text) &&
+              !seen.has(n.text)
+            ) {
+              seen.add(n.text);
+              visit(topLevel.get(n.text));
+              return;
+            }
+            ts.forEachChild(n, visit);
+          };
+          visit(node);
+          return out;
+        };
+        const lineOf = (node) =>
+          sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
+        const visitChecks = (node) => {
+          if (
+            (ts.isJsxOpeningElement(node) ||
+              ts.isJsxSelfClosingElement(node)) &&
+            ts.isIdentifier(node.tagName) &&
+            checkLocals.has(node.tagName.text)
+          ) {
+            for (const attribute of node.attributes.properties) {
+              if (
+                !ts.isJsxAttribute(attribute) ||
+                attribute.name.getText(sf) !== "className" ||
+                !attribute.initializer
+              )
+                continue;
+              if (
+                stringsIn(attribute.initializer).some((text) =>
+                  GREEN_INK.test(text),
+                )
+              ) {
+                console.log(
+                  `${file}:${lineOf(node)} [no-success-check] a check in success/green ink (COL-25): every check is the blue accent — \`text-info-text\` or StatusGlyph — never green`,
+                );
+                violations++;
+              }
+            }
+          }
+          if (ts.isObjectLiteralExpression(node)) {
+            const pairsCheck = node.properties.some(
+              (property) =>
+                ts.isPropertyAssignment(property) &&
+                ts.isIdentifier(property.initializer) &&
+                checkLocals.has(property.initializer.text),
+            );
+            if (
+              pairsCheck &&
+              node.properties.some(
+                (property) =>
+                  ts.isPropertyAssignment(property) &&
+                  stringsIn(property.initializer).some((text) =>
+                    GREEN_INK.test(text),
+                  ),
+              )
+            ) {
+              console.log(
+                `${file}:${lineOf(node)} [no-success-check] a check icon paired with a success/green class (COL-25): every check is the blue accent — \`text-info-text\` or StatusGlyph — never green`,
+              );
+              violations++;
+            }
+          }
+          ts.forEachChild(node, visitChecks);
+        };
+        visitChecks(sf);
+        if (agentFile) {
+          const visitLiterals = (node) => {
+            const texts = ts.isStringLiteralLike(node)
+              ? [node.text]
+              : ts.isTemplateExpression(node)
+                ? [
+                    node.head.text,
+                    ...node.templateSpans.map((span) => span.literal.text),
+                  ]
+                : [];
+            for (const text of texts) {
+              const fill = text.match(STATUS_FILL);
+              if (fill) {
+                console.log(
+                  `${file}:${lineOf(node)} [no-status-fill] "${fill[0].trim()}" paints a status colour as a fill in agent UI (COL-25): a status hue is a glyph or words, never a fill — use \`bg-chat-card\`, \`bg-muted\` or no fill`,
+                );
+                violations++;
+              }
+              const motion = upstreamBacked
+                ? null
+                : text.match(RAW_CHAT_MOTION);
+              if (motion) {
+                console.log(
+                  `${file}:${lineOf(node)} [chat-motion-tokens] "${motion[0].trim()}" sets its own motion in agent UI (MOT-14): use the chat set — \`duration-instant|quick|quick-exit|state|state-exit|layout\` with \`ease-enter|exit|standard\``,
+                );
+                violations++;
+              }
+            }
+            ts.forEachChild(node, visitLiterals);
+          };
+          visitLiterals(sf);
         }
       }
 

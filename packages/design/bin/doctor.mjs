@@ -1189,6 +1189,27 @@ function lineIndex(text) {
 }
 
 /**
+ * COL-25 (operator, 2026-11-13): every check is the blue accent and never green. The lucide check
+ * icons, by the name they are imported under, and the inks that make one green.
+ */
+const CHECK_ICON =
+  /^(?:Check|CheckCheck|CircleCheck|CircleCheckBig|CheckCircle2?|BookmarkCheck|SquareCheck|SquareCheckBig|ListChecks|CopyCheck|BadgeCheck)(?:Icon)?$/;
+const GREEN_INK = /success|green|emerald/;
+
+/** The local names a file imports lucide's check icons under. */
+export function checkIconLocals(src) {
+  const names = new Set();
+  for (const m of src.matchAll(
+    /\bimport\s+(?:type\s+)?\{([^}]*)\}\s*from\s*["']lucide-react["']/g,
+  ))
+    for (const part of m[1].split(",")) {
+      const p = /^\s*(?:type\s+)?([\w$]+)(?:\s+as\s+([\w$]+))?\s*$/.exec(part);
+      if (p && CHECK_ICON.test(p[1])) names.add(p[2] ?? p[1]);
+    }
+  return names;
+}
+
+/**
  * The four composition rules over the project's own source (the ui alias dirs, node_modules and
  * build output skipped): `!` on a DS part, a width class on a popover or menu popup, a hand-written
  * `<header>` inside an overlay panel, and an `AppShellPage size` that disagrees with the route map.
@@ -1236,6 +1257,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
   const important = [];
   const widths = [];
   const headers = [];
+  const greenChecks = [];
   const pages = [];
   const map = new Map();
   const conflicts = [];
@@ -1267,6 +1289,26 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
             hint: `${known.file}:${known.line} already says "${known.width}"`,
           });
       }
+    const checks = checkIconLocals(src);
+    if (checks.size > 0) {
+      // A check icon paired with a green class in one object — `{ icon: CircleCheck, tone:
+      // "text-success-text" }` — the map a status table renders from.
+      const names = [...checks].join("|");
+      for (const m of src.matchAll(
+        new RegExp(`\\{[^{}]*\\b(?:${names})\\b[^{}]*\\}`, "g"),
+      )) {
+        const green = /["'`][^"'`]*(?:success|green|emerald)[^"'`]*["'`]/.exec(
+          m[0],
+        );
+        if (green)
+          greenChecks.push({
+            file,
+            line: lineAt(m.index + green.index),
+            match: green[0],
+            hint: "a check icon paired with a green class",
+          });
+      }
+    }
     if (!/\.[jt]sx$/.test(full) || !read.includes("<")) continue;
 
     const imports = uiImports(src, full, { uiAliases, uiDirs });
@@ -1280,6 +1322,17 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
           if (at !== -1) overlays.splice(at, 1);
         }
         continue;
+      }
+      if (checks.has(tag.name)) {
+        const cls = tagAttributes(tag, scan).get("className");
+        if (cls && cls.kind !== "flag")
+          for (const { token, at } of classTokens(cls, scan, read))
+            if (GREEN_INK.test(token))
+              greenChecks.push({
+                file,
+                line: lineAt(at),
+                match: `<${tag.name}> ${token}`,
+              });
       }
       if (tag.name === "header" && overlays.length > 0) {
         const inside = overlays[overlays.length - 1];
@@ -1380,6 +1433,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     important: important.sort(byPlace),
     widths: widths.sort(byPlace),
     headers: headers.sort(byPlace),
+    greenChecks: greenChecks.sort(byPlace),
     routeMap: {
       rows: map.size,
       files: [...new Set([...map.values()].map((r) => r.file))].sort(),
@@ -1674,6 +1728,21 @@ export function main(argv = []) {
     "use the overlay's own header part (SheetHeader · DrawerHeader · DialogHeader · AlertDialogHeader), or RecordPeek for a record panel",
     "no overlay content hand-writes a <header> (same-file nesting only)",
   );
+  // A green check is a failure whatever --strict says (COL-25): the rule is the operator's, and a
+  // check has one colour.
+  if (composition.greenChecks.length === 0)
+    ok("check colour", "no check icon is drawn in a success or green ink");
+  else
+    results.push({
+      level: "fail",
+      name: "check colour",
+      detail: `${composition.greenChecks.length} check icon(s) in a success or green ink`,
+      fix: "a check is the blue accent — `text-info-text`, or the StatusGlyph registry item — never `text-success*` or green (COL-25)",
+      findings: composition.greenChecks.map(
+        (f) =>
+          `${f.file}:${f.line}  ${f.match}${f.hint ? `  →  ${f.hint}` : ""}`,
+      ),
+    });
   const rm = composition.routeMap;
   const coverage = `${rm.compared} App Router page/layout size(s) compared${
     rm.dynamic ? `, ${rm.dynamic} dynamic size={…} skipped` : ""

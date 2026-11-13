@@ -60,7 +60,8 @@ reads "Step 3 of 9 · Create the PDF".
 ### States
 
 `done` closes the list a second after it finishes, to "Done · 4 of 4 steps". `stopped` keeps it open
-and turns the item that didn't finish amber; the items not reached say "not done". A `waiting` item
+and marks the item that didn't finish with an amber ⚠ and the words "didn't finish"; the items not
+reached say "not done". A `waiting` item
 shows the "Waiting for you" badge and its action, and the header says so. Skipped items are struck
 through. Neither a skipped, unfinished nor waiting item ever folds. `note` adds a muted line under
 the list.
@@ -119,7 +120,7 @@ Below 24rem the time column goes and rows wrap; the header truncates.
   once every 3 seconds, and the end once. Nothing is announced when the list first appears.
 - A tick pops and a row entering the window rises only on a live change; with reduced motion both
   are instant.
-- Colour is never the only cue: an amber row says "didn't finish".
+- Colour is never the only cue: the ⚠ row says "didn't finish", and no row is ever tinted.
 
 | Key              | Action                                 |
 | ---------------- | -------------------------------------- |

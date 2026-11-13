@@ -1,4 +1,4 @@
-// @vegastack chat-chip@0.76.3 sha256-eG1DoH36RSeWmNTK29cKetE6kXtNoiPcCbM9ZTMoiQk=
+// @vegastack chat-chip@0.76.3 sha256-wXXH7DMjQpY8bHumTmFdCXVu2Uh1CZorvFgmh5OhEJY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 
 /** Props accepted by `ChatChip`. */
 export interface ChatChipProps extends Omit<
-  React.ComponentProps<"span">,
+  React.HTMLAttributes<HTMLElement>,
   "children" | "onClick"
 > {
   /** A leading 14px icon (or a `TextSpinner` while the work is live). @default undefined */
@@ -86,6 +86,7 @@ function ChatChip({
   if (href) {
     return (
       <a
+        {...props}
         {...shared}
         href={href}
         className={cn(CHIP, "state-layer no-underline", className)}
@@ -97,6 +98,7 @@ function ChatChip({
   if (onClick) {
     return (
       <Button
+        {...(props as React.ComponentProps<typeof Button>)}
         {...shared}
         variant="ghost"
         onClick={onClick}
@@ -111,7 +113,7 @@ function ChatChip({
     );
   }
   return (
-    <span {...shared} className={cn(CHIP, className)} {...props}>
+    <span {...props} {...shared} className={cn(CHIP, className)}>
       {content}
     </span>
   );

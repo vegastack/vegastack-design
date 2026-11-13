@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.76.0 sha256-Mi68wxkjONu/TDuGniC6zhCf4uagWpKKA7ehhVmRWQk=
+// @vegastack context-ring@0.76.0 sha256-Rn3i/8uNpdHPZmb70SQ2QnBJTVczvofZZXJXtjLAqE4=
 
 "use client";
 
@@ -119,8 +119,9 @@ const TONE_COLOR: Record<ContextRingTone, string> = {
 const TONE_BAR: Record<ContextRingTone, string> = {
   empty: "bg-border",
   info: "bg-info",
-  warning: "bg-warning",
-  danger: "bg-destructive",
+  // COL-25: a meter's bar reads the family's page ink, never the status fill.
+  warning: "bg-warning-text",
+  danger: "bg-destructive-text",
 };
 
 /** The masked conic ring; `value` 0–100. Hidden from assistive technology: its button speaks. */

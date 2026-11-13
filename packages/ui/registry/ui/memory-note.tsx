@@ -1,4 +1,4 @@
-// @vegastack memory-note@0.70.0 sha256-ncu7F1tGgVUMa62laSmT5hUh3poPK1BpUM66GTVXcIc=
+// @vegastack memory-note@0.70.0 sha256-vc5oOb6bI7mGKIuZMIHZPiPC+BdZgizHq2drlGO8unI=
 
 "use client";
 
@@ -129,12 +129,12 @@ const ICON: Record<
   Exclude<MemoryNoteTone, "queued">,
   { Icon: typeof BookmarkCheck; className: string }
 > = {
-  remembered: { Icon: BookmarkCheck, className: "text-success-text" },
-  updated: { Icon: PencilLine, className: "text-success-text" },
+  remembered: { Icon: BookmarkCheck, className: "text-info-text" },
+  updated: { Icon: PencilLine, className: "text-info-text" },
   suggested: { Icon: Lightbulb, className: "text-info-text" },
   forgot: { Icon: Eraser, className: "text-muted-foreground" },
   would: { Icon: BookmarkPlus, className: "text-muted-foreground" },
-  failed: { Icon: CircleAlert, className: "text-destructive-text" },
+  failed: { Icon: CircleAlert, className: "text-muted-foreground" },
 };
 
 function leadFor(tone: MemoryNoteTone, notebook: string): string {

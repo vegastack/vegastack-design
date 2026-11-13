@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.62.0 sha256-sv8nPDDnv9ntbmmaPBIJBxPABJBZL1zm7On0HjsiuN4=
+// @vegastack agent-panel@0.62.0 sha256-xR6wv8K1HgIK8CE1Tllw+ce0iX8DsfPRpmE1aphQAvs=
 
 "use client";
 
@@ -156,7 +156,7 @@ export interface AgentPanelAgent extends Pick<
   provider?: string | null;
 }
 
-type Tone = "muted" | "info" | "warning" | "destructive" | "success";
+type Tone = "muted" | "info" | "warning";
 
 const STATE_TONE: Record<Exclude<AgentState, "none">, Tone> = {
   queued: "muted",
@@ -167,8 +167,9 @@ const STATE_TONE: Record<Exclude<AgentState, "none">, Tone> = {
   approval: "warning",
   paused: "muted",
   blocked: "warning",
-  failed: "destructive",
-  done: "success",
+  // COL-25: failed is muted and says so in words; done is the blue accent, never green.
+  failed: "muted",
+  done: "info",
   "no-action": "muted",
   stopped: "muted",
 };
@@ -177,8 +178,6 @@ const TONE_TEXT: Record<Tone, string> = {
   muted: "text-muted-foreground",
   info: "text-info-text",
   warning: "text-warning-text",
-  destructive: "text-destructive-text",
-  success: "text-success-text",
 };
 
 /** States the agent is still on: Stop applies, and a disconnect can still block it. */
@@ -333,7 +332,7 @@ export interface AgentStateBadgeProps extends Omit<
 
 /**
  * `AgentStateBadge` — a delegation's state as its icon and word in the state's ink: ◷ Queued,
- * ◌ Working, ! Needs you (amber), ✕ Failed (red), ✓ Done (green), ■ Stopped. In a narrow row
+ * ◌ Working, ! Needs you (amber glyph), ✕ Failed (muted, in words), ✓ Done (the blue accent), ■ Stopped. In a narrow row
  * the word gives way before the name beside it: it truncates, then drops out, leaving the icon
  * whole. `iconOnly` shows only the icon, with the word in a tooltip.
  *
@@ -445,14 +444,11 @@ export function AgentStateRing({
         "inline-flex shrink-0 rounded-full",
         badged && "relative",
         tone === "warning" && "ring-2 ring-warning",
-        tone === "destructive" && "ring-2 ring-destructive",
         // An agent is a hexagon: its avatar draws the ring in its own shape, so a circle never
         // rings a hexagon.
         "has-data-[kind=agent]:ring-0",
         tone === "warning" &&
           "**:data-[kind=agent]:[--person-avatar-halo:var(--color-warning)]",
-        tone === "destructive" &&
-          "**:data-[kind=agent]:[--person-avatar-halo:var(--color-destructive)]",
         className,
       )}
       {...props}
@@ -1697,9 +1693,10 @@ function StateBlock({ p }: { p: ResolvedProps }) {
       data-state={state}
       className={cn(
         "grid min-w-0 grid-cols-[auto_minmax(0,1fr)] items-start gap-x-1.5 gap-y-1 text-sm",
-        // A question or an approval sits on the warning tint: it is what the card is for now.
+        // A question or an approval sits on the chat card surface (COL-25): it is what the card
+        // is for now. The ⚠ glyph carries the amber; the surface never does.
         (question || state === "approval") &&
-          "rounded-md border border-warning/30 bg-warning/5 p-2 dark:bg-warning/10",
+          "rounded-md border border-chat-hairline bg-chat-card p-2",
       )}
     >
       <span className="flex h-5 items-center">

@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.72.0 sha256-KLO0BchgRjy7YXNU4ANchl3HYxlXaw6q/swZYUB/ZAs=
+// @vegastack message-parts@0.72.0 sha256-326bP5VELYc1KOmHIjdqW6D+GdDsGleQTs/qJ/Nrvo4=
 
 "use client";
 
@@ -154,7 +154,7 @@ const STEP_ICONS: Record<MessageStepStatus, React.ReactNode> = {
   pending: <Circle aria-hidden className="text-muted-foreground/50" />,
   running: <Spinner aria-hidden role={undefined} aria-label={undefined} />,
   done: <Check aria-hidden />,
-  failed: <X aria-hidden className="text-destructive-text" />,
+  failed: <X aria-hidden className="text-muted-foreground" />,
   stopped: <Minus aria-hidden />,
 };
 
@@ -246,8 +246,8 @@ const PLAN_ICONS: Record<MessagePlanItemState, React.ReactNode> = {
       className="size-3.5"
     />
   ),
-  done: <CircleCheck aria-hidden className="text-success-text" />,
-  failed: <CircleX aria-hidden className="text-destructive-text" />,
+  done: <CircleCheck aria-hidden className="text-info-text" />,
+  failed: <CircleX aria-hidden className="text-muted-foreground" />,
   stopped: <CircleMinus aria-hidden className="text-muted-foreground" />,
 };
 
@@ -517,7 +517,7 @@ export interface MessageActionsProps extends React.ComponentProps<"div"> {
  * `MessageActions reveal="hover"` and `MessageTime reveal="hover"`. The place is kept while hidden.
  */
 const REVEAL_ON_HOVER =
-  "opacity-0 transition-opacity duration-150 group-hover/message:opacity-100 group-focus-within/message:opacity-100 hover:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100";
+  "opacity-0 transition-opacity duration-quick ease-enter group-hover/message:opacity-100 group-focus-within/message:opacity-100 hover:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100";
 
 /**
  * One button style in the actions row, whatever size a host passes: every button in it (a `Button`,

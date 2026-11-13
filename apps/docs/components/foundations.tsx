@@ -98,6 +98,11 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
     ].flatMap((hue) => [`tag-${hue}`, `tag-${hue}-subtle`, `tag-${hue}-text`]),
   },
   {
+    label:
+      "Chat surface — one card, the same step off the page in light and dark (COL-25)",
+    tokens: ["chat-card", "chat-hairline"],
+  },
+  {
     label: "Sidebar surface",
     tokens: [
       "sidebar",
@@ -268,12 +273,18 @@ const DURATION_DEMOS: { token: string; value: string }[] = [
   { token: "--duration-fast", value: "150ms" },
   { token: "--duration-base", value: "200ms" },
   { token: "--duration-slow", value: "300ms" },
+  // MOT-14 — the chat motion set.
+  { token: "--duration-instant", value: "100ms · hover, press" },
+  { token: "--duration-quick", value: "160ms · menus, a check (120ms out)" },
+  { token: "--duration-state", value: "220ms · folds (160ms out)" },
+  { token: "--duration-layout", value: "280ms · arrivals, sheets" },
 ];
 
 const EASING_DEMOS: { token: string; value: string }[] = [
   { token: "--motion-ease-standard", value: "cubic-bezier(0.2, 0, 0, 1)" },
   { token: "--motion-ease-emphasized", value: "cubic-bezier(0.3, 0, 0, 1)" },
   { token: "--motion-ease-exit", value: "cubic-bezier(0.4, 0, 1, 1)" },
+  { token: "--motion-ease-enter", value: "cubic-bezier(0.16, 1, 0.3, 1)" },
 ];
 
 function MotionTrack({

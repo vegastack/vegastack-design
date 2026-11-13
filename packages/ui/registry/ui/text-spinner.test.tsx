@@ -2,6 +2,7 @@ import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { TextSpinner } from "./text-spinner";
+import "../../test/geometry.css";
 
 const slot = (root: ParentNode, name: string) =>
   root.querySelector<HTMLElement>(`[data-slot="${name}"]`)!;
@@ -73,4 +74,18 @@ test("no a11y violations — braille and dots", async () => {
     </p>,
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("compiled: the strip keeps every frame one line tall, so a step moves exactly one frame", async () => {
+  const screen = await render(<TextSpinner />);
+  const root = slot(screen.container, "text-spinner");
+  const frames = slot(screen.container, "text-spinner-frames");
+  const line = root.getBoundingClientRect().height;
+  expect(line).toBeGreaterThan(0);
+  // Ten frames stacked, not squeezed into the one-line clip: translate -100% then travels ten
+  // lines in ten steps, one frame per step.
+  expect(frames.getBoundingClientRect().height).toBeCloseTo(line * 10, 0);
+  for (const frame of frames.children)
+    expect(frame.getBoundingClientRect().height).toBeCloseTo(line, 0);
+  expect(getComputedStyle(root).overflowY).toBe("clip");
 });
