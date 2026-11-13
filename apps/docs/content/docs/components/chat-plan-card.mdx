@@ -1,0 +1,104 @@
+---
+title: Chat Plan Card
+description: "A plan an agent wants approved, as a document in the turn: steps, what will change, what won't, what still asks, and what changed."
+audience: public
+registry: chat-plan-card
+status: stable
+since: 0.80.0
+a11y: ordered steps; disclosures; Keep planning is a menu
+preview: chatPlanCard
+---
+
+## Install
+
+<InstallSteps name="chat-plan-card" />
+
+## Usage
+
+```tsx
+import { ChatPlanCard } from "@/components/ui/chat-plan-card";
+
+<ChatPlanCard
+  data={plan}
+  onApprove={(mode) => approve(plan.id, mode)}
+  onKeepPlanning={(note) => revise(plan.id, note)}
+  onReject={(note) => reject(plan.id, note)}
+/>;
+```
+
+Meta is only "Plan · v2". Under the title and goal come numbered steps (eight show, the rest open)
+and three quiet rows: Will change, Won't, and Needs your OK — the steps the permission engine says
+will still ask. No colour pills, no risk dot. Approve and run is primary, Approve, ask before
+changes is outline, and Keep planning ▾ holds a note and Reject. Approved, rejected or replaced,
+the card becomes a `PlanLine` that can show the plan again.
+
+<ComponentPreview
+  name="chatPlanCard"
+  file="components/preview/chat-plan-card.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="chat-plan-card" />
+
+## Examples
+
+### What changed
+
+After Keep planning the next version carries `changedFrom`; "Changed ›" marks new and edited steps
+and lists what was removed.
+
+<ComponentPreview
+  name="chatPlanCardChanged"
+  file="components/preview/chat-plan-card.tsx"
+/>
+
+### A long plan
+
+Eight steps show; the rest open with "Show 3 more".
+
+<ComponentPreview
+  name="chatPlanCardLong"
+  file="components/preview/chat-plan-card.tsx"
+/>
+
+### Settled lines
+
+Approved (primary ✓), not approved, and replaced by a newer version. "Show" opens the plan again.
+
+<ComponentPreview
+  name="chatPlanCardLines"
+  file="components/preview/chat-plan-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-plan-card.tsx"
+  name="ChatPlanCardProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-plan-card.tsx"
+  name="PlanLineProps"
+/>
+
+## Accessibility
+
+| Key      | Does                                                     |
+| -------- | -------------------------------------------------------- |
+| `Tab`    | Moves through steps with detail, Changed and the actions |
+| `Enter`  | Opens a step's detail; in the note field, sends          |
+| `Escape` | Closes the Keep planning menu, or leaves the note field  |
+
+- Steps are an ordered list; each reads "Step 2: …" to a screen reader.
+- Changed and Show report their state with `aria-expanded`.
+
+<StatesTested name="chat-plan-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Say what will change, what won't and which steps will still ask, in words."
+  dont="Show a coloured risk dot or effect pills."
+/>

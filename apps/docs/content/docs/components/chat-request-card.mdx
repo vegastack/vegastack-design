@@ -1,0 +1,110 @@
+---
+title: Chat Request Card
+description: "An agent asking for an OK, drawn from the server's offer: Allow once, Always allow with its scopes, Decline with a note, and bundles."
+audience: public
+registry: chat-request-card
+status: stable
+since: 0.80.0
+a11y: named choice buttons; Always is a menu; aria-busy
+preview: chatRequestCard
+---
+
+## Install
+
+<InstallSteps name="chat-request-card" />
+
+## Usage
+
+```tsx
+import { ChatRequestCard } from "@/components/ui/chat-request-card";
+
+<ChatRequestCard
+  agent={{ name: "William" }}
+  data={request}
+  onAnswer={(choiceId, note) => answer(request.interactionId, choiceId, note)}
+/>;
+```
+
+The buttons are exactly `data.offer.choices`, the options the server says it will accept: `once`
+is the primary button, every `always:*` choice sits in one "Always allow" menu with its scope, and
+`decline` is a quiet text button that opens a note to the agent. When Always can't be offered,
+`offer.noAlways.words` says why under the buttons. While `onAnswer` runs the buttons hold; once
+the request is answered, refused, withdrawn or expired the card becomes a `RequestLine`.
+
+<ComponentPreview
+  name="chatRequestCard"
+  file="components/preview/chat-request-card.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="chat-request-card" />
+
+## Examples
+
+### Once only, with the reason
+
+No Always choice in the offer, so no Always button, and the footnote says why.
+
+<ComponentPreview
+  name="chatRequestCardOnceOnly"
+  file="components/preview/chat-request-card.tsx"
+/>
+
+### Several at once
+
+Subagents asking together become one card: Allow all once, Always allow these, or Choose each to
+answer row by row.
+
+<ComponentPreview
+  name="chatRequestCardBundle"
+  file="components/preview/chat-request-card.tsx"
+/>
+
+### Settled lines
+
+Allowed once, always allowed with Undo, refused by a rule with the way on, and not answered in
+time. The ✓ is primary; a refusal is the muted ⊘ with its words.
+
+<ComponentPreview
+  name="chatRequestCardLines"
+  file="components/preview/chat-request-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-request-card.tsx"
+  name="ChatRequestCardProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-request-card.tsx"
+  name="RequestBundleCardProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-request-card.tsx"
+  name="RequestLineProps"
+/>
+
+## Accessibility
+
+| Key      | Does                                                  |
+| -------- | ----------------------------------------------------- |
+| `Tab`    | Moves through the choices                             |
+| `Enter`  | Picks the focused choice; in the note field, declines |
+| `1`–`9`  | In the Always menu, picks that scope                  |
+| `Escape` | Closes the Always menu, or leaves the note field      |
+
+- The card is `aria-busy` while an answer is on its way; nothing on it spins.
+- A settled line's glyph is decorative; its words say what happened.
+
+<StatesTested name="chat-request-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Draw the choices the server stored with the request, and say why Always isn't there."
+  dont="Add a button the server didn't offer, or colour a refusal red."
+/>
