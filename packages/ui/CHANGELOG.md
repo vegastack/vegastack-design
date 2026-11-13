@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.82.0
+
+### Minor Changes
+
+- [#981](https://github.com/vegastack/vegastack-design/pull/981) [`ff7b181`](https://github.com/vegastack/vegastack-design/commit/ff7b18135b6d5cf0670028d5b7593c6b96689cc5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Files, sources and the person's own things in a chat answer. `FilePreview` shows a file where the agent made it, on the chat card: Markdown rendered with its formatting and fading after a dozen lines, a CSV's first five rows, a PDF's first page, an image, with Download and Open; a preview that can't load says why, with Retry. `FileViewer` gains `mode="side"`, a sheet at the page's end in the page's theme for reading beside the chat (an image still opens in the lightbox), and every mode now says why a preview couldn't load — "Couldn't load the preview: the file is no longer there." — with Retry and Download instead of falling back to the file card; `readFileHead` and `previewFailureReason` are exported for it. `SourceList` is the web pages an answer cites, as one quiet "Sources · 3 ›" fold of one-line numbered rows with each site's icon on a light tile in dark mode; `SourceCard` is the card a `[[n]]` pill opens and `sourceCitations` wires it into `MarkdownView`. `FilePreview`, `fileViewerItemOf` and `MessageParts` take a file part as-is: its name is `filename`, else the streamed `providerMetadata.vegastack.filename` (`fileNameOf`). `ResourcePill` is a Doc, Meet, Drive file, pull request, Slack message or email the agent touched: an inline chip with its type's icon and real title, never a numbered source; `MarkdownView`'s new `linkResource` turns a link to such a thing into its pill. A citation's card now opens under its pill and stays inside the answer's column, so it never covers the line above. `MessageSourceList` stays unchanged until the app moves over.
+
 ## 0.81.1
 
 ### Patch Changes
