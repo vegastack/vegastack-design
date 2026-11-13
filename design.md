@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 23642
-      sha256: "e0ecf99965d90b574cf948779e90023de25f44cb881df1a65ba1e981c97b79c8"
+      bytes: 27331
+      sha256: "917740d75d2ad095e8b01959307c43c72c7ebec940c8a064afae40f10a49b168"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 12822
-      sha256: "6dbcee6e6b27f7ab1efb94f88a166894822a6b607c10637821fa5dafaeda64d6"
+      bytes: 13125
+      sha256: "e03c22e01441beefb5f18a42650360de8363e29ac55f7d8c9e7ef0c395acb51a"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -96,6 +96,18 @@ themes:
       type: "color"
       value: "oklch(0.145 0 0)"
       description: "Single-series chart ink (D29): one series is drawn in foreground ink; the categorical chart-1…8 hues start at two series."
+    chat-card:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.03)"
+      description: "Chat surface rule (COL-25, operator 2026-11-13, agent chat ground up, Round 1): the ONE card surface in agent UI, for the things a person acts on or opens (a waiting request, question or plan, the task list, a file preview). The foreground at 3% over whatever is underneath, the same formula in both themes, so a card sits exactly one faint step off the page in light and in dark (light ≈ #f7f7f7 on white). Paired with `chat-hairline` and `rounded-chat-card`; no shadow inside a thread. Read it as `bg-chat-card`."
+    chat-card-radius:
+      type: "dimension"
+      value: "0.75rem"
+      description: "COL-25: the chat card's corner, 12px, bridged as `rounded-chat-card`."
+    chat-hairline:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.1)"
+      description: "COL-25: the chat card's hairline, guide lines inside a fold and dividers inside a card — the foreground at 10%, the same formula in both themes. Read it as `border-chat-hairline` / `bg-chat-hairline`."
     destructive:
       type: "color"
       value: "oklch(0.577 0.245 27.325)"
@@ -117,9 +129,45 @@ themes:
       type: "duration"
       value: "1200ms"
       description: "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
+    duration-instant:
+      type: "duration"
+      value: "100ms"
+      description: "MOT-14 chat motion (operator 2026-11-13): hover and press fills, icon colour, a toggle's knob. Pairs with `ease-standard`."
+    duration-layout:
+      type: "duration"
+      value: "280ms"
+      description: "MOT-14: a new message or card arriving (opacity + 6px rise), a side sheet sliding in. Pairs with `ease-enter`."
+    duration-loader-dots:
+      type: "duration"
+      value: "300ms"
+      description: "MOT-14: one frame of the dots TextSpinner (· ·· ···)."
+    duration-loader-frame:
+      type: "duration"
+      value: "80ms"
+      description: "MOT-14: one frame of the braille TextSpinner (⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)."
+    duration-quick:
+      type: "duration"
+      value: "160ms"
+      description: "MOT-14: menus, popovers and tooltips in; a live line crossfading to done; a check appearing. Pairs with `ease-enter`."
+    duration-quick-exit:
+      type: "duration"
+      value: "120ms"
+      description: "MOT-14: the same things leaving (an exit is never slower than its enter). Pairs with `ease-exit`."
     duration-slow:
       type: "duration"
       value: "300ms"
+    duration-state:
+      type: "duration"
+      value: "220ms"
+      description: "MOT-14: a fold opening (height + opacity), its chevron, Send↔Stop, a card settling to its one-line form, Show more. Pairs with `ease-enter`."
+    duration-state-exit:
+      type: "duration"
+      value: "160ms"
+      description: "MOT-14: a fold closing. Pairs with `ease-exit`."
+    duration-stream-word:
+      type: "duration"
+      value: "180ms"
+      description: "MOT-14: one streamed word fading in, prose only (never code, tables or maths); removed when the stream ends."
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -169,6 +217,10 @@ themes:
     motion-ease-emphasized:
       type: "cubicBezier"
       value: "cubic-bezier(0.3, 0, 0, 1)"
+    motion-ease-enter:
+      type: "cubicBezier"
+      value: "cubic-bezier(0.16, 1, 0.3, 1)"
+      description: "MOT-14: the chat's entrance curve (a fast start that settles softly) for quick, state and layout arrivals; every exit uses `motion-ease-exit`."
     motion-ease-exit:
       type: "cubicBezier"
       value: "cubic-bezier(0.4, 0, 1, 1)"
@@ -433,6 +485,16 @@ themes:
       type: "color"
       value: "oklch(0.985 0 0)"
       description: "Repeated here on purpose: an alias is resolved per run, so a light-only alias would leak the LIGHT ink into `.dark` through the cascade (the contrast gate caught exactly that)."
+    chat-card:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.03)"
+    chat-card-radius:
+      type: "dimension"
+      value: "0.75rem"
+      description: "COL-25: the chat card's corner, 12px, bridged as `rounded-chat-card`."
+    chat-hairline:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.1)"
     destructive:
       type: "color"
       value: "oklch(0.704 0.191 22.216)"
@@ -453,9 +515,45 @@ themes:
       type: "duration"
       value: "1200ms"
       description: "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
+    duration-instant:
+      type: "duration"
+      value: "100ms"
+      description: "MOT-14 chat motion (operator 2026-11-13): hover and press fills, icon colour, a toggle's knob. Pairs with `ease-standard`."
+    duration-layout:
+      type: "duration"
+      value: "280ms"
+      description: "MOT-14: a new message or card arriving (opacity + 6px rise), a side sheet sliding in. Pairs with `ease-enter`."
+    duration-loader-dots:
+      type: "duration"
+      value: "300ms"
+      description: "MOT-14: one frame of the dots TextSpinner (· ·· ···)."
+    duration-loader-frame:
+      type: "duration"
+      value: "80ms"
+      description: "MOT-14: one frame of the braille TextSpinner (⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)."
+    duration-quick:
+      type: "duration"
+      value: "160ms"
+      description: "MOT-14: menus, popovers and tooltips in; a live line crossfading to done; a check appearing. Pairs with `ease-enter`."
+    duration-quick-exit:
+      type: "duration"
+      value: "120ms"
+      description: "MOT-14: the same things leaving (an exit is never slower than its enter). Pairs with `ease-exit`."
     duration-slow:
       type: "duration"
       value: "300ms"
+    duration-state:
+      type: "duration"
+      value: "220ms"
+      description: "MOT-14: a fold opening (height + opacity), its chevron, Send↔Stop, a card settling to its one-line form, Show more. Pairs with `ease-enter`."
+    duration-state-exit:
+      type: "duration"
+      value: "160ms"
+      description: "MOT-14: a fold closing. Pairs with `ease-exit`."
+    duration-stream-word:
+      type: "duration"
+      value: "180ms"
+      description: "MOT-14: one streamed word fading in, prose only (never code, tables or maths); removed when the stream ends."
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -503,6 +601,10 @@ themes:
     motion-ease-emphasized:
       type: "cubicBezier"
       value: "cubic-bezier(0.3, 0, 0, 1)"
+    motion-ease-enter:
+      type: "cubicBezier"
+      value: "cubic-bezier(0.16, 1, 0.3, 1)"
+      description: "MOT-14: the chat's entrance curve (a fast start that settles softly) for quick, state and layout arrivals; every exit uses `motion-ease-exit`."
     motion-ease-exit:
       type: "cubicBezier"
       value: "cubic-bezier(0.4, 0, 1, 1)"
@@ -827,8 +929,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 247 rows, 107 resolved as
-**shadcn** (upstream ships unchanged) and 140 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 250 rows, 107 resolved as
+**shadcn** (upstream ships unchanged) and 143 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -988,7 +1090,7 @@ FRM-4 · FRM-15`
 
 ### 4. Tokens and semantics we add
 
-`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 ·
+`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · COL-25 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 ·
 ICO-1 · ICO-3 · ICO-6 · ICO-8`
 
 Four status families written in upstream's own `destructive` shape (COL-12); a status hue means
@@ -1004,7 +1106,7 @@ size (TYP-14). Icons are lucide,
 the lucide-animated mirrors and `thesvg` brand glyphs through `Icon`/`BrandIcon` and nothing else
 (ICO-1); no inline `<svg>` as an icon (ICO-3); the animated-icon factory owns the trigger and
 reduced-motion rules (ICO-6); **the indeterminate loading mark is lucide `Loader`, never
-`Loader2`/`LoaderCircle`** (ICO-8). The token additions themselves are the next section.
+`Loader2`/`LoaderCircle`**, and the braille `TextSpinner` is the one inline text loader (ICO-8). The token additions themselves are the next section.
 
 **COL-20 is narrower than it was.** `bg-black/10` and `bg-white` pass — they are upstream's own scrim
 vocabulary — and a raw `/NN` alpha or an `opacity-50` is ordinary Tailwind now, because the alpha and
@@ -1015,9 +1117,9 @@ token — that is COL-20 being enforced, not broken.
 
 ### 5. Our own recipes and behaviours
 
-`MOT-5 · MOT-6 · MOT-7 · MOT-13 · TYP-13 · TYP-20 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
+`MOT-5 · MOT-6 · MOT-7 · MOT-13 · MOT-14 · TYP-13 · TYP-20 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
 LAY-15 · LAY-16 · LAY-18 · LAY-19 · LAY-21 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
-OVL-16 · OVL-17 · OVL-18 · OVL-20 · OVL-21 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
+OVL-16 · OVL-17 · OVL-18 · OVL-20 · OVL-21 · OVL-25 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
 API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
@@ -1025,7 +1127,12 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   `motion-pop-in` / `motion-enter-up` / `motion-shake` / `motion-flash` plus `useAnimationReplay`
   (MOT-6); docked-presence `motion-dock-in` / `motion-dock-out`, 150ms in on `emphasized` and 100ms
   out on `exit`, no scale, an exit never slower than its enter (MOT-7). Excluded by design and not to
-  be added speculatively: avatar hover-lift, card tilt, FAB morph (MOT-13).
+  be added speculatively: avatar hover-lift, card tilt, FAB morph (MOT-13). The chat motion set
+  (MOT-14) is the one cadence for agent UI — `instant` 100, `quick` 160/120, `state` 220/160,
+  `layout` 280, `ease-enter` in and `ease-exit` out — and `CollapsibleContent` animates its height
+  both ways on it. Motion never shifts layout (fixed-width glyphs, tabular figures), completion is a
+  state change rather than a celebration, and nothing animates on history load. The braille
+  `TextSpinner` is the one inline text loader (ICO-8, amended); a turn shows at most one.
 - **Prose** (TYP-13) — one recipe, `proseClassName` from `@vegastack/design`, expressed as descendant
   variants, with no `@tailwindcss/typography`. `MarkdownView` and `TextEdit` both wear it, so rendered
   rich text is identical in both. Because it is descendant-expressed, an element-level class on a
@@ -1093,7 +1200,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   search-cancel paint is suppressed, a token-colored 24px clear button owns the action, and generic
   `Input` keeps its single-input DOM and behavior contract. A Select trigger is `w-full` by default
   and takes `variant="ghost"` for an inline row (API-24).
-- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-18, OVL-20, OVL-21) — Toast is the one notification engine;
+- **Overlays** (OVL-10, OVL-11, OVL-13…OVL-18, OVL-20, OVL-21, OVL-25) — Toast is the one notification engine;
   `sonner` is retired (OVL-10), and it keeps one store: the provider passes the module manager and
   `Toaster` reuses a provider above it, so `toast()` and `useToastManager()` feed one queue (OVL-17). Toast adds a logical `position` prop, the anchored
   `ToastPositioner`/`ToastArrow` parts, and a `z-60` viewport band — the one surface above the single
@@ -1107,7 +1214,9 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   below the results, behind a hairline — `CommandActions` in a cmdk list, `PanelActions` under a
   `PanelList` in a menu — never filtered and never counted as results; give each a leading icon
   (OVL-20). A drawer floats inset by default — `--spacing(2)` off every viewport edge, every corner
-  rounded, a full border — and `<Drawer flush>` restores upstream's edge-to-edge sheet (OVL-21). Every portal
+  rounded, a full border — and `<Drawer flush>` restores upstream's edge-to-edge sheet (OVL-21). The
+  modal backdrop is quiet — `bg-black/20`, `dark:bg-black/50`, never a blur — on Dialog, AlertDialog,
+  Sheet and Drawer alike (OVL-25). Every portal
   re-applies the theme scope so a popup opened from inside a scoped subtree paints in that scope
   (OVL-13); `verify-portal-theme-scope` discovers every Base UI portal host and requires its owner to
   attach the scope, so an added, missing or unscoped portal fails.
@@ -1208,6 +1317,8 @@ seven `sidebar-*` tokens all carry upstream's values. On top of it:
 | `brand`, `brand-text`                                      | The phosphor-green marker accent and its page-readable ink. A marker role only — never a functional state colour, and `brand` is not a text ink                                                                        | `contrast-check.mjs`                                               |
 | `media-scrim`, `media-scrim-strong`, `media-foreground`    | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                            | `media-chrome.browser.test.tsx` on compiled CSS                    |
 | `duration-*`, `motion-ease-*`                              | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                             | `verify-token-references`                                          |
+| `chat-card`, `chat-hairline`, `chat-card-radius`           | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and a 12px corner, the same formula in both themes, no shadow (COL-25)                                  | `verify-theme-parity`, `design-lint`                               |
+| `duration-instant … loader-dots`, `motion-ease-enter`      | The chat motion set: hover, quick (menus, a check appearing), state (folds), layout (arrivals), the streamed-word fade and the loader cadences; all 0ms under reduced motion (MOT-14)                                  | `design-lint` `chat-motion-tokens`                                 |
 | `font-family-*`                                            | Geist Sans / Geist Mono (TYP-10)                                                                                                                                                                                       | `verify-theme-parity`                                              |
 
 **Status colour has two inks, and this is the rule most often got wrong.** `-foreground` is the ink
@@ -1234,6 +1345,18 @@ sidebar and muted, in both themes:
 | keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                             | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
 | inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                          | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |
 | text entry                         | `input` → `--input-hover` border on hover → `ring/50` border on focus (no ring or glow); `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
+
+**Status in agent UI is one quiet language (COL-25; operator 2026-11-13, agent chat ground up).**
+Every check — done, selected, approved, allowed, remembered, uploaded — is the blue accent
+(`text-info-text`) and never green; pending ◌, skipped ⊘ and failed ✗ are `muted-foreground`, failed
+always with words; ⚠ (needs you, partial, a cost warning) is `warning-text` as a glyph only.
+`success`, `warning` and `destructive` are never a fill in agent UI (the destructive Button excepted)
+and never the ink of a check. `StatusGlyph` draws the six states; `design-lint` (`no-success-check`,
+`no-status-fill`) and `vegastack-design doctor` (`no-success-check`, over app code) keep it. A card
+appears only for something a person acts on or opens — a waiting request, question or plan, the
+task list, a file preview — and it is `ChatCard`: `bg-chat-card`, `border-chat-hairline`,
+`rounded-chat-card`, `p-4` (`p-3` under 640px), no shadow. Work, memory saves, answered asks and
+errors are flat lines in the column.
 
 A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
 fill sits 8px inside its container (LAY-20: `ItemGroup variant="flush"`, the Inbox list); menus keep

@@ -39,6 +39,8 @@ export const tokens = {
     "state-selected": "oklch(0.145 0 0 / 0.08)",
     "state-pressed": "oklch(0.145 0 0 / 0.1)",
     "state-tile": "oklch(0.145 0 0 / 0.06)",
+    "chat-card": "oklch(0.145 0 0 / 0.03)",
+    "chat-hairline": "oklch(0.145 0 0 / 0.1)",
     "state-focus": "oklch(0.55 0.19 256 / 0.18)",
     "input-hover": "oklch(0.145 0 0 / 0.22)",
     "readonly": "oklch(0.145 0 0 / 0.03)",
@@ -103,7 +105,18 @@ export const tokens = {
     "motion-ease-standard": "cubic-bezier(0.2, 0, 0, 1)",
     "motion-ease-emphasized": "cubic-bezier(0.3, 0, 0, 1)",
     "motion-ease-exit": "cubic-bezier(0.4, 0, 1, 1)",
-    "motion-ease-spring": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)"
+    "motion-ease-spring": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)",
+    "duration-instant": "100ms",
+    "duration-quick": "160ms",
+    "duration-quick-exit": "120ms",
+    "duration-state": "220ms",
+    "duration-state-exit": "160ms",
+    "duration-layout": "280ms",
+    "duration-stream-word": "180ms",
+    "duration-loader-frame": "80ms",
+    "duration-loader-dots": "300ms",
+    "motion-ease-enter": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "chat-card-radius": "0.75rem"
   },
   "dark": {
     "background": "oklch(0.145 0 0)",
@@ -144,6 +157,8 @@ export const tokens = {
     "state-selected": "oklch(0.985 0 0 / 0.07)",
     "state-pressed": "oklch(0.985 0 0 / 0.09)",
     "state-tile": "oklch(0.985 0 0 / 0.07)",
+    "chat-card": "oklch(0.985 0 0 / 0.03)",
+    "chat-hairline": "oklch(0.985 0 0 / 0.1)",
     "state-focus": "oklch(0.72 0.15 256 / 0.24)",
     "input-hover": "oklch(0.985 0 0 / 0.25)",
     "readonly": "oklch(0.985 0 0 / 0.03)",
@@ -208,7 +223,18 @@ export const tokens = {
     "motion-ease-standard": "cubic-bezier(0.2, 0, 0, 1)",
     "motion-ease-emphasized": "cubic-bezier(0.3, 0, 0, 1)",
     "motion-ease-exit": "cubic-bezier(0.4, 0, 1, 1)",
-    "motion-ease-spring": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)"
+    "motion-ease-spring": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)",
+    "duration-instant": "100ms",
+    "duration-quick": "160ms",
+    "duration-quick-exit": "120ms",
+    "duration-state": "220ms",
+    "duration-state-exit": "160ms",
+    "duration-layout": "280ms",
+    "duration-stream-word": "180ms",
+    "duration-loader-frame": "80ms",
+    "duration-loader-dots": "300ms",
+    "motion-ease-enter": "cubic-bezier(0.16, 1, 0.3, 1)",
+    "chat-card-radius": "0.75rem"
   }
 } as const;
 export type Theme = keyof typeof tokens;

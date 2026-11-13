@@ -660,3 +660,20 @@ test("sheet sections: a titled section with an action, a group label and a muted
     .toHaveAttribute("data-slot", "sheet-section-description");
   await expectNoA11yViolations(screen.container);
 });
+
+test("OVL-25: the backdrop is a quiet dim with no blur, deeper in dark", async () => {
+  await render(<Subject defaultOpen />);
+  await expect
+    .poll(() => document.querySelector('[data-slot="sheet-overlay"]'))
+    .not.toBeNull();
+  const overlay = document.querySelector<HTMLElement>(
+    '[data-slot="sheet-overlay"]',
+  ) as HTMLElement;
+  expect(overlay.className).not.toContain("backdrop-blur");
+  expect(overlay.classList.contains("bg-black/20")).toBe(true);
+  expect(overlay.classList.contains("dark:bg-black/50")).toBe(true);
+  const style = getComputedStyle(overlay);
+  expect(style.backdropFilter === "none" || style.backdropFilter === "").toBe(
+    true,
+  );
+});

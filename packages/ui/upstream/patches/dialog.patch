@@ -1,8 +1,11 @@
 # component: dialog
-# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, TYP-19, OVL-23
+# decisions: A11Y-9, API-21, BRD-1, DOC-1, DOC-2, FOC-13, OVL-13, OVL-16, OVL-18, VOI-1, LAY-17, TYP-19, OVL-23, OVL-25
 # hunks:
+#   OVL-25 (operator, 2026-11-13, agent chat ground up §4.1 "no blur behind dialogs"): the backdrop
+#     is `bg-black/20`, `dark:bg-black/50`, with upstream's `supports-backdrop-filter:backdrop-blur-xs`
+#     removed, so the page behind a modal stays legible and still and dark mode no longer smears.
 #   OVL-23 (operator D31, 2026-10-30): the backdrop sets `forceRender`, so a modal opened from
-#     inside another dialog or sheet dims and blurs too; Base UI skips a nested backdrop otherwise.
+#     inside another dialog or sheet dims too; Base UI skips a nested backdrop otherwise.
 #   FOC-13: `DialogContent` passes `initialFocus` (overridable), which picks the first field or
 #     control in the content and never the close ×, else the popup itself, so opening a dialog does
 #     not land focus on the × (MK, 2026-09-25). The popup ref is merged with a local one for it.
@@ -54,7 +57,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..eefcc14 100644
+index 0b42f3f..f81adf0 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -118,8 +121,9 @@ index 0b42f3f..eefcc14 100644
 +      forceRender
        data-slot="dialog-overlay"
        className={cn(
-         "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
+-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
 -        className
++        "fixed inset-0 isolate z-50 bg-black/20 duration-100 dark:bg-black/50 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
 +        className,
        )}
        {...props}

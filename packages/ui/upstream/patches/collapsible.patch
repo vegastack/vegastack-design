@@ -1,19 +1,25 @@
 # component: collapsible
-# decisions: DOC-1
+# decisions: DOC-1, DOC-2, MOT-14
 # hunks:
-#   NO STYLING HUNK AT ALL. Upstream's Collapsible is three unstyled pass-throughs over Base UI
-#     and imports no `cn`, so nothing in it is ours to change: the whole diff is prettier's
-#     reflow plus the provenance header the three-copy model needs (DOC-1).
+#   MOT-14 (operator, 2026-11-13, agent chat ground up): `CollapsibleContent` animates its height
+#     and opacity both ways on Base UI's `--collapsible-panel-height` and its starting/ending style
+#     attributes, the idiom upstream's own Accordion uses: `duration-state` + `ease-enter` in,
+#     `duration-state-exit` + `ease-exit` out, `overflow-hidden` so the content is clipped while it
+#     grows. Upstream's panel is unstyled, so every fold snapped. Reduced motion collapses both
+#     transitions through base.css (MOT-5), so nothing here restates it.
+#   DOC-2: the `cn` import from `@vegastack/design`, needed now that the panel merges a className.
+#   DOC-1: prettier's reflow plus the provenance header the three-copy model needs.
 diff --git a/collapsible.tsx b/collapsible.tsx
-index 488fb33..2e44190 100644
+index 488fb33..3432232 100644
 --- a/collapsible.tsx
 +++ b/collapsible.tsx
-@@ -1,21 +1,21 @@
+@@ -1,21 +1,32 @@
 -"use client"
 +"use client";
  
 -import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible"
 +import { Collapsible as CollapsiblePrimitive } from "@base-ui/react/collapsible";
++import { cn } from "@vegastack/design";
  
  function Collapsible({ ...props }: CollapsiblePrimitive.Root.Props) {
 -  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />
@@ -27,10 +33,22 @@ index 488fb33..2e44190 100644
 +  );
  }
  
- function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
+-function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
++function CollapsibleContent({
++  className,
++  ...props
++}: CollapsiblePrimitive.Panel.Props) {
    return (
-     <CollapsiblePrimitive.Panel data-slot="collapsible-content" {...props} />
+-    <CollapsiblePrimitive.Panel data-slot="collapsible-content" {...props} />
 -  )
++    <CollapsiblePrimitive.Panel
++      data-slot="collapsible-content"
++      className={cn(
++        "h-(--collapsible-panel-height) overflow-hidden transition-[height,opacity] duration-state ease-enter data-ending-style:h-0 data-ending-style:opacity-0 data-ending-style:duration-state-exit data-ending-style:ease-exit data-starting-style:h-0 data-starting-style:opacity-0",
++        className,
++      )}
++      {...props}
++    />
 +  );
  }
  

@@ -120,7 +120,7 @@
         "whenToUse": "A decision that must be made before anything else continues — deleting, discarding, signing out.",
         "whenNotToUse": "Anything dismissible by clicking away, or a form — use a Dialog.",
         "version": "0.60.0",
-        "integrity": "sha256-2Z141kCcGFEN+skjO3FTt9O6h+JLXvDdrhzDWb9MDEU="
+        "integrity": "sha256-Z22ScexdqYRndHtRT1IWFrskuXr884bW+OJ3A1ZIvYg="
       }
     },
     {
@@ -1466,7 +1466,7 @@
         "whenToUse": "A single show/hide region — extra detail, an optional form section, 'read more'.",
         "whenNotToUse": "Several coordinated sections where one opens at a time — use Accordion.",
         "version": "0.29.1",
-        "integrity": "sha256-wOJ0IjwM+Wl10LGPAPNYGCQI1U/K72VRK9I3w24qTds="
+        "integrity": "sha256-lnPaI2r/j2z8qg8pGXJmXk070Fw51Shs5zGtjolcRnc="
       }
     },
     {
@@ -2456,7 +2456,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.60.0",
-        "integrity": "sha256-0cWglOyEILV0apmR2brADHwdwBL57V4fmJqlEG3chVs="
+        "integrity": "sha256-Uw45QVVGFRZFaMwPssYbCO/XFvfJfz0ziPEG2Pk44nw="
       }
     },
     {
@@ -2929,7 +2929,7 @@
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
         "version": "0.60.0",
-        "integrity": "sha256-8kbKEwkgvpthvFJ3i8CRGOpdq83MDLWddTcSb4EFGwQ="
+        "integrity": "sha256-R1MrKHVfhlGTX2AbFsyAiRasiHl7eaFVm20hPlqea/o="
       }
     },
     {
@@ -18784,7 +18784,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.60.0",
-        "integrity": "sha256-Ro/3f7NOqAGxebvVPtJZIVdUfNpQjHo/OB5iSFsHZRI="
+        "integrity": "sha256-tyJ/MOYkwik8RtdNjX54wO2T93c7yAANzBYEz/QDgvg="
       }
     },
     {

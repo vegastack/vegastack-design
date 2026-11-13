@@ -171,9 +171,11 @@ test("RTL: direction reaches the panel; the component adds none of its own (RTL)
   );
   const panel = slot("collapsible-content", screen.container) as HTMLElement;
   expect(getComputedStyle(panel).direction).toBe("rtl");
-  // Whatever flips under RTL is the content, not the component: it spells no logical or physical
-  // utility of its own.
-  expect(panel.className).toBe("");
+  // Whatever flips under RTL is the content, not the component: its only classes are the height
+  // motion (MOT-14), which has no inline direction.
+  expect(panel.className).not.toMatch(
+    /(?:^|\s)(?:[mp][slrxe]|left|right|start|end|text-left|text-right)-/,
+  );
 });
 
 test("disabled: the root disables the trigger without removing it from the page", async () => {
@@ -198,17 +200,7 @@ test("hiddenUntilFound keeps the closed panel in the DOM for find-in-page", asyn
   expect(panel.getAttribute("hidden")).toBe("until-found");
 });
 
-test("DOC-1: the three parts are pass-throughs — they contribute no classes of their own", async () => {
-  // The patch for this component carries NO STYLING HUNK AT ALL. That claim is only true while
-  // every part renders with exactly the className the call site passed, and nothing else.
-  const bare = await render(<Subject defaultOpen />);
-  for (const name of [
-    "collapsible",
-    "collapsible-trigger",
-    "collapsible-content",
-  ]) {
-    expect((slot(name, bare.container) as HTMLElement).className).toBe("");
-  }
+test("DOC-1: the root and trigger are pass-throughs; the panel adds only its motion (MOT-14)", async () => {
   const styled = await render(
     <Collapsible className="root-only">
       <CollapsibleTrigger className="trigger-only">Toggle</CollapsibleTrigger>
@@ -225,9 +217,36 @@ test("DOC-1: the three parts are pass-throughs — they contribute no classes of
   expect(
     (slot("collapsible-trigger", styled.container) as HTMLElement).className,
   ).toBe("trigger-only");
-  expect(
-    (slot("collapsible-content", styled.container) as HTMLElement).className,
-  ).toBe("panel-only");
+  const panel = slot("collapsible-content", styled.container) as HTMLElement;
+  // The caller's class is merged last, after the motion classes.
+  expect(panel.className.endsWith(" panel-only")).toBe(true);
+});
+
+test("MOT-14: the panel animates its height and opacity both ways on the chat motion tokens", async () => {
+  const screen = await render(<Subject defaultOpen />);
+  const panel = slot("collapsible-content", screen.container) as HTMLElement;
+  for (const cls of [
+    "h-(--collapsible-panel-height)",
+    "overflow-hidden",
+    "transition-[height,opacity]",
+    "duration-state",
+    "ease-enter",
+    "data-starting-style:h-0",
+    "data-starting-style:opacity-0",
+    "data-ending-style:h-0",
+    "data-ending-style:opacity-0",
+    "data-ending-style:duration-state-exit",
+    "data-ending-style:ease-exit",
+  ])
+    expect(panel.classList.contains(cls)).toBe(true);
+});
+
+test("MOT-14: closing keeps the panel mounted until its exit transition ends, then removes it", async () => {
+  const screen = await render(<Subject defaultOpen />);
+  await userEvent.click(screen.getByRole("button"));
+  await expect
+    .poll(() => slot("collapsible-content", screen.container))
+    .toBeNull();
 });
 
 test("FOC-1/FOC-6: nothing rendered carries a focus glow or suppresses the outline", async () => {
