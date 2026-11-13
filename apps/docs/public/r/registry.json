@@ -20091,7 +20091,7 @@
         "whenToUse": "A file an agent made or a person attached, shown in the chat where it appeared.",
         "whenNotToUse": "A list of a record's files (FileCard), a file named inside running text (InlineChip's file chip), or a file being uploaded (UploadCard).",
         "version": "0.81.0",
-        "integrity": "sha256-L3f7Yv8sPr747lcX0bRCdfcxZ+HK3+6DT0FvWsafmC4="
+        "integrity": "sha256-hjWOuR4WWOZYnYbxMkxHNSTUjgxu06WnKBg5/stgbEc="
       }
     },
     {

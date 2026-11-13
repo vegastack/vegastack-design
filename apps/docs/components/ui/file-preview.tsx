@@ -1,4 +1,4 @@
-// @vegastack file-preview@0.81.0 sha256-L3f7Yv8sPr747lcX0bRCdfcxZ+HK3+6DT0FvWsafmC4=
+// @vegastack file-preview@0.81.0 sha256-hjWOuR4WWOZYnYbxMkxHNSTUjgxu06WnKBg5/stgbEc=
 
 "use client";
 
@@ -232,7 +232,7 @@ function FilePreviewCard({
           variant="link"
           size="xs"
           onClick={retry}
-          className="h-auto px-0 text-foreground"
+          className="relative h-auto px-0 text-foreground before:absolute before:-inset-y-1 before:inset-x-0 before:content-['']"
         >
           Retry
         </Button>
@@ -341,7 +341,7 @@ function FilePreviewCard({
           <Button
             variant="link"
             onClick={onOpen}
-            className="h-auto min-w-0 gap-2 p-0 text-sm font-semibold text-foreground"
+            className="relative h-auto min-w-0 gap-2 p-0 text-sm font-semibold text-foreground before:absolute before:-inset-y-1 before:inset-x-0 before:content-['']"
           >
             <FileTypeIcon
               contentType={mediaType}
