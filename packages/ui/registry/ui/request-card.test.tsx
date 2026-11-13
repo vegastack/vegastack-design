@@ -471,3 +471,55 @@ test("compact: the title and the answers share a row in a wide container", async
   expect(actions.left).toBeGreaterThan(title.left);
   expect(actions.top).toBeLessThan(title.bottom);
 });
+
+test("the agent's own glyph is its face when it has no image", async () => {
+  const screen = await render(
+    <RequestCard
+      spec={{
+        ...spec,
+        agent: {
+          ...spec.agent,
+          mark: <svg data-testid="agent-glyph" />,
+          hue: "green",
+        },
+      }}
+      state="pending"
+      onAllowOnce={vi.fn()}
+      onAlways={vi.fn()}
+      onDecline={vi.fn()}
+      onNever={vi.fn()}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-testid="agent-glyph"]'),
+  ).not.toBeNull();
+  expect(screen.container.querySelector(".bg-tag-green-subtle")).not.toBeNull();
+});
+
+test("a permission row draws its agent's own glyph and hue", async () => {
+  const screen = await render(
+    <PermissionList
+      title="Allowed"
+      items={[
+        {
+          id: "p1",
+          effect: "allow",
+          title: "Post in #ops",
+          uses: 1,
+          agent: {
+            id: "a1",
+            name: "Inbox assistant",
+            avatar: null,
+            mark: <svg data-testid="agent-glyph" />,
+            hue: "green",
+          },
+        },
+      ]}
+      onRevoke={vi.fn()}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-testid="agent-glyph"]'),
+  ).not.toBeNull();
+  expect(screen.container.querySelector(".bg-tag-green-subtle")).not.toBeNull();
+});

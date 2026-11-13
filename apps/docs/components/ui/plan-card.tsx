@@ -1,4 +1,4 @@
-// @vegastack plan-card@0.75.0 sha256-ZUeSJT9A5wZAXEvfwyvOScnV4AGVJjkAEdHMtMYIUHQ=
+// @vegastack plan-card@0.75.0 sha256-yOvae6rl1ivnVpaASWkomgi11is3q6zJT1mB+bNOHBk=
 
 "use client";
 
@@ -17,7 +17,11 @@ import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
 import { EffectPill, type PlanEffect } from "@/components/ui/effect-pill";
-import { PersonAvatar } from "@/components/ui/person-avatar";
+import {
+  PersonAvatar,
+  type Person,
+  type PersonMark,
+} from "@/components/ui/person-avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
@@ -42,6 +46,14 @@ export interface PlanAgent {
   name: string;
   /** Its mark, shown inside its hexagon. */
   avatar: string | null;
+  /**
+   * Its own face: a glyph (a ReactNode, such as a lucide icon) or an image object, drawn inside its
+   * hexagon. When set it wins over `avatar`, which shows only when `mark` is nullish. Same as
+   * `Person.mark`. @default undefined
+   */
+  mark?: PersonMark;
+  /** The hue its hexagon takes behind a glyph or the fallback bot. Same as `Person.hue`. @default undefined */
+  hue?: Person["hue"];
 }
 
 /** What changed in a step since the previous version. */
@@ -790,6 +802,8 @@ export function PlanCard({
             person={{
               name: plan.agent.name,
               image: plan.agent.avatar,
+              mark: plan.agent.mark,
+              hue: plan.agent.hue,
               kind: "agent",
             }}
             aria-hidden

@@ -366,3 +366,23 @@ test("an answer from elsewhere never moves focus", async () => {
     .toBeVisible();
   expect(document.activeElement).toBe(document.body);
 });
+
+test("the agent's own glyph is its face when it has no image", async () => {
+  const screen = await render(
+    <PlanCard
+      plan={{
+        ...plan,
+        agent: {
+          ...plan.agent,
+          mark: <svg data-testid="agent-glyph" />,
+          hue: "green",
+        },
+      }}
+      {...handlers()}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-testid="agent-glyph"]'),
+  ).not.toBeNull();
+  expect(screen.container.querySelector(".bg-tag-green-subtle")).not.toBeNull();
+});
