@@ -67,6 +67,25 @@ test("a string trigger opens a menu of tight rows; the selected ✓ is primary",
   expect(check.getAttribute("class")).toContain("text-primary");
   expect(check.getAttribute("class")).not.toMatch(/success|green/);
   expect(selected.getAttribute("aria-keyshortcuts")).toBe("1");
+  // The ✓ takes the one right slot: no number beside it; the others show theirs.
+  expect(
+    selected.querySelector('[data-slot="chat-menu-item-end"]')!.textContent,
+  ).toBe("");
+  expect(
+    document.querySelectorAll('[data-slot="chat-menu-item-end"]')[1]!
+      .textContent,
+  ).toBe("2");
+});
+
+test("the selected row's hidden number still picks it", async () => {
+  const onModel = vi.fn();
+  const screen = await render(<ModelMenu onModel={onModel} />);
+  await userEvent.click(screen.getByRole("button", { name: "Sonnet 5.5" }));
+  await expect.poll(() => slot("chat-menu-content")).not.toBeNull();
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("1");
+  expect(onModel).toHaveBeenCalledWith("sonnet");
+  await expect.poll(() => slot("chat-menu-content")).toBeNull();
 });
 
 test("a number key picks its item and closes the menu", async () => {
