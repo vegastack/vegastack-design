@@ -19777,7 +19777,7 @@
         "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
         "whenNotToUse": "An agent asking to act (ApprovalCard, RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
         "version": "0.77.0",
-        "integrity": "sha256-qcbjjCjme+ANgHKoZWDslVHjIYYWHImNu8zRpe/0E3g="
+        "integrity": "sha256-gioaqA0zzKan4n4BdJK0X88/vwwhIrArL3lpQ/JiCLE="
       }
     },
     {
@@ -19925,7 +19925,7 @@
         "whenToUse": "The state of a chat step, task, Subagent, request or upload, in a row or a meta line.",
         "whenNotToUse": "Workflow status of a record (StatusIcon), a live loop (TextSpinner), or a pass/fail result outside agent UI (Badge).",
         "version": "0.77.0",
-        "integrity": "sha256-+fSTL7Rq3zAkk7jHdbw52RUTnVFueokpx1g0J1IvA8E="
+        "integrity": "sha256-dneZynM1ztYUwgJDLcuITv6W12bqZoYV0YwyU543+Ug="
       }
     },
     {

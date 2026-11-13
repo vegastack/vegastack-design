@@ -8,7 +8,7 @@ const glyph = (root: ParentNode) =>
 
 test.each([
   ["done", "Done", "text-primary"],
-  ["running", "Running", "text-primary"],
+  ["running", "Running", "text-info-text"],
   ["pending", "Not started", "text-muted-foreground"],
   ["skipped", "Skipped", "text-muted-foreground"],
   ["failed", "Failed", "text-muted-foreground"],

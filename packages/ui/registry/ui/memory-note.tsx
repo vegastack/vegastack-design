@@ -130,7 +130,7 @@ const ICON: Record<
   { Icon: typeof BookmarkCheck; className: string }
 > = {
   remembered: { Icon: BookmarkCheck, className: "text-primary" },
-  updated: { Icon: PencilLine, className: "text-primary" },
+  updated: { Icon: PencilLine, className: "text-info-text" },
   suggested: { Icon: Lightbulb, className: "text-info-text" },
   forgot: { Icon: Eraser, className: "text-muted-foreground" },
   would: { Icon: BookmarkPlus, className: "text-muted-foreground" },
