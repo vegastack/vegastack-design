@@ -55,14 +55,14 @@ Solid fills keep stepping their own colour (`hover:bg-primary/80 active:bg-prima
 Agent UI speaks one quiet status language (COL-25; the operator: "stop using green checks
 everywhere … use primary checkmarks only"). [`StatusGlyph`](/docs/components/status-glyph) draws it.
 
-| State                                                   | Glyph             | Ink                                 |
-| ------------------------------------------------------- | ----------------- | ----------------------------------- |
-| done, selected, approved, allowed, remembered, uploaded | ✓ `Check`         | `text-info-text` — the blue accent  |
-| running (drawn still)                                   | ◐ `Contrast`      | `text-info-text`                    |
-| not started                                             | ◌ `CircleDashed`  | `text-muted-foreground`             |
-| skipped                                                 | ⊘ `CircleSlash`   | `text-muted-foreground`             |
-| failed — always with words                              | ✗ `X`             | `text-muted-foreground`             |
-| needs you, partial, a cost warning                      | ⚠ `TriangleAlert` | `text-warning-text`, the glyph only |
+| State                                                   | Glyph                    | Ink                                                      |
+| ------------------------------------------------------- | ------------------------ | -------------------------------------------------------- |
+| done, selected, approved, allowed, remembered, uploaded | ✓ `Check`, `CircleCheck` | `text-primary` — near-black in light, near-white in dark |
+| running (drawn still)                                   | ◐ `Contrast`             | `text-info-text`                                         |
+| not started                                             | ◌ `CircleDashed`         | `text-muted-foreground`                                  |
+| skipped                                                 | ⊘ `CircleSlash`          | `text-muted-foreground`                                  |
+| failed — always with words                              | ✗ `X`                    | `text-muted-foreground`                                  |
+| needs you, partial, a cost warning                      | ⚠ `TriangleAlert`        | `text-warning-text`, the glyph only                      |
 
 `success`, `warning` and `destructive` are never a fill in agent UI and never the ink of a check;
 red text stays for destructive buttons and form errors. `design-lint` enforces it in the registry

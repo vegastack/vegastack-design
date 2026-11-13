@@ -1,4 +1,4 @@
-// @vegastack memory-note@0.77.0 sha256-f1SqiX3eTVwvs3qQpP3X5+BMNn//xkeAw5s0pzZSlng=
+// @vegastack memory-note@0.77.0 sha256-gioaqA0zzKan4n4BdJK0X88/vwwhIrArL3lpQ/JiCLE=
 
 "use client";
 
@@ -129,7 +129,7 @@ const ICON: Record<
   Exclude<MemoryNoteTone, "queued">,
   { Icon: typeof BookmarkCheck; className: string }
 > = {
-  remembered: { Icon: BookmarkCheck, className: "text-info-text" },
+  remembered: { Icon: BookmarkCheck, className: "text-primary" },
   updated: { Icon: PencilLine, className: "text-info-text" },
   suggested: { Icon: Lightbulb, className: "text-info-text" },
   forgot: { Icon: Eraser, className: "text-muted-foreground" },

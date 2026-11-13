@@ -7,7 +7,7 @@ const glyph = (root: ParentNode) =>
   root.querySelector<SVGElement>('[data-slot="status-glyph"]')!;
 
 test.each([
-  ["done", "Done", "text-info-text"],
+  ["done", "Done", "text-primary"],
   ["running", "Running", "text-info-text"],
   ["pending", "Not started", "text-muted-foreground"],
   ["skipped", "Skipped", "text-muted-foreground"],

@@ -1,4 +1,4 @@
-// @vegastack toast@0.77.0 sha256-+00op2p1x7raeF4o4MR2lJ8qe/1huwNnnObmUC1Icbg=
+// @vegastack toast@0.77.0 sha256-xa7TgRZdyMrJ+nEs0kc1+S3Qb0qSiZzjYXO/fJYsxyk=
 
 "use client";
 
@@ -363,7 +363,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   let icon: React.ReactNode = null;
 
   if (type === "success") {
-    icon = <CircleCheckIcon className="text-info-text" aria-hidden="true" />;
+    icon = <CircleCheckIcon className="text-primary" aria-hidden="true" />;
   }
 
   if (type === "info") {

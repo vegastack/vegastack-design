@@ -718,7 +718,7 @@ test("badge and ring: icon and word; amber ring for needs you, none otherwise (f
   );
   expect(badges).toHaveLength(1);
   expect(badges[0]!.textContent).toBe("Done");
-  expect(badges[0]!.className).toContain("text-info-text");
+  expect(badges[0]!.className).toContain("text-primary");
   const rings = screen.container.querySelectorAll<HTMLElement>(
     "[data-slot=agent-state-ring]",
   );

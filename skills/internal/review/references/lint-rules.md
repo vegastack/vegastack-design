@@ -238,7 +238,7 @@ that catch bugs nobody can see in review.
     `className` — a literal, `cn()` arguments, or any `const` it reads, module map or local class
     string alike — names `success`, `green` or `emerald`; and an object literal pairing a check icon
     with such a class (`{ Icon: BookmarkCheck, className: "text-success-text" }`). The operator's
-    rule: every check is the blue accent (`text-info-text`, `StatusGlyph`), never green.
+    rule: checks are primary (`text-primary`, `StatusGlyph`), never green.
     `vegastack-design doctor` runs the same pattern over an app's own code as a failure.
 27. **`no-status-fill`** (COL-25, **new 2026-11-13**) — in the agent component set (`message-*`,
     `task-list`, `plan-card`, `request-card`, `approval-card`, `memory-*`, `agent-*`, `chat-*`,

@@ -1,4 +1,4 @@
-// @vegastack chat-menu@0.77.0 sha256-3rLmBhlvqDBLHYfdqox2Zqa/VGprKNZ72TkVY2bGuAE=
+// @vegastack chat-menu@0.77.0 sha256-h8G0OitcNA6mcoBtQ557/GBRhe6HVAgCR/GKzPqF1rk=
 
 "use client";
 
@@ -69,8 +69,8 @@ export interface ChatMenuProps {
 /**
  * A menu with the chat's density — one column, tight rows, no empty detail pane — for picking a
  * model, an effort level, a scope. An item can carry a number shortcut: while the menu is open,
- * pressing that key picks it. → opens a submenu (Base UI). The selected item's ✓ is the blue
- * accent (COL-25) and shares the right slot with the shortcut.
+ * pressing that key picks it. → opens a submenu (Base UI). The selected item's ✓ is primary
+ * (COL-25) and shares the right slot with the shortcut.
  *
  * @example
  * <ChatMenu trigger="Sonnet 5.5" side="top" align="end">
@@ -151,8 +151,8 @@ export interface ChatMenuItemProps {
 }
 
 /**
- * One row of a `ChatMenu`: the words, an optional hint, and a right slot holding the ✓ (blue
- * accent) and the number shortcut.
+ * One row of a `ChatMenu`: the words, an optional hint, and a right slot holding the ✓ (primary)
+ * and the number shortcut.
  *
  * @example
  * <ChatMenuItem selected shortcut="1" onSelect={pickSonnet}>Sonnet 5.5</ChatMenuItem>
@@ -212,7 +212,7 @@ function ChatMenuItem({
               aria-label="Selected"
               data-icon-tone=""
               strokeWidth={1.5}
-              className="text-info-text"
+              className="text-primary"
             />
           ) : null}
           {shortcut ? (

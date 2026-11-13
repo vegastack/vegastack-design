@@ -1,4 +1,4 @@
-// @vegastack request-card@0.77.0 sha256-YMUi62Kc9+TcSg/SjlKyr8OcNkxj9GNFm6xypnmNg1k=
+// @vegastack request-card@0.77.0 sha256-v/J/OTeCIFWs/mDG0UxlmGQJr3XfdNa55pf4mptc2V4=
 
 "use client";
 
@@ -282,16 +282,12 @@ function settled(
     case "allowed_once":
       return {
         text: `Allowed once${who}`,
-        icon: (
-          <CircleCheck aria-hidden className={cn(ICON, "text-info-text")} />
-        ),
+        icon: <CircleCheck aria-hidden className={cn(ICON, "text-primary")} />,
       };
     case "allowed_always":
       return {
         text: `Always allowed${who}`,
-        icon: (
-          <CircleCheck aria-hidden className={cn(ICON, "text-info-text")} />
-        ),
+        icon: <CircleCheck aria-hidden className={cn(ICON, "text-primary")} />,
         action: "revoke",
       };
     case "declined":

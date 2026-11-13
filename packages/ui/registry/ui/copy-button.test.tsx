@@ -68,7 +68,7 @@ test("click copies value, shows the check, and fires onCopied", async () => {
   const copied = screen.getByRole("button", { name: "Copied" });
   await expect.element(copied).toBeInTheDocument();
   await expect.element(copied).toHaveAttribute("data-copied", "");
-  expect(copied.element().className).toContain("text-info-text");
+  expect(copied.element().className).toContain("text-primary");
   expect(copied.element().className).not.toContain("text-success-text");
 });
 
