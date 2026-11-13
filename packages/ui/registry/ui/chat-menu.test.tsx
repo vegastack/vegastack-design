@@ -77,6 +77,17 @@ test("a string trigger opens a menu of tight rows; the selected ✓ is primary",
   ).toBe("2");
 });
 
+test("the selected row's hidden number still picks it", async () => {
+  const onModel = vi.fn();
+  const screen = await render(<ModelMenu onModel={onModel} />);
+  await userEvent.click(screen.getByRole("button", { name: "Sonnet 5.5" }));
+  await expect.poll(() => slot("chat-menu-content")).not.toBeNull();
+  await userEvent.keyboard("{ArrowDown}");
+  await userEvent.keyboard("1");
+  expect(onModel).toHaveBeenCalledWith("sonnet");
+  await expect.poll(() => slot("chat-menu-content")).toBeNull();
+});
+
 test("a number key picks its item and closes the menu", async () => {
   const onModel = vi.fn();
   const screen = await render(<ModelMenu onModel={onModel} />);
