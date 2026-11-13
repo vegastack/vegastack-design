@@ -1,0 +1,63 @@
+---
+title: Memory Group
+description: "What an agent remembered in one turn, as one quiet fold with Undo and Edit per note — never a card."
+audience: public
+registry: memory-group
+status: stable
+since: 0.80.0
+a11y: a disclosure; Undo and Edit name their note
+preview: memoryGroup
+---
+
+## Install
+
+<InstallSteps name="memory-group" />
+
+## Usage
+
+```tsx
+import { MemoryGroup } from "@/components/ui/memory-group";
+
+<MemoryGroup data={turn.memory} onUndo={forget} onEdit={openNote} />;
+```
+
+One group per turn: "Remembered 3 things · Personal memory ⌄", then each note with Undo · Edit
+where the person can still do them. The mark is muted and the group has no card, because a saved
+note is something that happened, not something to act on.
+
+<ComponentPreview
+  name="memoryGroup"
+  file="components/preview/memory-group.tsx"
+/>
+
+## Examples
+
+### Closed and read-only
+
+A note the person can no longer undo or edit shows without actions; a group can start closed.
+
+<ComponentPreview
+  name="memoryGroupStates"
+  file="components/preview/memory-group.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/memory-group.tsx"
+  name="MemoryGroupProps"
+/>
+
+## Accessibility
+
+- The summary is a disclosure button with `aria-expanded`.
+- Undo and Edit are named after their note ("Undo: Prefers Inter for slides").
+
+<StatesTested name="memory-group" />
+
+## Do / Don't
+
+<DoDont
+  do="Show what was remembered as quiet lines under one summary."
+  dont="Draw a card per note or a green check."
+/>

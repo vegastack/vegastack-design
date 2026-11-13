@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5ffc446c43c5c2546d78878dfb0709b88437640bf3f099fbbb502e37d5ddbab9",
+  "contractSha256": "266b2de03a3e0f1a3d1edfd93fe36aa4de1d36d32ca0b94b6a40c8c49c41177f",
   "expectedCounts": {
-    "totalRegistryItems": 822,
-    "components": 230,
+    "totalRegistryItems": 826,
+    "components": 234,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -2554,6 +2554,50 @@
         "packages/ui/registry/ui/link-provider.tsx"
       ],
       "docsSlug": "/docs/components/link-provider",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-request-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-request-card.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-request-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-plan-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-plan-card.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-plan-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-question-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-question-card.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-question-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "memory-group",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/memory-group.tsx"
+      ],
+      "docsSlug": "/docs/components/memory-group",
       "contractStatus": "reconciled"
     },
     {

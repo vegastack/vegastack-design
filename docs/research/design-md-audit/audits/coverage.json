@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "5ffc446c43c5c2546d78878dfb0709b88437640bf3f099fbbb502e37d5ddbab9",
+  "contractSha256": "266b2de03a3e0f1a3d1edfd93fe36aa4de1d36d32ca0b94b6a40c8c49c41177f",
   "inventory": {
-    "expected": 822,
-    "actual": 822,
-    "unique": 822
+    "expected": 826,
+    "actual": 826,
+    "unique": 826
   },
   "classes": {
-    "components": 230,
+    "components": 234,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -249,8 +249,8 @@
       ]
     },
     "AI/chat": {
-      "expected": 40,
-      "actual": 40,
+      "expected": 44,
+      "actual": 44,
       "members": [
         "agent-edit-banner",
         "agent-panel",
@@ -264,6 +264,9 @@
         "chat-details",
         "chat-menu",
         "chat-message-parts",
+        "chat-plan-card",
+        "chat-question-card",
+        "chat-request-card",
         "chat-skeleton",
         "chat-subagents",
         "chat-task-list",
@@ -277,6 +280,7 @@
         "delegate-popover",
         "effect-pill",
         "marker",
+        "memory-group",
         "memory-note",
         "message",
         "message-parts",
@@ -882,7 +886,7 @@
       ]
     }
   },
-  "componentRoutes": 224,
+  "componentRoutes": 228,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

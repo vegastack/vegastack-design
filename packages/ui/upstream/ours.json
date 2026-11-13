@@ -1133,6 +1133,30 @@
       "family": "chat",
       "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
       "rationale": "Upstream has no agent-turn renderers. Message Parts, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
+    },
+    "chat-request-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "rationale": "Upstream has no agent cards. Chat Request Card, composed from upstream's button and textarea and our chat-card, chat-menu and status-glyph; no patch."
+    },
+    "chat-plan-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "rationale": "Upstream has no agent cards. Chat Plan Card, composed from upstream's button, collapsible and textarea and our chat-card, chat-menu and status-glyph; no patch."
+    },
+    "chat-question-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "rationale": "Upstream has no agent cards. Chat Question Card, composed from upstream's button and textarea and our chat-card, chat-menu and status-glyph; no patch."
+    },
+    "memory-group": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "rationale": "Upstream has no agent cards. Memory Group, composed from upstream's button and textarea and our chat-card, chat-menu and status-glyph; no patch."
     }
   }
 }

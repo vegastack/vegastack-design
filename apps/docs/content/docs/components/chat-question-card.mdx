@@ -1,0 +1,87 @@
+---
+title: Chat Question Card
+description: "The agent's questions drawn whole: a pager, the question as the title, full-width options with descriptions, Other, and number keys."
+audience: public
+registry: chat-question-card
+status: stable
+since: 0.80.0
+a11y: a radiogroup of options; 1–9 pick; Enter moves on
+preview: chatQuestionCard
+---
+
+## Install
+
+<InstallSteps name="chat-question-card" />
+
+## Usage
+
+```tsx
+import { QuestionCard } from "@/components/ui/chat-question-card";
+
+<QuestionCard
+  data={questions}
+  onSubmit={(answers) => answer(questions.interactionId, answers)}
+  onSkip={() => skip(questions.interactionId)}
+/>;
+```
+
+The whole question shows at once: "‹ 1 of 4 ›" and a close that skips, the question as the title,
+then full-width options with a muted description and no radio circles. The picked option takes the
+selected fill and a primary ✓. "Other" opens a text field. "Next →" becomes "Submit" on the last
+question. Answers are option ids (ids joined by ", " for a question that takes several) or the
+person's own words; answered or skipped, the card becomes a `QuestionLine`.
+
+<ComponentPreview
+  name="chatQuestionCard"
+  file="components/preview/chat-question-card.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="chat-question-card" />
+
+## Examples
+
+### Settled lines
+
+One answer reads "✓ You chose …"; several fold under "Answered 4 questions"; skipping reads "You
+skipped 2 questions."
+
+<ComponentPreview
+  name="chatQuestionCardLines"
+  file="components/preview/chat-question-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-question-card.tsx"
+  name="QuestionCardProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-question-card.tsx"
+  name="QuestionLineProps"
+/>
+
+## Accessibility
+
+| Key           | Does                                                   |
+| ------------- | ------------------------------------------------------ |
+| `1`–`9`       | Picks that option (Other is the number after the last) |
+| `Enter`       | Next question, or Submit on the last                   |
+| `Shift+Enter` | A new line in the Other field                          |
+| `Tab`         | Moves through the pager, close, options and Next       |
+
+- Options are `role="radio"` in a `radiogroup` named by the question (`checkbox` when several can
+  be picked); the ✓ is decorative.
+- Next stays disabled until the question has an answer.
+
+<StatesTested name="chat-question-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Give each option a short label and a muted description of what it means."
+  dont="Ask the person to choose in prose when the choices are known."
+/>
