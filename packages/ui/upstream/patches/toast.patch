@@ -2,7 +2,7 @@
 # decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15, OVL-17, COL-25
 # hunks:
 #   COL-25 (operator, 2026-11-13, agent chat ground up: "stop using green checks everywhere"): the
-#     success toast's check is the blue accent, `text-info-text`, never `text-success-text`.
+#     success toast's check is primary, `text-primary`, never `text-success-text`.
 #   OVL-15: the bottom viewport positions also rise by `--toaster-offset-bottom` (default `0px`),
 #     the app-set offset that lifts the stack above a sticky footer.
 #   FOC-1, FOC-6: the toast root's `outline-none focus-visible:border-ring
@@ -101,7 +101,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..5139450 100644
+index 325d01b..7b19d8a 100644
 --- a/toast.tsx
 +++ b/toast.tsx
 @@ -1,60 +1,273 @@
@@ -516,7 +516,7 @@ index 325d01b..5139450 100644
 -    icon = (
 -      <CircleCheckIcon aria-hidden="true" />
 -    )
-+    icon = <CircleCheckIcon className="text-info-text" aria-hidden="true" />;
++    icon = <CircleCheckIcon className="text-primary" aria-hidden="true" />;
    }
  
    if (type === "info") {

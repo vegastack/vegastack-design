@@ -1189,7 +1189,7 @@ function lineIndex(text) {
 }
 
 /**
- * COL-25 (operator, 2026-11-13): every check is the blue accent and never green. The lucide check
+ * COL-25 (operator, 2026-11-13): checks are primary, never green. The lucide check
  * icons, by the name they are imported under, and the inks that make one green.
  */
 const CHECK_ICON =
@@ -1790,7 +1790,7 @@ export function main(argv = []) {
       level: "fail",
       name: "check colour",
       detail: `${composition.greenChecks.length} check icon(s) in a success or green ink`,
-      fix: "a check is the blue accent — `text-info-text`, or the StatusGlyph registry item — never `text-success*` or green (COL-25)",
+      fix: "a check is primary — `text-primary`, or the StatusGlyph registry item — never `text-success*` or green (COL-25)",
       findings: composition.greenChecks.map(
         (f) =>
           `${f.file}:${f.line}  ${f.match}${f.hint ? `  →  ${f.hint}` : ""}`,

@@ -1,4 +1,4 @@
-// @vegastack plan-card@0.77.0 sha256-+smPztp1kMDz17RbnZB5wSs9B3ZUKmxLRZD+lxPQjb4=
+// @vegastack plan-card@0.77.0 sha256-UgM1XmLsbgW/P2yx5pRorIE774G4O5/wdlHnYDGiFJA=
 
 "use client";
 
@@ -273,16 +273,12 @@ function settledLine(
     case "accepted":
       return {
         text: words.accepted(by, live),
-        icon: (
-          <CircleCheck aria-hidden className={cn(ICON, "text-info-text")} />
-        ),
+        icon: <CircleCheck aria-hidden className={cn(ICON, "text-primary")} />,
       };
     case "accepted_allowed":
       return {
         text: words.acceptedAllowed(by, live),
-        icon: (
-          <CircleCheck aria-hidden className={cn(ICON, "text-info-text")} />
-        ),
+        icon: <CircleCheck aria-hidden className={cn(ICON, "text-primary")} />,
       };
     case "changes_requested":
       return {

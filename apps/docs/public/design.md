@@ -1347,8 +1347,8 @@ sidebar and muted, in both themes:
 | text entry                         | `input` → `--input-hover` border on hover → `ring/50` border on focus (no ring or glow); `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
 
 **Status in agent UI is one quiet language (COL-25; operator 2026-11-13, agent chat ground up).**
-Every check — done, selected, approved, allowed, remembered, uploaded — is the blue accent
-(`text-info-text`) and never green; pending ◌, skipped ⊘ and failed ✗ are `muted-foreground`, failed
+Every check — done, selected, approved, allowed, remembered, uploaded — is `primary`
+(`text-primary`: a near-black circle-check in light, a near-white one in dark) and never green; pending ◌, skipped ⊘ and failed ✗ are `muted-foreground`, failed
 always with words; ⚠ (needs you, partial, a cost warning) is `warning-text` as a glyph only.
 `success`, `warning` and `destructive` are never a fill in agent UI (the destructive Button excepted)
 and never the ink of a check. `StatusGlyph` draws the six states; `design-lint` (`no-success-check`,

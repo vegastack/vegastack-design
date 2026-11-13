@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.77.0 sha256-ayqGgV+qw39CwCcklTwvZGAWuxJIWsTgbAee+EYAAfk=
+// @vegastack activity-feed@0.77.0 sha256-LjjOHYHcyBOsRYuovYNMBT4rljB0Pw+cwuEVJobY8ic=
 
 "use client";
 
@@ -612,13 +612,13 @@ const KIND_ICONS: Record<
 
 /** Semantic kinds keep their colour (an agent run's in its status tone); the rest are muted. */
 const KIND_TONES: Partial<Record<ActivityKind, string>> = {
-  approved: "text-info-text",
+  approved: "text-primary",
   rejected: "text-muted-foreground",
   requested: "text-warning-text",
   delegated: "text-tag-purple-text",
   "agent-working": "text-info-text",
   "agent-needs-you": "text-warning-text",
-  "agent-done": "text-info-text",
+  "agent-done": "text-primary",
   "agent-failed": "text-muted-foreground",
 };
 

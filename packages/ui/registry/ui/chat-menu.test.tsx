@@ -55,7 +55,7 @@ function ModelMenu({
   );
 }
 
-test("a string trigger opens a menu of tight rows; the selected ✓ is the blue accent", async () => {
+test("a string trigger opens a menu of tight rows; the selected ✓ is primary", async () => {
   const screen = await render(<ModelMenu />);
   await userEvent.click(screen.getByRole("button", { name: "Sonnet 5.5" }));
   await expect.poll(() => slot("chat-menu-content")).not.toBeNull();
@@ -64,7 +64,7 @@ test("a string trigger opens a menu of tight rows; the selected ✓ is the blue 
   )!;
   expect(selected.textContent).toContain("Sonnet 5.5");
   const check = selected.querySelector('[aria-label="Selected"]')!;
-  expect(check.getAttribute("class")).toContain("text-info-text");
+  expect(check.getAttribute("class")).toContain("text-primary");
   expect(check.getAttribute("class")).not.toMatch(/success|green/);
   expect(selected.getAttribute("aria-keyshortcuts")).toBe("1");
 });

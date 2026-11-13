@@ -53,9 +53,9 @@ const toastEl = (text: string) =>
 const viewport = () =>
   document.querySelector('[data-slot="toast-viewport"]') as HTMLElement | null;
 
-/** The four typed toasts and the ink COL-12 assigns each of them (COL-25: a success check is the blue accent). */
+/** The four typed toasts and the ink COL-12 assigns each of them (COL-25: a success check is primary). */
 const TYPES = [
-  { type: "success", ink: "text-info-text" },
+  { type: "success", ink: "text-primary" },
   { type: "info", ink: "text-info-text" },
   { type: "warning", ink: "text-warning-text" },
   { type: "error", ink: "text-destructive-text" },

@@ -706,13 +706,13 @@ export function Bad({ tone }: { tone: 'done' | 'pending' }) {
   </>;
 }
 
-// Shadowing: the nearer \`cls\` decides. Bad's is green; Good's, declared later, is blue.
+// Shadowing: the nearer \`cls\` decides. Bad's is green; Good's, declared later, is primary.
 export function ShadowBad() {
   const cls = 'text-success-text';
   return <Check className={cls} />;
 }
 export function ShadowGood() {
-  const cls = 'text-info-text';
+  const cls = 'text-primary';
   return <Check className={cls} />;
 }
 
@@ -728,10 +728,10 @@ export function Param({ tint }: { tint: string }) {
 }
 
 // Not violations: a comparison operand is not a class, and a map read by a known key is that entry.
-const TONE = { done: 'text-info-text', ok: 'text-success-text' };
+const TONE = { done: 'text-primary', ok: 'text-success-text' };
 export function Fine({ status }: { status: string }) {
   return <>
-    <Check className={status === 'success' ? 'text-info-text' : 'text-muted-foreground'} />
+    <Check className={status === 'success' ? 'text-primary' : 'text-muted-foreground'} />
     <Check className={TONE.done} />
   </>;
 }
@@ -767,8 +767,8 @@ import { cn } from '@vegastack/design';
 
 export function Good({ done }: { done: boolean }) {
   return <>
-    <Check className="text-info-text" />
-    <CircleCheck className={cn('size-4', done && 'text-info-text')} />
+    <Check className="text-primary" />
+    <CircleCheck className={cn('size-4', done && 'text-primary')} />
     <div className="bg-chat-card border border-chat-hairline rounded-chat-card" />
     <span className="text-warning-text">needs you</span>
     <div className="transition-[height,opacity] duration-state ease-enter data-ending-style:duration-state-exit data-ending-style:ease-exit" />
@@ -788,7 +788,7 @@ export function Good({ done }: { done: boolean }) {
   const agentGood = run(agentDir);
   if (agentGood.status !== 0) {
     fail(
-      "design-lint rejected the sanctioned agent UI spellings (a blue check, the chat card surface, a warning glyph ink, the chat motion set), or read a non-agent file as agent UI",
+      "design-lint rejected the sanctioned agent UI spellings (a primary check, the chat card surface, a warning glyph ink, the chat motion set), or read a non-agent file as agent UI",
       agentGood.output,
     );
   }
@@ -807,7 +807,7 @@ export function Good({ done }: { done: boolean }) {
       `three spellings of naming an icon Button through its host; the email kit's generated ` +
       `colour module alone may carry hex and \`!important\`; and in agent UI a green check (7 spellings, ` +
       `shadowing resolved lexically), a status fill (5, variants included) and hand-set motion (4) are ` +
-      `rejected while the blue check, a comparison operand, a keyed map entry, the chat card surface ` +
+      `rejected while the primary check, a comparison operand, a keyed map entry, the chat card surface ` +
       `and the chat motion set pass (COL-25, MOT-14)`,
   );
 } finally {

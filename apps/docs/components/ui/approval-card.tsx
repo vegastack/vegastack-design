@@ -1,4 +1,4 @@
-// @vegastack approval-card@0.77.0 sha256-5dLuN4CcpgQifqH3OUQ6lr2ATweAulutTx+J6mytzN4=
+// @vegastack approval-card@0.77.0 sha256-PyxzA0pHvMx5y1rv/7CB8uxFcv0XG/uNOjH/Jm91uQg=
 
 "use client";
 
@@ -128,9 +128,7 @@ function outcome(
     case "approved":
       return {
         text: "Approved",
-        icon: (
-          <CircleCheck aria-hidden className={cn(icon, "text-info-text")} />
-        ),
+        icon: <CircleCheck aria-hidden className={cn(icon, "text-primary")} />,
       };
     case "declined":
       return {

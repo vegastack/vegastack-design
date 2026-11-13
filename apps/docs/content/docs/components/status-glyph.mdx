@@ -1,6 +1,6 @@
 ---
 title: Status Glyph
-description: "One glyph per state in agent UI: a check for done in the blue accent, then not started, running, skipped, failed and needs you. Never green, never a fill."
+description: "One glyph per state in agent UI: a check for done in the primary ink, then not started, running, skipped, failed and needs you. Never green, never a fill."
 audience: public
 registry: status-glyph
 status: stable
@@ -24,7 +24,7 @@ import { StatusGlyph } from "@/components/ui/status-glyph";
 ```
 
 Agent UI speaks one quiet status language (COL-25). Every check — done, selected, approved,
-allowed, remembered, uploaded — is the blue accent, never green. Not started, skipped and failed are
+allowed, remembered, uploaded — is `primary`, never green (near-black in light, near-white in dark). Not started, skipped and failed are
 muted, and failed always comes with words that say why. Only ⚠ takes a status ink, as a glyph.
 Nothing here is ever a coloured fill. For a record's workflow status use
 [`StatusIcon`](/docs/components/status-icon); for the live loop use
@@ -64,6 +64,6 @@ Nothing here is ever a coloured fill. For a record's workflow status use
 ## Do / Don't
 
 <DoDont
-  do="Draw every check with StatusGlyph so it is the blue accent everywhere."
+  do="Draw every check with StatusGlyph so it is primary everywhere."
   dont="Colour a check green, or put a state on a red, amber or green fill."
 />

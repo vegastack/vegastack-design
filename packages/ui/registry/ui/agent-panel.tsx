@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.77.0 sha256-EXY+LdQF7EjavWhcX7vamTpJj1C7sYed2grCFMag+JQ=
+// @vegastack agent-panel@0.77.0 sha256-CUc5E0oOutHAgX59e6C3nroRnvuf/PPWYElERVfBuA0=
 
 "use client";
 
@@ -156,7 +156,7 @@ export interface AgentPanelAgent extends Pick<
   provider?: string | null;
 }
 
-type Tone = "muted" | "info" | "warning";
+type Tone = "muted" | "info" | "warning" | "done";
 
 const STATE_TONE: Record<Exclude<AgentState, "none">, Tone> = {
   queued: "muted",
@@ -167,9 +167,9 @@ const STATE_TONE: Record<Exclude<AgentState, "none">, Tone> = {
   approval: "warning",
   paused: "muted",
   blocked: "warning",
-  // COL-25: failed is muted and says so in words; done is the blue accent, never green.
+  // COL-25: failed is muted and says so in words; done is primary, never green.
   failed: "muted",
-  done: "info",
+  done: "done",
   "no-action": "muted",
   stopped: "muted",
 };
@@ -178,6 +178,7 @@ const TONE_TEXT: Record<Tone, string> = {
   muted: "text-muted-foreground",
   info: "text-info-text",
   warning: "text-warning-text",
+  done: "text-primary",
 };
 
 /** States the agent is still on: Stop applies, and a disconnect can still block it. */
@@ -332,7 +333,7 @@ export interface AgentStateBadgeProps extends Omit<
 
 /**
  * `AgentStateBadge` — a delegation's state as its icon and word in the state's ink: ◷ Queued,
- * ◌ Working, ! Needs you (amber glyph), ✕ Failed (muted, in words), ✓ Done (the blue accent), ■ Stopped. In a narrow row
+ * ◌ Working, ! Needs you (amber glyph), ✕ Failed (muted, in words), ✓ Done (primary), ■ Stopped. In a narrow row
  * the word gives way before the name beside it: it truncates, then drops out, leaving the icon
  * whole. `iconOnly` shows only the icon, with the word in a tooltip.
  *

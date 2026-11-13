@@ -1523,7 +1523,7 @@ for (const root of tokenCssRoots) {
       // ── COL-25 / MOT-14 — status and motion in agent UI (operator, 2026-11-13) ─────────────────
       //
       // "stop using green checks everywhere its ai slop. use primary checkmarks only" — every check
-      // is the blue accent (`StatusGlyph`, `text-info-text`), status hues are a glyph and never a
+      // is primary (`StatusGlyph`, `text-primary`), status hues are a glyph and never a
       // fill in agent UI, and agent components take their motion from the chat set. Three rules:
       //
       //   no-success-check  — anywhere in registry source: a lucide check icon (Check, CircleCheck,
