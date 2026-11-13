@@ -1,0 +1,80 @@
+---
+title: Chat Skeleton
+description: "A chat thread while it loads, in the shapes it will take, and the round button back to the latest message."
+audience: public
+registry: chat-skeleton
+status: stable
+since: 0.79.0
+a11y: the skeleton is one status; the scroll button is named
+preview: chatSkeleton
+---
+
+## Install
+
+<InstallSteps name="chat-skeleton" />
+
+## Usage
+
+```tsx
+import { ChatSkeleton, ScrollToLatest } from "@/components/ui/chat-skeleton";
+
+{
+  loading ? <ChatSkeleton /> : thread;
+}
+<ScrollToLatest
+  visible={awayFromBottom}
+  hasNew={unread}
+  onClick={scrollToEnd}
+/>;
+```
+
+`ChatSkeleton` sketches each turn — the person's bubble, the agent's author line, three lines of
+answer — and waits 150ms before it fades in, so a fast load never flashes it. `ScrollToLatest` is a
+32px round button on the popover surface with a small shadow; it fades and rises 8px into place
+when the reader is more than about 80px from the bottom, and a primary dot says new words arrived.
+
+<ComponentPreview
+  name="chatSkeleton"
+  file="components/preview/chat-skeleton.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="chat-skeleton" />
+
+## Examples
+
+### Scroll to latest
+
+Parked out of reach while the reader is at the bottom.
+
+<ComponentPreview
+  name="chatSkeletonScroll"
+  file="components/preview/chat-skeleton.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-skeleton.tsx"
+  name="ChatSkeletonProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-skeleton.tsx"
+  name="ScrollToLatestProps"
+/>
+
+## Accessibility
+
+- The skeleton is one `status` named "Loading the chat".
+- The scroll button's name adds "new messages" when the dot shows; hidden, it leaves the tab order.
+
+<StatesTested name="chat-skeleton" />
+
+## Do / Don't
+
+<DoDont
+  do="Autoscroll only within about 80px of the bottom; otherwise show the button."
+  dont="Yank a reader who scrolled up back to the bottom."
+/>

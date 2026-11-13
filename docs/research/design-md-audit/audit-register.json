@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "ea9d93487fbc0926757b8666f2c4fb2b5e71f3c86f0003dbd995541fc96c3703",
+  "contractSha256": "c3fc5ce1f81b312c7e2378bdceb75bb04d97cd798de3d1743fea60aed6c7e30f",
   "expectedCounts": {
-    "totalRegistryItems": 815,
-    "components": 223,
+    "totalRegistryItems": 822,
+    "components": 230,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -1614,6 +1614,83 @@
         "packages/ui/registry/ui/chat-card.tsx"
       ],
       "docsSlug": "/docs/components/chat-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-message-parts",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-message-parts.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-message-parts",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-details",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-details.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-details",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-skeleton",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-skeleton.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-skeleton",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-user-bubble",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-user-bubble.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-user-bubble",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-task-list",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-task-list.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-task-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-subagents",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-subagents.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-subagents",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-work-log",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-work-log.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-work-log",
       "contractStatus": "reconciled"
     },
     {

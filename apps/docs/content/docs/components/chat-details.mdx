@@ -1,0 +1,88 @@
+---
+title: Chat Details
+description: "The chat details panel beside the thread: quiet sections of outputs, Subagents and background work, context and connectors."
+audience: public
+registry: chat-details
+status: stable
+since: 0.79.0
+a11y: a complementary landmark of named regions
+preview: chatDetails
+---
+
+## Install
+
+<InstallSteps name="chat-details" />
+
+## Usage
+
+```tsx
+import {
+  ChatDetails,
+  ChatDetailsRow,
+  ChatDetailsSection,
+} from "@/components/ui/chat-details";
+
+<ChatDetails>
+  <ChatDetailsSection title="Outputs" count={outputs.length}>
+    {outputs.map((file) => (
+      <ChatDetailsRow
+        key={file.id}
+        icon={<FileIcon />}
+        title={file.name}
+        meta={file.when}
+        onOpen={open}
+      />
+    ))}
+  </ChatDetailsSection>
+</ChatDetails>;
+```
+
+Beside the chat on screens 1280px and wider (a sheet on a phone): Context, Outputs, Subagents and
+background work, Connectors. Each section is a small title with its count, rows of an icon, a name
+and muted meta, and "Show N more" past its limit. A Subagent opened from the thread shows its steps
+here under `ChatDetailsBack`.
+
+<ComponentPreview
+  name="chatDetails"
+  file="components/preview/chat-details.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="chat-details" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-details.tsx"
+  name="ChatDetailsProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-details.tsx"
+  name="ChatDetailsSectionProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-details.tsx"
+  name="ChatDetailsRowProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-details.tsx"
+  name="ChatDetailsBackProps"
+/>
+
+## Accessibility
+
+- The panel is an `aside` named "Chat details"; each section is a region named by its title.
+- Rows that open something are buttons or links; "Show more" says how many it adds.
+
+<StatesTested name="chat-details" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep sections quiet: a title, a count, rows."
+  dont="Repeat the thread's cards in the panel."
+/>

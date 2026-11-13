@@ -1,0 +1,130 @@
+---
+title: Chat Work Log
+description: "A turn's work read as sentences: the live line, its settled summary, the work log, and quiet error and stuck rows."
+audience: public
+registry: chat-work-log
+status: stable
+since: 0.79.0
+a11y: live line and summary disclose; live words are polite
+preview: chatWorkLog
+---
+
+## Install
+
+<InstallSteps name="chat-work-log" />
+
+## Usage
+
+```tsx
+import { LiveLine, WorkLog, WorkSummary } from "@/components/ui/chat-work-log";
+
+{
+  live ? (
+    <LiveLine
+      words="Searching the web"
+      startedAt={turn.startedAt}
+      open={open}
+      onToggle={toggle}
+    />
+  ) : (
+    <WorkSummary summary={turn.summary} open={open} onToggle={toggle} />
+  );
+}
+<WorkLog parts={message.parts} detail={detail} open={open} />;
+```
+
+`LiveLine` is the turn's one moving thing: the braille spinner, the current step in words and a
+timer in tabular figures with its width reserved. After 45 seconds with no event it adds what the
+turn waits on, with Stop and Keep waiting. `WorkSummary` replaces it in place, the same 28px. Rows
+in `WorkLog` read as a muted verb, the subject in the body ink and muted meta and duration; thinking
+shows as 13px muted notes clamped to two lines. No row has an icon or a spinner; "Running" is a
+word. `MessageParts` composes all of this; reach for these parts directly in a Subagent's steps.
+
+<ComponentPreview
+  name="chatWorkLog"
+  file="components/preview/chat-work-log.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="chat-work-log" />
+
+## Examples
+
+### Settled
+
+One muted sentence; something that changed the outcome adds words, never colour.
+
+<ComponentPreview
+  name="chatWorkLogSettled"
+  file="components/preview/chat-work-log.tsx"
+/>
+
+### Verbose
+
+Notes open in full and each call shows its input.
+
+<ComponentPreview
+  name="chatWorkLogVerbose"
+  file="components/preview/chat-work-log.tsx"
+/>
+
+### Stuck
+
+After 45 seconds with no event the live line says what the turn waits on.
+
+<ComponentPreview
+  name="chatWorkLogStuck"
+  file="components/preview/chat-work-log.tsx"
+/>
+
+### Error and stuck rows
+
+The amber ⚠ glyph only, plain words, one action; a muted ◌ for a turn waiting on something outside it.
+
+<ComponentPreview
+  name="chatWorkLogNotices"
+  file="components/preview/chat-work-log.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-work-log.tsx"
+  name="LiveLineProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-work-log.tsx"
+  name="WorkSummaryProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-work-log.tsx"
+  name="WorkLogProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-work-log.tsx"
+  name="ChatNoticeRowProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-work-log.tsx"
+  name="ChatClockProps"
+/>
+
+## Accessibility
+
+- `LiveLine` (with `onToggle`) and `WorkSummary` are buttons with `aria-expanded` for the log.
+- The live words are announced politely; the timer is hidden from screen readers.
+- A long note is a button that opens it in full.
+
+<StatesTested name="chat-work-log" />
+
+## Do / Don't
+
+<DoDont
+  do="Say states in words: Running, Waiting on you, Couldn't call Slack search."
+  dont="Put a spinner, a coloured icon or a red ✕ on a row."
+/>

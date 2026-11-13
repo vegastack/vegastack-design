@@ -1,0 +1,85 @@
+---
+title: Chat Task List
+description: "An agent's task list as the turn's progress: a count-and-time header, done, running, to-do and skipped rows with reasons in the row."
+audience: public
+registry: chat-task-list
+status: stable
+since: 0.79.0
+a11y: the header is a disclosure; each glyph names its state
+preview: chatTaskList
+---
+
+## Install
+
+<InstallSteps name="chat-task-list" />
+
+## Usage
+
+```tsx
+import { ChatTaskList } from "@/components/ui/chat-task-list";
+
+<ChatTaskList data={part.data} onOpenItem={openSubagents} onWhy={explain} />;
+```
+
+When a turn has a task list it **is** the turn's progress, so the steps line folds under it. A
+hairline box with no fill; the header is a count and a time, never a spinner ("1 of 5 · 1:20",
+"Done · 1 step · 3 skipped", "Stopped at 3 of 5 · Google refused the update"). A task is ✓ only when its calls
+succeeded (the server checks); a refused or failed one is ⊘ with its reason inside the row, never
+struck through. It stays mounted when the turn ends and folds on the chat motion. The data is the
+chat contract's `data-tasklist` payload. The older `TaskList` stays until the app moves over.
+
+<ComponentPreview
+  name="chatTaskList"
+  file="components/preview/chat-task-list.tsx"
+/>
+
+## Examples
+
+### Stopped
+
+Where it stopped and why, in the header.
+
+<ComponentPreview
+  name="chatTaskListStopped"
+  file="components/preview/chat-task-list.tsx"
+/>
+
+### Done with skips
+
+A done list counts what it skipped.
+
+<ComponentPreview
+  name="chatTaskListDone"
+  file="components/preview/chat-task-list.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-task-list.tsx"
+  name="ChatTaskListProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-task-list.tsx"
+  name="TaskListData"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-task-list.tsx"
+  name="TaskListDataItem"
+/>
+
+## Accessibility
+
+- The header is a button with `aria-expanded`; it reads "Task list, 1 of 5".
+- Each glyph carries its state as its name ("Done", "In progress", "Skipped").
+
+<StatesTested name="chat-task-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep the reason inside the skipped row."
+  dont="Strike a step through or colour the row."
+/>

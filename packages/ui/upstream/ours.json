@@ -1091,6 +1091,48 @@
       "family": "chat",
       "source": "VegaStack agent chat ground up, Ph5 composer — operator batch approval 13-11-2026 \"Agent chat ground up\" (Round 3)",
       "rationale": "Upstream has no context breakdown. A segmented bar and a tabular legend that add up to the window, over upstream button; no patch."
+    },
+    "chat-work-log": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no agent-turn renderers. Chat Work Log, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
+    },
+    "chat-subagents": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no agent-turn renderers. Chat Subagents, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
+    },
+    "chat-task-list": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no agent-turn renderers. Chat Task List, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
+    },
+    "chat-user-bubble": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no agent-turn renderers. Chat User Bubble, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
+    },
+    "chat-skeleton": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no agent-turn renderers. Chat Skeleton, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
+    },
+    "chat-details": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no agent-turn renderers. Chat Details, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
+    },
+    "chat-message-parts": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no agent-turn renderers. Message Parts, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
     }
   }
 }
