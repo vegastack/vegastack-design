@@ -16440,7 +16440,7 @@
       "meta": {
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
-        "version": "0.78.0"
+        "version": "0.78.1"
       }
     },
     {
@@ -16566,7 +16566,7 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat. Put Plan, the model and the memory ring in its meta line (ComposerMeta).",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.78.0"
+        "version": "0.78.1"
       }
     },
     {

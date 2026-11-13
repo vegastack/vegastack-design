@@ -20020,8 +20020,8 @@
       "meta": {
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
-        "version": "0.78.0",
-        "integrity": "sha256-kReoNmY93++X1HYB7o0L2J3XTYQ6wz1njIqTz5c6r3o="
+        "version": "0.78.1",
+        "integrity": "sha256-BuxUIBTDfz9i+0UKjWOH6qBPSiuVFl+4xma1/CnMugQ="
       }
     },
     {
@@ -20158,8 +20158,8 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat. Put Plan, the model and the memory ring in its meta line (ComposerMeta).",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.78.0",
-        "integrity": "sha256-fuLKRDyw0V5ZI3OOMpM6hejcU7T26qTYFL/yNsEbpEs="
+        "version": "0.78.1",
+        "integrity": "sha256-p81K8n2d1IQbFWvkciAzzARWYjM0biR1BAAkorY+dEA="
       }
     },
     {

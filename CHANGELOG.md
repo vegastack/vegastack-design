@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.78.1] — November 13, 2026
+
+<!-- assembled from 2 changesets: b5d102595577 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.78.0 → 0.78.1.
+
+### 🐛 Fixed
+
+- `ChatComposer`'s file chips draw their type icon as an element, so apps linting with React's static-components rule accept the copy.
+  [`b67922b`](https://github.com/VegaStack/vegastack-design/commit/b67922b)
+- `ChatMenuItem`: the selected row's ✓ takes the one right slot, with no number beside it (its key still picks it), as the model menu's mockup draws it.
+  [`b67922b`](https://github.com/VegaStack/vegastack-design/commit/b67922b)
+
 ## [0.78.0] — November 13, 2026
 
 <!-- assembled from 1 changeset: 6370110560a7 -->

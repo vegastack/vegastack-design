@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.78.1
+
+### Patch Changes
+
+- [#975](https://github.com/vegastack/vegastack-design/pull/975) [`b67922b`](https://github.com/vegastack/vegastack-design/commit/b67922b3577e5b3a5712ae64aae1c8ede57d0e77) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `ChatComposer`'s file chips draw their type icon as an element, so apps linting with React's static-components rule accept the copy.
+
+- [#975](https://github.com/vegastack/vegastack-design/pull/975) [`b67922b`](https://github.com/vegastack/vegastack-design/commit/b67922b3577e5b3a5712ae64aae1c8ede57d0e77) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `ChatMenuItem`: the selected row's ✓ takes the one right slot, with no number beside it (its key still picks it), as the model menu's mockup draws it.
+
 ## 0.78.0
 
 ### Minor Changes
