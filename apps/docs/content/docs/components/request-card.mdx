@@ -41,6 +41,11 @@ passes the new `state` back, with who answered (`answeredBy`: "you" or a name) a
 (`answeredVia`: `web`, `phone` or `slack`). A lost race shows its own words through `statusText`
 ("Already answered by Priya").
 
+The agent's face is `spec.agent`: `avatar` is an image URL, and an agent without one passes its own
+glyph and colour as `mark` and `hue` (the same fields as a `Person`), so the card shows the face
+every other surface does rather than the fallback bot. A glyph is a React node, so the host adds it
+when it renders the stored spec.
+
 ## Scope
 
 - **One card for every request**: posting, sending, sharing, opening a site, moving records. The

@@ -36,6 +36,9 @@ answer travels and the new `state` once it lands. Accept and allow these in this
 when `onAcceptAndAllow` is passed. For a single action an agent asks to take, use
 [`RequestCard`](/docs/components/request-card); for the live checklist once work starts, a task list.
 
+The agent's face is `plan.agent`: `avatar` is an image URL, and an agent without one passes its own
+glyph and colour as `mark` and `hue` (the same fields as a `Person`).
+
 <ComponentPreview name="planCard" file="components/preview/plan-card.tsx" />
 
 ## Examples

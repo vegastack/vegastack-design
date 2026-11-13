@@ -1,4 +1,4 @@
-// @vegastack request-card@0.76.1 sha256-Ww+5QW5uBeJKK5cCmUamg41Y1FZ5afy+shbFdJMhGfE=
+// @vegastack request-card@0.76.1 sha256-RZ4Gjt9OBxNqiHlTBXYU7KZ4e0Rs8qIqkwL+MC/1lPs=
 
 "use client";
 
@@ -26,7 +26,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { PersonAvatar, type Person } from "@/components/ui/person-avatar";
+import {
+  PersonAvatar,
+  type Person,
+  type PersonMark,
+} from "@/components/ui/person-avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
@@ -120,6 +124,13 @@ export interface CardAgent {
   name: string;
   /** Its mark, shown inside its hexagon. */
   avatar: string | null;
+  /**
+   * Its own face, when it has no image: a glyph (a ReactNode, such as a lucide icon) or an image
+   * object, drawn inside its hexagon in place of `avatar`. Same as `Person.mark`. @default undefined
+   */
+  mark?: PersonMark;
+  /** The hue its hexagon takes behind a glyph or the fallback bot. Same as `Person.hue`. @default undefined */
+  hue?: Person["hue"];
 }
 
 /** The answers a request offers. Allow once and Decline are always there. */
@@ -320,7 +331,14 @@ const ACTION_LABEL = {
 } as const;
 
 function agentPerson(agent: CardAgent): Person {
-  return { id: agent.id, name: agent.name, image: agent.avatar, kind: "agent" };
+  return {
+    id: agent.id,
+    name: agent.name,
+    image: agent.avatar,
+    mark: agent.mark,
+    hue: agent.hue,
+    kind: "agent",
+  };
 }
 
 function PreviewBlock({ preview }: { preview: CardPreview }) {

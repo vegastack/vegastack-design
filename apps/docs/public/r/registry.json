@@ -19904,7 +19904,7 @@
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
         "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
         "version": "0.75.0",
-        "integrity": "sha256-ZUeSJT9A5wZAXEvfwyvOScnV4AGVJjkAEdHMtMYIUHQ="
+        "integrity": "sha256-Wq+W/3EfVRhv/DZTz7EWNBfdcEqcRFIl/ikq/Z2Jr+s="
       }
     },
     {
@@ -23807,7 +23807,7 @@
         "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
         "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
         "version": "0.76.1",
-        "integrity": "sha256-Ww+5QW5uBeJKK5cCmUamg41Y1FZ5afy+shbFdJMhGfE="
+        "integrity": "sha256-RZ4Gjt9OBxNqiHlTBXYU7KZ4e0Rs8qIqkwL+MC/1lPs="
       }
     },
     {

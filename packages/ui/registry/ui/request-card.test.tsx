@@ -471,3 +471,26 @@ test("compact: the title and the answers share a row in a wide container", async
   expect(actions.left).toBeGreaterThan(title.left);
   expect(actions.top).toBeLessThan(title.bottom);
 });
+
+test("the agent's own glyph is its face when it has no image", async () => {
+  const screen = await render(
+    <RequestCard
+      spec={{
+        ...spec,
+        agent: {
+          ...spec.agent,
+          mark: <svg data-testid="agent-glyph" />,
+          hue: "purple",
+        },
+      }}
+      state="pending"
+      onAllowOnce={vi.fn()}
+      onAlways={vi.fn()}
+      onDecline={vi.fn()}
+      onNever={vi.fn()}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-testid="agent-glyph"]'),
+  ).not.toBeNull();
+});
