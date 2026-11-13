@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.81.0 sha256-zuWkj8p9VfbjqR0DTtEfCBgTY/b1dnDkSkGdC5pIJ4Y=
+// @vegastack file-viewer@0.81.0 sha256-IR/DSav8wSRXD05kamAxyJuZRHZ8Cskdtm2dixM3nZU=
 
 "use client";
 
@@ -1950,7 +1950,12 @@ export function FileViewer({
         data-slot="file-viewer-header"
         className="flex min-w-0 shrink-0 items-center gap-2 ps-[calc(var(--spacing)*4+env(safe-area-inset-left))] pe-[calc(var(--spacing)*2+env(safe-area-inset-right))] pt-[calc(var(--spacing)*2+env(safe-area-inset-top))] pb-2"
       >
-        <div className="flex min-w-16 flex-1 items-baseline gap-3">
+        <div
+          className={cn(
+            "flex min-w-16 flex-1 items-baseline gap-3",
+            side && "items-center",
+          )}
+        >
           {page ? (
             <h1
               id={titleId}

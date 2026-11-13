@@ -16633,7 +16633,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.81.0",
-        "integrity": "sha256-zuWkj8p9VfbjqR0DTtEfCBgTY/b1dnDkSkGdC5pIJ4Y="
+        "integrity": "sha256-IR/DSav8wSRXD05kamAxyJuZRHZ8Cskdtm2dixM3nZU="
       }
     },
     {
