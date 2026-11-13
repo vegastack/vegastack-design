@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.81.0 sha256-t7PqytHj2NS50oq8SYnOzAv3nBexo0jNNAFe/gbm08o=
+// @vegastack markdown-view@0.81.0 sha256-GngPZPm9/F984PnEJrblCR3Zi16bQr853bbK6uvlqL0=
 
 "use client";
 
@@ -43,6 +43,22 @@ export interface MarkdownCitationMarkerProps extends MarkdownCitation {
   className?: string;
 }
 
+/**
+ * How far to move a card that starts at the marker back inside the reading column (the
+ * `MarkdownView` around it) so its end stays inside the column's: never past the column's start.
+ * Left-to-right only; a right-to-left column keeps the card at the marker.
+ */
+function columnShift(trigger: HTMLElement | null, width: number): number {
+  const column = trigger?.closest<HTMLElement>("[data-slot=markdown-view]");
+  if (!trigger || !column || getComputedStyle(column).direction === "rtl")
+    return 0;
+  const marker = trigger.getBoundingClientRect();
+  const bounds = column.getBoundingClientRect();
+  const overflow = marker.left + width - bounds.right;
+  if (overflow <= 0) return 0;
+  return -Math.min(overflow, Math.max(0, marker.left - bounds.left));
+}
+
 /** How long a touch must rest on the marker before its `content` opens instead of a tap. */
 const LONG_PRESS_MS = 450;
 
@@ -76,6 +92,7 @@ export function MarkdownCitationMarker({
   const pressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressed = React.useRef(false);
   const hasContent = content !== undefined && content !== null;
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   React.useEffect(
     () => () => {
@@ -93,6 +110,7 @@ export function MarkdownCitationMarker({
     <Button
       variant="ghost"
       size="xs"
+      ref={triggerRef}
       aria-label={label}
       data-slot="markdown-citation-trigger"
       className={MARKER}
@@ -166,7 +184,14 @@ export function MarkdownCitationMarker({
             render={button}
           />
           <PopoverContent
-            side="top"
+            // Under the marker, from its start, and shifted back inside the reading column when it
+            // would run past the column's end: the card never covers the line above (an answer's
+            // author line) and never hangs off the column.
+            side="bottom"
+            align="start"
+            alignOffset={({ positioner }) =>
+              columnShift(triggerRef.current, positioner.width)
+            }
             initialFocus={false}
             finalFocus={false}
             data-slot="markdown-citation-content"

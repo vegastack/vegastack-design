@@ -440,7 +440,9 @@ test("an Office file is a card with its thumbnail, or its icon, and a primary Do
   ).toBe("spreadsheet");
 });
 
-test("a file that cannot be read falls back to the card", async () => {
+test("a file that cannot be read says why, with Retry and Download, and Retry reads again", async () => {
+  const fetchSpy = vi.spyOn(window, "fetch");
+  onTestFinished(() => fetchSpy.mockRestore());
   const screen = await render(
     <Viewer
       items={[
@@ -454,10 +456,24 @@ test("a file that cannot be read falls back to the card", async () => {
       ]}
     />,
   );
+  await expect.poll(kindShown).toBe("error");
+  expect(
+    document.querySelector('[data-slot="file-viewer-error"]')?.textContent,
+  ).toMatch(/Couldn.t load the preview: the file is no longer there\./);
   await expect
     .element(screen.getByRole("link", { name: "Download", exact: true }))
-    .toBeVisible();
-  await expect.poll(kindShown).toBe("card");
+    .toHaveAttribute("href", "/download/gone");
+  await expectNoA11yViolations(document.body);
+  const reads = () =>
+    fetchSpy.mock.calls.filter(([url]) =>
+      String(url).includes("definitely-not-here"),
+    ).length;
+  const before = reads();
+  (
+    screen.getByRole("button", { name: "Retry" }).element() as HTMLElement
+  ).click();
+  await expect.poll(reads).toBe(before + 1);
+  await expect.poll(kindShown).toBe("error");
 });
 
 test("loadPreview supplies HTML, tables and cards, and null keeps the built-in reading", async () => {
@@ -679,7 +695,7 @@ test("a Word document loads mammoth only when it opens and shows its sanitised H
   await expect.poll(kindShown).toBe("html");
 });
 
-test("an Office file over 20 MB, or one that fails to read, shows the Download card", async () => {
+test("an Office file over 20 MB shows the Download card; one that fails to read says why", async () => {
   mammoth.convertToHtml.mockClear();
   const screen = await render(
     <Viewer
@@ -711,7 +727,57 @@ test("an Office file over 20 MB, or one that fails to read, shows the Download c
   await expect
     .element(screen.getByRole("link", { name: "Download", exact: true }))
     .toHaveAttribute("href", "/d/broken");
-  await expect.poll(kindShown).toBe("card");
+  await expect.poll(kindShown).toBe("error");
+  await expect
+    .element(screen.getByRole("button", { name: "Retry" }))
+    .toBeVisible();
+});
+
+test("side mode: a sheet in the page's theme for documents, the lightbox for an image", async () => {
+  function Side() {
+    const [index, setIndex] = React.useState<number | null>(0);
+    return (
+      <FileViewer
+        mode="side"
+        items={[
+          {
+            id: "notes",
+            name: "notes.md",
+            contentType: "text/markdown",
+            src:
+              "data:text/markdown;charset=utf-8," +
+              encodeURIComponent("# Open tasks\n\n- Quote"),
+            downloadHref: "/d/notes",
+          },
+          ITEMS[0]!,
+        ]}
+        index={index}
+        onIndexChange={setIndex}
+        onOpenChange={(open) => !open && setIndex(null)}
+      />
+    );
+  }
+  const screen = await render(<Side />);
+  const sheet = screen.getByRole("dialog", { name: "notes.md" });
+  await expect.element(sheet).toBeVisible();
+  const popup = sheet.element() as HTMLElement;
+  expect(popup.dataset.mode).toBe("side");
+  expect(popup.dataset.side).toBe("right");
+  expect(popup.classList.contains("dark")).toBe(false);
+  await expect
+    .element(screen.getByRole("heading", { name: "Open tasks" }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Close" }))
+    .toBeVisible();
+  await expectNoA11yViolations(document.body);
+  await userEvent.keyboard("{ArrowRight}");
+  const lightbox = screen.getByRole("dialog", { name: "kitchen.jpg" });
+  await expect.element(lightbox).toBeVisible();
+  expect((lightbox.element() as HTMLElement).dataset.mode).toBe("overlay");
+  expect((lightbox.element() as HTMLElement).classList.contains("dark")).toBe(
+    true,
+  );
 });
 
 test("a small image opens at its natural size, never upscaled, inside the viewport", async () => {

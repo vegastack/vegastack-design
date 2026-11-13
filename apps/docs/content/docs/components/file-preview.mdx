@@ -1,0 +1,85 @@
+---
+title: File Preview
+description: "A file in a chat answer previewed on the chat card — Markdown formatted, a CSV's first rows, a PDF's first page, an image — with Download, Open and a reasoned error with Retry."
+audience: public
+registry: file-preview
+status: stable
+since: 0.82.0
+a11y: the name and Open are buttons named by the file; the preview itself is a picture, not a tab stop
+preview: filePreview
+---
+
+## Install
+
+<InstallSteps name="file-preview" />
+
+## Usage
+
+```tsx
+import { FilePreview } from "@/components/ui/file-preview";
+
+<FilePreview
+  url="/api/files/f1/content"
+  mediaType="text/markdown"
+  filename="open-tasks.md"
+  size={1180}
+  onOpen={() => openViewer(file)}
+/>;
+```
+
+A file the agent made shows where it was made, on the chat's card surface: its type's icon, its
+name and its size (or a PDF's pages), with Download and Open. Markdown is rendered with its
+formatting and fades out after a dozen lines; a CSV shows its first five rows; a PDF its first
+page; an image itself. A click on the preview, the name or Open opens the viewer — pair it with
+[`FileViewer`](/docs/components/file-viewer) in `mode="side"`. Pass the file's own URL on the
+app's origin: the preview reads only the first 32 KB of a text file, with one `Range` request.
+
+<ComponentPreview
+  name="filePreview"
+  file="components/preview/file-preview.tsx"
+/>
+
+## Examples
+
+### A table, an image and a file with nothing to preview
+
+A CSV's first five rows; an image at up to 256px tall; anything else is the header alone, still
+with Download and Open.
+
+<ComponentPreview
+  name="filePreviewKinds"
+  file="components/preview/file-preview.tsx"
+/>
+
+### When the preview can't load
+
+The card says why, in words, and offers Retry. Download still works from the header.
+
+<ComponentPreview
+  name="filePreviewError"
+  file="components/preview/file-preview.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/file-preview.tsx"
+  name="FilePreviewProps"
+/>
+
+## Accessibility
+
+- The file's name is a button that opens it; Download is a link and Open a button, each named
+  with the file.
+- The preview is a picture of the file: it is inert, so its links and cells are not tab stops,
+  and a click on it opens the viewer.
+- A PDF's thumbnail is an image named "<file>, page 1".
+
+<StatesTested name="file-preview" />
+
+## Do / Don't
+
+<DoDont
+  do="Show the file where the agent made it, with what's in it."
+  dont="List a made file as a bare link or a row with only a download icon."
+/>
