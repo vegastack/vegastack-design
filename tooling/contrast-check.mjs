@@ -20,7 +20,8 @@
 //       on-fill foreground — as page text AND as a fill under that foreground;
 //     * the focus ring and the checked-control fill as non-text graphics (1.4.11);
 //     * the 8 categorical chart hues and the 10-hue tag palette;
-//     * the brand pair and the theme-invariant media chrome.
+//     * the brand pair and the theme-invariant media chrome;
+//     * the desktop glass inks, on the opaque fallback and on a modelled worst-case native backdrop.
 //
 // WHAT THIS GATE DOES NOT CLAIM, stated so the absence is a decision rather than an oversight.
 //   It gates the TOKEN CONTRACT, not every composition a component can build from it. Upstream's
@@ -137,6 +138,24 @@ const MEDIA_CASES = [
   ["media-scrim-strong", AA_NORMAL, "pill text"],
   ["media-scrim", AA_NORMAL, "overlay icons AND labels"],
 ];
+
+// Desktop glass (operator 2026-11-14). `surface-glass` is transparent over a NATIVE glass backing
+// (NSGlassEffectView "regular", vibrancy, Windows acrylic), so its text sits on whatever the system
+// material shows, and on `popover` when the surface falls back to opaque (no native glass, Reduce
+// Transparency, Increase Contrast). Both inks are gated at AA text on both.
+//
+// The native material is not a token, so the worst case is MODELLED: the regular material keeps at
+// least GLASS_VEIL_FLOOR of its own appearance tint (the theme's `popover`) in front of the content
+// behind the window, and the hostile content is the opposite extreme — black behind light glass,
+// white behind dark glass. 0.7 is the model's assumption, not an Apple-published figure; the desktop
+// device session checks it on macOS 26/27 and Windows 11 (liquid-glass report § 6). Retuning it is a
+// change to this gate, made in the open, not a token edit.
+const GLASS_VEIL_FLOOR = 0.7;
+const GLASS_INKS = ["glass-ink", "glass-ink-muted"];
+const GLASS_HOSTILE_CONTENT = {
+  light: [0, 0, 0], // black content behind light glass
+  dark: [1, 0, 0], // white content behind dark glass
+};
 
 // ── colour maths ────────────────────────────────────────────────────────────────────────────────
 
@@ -519,6 +538,33 @@ export function checkTheme(css) {
         }
       }
     }
+
+    // 9. Desktop glass: both inks on the opaque fallback and on the modelled worst-case backdrop.
+    {
+      const surface = need(theme, vars, "popover", "the glass fallback");
+      const hostile = GLASS_HOSTILE_CONTENT[theme];
+      for (const inkName of GLASS_INKS) {
+        const ink = need(theme, vars, inkName, "a glass ink");
+        if (!ink || !surface) continue;
+        gate(
+          theme,
+          ink,
+          surface,
+          AA_NORMAL,
+          `${inkName} on popover (glass fallback)`,
+        );
+        checked++;
+        const ratio = contrastCompositeBg(
+          ink,
+          compositeLinear(surface, GLASS_VEIL_FLOOR, hostile),
+        );
+        if (ratio < AA_NORMAL) {
+          fail(
+            `${theme}: ${inkName} on worst-case native glass (popover@${Math.round(GLASS_VEIL_FLOOR * 100)}% over ${theme === "light" ? "black" : "white"}) = ${ratio.toFixed(2)}:1 (needs ${AA_NORMAL}:1)`,
+          );
+        }
+      }
+    }
   }
 
   return { failures, checked, clipped };
@@ -610,6 +656,18 @@ function selfTest(themePath) {
     failsWith(swap("media-scrim", "oklch(0.13 0.002 75)")),
   );
   claim(
+    "a glass ink that passes on popover but not on worst-case native glass is rejected",
+    failsWith(swap("glass-ink-muted", "oklch(0.5 0 0)")),
+  );
+  claim(
+    "a dark glass ink that fails over white content behind the glass is rejected",
+    failsWith(swap("glass-ink-muted", "oklch(0.708 0 0)", ".dark")),
+  );
+  claim(
+    "a missing glass ink is rejected rather than skipped",
+    failsWith(drop("glass-ink")),
+  );
+  claim(
     "a DARK-only regression is caught (the light half alone is not enough)",
     failsWith(swap("muted-foreground", "oklch(0.36 0 0)", ".dark")),
   );
@@ -633,7 +691,7 @@ function selfTest(themePath) {
     );
     return 1;
   }
-  console.log("✓ contrast-check:selftest: 15 claims observed");
+  console.log("✓ contrast-check:selftest: 18 claims observed");
   return 0;
 }
 
@@ -668,5 +726,5 @@ if (clipped.size) {
   );
 }
 console.log(
-  `✓ contrast-check: all ${checked} token contrast checks pass — WCAG 2.2 AA text pairs (${AA_NORMAL}:1) for the neutral core, the secondary-ink sweep and the four status families; WCAG 1.4.11 (${AA_NONTEXT}:1) for the focus ring, the checked fill, 8 chart hues and 10 tag hues; media chrome at the AA text floor; both themes, fail-closed on missing tokens`,
+  `✓ contrast-check: all ${checked} token contrast checks pass — WCAG 2.2 AA text pairs (${AA_NORMAL}:1) for the neutral core, the secondary-ink sweep and the four status families; WCAG 1.4.11 (${AA_NONTEXT}:1) for the focus ring, the checked fill, 8 chart hues and 10 tag hues; media chrome and desktop glass inks at the AA text floor; both themes, fail-closed on missing tokens`,
 );

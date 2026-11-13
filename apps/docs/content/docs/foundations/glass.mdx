@@ -1,0 +1,80 @@
+---
+title: Desktop glass
+description: One utility and four tokens for VegaStack desktop windows that sit on the operating system's own glass.
+audience: public
+---
+
+The VegaStack desktop app draws its floating windows (the recording pill, quick ask, the tray
+popover and the call prompt) on the operating system's own glass material: Liquid Glass
+(`NSGlassEffectView`) on macOS 26 and later, vibrancy on macOS 14.2 to 15, and acrylic on Windows 11.
+The window's web content then has to paint **nothing** behind its text, so the native material shows
+through. `surface-glass` is the one class for that, with the tokens its text and edge read.
+
+<Callout type="warn">
+  `surface-glass` is only for a surface that sits on a native glass backing. It
+  is not a CSS blur and never belongs in a web page. The frosted glass this
+  system used to ship (`backdrop-blur-glass` and the Button `glass` variant)
+  stays retired, and `vegastack-design doctor` still flags
+  `backdrop-blur-glass`. In a page without native glass, `surface-glass` is a
+  plain opaque `popover` fill.
+</Callout>
+
+## Usage
+
+```tsx
+<div className="surface-glass rounded-full px-3 py-1.5 text-sm">
+  Recording
+  <span className="text-glass-ink-muted tabular-nums">12:04</span>
+</div>
+```
+
+The host turns glass on by setting one attribute on the root element, and only once the native
+material is actually behind the window:
+
+```html
+<html data-native-glass></html>
+```
+
+In the desktop app the window's preload sets it after the glass host attaches; a remote page (quick
+ask) sets it when the desktop bridge reports the `glass` capability. Anything else never sets it.
+
+## What `surface-glass` does
+
+| Condition                                    | Fill                | Edge               |
+| -------------------------------------------- | ------------------- | ------------------ |
+| No `data-native-glass` (any web page)        | `--popover`, opaque | none               |
+| `data-native-glass`                          | transparent         | none               |
+| `data-native-glass` + Reduce Transparency    | `--popover`, opaque | none               |
+| Increase Contrast (`prefers-contrast: more`) | `--popover`, opaque | 1px `--glass-edge` |
+| Forced colours (Windows high contrast)       | `Canvas`            | 1px `CanvasText`   |
+
+It also sets the text colour to `--glass-ink`. Under Reduce Transparency the operating system makes
+its own material frosted or opaque as well; the page follows with an opaque fill so its text never
+depends on what the material happens to show.
+
+## Tokens
+
+| Token               | Light / dark                     | Use                                                                                      |
+| ------------------- | -------------------------------- | ---------------------------------------------------------------------------------------- |
+| `--glass-ink`       | `foreground` (neutral-950 / -50) | Text and icons on glass: `text-glass-ink`, set by `surface-glass`                        |
+| `--glass-ink-muted` | neutral-800 / neutral-200        | Secondary text on glass: `text-glass-ink-muted`                                          |
+| `--glass-edge`      | the foreground at 12%            | The hairline edge: `border-glass-edge`, drawn by `surface-glass` under Increase Contrast |
+| `--glass-dim`       | black at 35%, both themes        | Reserved: the dimming layer for the clear glass style. VegaStack uses the regular style  |
+
+**Why `--glass-ink-muted` is not `muted-foreground`.** Text on glass sits on whatever the material
+shows, not on a known surface. `tooling/contrast-check.mjs` gates both inks at 4.5:1 on the opaque
+fallback (`popover`) and on a worst-case native backdrop: the material keeping 70% of its own tint
+in front of black content (light) or white content (dark). `muted-foreground` (neutral-500)
+measures under 4.5:1 there in light, so secondary text on glass takes neutral-800 (7.2:1) and
+neutral-200 in dark (5.3:1). The 70% figure is the gate's model of the regular material, not a value
+Apple publishes; it is checked on macOS and Windows hardware before the desktop app ships.
+
+<DoDont
+  do="Use surface-glass on the root of a desktop floating window that sits on native glass, with text-glass-ink-muted for secondary text."
+  dont="Use surface-glass, bg-popover/85 or backdrop-blur-* to make a menu, dialog or panel look like glass in a web page."
+/>
+
+<DoDont
+  do="Set data-native-glass only after the native material is attached behind the window."
+  dont="Set data-native-glass by default or from CSS, or read text-muted-foreground on a glass surface."
+/>

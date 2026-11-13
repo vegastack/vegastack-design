@@ -242,6 +242,34 @@
     },
     "$description": "COL-25: the chat card's hairline, guide lines inside a fold and dividers inside a card — the foreground at 10%, the same formula in both themes. Read it as `border-chat-hairline` / `bg-chat-hairline`."
   },
+  "glass-edge": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.12
+    },
+    "$description": "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. The hairline edge of a glass surface: the foreground at 12% (`color-mix(in oklch, var(--foreground) 12%, transparent)` written as a token), in both themes. `surface-glass` draws it as a 1px border under `prefers-contrast: more`, where the surface also turns opaque. Read it as `border-glass-edge`."
+  },
+  "glass-ink": {
+    "$type": "color",
+    "$value": "{color.neutral.950}",
+    "$description": "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. Primary ink on glass; the `foreground` value. `surface-glass` sets it as the text colour. tooling/contrast-check.mjs gates it at AA text (4.5:1) on the opaque fallback (`popover`) and on the worst-case backdrop the native glass can show: in light, the light material over black content; in dark, the dark material over white content."
+  },
+  "glass-ink-muted": {
+    "$type": "color",
+    "$value": "{color.neutral.800}",
+    "$description": "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. Secondary ink on glass. Darker than `muted-foreground` on purpose: neutral-500 measures under 4.5:1 on the light worst-case glass backdrop, so this takes neutral-800, gated the same way as `glass-ink`. Read it as `text-glass-ink-muted`."
+  },
+  "glass-dim": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0, 0, 0],
+      "alpha": 0.35
+    },
+    "$description": "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. RESERVED: the HIG dimming layer for the clear glass style over bright content. VegaStack uses the regular style, so nothing reads it yet. Theme-invariant."
+  },
   "state-focus": {
     "$type": "color",
     "$value": {

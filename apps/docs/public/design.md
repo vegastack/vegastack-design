@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 27384
-      sha256: "5f0d7706bab13f063ed5f4614bc9b5575de7d1bb5a7def5e77fb1b3c7bc338ef"
+      bytes: 29663
+      sha256: "821167cb498f0dd8b477b91532b9bca1d21b001023262b1c7a4222360355c99b"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 13125
-      sha256: "e03c22e01441beefb5f18a42650360de8363e29ac55f7d8c9e7ef0c395acb51a"
+      bytes: 13441
+      sha256: "e72eb266c0b4551c34510f4348d1aed71186c148bfd62a269ebd30b5b036c2cf"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -185,6 +185,22 @@ themes:
     foreground:
       type: "color"
       value: "oklch(0.145 0 0)"
+    glass-dim:
+      type: "color"
+      value: "oklch(0 0 0 / 0.35)"
+      description: "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. RESERVED: the HIG dimming layer for the clear glass style over bright content. VegaStack uses the regular style, so nothing reads it yet. Theme-invariant."
+    glass-edge:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.12)"
+      description: "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. The hairline edge of a glass surface: the foreground at 12% (`color-mix(in oklch, var(--foreground) 12%, transparent)` written as a token), in both themes. `surface-glass` draws it as a 1px border under `prefers-contrast: more`, where the surface also turns opaque. Read it as `border-glass-edge`."
+    glass-ink:
+      type: "color"
+      value: "oklch(0.145 0 0)"
+      description: "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. Primary ink on glass; the `foreground` value. `surface-glass` sets it as the text colour. tooling/contrast-check.mjs gates it at AA text (4.5:1) on the opaque fallback (`popover`) and on the worst-case backdrop the native glass can show: in light, the light material over black content; in dark, the dark material over white content."
+    glass-ink-muted:
+      type: "color"
+      value: "oklch(0.269 0 0)"
+      description: "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. Secondary ink on glass. Darker than `muted-foreground` on purpose: neutral-500 measures under 4.5:1 on the light worst-case glass backdrop, so this takes neutral-800, gated the same way as `glass-ink`. Read it as `text-glass-ink-muted`."
     info:
       type: "color"
       value: "oklch(0.55 0.19 256)"
@@ -571,6 +587,19 @@ themes:
     foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
+    glass-dim:
+      type: "color"
+      value: "oklch(0 0 0 / 0.35)"
+      description: "Desktop glass (operator 2026-11-14): only for a surface that sits on a NATIVE OS glass backing (the VegaStack desktop app's floating windows), never a CSS blur in a web page. RESERVED: the HIG dimming layer for the clear glass style over bright content. VegaStack uses the regular style, so nothing reads it yet. Theme-invariant."
+    glass-edge:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.12)"
+    glass-ink:
+      type: "color"
+      value: "oklch(0.985 0 0)"
+    glass-ink-muted:
+      type: "color"
+      value: "oklch(0.922 0 0)"
     info:
       type: "color"
       value: "oklch(0.72 0.15 256)"
@@ -1308,18 +1337,19 @@ shadcn's `neutral` base is adopted verbatim — `background`, `foreground`, `car
 `primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `radius` and the
 seven `sidebar-*` tokens all carry upstream's values. On top of it:
 
-| Family                                                     | Why it exists                                                                                                                                                                                                          | Gate                                                               |
-| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| `info` · `success` · `warning`, each `-foreground`/`-text` | Upstream ships only `destructive`. A product surface needs four status families, written in upstream's own shape (COL-12)                                                                                              | `contrast-check.mjs`, both themes, on every surface and tint       |
-| `destructive-text`                                         | The page-readable half of upstream's own family. `destructive` is tuned to carry `-foreground` on top of it, not to be read as ink (A11Y-13)                                                                           | same                                                               |
-| `chart-1 … chart-8`, `chart-single`                        | shadcn's `neutral` base ships a **greyscale** chart ramp, which cannot carry a two-series chart. Kept and retuned; `chart-1…5` keep upstream's names so upstream's own chart blocks resolve unchanged (MK, 2026-09-18) | 3:1 (WCAG 1.4.11) on `background`, `card` and `muted`, both themes |
-| `tag-<hue>` × 10, each `-subtle`/`-text`                   | The decorative label palette behind `Chip`/`Tag` — categorical identity, never status                                                                                                                                  | `contrast-check.mjs`                                               |
-| `brand`, `brand-text`                                      | The phosphor-green marker accent and its page-readable ink. A marker role only — never a functional state colour, and `brand` is not a text ink                                                                        | `contrast-check.mjs`                                               |
-| `media-scrim`, `media-scrim-strong`, `media-foreground`    | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                            | `media-chrome.browser.test.tsx` on compiled CSS                    |
-| `duration-*`, `motion-ease-*`                              | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                             | `verify-token-references`                                          |
-| `chat-card`, `chat-hairline`, `chat-card-radius`           | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and a 12px corner, the same formula in both themes, no shadow (COL-25)                                  | `verify-theme-parity`, `design-lint`                               |
-| `duration-instant … loader-dots`, `motion-ease-enter`      | The chat motion set: hover, quick (menus, a check appearing), state (folds), layout (arrivals), the streamed-word fade and the loader cadences; all 0ms under reduced motion (MOT-14)                                  | `design-lint` `chat-motion-tokens`                                 |
-| `font-family-*`                                            | Geist Sans / Geist Mono (TYP-10)                                                                                                                                                                                       | `verify-theme-parity`                                              |
+| Family                                                     | Why it exists                                                                                                                                                                                                                                                                                                                       | Gate                                                                                             |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `info` · `success` · `warning`, each `-foreground`/`-text` | Upstream ships only `destructive`. A product surface needs four status families, written in upstream's own shape (COL-12)                                                                                                                                                                                                           | `contrast-check.mjs`, both themes, on every surface and tint                                     |
+| `destructive-text`                                         | The page-readable half of upstream's own family. `destructive` is tuned to carry `-foreground` on top of it, not to be read as ink (A11Y-13)                                                                                                                                                                                        | same                                                                                             |
+| `chart-1 … chart-8`, `chart-single`                        | shadcn's `neutral` base ships a **greyscale** chart ramp, which cannot carry a two-series chart. Kept and retuned; `chart-1…5` keep upstream's names so upstream's own chart blocks resolve unchanged (MK, 2026-09-18)                                                                                                              | 3:1 (WCAG 1.4.11) on `background`, `card` and `muted`, both themes                               |
+| `tag-<hue>` × 10, each `-subtle`/`-text`                   | The decorative label palette behind `Chip`/`Tag` — categorical identity, never status                                                                                                                                                                                                                                               | `contrast-check.mjs`                                                                             |
+| `brand`, `brand-text`                                      | The phosphor-green marker accent and its page-readable ink. A marker role only — never a functional state colour, and `brand` is not a text ink                                                                                                                                                                                     | `contrast-check.mjs`                                                                             |
+| `media-scrim`, `media-scrim-strong`, `media-foreground`    | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                                                                                                                                         | `media-chrome.browser.test.tsx` on compiled CSS                                                  |
+| `glass-ink`, `glass-ink-muted`, `glass-edge`, `glass-dim`  | Desktop only (operator 2026-11-14): text and edge for a window on native OS glass, read through `surface-glass`, which is transparent only under `data-native-glass` and opaque `popover` otherwise, under Reduce Transparency and under Increase Contrast. Never a CSS blur in a web page; the retired frosted glass stays retired | `contrast-check.mjs` (fallback + modelled worst-case backdrop), `surface-glass.browser.test.tsx` |
+| `duration-*`, `motion-ease-*`                              | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                                                                                                                                          | `verify-token-references`                                                                        |
+| `chat-card`, `chat-hairline`, `chat-card-radius`           | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and a 12px corner, the same formula in both themes, no shadow (COL-25)                                                                                                                                               | `verify-theme-parity`, `design-lint`                                                             |
+| `duration-instant … loader-dots`, `motion-ease-enter`      | The chat motion set: hover, quick (menus, a check appearing), state (folds), layout (arrivals), the streamed-word fade and the loader cadences; all 0ms under reduced motion (MOT-14)                                                                                                                                               | `design-lint` `chat-motion-tokens`                                                               |
+| `font-family-*`                                            | Geist Sans / Geist Mono (TYP-10)                                                                                                                                                                                                                                                                                                    | `verify-theme-parity`                                                                            |
 
 **Status colour has two inks, and this is the rule most often got wrong.** `-foreground` is the ink
 **on the solid fill**. `-text` is the ink **on the page and on the family's own `/10`–`/30` tint**.
