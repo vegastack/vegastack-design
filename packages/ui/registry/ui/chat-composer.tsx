@@ -334,22 +334,24 @@ export function middleEllipsis(name: string, max = 28): string {
   return `${name.slice(0, max - tail - 1)}…${name.slice(-tail)}`;
 }
 
-function fileIcon(mediaType: string) {
-  if (mediaType.startsWith("image/")) return FileImage;
+/** A file's type icon, as an element (never a component made during render). */
+function fileIcon(mediaType: string): React.ReactNode {
+  const props = { "aria-hidden": true, className: "size-3.5" } as const;
+  if (mediaType.startsWith("image/")) return <FileImage {...props} />;
   if (
     mediaType.includes("sheet") ||
     mediaType.includes("excel") ||
     mediaType === "text/csv"
   )
-    return FileSpreadsheet;
+    return <FileSpreadsheet {...props} />;
   if (
     mediaType.startsWith("text/") ||
     mediaType.includes("pdf") ||
     mediaType.includes("word") ||
     mediaType.includes("document")
   )
-    return FileText;
-  return File;
+    return <FileText {...props} />;
+  return <File {...props} />;
 }
 
 /** Upload progress as a still ring (0–1), the conic ring `upload-panel` draws. */
@@ -452,7 +454,6 @@ function AttachmentItem({
     );
   }
 
-  const Icon = fileIcon(mediaType);
   return (
     <li
       data-slot="chat-composer-attachment"
@@ -467,7 +468,7 @@ function AttachmentItem({
         ) : error ? (
           <TriangleAlert aria-hidden className="size-3.5 text-warning-text" />
         ) : (
-          <Icon aria-hidden className="size-3.5" />
+          fileIcon(mediaType)
         )}
       </span>
       <span className="min-w-0 truncate whitespace-nowrap">
