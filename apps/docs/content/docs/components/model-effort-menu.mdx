@@ -1,0 +1,122 @@
+---
+title: Model Effort Menu
+description: A chat's model and effort as quiet text opening one compact menu — models with numbers, an Effort submenu with the model's levels, More models.
+audience: public
+registry: model-effort-menu
+status: stable
+since: 0.78.0
+a11y: menu roles; shortcuts in aria-keyshortcuts
+preview: modelEffortMenu
+---
+
+## Install
+
+<InstallSteps name="model-effort-menu" />
+
+## Usage
+
+```tsx
+import { ModelEffortMenu } from "@/components/ui/model-effort-menu";
+
+<ModelEffortMenu
+  models={[
+    {
+      id: "sonnet",
+      label: "Sonnet 5.5",
+      description: "Everyday work",
+      available: true,
+    },
+    {
+      id: "opus",
+      label: "Opus 5.5",
+      description: "Hard problems",
+      available: true,
+    },
+    {
+      id: "haiku",
+      label: "Haiku 5.5",
+      description: "Quick answers",
+      available: true,
+    },
+  ]}
+  moreModels={[{ id: "gpt", label: "GPT-6", available: false }]}
+  modelId={modelId}
+  onModel={setModel}
+  efforts={["low", "medium", "high", "max"]}
+  recommended="medium"
+  effort={effort}
+  onEffort={setEffort}
+  shortcuts
+/>;
+```
+
+The model and its effort, "Sonnet 5.5 Medium ▾", in [`ComposerMeta`](/docs/components/composer-meta)'s
+`model` slot. It opens one [`ChatMenu`](/docs/components/chat-menu) about 240px wide: the models,
+each with a primary ✓ or its number in one right slot and its purpose as a tooltip — never a detail
+pane; then **Effort Medium ›**, whose submenu opens with a one-line explainer and lists only the
+levels the chosen model supports (`efforts`), "Recommended" on its default and a usage warning, the
+only amber, on Max; then **More models ›**, where models this person can't use are muted with
+"Off · ask an admin". Effort lasts for the chat; a new chat starts from the agent's setting.
+
+<ComponentPreview
+  name="modelEffortMenu"
+  file="components/preview/model-effort-menu.tsx"
+/>
+
+## Examples
+
+### Read only
+
+Where the person can't choose, `readOnly` shows the same words as plain text, with the reason as
+its tooltip.
+
+<ComponentPreview
+  name="modelEffortMenuReadOnly"
+  file="components/preview/model-effort-menu.tsx"
+/>
+
+### A model without effort levels
+
+With no `efforts`, the Effort row is gone and the trigger shows the model alone.
+
+<ComponentPreview
+  name="modelEffortMenuNoEffort"
+  file="components/preview/model-effort-menu.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/model-effort-menu.tsx"
+  name="ModelEffortMenuProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/model-effort-menu.tsx"
+  name="ModelOption"
+/>
+
+## Accessibility
+
+- The trigger is named "Model: Sonnet 5.5, effort Medium"; the menu has Base UI's roles and focus
+  management, and each number shortcut is declared with `aria-keyshortcuts`.
+- A model's purpose is its item's description, so a screen reader hears it without the tooltip.
+
+| Key                                  | Action                               |
+| ------------------------------------ | ------------------------------------ |
+| <kbd>⌘</kbd><kbd>⇧</kbd><kbd>I</kbd> | Open the menu (with `shortcuts`)     |
+| <kbd>⌘</kbd><kbd>⇧</kbd><kbd>E</kbd> | Open it at Effort (with `shortcuts`) |
+| <kbd>1</kbd>–<kbd>9</kbd>            | Pick that model                      |
+| <kbd>→</kbd>                         | Open Effort or More models           |
+| <kbd>Escape</kbd>                    | Close                                |
+
+On Windows and Linux, Ctrl stands for ⌘.
+
+<StatesTested name="model-effort-menu" />
+
+## Do / Don't
+
+<DoDont
+  do="List only the effort levels the chosen model accepts, and put models this person can't use under More models."
+  dont="Add a detail pane, or offer a level the provider will refuse."
+/>

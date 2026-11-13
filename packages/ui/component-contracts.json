@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 812,
-    "components": 220,
+    "totalRegistryItems": 815,
+    "components": 223,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 30,
+    "AI/chat": 33,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -268,7 +268,10 @@
       "status-glyph",
       "chat-card",
       "chat-chip",
-      "chat-menu"
+      "chat-menu",
+      "composer-meta",
+      "model-effort-menu",
+      "context-panel"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -32033,7 +32036,7 @@
       "name": "context-ring",
       "registryType": "registry:ui",
       "title": "Context Ring",
-      "summary": "How full a chat's working memory is: a ring for the composer's toolbar in three tones (blue under 75%, amber from 75%, red from 90%) and an empty outline, with a breakdown and Summarize now.",
+      "summary": "How full a chat's memory is: a still 10px ring and its share, opening its ContextPanel on hover, focus or click.",
       "status": "stable",
       "since": "0.76.0",
       "family": "chat",
@@ -32052,24 +32055,6 @@
         },
         {
           "name": "ContextRingProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/context-ring.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextRingPart",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/context-ring.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ContextRingLabels",
           "kind": "interface",
           "source": "packages/ui/registry/ui/context-ring.tsx",
           "ref": {
@@ -32101,32 +32086,28 @@
         "dimensions": [
           {
             "name": "tone",
-            "values": ["empty", "info", "warning", "danger"]
+            "values": ["default", "high", "full"]
           }
         ],
         "rationale": "The tone follows the share used; the host never sets it."
       },
       "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["default", "sm"]
-          }
-        ],
-        "rationale": "sm for a dense toolbar."
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One size: a 10px ring in the composer's meta line."
       },
       "states": {
         "behavior": {
           "status": "covered",
           "values": [
-            "empty",
-            "info",
-            "warning",
-            "danger",
-            "breakdown",
+            "hidden-until-measured",
+            "default",
+            "high",
+            "full",
+            "panel-hover",
+            "panel-focus",
+            "panel-click",
             "summarize",
-            "summarizing",
             "read-only",
             "on-open",
             "drop-announced"
@@ -32137,8 +32118,8 @@
           "status": "covered",
           "values": [
             "button-named-with-share",
-            "popover-focus",
-            "escape-returns",
+            "focus-opens-panel",
+            "escape-closes",
             "polite-drop-announcement",
             "browser-accessibility-test"
           ],
@@ -32146,7 +32127,7 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["empty", "info", "warning", "danger", "breakdown", "sm"],
+          "values": ["default", "high", "full", "percent-beside"],
           "evidence": "packages/ui/registry/ui/context-ring.tsx"
         }
       },
@@ -32168,7 +32149,8 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/popover",
-        "@vegastack/use-announcer"
+        "@vegastack/use-announcer",
+        "@vegastack/context-panel"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.14.0",
@@ -32191,11 +32173,9 @@
               "name": "data-slot",
               "values": [
                 "context-ring",
-                "context-ring-bar",
-                "context-ring-breakdown",
-                "context-ring-parts",
-                "context-ring-summarize",
-                "context-ring-threshold"
+                "context-ring-panel",
+                "context-ring-percent",
+                "context-ring-ring"
               ]
             },
             {
@@ -32917,7 +32897,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/chat-menu",
-      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.14.0",
         "@vegastack/design@^0.14.0",
@@ -32974,6 +32958,7 @@
               "name": "data-slot",
               "values": [
                 "chat-menu-sub-content",
+                "chat-menu-sub-note",
                 "chat-menu-sub-trigger",
                 "chat-menu-sub-value"
               ]
@@ -33796,7 +33781,7 @@
       "name": "chat-composer",
       "registryType": "registry:ui",
       "title": "Chat Composer",
-      "summary": "The box a person talks to an agent in: chips for what travels with the message, the text with mentions, and Send, which turns into Stop while the agent answers.",
+      "summary": "The box a person talks to an agent in: + and Send inside, files above the text, steers above the box, Send that morphs into Stop.",
       "status": "stable",
       "since": "0.43.0",
       "family": "chat",
@@ -33816,15 +33801,6 @@
         {
           "name": "ChatComposerProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/chat-composer.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ChatComposerStatus",
-          "kind": "type",
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
@@ -33866,6 +33842,42 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ComposerAttachment",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ComposerState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ComposerSteer",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "middleEllipsis",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -33884,17 +33896,24 @@
           "values": [
             "idle",
             "sending",
-            "streaming",
+            "running",
+            "stopping",
             "stop-absent",
+            "steer-send",
             "empty",
-            "attachments-only",
+            "attachments",
+            "attachment-progress",
+            "attachment-error",
+            "chips",
+            "steers",
+            "notice",
             "submit-held",
             "send-failed",
             "disabled",
             "dragging",
             "edit-last",
             "filled-by-handle",
-            "mention-button"
+            "add-menu"
           ],
           "evidence": "packages/ui/registry/ui/chat-composer.tsx + packages/ui/registry/ui/chat-composer.test.tsx"
         },
@@ -33902,8 +33921,9 @@
           "status": "covered",
           "values": [
             "named-textbox",
-            "described-by-hint-and-error",
+            "described-by-error",
             "named-buttons",
+            "face-named-buttons",
             "alert-on-failure",
             "browser-accessibility-test"
           ],
@@ -33913,9 +33933,11 @@
           "status": "observed",
           "values": [
             "empty",
-            "chips",
-            "streaming",
-            "held",
+            "attachments",
+            "steers",
+            "notice",
+            "running",
+            "stopping",
             "error",
             "disabled"
           ],
@@ -33928,11 +33950,11 @@
         "rationale": "Fills its container; chips wrap, and the text scrolls inside past about eight lines."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "modeled",
+        "mechanisms": ["transition", "tw-animate"],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion; the border's ease is TextEdit's and the send spinner is Button's."
+          "status": "modeled",
+          "rationale": "Send's faces crossfade and scale on the chat motion tokens (duration-state), and steers and notices enter on duration-layout/quick; every duration is 0ms under reduced motion and the spinner is a still …."
         }
       },
       "engines": [],
@@ -33940,7 +33962,9 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/text-edit",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/chat-menu",
+        "@vegastack/text-spinner"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.14.0",
@@ -33981,23 +34005,461 @@
               "name": "data-slot",
               "values": [
                 "chat-composer",
+                "chat-composer-actions",
+                "chat-composer-add",
                 "chat-composer-box",
                 "chat-composer-chips",
                 "chat-composer-drop",
                 "chat-composer-error",
-                "chat-composer-held",
-                "chat-composer-hint",
                 "chat-composer-notice-slot",
-                "chat-composer-send",
-                "chat-composer-stop",
-                "chat-composer-toolbar",
-                "chat-composer-toolbar-end",
-                "chat-composer-toolbar-start"
+                "chat-composer-steers",
+                "chat-composer-toolbar"
               ]
             },
             {
-              "name": "data-status",
+              "name": "data-state",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "composer-meta",
+      "registryType": "registry:ui",
+      "title": "Composer Meta",
+      "summary": "The quiet line under a chat's composer: a privacy note, then Plan, the model and effort, and the memory ring.",
+      "status": "stable",
+      "since": "0.78.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/composer-meta.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ComposerMeta",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/composer-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ComposerMetaPlan",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/composer-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ComposerMetaProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/composer-meta.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "privacy",
+            "privacy-detail",
+            "plan-off",
+            "plan-on",
+            "plan-held",
+            "model",
+            "context"
+          ],
+          "evidence": "packages/ui/registry/ui/composer-meta.tsx + packages/ui/registry/ui/composer-meta.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "plan-aria-pressed",
+            "plan-aria-disabled",
+            "privacy-tooltip-focusable"
+          ],
+          "evidence": "packages/ui/registry/ui/composer-meta.tsx + packages/ui/registry/ui/composer-meta.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "plan-on-primary-dot",
+            "hover-pill",
+            "narrow-privacy-truncates"
+          ],
+          "evidence": "packages/ui/registry/ui/composer-meta.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["tw-animate"],
+        "reducedMotion": {
+          "status": "modeled",
+          "rationale": "The Plan dot's zoom-in uses the chat motion tokens, 0ms under reduced motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/composer-meta",
+      "registryDependencies": ["@vegastack/button", "@vegastack/tooltip"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/composer-meta.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "composer-meta",
+      "dataAttributes": {
+        "ComposerMeta": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "composer-meta",
+                "composer-meta-context",
+                "composer-meta-controls",
+                "composer-meta-model",
+                "composer-meta-privacy"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "model-effort-menu",
+      "registryType": "registry:ui",
+      "title": "Model Effort Menu",
+      "summary": "A chat's model and effort as quiet text opening one compact menu: models with numbers, an Effort submenu, More models.",
+      "status": "stable",
+      "since": "0.78.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/model-effort-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "EffortLevel",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/model-effort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ModelEffortMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/model-effort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ModelEffortMenuLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/model-effort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ModelEffortMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/model-effort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ModelOption",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/model-effort-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "closed",
+            "open",
+            "model-selected",
+            "number-shortcut",
+            "effort-submenu",
+            "recommended",
+            "max-warning",
+            "more-models",
+            "unavailable-muted",
+            "no-effort",
+            "read-only",
+            "keyboard-shortcuts"
+          ],
+          "evidence": "packages/ui/registry/ui/model-effort-menu.tsx + packages/ui/registry/ui/model-effort-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "menu-roles",
+            "keyshortcuts",
+            "item-description",
+            "trigger-named-with-model-and-effort"
+          ],
+          "evidence": "packages/ui/registry/ui/model-effort-menu.tsx + packages/ui/registry/ui/model-effort-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "selected-primary-check",
+            "recommended-pill",
+            "warning-on-max",
+            "muted-unavailable"
+          ],
+          "evidence": "packages/ui/registry/ui/model-effort-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/model-effort-menu",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-menu",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/model-effort-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "model-effort-menu",
+      "dataAttributes": {
+        "ModelEffortMenu": {
+          "attributes": [
+            {
+              "name": "data-readonly",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "model-effort-menu",
+                "model-effort-menu-recommended",
+                "model-effort-menu-warning"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "context-panel",
+      "registryType": "registry:ui",
+      "title": "Context Panel",
+      "summary": "What fills a chat's working memory, adding up to its window: share, a segmented bar, a legend, free, Summarize now.",
+      "status": "stable",
+      "since": "0.78.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/context-panel.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ContextPanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/context-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ContextPanelLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/context-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ContextPanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/context-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ContextPart",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/context-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "formatContextTokens",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/context-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "contextTotal",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/context-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "measured",
+            "unmeasured",
+            "other-remainder",
+            "summarize",
+            "summarizing"
+          ],
+          "evidence": "packages/ui/registry/ui/context-panel.tsx + packages/ui/registry/ui/context-panel.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["description-list", "bar-decorative"],
+          "evidence": "packages/ui/registry/ui/context-panel.tsx + packages/ui/registry/ui/context-panel.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["segmented-bar", "swatches", "tabular-columns"],
+          "evidence": "packages/ui/registry/ui/context-panel.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/context-panel",
+      "registryDependencies": ["@vegastack/button", "@vegastack/text-spinner"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/context-panel.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "context-panel",
+      "dataAttributes": {
+        "ContextPanel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "context-panel",
+                "context-panel-bar",
+                "context-panel-parts",
+                "context-panel-summarize",
+                "context-panel-threshold",
+                "context-panel-title",
+                "context-panel-used"
+              ]
             }
           ],
           "cssVariables": []

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8a1ab009a8043fd784ade93d1ae0e4042056edfa52ed8fdf4ec12d6d0372f4f3",
+  "contractSha256": "ea9d93487fbc0926757b8666f2c4fb2b5e71f3c86f0003dbd995541fc96c3703",
   "expectedCounts": {
-    "totalRegistryItems": 812,
-    "components": 220,
+    "totalRegistryItems": 815,
+    "components": 223,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -1680,6 +1680,39 @@
         "packages/ui/registry/ui/chat-composer.tsx"
       ],
       "docsSlug": "/docs/components/chat-composer",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "composer-meta",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/composer-meta.tsx"
+      ],
+      "docsSlug": "/docs/components/composer-meta",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "model-effort-menu",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/model-effort-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/model-effort-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "context-panel",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/context-panel.tsx"
+      ],
+      "docsSlug": "/docs/components/context-panel",
       "contractStatus": "reconciled"
     },
     {

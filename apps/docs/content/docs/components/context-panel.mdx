@@ -1,0 +1,86 @@
+---
+title: Context Panel
+description: What fills a chat's working memory, adding up to its window — share used, one segmented bar, a legend with tokens and shares, what's free, and Summarize now.
+audience: public
+registry: context-panel
+status: stable
+since: 0.78.0
+a11y: parts as a description list; bar decorative
+preview: contextPanel
+---
+
+## Install
+
+<InstallSteps name="context-panel" />
+
+## Usage
+
+```tsx
+import { ContextPanel } from "@/components/ui/context-panel";
+
+<ContextPanel
+  used={25_900}
+  window={200_000}
+  parts={[
+    { id: "instructions", label: "Instructions and tools", tokens: 15_700 },
+    { id: "memory", label: "Memory", tokens: 2_100 },
+    { id: "conversation", label: "Conversation", tokens: 6_900 },
+    { id: "tools", label: "Tool results", tokens: 1_200 },
+  ]}
+  onSummarize={summarize}
+/>;
+```
+
+The body of [`ContextRing`](/docs/components/context-ring)'s panel, and of a Context section in a
+chat's side panel or a phone sheet. "26% used" with the tokens against the window, one segmented
+bar, then a legend — a swatch, the label, its tokens and its share in two tabular columns — that
+always adds up to the window: measured tokens the parts don't name list as Other, and Free ends it.
+Then where older messages get summarised and, given `onSummarize`, Summarize now, with nothing after
+it.
+
+<ComponentPreview
+  name="contextPanel"
+  file="components/preview/context-panel.tsx"
+/>
+
+## Examples
+
+### What the parts don't name
+
+When `used` is more than the parts add up to, the rest shows as Other, so the rows still sum to the
+window.
+
+<ComponentPreview
+  name="contextPanelOther"
+  file="components/preview/context-panel.tsx"
+/>
+
+### Before the first answer
+
+With `used={null}` the panel says it is measured after the first answer and Summarize now is held.
+
+<ComponentPreview
+  name="contextPanelEmpty"
+  file="components/preview/context-panel.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/context-panel.tsx"
+  name="ContextPanelProps"
+/>
+
+## Accessibility
+
+- The legend is a description list: each label is a term, its tokens and share its details.
+- The bar and swatches are decorative; every number is also in words.
+
+<StatesTested name="context-panel" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the parts in the order they fill the window; let the panel add Other and Free."
+  dont="Show money here, or a breakdown that doesn't add up to the window."
+/>

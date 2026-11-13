@@ -7,104 +7,112 @@ import { Button } from "./button";
 import { ContextRing, contextRingTone } from "./context-ring";
 import "../../test/geometry.css";
 
-const ring = (screen: { container: HTMLElement }) =>
-  screen.container.querySelector<HTMLElement>('[data-slot="context-ring"]')!;
+const PARTS = [
+  { id: "instructions", label: "Instructions and tools", tokens: 16_000 },
+  { id: "conversation", label: "Conversation", tokens: 40_000 },
+];
 
-test("the tone follows the operator's bands: blue under 75%, amber from 75%, red from 90%", () => {
-  expect(contextRingTone(null)).toBe("empty");
-  expect(contextRingTone(0.1)).toBe("info");
-  expect(contextRingTone(0.749)).toBe("info");
-  expect(contextRingTone(0.75)).toBe("warning");
-  expect(contextRingTone(0.899)).toBe("warning");
-  expect(contextRingTone(0.9)).toBe("danger");
-  expect(contextRingTone(1)).toBe("danger");
+const ring = (screen: { container: HTMLElement }) =>
+  screen.container.querySelector<HTMLElement>('[data-slot="context-ring"]');
+const panel = () =>
+  document.querySelector<HTMLElement>(
+    '[data-slot="context-ring-panel"]:not([data-ending-style])',
+  );
+
+test("the ink follows the bands: foreground under 75%, primary from 75%, warning from 90%", () => {
+  expect(contextRingTone(0.1)).toBe("default");
+  expect(contextRingTone(0.749)).toBe("default");
+  expect(contextRingTone(0.75)).toBe("high");
+  expect(contextRingTone(0.899)).toBe("high");
+  expect(contextRingTone(0.9)).toBe("full");
+});
+
+test("nothing shows before the first measurement", async () => {
+  const screen = await render(<ContextRing used={null} window={200_000} />);
+  expect(ring(screen)).toBeNull();
 });
 
 test.each([
-  [null, "empty", "Chat memory, not measured yet"],
-  [10_000, "info", "Chat memory 10% used"],
-  [74_000, "info", "Chat memory 74% used"],
-  [80_000, "warning", "Chat memory 80% used"],
-  [92_000, "danger", "Chat memory 92% used"],
-  [140_000, "danger", "Chat memory 100% used"],
-] as const)("used %s is %s and named %s", async (used, tone, name) => {
-  const screen = await render(<ContextRing used={used} window={100_000} />);
-  await expect
-    .element(page.getByRole("button", { name }))
-    .toHaveAttribute("data-tone", tone);
-  expect(ring(screen).dataset.tone).toBe(tone);
-  await expectNoA11yViolations(screen.container);
+  [52_000, "default", "26%"],
+  [160_000, "high", "80%"],
+  [190_000, "full", "95%"],
+] as const)(
+  "used %s is %s and shows %s beside a still 10px ring",
+  async (used, tone, text) => {
+    const screen = await render(<ContextRing used={used} window={200_000} />);
+    const button = ring(screen)!;
+    expect(button.dataset.tone).toBe(tone);
+    expect(button.textContent).toBe(text);
+    const glyph = button.querySelector<HTMLElement>(
+      '[data-slot="context-ring-ring"]',
+    )!;
+    expect(glyph.getBoundingClientRect().width).toBe(10);
+    expect(getComputedStyle(glyph).animationName).toBe("none");
+    await expectNoA11yViolations(screen.container);
+  },
+);
+
+test("hover opens the panel after 150ms, not before", async () => {
+  await render(<ContextRing used={56_000} window={200_000} parts={PARTS} />);
+  await userEvent.hover(
+    page.getByRole("button", { name: "Chat memory 28% used" }),
+  );
+  await new Promise((done) => setTimeout(done, 60));
+  expect(panel()).toBeNull();
+  await vi.waitFor(() => expect(panel()).toBeTruthy(), { timeout: 1000 });
+  expect(panel()!.textContent).toContain("28% used");
+  expect(panel()!.textContent).toContain("56k / 200k");
 });
 
-test("pressed, it shows tokens and the parts, never money, and Summarize now", async () => {
-  const onSummarize = vi.fn();
-  const screen = await render(
+test("keyboard focus opens the panel without moving focus; Enter moves in; Escape closes", async () => {
+  await render(
     <ContextRing
-      used={62_000}
-      window={100_000}
-      parts={[
-        { label: "Instructions & tools", tokens: 12_000 },
-        { label: "Conversation", tokens: 40_000 },
-        { label: "Tool results", tokens: 10_000 },
-      ]}
-      onSummarize={onSummarize}
+      used={56_000}
+      window={200_000}
+      parts={PARTS}
+      onSummarize={() => {}}
     />,
   );
-  await page.getByRole("button", { name: "Chat memory 62% used" }).click();
-  const popup = document.querySelector<HTMLElement>(
-    '[data-slot="context-ring-breakdown"]',
-  )!;
-  await vi.waitFor(() => expect(popup).toBeTruthy());
-  expect(popup.textContent).toContain("62k of 100k tokens · 62%");
-  expect(popup.textContent).toContain("Conversation");
-  expect(popup.textContent).toContain("40k");
-  expect(popup.textContent).toContain("Older messages are summarized at 90%.");
-  expect(popup.textContent).not.toMatch(/\$/);
-  await page.getByRole("button", { name: "Summarize now" }).click();
-  expect(onSummarize).toHaveBeenCalledOnce();
-  await expectNoA11yViolations(screen.container);
-  await expectNoA11yViolations(popup);
+  const trigger = page
+    .getByRole("button", { name: "Chat memory 28% used" })
+    .element();
+  await userEvent.tab();
+  expect(document.activeElement).toBe(trigger);
+  await vi.waitFor(() => expect(panel()).toBeTruthy());
+  expect(document.activeElement).toBe(trigger);
+  await userEvent.keyboard("{Escape}");
+  await vi.waitFor(() => expect(panel()).toBeNull());
 });
 
-test("a reader who can't send gets no Summarize now; nothing measured turns it off", async () => {
-  await render(<ContextRing used={50_000} window={100_000} />);
-  await page.getByRole("button", { name: "Chat memory 50% used" }).click();
-  await vi.waitFor(() =>
-    expect(
-      document.querySelector('[data-slot="context-ring-breakdown"]'),
-    ).toBeTruthy(),
+test("a click toggles the panel; its numbers add up to the window", async () => {
+  const screen = await render(
+    <ContextRing
+      used={56_000}
+      window={200_000}
+      parts={PARTS}
+      onSummarize={() => {}}
+    />,
   );
-  expect(
-    document.querySelector('[data-slot="context-ring-summarize"]'),
-  ).toBeNull();
-});
-
-test("a pending summary keeps the button busy until it settles", async () => {
-  let finish: () => void = () => {};
-  const onSummarize = vi.fn(
-    () => new Promise<void>((resolve) => (finish = resolve)),
-  );
-  await render(
-    <ContextRing used={92_000} window={100_000} onSummarize={onSummarize} />,
-  );
-  await page.getByRole("button", { name: "Chat memory 92% used" }).click();
-  const button = page.getByRole("button", { name: "Summarize now" });
+  const button = page.getByRole("button", { name: "Chat memory 28% used" });
   await button.click();
-  await expect.element(button).toHaveAttribute("aria-busy", "true");
-  finish();
-  await vi.waitFor(() =>
-    expect(button.element().getAttribute("aria-busy")).not.toBe("true"),
-  );
+  await vi.waitFor(() => expect(panel()).toBeTruthy());
+  const tokens = [
+    ...panel()!.querySelectorAll("[data-slot=context-panel-parts] dt"),
+  ].map((dt) => dt.nextElementSibling!.textContent);
+  expect(tokens).toEqual(["16k", "40k", "144k"]);
+  await expectNoA11yViolations(screen.container);
+  // The portaled panel itself.
+  await expectNoA11yViolations(document.body);
+  await button.click();
+  await vi.waitFor(() => expect(panel()).toBeNull());
 });
 
-test("onOpen hands the press to the host and opens no popover", async () => {
+test("onOpen hands the press to the host and opens no panel", async () => {
   const onOpen = vi.fn();
   await render(<ContextRing used={30_000} window={100_000} onOpen={onOpen} />);
   await page.getByRole("button", { name: "Chat memory 30% used" }).click();
   expect(onOpen).toHaveBeenCalledOnce();
-  expect(
-    document.querySelector('[data-slot="context-ring-breakdown"]'),
-  ).toBeNull();
+  expect(panel()).toBeNull();
 });
 
 test("the drop after a summary is said once; growth is not", async () => {
@@ -128,73 +136,50 @@ test("the drop after a summary is said once; growth is not", async () => {
   await vi.waitFor(() =>
     expect(region().textContent).toBe("Chat memory 20% used"),
   );
-  await expect
-    .element(page.getByRole("button", { name: "Chat memory 20% used" }))
-    .toHaveAttribute("data-tone", "info");
 });
 
-const openPopup = () =>
-  document.querySelector<HTMLElement>(
-    '[data-slot="context-ring-breakdown"]:not([data-ending-style])',
-  );
-
-test.each([
-  ["with Summarize now", true],
-  ["read only", false],
-])(
-  "keyboard (%s): Enter opens the breakdown with focus inside, Escape returns to the ring",
-  async (_name, canSummarize) => {
-    await render(
-      <ContextRing
-        used={80_000}
-        window={100_000}
-        onSummarize={canSummarize ? () => {} : undefined}
-      />,
-    );
-    const trigger = page
-      .getByRole("button", { name: "Chat memory 80% used" })
-      .element();
-    await userEvent.tab();
-    expect(document.activeElement).toBe(trigger);
-    await userEvent.keyboard("{Enter}");
-    await vi.waitFor(() => {
-      expect(openPopup()).toBeTruthy();
-      expect(openPopup()!.contains(document.activeElement)).toBe(true);
-    });
-    if (canSummarize) {
-      const summarize = openPopup()!.querySelector<HTMLElement>(
-        '[data-slot="context-ring-summarize"]',
-      )!;
-      for (let i = 0; i < 3 && document.activeElement !== summarize; i++)
-        await userEvent.tab();
-      expect(document.activeElement).toBe(summarize);
-    }
-    await userEvent.keyboard("{Escape}");
-    await vi.waitFor(() => {
-      expect(openPopup()).toBeNull();
-      expect(document.activeElement).toBe(trigger);
-    });
-  },
-);
-
-test("labels and a custom formatter word it for the host", async () => {
+test("the ring and its panel show one total, even when the parts say more than the measure", async () => {
   await render(
     <ContextRing
-      used={1500}
-      window={3000}
-      formatTokens={(tokens) => `${tokens} t`}
-      labels={{
-        name: "Context",
-        used: (percent) => `Context ${percent} percent`,
-        of: (used, window) => `${used} / ${window}`,
-      }}
+      used={20_000}
+      window={100_000}
+      parts={[
+        { id: "a", label: "Instructions and tools", tokens: 70_000 },
+        { id: "b", label: "Conversation", tokens: 50_000 },
+      ]}
     />,
   );
-  await page.getByRole("button", { name: "Context 50 percent" }).click();
+  const button = page.getByRole("button", { name: "Chat memory 100% used" });
+  await button.click();
+  await vi.waitFor(() => expect(panel()).toBeTruthy());
+  expect(
+    panel()!.querySelector("[data-slot=context-panel-used]")!.textContent,
+  ).toBe("100% used100k / 100k");
+});
+
+test("a drop the parts make is said too", async () => {
+  function Host() {
+    const [big, setBig] = useState(true);
+    return (
+      <>
+        <ContextRing
+          used={20_000}
+          window={100_000}
+          onOpen={() => {}}
+          parts={[
+            { id: "a", label: "Conversation", tokens: big ? 90_000 : 20_000 },
+          ]}
+        />
+        <Button onClick={() => setBig(false)}>Shrink</Button>
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  await page.getByRole("button", { name: "Shrink" }).click();
   await vi.waitFor(() =>
     expect(
-      document.querySelector('[data-slot="context-ring-breakdown"]')
-        ?.textContent,
-    ).toContain("1500 t / 3000 t"),
+      screen.container.querySelector<HTMLElement>('[role="status"]')!
+        .textContent,
+    ).toBe("Chat memory 20% used"),
   );
 });

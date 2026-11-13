@@ -1,4 +1,4 @@
-// @vegastack chat-menu@0.77.1 sha256-ufwUAkw5SS6NZ4C3oIegzf6WwELh9VfEIUNZmKttJ/w=
+// @vegastack chat-menu@0.77.1 sha256-uluYI/HqAml3T6geCByPCWIQ2vvt7sxD4z9MR9Qiyjk=
 
 "use client";
 
@@ -17,6 +17,11 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 type Shortcut = { onSelect: () => void; disabled: boolean };
 
@@ -146,6 +151,12 @@ export interface ChatMenuItemProps {
   disabled?: boolean;
   /** Muted words — an option this person can't use ("Off · ask an admin" as the hint). @default false */
   muted?: boolean;
+  /**
+   * A one-line purpose shown as a tooltip beside the row on hover or focus ("Everyday work"),
+   * never as a pane; screen readers hear it as the item's description.
+   * @default undefined
+   */
+  description?: string;
   /** Called when the item is picked by pointer, Enter or its shortcut. @default undefined */
   onSelect?: () => void;
 }
@@ -164,6 +175,7 @@ function ChatMenuItem({
   shortcut,
   disabled = false,
   muted = false,
+  description,
   onSelect,
 }: ChatMenuItemProps) {
   const shortcuts = React.useContext(ShortcutsContext);
@@ -175,13 +187,14 @@ function ChatMenuItem({
       if (map.get(shortcut)?.onSelect === onSelect) map.delete(shortcut);
     };
   }, [shortcuts, shortcut, onSelect, disabled]);
-  return (
+  const item = (
     <DropdownMenuItem
       data-slot="chat-menu-item"
       data-selected={selected ? "" : undefined}
       data-muted={muted ? "" : undefined}
       disabled={disabled}
       aria-keyshortcuts={shortcut}
+      aria-description={description}
       onClick={onSelect}
       className="min-h-8 gap-3"
     >
@@ -227,6 +240,13 @@ function ChatMenuItem({
       ) : null}
     </DropdownMenuItem>
   );
+  if (!description) return item;
+  return (
+    <Tooltip>
+      <TooltipTrigger render={item} />
+      <TooltipContent side="left">{description}</TooltipContent>
+    </Tooltip>
+  );
 }
 
 /** Props accepted by `ChatMenuSub`. */
@@ -235,6 +255,12 @@ export interface ChatMenuSubProps {
   label: React.ReactNode;
   /** The current choice, muted before the chevron ("Medium"). @default undefined */
   value?: React.ReactNode;
+  /** A one-line explainer above the submenu's items, muted and not focusable. @default undefined */
+  note?: React.ReactNode;
+  /** Controlled open state (a shortcut that opens straight into the submenu). @default undefined */
+  open?: boolean;
+  /** Called when the submenu opens or closes. @default undefined */
+  onOpenChange?: (open: boolean) => void;
   /** The submenu's items. */
   children: React.ReactNode;
 }
@@ -247,7 +273,14 @@ export interface ChatMenuSubProps {
  *   <ChatMenuItem selected onSelect={pickMedium}>Medium</ChatMenuItem>
  * </ChatMenuSub>
  */
-function ChatMenuSub({ label, value, children }: ChatMenuSubProps) {
+function ChatMenuSub({
+  label,
+  value,
+  note,
+  open,
+  onOpenChange,
+  children,
+}: ChatMenuSubProps) {
   const parent = React.useContext(ShortcutsContext);
   const map = React.useRef(new Map<string, Shortcut>());
   const shortcuts: Shortcuts = {
@@ -255,7 +288,10 @@ function ChatMenuSub({ label, value, children }: ChatMenuSubProps) {
     close: parent?.close ?? (() => {}),
   };
   return (
-    <DropdownMenuSub>
+    <DropdownMenuSub
+      open={open}
+      onOpenChange={onOpenChange ? (next) => onOpenChange(next) : undefined}
+    >
       <DropdownMenuSubTrigger
         data-slot="chat-menu-sub-trigger"
         className="min-h-8 gap-3"
@@ -275,6 +311,14 @@ function ChatMenuSub({ label, value, children }: ChatMenuSubProps) {
         className="min-w-56"
         onKeyDown={(event) => pickByShortcut(event, shortcuts)}
       >
+        {note != null ? (
+          <p
+            data-slot="chat-menu-sub-note"
+            className="max-w-64 px-2 pt-1 pb-1.5 text-xs text-muted-foreground"
+          >
+            {note}
+          </p>
+        ) : null}
         <ShortcutsContext.Provider value={shortcuts}>
           {children}
         </ShortcutsContext.Provider>

@@ -1,6 +1,6 @@
 ---
 title: Chat Menu
-description: "A menu with the chat's density: tight rows, a blue check and a number shortcut sharing the right slot, and submenus that open on hover or the right arrow."
+description: "A menu with the chat's density: tight rows, a primary check and a number shortcut sharing the right slot, and submenus that open on hover or the right arrow."
 audience: public
 registry: chat-menu
 status: stable
@@ -66,6 +66,14 @@ shortcut does nothing.
   name="chatMenuUnavailable"
   file="components/preview/chat-menu.tsx"
 />
+
+### Purposes, explainers and opening at a submenu
+
+`description` on an item is its one-line purpose ("Everyday work"), shown as a tooltip beside the row
+on hover or focus and read as the item's description — never a detail pane. `note` on a
+`ChatMenuSub` is a muted line above its items ("Higher effort thinks longer…"). `open` and
+`onOpenChange` on a `ChatMenuSub` let a shortcut open the menu straight at it, as
+[`ModelEffortMenu`](/docs/components/model-effort-menu)'s ⌘⇧E does.
 
 ## API Reference
 

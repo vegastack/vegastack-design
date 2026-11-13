@@ -16285,7 +16285,7 @@
       "name": "context-ring",
       "type": "registry:ui",
       "title": "Context Ring",
-      "description": "How full a chat's working memory is: a small ring for the composer's toolbar, blue under 75%, amber from 75%, red from 90%, with a breakdown and Summarize now.",
+      "description": "How full a chat's working memory is: a still 10px ring and its share in the composer's meta line, primary from 75%, the warning ink from 90%, opening its ContextPanel on hover, focus or click.",
       "categories": ["chat"],
       "dependencies": [
         "@vegastack/design@^0.14.0",
@@ -16293,6 +16293,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/context-panel",
         "@vegastack/popover",
         "@vegastack/use-announcer"
       ],
@@ -16304,7 +16305,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposer's toolbarEnd, with what fills it and Summarize now.",
+        "whenToUse": "Show how much of a chat's working window the last request used, in ComposerMeta's context slot.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
         "version": "0.77.0"
       }
@@ -16424,7 +16425,11 @@
         "@vegastack/design@^0.14.0",
         "@vegastack/design-tokens@^0.14.0"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/chat-menu.tsx",
@@ -16537,7 +16542,7 @@
       "name": "chat-composer",
       "type": "registry:ui",
       "title": "Chat Composer",
-      "description": "The box a person talks to an agent in: chips for what travels with the message, the text with mentions, and Send, which turns into Stop while the agent answers.",
+      "description": "The box a person talks to an agent in: two lines at rest, + and Send inside, files above the text, steers waiting above the box, a notice on its top edge, and Send that morphs into Stop.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -16546,7 +16551,9 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/chat-menu",
         "@vegastack/text-edit",
+        "@vegastack/text-spinner",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -16557,8 +16564,85 @@
         }
       ],
       "meta": {
-        "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat.",
+        "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat. Put Plan, the model and the memory ring in its meta line (ComposerMeta).",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
+        "version": "0.77.0"
+      }
+    },
+    {
+      "name": "composer-meta",
+      "type": "registry:ui",
+      "title": "Composer Meta",
+      "description": "The quiet line under a chat's composer: a short privacy note, then Plan, the model and effort, and the chat memory ring, as small muted text with a faint pill on hover.",
+      "categories": ["chat"],
+      "dependencies": [
+        "@vegastack/design@^0.14.0",
+        "@vegastack/design-tokens@^0.14.0"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/tooltip"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/composer-meta.tsx",
+          "type": "registry:ui",
+          "target": "@ui/composer-meta.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Under ChatComposer (its meta prop), holding the privacy note, Plan, a ModelEffortMenu and a ContextRing.",
+        "whenNotToUse": "Toolbars and filters (Toolbar), or a form's helper text (FieldDescription).",
+        "version": "0.77.0"
+      }
+    },
+    {
+      "name": "model-effort-menu",
+      "type": "registry:ui",
+      "title": "Model Effort Menu",
+      "description": "A chat's model and effort as quiet text that opens one compact menu: models with number shortcuts, an Effort submenu with only the chosen model's levels, and More models with the ones you can't use, muted.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.14.0",
+        "@vegastack/design-tokens@^0.14.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-menu",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/model-effort-menu.tsx",
+          "type": "registry:ui",
+          "target": "@ui/model-effort-menu.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Choosing the model and effort for a chat, from its composer's meta line.",
+        "whenNotToUse": "An agent's default model in settings (Select or a settings form), or a list of many options that needs search (Combobox).",
+        "version": "0.77.0"
+      }
+    },
+    {
+      "name": "context-panel",
+      "type": "registry:ui",
+      "title": "Context Panel",
+      "description": "What fills a chat's working memory, adding up to its window: share used, one segmented bar, a legend with tokens and shares, what's free, and Summarize now.",
+      "categories": ["chat"],
+      "dependencies": [
+        "@vegastack/design@^0.14.0",
+        "@vegastack/design-tokens@^0.14.0"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/text-spinner"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/context-panel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/context-panel.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
+        "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.77.0"
       }
     },
