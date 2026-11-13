@@ -1,11 +1,11 @@
 ---
 title: Chat Composer
-description: The box a person talks to an agent in — chips for what travels with the message, the text with mentions, and Send, which turns into Stop.
+description: The box a person talks to an agent in — two lines at rest, + and Send inside, files above the text, steers above the box, and Send that morphs into Stop.
 audience: public
 registry: chat-composer
 status: stable
 since: 0.43.0
-a11y: named textbox, described by its hint and error
+a11y: named textbox; Send, Stop and + are named buttons
 preview: chatComposer
 ---
 
@@ -17,18 +17,31 @@ preview: chatComposer
 
 ```tsx
 import { ChatComposer } from "@/components/ui/chat-composer";
+import { ComposerMeta } from "@/components/ui/composer-meta";
 
 <ChatComposer
-  placeholder="Ask anything, or @ an agent…"
-  status={status}
+  placeholder="Ask William anything…"
+  state={state}
   onSubmit={send}
   onStop={stop}
-  hint="Only you can see this chat · AI can make mistakes. Verify important info."
+  addMenu={<ChatMenuItem onSelect={upload}>Upload files</ChatMenuItem>}
+  meta={
+    <ComposerMeta
+      privacy="Private · AI can make mistakes"
+      model={menu}
+      context={ring}
+    />
+  }
 />;
 ```
 
-The text is [`TextEdit`](/docs/components/text-edit), so a mention here is the same chip a comment
-has. For a comment or a reply on a record, use
+One box, two lines tall at rest, 16px radius and one hairline that darkens a little while it has
+focus. Inside are only **+** (attach and bring things in, from `addMenu`, a list of
+[`ChatMenu`](/docs/components/chat-menu) items) and **Send**. Under the box, `meta` takes the quiet
+line — Plan, the model and effort, the memory ring — as a
+[`ComposerMeta`](/docs/components/composer-meta). The text is [`TextEdit`](/docs/components/text-edit),
+so a mention is the same chip a comment has; `handleRef.openMentionMenu()` opens the `@` list for a
+"Mention a page or task" item. For a comment on a record use
 [`CommentComposer`](/docs/components/comments): this box is for a conversation, where Enter sends.
 
 <ComponentPreview
@@ -42,58 +55,64 @@ has. For a comment or a reply on a record, use
 
 ## Examples
 
-### A notice on the box
+### Send, Stop and the states between
 
-`notice` attaches a `ChatComposerNotice` to the top of the box, sharing its border so the two read
-as one: a usage limit, a send that is held, a paused agent. It carries an icon by `tone`, the
-words, one optional action (a `secondary` xs button) and an optional ✕ through `onDismiss`. It is
-silent by default; pass `live` when it appears because of what the person just did. The `hint` is
-the one muted line under the box: who can see the chat and the AI disclaimer, wrapping on a phone.
+`state` drives the one button. `idle` with text is a primary ↑; an empty box is a quiet outline.
+`sending` shows the braille [`TextSpinner`](/docs/components/text-spinner) inside the same button —
+keep it for at most ~300ms, then move to `running` — and Send becomes Stop ■ with a crossfade and a
+small scale. `stopping` holds Stop while the agent winds down; say "Stopping…" in the notice. A
+double click on Send never lands on the Stop that replaces it. Under reduced motion the faces swap
+at once and the spinner is a still `…`.
+
+<ComponentPreview
+  name="chatComposerStates"
+  file="components/preview/chat-composer.tsx"
+/>
+
+### Files and chips
+
+`attachments` are one row above the text: an image with a `thumbUrl` is a 56px thumbnail, anything
+else a one-line chip with its type icon and a middle-ellipsis name. Upload progress is a still ring
+inside the chip's icon (`progress`, 0–1); a failed one shows ⚠, its reason and ↻
+(`onRetryAttachment`). × (`onRemoveAttachment`) takes one off, and so does Backspace in the empty
+box. The row scrolls sideways and fades at the edge it can scroll toward; the text grows under it.
+`chips` adds other things that travel with the message, such as the page's chip, after the files.
+
+<ComponentPreview
+  name="chatComposerAttachments"
+  file="components/preview/chat-composer.tsx"
+/>
+
+### While the agent works: steers and a notice
+
+While `running` the person can keep typing. With `queues`, Enter sends it and the host shows it in
+`steers` above the box — `↳ "…" · read after this step ×` — until the agent reads it (`state:
+"read"`); × (`onCancelSteer`) takes a queued one back. With text in the box a small Send stands
+beside Stop, for a phone with no Enter. `notice` sits on the box's top edge, inside its hairline: a
+`ChatComposerNotice` with `tone="progress"` leads with the dots loader ("·· Reconnecting — your
+agent kept working [Reload]"). The box never turns red.
+
+<ComponentPreview
+  name="chatComposerRunning"
+  file="components/preview/chat-composer.tsx"
+/>
+
+### Notices
+
+`ChatComposerNotice` carries a lead by `tone` (`info` ⓘ, `warning` ⚠ in the warning ink,
+`progress` the dots loader), the words, one optional action (a ghost xs button) and an optional ✕
+through `onDismiss`. It is silent by default; pass `live` when it appears because of what the person
+just did, such as a held send (with `submitDisabled`).
 
 <ComponentPreview
   name="chatComposerNotice"
   file="components/preview/chat-composer.tsx"
 />
 
-### Toolbar slots
-
-`toolbarStart` follows 📎 and @: a mode chip such as Plan and the model picker's chip
-([`ComposerChip`](/docs/components/composer-chip)). `toolbarEnd` sits just before Send or Stop: the
-chat memory ring ([`ContextRing`](/docs/components/context-ring)). Keep both to small, chip-height
-controls; on a phone the start slot gives way first and Send stays on the toolbar's line.
-
-<ComponentPreview
-  name="chatComposerToolbar"
-  file="components/preview/chat-composer.tsx"
-/>
-
-### While the agent answers
-
-With `status="streaming"` the send button is Stop, and the person can keep typing their next
-message. Leave out `onStop` for someone who may not stop this answer: Send stays, held. With
-`queues`, that next message sends anyway: the host holds it until the answer ends, and with text in
-the box Send stands beside Stop.
-
-<ComponentPreview
-  name="chatComposerStreaming"
-  file="components/preview/chat-composer.tsx"
-/>
-
-### Send held
-
-`submitDisabled` holds Send and keeps the text, while a file uploads for example. The reason goes in
-`submitDisabledReason`, a line under the box that also describes it.
-
-<ComponentPreview
-  name="chatComposerHeld"
-  file="components/preview/chat-composer.tsx"
-/>
-
 ### A failed send
 
-The box clears as soon as the person sends, so they can start the next message; resolve `onSubmit`
-when the send is accepted, not when the answer ends. If it rejects, the text comes back, ahead of
-anything typed since, with `labels.sendFailed` under the box. Pass `error` to say more. Resolving
+The box clears as soon as the person sends. If `onSubmit` rejects, the text comes back, ahead of
+anything typed since, with `labels.sendFailed` under the box; pass `error` to say more. Resolving
 `false` puts the text back with no error, for a question first: "Send without the skill?".
 
 <ComponentPreview
@@ -103,7 +122,8 @@ anything typed since, with `labels.sendFailed` under the box. Pass `error` to sa
 
 ### Turned off
 
-`disabled` turns off the whole box, for an agent that is paused. The hint can say why.
+`disabled` turns off the whole box, for an agent that is paused; the placeholder or a notice says
+why.
 
 <ComponentPreview
   name="chatComposerDisabled"
@@ -112,10 +132,10 @@ anything typed since, with `labels.sendFailed` under the box. Pass `error` to sa
 
 ### Filling it from outside
 
-`handleRef` gives `setValue`, for a starter prompt that fills the box without sending, and `focus`.
-`setValue(draft, { focus: false })` applies a draft that arrived after the box mounted. The text is
-Markdown both ways: `onSubmit`, `onValueChange`, `defaultValue` and `setValue` all carry it, so a
-line break arrives as `\\` and a new line.
+`handleRef` gives `setValue`, for a starter prompt that fills the box without sending, `focus`, and
+`openMentionMenu`. `setValue(draft, { focus: false })` applies a draft that arrived after the box
+mounted. The text is Markdown both ways: `onSubmit`, `onValueChange`, `defaultValue` and `setValue`
+all carry it.
 
 ```tsx
 const composer = useRef<ChatComposerHandle>(null);
@@ -135,6 +155,16 @@ const composer = useRef<ChatComposerHandle>(null);
 
 <ApiTable
   path="../../packages/ui/registry/ui/chat-composer.tsx"
+  name="ComposerAttachment"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-composer.tsx"
+  name="ComposerSteer"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-composer.tsx"
   name="ChatComposerNoticeProps"
 />
 
@@ -150,17 +180,21 @@ const composer = useRef<ChatComposerHandle>(null);
 
 ## Accessibility
 
-- The box is a textbox named by `labels.message`, described by the hint and the error.
+- The box is a textbox named by `labels.message`, described by the error.
 - A failed send is `role="alert"`. It appears because of what the person did.
+- Send, Stop and + are named buttons in the Tab order with a tooltip each; Send's name follows its
+  face ("Send", "Sending", "Stop", "Stopping").
+- Each attachment's × is named "Remove q3-prices.pdf"; upload progress is also read as a percentage.
+- Steers are a list named "Waiting to be read"; each × is named with its words.
 - Enter sends everywhere but a code block, so in a list it sends too; Shift+Enter continues the line.
-- Send, Stop, 📎 and @ are named buttons in the Tab order, with a tooltip each.
 
 | Key                                               | Action                                                       |
 | ------------------------------------------------- | ------------------------------------------------------------ |
-| <kbd>Enter</kbd>                                  | Send; on a phone, or in a code block, a new line             |
+| <kbd>Enter</kbd>                                  | Send (a steer while it runs); on a phone, a new line         |
 | <kbd>Shift</kbd> + <kbd>Enter</kbd>               | A new line                                                   |
 | <kbd>⌘</kbd> / <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | Send, from anywhere in the text                              |
 | <kbd>↑</kbd>                                      | In the empty box, bring back the last message (`onEditLast`) |
+| <kbd>Backspace</kbd>                              | In the empty box, take the last attachment off               |
 | <kbd>Esc</kbd>                                    | Leave the box; the text stays                                |
 
 <StatesTested name="chat-composer" />
@@ -168,6 +202,6 @@ const composer = useRef<ChatComposerHandle>(null);
 ## Do / Don't
 
 <DoDont
-  do="Say who can see the chat in the hint, and keep the person's text when anything fails."
-  dont="Use it for comments on a record, where Enter must not post half a thought."
+  do="Keep the box to + and Send, and put Plan, the model and the ring in the meta line under it."
+  dont="Add toolbar buttons inside the box, turn it red, or lose the person's text when anything fails."
 />

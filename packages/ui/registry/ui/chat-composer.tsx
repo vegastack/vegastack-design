@@ -1,14 +1,18 @@
-// @vegastack chat-composer@0.77.0 sha256-iwIacg+Wr/WynmlK9V40mchXu4FxFIHsb/pKGX/lt4I=
+// @vegastack chat-composer@0.77.0 sha256-drf5ecPivgIDrKIAEFtdGeVrpz1q5OWV4cZ5bbzn2Bw=
 
 "use client";
 
 import * as React from "react";
 import {
   ArrowUp,
-  AtSign,
-  CircleAlert,
+  CornerDownRight,
+  File,
+  FileImage,
+  FileSpreadsheet,
+  FileText,
   Info,
-  Paperclip,
+  Plus,
+  RotateCw,
   Square,
   TriangleAlert,
   X,
@@ -16,11 +20,13 @@ import {
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
+import { ChatMenu } from "@/components/ui/chat-menu";
 import {
   TextEdit,
   type TextEditHandle,
   type TextEditProps,
 } from "@/components/ui/text-edit";
+import { TextSpinner } from "@/components/ui/text-spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -28,16 +34,48 @@ import {
 } from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------------------------------------
- * ChatComposer — the box a person talks to an agent in. `TextEdit` is the text, so a mention is the
- * same chip a comment has; what this adds is what a chat does differently from a comment: Enter
- * sends, the send button turns into Stop while the agent answers, typing carries on meanwhile, and
- * chips above the text say what travels with the message.
+ * ChatComposer — the box a person talks to an agent in. Two lines at rest, one hairline, and only
+ * two controls inside: + (attach and bring in) and Send. Send morphs in place: a braille spinner
+ * while the message goes, then Stop while the agent works. What the person typed while it works
+ * queues as a steer above the box; a notice sits on the box's top edge; the quiet line under the
+ * box (`meta`, a `ComposerMeta`) holds Plan, the model and effort, and the chat memory ring.
+ * `TextEdit` is the text, so a mention is the same chip a comment has.
  * ----------------------------------------------------------------------------------------------*/
 
-/** Where the turn stands. */
-export type ChatComposerStatus = "idle" | "sending" | "streaming";
+/**
+ * Where the turn stands. `sending` — the message is on its way (Send shows a spinner; the host
+ * keeps it at most ~300ms). `running` — the agent works: Send is Stop. `stopping` — Stop was
+ * pressed and the agent is winding down: Stop is held.
+ */
+export type ComposerState = "idle" | "sending" | "running" | "stopping";
 
-/** Reach into the box from outside: a starter prompt filling it, a panel opening. */
+/** A file going with the message: an image shows as a thumbnail, anything else as a chip. */
+export interface ComposerAttachment {
+  /** A stable id; `onRemoveAttachment` and `onRetryAttachment` receive it. */
+  id: string;
+  /** The file's name, shown with a middle ellipsis when long. */
+  name: string;
+  /** Its media type ("image/png", "application/pdf"); picks the icon. */
+  mediaType: string;
+  /** A preview URL; an image with one shows as a 56px thumbnail. @default undefined */
+  thumbUrl?: string;
+  /** Upload progress 0–1 while it uploads; `undefined` once it's ready. @default undefined */
+  progress?: number;
+  /** Why it failed to upload, in a few words. @default undefined */
+  error?: string;
+}
+
+/** A message typed while the agent works, waiting to be read at its next step. */
+export interface ComposerSteer {
+  /** A stable id; `onCancelSteer` receives it. */
+  id: string;
+  /** The words, as typed. */
+  text: string;
+  /** `queued` — waiting for the next step (it can be taken back); `read` — the agent has it. */
+  state: "queued" | "read";
+}
+
+/** Reach into the box from outside: a starter prompt filling it, the + menu's Mention item. */
 export interface ChatComposerHandle {
   /** Put the caret in the box, at the end of the text. */
   focus: () => void;
@@ -46,6 +84,8 @@ export interface ChatComposerHandle {
    * the box mounted. Focuses the box unless `focus` is false.
    */
   setValue: (value: string, options?: { focus?: boolean }) => void;
+  /** Open the `@` list at the caret, as typing `@` would. */
+  openMentionMenu: () => void;
 }
 
 /** The composer's words. */
@@ -54,16 +94,28 @@ export interface ChatComposerLabels {
   message?: string;
   /** @default "Send" */
   send?: string;
+  /** Send while the message goes. @default "Sending" */
+  sending?: string;
   /** @default "Stop" */
   stop?: string;
-  /** @default "Add files" */
-  attach?: string;
-  /** @default "Mention" */
-  mention?: string;
+  /** Stop once pressed, while the agent winds down. @default "Stopping" */
+  stopping?: string;
+  /** The + button. @default "Add" */
+  add?: string;
   /** @default "Drop to add to chat" */
   drop?: string;
   /** Under the box when a send fails, unless `error` says more. @default "Couldn't send. Try again." */
   sendFailed?: string;
+  /** A queued steer's state. @default "read after this step" */
+  steerQueued?: string;
+  /** A steer the agent has read. @default "read" */
+  steerRead?: string;
+  /** Takes a queued steer back. @default "Take back" */
+  cancelSteer?: string;
+  /** Takes an attachment off. @default (name) => `Remove ${name}` */
+  removeAttachment?: (name: string) => string;
+  /** Uploads a failed attachment again. @default (name) => `Try ${name} again` */
+  retryAttachment?: (name: string) => string;
 }
 
 /** Props accepted by `ChatComposer`. */
@@ -72,61 +124,47 @@ export interface ChatComposerProps extends Omit<
   "onSubmit" | "defaultValue" | "children"
 > {
   /**
-   * Send the message, as Markdown. The box clears at once, so the person can start the next one;
-   * Send stays busy while a promise is pending, so it may resolve when the send is accepted, not
-   * when the answer ends. A rejection, or resolving `false` (a question first: "Send without the
-   * skill?"), puts the text back, ahead of anything typed since. Without it, Send stays off.
-   * The Markdown is the stored form (it round-trips into the composer for Edit); what a model or a
-   * bubble reads is `markdownAsTyped(value)` (`markdown-as-typed`), so `__init__` reaches it as
-   * typed, not as `\_\_init\_\_`.
+   * Send the message, as Markdown. The box clears at once, so the person can start the next one. A
+   * rejection, or resolving `false` (a question first: "Send without the skill?"), puts the text
+   * back, ahead of anything typed since. Without it, Send stays off. What a model or a bubble reads
+   * is `markdownAsTyped(value)` (`markdown-as-typed`).
    * @default undefined
    */
   onSubmit?: (value: string) => void | boolean | Promise<unknown>;
-  /** Stop the answer. Without it, there is no Stop while streaming. @default undefined */
+  /** Stop the agent. Without it, there is no Stop while it runs. @default undefined */
   onStop?: () => void;
+  /** Where the turn stands. @default "idle" */
+  state?: ComposerState;
   /**
-   * `sending` — the message is on its way. `streaming` — the agent is answering: the send button
-   * becomes Stop and the person can keep typing their next message.
-   * @default "idle"
-   */
-  status?: ChatComposerStatus;
-  /**
-   * The next message still sends while `streaming`, for a host that holds it until the answer ends:
-   * with text in the box, Send stands beside Stop. `onSubmit` resolves when the host has taken it, not
-   * when it goes out. @default false
+   * The next message still sends while `running` (a steer, or a message held until the answer
+   * ends): Enter sends it, and with text in the box a small Send stands beside Stop.
+   * @default false
    */
   queues?: boolean;
-  /** Shown while the box is empty. @default undefined */
+  /** Shown while the box is empty: "Ask William anything…", "Type to steer, or wait…". @default undefined */
   placeholder?: string;
   /** Turn the whole box off. @default false */
   disabled?: boolean;
-  /**
-   * Hold Send only: something isn't ready (a file still uploading). The reason goes in
-   * `submitDisabledReason`. @default false
-   */
+  /** Hold Send only: something isn't ready. Say why in `notice`. @default false */
   submitDisabled?: boolean;
-  /** Why Send is held, in a line under the box: "datasheet.pdf is still uploading". @default undefined */
-  submitDisabledReason?: string;
-  /** There is something to send besides the text, so an empty box may send. @default false */
-  hasAttachments?: boolean;
-  /** What travels with the message, above the text: the page's chip, attached files. @default undefined */
+  /** Files going with the message, in one row above the text. @default undefined */
+  attachments?: readonly ComposerAttachment[];
+  /** × on an attachment; Backspace in the empty box takes the last one off. @default undefined */
+  onRemoveAttachment?: (id: string) => void;
+  /** ↻ on a failed attachment. @default undefined */
+  onRetryAttachment?: (id: string) => void;
+  /**
+   * Other things that travel with the message, in the same row after the files: the page's chip, a
+   * skill for this turn. @default undefined
+   */
   chips?: React.ReactNode;
   /**
-   * Tools after 📎 and @ at the start of the toolbar: a mode chip (`ComposerChip`, Plan), the model
-   * picker's chip. They shrink and truncate before the end slot gives way. Like the box, the
-   * toolbar mounts afresh when the box takes new text (a send, `setValue`), so keep what they show
-   * in the host: a controlled `pressed`, the ring's `summarizing`.
+   * The + menu's items (`ChatMenuItem`, `ChatMenuSeparator`): Upload files, From Library, Mention a
+   * page or task. Without it, + calls `onAttach`; without either, there is no +.
    * @default undefined
    */
-  toolbarStart?: React.ReactNode;
-  /**
-   * Controls just before Send or Stop: the chat memory ring (`ContextRing`), a model chip. Keep it
-   * to small, icon-height controls; they stay on the toolbar's one line. State lives in the host,
-   * as for `toolbarStart`.
-   * @default undefined
-   */
-  toolbarEnd?: React.ReactNode;
-  /** The 📎 button: open the host's uploads picker. Without it, there is no button. @default undefined */
+  addMenu?: React.ReactNode;
+  /** + when there is no `addMenu`: open the host's file picker. @default undefined */
   onAttach?: () => void;
   /** Files pasted or dropped on the box. Without it, they go nowhere. @default undefined */
   onFiles?: (files: File[]) => void;
@@ -136,23 +174,14 @@ export interface ChatComposerProps extends Omit<
   onDropData?: (data: DataTransfer) => void;
   /** ↑ in the empty box: bring back the last message to edit. @default undefined */
   onEditLast?: () => void;
-  /**
-   * Backspace in the empty box with something attached (`hasAttachments`): take the last attachment
-   * off, as a chat box does. @default undefined
-   */
-  onRemoveLastAttachment?: () => void;
-  /**
-   * The one muted line under the box: who can see this chat, and the AI disclaimer beside it
-   * ("Only you can see this chat · AI can make mistakes. Verify important info."). Wraps on a phone.
-   * @default undefined
-   */
-  hint?: React.ReactNode;
-  /**
-   * A notice attached to the top of the box, as part of it: a usage limit, a held send, a paused
-   * agent. Pass a `ChatComposerNotice`.
-   * @default undefined
-   */
+  /** Steers waiting above the box. @default undefined */
+  steers?: readonly ComposerSteer[];
+  /** × on a queued steer. @default undefined */
+  onCancelSteer?: (id: string) => void;
+  /** A notice on the box's top edge (a `ChatComposerNotice`): reconnecting, a held send, a limit. @default undefined */
   notice?: React.ReactNode;
+  /** The quiet line under the box: a `ComposerMeta`. @default undefined */
+  meta?: React.ReactNode;
   /** The message that failed to send, under the box; `onSubmit`'s rejection shows otherwise. @default undefined */
   error?: React.ReactNode;
   /** The starting text, as Markdown: a restored draft. @default undefined */
@@ -161,7 +190,13 @@ export interface ChatComposerProps extends Omit<
   onValueChange?: (value: string) => void;
   /** Focus the box when it mounts. @default false */
   autoFocus?: boolean;
-  /** `@` mentions (see `TextEdit`'s `mentions`); also adds the @ button. @default undefined */
+  /**
+   * How tall the text may grow before it scrolls, as a share of the window's height. The box grows
+   * upward from two lines.
+   * @default 0.35
+   */
+  maxHeightRatio?: number;
+  /** `@` mentions (see `TextEdit`'s `mentions`). @default undefined */
   mentions?: TextEditProps["mentions"];
   /** Where a mention chip links (see `TextEdit`'s `mentionHref`). @default undefined */
   mentionHref?: TextEditProps["mentionHref"];
@@ -180,13 +215,16 @@ export interface ChatComposerNoticeProps extends Omit<
   React.ComponentPropsWithRef<"div">,
   "children"
 > {
-  /** What the person should know: "You've used 90% of this month's agent budget." */
+  /** What the person should know: "Reconnecting — your agent kept working". */
   children: React.ReactNode;
-  /** `info` is neutral; `warning` and `destructive` tint the icon. @default "info" */
-  tone?: "info" | "warning" | "destructive";
-  /** Replaces the tone's icon. @default ⓘ, ⚠ or a circled ! by tone */
+  /**
+   * `info` is neutral; `warning` draws ⚠ in the warning ink; `progress` leads with the dots loader
+   * ("·· Reconnecting"). The box never turns red. @default "info"
+   */
+  tone?: "info" | "warning" | "progress";
+  /** Replaces the tone's lead. @default ⓘ, ⚠ or the dots loader by tone */
   icon?: React.ReactNode;
-  /** One small action at the end: a `Button size="xs" variant="secondary"` such as Details. @default undefined */
+  /** One small action at the end: a `Button size="xs" variant="ghost"` such as Reload. @default undefined */
   action?: React.ReactNode;
   /** Adds ✕: the person closes the notice. @default undefined */
   onDismiss?: () => void;
@@ -199,25 +237,24 @@ export interface ChatComposerNoticeProps extends Omit<
   live?: boolean;
 }
 
-const NOTICE_ICONS = {
+const NOTICE_LEAD = {
   info: <Info aria-hidden className="text-muted-foreground" />,
   warning: <TriangleAlert aria-hidden className="text-warning-text" />,
-  destructive: <CircleAlert aria-hidden className="text-destructive-text" />,
+  progress: <TextSpinner variant="dots" label="" />,
 } as const;
 
 /**
- * `ChatComposerNotice` — a notice attached to the top of `ChatComposer`'s box (its `notice` prop):
- * an icon, the words, an optional action and an optional ✕. It shares the box's border and reads
- * as part of it.
+ * `ChatComposerNotice` — a line on `ChatComposer`'s top edge (its `notice` prop), inside the box's
+ * hairline with a hairline under it: a lead, the words, an optional action and an optional ✕.
  *
  * @example
  * <ChatComposer
  *   notice={
  *     <ChatComposerNotice
- *       action={<Button size="xs" variant="secondary">Details</Button>}
- *       onDismiss={dismiss}
+ *       tone="progress"
+ *       action={<Button size="xs" variant="ghost" onClick={reload}>Reload</Button>}
  *     >
- *       You've used 90% of this month's agent budget.
+ *       Reconnecting — your agent kept working
  *     </ChatComposerNotice>
  *   }
  * />
@@ -239,15 +276,15 @@ export function ChatComposerNotice({
       data-tone={tone}
       role={live ? "status" : undefined}
       className={cn(
-        "flex min-w-0 items-center gap-2 rounded-t-xl border border-b-0 border-input bg-muted/50 py-1 ps-3 pe-3 has-[button]:pe-1 text-sm text-muted-foreground dark:bg-muted/40",
+        "flex min-h-9 min-w-0 animate-in items-center gap-2 border-b border-chat-hairline py-1 ps-4 pe-4 text-xs text-muted-foreground duration-quick ease-enter fade-in-0 has-[button]:pe-1.5",
         className,
       )}
       {...props}
     >
-      <span className="inline-flex shrink-0 [&_svg:not([class*='size-'])]:size-4">
-        {icon ?? NOTICE_ICONS[tone]}
+      <span className="inline-flex shrink-0 items-center [&_svg:not([class*='size-'])]:size-3.5">
+        {icon ?? NOTICE_LEAD[tone]}
       </span>
-      <span className="min-w-0 flex-1 py-1 leading-5">{children}</span>
+      <span className="min-w-0 flex-1 leading-5">{children}</span>
       {action || onDismiss ? (
         <span className="inline-flex shrink-0 items-center gap-1">
           {action}
@@ -290,32 +327,319 @@ function takesDrag(
   );
 }
 
-function ToolButton({
+/** A long name keeps its start and its extension: "quarterly-pri…-2026.pdf". */
+export function middleEllipsis(name: string, max = 28): string {
+  if (name.length <= max) return name;
+  const tail = Math.min(10, Math.floor(max / 2) - 1);
+  return `${name.slice(0, max - tail - 1)}…${name.slice(-tail)}`;
+}
+
+function fileIcon(mediaType: string) {
+  if (mediaType.startsWith("image/")) return FileImage;
+  if (
+    mediaType.includes("sheet") ||
+    mediaType.includes("excel") ||
+    mediaType === "text/csv"
+  )
+    return FileSpreadsheet;
+  if (
+    mediaType.startsWith("text/") ||
+    mediaType.includes("pdf") ||
+    mediaType.includes("word") ||
+    mediaType.includes("document")
+  )
+    return FileText;
+  return File;
+}
+
+/** Upload progress as a still ring (0–1), the conic ring `upload-panel` draws. */
+function ProgressRing({ value }: { value: number }) {
+  const percent = Math.round(Math.min(1, Math.max(0, value)) * 100);
+  return (
+    <span
+      aria-hidden
+      data-slot="chat-composer-attachment-progress"
+      className="block size-3.5 shrink-0 rounded-full [mask-image:radial-gradient(farthest-side,transparent_calc(100%-var(--spacing)*0.5),black_calc(100%-var(--spacing)*0.25))]"
+      style={{
+        backgroundImage: `conic-gradient(var(--color-foreground) ${percent}%, var(--color-border) 0)`,
+      }}
+    />
+  );
+}
+
+function AttachmentItem({
+  attachment,
+  onRemove,
+  onRetry,
+  labels,
+}: {
+  attachment: ComposerAttachment;
+  onRemove?: (id: string) => void;
+  onRetry?: (id: string) => void;
+  labels?: ChatComposerLabels;
+}) {
+  const { id, name, mediaType, thumbUrl, progress, error } = attachment;
+  const uploading = progress !== undefined && !error;
+  const removeLabel = labels?.removeAttachment?.(name) ?? `Remove ${name}`;
+  const retryLabel = labels?.retryAttachment?.(name) ?? `Try ${name} again`;
+  const state = error ? "error" : uploading ? "uploading" : "ready";
+  const percent = uploading ? Math.round(progress * 100) : null;
+  const remove = onRemove ? (
+    <Button
+      size="icon-xs"
+      variant="ghost"
+      aria-label={removeLabel}
+      data-slot="chat-composer-attachment-remove"
+      onClick={() => onRemove(id)}
+      className="size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
+    >
+      <X aria-hidden />
+    </Button>
+  ) : null;
+
+  if (mediaType.startsWith("image/") && thumbUrl) {
+    return (
+      <li
+        data-slot="chat-composer-attachment"
+        data-kind="image"
+        data-state={state}
+        title={error ? `${name} — ${error}` : name}
+        className="group/attachment relative size-14 shrink-0 overflow-hidden rounded-lg border border-chat-hairline bg-chat-card"
+      >
+        <img
+          src={thumbUrl}
+          alt={name}
+          className={cn(
+            "size-full object-cover",
+            (uploading || error) && "opacity-50",
+          )}
+        />
+        {uploading ? (
+          <span className="absolute inset-0 grid place-items-center">
+            <ProgressRing value={progress} />
+          </span>
+        ) : null}
+        {error ? (
+          <span className="absolute inset-0 grid place-items-center">
+            {onRetry ? (
+              <Button
+                size="icon-xs"
+                variant="secondary"
+                aria-label={retryLabel}
+                onClick={() => onRetry(id)}
+                className="rounded-full"
+              >
+                <RotateCw aria-hidden />
+              </Button>
+            ) : (
+              <TriangleAlert aria-hidden className="size-4 text-warning-text" />
+            )}
+          </span>
+        ) : null}
+        {remove ? (
+          <span className="absolute end-0.5 top-0.5 rounded-full bg-background opacity-0 transition-opacity duration-instant group-focus-within/attachment:opacity-100 group-hover/attachment:opacity-100 pointer-coarse:opacity-100">
+            {remove}
+          </span>
+        ) : null}
+        <span className="sr-only">
+          {percent !== null ? `${percent}%` : error ? error : ""}
+        </span>
+      </li>
+    );
+  }
+
+  const Icon = fileIcon(mediaType);
+  return (
+    <li
+      data-slot="chat-composer-attachment"
+      data-kind="file"
+      data-state={state}
+      title={error ? `${name} — ${error}` : name}
+      className="flex h-8 max-w-64 shrink-0 items-center gap-1.5 rounded-lg border border-chat-hairline bg-chat-card ps-2 pe-1 text-xs"
+    >
+      <span className="inline-flex size-3.5 shrink-0 items-center justify-center text-muted-foreground">
+        {uploading ? (
+          <ProgressRing value={progress} />
+        ) : error ? (
+          <TriangleAlert aria-hidden className="size-3.5 text-warning-text" />
+        ) : (
+          <Icon aria-hidden className="size-3.5" />
+        )}
+      </span>
+      <span className="min-w-0 truncate whitespace-nowrap">
+        {middleEllipsis(name)}
+      </span>
+      {percent !== null ? (
+        <span className="shrink-0 text-muted-foreground tabular-nums">
+          {percent}%
+        </span>
+      ) : null}
+      {error ? (
+        <span className="shrink-0 text-muted-foreground">{error}</span>
+      ) : null}
+      {error && onRetry ? (
+        <Button
+          size="icon-xs"
+          variant="ghost"
+          aria-label={retryLabel}
+          onClick={() => onRetry(id)}
+          className="size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
+        >
+          <RotateCw aria-hidden />
+        </Button>
+      ) : null}
+      {remove}
+    </li>
+  );
+}
+
+/** One row that scrolls sideways, fading at the edge it can scroll toward. */
+function AttachmentRow({ children }: { children: React.ReactNode }) {
+  const row = React.useRef<HTMLUListElement>(null);
+  const [edges, setEdges] = React.useState({ start: false, end: false });
+  const measure = React.useCallback(() => {
+    const el = row.current;
+    if (!el) return;
+    const start = Math.abs(el.scrollLeft) > 1;
+    const end = el.scrollWidth - el.clientWidth - Math.abs(el.scrollLeft) > 1;
+    setEdges((was) =>
+      was.start === start && was.end === end ? was : { start, end },
+    );
+  }, []);
+  React.useLayoutEffect(() => {
+    measure();
+    const el = row.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [measure, children]);
+  return (
+    <ul
+      ref={row}
+      data-slot="chat-composer-attachments"
+      data-fade-start={edges.start ? "" : undefined}
+      data-fade-end={edges.end ? "" : undefined}
+      onScroll={measure}
+      className={cn(
+        "-mx-1 flex min-w-0 items-center gap-1.5 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        edges.end &&
+          !edges.start &&
+          "[mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)] rtl:[mask-image:linear-gradient(to_left,black_calc(100%-2rem),transparent)]",
+        edges.start &&
+          !edges.end &&
+          "[mask-image:linear-gradient(to_left,black_calc(100%-2rem),transparent)] rtl:[mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)]",
+        edges.start &&
+          edges.end &&
+          "[mask-image:linear-gradient(to_right,transparent,black_2rem,black_calc(100%-2rem),transparent)]",
+      )}
+    >
+      {children}
+    </ul>
+  );
+}
+
+function SteerRow({
+  steer,
+  onCancel,
+  labels,
+}: {
+  steer: ComposerSteer;
+  onCancel?: (id: string) => void;
+  labels?: ChatComposerLabels;
+}) {
+  const queued = steer.state === "queued";
+  return (
+    <li
+      data-slot="chat-composer-steer"
+      data-state={steer.state}
+      className="flex min-h-7 min-w-0 animate-in items-center gap-1.5 ps-4 pe-1 text-xs text-muted-foreground duration-layout ease-enter fade-in-0 slide-in-from-bottom-1"
+    >
+      <CornerDownRight aria-hidden className="size-3.5 shrink-0" />
+      <span className="min-w-0 truncate text-foreground">“{steer.text}”</span>
+      <span aria-hidden className="shrink-0">
+        ·
+      </span>
+      <span className="shrink-0">
+        {queued
+          ? (labels?.steerQueued ?? "read after this step")
+          : (labels?.steerRead ?? "read")}
+      </span>
+      {queued && onCancel ? (
+        <Button
+          size="icon-xs"
+          variant="ghost"
+          aria-label={`${labels?.cancelSteer ?? "Take back"}: ${steer.text}`}
+          onClick={() => onCancel(steer.id)}
+          className="ms-auto size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3.5"
+        >
+          <X aria-hidden />
+        </Button>
+      ) : null}
+    </li>
+  );
+}
+
+/** The three faces of the one action button, stacked so they crossfade in place. */
+type Face = "send" | "sending" | "stop";
+
+function ActionButton({
+  face,
   label,
   disabled,
+  primary,
   onClick,
-  children,
+  slot,
 }: {
+  face: Face;
   label: string;
-  disabled?: boolean;
+  disabled: boolean;
+  primary: boolean;
   onClick: () => void;
-  children: React.ReactNode;
+  slot: string;
 }) {
+  const layer = (shown: boolean) =>
+    cn(
+      "absolute inset-0 grid place-items-center transition-[opacity,scale]",
+      shown
+        ? "scale-100 opacity-100 duration-state ease-enter"
+        : "scale-90 opacity-0 duration-state-exit ease-exit",
+    );
   return (
     <Tooltip>
       <TooltipTrigger
         render={
           <Button
-            variant="ghost"
-            size="icon-xs"
+            size="icon"
+            variant={primary ? "default" : "outline"}
             aria-label={label}
+            data-slot={slot}
+            data-face={face}
             disabled={disabled}
             onClick={onClick}
-            className="rounded-full text-muted-foreground hover:text-foreground"
+            className={cn(
+              "relative overflow-hidden rounded-full",
+              // An empty box's Send is a quiet outline, not a faded primary.
+              !primary &&
+                "border-chat-hairline text-muted-foreground data-disabled:opacity-100",
+            )}
           />
         }
       >
-        {children}
+        <span aria-hidden className={layer(face === "send")}>
+          <ArrowUp />
+        </span>
+        <span aria-hidden className={layer(face === "sending")}>
+          <TextSpinner
+            label=""
+            className={cn(
+              primary ? "text-primary-foreground" : "text-muted-foreground",
+            )}
+          />
+        </span>
+        <span aria-hidden className={layer(face === "stop")}>
+          <Square className="size-3 fill-current" />
+        </span>
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
@@ -323,46 +647,51 @@ function ToolButton({
 }
 
 /**
- * `ChatComposer` — the box a person talks to an agent in: chips for what travels with the message,
- * the text with `@` mentions, 📎 and @ at the start of its toolbar (then `toolbarStart`), and Send at
- * the end (after `toolbarEnd`), which turns into Stop while the agent answers. Enter sends and
- * Shift+Enter breaks the line, except on a phone, where return breaks the line and the button sends.
- * It grows to about eight lines, then scrolls.
+ * `ChatComposer` — the box a person talks to an agent in: a row of files and chips above the text,
+ * the text with `@` mentions, + at the start and Send at the end. Send morphs in place — a braille
+ * spinner while the message goes (`state="sending"`), Stop while the agent works (`running`), Stop
+ * held while it winds down (`stopping`). Typing carries on meanwhile; with `queues`, Enter sends it
+ * as a steer, which the host shows in `steers` above the box. Enter sends and Shift+Enter breaks
+ * the line, except on a phone, where return breaks the line and the button sends. The box grows
+ * upward to `maxHeightRatio` of the window, then scrolls.
  *
  * @example
  * <ChatComposer
- *   placeholder="Ask anything, or @ an agent…"
- *   status={status}
+ *   placeholder="Ask William anything…"
+ *   state={state}
  *   onSubmit={send}
  *   onStop={stop}
- *   hint="Only you can see this chat"
+ *   addMenu={<ChatMenuItem onSelect={upload}>Upload files</ChatMenuItem>}
+ *   meta={<ComposerMeta privacy="Private · AI can make mistakes" />}
  * />
  */
 export function ChatComposer({
   onSubmit,
   onStop,
-  status = "idle",
+  state = "idle",
   queues = false,
   placeholder,
   disabled = false,
   submitDisabled = false,
-  submitDisabledReason,
-  hasAttachments = false,
+  attachments,
+  onRemoveAttachment,
+  onRetryAttachment,
   chips,
-  toolbarStart,
-  toolbarEnd,
+  addMenu,
   onAttach,
   onFiles,
   dropTypes,
   onDropData,
   onEditLast,
-  onRemoveLastAttachment,
-  hint,
+  steers,
+  onCancelSteer,
   notice,
+  meta,
   error: errorProp,
   defaultValue,
   onValueChange,
   autoFocus = false,
+  maxHeightRatio = 0.35,
   mentions,
   mentionHref,
   mentionImage,
@@ -384,11 +713,10 @@ export function ChatComposer({
   const box = React.useRef<TextEditHandle>(null);
   const sentAt = React.useRef(0);
   const errorId = React.useId();
-  const heldId = React.useId();
-  const hintId = React.useId();
 
-  const sending = status === "sending" || pending;
-  const streaming = status === "streaming";
+  const hasAttachments = !!attachments?.length;
+  const working = state === "running" || state === "stopping";
+  const sending = state === "sending" || (pending && !working);
   const error =
     errorProp ??
     (failed ? (labels?.sendFailed ?? "Couldn't send. Try again.") : null);
@@ -398,9 +726,8 @@ export function ChatComposer({
     !disabled &&
     !submitDisabled &&
     !sending &&
-    (!streaming || queues) &&
+    (!working || queues) &&
     !empty;
-  const held = submitDisabled ? submitDisabledReason : undefined;
 
   const replace = React.useCallback(
     (value: string, focus: boolean) => {
@@ -421,6 +748,7 @@ export function ChatComposer({
     () => ({
       focus: () => box.current?.focus("end"),
       setValue: (value, options) => replace(value, options?.focus ?? true),
+      openMentionMenu: () => box.current?.openMentionMenu(),
     }),
     [replace],
   );
@@ -443,7 +771,7 @@ export function ChatComposer({
       const since = latest.current;
       replace(since.trim() ? `${value}\n\n${since}` : value, true);
     };
-    if (!streaming) sentAt.current = Date.now();
+    if (!working) sentAt.current = Date.now();
     replace("", true);
     latest.current = "";
     setPending(true);
@@ -468,103 +796,142 @@ export function ChatComposer({
     setDragging(false);
   }, [canDrop]);
 
-  const sendLabel = labels?.send ?? "Send";
-  const idleSend = !canSend && !sending;
-  const stopButton = (
+  const stopLabel =
+    state === "stopping"
+      ? (labels?.stopping ?? "Stopping")
+      : (labels?.stop ?? "Stop");
+  const sendLabel = sending
+    ? (labels?.sending ?? "Sending")
+    : (labels?.send ?? "Send");
+  const showStop = working && !!onStop;
+  // While it works, a held message still needs a button on a phone: Send stands beside Stop.
+  const steerSend = showStop && queues && (!empty || pending);
+  const main: React.ReactNode = showStop ? (
+    <ActionButton
+      slot="chat-composer-stop"
+      face="stop"
+      label={stopLabel}
+      primary
+      disabled={state === "stopping"}
+      onClick={() => {
+        if (Date.now() - sentAt.current > STOP_GUARD_MS) onStop?.();
+      }}
+    />
+  ) : (
+    <ActionButton
+      slot="chat-composer-send"
+      face={sending ? "sending" : "send"}
+      label={sendLabel}
+      primary={canSend || sending}
+      disabled={!canSend}
+      onClick={() => void submit(body)}
+    />
+  );
+
+  const addLabel = labels?.add ?? "Add";
+  const plusButton = (
+    <Button
+      variant="ghost"
+      size="icon"
+      aria-label={addLabel}
+      data-slot="chat-composer-add"
+      disabled={disabled}
+      className="rounded-full text-muted-foreground hover:text-foreground"
+    >
+      <Plus aria-hidden />
+    </Button>
+  );
+  const plus = addMenu ? (
+    <ChatMenu trigger={plusButton} side="top" align="start">
+      {addMenu}
+    </ChatMenu>
+  ) : onAttach ? (
     <Tooltip>
       <TooltipTrigger
-        render={
-          <Button
-            size="icon-xs"
-            aria-label={labels?.stop ?? "Stop"}
-            data-slot="chat-composer-stop"
-            onClick={() => {
-              if (Date.now() - sentAt.current > STOP_GUARD_MS) onStop?.();
-            }}
-            className="rounded-full"
-          />
-        }
-      >
-        <Square aria-hidden className="fill-current" />
-      </TooltipTrigger>
-      <TooltipContent>{labels?.stop ?? "Stop"}</TooltipContent>
+        render={React.cloneElement(plusButton, { onClick: onAttach })}
+      />
+      <TooltipContent>{addLabel}</TooltipContent>
     </Tooltip>
-  );
-  const sendButton = (
-    <Tooltip>
-      <TooltipTrigger
-        render={
-          <Button
-            size="icon-xs"
-            variant={idleSend ? "secondary" : "default"}
-            aria-label={sendLabel}
-            data-slot="chat-composer-send"
-            loading={sending}
-            disabled={!canSend}
-            onClick={() => void submit(body)}
-            className="rounded-full data-disabled:not-data-loading:text-muted-foreground data-disabled:not-data-loading:opacity-100"
+  ) : null;
+
+  const above =
+    hasAttachments || chips ? (
+      <AttachmentRow>
+        {attachments?.map((attachment) => (
+          <AttachmentItem
+            key={attachment.id}
+            attachment={attachment}
+            onRemove={onRemoveAttachment}
+            onRetry={onRetryAttachment}
+            labels={labels}
           />
-        }
-      >
-        <ArrowUp aria-hidden />
-      </TooltipTrigger>
-      <TooltipContent>{sendLabel}</TooltipContent>
-    </Tooltip>
-  );
-  // Queueing, a phone has no Enter that sends: while there's something to hold, Send stands by Stop.
-  const action =
-    streaming && onStop ? (
-      queues && (!empty || pending) ? (
-        <>
-          {sendButton}
-          {stopButton}
-        </>
-      ) : (
-        stopButton
-      )
-    ) : (
-      sendButton
-    );
+        ))}
+        {chips ? (
+          <li
+            data-slot="chat-composer-chips"
+            className="flex shrink-0 items-center gap-1.5"
+          >
+            {chips}
+          </li>
+        ) : null}
+      </AttachmentRow>
+    ) : undefined;
 
   return (
     <div
       data-slot="chat-composer"
-      data-status={status}
-      className={cn("flex min-w-0 flex-col gap-1.5", className)}
+      data-state={state}
+      className={cn("flex min-w-0 flex-col gap-1", className)}
       {...props}
     >
+      {steers?.length ? (
+        <ul
+          data-slot="chat-composer-steers"
+          aria-label="Waiting to be read"
+          className="flex min-w-0 flex-col"
+        >
+          {steers.map((steer) => (
+            <SteerRow
+              key={steer.id}
+              steer={steer}
+              onCancel={onCancelSteer}
+              labels={labels}
+            />
+          ))}
+        </ul>
+      ) : null}
       <div
         data-slot="chat-composer-box"
         data-dragging={dragging ? "" : undefined}
         className="relative min-w-0"
         onKeyDownCapture={(event) => {
-          if (
-            event.key === "Backspace" &&
-            onRemoveLastAttachment &&
-            hasAttachments &&
-            !sendable(body) &&
-            !event.nativeEvent.isComposing &&
-            (event.target as HTMLElement).closest("[role=textbox]") &&
+          const inBox = (event.target as HTMLElement).closest("[role=textbox]");
+          const plain =
             !event.shiftKey &&
             !event.altKey &&
             !event.metaKey &&
-            !event.ctrlKey
+            !event.ctrlKey &&
+            !event.nativeEvent.isComposing;
+          if (
+            event.key === "Backspace" &&
+            onRemoveAttachment &&
+            hasAttachments &&
+            !sendable(body) &&
+            inBox &&
+            plain
           ) {
             event.preventDefault();
             event.stopPropagation();
-            onRemoveLastAttachment();
+            onRemoveAttachment(attachments![attachments!.length - 1]!.id);
             return;
           }
           if (
             event.key !== "ArrowUp" ||
             !onEditLast ||
-            !(event.target as HTMLElement).closest("[role=textbox]") ||
+            !inBox ||
             sendable(body) ||
             hasAttachments ||
-            event.shiftKey ||
-            event.altKey ||
-            event.metaKey ||
-            event.ctrlKey
+            !plain
           )
             return;
           event.preventDefault();
@@ -625,9 +992,6 @@ export function ChatComposer({
             : undefined
         }
       >
-        {notice ? (
-          <div data-slot="chat-composer-notice-slot">{notice}</div>
-        ) : null}
         <TextEdit
           key={draft.generation}
           handleRef={box}
@@ -636,12 +1000,7 @@ export function ChatComposer({
           defaultValue={draft.value}
           placeholder={placeholder}
           aria-label={labels?.message ?? "Message"}
-          aria-invalid={error ? true : undefined}
-          aria-describedby={
-            [error ? errorId : null, held ? heldId : null, hint ? hintId : null]
-              .filter(Boolean)
-              .join(" ") || undefined
-          }
+          aria-describedby={error ? errorId : undefined}
           onValueChange={(value) => {
             if (value === body) return;
             setBody(value);
@@ -661,64 +1020,50 @@ export function ChatComposer({
           mentionHref={mentionHref}
           mentionImage={mentionImage}
           mentionStatus={mentionStatus}
-          minHeight="1.5rem"
-          maxHeight="10rem"
-          className={cn(
-            // A soft lift in light mode only (borders carry the structure in dark), on the system's
-            // larger card radius; Send is the one strong colour.
-            "rounded-xl bg-background shadow-xs dark:bg-transparent dark:shadow-none",
-            // The notice and the box read as one: the box's top corners meet the notice.
-            notice && "rounded-t-none",
-          )}
+          minHeight="3rem"
+          maxHeight={`${Math.round(maxHeightRatio * 100)}dvh`}
+          // The box draws the frame; the editor inside is its padding and its text.
+          // TextEdit is the frame: one hairline that darkens a little while the text has focus
+          // (FOC-14's text-entry cue). Nothing on it ever turns red: a failed send says so in
+          // words under it.
+          className="overflow-hidden rounded-2xl border-chat-hairline bg-background px-4 pt-3.5 pb-2.5 dark:bg-background"
           header={
-            chips ? (
-              <div
-                data-slot="chat-composer-chips"
-                className="flex min-w-0 flex-wrap gap-1 pb-1.5"
-              >
-                {chips}
-              </div>
+            notice || above ? (
+              <>
+                {notice ? (
+                  // The notice runs edge to edge on the box's top edge, a hairline under it.
+                  <div
+                    data-slot="chat-composer-notice-slot"
+                    className="-mx-4 -mt-3.5 mb-2.5"
+                  >
+                    {notice}
+                  </div>
+                ) : null}
+                {above}
+              </>
             ) : undefined
           }
         >
           <div
             data-slot="chat-composer-toolbar"
-            className="flex items-center gap-1 pt-1.5"
+            className="-ms-2 -me-1.5 flex items-center gap-1 pt-1"
           >
-            {onAttach ? (
-              <ToolButton
-                label={labels?.attach ?? "Add files"}
-                disabled={disabled}
-                onClick={onAttach}
-              >
-                <Paperclip aria-hidden />
-              </ToolButton>
-            ) : null}
-            {mentions ? (
-              <ToolButton
-                label={labels?.mention ?? "Mention"}
-                disabled={disabled}
-                onClick={() => box.current?.openMentionMenu()}
-              >
-                <AtSign aria-hidden />
-              </ToolButton>
-            ) : null}
-            {toolbarStart ? (
-              <div
-                data-slot="chat-composer-toolbar-start"
-                // Chips give way before the end does: each may shrink and truncate its words, and
-                // nothing paints past the slot into the ring or Send.
-                className="flex min-w-0 items-center gap-1 overflow-hidden *:min-w-0 *:shrink"
-              >
-                {toolbarStart}
-              </div>
-            ) : null}
+            {plus}
             <div
-              data-slot="chat-composer-toolbar-end"
-              className="ms-auto flex shrink-0 items-center gap-1"
+              data-slot="chat-composer-actions"
+              className="ms-auto flex shrink-0 items-center gap-1.5"
             >
-              {toolbarEnd}
-              <span className="inline-flex">{action}</span>
+              {steerSend ? (
+                <ActionButton
+                  slot="chat-composer-send"
+                  face={pending ? "sending" : "send"}
+                  label={sendLabel}
+                  primary={canSend}
+                  disabled={!canSend}
+                  onClick={() => void submit(body)}
+                />
+              ) : null}
+              {main}
             </div>
           </div>
         </TextEdit>
@@ -726,7 +1071,7 @@ export function ChatComposer({
           <div
             aria-hidden
             data-slot="chat-composer-drop"
-            className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-xl border-2 border-dashed border-primary bg-background/80 text-sm font-medium text-primary"
+            className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-2xl border-2 border-dashed border-primary bg-background/80 text-sm font-medium text-primary"
           >
             {labels?.drop ?? "Drop to add to chat"}
           </div>
@@ -737,29 +1082,12 @@ export function ChatComposer({
           id={errorId}
           role="alert"
           data-slot="chat-composer-error"
-          className="text-xs text-destructive-text"
+          className="px-1 text-xs text-destructive-text"
         >
           {error}
         </p>
       ) : null}
-      {held ? (
-        <p
-          id={heldId}
-          data-slot="chat-composer-held"
-          className="text-xs text-muted-foreground"
-        >
-          {held}
-        </p>
-      ) : null}
-      {hint ? (
-        <p
-          id={hintId}
-          data-slot="chat-composer-hint"
-          className="text-xs text-muted-foreground"
-        >
-          {hint}
-        </p>
-      ) : null}
+      {meta}
     </div>
   );
 }

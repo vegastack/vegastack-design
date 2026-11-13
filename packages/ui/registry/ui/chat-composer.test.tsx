@@ -4,6 +4,7 @@ import { beforeAll, expect, test, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
+import { ChatMenuItem } from "./chat-menu";
 import {
   ChatComposer,
   ChatComposerNotice,
@@ -49,7 +50,12 @@ test("an empty box sends nothing, unless something is attached", async () => {
   await expect.element(send()).toHaveAttribute("aria-disabled", "true");
   await typeInto("{Enter}");
   expect(onSubmit).not.toHaveBeenCalled();
-  await screen.rerender(<ChatComposer onSubmit={onSubmit} hasAttachments />);
+  await screen.rerender(
+    <ChatComposer
+      onSubmit={onSubmit}
+      attachments={[{ id: "f", name: "a.pdf", mediaType: "application/pdf" }]}
+    />,
+  );
   await send().click();
   expect(onSubmit).toHaveBeenCalledWith("");
 });
@@ -57,7 +63,7 @@ test("an empty box sends nothing, unless something is attached", async () => {
 test("Send is the Stop button while the agent answers, and typing carries on", async () => {
   const onSubmit = vi.fn();
   const onStop = vi.fn();
-  const screen = await mount({ onSubmit, onStop, status: "streaming" });
+  const screen = await mount({ onSubmit, onStop, state: "running" });
   const stop = page.getByRole("button", { name: "Stop" });
   await expect.element(stop).toBeVisible();
   expect(
@@ -69,13 +75,13 @@ test("Send is the Stop button while the agent answers, and typing carries on", a
   await stop.click();
   expect(onStop).toHaveBeenCalledTimes(1);
   await screen.rerender(
-    <ChatComposer onSubmit={onSubmit} onStop={onStop} status="idle" />,
+    <ChatComposer onSubmit={onSubmit} onStop={onStop} state="idle" />,
   );
   await expect.element(send()).toBeVisible();
 });
 
-test("a streaming box the viewer can't stop keeps Send, held", async () => {
-  await mount({ status: "streaming" });
+test("a running box the viewer can't stop keeps Send, held", async () => {
+  await mount({ state: "running" });
   await expect.element(send()).toHaveAttribute("aria-disabled", "true");
 });
 
@@ -118,9 +124,9 @@ test("the box stays live while a send is pending, and a failure loses neither te
   );
   const screen = await mount({ onSubmit });
   await typeInto("First{Enter}");
-  await vi.waitFor(() =>
-    expect(send().element().getAttribute("data-loading")).not.toBeNull(),
-  );
+  await expect
+    .element(page.getByRole("button", { name: "Sending" }))
+    .toHaveAttribute("data-face", "sending");
   await expect.element(box()).toHaveTextContent("");
   await vi.waitFor(() =>
     expect(document.activeElement?.className).toContain("ProseMirror"),
@@ -153,22 +159,13 @@ test("a box of spaces sends nothing, and edges are trimmed", async () => {
   await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith("Hello"));
 });
 
-test("a held Send says why under the box and keeps the text", async () => {
+test("a held Send keeps the text", async () => {
   const onSubmit = vi.fn();
-  const screen = await mount({
-    onSubmit,
-    defaultValue: "Draft",
-    submitDisabled: true,
-    submitDisabledReason: "datasheet.pdf is still uploading",
-  });
+  await mount({ onSubmit, defaultValue: "Draft", submitDisabled: true });
   await expect.element(send()).toHaveAttribute("aria-disabled", "true");
-  const line = screen.container.querySelector(
-    "[data-slot=chat-composer-held]",
-  )!;
-  expect(line.textContent).toBe("datasheet.pdf is still uploading");
-  expect(box().element().getAttribute("aria-describedby")).toContain(line.id);
   await typeInto("{Enter}");
   expect(onSubmit).not.toHaveBeenCalled();
+  await expect.element(box()).toHaveTextContent("Draft");
 });
 
 test("the placeholder follows the prop while the box is empty", async () => {
@@ -219,9 +216,7 @@ test("↑ in the empty box brings back the last message, and only there", async 
 test("↑ on a button stays the button's", async () => {
   const onEditLast = vi.fn();
   await mount({ onEditLast, onAttach: () => {} });
-  (
-    page.getByRole("button", { name: "Add files" }).element() as HTMLElement
-  ).focus();
+  (page.getByRole("button", { name: "Add" }).element() as HTMLElement).focus();
   await userEvent.keyboard("{ArrowUp}");
   expect(onEditLast).not.toHaveBeenCalled();
 });
@@ -239,29 +234,30 @@ test("the handle fills the box and focuses it", async () => {
   );
 });
 
-test("chips sit in the box above the text; the hint and error describe it", async () => {
+test("files and chips sit in the box above the text; the error describes it", async () => {
   const screen = await mount({
+    attachments: [{ id: "a", name: "a.pdf", mediaType: "application/pdf" }],
     chips: <Button size="xs">SR-12</Button>,
-    hint: "Only you can see this chat",
     error: "That failed.",
   });
-  const chips = screen.container.querySelector(
-    "[data-slot=chat-composer-chips]",
+  const row = screen.container.querySelector(
+    "[data-slot=chat-composer-attachments]",
   )!;
   const editor = screen.container.querySelector("[role=textbox]")!;
   expect(
-    chips.compareDocumentPosition(editor) & Node.DOCUMENT_POSITION_FOLLOWING,
+    row.compareDocumentPosition(editor) & Node.DOCUMENT_POSITION_FOLLOWING,
   ).toBeTruthy();
+  expect(row.querySelector("[data-slot=chat-composer-chips]")).not.toBeNull();
   const described = box().element().getAttribute("aria-describedby")!;
-  expect(described.split(" ")).toHaveLength(2);
+  expect(described.split(" ")).toHaveLength(1);
   await expectNoA11yViolations(screen.container);
 });
 
-test("the 📎 button belongs to the host; files dropped reach onFiles", async () => {
+test("+ without a menu calls the host's picker; files dropped reach onFiles", async () => {
   const onAttach = vi.fn();
   const onFiles = vi.fn();
   const screen = await mount({ onAttach, onFiles });
-  await page.getByRole("button", { name: "Add files" }).click();
+  await page.getByRole("button", { name: "Add" }).click();
   expect(onAttach).toHaveBeenCalledTimes(1);
   const data = new DataTransfer();
   data.items.add(new File(["x"], "a.txt", { type: "text/plain" }));
@@ -303,23 +299,25 @@ test("a drop type the host takes reaches onDropData", async () => {
   await vi.waitFor(() => expect(onDropData).toHaveBeenCalledTimes(1));
 });
 
-test("@ opens the mention menu, after a word too", async () => {
+test("the handle opens the mention menu, after a word too", async () => {
   const search = vi.fn(async () => [
     { kind: "agent", id: "a1", label: "BOQ processor" },
   ]);
+  const handle = React.createRef<ChatComposerHandle>();
   await mount({
+    handleRef: handle,
     mentions: {
       kinds: [{ id: "agent", noun: "Agent", plural: "Agents", order: 0 }],
       search,
     },
   });
-  await page.getByRole("button", { name: "Mention" }).click();
+  handle.current!.openMentionMenu();
   await vi.waitFor(() => expect(search).toHaveBeenCalled());
   await expect.element(page.getByText("BOQ processor")).toBeVisible();
   await userEvent.keyboard("{Enter}");
   await expect.element(box()).toHaveTextContent("BOQ processor");
   await userEvent.keyboard("hello");
-  await page.getByRole("button", { name: "Mention" }).click();
+  handle.current!.openMentionMenu();
   await vi.waitFor(() =>
     expect(
       document.querySelector('[data-slot="suggestion-menu"]'),
@@ -335,7 +333,7 @@ test("disabled turns the whole box off", async () => {
   });
   await expect.element(send()).toHaveAttribute("aria-disabled", "true");
   await expect
-    .element(page.getByRole("button", { name: "Add files" }))
+    .element(page.getByRole("button", { name: "Add" }))
     .toHaveAttribute("aria-disabled", "true");
   await expectNoA11yViolations(screen.container);
 });
@@ -348,16 +346,16 @@ test("no slash menu in a chat", async () => {
   expect(document.querySelector("[data-slot=suggestion-menu]")).toBeNull();
 });
 
-test("the box stops growing at about eight lines", async () => {
-  const screen = await mount({ defaultValue: "x\n\n".repeat(30) });
+test("the box stops growing at its share of the window", async () => {
+  const screen = await mount({ defaultValue: "x\n\n".repeat(60) });
   await vi.waitFor(() =>
     expect(screen.container.querySelector("[role=textbox]")).not.toBeNull(),
   );
   const height = screen.container
     .querySelector("[data-slot=text-edit]")!
     .getBoundingClientRect().height;
-  // 10rem of text, the padding and the toolbar.
-  expect(height).toBeLessThanOrEqual(212);
+  // 35% of the window for the text, plus the padding and the toolbar.
+  expect(height).toBeLessThanOrEqual(window.innerHeight * 0.35 + 80);
 });
 
 test("Enter stays a line in a code block, and ``` then Enter opens one", async () => {
@@ -413,36 +411,41 @@ test("a drag that crosses children keeps the highlight until it leaves", async (
   );
 });
 
-test("a notice sits on top of the box as part of it, with its action and ✕", async () => {
+test("a notice sits on the box's top edge, inside its hairline, with its action and ✕", async () => {
   const dismiss = vi.fn();
   const screen = await mount({
     notice: (
       <ChatComposerNotice
+        tone="progress"
         action={
-          <Button size="xs" variant="secondary">
-            Details
+          <Button size="xs" variant="ghost">
+            Reload
           </Button>
         }
         onDismiss={dismiss}
       >
-        You've used 90% of this month's budget.
+        Reconnecting — your agent kept working
       </ChatComposerNotice>
     ),
   });
   const notice = screen.container.querySelector<HTMLElement>(
     "[data-slot=chat-composer-notice]",
   )!;
-  const editor = screen.container.querySelector<HTMLElement>(
-    "[data-slot=text-edit]",
+  const frame = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-box]",
   )!;
   expect(notice.getAttribute("role")).toBeNull();
-  // Attached: the notice ends where the box begins, the same width, the box's top corners square.
+  expect(frame.contains(notice)).toBe(true);
+  expect(notice.querySelector("[data-slot=text-spinner]")).not.toBeNull();
+  // Edge to edge on the box's top edge, inside its hairline, with the text below it.
   const a = notice.getBoundingClientRect();
-  const b = editor.getBoundingClientRect();
-  expect(Math.round(a.bottom)).toBe(Math.round(b.top));
-  expect(a.width).toBe(b.width);
-  expect(getComputedStyle(editor).borderTopLeftRadius).toBe("0px");
-  expect(getComputedStyle(notice).borderBottomWidth).toBe("0px");
+  const editor = screen.container
+    .querySelector<HTMLElement>("[data-slot=text-edit]")!
+    .getBoundingClientRect();
+  expect(Math.round(a.top - editor.top)).toBe(1);
+  expect(Math.round(editor.right - a.right)).toBe(1);
+  const text = box().element().getBoundingClientRect();
+  expect(text.top).toBeGreaterThanOrEqual(a.bottom);
   await page.getByRole("button", { name: "Dismiss" }).click();
   expect(dismiss).toHaveBeenCalledOnce();
   await expectNoA11yViolations(screen.container);
@@ -465,63 +468,166 @@ test("a live notice is a polite status", async () => {
 
 test("Backspace in the empty box takes the last attachment off; with text it deletes text", async () => {
   const remove = vi.fn();
-  await mount({ hasAttachments: true, onRemoveLastAttachment: remove });
+  await mount({
+    attachments: [
+      { id: "a", name: "a.pdf", mediaType: "application/pdf" },
+      { id: "b", name: "b.pdf", mediaType: "application/pdf" },
+    ],
+    onRemoveAttachment: remove,
+  });
   await userEvent.click(box());
   await vi.waitFor(() =>
     expect(document.activeElement?.className).toContain("ProseMirror"),
   );
   await userEvent.keyboard("{Backspace}");
-  expect(remove).toHaveBeenCalledOnce();
+  expect(remove).toHaveBeenCalledExactlyOnceWith("b");
   await userEvent.keyboard("ab{Backspace}");
   expect(remove).toHaveBeenCalledOnce();
 });
 
-test("toolbarStart follows 📎 and toolbarEnd sits just before Send", async () => {
+test("Send morphs in place: a spinner while sending, Stop while running, held while stopping", async () => {
+  const onStop = vi.fn();
   const screen = await mount({
     onSubmit: () => {},
-    onAttach: () => {},
-    toolbarStart: <Button size="xs">Plan</Button>,
-    toolbarEnd: <Button size="xs">Ring</Button>,
+    onStop,
+    defaultValue: "Hi",
+    state: "sending",
   });
-  const order = [
-    ...screen.container.querySelectorAll<HTMLElement>(
-      '[data-slot="chat-composer-toolbar"] button',
-    ),
-  ].map((button) => button.getAttribute("aria-label") ?? button.textContent);
-  expect(order).toEqual(["Add files", "Plan", "Ring", "Send"]);
+  const sending = page.getByRole("button", { name: "Sending" });
+  await expect.element(sending).toHaveAttribute("data-face", "sending");
+  expect(
+    sending.element().querySelector("[data-slot=text-spinner]"),
+  ).not.toBeNull();
+  await screen.rerender(
+    <ChatComposer onSubmit={() => {}} onStop={onStop} state="running" />,
+  );
+  await expect
+    .element(page.getByRole("button", { name: "Stop" }))
+    .toHaveAttribute("data-face", "stop");
+  await screen.rerender(
+    <ChatComposer onSubmit={() => {}} onStop={onStop} state="stopping" />,
+  );
+  const stopping = page.getByRole("button", { name: "Stopping" });
+  await expect.element(stopping).toHaveAttribute("aria-disabled", "true");
   await expectNoA11yViolations(screen.container);
 });
 
-test("at a phone's width the end slot keeps Send on the toolbar's line", async () => {
+test("while running with queues, Enter steers and a Send stands beside Stop", async () => {
+  const onSubmit = vi.fn();
+  await mount({ onSubmit, onStop: () => {}, state: "running", queues: true });
+  await typeInto("use the 2025 list");
+  await expect.element(send()).toBeVisible();
+  await expect
+    .element(page.getByRole("button", { name: "Stop" }))
+    .toBeVisible();
+  await userEvent.keyboard("{Enter}");
+  await vi.waitFor(() =>
+    expect(onSubmit).toHaveBeenCalledWith("use the 2025 list"),
+  );
+});
+
+test("steers wait above the box; a queued one can be taken back, a read one can't", async () => {
+  const cancel = vi.fn();
+  const screen = await mount({
+    steers: [
+      { id: "1", text: "use the 2025 list", state: "queued" },
+      { id: "2", text: "skip page 3", state: "read" },
+    ],
+    onCancelSteer: cancel,
+  });
+  const list = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-steers]",
+  )!;
+  const frame = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-box]",
+  )!;
+  expect(
+    list.compareDocumentPosition(frame) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  await expect.element(page.getByText("read after this step")).toBeVisible();
+  await page
+    .getByRole("button", { name: "Take back: use the 2025 list" })
+    .click();
+  expect(cancel).toHaveBeenCalledWith("1");
+  expect(
+    page.getByRole("button", { name: "Take back: skip page 3" }).query(),
+  ).toBeNull();
+});
+
+test("attachments: images as thumbnails, files as chips with a middle ellipsis, progress and errors", async () => {
+  const remove = vi.fn();
+  const retry = vi.fn();
+  const screen = await mount({
+    attachments: [
+      {
+        id: "i",
+        name: "photo.png",
+        mediaType: "image/png",
+        thumbUrl:
+          "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='4' height='4'/>",
+      },
+      {
+        id: "p",
+        name: "quarterly-price-list-for-distributors-final.pdf",
+        mediaType: "application/pdf",
+      },
+      { id: "c", name: "rows.csv", mediaType: "text/csv", progress: 0.42 },
+      { id: "e", name: "drawing.dwg", mediaType: "x/dwg", error: "Too large" },
+    ],
+    onRemoveAttachment: remove,
+    onRetryAttachment: retry,
+  });
+  const items = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      "[data-slot=chat-composer-attachment]",
+    ),
+  ];
+  expect(items.map((item) => item.dataset.kind)).toEqual([
+    "image",
+    "file",
+    "file",
+    "file",
+  ]);
+  expect(items[0]!.getBoundingClientRect().width).toBe(56);
+  expect(items[1]!.textContent).toContain("…");
+  expect(items[1]!.textContent).toContain("final.pdf");
+  expect(items[2]!.textContent).toContain("42%");
+  expect(
+    items[2]!.querySelector("[data-slot=chat-composer-attachment-progress]"),
+  ).not.toBeNull();
+  expect(items[3]!.dataset.state).toBe("error");
+  await page.getByRole("button", { name: "Try drawing.dwg again" }).click();
+  expect(retry).toHaveBeenCalledWith("e");
+  await page.getByRole("button", { name: "Remove rows.csv" }).click();
+  expect(remove).toHaveBeenCalledWith("c");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("+ opens the add menu above the box", async () => {
+  const upload = vi.fn();
+  await mount({
+    addMenu: <ChatMenuItem onSelect={upload}>Upload files</ChatMenuItem>,
+  });
+  await page.getByRole("button", { name: "Add" }).click();
+  await page.getByRole("menuitem", { name: "Upload files" }).click();
+  expect(upload).toHaveBeenCalledOnce();
+});
+
+test("at 320px the box keeps + and Send inside it, on one line", async () => {
   const screen = await render(
     <div style={{ width: 320 }}>
-      <ChatComposer
-        onSubmit={() => {}}
-        onAttach={() => {}}
-        toolbarStart={<Button size="xs">A long mode name that wraps</Button>}
-        toolbarEnd={<Button size="xs">Ring</Button>}
-      />
+      <ChatComposer onSubmit={() => {}} onAttach={() => {}} />
     </div>,
   );
-  const toolbar = screen.container.querySelector<HTMLElement>(
-    '[data-slot="chat-composer-toolbar"]',
-  )!;
+  const frame = screen.container
+    .querySelector<HTMLElement>("[data-slot=chat-composer-box]")!
+    .getBoundingClientRect();
   const sendBox = send().element().getBoundingClientRect();
-  const bar = toolbar.getBoundingClientRect();
-  expect(sendBox.right).toBeLessThanOrEqual(bar.right + 0.5);
-  expect(sendBox.top).toBeGreaterThanOrEqual(bar.top - 0.5);
-  // The start slot gives way: nothing in it paints into the end slot.
-  const start = toolbar
-    .querySelector<HTMLElement>('[data-slot="chat-composer-toolbar-start"]')!
+  const plus = page
+    .getByRole("button", { name: "Add" })
+    .element()
     .getBoundingClientRect();
-  const end = toolbar
-    .querySelector<HTMLElement>('[data-slot="chat-composer-toolbar-end"]')!
-    .getBoundingClientRect();
-  expect(start.right).toBeLessThanOrEqual(end.left + 0.5);
-  const chip = toolbar
-    .querySelector<HTMLElement>(
-      '[data-slot="chat-composer-toolbar-start"] > *',
-    )!
-    .getBoundingClientRect();
-  expect(chip.right).toBeLessThanOrEqual(start.right + 0.5);
+  expect(sendBox.right).toBeLessThanOrEqual(frame.right);
+  expect(Math.round(sendBox.top)).toBe(Math.round(plus.top));
+  expect(sendBox.width).toBe(32);
 });

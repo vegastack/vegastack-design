@@ -129,3 +129,43 @@ test("no a11y violations — open", async () => {
   await expect.poll(() => slot("chat-menu-content")).not.toBeNull();
   await expectNoA11yViolations(document.body);
 });
+
+test("an item's description is its tooltip and its accessible description; a sub's note leads it", async () => {
+  const screen = await render(
+    <ChatMenu trigger="Model">
+      <ChatMenuItem description="Everyday work" onSelect={() => {}}>
+        Sonnet 5.5
+      </ChatMenuItem>
+      <ChatMenuSub label="Effort" note="Higher effort thinks longer.">
+        <ChatMenuItem onSelect={() => {}}>Low</ChatMenuItem>
+      </ChatMenuSub>
+    </ChatMenu>,
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Model" }));
+  const item = screen.getByRole("menuitem", { name: "Sonnet 5.5" });
+  await expect
+    .element(item)
+    .toHaveAttribute("aria-description", "Everyday work");
+  await userEvent.hover(item);
+  await vi.waitFor(() =>
+    expect(slot("tooltip-content")?.textContent).toBe("Everyday work"),
+  );
+  await userEvent.click(screen.getByRole("menuitem", { name: "Effort" }));
+  await vi.waitFor(() =>
+    expect(slot("chat-menu-sub-note")?.textContent).toBe(
+      "Higher effort thinks longer.",
+    ),
+  );
+});
+
+test("a controlled sub opens with its menu", async () => {
+  await render(
+    <ChatMenu trigger="Model" open>
+      <ChatMenuItem onSelect={() => {}}>Sonnet 5.5</ChatMenuItem>
+      <ChatMenuSub label="Effort" open>
+        <ChatMenuItem onSelect={() => {}}>Low</ChatMenuItem>
+      </ChatMenuSub>
+    </ChatMenu>,
+  );
+  await vi.waitFor(() => expect(slot("chat-menu-sub-content")).not.toBeNull());
+});
