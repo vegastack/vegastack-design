@@ -690,7 +690,7 @@
       "value": 1200,
       "unit": "ms"
     },
-    "$description": "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
+    "$description": "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-frames`, the TextSpinner, MOT-14). Not an interaction duration: interactions use fast/base/slow."
   },
   "motion-ease-standard": {
     "$type": "cubicBezier",

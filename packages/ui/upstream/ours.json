@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 151,
+    "total": 156,
     "fromExtras": 46
   },
   "items": {
@@ -1043,6 +1043,36 @@
       "family": "chat",
       "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) — operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no plan approval. Shares RequestCard's shell (card, agent hexagon, stacking answers, announced settled line) over upstream button and textarea with our effect-pill, person-avatar and use-announcer; no patch."
+    },
+    "text-spinner": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream ships only an icon spinner. The braille text loader the operator chose (ICO-8 amended): CSS-only frame strip on the `motion-frames` utility, a still … under reduced motion; no patch."
+    },
+    "status-glyph": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no agent status set. Six lucide outline glyphs with one ink each per COL-25 (the check in the blue accent, never green); no patch."
+    },
+    "chat-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no chat surfaces. ChatCard (the COL-25 card), ChatRow and ChatGroup, composed from upstream's collapsible and our status-glyph and text-spinner; no patch."
+    },
+    "chat-chip": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "Upstream has no background-work chip. A pill on the chat card surface with an attention tone that never fills (COL-25); no patch."
+    },
+    "chat-menu": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "rationale": "A density wrapper over upstream's dropdown-menu with a blue selected ✓, per-level number shortcuts and value-carrying submenus; no patch."
     }
   }
 }

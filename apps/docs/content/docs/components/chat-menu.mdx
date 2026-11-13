@@ -1,0 +1,107 @@
+---
+title: Chat Menu
+description: "A menu with the chat's density: tight rows, a blue check and a number shortcut sharing the right slot, and submenus that open on hover or the right arrow."
+audience: public
+registry: chat-menu
+status: stable
+since: 0.77.0
+a11y: menu roles; shortcuts in aria-keyshortcuts
+preview: chatMenu
+---
+
+## Install
+
+<InstallSteps name="chat-menu" />
+
+## Usage
+
+```tsx
+import {
+  ChatMenu,
+  ChatMenuItem,
+  ChatMenuSeparator,
+  ChatMenuSub,
+} from "@/components/ui/chat-menu";
+
+<ChatMenu trigger="Sonnet 5.5 · Medium" side="top" align="end">
+  <ChatMenuItem selected shortcut="1" onSelect={() => pick("sonnet")}>
+    Sonnet 5.5
+  </ChatMenuItem>
+  <ChatMenuItem shortcut="2" onSelect={() => pick("opus")}>
+    Opus 5.5
+  </ChatMenuItem>
+  <ChatMenuSeparator />
+  <ChatMenuSub label="Effort" value="Medium">
+    <ChatMenuItem
+      selected
+      hint="Recommended"
+      onSelect={() => setEffort("medium")}
+    >
+      Medium
+    </ChatMenuItem>
+  </ChatMenuSub>
+</ChatMenu>;
+```
+
+One column, no empty detail pane. The selected item's ✓ is the blue accent and shares the right
+slot with its number shortcut; while the menu is open, pressing that number picks the item. A
+`ChatMenuSub` shows its current value before the chevron and opens on hover, Enter or →; its own
+numbers pick within it. A muted item with a hint ("Off · ask an admin") is something this person
+can't use. For a general actions menu use [`DropdownMenu`](/docs/components/dropdown-menu).
+
+<ComponentPreview name="chatMenu" file="components/preview/chat-menu.tsx" />
+
+## Anatomy
+
+<Anatomy name="chat-menu" />
+
+## Examples
+
+### Unavailable choices
+
+A model this person can't use stays in the list, muted, with the reason as its hint, and its
+shortcut does nothing.
+
+<ComponentPreview
+  name="chatMenuUnavailable"
+  file="components/preview/chat-menu.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-menu.tsx"
+  name="ChatMenuProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-menu.tsx"
+  name="ChatMenuItemProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-menu.tsx"
+  name="ChatMenuSubProps"
+/>
+
+## Accessibility
+
+- Base UI's menu roles and focus management; each shortcut is declared with `aria-keyshortcuts`.
+- The selected ✓ is named "Selected", so the choice is never colour alone.
+
+| Key                              | Action                         |
+| -------------------------------- | ------------------------------ |
+| <kbd>1</kbd>–<kbd>9</kbd>        | Pick the item with that number |
+| <kbd>↑</kbd> / <kbd>↓</kbd>      | Move between items             |
+| <kbd>→</kbd>                     | Open a submenu                 |
+| <kbd>←</kbd> / <kbd>Escape</kbd> | Close it                       |
+| <kbd>Enter</kbd>                 | Pick the focused item          |
+
+<StatesTested name="chat-menu" />
+
+## Do / Don't
+
+<DoDont
+  do="Offer only what this person and model can use; show the rest muted under More models."
+  dont="Pad the menu with a detail pane, or offer an option the server will refuse."
+/>

@@ -778,10 +778,11 @@
  *   - motion-shake      : horizontal error jiggle. Replayable: re-trigger by
  *                         remounting (key bump) or toggling the class after
  *                         `animationend`.
- *   - motion-indeterminate : the ONE sanctioned looping utility — the sweeping
+ *   - motion-indeterminate : a sanctioned looping utility — the sweeping
  *                         segment of an indeterminate Progress. Looping motion is
  *                         otherwise banned; an indeterminate bar has no other way
- *                         to say "still working" (audit M-06).
+ *                         to say "still working" (audit M-06). `motion-frames`
+ *                         (the TextSpinner's frame strip, MOT-14) is the other.
  *
  * `motion-dock-in` / `motion-dock-out` below are the one PAIR in this family and
  * the one that is not keyed presence — see their own header.
@@ -956,6 +957,34 @@
 @utility motion-indeterminate {
   animation: vs-indeterminate var(--duration-indeterminate)
     var(--motion-ease-standard) infinite;
+}
+
+/* ---------------------------------------------------------------------------
+ * motion-frames — the text loader's frame strip (MOT-14 / ICO-8 amended,
+ * operator 2026-11-13: "braille spinner ⠹").
+ *
+ * The second sanctioned loop, and the only other one: `TextSpinner` stacks its
+ * frames (⠋ ⠙ ⠹ … or · ·· ···) one per line inside a one-line clip and this
+ * steps the strip up a line per frame — `--vs-frame-count` frames, each
+ * `--duration-loader-frame` long (the dots variant sets
+ * `--vs-frame-duration: var(--duration-loader-dots)`). A transform, never
+ * `content`, so it runs in every engine and never reflows. Reduced motion zeroes
+ * the frame token and the global reset ends the loop; TextSpinner swaps the
+ * strip for a still "…" with `motion-reduce:hidden`, an end-state choice.
+ * ------------------------------------------------------------------------- */
+@keyframes vs-frames {
+  to {
+    translate: 0 -100%;
+  }
+}
+
+@utility motion-frames {
+  animation: vs-frames
+    calc(
+      var(--vs-frame-duration, var(--duration-loader-frame)) *
+        var(--vs-frame-count, 10)
+    )
+    steps(var(--vs-frame-count, 10)) infinite;
 }
 
 /* ---------------------------------------------------------------------------

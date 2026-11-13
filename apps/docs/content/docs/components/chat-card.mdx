@@ -1,0 +1,102 @@
+---
+title: Chat Card
+description: "The chat's one card surface for what a person acts on or opens, one line of work, and a fold of work that opens and closes smoothly."
+audience: public
+registry: chat-card
+status: stable
+since: 0.77.0
+a11y: opening rows are named buttons or links; folds disclose
+preview: chatCard
+---
+
+## Install
+
+<InstallSteps name="chat-card" />
+
+## Usage
+
+```tsx
+import { ChatCard, ChatGroup, ChatRow } from "@/components/ui/chat-card";
+
+<ChatCard
+  title="Send this email?"
+  meta="Gmail · sm@vegastack.com"
+  actions={<Button size="sm">Allow once</Button>}
+>
+  Weekly supplier summary to the sales team.
+</ChatCard>;
+```
+
+A card appears only for something a person acts on or opens: a waiting request, question or plan,
+the task list, a file preview. Work, memory saves, answered asks and errors are flat lines in the
+column. `ChatCard` is a faint fill one step off the page with a hairline, the same in light and
+dark, a 12px corner and 16px padding (12px under 640px), with no shadow (COL-25). Outside a chat
+use [`Card`](/docs/components/card).
+
+<ComponentPreview name="chatCard" file="components/preview/chat-card.tsx" />
+
+## Anatomy
+
+<Anatomy name="chat-card" />
+
+## Examples
+
+### Rows in a card
+
+`ChatRow` is one 28px line: an optional state glyph, then the subject.
+
+<ComponentPreview name="chatCardRows" file="components/preview/chat-card.tsx" />
+
+### Rows
+
+A muted verb, the subject in the body ink (it truncates first), then quiet meta and the duration
+right after it, never floated to the far edge. `onOpen` makes the row a button and `href` a link,
+both on the hover layer.
+
+<ComponentPreview name="chatRow" file="components/preview/chat-card.tsx" />
+
+### Groups
+
+`ChatGroup` folds work behind one summary line. The chevron turns and the rows slide open on the
+chat motion (`duration-state` in, `duration-state-exit` out). While `live`, the summary leads with
+the braille spinner, the turn's one moving thing. A hairline guide runs down the gutter.
+
+<ComponentPreview name="chatGroup" file="components/preview/chat-card.tsx" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-card.tsx"
+  name="ChatCardProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-card.tsx"
+  name="ChatRowProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-card.tsx"
+  name="ChatGroupProps"
+/>
+
+## Accessibility
+
+- `ChatCard` is a `section`; pass `as="div"` inside a list.
+- A row that opens something is a button or a link whose name reads its words in order ("Opened
+  Quote sheet").
+- A group's summary is a disclosure button with `aria-expanded`; Enter and Space open and close it.
+
+| Key                                 | Action                      |
+| ----------------------------------- | --------------------------- |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open or close a group       |
+| <kbd>Tab</kbd>                      | Move to the next row action |
+
+<StatesTested name="chat-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Use a card only for something to act on or open, and let settled work be a flat line."
+  dont="Box every memory save, answered ask or error, or give a card its own fill or shadow."
+/>

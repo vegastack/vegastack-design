@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 27331
-      sha256: "917740d75d2ad095e8b01959307c43c72c7ebec940c8a064afae40f10a49b168"
+      bytes: 27384
+      sha256: "5f0d7706bab13f063ed5f4614bc9b5575de7d1bb5a7def5e77fb1b3c7bc338ef"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13125
@@ -128,7 +128,7 @@ themes:
     duration-indeterminate:
       type: "duration"
       value: "1200ms"
-      description: "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
+      description: "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-frames`, the TextSpinner, MOT-14). Not an interaction duration: interactions use fast/base/slow."
     duration-instant:
       type: "duration"
       value: "100ms"
@@ -514,7 +514,7 @@ themes:
     duration-indeterminate:
       type: "duration"
       value: "1200ms"
-      description: "1200ms — the loop cadence of the ONE sanctioned looping utility, `motion-indeterminate` (an indeterminate Progress sweep; audit M-06). Not an interaction duration: interactions use fast/base/slow."
+      description: "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-frames`, the TextSpinner, MOT-14). Not an interaction duration: interactions use fast/base/slow."
     duration-instant:
       type: "duration"
       value: "100ms"

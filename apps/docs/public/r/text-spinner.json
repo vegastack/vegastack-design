@@ -1,0 +1,29 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "text-spinner",
+  "title": "Text Spinner",
+  "description": "The one inline text loader: a monospace braille spinner (⠋ ⠙ ⠹ …) one character wide, or three dots, CSS only, a still … under reduced motion.",
+  "dependencies": [
+    "@vegastack/design@^0.13.0",
+    "@vegastack/design-tokens@^0.11.0"
+  ],
+  "registryDependencies": [],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/text-spinner.tsx",
+      "content": "// @vegastack text-spinner@0.76.3 sha256-DbOWaRKin8PTwYzk1oJF7NISpVlpzobzZziHErlDSkY=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\n/** The braille frames, one every `--duration-loader-frame` (80ms). */\nconst BRAILLE = [\"⠋\", \"⠙\", \"⠹\", \"⠸\", \"⠼\", \"⠴\", \"⠦\", \"⠧\", \"⠇\", \"⠏\"] as const;\n/** The dots frames, one every `--duration-loader-dots` (300ms); padded so every frame is three wide. */\nconst DOTS = [\"·  \", \"·· \", \"···\"] as const;\n\n/** Props accepted by `TextSpinner`. */\nexport interface TextSpinnerProps extends Omit<\n  React.ComponentProps<\"span\">,\n  \"children\"\n> {\n  /**\n   * `braille` (⠋ ⠙ ⠹ …) is the live line of a chat turn and Send while it sends; `dots` (· ·· ···)\n   * says \"not started yet\" — \"·· Thinking\", \"·· Reconnecting\", a composer notice.\n   * @default \"braille\"\n   */\n  variant?: \"braille\" | \"dots\";\n  /**\n   * What a screen reader hears; the glyph itself is hidden from assistive technology. Pass `\"\"`\n   * when the words beside the spinner already say it (\"Searching the web\").\n   * @default \"Working\"\n   */\n  label?: string;\n}\n\n/**\n * The one inline text loader (ICO-8, amended 2026-11-13): a monospace braille spinner in the muted\n * ink, as wide as one frame so the words beside it never move. A turn shows at most one. It is CSS\n * only — the frames sit in a one-line clip and `motion-frames` steps them up a line at a time — so\n * it renders on the server and never re-renders. Under reduced motion it is a still `…`. Page-level\n * loading keeps `Spinner` (lucide `Loader`).\n *\n * @example\n * <p className=\"flex items-center gap-2 text-sm text-muted-foreground\">\n *   <TextSpinner label=\"\" /> Searching the web · 12s\n * </p>\n *\n * @example\n * <TextSpinner variant=\"dots\" label=\"Reconnecting\" />\n */\nfunction TextSpinner({\n  variant = \"braille\",\n  label = \"Working\",\n  className,\n  ...props\n}: TextSpinnerProps) {\n  const frames = variant === \"dots\" ? DOTS : BRAILLE;\n  return (\n    <span\n      data-slot=\"text-spinner\"\n      data-variant={variant}\n      className={cn(\n        \"inline-flex h-lh shrink-0 overflow-y-clip align-bottom font-mono text-muted-foreground tabular-nums select-none\",\n        className,\n      )}\n      {...props}\n    >\n      <span\n        aria-hidden=\"true\"\n        data-slot=\"text-spinner-frames\"\n        className={cn(\n          \"flex flex-col motion-frames motion-reduce:hidden\",\n          variant === \"dots\"\n            ? \"[--vs-frame-count:3] [--vs-frame-duration:var(--duration-loader-dots)]\"\n            : \"[--vs-frame-count:10]\",\n        )}\n      >\n        {frames.map((frame) => (\n          <span key={frame} className=\"h-lh whitespace-pre\">\n            {frame}\n          </span>\n        ))}\n      </span>\n      <span aria-hidden=\"true\" className=\"hidden motion-reduce:inline\">\n        …\n      </span>\n      {label ? <span className=\"sr-only\">{label}</span> : null}\n    </span>\n  );\n}\n\nexport { TextSpinner };\n",
+      "type": "registry:ui",
+      "target": "@ui/text-spinner.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "The one moving thing on a chat turn's live line, Send while it sends, or dots before the first event (\"·· Thinking\", \"·· Reconnecting\").",
+    "whenNotToUse": "Page or section loading (Spinner), a running task-list or Subagent row (StatusGlyph running, drawn still), or progress with a known amount (Progress).",
+    "version": "0.76.3",
+    "integrity": "sha256-DbOWaRKin8PTwYzk1oJF7NISpVlpzobzZziHErlDSkY="
+  },
+  "categories": [
+    "chat"
+  ],
+  "type": "registry:ui"
+}

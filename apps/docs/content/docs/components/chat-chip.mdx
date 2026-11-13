@@ -1,0 +1,66 @@
+---
+title: Chat Chip
+description: "A compact pill for background work and counts on the chat card surface, with an attention tone that never fills."
+audience: public
+registry: chat-chip
+status: stable
+since: 0.77.0
+a11y: an opening chip is a button or link named by its label
+preview: chatChip
+---
+
+## Install
+
+<InstallSteps name="chat-chip" />
+
+## Usage
+
+```tsx
+import { ChatChip } from "@/components/ui/chat-chip";
+
+<ChatChip
+  icon={<TextSpinner label="" />}
+  label="3 Subagents running"
+  onClick={openPanel}
+/>;
+```
+
+Live or partly failed background work is a chip; settled work becomes a muted line. With `onClick`
+or `href` it gains a trailing chevron. `tone="attention"` lifts the label to the body ink for work
+that needs a look; it never adds a red, amber or green fill (COL-25). For tags and filters use
+[`Chip`](/docs/components/chip).
+
+<ComponentPreview name="chatChip" file="components/preview/chat-chip.tsx" />
+
+## Examples
+
+### Static and attention
+
+Without `onClick` or `href` the chip is a plain count. `attention` lifts the label's ink; the
+words carry the news.
+
+<ComponentPreview
+  name="chatChipTones"
+  file="components/preview/chat-chip.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-chip.tsx"
+  name="ChatChipProps"
+/>
+
+## Accessibility
+
+- A chip with `onClick` is a button and one with `href` a link, named by its label and meta.
+- A live chip's spinner is decorative; the label says what is running.
+
+<StatesTested name="chat-chip" />
+
+## Do / Don't
+
+<DoDont
+  do="Say the count in words: '11 commands done, 1 failed'."
+  dont="Colour the chip to say something failed."
+/>

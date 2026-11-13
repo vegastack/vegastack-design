@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 807,
-    "components": 215,
+    "totalRegistryItems": 812,
+    "components": 220,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 25,
+    "AI/chat": 30,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -263,7 +263,12 @@
       "effect-pill",
       "composer-chip",
       "plan-card",
-      "context-ring"
+      "context-ring",
+      "text-spinner",
+      "status-glyph",
+      "chat-card",
+      "chat-chip",
+      "chat-menu"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -32196,6 +32201,791 @@
             {
               "name": "data-tone",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "text-spinner",
+      "registryType": "registry:ui",
+      "title": "Text Spinner",
+      "summary": "The one inline text loader: a monospace braille spinner one character wide, or three dots, CSS only, a still … under reduced motion.",
+      "status": "stable",
+      "since": "0.77.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/text-spinner.tsx"],
+      "publicSymbols": [
+        {
+          "name": "TextSpinner",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/text-spinner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TextSpinnerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/text-spinner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["braille", "dots"]
+          }
+        ],
+        "rationale": "Braille for live work, dots before the first event."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["braille", "dots", "no-label"],
+          "evidence": "packages/ui/registry/ui/text-spinner.tsx + packages/ui/registry/ui/text-spinner.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["glyph-hidden", "sr-only-label"],
+          "evidence": "packages/ui/registry/ui/text-spinner.tsx + packages/ui/registry/ui/text-spinner.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["braille", "dots", "reduced-motion-ellipsis"],
+          "evidence": "packages/ui/registry/ui/text-spinner.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["css-loop"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The frame strip hides and a still … shows (motion-reduce:hidden); --duration-loader-* read 0ms."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/text-spinner",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/text-spinner.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "text-spinner",
+      "dataAttributes": {
+        "TextSpinner": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["text-spinner", "text-spinner-frames"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "status-glyph",
+      "registryType": "registry:ui",
+      "title": "Status Glyph",
+      "summary": "One glyph per state in agent UI: ✓ done in the blue accent, ◌ not started, ◐ running (still), ⊘ skipped, ✗ failed, ⚠ needs you.",
+      "status": "stable",
+      "since": "0.77.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/status-glyph.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/status-glyph.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "StatusGlyph",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/status-glyph.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "StatusGlyphProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/status-glyph.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "status",
+            "values": [
+              "pending",
+              "running",
+              "done",
+              "skipped",
+              "failed",
+              "needs-you"
+            ]
+          }
+        ],
+        "rationale": "One glyph and one ink per state (COL-25)."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["14", "16"]
+          }
+        ],
+        "rationale": "16 in a row, 14 in a meta line."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "pending",
+            "running",
+            "done",
+            "skipped",
+            "failed",
+            "needs-you"
+          ],
+          "evidence": "packages/ui/registry/ui/status-glyph.tsx + packages/ui/registry/ui/status-glyph.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["named-by-state", "decorative-when-label-null"],
+          "evidence": "packages/ui/registry/ui/status-glyph.tsx + packages/ui/registry/ui/status-glyph.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "pending",
+            "running",
+            "done",
+            "skipped",
+            "failed",
+            "needs-you",
+            "14",
+            "16"
+          ],
+          "evidence": "packages/ui/registry/ui/status-glyph.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/status-glyph",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/status-glyph.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "status-glyph",
+      "dataAttributes": {
+        "StatusGlyph": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["status-glyph"]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-card",
+      "registryType": "registry:ui",
+      "title": "Chat Card",
+      "summary": "The chat's one card surface (ChatCard), one line of work (ChatRow) and a fold of work that opens and closes smoothly (ChatGroup).",
+      "status": "stable",
+      "since": "0.77.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "formatChatDuration",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "header",
+            "body",
+            "actions",
+            "footnote",
+            "row-static",
+            "row-button",
+            "row-link",
+            "row-duration",
+            "group-closed",
+            "group-open",
+            "group-live",
+            "group-no-guide"
+          ],
+          "evidence": "packages/ui/registry/ui/chat-card.tsx + packages/ui/registry/ui/chat-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "section-landmark",
+            "trigger-expanded",
+            "row-button-named"
+          ],
+          "evidence": "packages/ui/registry/ui/chat-card.tsx + packages/ui/registry/ui/chat-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "card",
+            "card-header",
+            "card-actions",
+            "card-footnote",
+            "row",
+            "row-interactive",
+            "group-closed",
+            "group-open",
+            "group-live"
+          ],
+          "evidence": "packages/ui/registry/ui/chat-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["base-ui-lifecycle"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-card",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/status-glyph",
+        "@vegastack/text-spinner"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-card",
+      "dataAttributes": {
+        "ChatCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-card",
+                "chat-card-actions",
+                "chat-card-aside",
+                "chat-card-body",
+                "chat-card-footnote",
+                "chat-card-header",
+                "chat-card-meta",
+                "chat-card-title"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-row",
+                "chat-row-button",
+                "chat-row-duration",
+                "chat-row-link",
+                "chat-row-meta",
+                "chat-row-subject",
+                "chat-row-verb"
+              ]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatGroup": {
+          "attributes": [
+            {
+              "name": "data-live",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-group",
+                "chat-group-content",
+                "chat-group-summary",
+                "chat-group-trigger"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-chip",
+      "registryType": "registry:ui",
+      "title": "Chat Chip",
+      "summary": "A compact pill for background work and counts on the chat card surface, with an attention tone that never fills.",
+      "status": "stable",
+      "since": "0.77.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-chip.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "tone",
+            "values": ["default", "attention"]
+          }
+        ],
+        "rationale": "Attention lifts the label's ink, never a fill."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["static", "button", "link", "meta", "icon"],
+          "evidence": "packages/ui/registry/ui/chat-chip.tsx + packages/ui/registry/ui/chat-chip.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["button-named-by-label", "link-named-by-label"],
+          "evidence": "packages/ui/registry/ui/chat-chip.tsx + packages/ui/registry/ui/chat-chip.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "attention", "interactive"],
+          "evidence": "packages/ui/registry/ui/chat-chip.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-chip",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-chip.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-chip",
+      "dataAttributes": {
+        "ChatChip": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-chip-label", "chat-chip-meta"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-menu",
+      "registryType": "registry:ui",
+      "title": "Chat Menu",
+      "summary": "A menu with the chat's density: tight rows, a blue ✓ and a number shortcut in one right slot, submenus that open on hover or →.",
+      "status": "stable",
+      "since": "0.77.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-menu.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatMenuItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatMenuItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatMenuSeparator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatMenuSub",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatMenuSubProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "closed",
+            "open",
+            "selected",
+            "shortcut",
+            "disabled",
+            "muted",
+            "hint",
+            "submenu"
+          ],
+          "evidence": "packages/ui/registry/ui/chat-menu.tsx + packages/ui/registry/ui/chat-menu.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["menu-roles", "arrow-right-opens-submenu", "keyshortcuts"],
+          "evidence": "packages/ui/registry/ui/chat-menu.tsx + packages/ui/registry/ui/chat-menu.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["selected", "shortcut", "muted", "hint", "submenu-value"],
+          "evidence": "packages/ui/registry/ui/chat-menu.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "Motion is DropdownMenu's own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-menu",
+      "registryDependencies": ["@vegastack/button", "@vegastack/dropdown-menu"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.11.0",
+        "@vegastack/design@^0.13.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-menu.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-menu",
+      "dataAttributes": {
+        "ChatMenu": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-menu-content", "chat-menu-trigger"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatMenuItem": {
+          "attributes": [
+            {
+              "name": "data-icon-tone",
+              "values": [""]
+            },
+            {
+              "name": "data-muted",
+              "values": [""]
+            },
+            {
+              "name": "data-selected",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-menu-item",
+                "chat-menu-item-end",
+                "chat-menu-item-hint"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatMenuSub": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-menu-sub-content",
+                "chat-menu-sub-trigger",
+                "chat-menu-sub-value"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatMenuSeparator": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-menu-separator"]
             }
           ],
           "cssVariables": []

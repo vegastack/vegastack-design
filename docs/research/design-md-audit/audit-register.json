@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "4f585b33345756c25a98dc03f935976106f5dcbce2e77f68715d98924aa98a13",
+  "contractSha256": "6daa7c29242888a9cf8e0d9bb15743cf2d2b9658a8e700e9688bf1ada6761df1",
   "expectedCounts": {
-    "totalRegistryItems": 807,
-    "components": 215,
+    "totalRegistryItems": 812,
+    "components": 220,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -1581,6 +1581,61 @@
         "packages/ui/registry/ui/context-ring.tsx"
       ],
       "docsSlug": "/docs/components/context-ring",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "text-spinner",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/text-spinner.tsx"
+      ],
+      "docsSlug": "/docs/components/text-spinner",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "status-glyph",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/status-glyph.tsx"
+      ],
+      "docsSlug": "/docs/components/status-glyph",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-card.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-chip",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-menu",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-menu",
       "contractStatus": "reconciled"
     },
     {
