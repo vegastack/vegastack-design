@@ -1,4 +1,4 @@
-// @vegastack request-card@0.76.1 sha256-RZ4Gjt9OBxNqiHlTBXYU7KZ4e0Rs8qIqkwL+MC/1lPs=
+// @vegastack request-card@0.76.1 sha256-PLC0CsrmSPtJhGtxbv7UbH4cmlB+rHRfdjJglE+jigo=
 
 "use client";
 
@@ -125,8 +125,9 @@ export interface CardAgent {
   /** Its mark, shown inside its hexagon. */
   avatar: string | null;
   /**
-   * Its own face, when it has no image: a glyph (a ReactNode, such as a lucide icon) or an image
-   * object, drawn inside its hexagon in place of `avatar`. Same as `Person.mark`. @default undefined
+   * Its own face: a glyph (a ReactNode, such as a lucide icon) or an image object, drawn inside its
+   * hexagon. When set it wins over `avatar`, which shows only when `mark` is nullish. Same as
+   * `Person.mark`. @default undefined
    */
   mark?: PersonMark;
   /** The hue its hexagon takes behind a glyph or the fallback bot. Same as `Person.hue`. @default undefined */

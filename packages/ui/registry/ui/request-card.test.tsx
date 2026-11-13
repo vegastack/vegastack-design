@@ -480,7 +480,7 @@ test("the agent's own glyph is its face when it has no image", async () => {
         agent: {
           ...spec.agent,
           mark: <svg data-testid="agent-glyph" />,
-          hue: "purple",
+          hue: "green",
         },
       }}
       state="pending"
@@ -493,4 +493,33 @@ test("the agent's own glyph is its face when it has no image", async () => {
   expect(
     screen.container.querySelector('[data-testid="agent-glyph"]'),
   ).not.toBeNull();
+  expect(screen.container.querySelector(".bg-tag-green-subtle")).not.toBeNull();
+});
+
+test("a permission row draws its agent's own glyph and hue", async () => {
+  const screen = await render(
+    <PermissionList
+      title="Allowed"
+      items={[
+        {
+          id: "p1",
+          effect: "allow",
+          title: "Post in #ops",
+          uses: 1,
+          agent: {
+            id: "a1",
+            name: "Inbox assistant",
+            avatar: null,
+            mark: <svg data-testid="agent-glyph" />,
+            hue: "green",
+          },
+        },
+      ]}
+      onRevoke={vi.fn()}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-testid="agent-glyph"]'),
+  ).not.toBeNull();
+  expect(screen.container.querySelector(".bg-tag-green-subtle")).not.toBeNull();
 });

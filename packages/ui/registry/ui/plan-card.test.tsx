@@ -375,7 +375,7 @@ test("the agent's own glyph is its face when it has no image", async () => {
         agent: {
           ...plan.agent,
           mark: <svg data-testid="agent-glyph" />,
-          hue: "purple",
+          hue: "green",
         },
       }}
       {...handlers()}
@@ -384,4 +384,5 @@ test("the agent's own glyph is its face when it has no image", async () => {
   expect(
     screen.container.querySelector('[data-testid="agent-glyph"]'),
   ).not.toBeNull();
+  expect(screen.container.querySelector(".bg-tag-green-subtle")).not.toBeNull();
 });

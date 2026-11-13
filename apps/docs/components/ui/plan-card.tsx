@@ -1,4 +1,4 @@
-// @vegastack plan-card@0.75.0 sha256-Wq+W/3EfVRhv/DZTz7EWNBfdcEqcRFIl/ikq/Z2Jr+s=
+// @vegastack plan-card@0.75.0 sha256-yOvae6rl1ivnVpaASWkomgi11is3q6zJT1mB+bNOHBk=
 
 "use client";
 
@@ -47,8 +47,9 @@ export interface PlanAgent {
   /** Its mark, shown inside its hexagon. */
   avatar: string | null;
   /**
-   * Its own face, when it has no image: a glyph (a ReactNode, such as a lucide icon) or an image
-   * object, drawn inside its hexagon in place of `avatar`. Same as `Person.mark`. @default undefined
+   * Its own face: a glyph (a ReactNode, such as a lucide icon) or an image object, drawn inside its
+   * hexagon. When set it wins over `avatar`, which shows only when `mark` is nullish. Same as
+   * `Person.mark`. @default undefined
    */
   mark?: PersonMark;
   /** The hue its hexagon takes behind a glyph or the fallback bot. Same as `Person.hue`. @default undefined */
