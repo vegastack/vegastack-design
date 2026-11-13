@@ -137,3 +137,22 @@ test("the drop after a summary is said once; growth is not", async () => {
     expect(region().textContent).toBe("Chat memory 20% used"),
   );
 });
+
+test("the ring and its panel show one total, even when the parts say more than the measure", async () => {
+  await render(
+    <ContextRing
+      used={20_000}
+      window={100_000}
+      parts={[
+        { id: "a", label: "Instructions and tools", tokens: 70_000 },
+        { id: "b", label: "Conversation", tokens: 50_000 },
+      ]}
+    />,
+  );
+  const button = page.getByRole("button", { name: "Chat memory 100% used" });
+  await button.click();
+  await vi.waitFor(() => expect(panel()).toBeTruthy());
+  expect(
+    panel()!.querySelector("[data-slot=context-panel-used]")!.textContent,
+  ).toBe("100% used100k / 100k");
+});

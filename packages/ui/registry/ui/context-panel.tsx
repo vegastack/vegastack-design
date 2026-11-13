@@ -91,6 +91,20 @@ const SWATCHES = [
   "bg-chart-6",
 ] as const;
 
+/**
+ * The one measured total a ring and its panel both show: the measure, or the parts when they say
+ * more, never past the window; null before the first answer.
+ */
+export function contextTotal(
+  used: number | null,
+  windowTokens: number,
+  parts: readonly ContextPart[] = [],
+): number | null {
+  if (used === null || windowTokens <= 0) return null;
+  const named = parts.reduce((sum, part) => sum + Math.max(0, part.tokens), 0);
+  return Math.min(windowTokens, Math.max(0, used, named));
+}
+
 const share = (tokens: number, of: number) =>
   of > 0 ? `${((tokens / of) * 100).toFixed(1)}%` : "0.0%";
 
@@ -135,9 +149,8 @@ export function ContextPanel({
   };
 
   const measured = used !== null && windowTokens > 0;
-  const named = parts.reduce((sum, part) => sum + Math.max(0, part.tokens), 0);
-  // One authoritative total, never past the window: the measure, or the parts if they say more.
-  const total = measured ? Math.min(windowTokens, Math.max(used, named)) : 0;
+  // One authoritative total, shared with the ring.
+  const total = contextTotal(used, windowTokens, parts) ?? 0;
   const percent = measured ? Math.round((total / windowTokens) * 100) : null;
   // The legend always adds up to the window: parts fill the total in order (clipped at it), what
   // they don't name is Other, and Free is the rest.

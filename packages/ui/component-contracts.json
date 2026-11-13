@@ -34372,6 +34372,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "contextTotal",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/context-panel.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {

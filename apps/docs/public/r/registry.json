@@ -19871,7 +19871,7 @@
         "whenToUse": "Show how much of a chat's working window the last request used, in ComposerMeta's context slot.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
         "version": "0.77.0",
-        "integrity": "sha256-KkX0r4a2bTilTXdK6OVgOPiN3OAhjYdoxx0HLUtsF8g="
+        "integrity": "sha256-E4gE5ryZnLTOBs/iel/8ceuGnna3xCAGeJatgAS790I="
       }
     },
     {
@@ -20251,7 +20251,7 @@
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.77.0",
-        "integrity": "sha256-mER3zmH2kh0xDwcwiFDGv6q5KrSSySaGHurT3y8ORUM="
+        "integrity": "sha256-Iw+gHHSgN90r1vkYhL8vyVp1kOS5USgg/Sw6KdQXZOg="
       }
     },
     {

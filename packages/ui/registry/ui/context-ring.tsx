@@ -8,6 +8,7 @@ import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
   ContextPanel,
+  contextTotal,
   formatContextTokens,
   type ContextPanelLabels,
   type ContextPart,
@@ -109,8 +110,10 @@ export function ContextRing({
   onBlur,
   ...props
 }: ContextRingProps) {
-  const measured = used !== null && windowTokens > 0;
-  const shareOf = measured ? Math.min(1, Math.max(0, used / windowTokens)) : 0;
+  // The same total its panel shows, so the two never disagree.
+  const total = contextTotal(used, windowTokens, parts);
+  const measured = total !== null;
+  const shareOf = measured ? total / windowTokens : 0;
   const percent = Math.round(shareOf * 100);
   const tone = contextRingTone(shareOf);
   const name = label?.(percent) ?? `Chat memory ${percent}% used`;
