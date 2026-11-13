@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.77.0 sha256-+cX0pH2MP5vJaB8HS9wPYezVutUUoPUmp34Gajv785o=
+// @vegastack context-ring@0.78.0 sha256-0Gqr+m5hAaxDXwUxkEqrBnFKKtNy3FN0AE0w5orBDhg=
 
 "use client";
 

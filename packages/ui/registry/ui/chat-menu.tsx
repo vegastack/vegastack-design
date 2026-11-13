@@ -1,4 +1,4 @@
-// @vegastack chat-menu@0.77.1 sha256-uluYI/HqAml3T6geCByPCWIQ2vvt7sxD4z9MR9Qiyjk=
+// @vegastack chat-menu@0.78.0 sha256-/Yv1hJDbhhluIAcLYEQsDzwt1tzcxrh0lDA/MMh66iI=
 
 "use client";
 

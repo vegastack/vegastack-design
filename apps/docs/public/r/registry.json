@@ -19870,8 +19870,8 @@
       "meta": {
         "whenToUse": "Show how much of a chat's working window the last request used, in ComposerMeta's context slot.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
-        "version": "0.77.0",
-        "integrity": "sha256-+cX0pH2MP5vJaB8HS9wPYezVutUUoPUmp34Gajv785o="
+        "version": "0.78.0",
+        "integrity": "sha256-0Gqr+m5hAaxDXwUxkEqrBnFKKtNy3FN0AE0w5orBDhg="
       }
     },
     {
@@ -20020,8 +20020,8 @@
       "meta": {
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
-        "version": "0.77.1",
-        "integrity": "sha256-uluYI/HqAml3T6geCByPCWIQ2vvt7sxD4z9MR9Qiyjk="
+        "version": "0.78.0",
+        "integrity": "sha256-/Yv1hJDbhhluIAcLYEQsDzwt1tzcxrh0lDA/MMh66iI="
       }
     },
     {
@@ -20158,8 +20158,8 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat. Put Plan, the model and the memory ring in its meta line (ComposerMeta).",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.77.0",
-        "integrity": "sha256-RMOIHmaGB+Mj3XUR6NMzvbduGoIqXdsE5uOWWsl9jr0="
+        "version": "0.78.0",
+        "integrity": "sha256-ymaSFkziBU+cxGshRipQkwKxWo6K7BGhX+LKzhwhBTI="
       }
     },
     {
@@ -20188,8 +20188,8 @@
       "meta": {
         "whenToUse": "Under ChatComposer (its meta prop), holding the privacy note, Plan, a ModelEffortMenu and a ContextRing.",
         "whenNotToUse": "Toolbars and filters (Toolbar), or a form's helper text (FieldDescription).",
-        "version": "0.77.0",
-        "integrity": "sha256-o4BkPz1qeCI4TMH++8IP1yvTucNobBmOV/LLq3cLpE8="
+        "version": "0.78.0",
+        "integrity": "sha256-ssw9GyHIIHZfcdkq8gM8bV0uAxQBLbaQOk2MNuX6zCk="
       }
     },
     {
@@ -20220,8 +20220,8 @@
       "meta": {
         "whenToUse": "Choosing the model and effort for a chat, from its composer's meta line.",
         "whenNotToUse": "An agent's default model in settings (Select or a settings form), or a list of many options that needs search (Combobox).",
-        "version": "0.77.0",
-        "integrity": "sha256-ubG9pYobYsZV1i5R6N1lonv+zFWlwhZfZhjlFzad+sM="
+        "version": "0.78.0",
+        "integrity": "sha256-hDNZrc1Yd7QK4EXWg/hy5/VQsNMX1MqsPzyjoDX/4wM="
       }
     },
     {
@@ -20250,8 +20250,8 @@
       "meta": {
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
-        "version": "0.77.0",
-        "integrity": "sha256-Iw+gHHSgN90r1vkYhL8vyVp1kOS5USgg/Sw6KdQXZOg="
+        "version": "0.78.0",
+        "integrity": "sha256-JQcdXVsRaPipgLtm+D1fuh80M8mfgqgOFu4zlLavKbU="
       }
     },
     {

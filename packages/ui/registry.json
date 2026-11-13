@@ -16307,7 +16307,7 @@
       "meta": {
         "whenToUse": "Show how much of a chat's working window the last request used, in ComposerMeta's context slot.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
-        "version": "0.77.0"
+        "version": "0.78.0"
       }
     },
     {
@@ -16440,7 +16440,7 @@
       "meta": {
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
-        "version": "0.77.1"
+        "version": "0.78.0"
       }
     },
     {
@@ -16566,7 +16566,7 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat. Put Plan, the model and the memory ring in its meta line (ComposerMeta).",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.77.0"
+        "version": "0.78.0"
       }
     },
     {
@@ -16590,7 +16590,7 @@
       "meta": {
         "whenToUse": "Under ChatComposer (its meta prop), holding the privacy note, Plan, a ModelEffortMenu and a ContextRing.",
         "whenNotToUse": "Toolbars and filters (Toolbar), or a form's helper text (FieldDescription).",
-        "version": "0.77.0"
+        "version": "0.78.0"
       }
     },
     {
@@ -16619,7 +16619,7 @@
       "meta": {
         "whenToUse": "Choosing the model and effort for a chat, from its composer's meta line.",
         "whenNotToUse": "An agent's default model in settings (Select or a settings form), or a list of many options that needs search (Combobox).",
-        "version": "0.77.0"
+        "version": "0.78.0"
       }
     },
     {
@@ -16643,7 +16643,7 @@
       "meta": {
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
-        "version": "0.77.0"
+        "version": "0.78.0"
       }
     },
     {
