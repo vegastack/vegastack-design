@@ -20282,7 +20282,7 @@
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
         "version": "0.80.0",
-        "integrity": "sha256-W4sp83gwt8yeXbbcvUv9wvEL7y1L1jPjhCk7NcSAQMk="
+        "integrity": "sha256-Tm6NePb1KbqrP4vj8AsDVWrfV9jXa36MpSzjCjPK+z8="
       }
     },
     {
