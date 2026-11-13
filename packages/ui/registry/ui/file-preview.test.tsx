@@ -86,8 +86,8 @@ test("a long file is cut with a fade and Open full", async () => {
     .element(screen.getByRole("button", { name: "Open full" }))
     .toBeVisible();
   await expect
-    .poll(() => card().querySelector('[data-slot="file-preview-fade"]'))
-    .not.toBeNull();
+    .poll(() => card().querySelector("[inert]")?.hasAttribute("data-clipped"))
+    .toBe(true);
   await userEvent.click(screen.getByRole("button", { name: "Open full" }));
   expect(onOpen).toHaveBeenCalledOnce();
 });

@@ -1,4 +1,4 @@
-// @vegastack file-preview@0.81.0 sha256-xEzuq+tIDKaYfgm26tFDsvvuvMULgwzHr4kW0YwjGXU=
+// @vegastack file-preview@0.81.0 sha256-l3jcnuS9YtIERb2DKFBpqACuxM9Y7bbOrn+ezWcp9+M=
 
 "use client";
 
@@ -307,9 +307,11 @@ function FilePreviewCard({
             <div
               ref={setClip}
               // The preview is a picture of the file: its links and cells aren't stops of their
-              // own, and a click anywhere on it opens the viewer.
+              // own, and a click anywhere on it opens the viewer. A cut file fades out over its
+              // last 48px: a mask, so it matches whatever is behind the card in either theme.
               inert
-              className="max-h-72 min-w-0 overflow-hidden"
+              data-clipped={clipped ? "" : undefined}
+              className="max-h-72 min-w-0 overflow-hidden data-clipped:mask-b-from-[calc(100%-3rem)] data-clipped:mask-b-to-100%"
             >
               {loaded.state === "table" ? (
                 <PreviewTable rows={loaded.rows} />
@@ -323,13 +325,6 @@ function FilePreviewCard({
                 </pre>
               ) : null}
             </div>
-            {clipped ? (
-              <div
-                aria-hidden="true"
-                data-slot="file-preview-fade"
-                className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-linear-to-t from-chat-card to-transparent"
-              />
-            ) : null}
           </div>
         )}
         {!placeholder &&
@@ -357,7 +352,7 @@ function FilePreviewCard({
           <Button
             variant="link"
             onClick={onOpen}
-            className="relative h-auto min-w-0 gap-2 p-0 text-sm font-semibold text-foreground before:absolute before:-inset-y-1 before:inset-x-0 before:content-['']"
+            className="relative h-auto min-w-0 shrink gap-2 p-0 text-sm font-semibold text-foreground before:absolute before:-inset-y-1 before:inset-x-0 before:content-['']"
           >
             <FileTypeIcon
               contentType={mediaType}

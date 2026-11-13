@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.81.0 sha256-0tG7nt6/uNFqDSrRFAYjOLJSmq5YJr67/g2ORtk/XpI=
+// @vegastack file-viewer@0.81.0 sha256-zuWkj8p9VfbjqR0DTtEfCBgTY/b1dnDkSkGdC5pIJ4Y=
 
 "use client";
 
@@ -1975,6 +1975,32 @@ export function FileViewer({
               {current + 1} of {count}
             </span>
           ) : null}
+          {side && count > 1 ? (
+            // In a side sheet the paging buttons sit by the count: on the stage they'd cover text.
+            <span
+              data-slot="file-viewer-paging"
+              className="flex shrink-0 items-center self-center"
+            >
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Previous file"
+                disabled={current === 0}
+                onClick={() => go(-1)}
+              >
+                <ChevronLeftIcon className="rtl:rotate-180" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Next file"
+                disabled={current === count - 1}
+                onClick={() => go(1)}
+              >
+                <ChevronRightIcon className="rtl:rotate-180" />
+              </Button>
+            </span>
+          ) : null}
         </div>
         {/* Every control but Close: on a narrow screen they scroll sideways rather than push the
             header past the edge, so each stays reachable and the name keeps some room. */}
@@ -2119,7 +2145,7 @@ export function FileViewer({
             />
           )}
 
-          {count > 1 ? (
+          {count > 1 && !side ? (
             <>
               {/* Centred with `inset-y-0 my-auto`, not a translate: the button's press
                     `translate-y-px` shares `translate` and would drop it by half its height. */}

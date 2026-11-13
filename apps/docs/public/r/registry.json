@@ -16633,7 +16633,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.81.0",
-        "integrity": "sha256-0tG7nt6/uNFqDSrRFAYjOLJSmq5YJr67/g2ORtk/XpI="
+        "integrity": "sha256-zuWkj8p9VfbjqR0DTtEfCBgTY/b1dnDkSkGdC5pIJ4Y="
       }
     },
     {
@@ -20057,7 +20057,7 @@
         "whenToUse": "Web search results an agent's answer cites, under the answer, and the cards its [[n]] pills open.",
         "whenNotToUse": "The person's own things such as a Doc, a Meet or a pull request (ResourcePill), records cited by a summary (CitedList), or search results the agent looked at but didn't cite (the work log).",
         "version": "0.81.0",
-        "integrity": "sha256-1FghYm/tCDduTRemVuTRwi9/ul2YUBG8+1wpA7FO7c4="
+        "integrity": "sha256-ialHl3B9+L4p8gBNUs7KDa3ISM8Hz18SoPkw7foIfRQ="
       }
     },
     {
@@ -20092,7 +20092,7 @@
         "whenToUse": "A file an agent made or a person attached, shown in the chat where it appeared.",
         "whenNotToUse": "A list of a record's files (FileCard), a file named inside running text (InlineChip's file chip), or a file being uploaded (UploadCard).",
         "version": "0.81.0",
-        "integrity": "sha256-xEzuq+tIDKaYfgm26tFDsvvuvMULgwzHr4kW0YwjGXU="
+        "integrity": "sha256-l3jcnuS9YtIERb2DKFBpqACuxM9Y7bbOrn+ezWcp9+M="
       }
     },
     {

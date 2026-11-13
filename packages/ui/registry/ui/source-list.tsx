@@ -1,4 +1,4 @@
-// @vegastack source-list@0.81.0 sha256-1FghYm/tCDduTRemVuTRwi9/ul2YUBG8+1wpA7FO7c4=
+// @vegastack source-list@0.81.0 sha256-ialHl3B9+L4p8gBNUs7KDa3ISM8Hz18SoPkw7foIfRQ=
 
 "use client";
 
@@ -209,7 +209,7 @@ export function SourceList({
           <span className="inline-flex min-w-0 items-center gap-2 align-middle">
             <span
               aria-hidden="true"
-              className="flex shrink-0 items-center -space-x-1"
+              className="flex shrink-0 items-center -space-x-0.5"
             >
               {sources.slice(0, 3).map((source, index) => (
                 <SiteIcon
