@@ -20159,7 +20159,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat. Put Plan, the model and the memory ring in its meta line (ComposerMeta).",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.77.0",
-        "integrity": "sha256-drf5ecPivgIDrKIAEFtdGeVrpz1q5OWV4cZ5bbzn2Bw="
+        "integrity": "sha256-RMOIHmaGB+Mj3XUR6NMzvbduGoIqXdsE5uOWWsl9jr0="
       }
     },
     {
@@ -20237,7 +20237,8 @@
         "@vegastack/design-tokens@^0.14.0"
       ],
       "registryDependencies": [
-        "@vegastack/button"
+        "@vegastack/button",
+        "@vegastack/text-spinner"
       ],
       "files": [
         {
@@ -20250,7 +20251,7 @@
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.77.0",
-        "integrity": "sha256-0aaKj66T0dpenCA543siykY66R88RpJSIiq+zazm9NE="
+        "integrity": "sha256-mER3zmH2kh0xDwcwiFDGv6q5KrSSySaGHurT3y8ORUM="
       }
     },
     {

@@ -631,3 +631,53 @@ test("at 320px the box keeps + and Send inside it, on one line", async () => {
   expect(Math.round(sendBox.top)).toBe(Math.round(plus.top));
   expect(sendBox.width).toBe(32);
 });
+
+test("one steer at a time: a pending one holds Send, and stopping takes none", async () => {
+  let settle: () => void = () => {};
+  const onSubmit = vi.fn(() => new Promise<void>((r) => (settle = r)));
+  const screen = await mount({
+    onSubmit,
+    onStop: () => {},
+    state: "running",
+    queues: true,
+    attachments: [{ id: "a", name: "a.pdf", mediaType: "application/pdf" }],
+  });
+  await send().click();
+  expect(onSubmit).toHaveBeenCalledTimes(1);
+  (send().element() as HTMLElement).click();
+  expect(onSubmit).toHaveBeenCalledTimes(1);
+  settle();
+  await screen.rerender(
+    <ChatComposer
+      onSubmit={onSubmit}
+      onStop={() => {}}
+      state="stopping"
+      queues
+      defaultValue="more"
+    />,
+  );
+  await typeInto("{Enter}");
+  expect(onSubmit).toHaveBeenCalledTimes(1);
+});
+
+test("a turned-off box takes nothing off and takes no steer back", async () => {
+  const remove = vi.fn();
+  const cancel = vi.fn();
+  await mount({
+    disabled: true,
+    attachments: [{ id: "a", name: "a.pdf", mediaType: "application/pdf" }],
+    onRemoveAttachment: remove,
+    steers: [{ id: "1", text: "x", state: "queued" }],
+    onCancelSteer: cancel,
+  });
+  await expect
+    .element(page.getByRole("button", { name: "Remove a.pdf" }))
+    .toHaveAttribute("aria-disabled", "true");
+  await expect
+    .element(page.getByRole("button", { name: "Take back: x" }))
+    .toHaveAttribute("aria-disabled", "true");
+  (
+    page.getByRole("button", { name: "Remove a.pdf" }).element() as HTMLElement
+  ).click();
+  expect(remove).not.toHaveBeenCalled();
+});

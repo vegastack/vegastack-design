@@ -34422,7 +34422,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/context-panel",
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/text-spinner"],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.14.0",
         "@vegastack/design@^0.14.0"

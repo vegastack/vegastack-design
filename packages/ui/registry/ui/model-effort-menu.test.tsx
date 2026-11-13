@@ -57,6 +57,15 @@ test("the trigger reads the model and effort; the menu lists models with ✓ and
     .element(page.getByRole("menuitem", { name: /Opus 5\.5/ }))
     .toHaveAttribute("aria-keyshortcuts", "2");
   await expectNoA11yViolations(screen.container);
+  // The portaled menu and its More models submenu, unusable ones included.
+  await expectNoA11yViolations(document.body);
+  await userEvent.click(page.getByRole("menuitem", { name: /More models/ }));
+  await vi.waitFor(() =>
+    expect(
+      document.querySelector("[data-slot=chat-menu-sub-content]"),
+    ).not.toBeNull(),
+  );
+  await expectNoA11yViolations(document.body);
 });
 
 test("a number key picks a model and closes the menu", async () => {

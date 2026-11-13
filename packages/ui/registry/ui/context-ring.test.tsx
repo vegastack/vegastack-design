@@ -86,7 +86,12 @@ test("keyboard focus opens the panel without moving focus; Enter moves in; Escap
 
 test("a click toggles the panel; its numbers add up to the window", async () => {
   const screen = await render(
-    <ContextRing used={56_000} window={200_000} parts={PARTS} />,
+    <ContextRing
+      used={56_000}
+      window={200_000}
+      parts={PARTS}
+      onSummarize={() => {}}
+    />,
   );
   const button = page.getByRole("button", { name: "Chat memory 28% used" });
   await button.click();
@@ -96,6 +101,8 @@ test("a click toggles the panel; its numbers add up to the window", async () => 
   ].map((dt) => dt.nextElementSibling!.textContent);
   expect(tokens).toEqual(["16k", "40k", "144k"]);
   await expectNoA11yViolations(screen.container);
+  // The portaled panel itself.
+  await expectNoA11yViolations(document.body);
   await button.click();
   await vi.waitFor(() => expect(panel()).toBeNull());
 });

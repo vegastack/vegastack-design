@@ -1,4 +1,4 @@
-// @vegastack context-panel@0.77.0 sha256-0aaKj66T0dpenCA543siykY66R88RpJSIiq+zazm9NE=
+// @vegastack context-panel@0.77.0 sha256-mER3zmH2kh0xDwcwiFDGv6q5KrSSySaGHurT3y8ORUM=
 
 "use client";
 
@@ -6,6 +6,7 @@ import * as React from "react";
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
+import { TextSpinner } from "@/components/ui/text-spinner";
 
 /* ------------------------------------------------------------------------------------------------
  * ContextPanel — what fills a chat's working memory, adding up to its window: "26% used  25.9k /
@@ -39,6 +40,8 @@ export interface ContextPanelLabels {
   threshold?: (percent: number) => string;
   /** @default "Summarize now" */
   summarize?: string;
+  /** The button while a summary runs. @default "Summarizing" */
+  summarizing?: string;
   /** Before the chat's first answer. @default "Measured after the first answer." */
   empty?: string;
 }
@@ -132,28 +135,24 @@ export function ContextPanel({
   };
 
   const measured = used !== null && windowTokens > 0;
-  const total = measured ? Math.min(used, windowTokens) : 0;
+  const named = parts.reduce((sum, part) => sum + Math.max(0, part.tokens), 0);
+  // One authoritative total, never past the window: the measure, or the parts if they say more.
+  const total = measured ? Math.min(windowTokens, Math.max(used, named)) : 0;
   const percent = measured ? Math.round((total / windowTokens) * 100) : null;
-  const named = parts.reduce((sum, part) => sum + part.tokens, 0);
-  // The legend always adds up to the window: whatever the parts don't name is Other.
-  const rows: { id: string; label: React.ReactNode; tokens: number }[] =
-    measured
-      ? [
-          ...parts,
-          ...(total > named
-            ? [
-                {
-                  id: "other",
-                  label: labels?.other ?? "Other",
-                  tokens: total - named,
-                },
-              ]
-            : []),
-        ]
-      : [];
-  const free = measured
-    ? Math.max(0, windowTokens - Math.max(total, named))
-    : 0;
+  // The legend always adds up to the window: parts fill the total in order (clipped at it), what
+  // they don't name is Other, and Free is the rest.
+  const rows: { id: string; label: React.ReactNode; tokens: number }[] = [];
+  if (measured) {
+    let left = total;
+    for (const part of parts) {
+      const tokens = Math.min(Math.max(0, part.tokens), left);
+      left -= tokens;
+      rows.push({ id: part.id, label: part.label, tokens });
+    }
+    if (left > 0)
+      rows.push({ id: "other", label: labels?.other ?? "Other", tokens: left });
+  }
+  const free = measured ? windowTokens - total : 0;
   const thresholdPercent = Math.round(threshold * 100);
 
   return (
@@ -248,12 +247,16 @@ export function ContextPanel({
           variant="secondary"
           size="sm"
           data-slot="context-panel-summarize"
-          loading={busy}
+          aria-busy={busy || undefined}
           disabled={busy || !measured}
           onClick={summarize}
           className="self-end"
         >
-          {labels?.summarize ?? "Summarize now"}
+          {/* The braille loader is the one moving thing (no icon spinner). */}
+          {busy ? <TextSpinner label="" /> : null}
+          {busy
+            ? (labels?.summarizing ?? "Summarizing")
+            : (labels?.summarize ?? "Summarize now")}
         </Button>
       ) : null}
     </div>

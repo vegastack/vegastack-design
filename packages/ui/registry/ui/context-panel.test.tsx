@@ -66,7 +66,13 @@ test("Summarize now ends the panel, busy while its promise runs; held before the
   const panel = screen.container.querySelector("[data-slot=context-panel]")!;
   expect(panel.lastElementChild).toBe(button.element());
   await button.click();
-  await expect.element(button).toHaveAttribute("aria-busy", "true");
+  const busy = page.getByRole("button", { name: "Summarizing" });
+  await expect.element(busy).toHaveAttribute("aria-busy", "true");
+  // The braille loader, never an icon spinner.
+  expect(
+    busy.element().querySelector("[data-slot=text-spinner]"),
+  ).not.toBeNull();
+  expect(busy.element().querySelector("svg")).toBeNull();
   done();
   await expect.element(button).not.toHaveAttribute("aria-busy", "true");
   await screen.rerender(
@@ -76,4 +82,26 @@ test("Summarize now ends the panel, busy while its promise runs; held before the
   await expect
     .element(page.getByText("Measured after the first answer."))
     .toBeVisible();
+});
+
+test("parts that say more than the measure, or than the window, never break the sum", async () => {
+  const screen = await render(
+    <ContextPanel
+      used={20_000}
+      window={100_000}
+      parts={[
+        { id: "a", label: "Instructions and tools", tokens: 70_000 },
+        { id: "b", label: "Conversation", tokens: 50_000 },
+      ]}
+    />,
+  );
+  expect(
+    screen.container.querySelector("[data-slot=context-panel-used]")!
+      .textContent,
+  ).toBe("100% used100k / 100k");
+  expect(rows(screen.container)).toEqual([
+    ["Instructions and tools", "70k", "70.0%"],
+    ["Conversation", "30k", "30.0%"],
+    ["Free", "0", "0.0%"],
+  ]);
 });

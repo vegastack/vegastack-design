@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.77.0 sha256-drf5ecPivgIDrKIAEFtdGeVrpz1q5OWV4cZ5bbzn2Bw=
+// @vegastack chat-composer@0.77.0 sha256-RMOIHmaGB+Mj3XUR6NMzvbduGoIqXdsE5uOWWsl9jr0=
 
 "use client";
 
@@ -218,11 +218,11 @@ export interface ChatComposerNoticeProps extends Omit<
   /** What the person should know: "Reconnecting — your agent kept working". */
   children: React.ReactNode;
   /**
-   * `info` is neutral; `warning` draws ⚠ in the warning ink; `progress` leads with the dots loader
-   * ("·· Reconnecting"). The box never turns red. @default "info"
+   * `info` is neutral; `warning` draws ⚠ in the warning ink; `progress` leads with the braille
+   * loader ("⠹ Reconnecting"), the one moving thing. The box never turns red. @default "info"
    */
   tone?: "info" | "warning" | "progress";
-  /** Replaces the tone's lead. @default ⓘ, ⚠ or the dots loader by tone */
+  /** Replaces the tone's lead. @default ⓘ, ⚠ or the braille loader by tone */
   icon?: React.ReactNode;
   /** One small action at the end: a `Button size="xs" variant="ghost"` such as Reload. @default undefined */
   action?: React.ReactNode;
@@ -240,7 +240,7 @@ export interface ChatComposerNoticeProps extends Omit<
 const NOTICE_LEAD = {
   info: <Info aria-hidden className="text-muted-foreground" />,
   warning: <TriangleAlert aria-hidden className="text-warning-text" />,
-  progress: <TextSpinner variant="dots" label="" />,
+  progress: <TextSpinner label="" />,
 } as const;
 
 /**
@@ -371,9 +371,11 @@ function AttachmentItem({
   attachment,
   onRemove,
   onRetry,
+  disabled,
   labels,
 }: {
   attachment: ComposerAttachment;
+  disabled: boolean;
   onRemove?: (id: string) => void;
   onRetry?: (id: string) => void;
   labels?: ChatComposerLabels;
@@ -390,6 +392,7 @@ function AttachmentItem({
       variant="ghost"
       aria-label={removeLabel}
       data-slot="chat-composer-attachment-remove"
+      disabled={disabled}
       onClick={() => onRemove(id)}
       className="size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
     >
@@ -426,6 +429,7 @@ function AttachmentItem({
                 size="icon-xs"
                 variant="secondary"
                 aria-label={retryLabel}
+                disabled={disabled}
                 onClick={() => onRetry(id)}
                 className="rounded-full"
               >
@@ -482,6 +486,7 @@ function AttachmentItem({
           size="icon-xs"
           variant="ghost"
           aria-label={retryLabel}
+          disabled={disabled}
           onClick={() => onRetry(id)}
           className="size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
         >
@@ -542,9 +547,11 @@ function AttachmentRow({ children }: { children: React.ReactNode }) {
 function SteerRow({
   steer,
   onCancel,
+  disabled,
   labels,
 }: {
   steer: ComposerSteer;
+  disabled: boolean;
   onCancel?: (id: string) => void;
   labels?: ChatComposerLabels;
 }) {
@@ -570,6 +577,7 @@ function SteerRow({
           size="icon-xs"
           variant="ghost"
           aria-label={`${labels?.cancelSteer ?? "Take back"}: ${steer.text}`}
+          disabled={disabled}
           onClick={() => onCancel(steer.id)}
           className="ms-auto size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3.5"
         >
@@ -721,12 +729,15 @@ export function ChatComposer({
     errorProp ??
     (failed ? (labels?.sendFailed ?? "Couldn't send. Try again.") : null);
   const empty = !sendable(body) && !hasAttachments;
+  // One send at a time, a steer included; while it works only `running` takes one, never
+  // `stopping`, so nothing races the stop.
   const canSend =
     !!onSubmit &&
     !disabled &&
     !submitDisabled &&
     !sending &&
-    (!working || queues) &&
+    !pending &&
+    (!working || (queues && state === "running")) &&
     !empty;
 
   const replace = React.useCallback(
@@ -863,6 +874,7 @@ export function ChatComposer({
             attachment={attachment}
             onRemove={onRemoveAttachment}
             onRetry={onRetryAttachment}
+            disabled={disabled}
             labels={labels}
           />
         ))}
@@ -895,6 +907,7 @@ export function ChatComposer({
               key={steer.id}
               steer={steer}
               onCancel={onCancelSteer}
+              disabled={disabled}
               labels={labels}
             />
           ))}
@@ -914,6 +927,7 @@ export function ChatComposer({
             !event.nativeEvent.isComposing;
           if (
             event.key === "Backspace" &&
+            !disabled &&
             onRemoveAttachment &&
             hasAttachments &&
             !sendable(body) &&

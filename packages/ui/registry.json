@@ -16632,7 +16632,7 @@
         "@vegastack/design@^0.14.0",
         "@vegastack/design-tokens@^0.14.0"
       ],
-      "registryDependencies": ["@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/text-spinner"],
       "files": [
         {
           "path": "packages/ui/registry/ui/context-panel.tsx",

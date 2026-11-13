@@ -89,7 +89,7 @@ While `running` the person can keep typing. With `queues`, Enter sends it and th
 `steers` above the box — `↳ "…" · read after this step ×` — until the agent reads it (`state:
 "read"`); × (`onCancelSteer`) takes a queued one back. With text in the box a small Send stands
 beside Stop, for a phone with no Enter. `notice` sits on the box's top edge, inside its hairline: a
-`ChatComposerNotice` with `tone="progress"` leads with the dots loader ("·· Reconnecting — your
+`ChatComposerNotice` with `tone="progress"` leads with the braille loader ("⠹ Reconnecting — your
 agent kept working [Reload]"). The box never turns red.
 
 <ComponentPreview
@@ -100,7 +100,7 @@ agent kept working [Reload]"). The box never turns red.
 ### Notices
 
 `ChatComposerNotice` carries a lead by `tone` (`info` ⓘ, `warning` ⚠ in the warning ink,
-`progress` the dots loader), the words, one optional action (a ghost xs button) and an optional ✕
+`progress` the braille loader, the one moving thing), the words, one optional action (a ghost xs button) and an optional ✕
 through `onDismiss`. It is silent by default; pass `live` when it appears because of what the person
 just did, such as a held send (with `submitDisabled`).
 
