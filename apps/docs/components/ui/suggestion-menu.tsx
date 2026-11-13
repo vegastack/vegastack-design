@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.60.0 sha256-tyFkuJ+Nkw4e866WsZDYr4a3lhebyRBL0xOE06mJ+iU=
+// @vegastack suggestion-menu@0.77.0 sha256-OVcS5CviICKof97fGRRx9w0s9XGaQb4BUSVVUv9l91o=
 
 "use client";
 

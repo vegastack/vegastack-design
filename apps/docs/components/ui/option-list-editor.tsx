@@ -1,4 +1,4 @@
-// @vegastack option-list-editor@0.60.0 sha256-/tIZoZGhaIUraduW9Mqj+EZewosl2/3K1XkwyyVrzns=
+// @vegastack option-list-editor@0.77.0 sha256-aO+KE+YqWp5EQJGKlqs0X6A3S2D9eUjCQ9EG8KkMp4o=
 
 "use client";
 

@@ -1,4 +1,4 @@
-// @vegastack transcript@0.60.0 sha256-ZsqTDUlYwfwvxdNrjlz1h8o23kYP0e1/ss9paR+Oqrw=
+// @vegastack transcript@0.77.0 sha256-y27jZNfljjI6+N5QFSZqP3ZQIhdH7hgHtxKQYFLoPSM=
 
 "use client";
 

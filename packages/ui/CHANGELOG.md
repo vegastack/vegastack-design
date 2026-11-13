@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.77.0
+
+### Minor Changes
+
+- [#971](https://github.com/vegastack/vegastack-design/pull/971) [`3927569`](https://github.com/vegastack/vegastack-design/commit/3927569659f85365781d4d746a3b09841213f42a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Agent chat foundations. `TextSpinner` is the one inline text loader: a braille spinner (⠋ ⠙ ⠹ …) or three dots, CSS only, a still `…` under reduced motion. `StatusGlyph` draws the six states with every check in the blue accent and never green. `ChatCard`, `ChatRow` and `ChatGroup` are the chat's one card surface, its line of work and a fold that opens and closes smoothly. `ChatChip` is a pill for background work, and `ChatMenu` is a dense menu with a blue ✓ and number shortcuts. Tokens: the chat motion set (`duration-instant`, `quick`, `quick-exit`, `state`, `state-exit`, `layout`, `stream-word`, `loader-frame`, `loader-dots`, `ease-enter`), the chat surface (`chat-card`, `chat-hairline`, `rounded-chat-card`) and the `motion-frames` utility. `CollapsibleContent` animates its height both ways; the caller's `className` now lands on an inner `collapsible-content-body`, so padding collapses with it. Dialog, AlertDialog, Sheet and Drawer backdrops are a quiet dim with no blur. Every green check in the registry is now the blue accent (task list, plan, request and approval cards, memory notes, uploads, toasts, `StatusIcon` done, `CopyButton`), and agent UI drops its status fills and red failure marks. `design-lint` gains `no-success-check`, `no-status-fill` and `chat-motion-tokens`; `vegastack-design doctor` fails on a check drawn in a success or green ink.
+
+### Patch Changes
+
+- Updated dependencies [[`3927569`](https://github.com/vegastack/vegastack-design/commit/3927569659f85365781d4d746a3b09841213f42a)]:
+  - @vegastack/design-tokens@0.14.0
+  - @vegastack/design@0.14.0
+
 ## 0.76.3
 
 ### Patch Changes

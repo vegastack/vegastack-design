@@ -1,4 +1,4 @@
-// @vegastack suggestion-card@0.60.0 sha256-aVN3NvNqXaAk/XFOFiDxQFvxGRS6oZyUXlBeipFJBKE=
+// @vegastack suggestion-card@0.77.0 sha256-AKNG9dMgne+ngEsAEWJRKrHUJGe1LA3wrjDYTpaksXE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
