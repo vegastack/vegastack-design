@@ -1,0 +1,76 @@
+---
+title: Resource Pill
+description: "The person's own thing in an answer — its type icon and real title as an inline chip — never a numbered source."
+audience: public
+registry: resource-pill
+status: stable
+since: 0.82.0
+a11y: a link named by title and kind, new tab said
+preview: resourcePill
+---
+
+## Install
+
+<InstallSteps name="resource-pill" />
+
+## Usage
+
+```tsx
+import { ResourcePill } from "@/components/ui/resource-pill";
+
+<ResourcePill
+  data={{
+    kind: "doc",
+    url: "https://docs.google.com/document/d/1x",
+    title: "Q3 pricing",
+  }}
+/>;
+```
+
+A Doc, Sheet or Slides deck, a Drive file, a Meet, a calendar event, a pull request or issue, a
+Slack message or an email the agent touched reads as the thing itself: its type's icon and its
+real title, opening it (another site in a new tab). It is an
+[`InlineChip`](/docs/components/inline-chip), so it sits on the text's line at the text's size,
+and hovering it says what it is. In an answer, pass `linkResource` to
+[`MarkdownView`](/docs/components/markdown-view): a link to a known thing becomes its pill, with
+its real title whatever the link's words were.
+
+<ComponentPreview
+  name="resourcePill"
+  file="components/preview/resource-pill.tsx"
+/>
+
+## Examples
+
+### Every kind
+
+<ComponentPreview
+  name="resourcePillKinds"
+  file="components/preview/resource-pill.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/resource-pill.tsx"
+  name="ResourcePillProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/resource-pill.tsx"
+  name="ResourceRef"
+/>
+
+## Accessibility
+
+- The pill is a link named `<title>, <what it is>`, with "(opens in new tab)" for another site.
+- The type icon is decorative; the name says what it is.
+
+<StatesTested name="resource-pill" />
+
+## Do / Don't
+
+<DoDont
+  do="Show the Doc's real title with its icon."
+  dont="Show 'docs.google.com' as a numbered source."
+/>

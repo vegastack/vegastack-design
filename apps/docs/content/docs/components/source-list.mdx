@@ -1,0 +1,88 @@
+---
+title: Source List
+description: "The web pages an answer cites: a quiet Sources fold of one-line numbered rows, the citation card and the MarkdownView wiring."
+audience: public
+registry: source-list
+status: stable
+since: 0.82.0
+a11y: a disclosure fold; each row a link to a new tab
+preview: sourceList
+---
+
+## Install
+
+<InstallSteps name="source-list" />
+
+## Usage
+
+```tsx
+import { SourceList, sourceCitations } from "@/components/ui/source-list";
+
+<MarkdownView citation={sourceCitations(sources)}>{answer}</MarkdownView>
+<SourceList sources={sources} />;
+```
+
+Only web pages are sources. The answer's `[[n]]` markers become numbered pills whose card is page
+n's `SourceCard`; under the answer, "Sources · 3 ›" opens one 28px row per page: its number, its
+site's icon, its title, the site and ↗. The person's own things — a Doc, a Meet, a pull request —
+are [`ResourcePill`](/docs/components/resource-pill)s in the text and never appear here.
+
+Site icons come from the host. In dark mode each sits on a light tile, so a dark mark stays
+visible; a page with no icon shows a globe.
+
+<ComponentPreview name="sourceList" file="components/preview/source-list.tsx" />
+
+## Anatomy
+
+<Anatomy name="source-list" />
+
+- `SourceList` — the "Sources · n ›" fold under the answer and its numbered rows.
+- `SourceCard` — one page as the card a `[[n]]` pill opens; `sourceCitations` builds MarkdownView's
+  `citation` answer from the same list.
+- `SiteIcon` — a site's 16px icon, on a light tile in dark mode, or a globe.
+
+## Examples
+
+### Open
+
+<ComponentPreview
+  name="sourceListOpen"
+  file="components/preview/source-list.tsx"
+/>
+
+### The citation card
+
+What a `[[n]]` pill opens: the site, the title as the link, a line from the page. It opens under
+the pill and stays inside the answer's column.
+
+<ComponentPreview
+  name="sourceListCard"
+  file="components/preview/source-list.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/source-list.tsx"
+  name="SourceListProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/source-list.tsx"
+  name="WebSource"
+/>
+
+## Accessibility
+
+- The closed line is a disclosure button; the open list is an ordered list named "Sources".
+- Each row is one link: its title, then "(opens in new tab)" for screen readers.
+- A citation pill is named `Source n: <title>`.
+
+<StatesTested name="source-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Number only the web pages the answer cites."
+  dont="Number a Doc, a Meet or a Slack message as a source."
+/>

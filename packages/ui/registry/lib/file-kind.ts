@@ -1,4 +1,4 @@
-// @vegastack file-kind@0.81.0 sha256-rUwe8TXA8VSwQw0Xz0RFGhS/zaV3v/uE2id33Q7Qo0w=
+// @vegastack file-kind@0.81.0 sha256-Cd/J8G7d9NH5p/VTHWEcHRi0uMe7cjgUb8Ko6eW3dVI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -416,6 +416,34 @@ export function fileKindOf(
 export const FILE_KIND_LABEL = Object.fromEntries(
   Object.entries(KINDS).map(([kind, spec]) => [kind, spec.label]),
 ) as Record<FileKind, string>;
+
+/**
+ * A chat message's `file` part (AI SDK `FileUIPart`), structurally: its URL, type and name. A part
+ * read from a stored message carries `filename`; a streamed one carries its name under
+ * `providerMetadata.vegastack.filename` (the AI SDK's file chunk has no filename).
+ */
+export interface FilePartLike {
+  url: string;
+  mediaType: string;
+  filename?: string | null;
+  providerMetadata?: { vegastack?: { filename?: unknown } } | null;
+}
+
+/**
+ * A file part's name: `filename`, else `providerMetadata.vegastack.filename`, else what the file
+ * is ("PDF", "Spreadsheet") — never its URL.
+ *
+ * @example
+ * fileNameOf({ url: "/api/files/f1/content", mediaType: "application/pdf", providerMetadata: { vegastack: { filename: "q3.pdf" } } }); // "q3.pdf"
+ */
+export function fileNameOf(part: Omit<FilePartLike, "url">): string {
+  const streamed = part.providerMetadata?.vegastack?.filename;
+  return (
+    part.filename ||
+    (typeof streamed === "string" && streamed) ||
+    FILE_KIND_LABEL[fileKindOf(part.mediaType)]
+  );
+}
 
 /** Props accepted by {@link FileTypeIcon}. */
 export interface FileTypeIconProps extends Omit<LucideProps, "ref" | "name"> {

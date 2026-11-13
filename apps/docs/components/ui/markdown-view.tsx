@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.81.0 sha256-t7PqytHj2NS50oq8SYnOzAv3nBexo0jNNAFe/gbm08o=
+// @vegastack markdown-view@0.81.0 sha256-C///Nd/ykXyIsHgNZOluCjq7BlVI1GPdHzu2zSgAx3I=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -23,6 +23,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 // this alias on `add`, and vitest/tsconfig map `@/components/ui/*` → `registry/ui/*`.
 import { CodeBlock } from "@/components/ui/code-block";
 import { InlineChip, type InlineChipProps } from "@/components/ui/inline-chip";
+import { ResourcePill, type ResourceRef } from "@/components/ui/resource-pill";
 import type { TaskInlinePerson } from "@/components/ui/task-inline";
 import {
   BOOKMARK_TITLE,
@@ -1900,6 +1901,8 @@ interface RenderContext {
   embeds?: EmbedProviders;
   fileContentType?: (href: string) => string | null | undefined;
   citation?: (n: number) => MarkdownCitation | null | undefined;
+  /** A link that names one of the person's own things draws as its `ResourcePill` (`linkResource`). */
+  linkResource?: (href: string) => ResourceRef | null | undefined;
   /** Fenced languages drawn by a block view (```mermaid → a diagram). */
   blockViews?: BlockViews;
   /** Draws a live block in place of its stored snapshot (`liveBlockRenderer`). */
@@ -2455,6 +2458,12 @@ function renderNode(
           />
         );
       }
+      // One of the person's own things (a Doc, a Meet, a pull request): its pill, with its real
+      // title whatever the link's words were.
+      const resource =
+        ctx.linkResource?.(raw) ??
+        (href !== raw ? ctx.linkResource?.(href) : null);
+      if (resource) return <ResourcePill key={key} data={resource} />;
       const target = urlTarget(href);
       // A `mailto:` has no host, and its words can say anything too.
       const address = /^mailto:([^?]*)/i.exec(href)?.[1];
@@ -3250,6 +3259,15 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   citation?: (n: number) => MarkdownCitation | null | undefined;
   /**
+   * A link that names one of the person's own things — a Doc, a Meet, a Drive file, a pull request,
+   * a Slack message the agent touched — draws as its `ResourcePill` (the thing's icon and real
+   * title, never a numbered source) when this answers for the link's href (asked with the href as
+   * written, then as an in-app path). `null`/`undefined` leaves a plain link. The pill is a client
+   * component, so pass this from a client component.
+   * @default undefined
+   */
+  linkResource?: (href: string) => ResourceRef | null | undefined;
+  /**
    * Fenced languages drawn by a block view instead of as code: `{ mermaid: mermaidBlockView }`
    * draws ```` ```mermaid ```` fences as diagrams. The block shows a header with the view's label,
    * Preview / Code, Expand and a ⋯ menu (Copy source and the view's own actions). The preview is
@@ -3340,6 +3358,7 @@ export function MarkdownView({
   embeds,
   fileContentType,
   citation,
+  linkResource,
   blockViews,
   renderTaskQuery,
   renderLiveBlock,
@@ -3492,6 +3511,7 @@ export function MarkdownView({
         embeds,
         fileContentType,
         citation,
+        linkResource,
         blockViews,
         renderLiveBlock: liveBlockRenderer(renderLiveBlock, renderTaskQuery),
         liveBlockKinds,

@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.81.0 sha256-qJS60cEM3y7inKMTHI9pqK1A/3lXs5+Vkfk4P/eMKkY=
+// @vegastack file-viewer@0.81.0 sha256-IR/DSav8wSRXD05kamAxyJuZRHZ8Cskdtm2dixM3nZU=
 
 "use client";
 
@@ -30,10 +30,70 @@ export interface FileViewerPdfProps {
   name: string;
   /** The viewer's zoom command slot: +/−/0 on the keyboard call it. */
   zoomRef: React.RefObject<((op: "in" | "out" | "reset") => void) | null>;
-  /** Called when the document cannot be loaded; the viewer falls back to its file card. */
-  onError: () => void;
+  /** Called with pdf.js's error when the document cannot be loaded; the viewer says why. */
+  onError: (error: unknown) => void;
   /** Shown until page 1 is ready (the preview image or a spinner). */
   loading: React.ReactNode;
+}
+
+/** pdf.js, with its worker created once per page. */
+async function loadPdfjs() {
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerPort ??= new Worker(
+    new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url),
+    { type: "module" },
+  );
+  return pdfjs;
+}
+
+/**
+ * Draw a PDF's first page into `canvas`, `width` CSS pixels wide (at the screen's pixel ratio),
+ * over range requests; resolves to the page count. Rejects with pdf.js's error when the file can't
+ * be read (`previewFailureReason` puts it in words). For `FilePreview`'s thumbnail.
+ *
+ * @example
+ * const { pages } = await renderPdfFirstPage("/api/files/f1/content", canvas, 96, signal);
+ */
+export async function renderPdfFirstPage(
+  src: string,
+  canvas: HTMLCanvasElement,
+  width: number,
+  signal: AbortSignal,
+): Promise<{ pages: number }> {
+  const aborted = () => new DOMException("Aborted", "AbortError");
+  const pdfjs = await loadPdfjs();
+  // A preview that moved on while pdf.js loaded never fetches or paints.
+  if (signal.aborted) throw aborted();
+  const task = pdfjs.getDocument({
+    url: src,
+    rangeChunkSize: 65536,
+    disableAutoFetch: true,
+  });
+  let render: { cancel: () => void } | undefined;
+  const stop = () => {
+    render?.cancel();
+    void task.destroy();
+  };
+  signal.addEventListener("abort", stop, { once: true });
+  try {
+    const pdf = await task.promise;
+    const page = await pdf.getPage(1);
+    if (signal.aborted) throw aborted();
+    const scale = width / page.getViewport({ scale: 1 }).width;
+    const viewport = page.getViewport({
+      scale: scale * (window.devicePixelRatio || 1),
+    });
+    canvas.width = Math.floor(viewport.width);
+    canvas.height = Math.floor(viewport.height);
+    const drawing = page.render({ canvas, viewport });
+    render = drawing;
+    await drawing.promise;
+    if (signal.aborted) throw aborted();
+    return { pages: pdf.numPages };
+  } finally {
+    signal.removeEventListener("abort", stop);
+    void task.destroy();
+  }
 }
 
 const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3, 4] as const;
@@ -77,11 +137,7 @@ export function FileViewerPdf({
     let destroy: (() => Promise<void>) | undefined;
     (async () => {
       try {
-        const pdfjs = await import("pdfjs-dist");
-        pdfjs.GlobalWorkerOptions.workerPort ??= new Worker(
-          new URL("pdfjs-dist/build/pdf.worker.min.mjs", import.meta.url),
-          { type: "module" },
-        );
+        const pdfjs = await loadPdfjs();
         const task = pdfjs.getDocument({
           url: src,
           rangeChunkSize: 65536,
@@ -93,8 +149,8 @@ export function FileViewerPdf({
         const viewport = first.getViewport({ scale: 1 });
         if (!cancelled)
           setDoc({ pdf, width: viewport.width, height: viewport.height });
-      } catch {
-        if (!cancelled) onErrorRef.current();
+      } catch (error) {
+        if (!cancelled) onErrorRef.current(error);
       }
     })();
     return () => {

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "72132286a0bbc634a542161fc517f37b90754e2d91c0b63334a18481a4a9fc47",
+  "contractSha256": "6f61d95bca9074249b087eec3ac1667a1378a1943341fc6d5e14fcc58f860f66",
   "expectedCounts": {
-    "totalRegistryItems": 826,
-    "components": 234,
+    "totalRegistryItems": 829,
+    "components": 237,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -2598,6 +2598,39 @@
         "packages/ui/registry/ui/memory-group.tsx"
       ],
       "docsSlug": "/docs/components/memory-group",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "file-preview",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/file-preview.tsx"
+      ],
+      "docsSlug": "/docs/components/file-preview",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "source-list",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/source-list.tsx"
+      ],
+      "docsSlug": "/docs/components/source-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "resource-pill",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/resource-pill.tsx"
+      ],
+      "docsSlug": "/docs/components/resource-pill",
       "contractStatus": "reconciled"
     },
     {

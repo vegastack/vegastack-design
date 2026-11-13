@@ -2260,3 +2260,88 @@ test("a mailto says its address when the words don't", async () => {
       ?.textContent,
   ).toBe(" (x@evil.example)");
 });
+
+test("linkResource: a link to the person's own thing is its pill with its real title; others stay plain links", async () => {
+  const doc = {
+    kind: "doc" as const,
+    url: "https://docs.google.com/document/d/1",
+    title: "Q3 pricing",
+  };
+  const screen = await render(
+    <MarkdownView linkResource={(href) => (href === doc.url ? doc : null)}>
+      {`Notes: [the doc](${doc.url}), again ${doc.url}, and [a page](https://example.org/a).`}
+    </MarkdownView>,
+  );
+  const pills = screen.container.querySelectorAll<HTMLAnchorElement>(
+    '[data-slot="inline-chip"][data-resource-kind="doc"]',
+  );
+  expect(pills).toHaveLength(2);
+  for (const pill of pills) expect(pill.textContent).toBe("Q3 pricing");
+  const plain = screen.getByRole("link", { name: /a page/ }).element();
+  expect(plain.getAttribute("data-slot")).toBeNull();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a citation's card opens under its pill, from its start, never above the line", async () => {
+  const screen = await render(
+    <MarkdownView
+      citation={(n) => ({ label: `Source ${n}`, content: `Card ${n}` })}
+    >
+      {"Drift needs 6,000 hours [[1]]."}
+    </MarkdownView>,
+  );
+  const marker = screen.getByRole("button", { name: "Source 1" });
+  await userEvent.click(marker);
+  const card = document.querySelector<HTMLElement>(
+    '[data-slot="markdown-citation-content"]',
+  )!;
+  await expect.element(card).toBeVisible();
+  expect(card.dataset.side).toBe("bottom");
+  expect(card.getBoundingClientRect().top).toBeGreaterThanOrEqual(
+    (marker.element() as HTMLElement).getBoundingClientRect().bottom,
+  );
+});
+
+test("a citation's card stays inside the answer's column at either edge, left-to-right and right-to-left", async () => {
+  for (const dir of ["ltr", "rtl"] as const) {
+    const screen = await render(
+      <div dir={dir} style={{ width: 320, marginInline: 40 }}>
+        <MarkdownView
+          citation={(n) => ({
+            label: `Source ${n} ${dir}`,
+            content: (
+              <span style={{ display: "block", width: 240 }}>Card {n}</span>
+            ),
+          })}
+        >
+          {
+            "A long enough sentence that ends right at the column's far edge here [[1]]"
+          }
+        </MarkdownView>
+      </div>,
+    );
+    const marker = screen.getByRole("button", { name: `Source 1 ${dir}` });
+    (marker.element() as HTMLElement).click();
+    const card = await expect
+      .poll(() =>
+        document.querySelector<HTMLElement>(
+          '[data-slot="markdown-citation-content"]',
+        ),
+      )
+      .not.toBeNull()
+      .then(() =>
+        document.querySelector<HTMLElement>(
+          '[data-slot="markdown-citation-content"]',
+        )!,
+      );
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const column = screen.container
+      .querySelector<HTMLElement>('[data-slot="markdown-view"]')!
+      .getBoundingClientRect();
+    const box = card.getBoundingClientRect();
+    expect(box.left).toBeGreaterThanOrEqual(column.left - 1);
+    expect(box.right).toBeLessThanOrEqual(column.right + 1);
+    (marker.element() as HTMLElement).click();
+    await screen.unmount();
+  }
+});

@@ -57,6 +57,9 @@ describe("affected component closure", () => {
       "field-cell",
       // file-card composes Attachment and opens a FileViewer (2026-10-12).
       "file-card",
+      // file-preview reads with FileViewer's readers and renders Markdown; source-list's citation
+      // card wiring is MarkdownView's (agent chat ground up, Ph8).
+      "file-preview",
       "file-viewer",
       "issue-detail-01",
       "library-01",
@@ -64,6 +67,7 @@ describe("affected component closure", () => {
       // page-editor-01 composes comments and TextEdit (2026-09-29).
       "page-editor-01",
       // TextEdit's read view is a MarkdownView (2026-09-27).
+      "source-list",
       "text-edit",
       "upload-dialog",
     ]);
@@ -80,10 +84,12 @@ describe("affected component closure", () => {
       "packages/ui/registry/ui/comments.test.tsx",
       "packages/ui/registry/ui/field-cell.test.tsx",
       "packages/ui/registry/ui/file-card.test.tsx",
+      "packages/ui/registry/ui/file-preview.test.tsx",
       "packages/ui/registry/ui/file-viewer.test.tsx",
       // markdown-view's measured lane: the reading scale and the citation pill (2026-11-10).
       "packages/ui/registry/ui/markdown-view-reading.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
+      "packages/ui/registry/ui/source-list.test.tsx",
       "packages/ui/registry/ui/text-edit.test.tsx",
       "packages/ui/registry/ui/upload-dialog.test.tsx",
     ]);
@@ -105,6 +111,9 @@ describe("affected component closure", () => {
       "dropzone",
       "field-cell",
       "file-card",
+      // file-preview reads with FileViewer's readers and renders Markdown; source-list's citation
+      // card wiring is MarkdownView's (agent chat ground up, Ph8).
+      "file-preview",
       "file-viewer",
       // floating-cell-editor's preview edits a text value in a FieldCellEditor.
       "floating-cell-editor",
@@ -121,7 +130,10 @@ describe("affected component closure", () => {
       // message-parts' preview reads its answers through a MarkdownView at the reading scale.
       "message-parts",
       "page-editor-01",
+      // resource-pill's and source-list's previews read answers through a MarkdownView (Ph8).
+      "resource-pill",
       "sortable-list",
+      "source-list",
       "text-edit",
       "upload-dialog",
       // version-compare's preview reads the selected version through a MarkdownView.
@@ -155,6 +167,9 @@ describe("affected component closure", () => {
       "field-cell",
       // file-card composes Attachment and opens a FileViewer (2026-10-12).
       "file-card",
+      // file-preview reads with FileViewer's readers and renders Markdown; source-list's citation
+      // card wiring is MarkdownView's (agent chat ground up, Ph8).
+      "file-preview",
       "file-viewer",
       "issue-detail-01",
       "library-01",
@@ -163,6 +178,7 @@ describe("affected component closure", () => {
       // share-dialog's public link and footer copy with CopyButton; share-01 composes it.
       "share-01",
       "share-dialog",
+      "source-list",
       // status-pages-01's error page copies its reference with CopyButton (DS-60).
       "status-pages-01",
       "terminal",
@@ -205,12 +221,16 @@ describe("affected component closure", () => {
       "field-cell",
       // file-card composes Attachment and opens a FileViewer (2026-10-12).
       "file-card",
+      // file-preview reads with FileViewer's readers and renders Markdown; source-list's citation
+      // card wiring is MarkdownView's (agent chat ground up, Ph8).
+      "file-preview",
       "file-viewer",
       "issue-detail-01",
       "library-01",
       "markdown-view",
       "page-editor-01",
       "provider",
+      "source-list",
       "text-edit",
       "upload-dialog",
     ]);

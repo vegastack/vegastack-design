@@ -561,3 +561,47 @@ export function fileViewerPage(): ReactNode {
     </Wrapper>
   );
 }
+
+/** `mode="side"`: a sheet at the page's end for reading beside what opened it; images use the lightbox. */
+export function fileViewerSide(): ReactNode {
+  const viewer = useViewer();
+  const items = [MARKDOWN, PDF, CSV, IMAGES[0]!];
+  return (
+    <Wrapper>
+      <div className="flex flex-wrap gap-2">
+        {items.map((item, i) => (
+          <Button
+            key={item.id}
+            variant="outline"
+            onClick={() => viewer.open(i)}
+          >
+            Open {item.name}
+          </Button>
+        ))}
+      </div>
+      <FileViewer mode="side" items={items} {...viewer.props} />
+    </Wrapper>
+  );
+}
+
+const GONE: FileViewerItem = {
+  id: "gone",
+  name: "notes.md",
+  contentType: "text/markdown",
+  size: 830,
+  src: "/preview/no-such-file.md",
+  downloadHref: "/preview/no-such-file.md",
+};
+
+/** A preview that can't load says why, with Retry and Download. */
+export function fileViewerError(): ReactNode {
+  const viewer = useViewer();
+  return (
+    <Wrapper>
+      <Button variant="outline" onClick={() => viewer.open(0)}>
+        Open notes.md
+      </Button>
+      <FileViewer mode="side" items={[GONE]} {...viewer.props} />
+    </Wrapper>
+  );
+}

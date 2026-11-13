@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 826,
-    "components": 234,
+    "totalRegistryItems": 829,
+    "components": 237,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 44,
+    "AI/chat": 47,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -282,7 +282,10 @@
       "chat-request-card",
       "chat-plan-card",
       "chat-question-card",
-      "memory-group"
+      "memory-group",
+      "file-preview",
+      "source-list",
+      "resource-pill"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -16941,6 +16944,51 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "previewFailureReason",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "readFileHead",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "renderPdfFirstPage",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "loadPdfThumbnail",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "fileViewerItemOf",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -17081,7 +17129,7 @@
             },
             {
               "name": "data-mode",
-              "values": ["overlay", "page"]
+              "values": ["overlay", "page", "side"]
             },
             {
               "name": "data-slot",
@@ -17097,6 +17145,7 @@
                 "file-viewer-header",
                 "file-viewer-header-slots",
                 "file-viewer-menu",
+                "file-viewer-paging",
                 "file-viewer-rail",
                 "file-viewer-rail-panel",
                 "file-viewer-rail-sheet",
@@ -19498,7 +19547,8 @@
         "@vegastack/block-view",
         "@vegastack/task-inline",
         "@vegastack/skeleton",
-        "@vegastack/link-provider"
+        "@vegastack/link-provider",
+        "@vegastack/resource-pill"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
@@ -32795,7 +32845,8 @@
         "@vegastack/chat-subagents",
         "@vegastack/chat-task-list",
         "@vegastack/chat-work-log",
-        "@vegastack/markdown-view"
+        "@vegastack/markdown-view",
+        "@vegastack/file-kind"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.15.0",
@@ -52105,6 +52156,421 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "file-preview",
+      "registryType": "registry:ui",
+      "title": "File Preview",
+      "summary": "A file in a chat answer previewed on the chat card — Markdown formatted, a CSV's first rows, a PDF's first page, an image — with Download, Open and a reasoned error with Retry.",
+      "status": "stable",
+      "since": "0.82.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/file-preview.tsx"],
+      "publicSymbols": [
+        {
+          "name": "FilePreview",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/file-preview.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "FilePreviewProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-preview.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["static", "button", "link", "meta", "icon"],
+          "evidence": "packages/ui/registry/ui/file-preview.tsx + packages/ui/registry/ui/file-preview.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["button-named-by-label", "link-named-by-label"],
+          "evidence": "packages/ui/registry/ui/file-preview.tsx + packages/ui/registry/ui/file-preview.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "attention", "interactive"],
+          "evidence": "packages/ui/registry/ui/file-preview.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/file-preview",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-card",
+        "@vegastack/file-viewer",
+        "@vegastack/markdown-view",
+        "@vegastack/use-overflow",
+        "@vegastack/file-kind"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.15.0",
+        "@vegastack/design@^0.15.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/file-preview.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "file-preview",
+      "dataAttributes": {}
+    },
+    {
+      "name": "source-list",
+      "registryType": "registry:ui",
+      "title": "Source List",
+      "summary": "The web pages an answer cites: a quiet Sources fold of one-line numbered rows, the citation card and the MarkdownView wiring.",
+      "status": "stable",
+      "since": "0.82.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/source-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "SiteIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SiteIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "siteOf",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SourceCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SourceCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "sourceCitations",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SourceList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SourceListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "WebSource",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/source-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["static", "button", "link", "meta", "icon"],
+          "evidence": "packages/ui/registry/ui/source-list.tsx + packages/ui/registry/ui/source-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["button-named-by-label", "link-named-by-label"],
+          "evidence": "packages/ui/registry/ui/source-list.tsx + packages/ui/registry/ui/source-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "attention", "interactive"],
+          "evidence": "packages/ui/registry/ui/source-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/source-list",
+      "registryDependencies": [
+        "@vegastack/chat-card",
+        "@vegastack/markdown-view"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.15.0",
+        "@vegastack/design@^0.15.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/source-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "source-list",
+      "dataAttributes": {
+        "SiteIcon": {
+          "attributes": [
+            {
+              "name": "data-fallback",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["site-icon"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SourceCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["source-card", "source-card-link"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "SourceList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["source-list", "source-list-row"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "resource-pill",
+      "registryType": "registry:ui",
+      "title": "Resource Pill",
+      "summary": "The person's own thing in an answer — its type icon and real title as an inline chip — never a numbered source.",
+      "status": "stable",
+      "since": "0.82.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/resource-pill.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ResourceKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/resource-pill.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "resourceNoun",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/resource-pill.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ResourcePill",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/resource-pill.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ResourcePillProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/resource-pill.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ResourceRef",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/resource-pill.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["static", "button", "link", "meta", "icon"],
+          "evidence": "packages/ui/registry/ui/resource-pill.tsx + packages/ui/registry/ui/resource-pill.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["button-named-by-label", "link-named-by-label"],
+          "evidence": "packages/ui/registry/ui/resource-pill.tsx + packages/ui/registry/ui/resource-pill.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "attention", "interactive"],
+          "evidence": "packages/ui/registry/ui/resource-pill.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/resource-pill",
+      "registryDependencies": [
+        "@vegastack/inline-chip",
+        "@vegastack/link-provider"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.15.0",
+        "@vegastack/design@^0.15.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/resource-pill.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "resource-pill",
+      "dataAttributes": {
+        "ResourcePill": {
+          "attributes": [
+            {
+              "name": "data-resource-kind",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     }
   ],
   "animatedIcons": {
@@ -60258,6 +60724,24 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "fileNameOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "FilePartLike",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

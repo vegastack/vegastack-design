@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.81.0 sha256-t7PqytHj2NS50oq8SYnOzAv3nBexo0jNNAFe/gbm08o=
+// @vegastack markdown-view@0.81.0 sha256-C///Nd/ykXyIsHgNZOluCjq7BlVI1GPdHzu2zSgAx3I=
 
 "use client";
 
@@ -43,6 +43,26 @@ export interface MarkdownCitationMarkerProps extends MarkdownCitation {
   className?: string;
 }
 
+/**
+ * How far to move a card that starts at the marker back inside the reading column (the
+ * `MarkdownView` around it) so its end stays inside the column's, never past the column's start.
+ * The offset is logical: negative moves the card toward its start side, so one sign serves a
+ * left-to-right column (the card shifts left) and a right-to-left one (it shifts right).
+ */
+function columnShift(trigger: HTMLElement | null, width: number): number {
+  const column = trigger?.closest<HTMLElement>("[data-slot=markdown-view]");
+  if (!trigger || !column) return 0;
+  const marker = trigger.getBoundingClientRect();
+  const bounds = column.getBoundingClientRect();
+  const rtl = getComputedStyle(column).direction === "rtl";
+  const overflow = rtl
+    ? bounds.left - (marker.right - width)
+    : marker.left + width - bounds.right;
+  if (overflow <= 0) return 0;
+  const room = rtl ? bounds.right - marker.right : marker.left - bounds.left;
+  return -Math.min(overflow, Math.max(0, room));
+}
+
 /** How long a touch must rest on the marker before its `content` opens instead of a tap. */
 const LONG_PRESS_MS = 450;
 
@@ -76,6 +96,7 @@ export function MarkdownCitationMarker({
   const pressTimer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressed = React.useRef(false);
   const hasContent = content !== undefined && content !== null;
+  const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
   React.useEffect(
     () => () => {
@@ -93,6 +114,7 @@ export function MarkdownCitationMarker({
     <Button
       variant="ghost"
       size="xs"
+      ref={triggerRef}
       aria-label={label}
       data-slot="markdown-citation-trigger"
       className={MARKER}
@@ -166,7 +188,25 @@ export function MarkdownCitationMarker({
             render={button}
           />
           <PopoverContent
-            side="top"
+            // Under the marker, from its start, and shifted back inside the reading column when it
+            // would run past the column's end: it doesn't cover the line above (an answer's author
+            // line) or hang off the column. Only with no room below the viewport's edge does it flip
+            // above, where it stays readable.
+            side="bottom"
+            align="start"
+            alignOffset={({ positioner }) =>
+              // The card is never wider than its `max-w-80` (20rem), whatever the first measure says.
+              columnShift(
+                triggerRef.current,
+                Math.min(
+                  positioner.width,
+                  20 *
+                    (parseFloat(
+                      getComputedStyle(document.documentElement).fontSize,
+                    ) || 16),
+                ),
+              )
+            }
             initialFocus={false}
             finalFocus={false}
             data-slot="markdown-citation-content"

@@ -1,6 +1,6 @@
 ---
 title: File Viewer
-description: A full-screen dark viewer for stored files — images, PDFs, video, audio, text, CSV and Markdown, app-parsed Office previews and a download card.
+description: "A viewer for stored files as a dark lightbox, a side sheet or a page: images, PDFs, media, text, CSV, Markdown and Office, saying why a preview fails."
 audience: public
 registry: file-viewer
 status: stable
@@ -172,6 +172,30 @@ is not needed.
 
 <ComponentPreview
   name="fileViewerPage"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### Side sheet
+
+`mode="side"` opens a sheet at the page's end, in the page's theme, for reading a document beside
+what opened it — a chat's file preview, say. From 1024px it takes half the window up to 44rem;
+below that, the whole window. Text and Markdown sit on the sheet itself, a PDF's pages on a muted
+ground. An image still opens in the dark lightbox.
+
+<ComponentPreview
+  name="fileViewerSide"
+  file="components/preview/file-viewer.tsx"
+/>
+
+### When a preview can't load
+
+A file that can't be read — gone, refused, a dropped connection, a damaged PDF, an image that
+didn't load — says why instead of falling back silently: "Couldn't load the preview: the file is
+no longer there.", with Retry (it reads again) and Download. A file too large to preview is not a
+failure: it shows its card with Download.
+
+<ComponentPreview
+  name="fileViewerError"
   file="components/preview/file-viewer.tsx"
 />
 

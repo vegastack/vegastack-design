@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.81.0 sha256-qJS60cEM3y7inKMTHI9pqK1A/3lXs5+Vkfk4P/eMKkY=
+// @vegastack file-viewer@0.81.0 sha256-IR/DSav8wSRXD05kamAxyJuZRHZ8Cskdtm2dixM3nZU=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   ChevronRightIcon,
   DownloadIcon,
   PanelRightIcon,
+  RotateCwIcon,
   XIcon,
 } from "lucide-react";
 
@@ -37,7 +38,13 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useMediaQuery } from "@/components/ui/use-media-query";
 import { useModalInert } from "@/components/ui/use-modal-inert";
 import { VideoPlayer } from "@/components/ui/video-player";
-import { FileTypeIcon, fileKindOf, formatBytes } from "@/lib/file-kind";
+import {
+  FileTypeIcon,
+  fileKindOf,
+  fileNameOf,
+  formatBytes,
+  type FilePartLike,
+} from "@/lib/file-kind";
 
 /* ---
 `FileViewer` is the full-screen look at a stored file: an image you can zoom and pan, a PDF you
@@ -138,6 +145,31 @@ export type FileViewerPreview =
     }
   | { kind: "card"; thumb?: string | null; facts?: readonly string[] };
 
+/**
+ * A chat message's `file` part as a viewer item, as-is: its name is `filename` or
+ * `providerMetadata.vegastack.filename`; the part's own URL (on the app's origin, range-capable)
+ * is the source, the PDF source and, unless given, the download.
+ *
+ * @example
+ * <FileViewer mode="side" items={parts.map((part) => fileViewerItemOf(part))} … />
+ */
+export function fileViewerItemOf(
+  part: FilePartLike,
+  options: { id?: string; size?: number | null; downloadHref?: string } = {},
+): FileViewerItem {
+  const name = fileNameOf(part);
+  const pdf = fileKindOf(part.mediaType, name) === "pdf";
+  return {
+    id: options.id ?? part.url,
+    name,
+    contentType: part.mediaType,
+    size: options.size ?? null,
+    src: part.url,
+    pdfSrc: pdf ? part.url : null,
+    downloadHref: options.downloadHref ?? part.url,
+  };
+}
+
 /** Props accepted by `FileViewer`. */
 export interface FileViewerProps {
   /** The files to page through, in order. */
@@ -171,11 +203,14 @@ export interface FileViewerProps {
    */
   actions?: (item: FileViewerItem) => React.ReactNode;
   /**
-   * `overlay` is the full-screen dark lightbox (a modal dialog). `page` renders the same viewer in
-   * place — a file's own page — filling its container, in the page's theme, with no close button.
+   * `overlay` is the full-screen dark lightbox (a modal dialog). `side` is a sheet at the page's
+   * end in the page's theme — half the window up to 44rem from 1024px, the whole window below —
+   * for reading a document beside what opened it (a chat); an image still opens in the lightbox.
+   * `page` renders the viewer in place — a file's own page — filling its container, in the page's
+   * theme, with no close button.
    * @default "overlay"
    */
-  mode?: "overlay" | "page";
+  mode?: "overlay" | "page" | "side";
   /**
    * Header controls beside Download, for the open file: `share` and `watch` sit before it, `menu`
    * (a ⋯ menu) after it. Each is a node, or a function of the open file. Pass ghost icon `Button`s
@@ -305,11 +340,12 @@ type Kind =
   | "html"
   | "workbook"
   | "word"
-  | "card";
+  | "card"
+  | "error";
 type ReadKind = "text" | "table" | "markdown" | "workbook" | "word";
 
 /** The first megabyte of a text, CSV or Markdown file is what the viewer reads. */
-const PREVIEW_BYTES = 1024 * 1024;
+const DEFAULT_PREVIEW_BYTES = 1024 * 1024;
 /** The most data rows the table shows. */
 const TABLE_ROWS = 500;
 type ZoomOp = "in" | "out" | "reset";
@@ -323,6 +359,19 @@ const LazyMarkdown = React.lazy(() =>
 
 // Excel and Word files load their reader (and, inside it, SheetJS or mammoth) only when one opens.
 const loadOffice = () => import("@/components/ui/file-viewer-office");
+
+/**
+ * pdf.js's first-page renderer, loaded on first use: what `FilePreview` draws a PDF's thumbnail
+ * with, so pdf.js still loads only once a PDF shows.
+ *
+ * @example
+ * const render = await loadPdfThumbnail();
+ * const { pages } = await render(src, canvas, 112, signal);
+ */
+export const loadPdfThumbnail = () =>
+  import("@/components/ui/file-viewer-pdf").then(
+    (module) => module.renderPdfFirstPage,
+  );
 
 const LazyPdf = React.lazy(() =>
   import("@/components/ui/file-viewer-pdf").then((module) => ({
@@ -395,6 +444,7 @@ const KIND_LABEL: Record<Kind, string> = {
   workbook: "Spreadsheet",
   word: "Document",
   card: "File",
+  error: "File",
 };
 
 /**
@@ -491,14 +541,27 @@ function sniffDelimiter(source: string): string {
 }
 
 /**
- * Read the first `PREVIEW_BYTES` of a file as UTF-8 text, asking for just that range. A server
- * that ignores the range still costs no more than that: the rest is never read. A truncated read
- * ends at its last complete line.
+ * Read the first `bytes` of a file (1 MB by default) as UTF-8 text, asking for just that range. A
+ * server that ignores the range still costs no more than that: the rest is never read. A truncated
+ * read ends at its last complete line. A failed request throws `HTTP <status>`, which
+ * `previewFailureReason` puts in words.
+ *
+ * @example
+ * const { text, truncated } = await readFileHead("/api/files/f1/content", { bytes: 16384, signal });
  */
-async function readTextHead(
+export async function readFileHead(
   url: string,
-  size: number | null | undefined,
-  signal: AbortSignal,
+  {
+    bytes: PREVIEW_BYTES = DEFAULT_PREVIEW_BYTES,
+    size,
+    signal,
+  }: {
+    /** How much to read. @default 1 MB */
+    bytes?: number;
+    /** The file's size, when known: a file larger than `bytes` is truncated. */
+    size?: number | null;
+    signal?: AbortSignal;
+  } = {},
 ): Promise<{ text: string; truncated: boolean }> {
   const response = await fetch(url, {
     headers: { Range: `bytes=0-${PREVIEW_BYTES - 1}` },
@@ -554,6 +617,44 @@ async function readTextHead(
   return { text: text.replace(/\r\n?/g, "\n"), truncated };
 }
 
+/** A file that is too large for its preview: the Download card, not a failure. */
+const TOO_LARGE = "Too large to preview";
+
+/**
+ * Why a preview couldn't load, as the words after "Couldn't load the preview:" — from a failed
+ * request (`HTTP 404`), a dropped connection or pdf.js. `null` when it isn't a failure: a file too
+ * large to preview shows the Download card, and an aborted read shows nothing.
+ *
+ * @example
+ * previewFailureReason(new Error("HTTP 404")); // "the file is no longer there"
+ */
+export function previewFailureReason(error: unknown): string | null {
+  if (!(error instanceof Error)) return "something went wrong reading it";
+  if (
+    error.name === "AbortError" ||
+    error.name === "AbortException" ||
+    error.name === "RenderingCancelledException"
+  )
+    return null;
+  if (error.message === TOO_LARGE) return null;
+  const status =
+    Number(/^HTTP (\d{3})/.exec(error.message)?.[1]) ||
+    Number((error as { status?: unknown }).status) ||
+    0;
+  if (status === 404 || status === 410) return "the file is no longer there";
+  if (status === 401 || status === 403) return "you don't have access to it";
+  if (status >= 500) return `the server had a problem (HTTP ${status})`;
+  if (status >= 400) return `the server refused it (HTTP ${status})`;
+  if ((error as { missing?: unknown }).missing === true)
+    return "the file is no longer there";
+  if (error.name === "InvalidPDFException")
+    return "the PDF is damaged or isn't a PDF";
+  if (error.name === "PasswordException")
+    return "the PDF is password-protected";
+  if (error instanceof TypeError) return "the connection failed";
+  return "something went wrong reading it";
+}
+
 /** The built-in preview of a text, CSV, Markdown, Excel or Word file. */
 async function readPreview(
   item: FileViewerItem,
@@ -579,11 +680,10 @@ async function readPreview(
     );
     return { kind: "html", html };
   }
-  const { text, truncated } = await readTextHead(
-    item.src ?? "",
-    item.size,
+  const { text, truncated } = await readFileHead(item.src ?? "", {
+    size: item.size,
     signal,
-  );
+  });
   if (kind === "table") {
     const tab = /\.tsv$/i.test(item.name) ? "\t" : undefined;
     const parsed = parseCsv(text, { delimiter: tab, maxRows: TABLE_ROWS + 1 });
@@ -1015,6 +1115,10 @@ function CardStage({
   );
 }
 
+/** How the viewer is laid out, for the stages that read differently in a side sheet. */
+const ViewerModeContext =
+  React.createContext<FileViewerProps["mode"]>("overlay");
+
 /** The line under a preview that says it is not the whole file. */
 function PreviewNote({ children }: { children: React.ReactNode }) {
   return (
@@ -1051,6 +1155,8 @@ function SheetStage({
   const swipe = useSwipe((direction) => {
     if (direction !== "close") onSwipe(direction);
   });
+  // In a side sheet the text sits on the sheet itself: no second frame inside the first.
+  const side = React.useContext(ViewerModeContext) === "side";
   return (
     <div
       data-slot={slot}
@@ -1060,7 +1166,10 @@ function SheetStage({
       onPointerMove={swipe.move}
       onPointerUp={swipe.end}
       onPointerCancel={swipe.cancel}
-      className="flex size-full touch-pan-y flex-col items-center gap-2 px-4 pb-4 pointer-fine:px-20"
+      className={cn(
+        "flex size-full touch-pan-y flex-col items-center gap-2 px-4 pb-4",
+        side ? "px-0 pb-3" : "pointer-fine:px-20",
+      )}
     >
       <div
         role="region"
@@ -1069,6 +1178,7 @@ function SheetStage({
         className={cn(
           "min-h-0 w-full max-w-5xl overflow-auto rounded-lg border border-border bg-card text-card-foreground focus-visible:-outline-offset-2",
           sheetClassName,
+          side && "max-w-none flex-1 rounded-none border-0 bg-transparent",
         )}
         style={
           swipe.offset.x ? swipeStyle({ x: swipe.offset.x, y: 0 }) : undefined
@@ -1117,6 +1227,7 @@ function TableStage({
       : preview.totalRows && preview.totalRows > rows.length
         ? `Showing first ${count} of ${preview.totalRows.toLocaleString()} rows`
         : `Showing first ${count} rows`;
+  const side = React.useContext(ViewerModeContext) === "side";
   if (columns === 0)
     return (
       <>
@@ -1131,7 +1242,10 @@ function TableStage({
   return (
     <div
       data-slot="file-viewer-table"
-      className="flex size-full flex-col items-center gap-2 px-4 pb-4 pointer-fine:px-20"
+      className={cn(
+        "flex size-full flex-col items-center gap-2 px-4 pb-4",
+        !side && "pointer-fine:px-20",
+      )}
     >
       {before}
       {/* One named, focusable scroller for both axes, so the header can stick to its top. */}
@@ -1249,12 +1363,15 @@ function PreviewStage({
   loadPreview,
   onSwipe,
   onResolve,
+  onFail,
 }: {
   item: FileViewerItem;
   kind: ReadKind | "card";
   loadPreview: FileViewerProps["loadPreview"];
   onSwipe: (direction: Swipe) => void;
   onResolve: (kind: Kind) => void;
+  /** The built-in read failed: the viewer shows why, with Retry and Download. */
+  onFail: (reason: string) => void;
 }) {
   const immediate = kind === "card" && !loadPreview;
   const [preview, setPreview] = React.useState<FileViewerPreview | null>(
@@ -1265,10 +1382,12 @@ function PreviewStage({
   const itemRef = React.useRef(item);
   const loadRef = React.useRef(loadPreview);
   const resolveRef = React.useRef(onResolve);
+  const failRef = React.useRef(onFail);
   React.useLayoutEffect(() => {
     itemRef.current = item;
     loadRef.current = loadPreview;
     resolveRef.current = onResolve;
+    failRef.current = onFail;
   });
   React.useEffect(() => {
     if (immediate) return;
@@ -1278,9 +1397,20 @@ function PreviewStage({
       const current = itemRef.current;
       let next: FileViewerPreview | null | undefined = null;
       const load = loadRef.current;
+      // The app's own parse failing falls back to the built-in reading; that failing is a failure.
       if (load) next = await load(current, { signal }).catch(() => null);
-      if (!next && kind !== "card" && !signal.aborted)
-        next = await readPreview(current, kind, signal).catch(() => null);
+      if (!next && kind !== "card" && !signal.aborted) {
+        try {
+          next = await readPreview(current, kind, signal);
+        } catch (error) {
+          if (signal.aborted) return;
+          const reason = previewFailureReason(error);
+          if (reason) {
+            failRef.current(reason);
+            return;
+          }
+        }
+      }
       if (signal.aborted) return;
       setPreview(next ?? { kind: "card" });
     })();
@@ -1369,6 +1499,63 @@ function PreviewStage({
         />
       );
   }
+}
+
+/**
+ * A preview that couldn't load: the file's type icon, "Couldn't load the preview: <reason>.", and
+ * Retry and Download — never a silent fall back to the card.
+ */
+function ErrorStage({
+  item,
+  reason,
+  onRetry,
+}: {
+  item: FileViewerItem;
+  reason: string;
+  onRetry: () => void;
+}) {
+  return (
+    <div
+      data-slot="file-viewer-error"
+      className="flex size-full items-center justify-center p-6"
+    >
+      <div className="flex max-w-sm min-w-0 flex-col items-center gap-3 text-center">
+        <FileTypeIcon
+          contentType={item.contentType}
+          name={item.name}
+          className="size-10 text-muted-foreground"
+        />
+        <p className="text-sm text-muted-foreground">
+          <span className="font-medium text-foreground">
+            Couldn&rsquo;t load the preview:
+          </span>{" "}
+          {reason}.
+        </p>
+        <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+          <Button
+            variant="outline"
+            onClick={onRetry}
+            data-slot="file-viewer-retry"
+            className="pointer-coarse:h-11 pointer-coarse:px-4"
+          >
+            <RotateCwIcon data-icon="inline-start" />
+            Retry
+          </Button>
+          <a
+            href={item.downloadHref}
+            download
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "pointer-coarse:h-11 pointer-coarse:px-4",
+            )}
+          >
+            <DownloadIcon data-icon="inline-start" />
+            Download
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -1502,6 +1689,7 @@ export function FileViewer({
   railLabels,
 }: FileViewerProps) {
   const page = mode === "page";
+  const side = mode === "side";
   // A page always shows a file (the first when `index` is null); an overlay is open while it has one.
   const open = items.length > 0 && (page || index !== null);
   // Keep showing the last file while the close animation runs, after `index` became null.
@@ -1511,16 +1699,31 @@ export function FileViewer({
   const item = items[current];
   const count = items.length;
 
-  const [failed, setFailed] = React.useState<ReadonlySet<string>>(
-    () => new Set(),
+  // Why each file's preview couldn't load, and how often it was retried (each retry remounts its
+  // stage, so it reads again).
+  const [failed, setFailed] = React.useState<ReadonlyMap<string, string>>(
+    () => new Map(),
   );
-  const markFailed = React.useCallback((id: string) => {
-    setFailed((prev) => (prev.has(id) ? prev : new Set(prev).add(id)));
+  const [attempts, setAttempts] = React.useState<ReadonlyMap<string, number>>(
+    () => new Map(),
+  );
+  const markFailed = React.useCallback((id: string, reason: string) => {
+    setFailed((prev) =>
+      prev.get(id) === reason ? prev : new Map(prev).set(id, reason),
+    );
   }, []);
+  const retry = (id: string) => {
+    setFailed((prev) => {
+      const next = new Map(prev);
+      next.delete(id);
+      return next;
+    });
+    setAttempts((prev) => new Map(prev).set(id, (prev.get(id) ?? 0) + 1));
+  };
 
   const baseKind: Kind = item
     ? failed.has(item.id)
-      ? "card"
+      ? "error"
       : kindOf(item)
     : "card";
   // What a preview stage settled on (the app's HTML for a .docx, the card when a read failed).
@@ -1542,6 +1745,7 @@ export function FileViewer({
   // the first tabbable, the Download link — would open with it looking hovered.
   const popupNode = React.useRef<HTMLDivElement | null>(null);
   const popupRef = useModalInert<HTMLDivElement>({ ref: popupNode });
+  const sideNode = React.useRef<HTMLDivElement | null>(null);
   const { announce, Announcer } = useAnnouncer();
 
   const go = React.useCallback(
@@ -1662,7 +1866,16 @@ export function FileViewer({
 
   if (!item) return null;
 
-  const onFail = () => markFailed(item.id);
+  const failure = failed.get(item.id);
+  const stageKey = `${item.id}:${attempts.get(item.id) ?? 0}`;
+  const onFail = (reason: string) => {
+    markFailed(item.id, reason);
+    announce(`Couldn’t load the preview: ${reason}.`);
+  };
+  const onPdfError = (error: unknown) => {
+    const reason = previewFailureReason(error);
+    if (reason) onFail(reason);
+  };
 
   const railBody = hasRail ? (
     <Tabs
@@ -1719,7 +1932,7 @@ export function FileViewer({
           data-slot="file-viewer-rail-sheet"
           className={cn(
             "gap-0 p-0 data-[side=bottom]:h-[70dvh]",
-            !page && "dark",
+            mode === "overlay" && "dark",
           )}
         >
           <SheetHeader className="sr-only">
@@ -1737,7 +1950,12 @@ export function FileViewer({
         data-slot="file-viewer-header"
         className="flex min-w-0 shrink-0 items-center gap-2 ps-[calc(var(--spacing)*4+env(safe-area-inset-left))] pe-[calc(var(--spacing)*2+env(safe-area-inset-right))] pt-[calc(var(--spacing)*2+env(safe-area-inset-top))] pb-2"
       >
-        <div className="flex min-w-16 flex-1 items-baseline gap-3">
+        <div
+          className={cn(
+            "flex min-w-16 flex-1 items-baseline gap-3",
+            side && "items-center",
+          )}
+        >
           {page ? (
             <h1
               id={titleId}
@@ -1760,6 +1978,32 @@ export function FileViewer({
               className="shrink-0 text-sm text-muted-foreground tabular-nums"
             >
               {current + 1} of {count}
+            </span>
+          ) : null}
+          {side && count > 1 ? (
+            // In a side sheet the paging buttons sit by the count: on the stage they'd cover text.
+            <span
+              data-slot="file-viewer-paging"
+              className="flex shrink-0 items-center self-center"
+            >
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Previous file"
+                disabled={current === 0}
+                onClick={() => go(-1)}
+              >
+                <ChevronLeftIcon className="rtl:rotate-180" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Next file"
+                disabled={current === count - 1}
+                onClick={() => go(1)}
+              >
+                <ChevronRightIcon className="rtl:rotate-180" />
+              </Button>
             </span>
           ) : null}
         </div>
@@ -1846,30 +2090,41 @@ export function FileViewer({
       <div data-slot="file-viewer-body" className="flex min-h-0 flex-1">
         <div
           data-slot="file-viewer-stage"
-          className="relative min-h-0 min-w-0 flex-1 pb-[env(safe-area-inset-bottom)] [container-type:size]"
+          className={cn(
+            "relative min-h-0 min-w-0 flex-1 pb-[env(safe-area-inset-bottom)] [container-type:size]",
+            // A PDF's white pages need a ground to sit on in the page's own theme.
+            side && baseKind === "pdf" && "bg-muted",
+          )}
         >
-          {baseKind === "image" ? (
+          {baseKind === "error" ? (
+            <ErrorStage
+              key={stageKey}
+              item={item}
+              reason={failure ?? ""}
+              onRetry={() => retry(item.id)}
+            />
+          ) : baseKind === "image" ? (
             <ImageStage
-              key={item.id}
+              key={stageKey}
               item={item}
               onSwipe={onSwipe}
               zoomRef={zoomRef}
-              onFail={onFail}
+              onFail={() => onFail("the image didn’t load")}
             />
           ) : baseKind === "pdf" ? (
             <React.Suspense fallback={<PdfLoading item={item} />}>
               <LazyPdf
-                key={item.id}
+                key={stageKey}
                 src={item.pdfSrc ?? ""}
                 name={item.name}
                 zoomRef={zoomRef}
-                onError={onFail}
+                onError={onPdfError}
                 loading={<PdfLoading item={item} />}
               />
             </React.Suspense>
           ) : baseKind === "video" || baseKind === "audio" ? (
             <MediaStage
-              key={item.id}
+              key={stageKey}
               item={item}
               kind={baseKind}
               active={open}
@@ -1877,7 +2132,7 @@ export function FileViewer({
             />
           ) : (
             <PreviewStage
-              key={item.id}
+              key={stageKey}
               item={item}
               kind={
                 baseKind === "text" ||
@@ -1888,13 +2143,14 @@ export function FileViewer({
                   ? baseKind
                   : "card"
               }
-              loadPreview={failed.has(item.id) ? undefined : loadPreview}
+              loadPreview={loadPreview}
               onSwipe={onSwipe}
               onResolve={onResolve}
+              onFail={onFail}
             />
           )}
 
-          {count > 1 ? (
+          {count > 1 && !side ? (
             <>
               {/* Centred with `inset-y-0 my-auto`, not a translate: the button's press
                     `translate-y-px` shares `translate` and would drop it by half its height. */}
@@ -1937,6 +2193,12 @@ export function FileViewer({
     </>
   );
 
+  const framed = (
+    <ViewerModeContext.Provider value={mode}>
+      {frame}
+    </ViewerModeContext.Provider>
+  );
+
   if (page)
     return (
       <section
@@ -1947,8 +2209,28 @@ export function FileViewer({
         onKeyDown={onKeyDown}
         className="flex h-full min-h-96 min-w-0 flex-col bg-background text-foreground"
       >
-        {frame}
+        {framed}
       </section>
+    );
+
+  // A side sheet for reading; an image still opens in the lightbox below.
+  if (side && baseKind !== "image")
+    return (
+      <Sheet open={open} onOpenChange={(next) => onOpenChange?.(next)}>
+        <SheetContent
+          ref={sideNode}
+          side="right"
+          showCloseButton={false}
+          initialFocus={sideNode}
+          data-slot="file-viewer"
+          data-mode="side"
+          data-kind={kind}
+          onKeyDown={onKeyDown}
+          className="gap-0 bg-background p-0 text-foreground duration-layout ease-enter data-ending-style:duration-state-exit data-ending-style:ease-exit data-[side=right]:w-full data-[side=right]:sm:w-full data-[side=right]:sm:max-w-none data-[side=right]:lg:w-[min(44rem,50vw)]"
+        >
+          {framed}
+        </SheetContent>
+      </Sheet>
     );
 
   return (
@@ -1968,7 +2250,7 @@ export function FileViewer({
           onKeyDown={onKeyDown}
           className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0"
         >
-          {frame}
+          {framed}
         </DialogPrimitive.Popup>
       </DialogPortal>
     </Dialog>

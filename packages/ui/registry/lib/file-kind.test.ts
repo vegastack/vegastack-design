@@ -4,6 +4,7 @@ import {
   FILE_KIND_LABEL,
   FileKindTile,
   fileKindOf,
+  fileNameOf,
   FileTypeIcon,
   formatBytes,
 } from "./file-kind";
@@ -200,5 +201,20 @@ describe("tinted kinds", () => {
     expect(tile).toContain('data-kind="pdf"');
     expect(tile).toContain(">PDF</span>");
     expect(tile).toContain("text-destructive-text");
+  });
+});
+
+describe("fileNameOf", () => {
+  it("takes filename, then the streamed name in provider metadata, then what the file is", () => {
+    expect(
+      fileNameOf({ mediaType: "application/pdf", filename: "q3.pdf" }),
+    ).toBe("q3.pdf");
+    expect(
+      fileNameOf({
+        mediaType: "application/pdf",
+        providerMetadata: { vegastack: { filename: "streamed.pdf" } },
+      }),
+    ).toBe("streamed.pdf");
+    expect(fileNameOf({ mediaType: "application/pdf" })).toBe("PDF");
   });
 });

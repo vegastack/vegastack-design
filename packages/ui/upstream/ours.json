@@ -1157,6 +1157,24 @@
       "family": "chat",
       "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no agent cards. Memory Group, composed from upstream's button and textarea and our chat-card, chat-menu and status-glyph; no patch."
+    },
+    "file-preview": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "rationale": "Upstream has no inline file preview. File Preview, composed from upstream's button and our chat-card, file-viewer (its readers), markdown-view and file-kind; no patch."
+    },
+    "source-list": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "rationale": "Upstream has no cited-sources list. Source List, composed from our chat-card fold and markdown-view's citation contract; no patch."
+    },
+    "resource-pill": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "rationale": "Upstream has no connector resource reference. Resource Pill, an InlineChip with the connector kinds' icons and words; no patch."
     }
   }
 }
