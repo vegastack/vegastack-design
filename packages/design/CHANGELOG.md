@@ -1,5 +1,14 @@
 # @vegastack/design
 
+## 0.15.0
+
+### Patch Changes
+
+- [#979](https://github.com/vegastack/vegastack-design/pull/979) [`38bb7b0`](https://github.com/vegastack/vegastack-design/commit/38bb7b0bddf87c99a6ddc08b29d9ba6568042da3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Desktop glass, for the VegaStack desktop app's floating windows that sit on the operating system's own glass. `surface-glass` is an opaque `popover` fill everywhere, transparent only when the host sets `<html data-native-glass>`, and opaque again under Reduce Transparency and Increase Contrast (with a 1px `--glass-edge` border). Tokens: `--glass-ink`, `--glass-ink-muted`, `--glass-edge` and a reserved `--glass-dim`; `contrast-check` gates both inks at AA on `popover` and on a worst-case native backdrop. It is not a CSS blur and not a return of the retired frosted glass: `doctor` still flags `backdrop-blur-glass`. See Foundations › Desktop glass.
+
+- Updated dependencies [[`38bb7b0`](https://github.com/vegastack/vegastack-design/commit/38bb7b0bddf87c99a6ddc08b29d9ba6568042da3)]:
+  - @vegastack/design-tokens@0.15.0
+
 ## 0.14.1
 
 ### Patch Changes

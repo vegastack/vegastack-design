@@ -1,4 +1,4 @@
-// @vegastack panel-search@0.77.0 sha256-F/5Krkhq6/kXBPxJxry94QnuA94OWiL5cptZvwEUspU=
+// @vegastack panel-search@0.81.0 sha256-hP2xfq9W9BrtZSEO6PxY4yHCIQkrAf7uFFKP3tsBovw=
 
 "use client";
 

@@ -1,4 +1,4 @@
-// @vegastack settings-layout@0.77.0 sha256-+yhhYT7GK27eXrj70vfd3T8g+VtNaLEP5ainSCoxEc4=
+// @vegastack settings-layout@0.81.0 sha256-OwzqDVq77h3b1LLpNVKeoARXYXi1U6DWmp78G4TYOCU=
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";

@@ -9,6 +9,26 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.81.0] — November 13, 2026
+
+<!-- assembled from 2 changesets: 810c9178bdde -->
+
+### 🧩 New components
+
+- Desktop glass, for the VegaStack desktop app's floating windows that sit on the operating system's own glass. `surface-glass` is an opaque `popover` fill everywhere, transparent only when the host sets `<html data-native-glass>`, and opaque again under Reduce Transparency and Increase Contrast (with a 1px `--glass-edge` border). Tokens: `--glass-ink`, `--glass-ink-muted`, `--glass-edge` and a reserved `--glass-dim`; `contrast-check` gates both inks at AA on `popover` and on a worst-case native backdrop. It is not a CSS blur and not a return of the retired frosted glass: `doctor` still flags `backdrop-blur-glass`. See Foundations › Desktop glass.
+  [`38bb7b0`](https://github.com/VegaStack/vegastack-design/commit/38bb7b0)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.15.0`** (was `0.14.0`).
+- **`@vegastack/design`** → **`0.15.0`** (was `0.14.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.80.1 → 0.81.0.
+
+### 📚 Docs
+
+- The docs site's V mark, favicon and app icons now use the canonical high-precision VegaStack V (the same master as the web and mobile apps), with its `#0A0A0A` ink.
+  [`38bb7b0`](https://github.com/VegaStack/vegastack-design/commit/38bb7b0)
+
 ## [0.80.1] — November 13, 2026
 
 <!-- assembled from 1 changeset: bb186361ce31 -->

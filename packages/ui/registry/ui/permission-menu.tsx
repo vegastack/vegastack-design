@@ -1,4 +1,4 @@
-// @vegastack permission-menu@0.77.0 sha256-whN8qvGuo326NhBVLN/iUyEoyRaBAJGO72tlxSfR+DY=
+// @vegastack permission-menu@0.81.0 sha256-hTHDxH5BF7DIkCh8IsXOg6KaXIb6n1zy8fy7fyujXFs=
 
 import * as React from "react";
 import { ChevronDownIcon, LockIcon } from "lucide-react";
