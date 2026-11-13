@@ -66,7 +66,7 @@ test("Copy keeps the source; Edit and attached files call back", async () => {
         {
           url: "/api/files/2",
           mediaType: "application/pdf",
-          filename: "brief.pdf",
+          providerMetadata: { vegastack: { filename: "brief.pdf" } },
         },
       ]}
     />,
