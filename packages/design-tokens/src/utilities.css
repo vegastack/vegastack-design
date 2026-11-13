@@ -1174,3 +1174,55 @@
 @utility stop-spark-to {
   stop-color: var(--color-tag-blue);
 }
+
+/* ---------------------------------------------------------------------------------------------
+ * Desktop glass (operator 2026-11-14). `surface-glass` is the one class for a surface that sits on
+ * a NATIVE OS glass backing: the VegaStack desktop app's floating windows (recording pill,
+ * quick-ask, tray popover, call prompt), drawn over NSGlassEffectView, vibrancy or Windows acrylic.
+ * It is NOT a CSS blur and NOT the retired frosted glass (`backdrop-blur-glass`, the Button `glass`
+ * variant), which `vegastack-design doctor` still flags: it paints nothing of its own over the
+ * native material, and in a web page it is a plain `popover` fill.
+ *
+ *   - opaque `--popover` by default, so a page or window without native glass looks like any
+ *     other floating surface;
+ *   - transparent only when the host sets `<html data-native-glass>` (the desktop preload, after
+ *     the glass host attaches, or the web bridge's `glass` capability);
+ *   - opaque again under Reduce Transparency, and opaque with a 1px `--glass-edge` border under
+ *     Increase Contrast;
+ *   - system colours under forced colours.
+ *
+ * Text takes `--glass-ink` (and `text-glass-ink-muted` for secondary copy), contrast-gated on the
+ * opaque fallback and on a worst-case native backdrop by tooling/contrast-check.mjs.
+ * ------------------------------------------------------------------------------------------- */
+@utility surface-glass {
+  background-color: var(--popover);
+  color: var(--glass-ink);
+
+  :root[data-native-glass] & {
+    background-color: transparent;
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    :root[data-native-glass] & {
+      background-color: var(--popover);
+    }
+  }
+
+  @media (prefers-contrast: more) {
+    border: 1px solid var(--glass-edge);
+
+    :root[data-native-glass] & {
+      background-color: var(--popover);
+    }
+  }
+
+  @media (forced-colors: active) {
+    border: 1px solid CanvasText;
+    background-color: Canvas;
+    color: CanvasText;
+
+    :root[data-native-glass] & {
+      background-color: Canvas;
+    }
+  }
+}

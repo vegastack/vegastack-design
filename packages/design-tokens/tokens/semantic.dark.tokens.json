@@ -199,6 +199,22 @@
       "alpha": 0.1
     }
   },
+  "glass-edge": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.12
+    }
+  },
+  "glass-ink": {
+    "$type": "color",
+    "$value": "{color.neutral.50}"
+  },
+  "glass-ink-muted": {
+    "$type": "color",
+    "$value": "{color.neutral.200}"
+  },
   "state-focus": {
     "$type": "color",
     "$value": {

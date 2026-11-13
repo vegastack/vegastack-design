@@ -327,6 +327,11 @@ page and on the family's own `/10`-`/30` tint. Using the fill itself as text on 
 `--brand` is a marker-role accent only — never a functional state colour, and never a text ink
 (`--brand-text` is the readable half).
 
+**Desktop glass is for the desktop app only.** `surface-glass` (with `text-glass-ink-muted` for
+secondary text) goes on a desktop floating window that sits on native OS glass; it is transparent
+only when the host sets `<html data-native-glass>` and an opaque `popover` fill everywhere else. It is
+never a CSS blur and never belongs in a web page: no `backdrop-blur-*` or `bg-popover/85` "glass".
+
 **Overriding tokens:** redefine one runtime variable in your global CSS and every component repaints
 in both themes:
 

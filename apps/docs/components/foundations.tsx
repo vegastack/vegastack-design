@@ -64,6 +64,11 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
     tokens: ["media-scrim", "media-scrim-strong", "media-foreground"],
   },
   {
+    // Desktop only: text and edge on a window over native OS glass (`surface-glass`).
+    label: "Desktop glass",
+    tokens: ["glass-ink", "glass-ink-muted", "glass-edge", "glass-dim"],
+  },
+  {
     // Theme-invariant too: the wash a tile's photo wears under a corner control (`tile-overlay`).
     label: "Photo scrim",
     tokens: ["scrim", "scrim-foreground"],

@@ -30,6 +30,8 @@
    one run in three, and never updated — every colour assertion in that run measured an unstyled
    page. Reusing a warm, proven entry removes the concurrent compile rather than papering over it. */
 @source './control-paint.browser.test.tsx';
+/* `surface-glass` is a custom @utility; the fixture's class must be scanned for it to compile. */
+@source './surface-glass.browser.test.tsx';
 /* Blocks (decision D6 of the 00c facelift plan): a block's unit test runs unstyled and skips
    `color-contrast`, and its compiled case in contrast.browser.test.tsx is the compensating gate —
    which only measures real colours if the block's own utilities are generated. */

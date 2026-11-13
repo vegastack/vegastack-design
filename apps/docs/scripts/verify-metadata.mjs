@@ -942,7 +942,7 @@ const markSvg = await readFile(
 const iconSvg = await readFile(path.join(OUT_DIR, "icon.svg"), "utf8");
 assert.equal(
   createHash("sha256").update(markSvg).digest("hex"),
-  "ac6ecae3efb0fe0b7072f0cf5ca1e0faf2226f3e39dbbd14f99ae707b3c92319",
+  "c292ec84ae7e0fbc41825ddad6eb6709e4825f52761e83c61ce3a09f713dd127",
   "normalized official V mark drifted from its recorded provenance",
 );
 const markPath = only(

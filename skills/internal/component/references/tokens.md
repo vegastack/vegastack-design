@@ -91,6 +91,10 @@ AA-gated rather than eyeballed.
   `--brand-text`, which is AA-gated. Never use `text-brand` for a label.
 - **`--media-scrim`, `--media-scrim-strong`, `--media-foreground`** — theme-invariant media chrome,
   both scrims gated at the AA TEXT floor because labels are drawn on them.
+- **`--glass-ink`, `--glass-ink-muted`, `--glass-edge`, `--glass-dim`** — desktop glass (operator
+  2026-11-14), read through the `surface-glass` utility for desktop windows on native OS glass, never
+  in a component or a web page. Both inks are gated at AA text on `popover` and on a modelled
+  worst-case native backdrop; `--glass-dim` is reserved.
 - **`--scrim`, `--scrim-foreground`** — theme-invariant photo scrim (black / white in both themes)
   for icon controls over a tile's image. Always read through an opacity modifier — `bg-scrim/40`,
   `hover:bg-scrim/60` — via the `tile-overlay` recipe. Not AA-gated (icons over arbitrary imagery);
