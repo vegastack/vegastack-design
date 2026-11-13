@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.79.0] — November 13, 2026
+
+<!-- assembled from 1 changeset: 4d8157c8eb07 -->
+
+### 🧩 New components
+
+- Agent chat thread renderers, drawn straight from AI SDK `UIMessage` parts. `MessageParts` lays out one agent turn: the task list, one live line (the turn's only moving thing) or its settled sentence over the work log, the Subagents block, the answer never folded, files and the app's cards for data parts, with Summary, Normal and Verbose reader settings and at most one spinner per message. `LiveLine`, `WorkSummary`, `WorkLog`, `ErrorRow`, `StuckRow` and `ChatClock` (`chat-work-log`) read work as sentences; `SubagentsBlock` and `BackgroundWork` (`chat-subagents`) show Subagents and background work in two weights; `ChatTaskList` is the task list as the turn's progress (count-and-time header, reasons inside the row); `UserBubble` renders the person's Markdown and fades a long message into Show more; `ChatSkeleton` and `ScrollToLatest` load and return to the latest message; `ChatDetails` is the details panel beside the chat. The older `MessageActivity`, `MessageFold`, `TaskList` and `Bubble`-based pieces stay until the app moves over.
+  [`1aefbe4`](https://github.com/VegaStack/vegastack-design/commit/1aefbe4)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.78.1 → 0.79.0.
+
 ## [0.78.1] — November 13, 2026
 
 <!-- assembled from 2 changesets: b5d102595577 -->

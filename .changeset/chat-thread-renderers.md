@@ -1,5 +1,0 @@
----
-"@vegastack/ui": minor
----
-
-🧩 Agent chat thread renderers, drawn straight from AI SDK `UIMessage` parts. `MessageParts` lays out one agent turn: the task list, one live line (the turn's only moving thing) or its settled sentence over the work log, the Subagents block, the answer never folded, files and the app's cards for data parts, with Summary, Normal and Verbose reader settings and at most one spinner per message. `LiveLine`, `WorkSummary`, `WorkLog`, `ErrorRow`, `StuckRow` and `ChatClock` (`chat-work-log`) read work as sentences; `SubagentsBlock` and `BackgroundWork` (`chat-subagents`) show Subagents and background work in two weights; `ChatTaskList` is the task list as the turn's progress (count-and-time header, reasons inside the row); `UserBubble` renders the person's Markdown and fades a long message into Show more; `ChatSkeleton` and `ScrollToLatest` load and return to the latest message; `ChatDetails` is the details panel beside the chat. The older `MessageActivity`, `MessageFold`, `TaskList` and `Bubble`-based pieces stay until the app moves over.
