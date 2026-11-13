@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.81.0 sha256-e4xCyhPEoQch5YtL0bu+kjHOOfYNU7HwpnpHUakaSMo=
+// @vegastack chat-message-parts@0.81.0 sha256-0+M7IxNzAD+qShgzR221blBqqsBlaNi0I30rOdf/kWA=
 
 "use client";
 
@@ -60,8 +60,8 @@ export interface ChatTurn {
     changed?: string;
     retryable?: boolean;
   };
-  /** What a running turn waits on. */
-  waitingOn?: "subagents" | "person" | "limit" | "model";
+  /** What a running turn waits on; `null` once it isn't waiting (a streamed update can't drop a key). */
+  waitingOn?: "subagents" | "person" | "limit" | "model" | null;
   /** When the last event arrived (ISO); the stuck line shows 45s later. */
   lastEventAt?: string;
 }
@@ -293,7 +293,11 @@ function MessageParts({
         url: string;
         mediaType: string;
         filename?: string;
+        providerMetadata?: { vegastack?: { filename?: string } };
       };
+      // A streamed `file` chunk carries no filename: the chat keeps it under the part's metadata.
+      const filename =
+        file.filename ?? file.providerMetadata?.vegastack?.filename;
       body.push(
         <ChatRow
           key={key}
@@ -305,14 +309,12 @@ function MessageParts({
                 strokeWidth={1.5}
                 className="size-4 shrink-0 text-muted-foreground"
               />
-              <span className="truncate">
-                {file.filename ?? file.mediaType}
-              </span>
+              <span className="truncate">{filename ?? file.mediaType}</span>
             </span>
           }
           onOpen={
             onOpenFile
-              ? () => onOpenFile(file.url, file.mediaType, file.filename)
+              ? () => onOpenFile(file.url, file.mediaType, filename)
               : undefined
           }
         />,
