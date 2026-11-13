@@ -47,6 +47,10 @@ describe("affected component closure", () => {
       "block-view",
       // chat-composer's text is a TextEdit.
       "chat-composer",
+      // chat-message-parts reads answers and chat-user-bubble the person's Markdown through a
+      // MarkdownView (agent chat ground up, Ph6).
+      "chat-message-parts",
+      "chat-user-bubble",
       "code-block",
       "comments",
       // field-cell edits long text with TextEdit (Regent R5, 2026-10-24).
@@ -70,6 +74,8 @@ describe("affected component closure", () => {
       "packages/ui/registry/ui/attachment.test.tsx",
       "packages/ui/registry/ui/block-view.test.tsx",
       "packages/ui/registry/ui/chat-composer.test.tsx",
+      "packages/ui/registry/ui/chat-message-parts.test.tsx",
+      "packages/ui/registry/ui/chat-user-bubble.test.tsx",
       "packages/ui/registry/ui/code-block.test.tsx",
       "packages/ui/registry/ui/comments.test.tsx",
       "packages/ui/registry/ui/field-cell.test.tsx",
@@ -90,6 +96,8 @@ describe("affected component closure", () => {
       "attachment",
       "bubble",
       "chat-composer",
+      "chat-message-parts",
+      "chat-user-bubble",
       "code-block",
       "comments",
       // document-layout's preview reads its page through a MarkdownView at the document scale.
@@ -136,6 +144,9 @@ describe("affected component closure", () => {
       "attachment",
       "block-view",
       "chat-composer",
+      // chat-user-bubble copies the person's message with CopyButton (Ph6).
+      "chat-message-parts",
+      "chat-user-bubble",
       "code-block",
       "comments",
       "copy-button",
@@ -184,6 +195,10 @@ describe("affected component closure", () => {
       "attachment",
       "block-view",
       "chat-composer",
+      // chat-message-parts reads answers and chat-user-bubble the person's Markdown through a
+      // MarkdownView (agent chat ground up, Ph6).
+      "chat-message-parts",
+      "chat-user-bubble",
       "code-block",
       "comments",
       // field-cell edits long text with TextEdit (Regent R5, 2026-10-24).

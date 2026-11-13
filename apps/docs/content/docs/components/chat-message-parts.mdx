@@ -1,0 +1,115 @@
+---
+title: Chat Message Parts
+description: "One agent turn drawn straight from its AI SDK parts: one live line over the work log, the Subagents block, the answer never folded, and the app's cards."
+audience: public
+registry: chat-message-parts
+status: stable
+since: 0.79.0
+a11y: live words are a polite status; the work line discloses
+preview: chatMessageParts
+---
+
+## Install
+
+<InstallSteps name="chat-message-parts" />
+
+## Usage
+
+```tsx
+import { MessageParts } from "@/components/ui/chat-message-parts";
+
+<MessageParts
+  message={message}
+  detail={readerSetting}
+  live={turnRunning}
+  renderData={{
+    "data-plan": (part) => <ChatPlanCard data={part.data as PlanData} />,
+  }}
+  onOpenSubagent={openBeside}
+/>;
+```
+
+`message` is an AI SDK `UIMessage` (typed structurally, so the registry needs no `ai` dependency).
+From the top: the task list when there is one (it **is** the turn's progress); the work line —
+`LiveLine` while the turn runs, the only moving thing, then `WorkSummary`, the same 28px so the
+swap never reflows — over the work log; then the Subagents block, the answer's text (never folded,
+new prose fading in while it streams), files and the cards the app draws for data parts; last, an
+error row. Every sentence comes from the server (`providerMetadata.vegastack`, `metadata.turn`).
+
+The reader setting decides how much work shows: **Summary** (the default) keeps the log closed;
+**Normal** opens it while the turn runs and folds it when the answer starts; **Verbose** also opens
+the thinking notes and each call's input. A person's own toggle wins until the setting changes.
+
+<ComponentPreview
+  name="chatMessageParts"
+  file="components/preview/chat-message-parts.tsx"
+/>
+
+## Examples
+
+### Settled
+
+The turn settled into one muted sentence over a closed log, the Subagents into one line, and the answer below — never clipped.
+
+<ComponentPreview
+  name="chatMessagePartsSettled"
+  file="components/preview/chat-message-parts.tsx"
+/>
+
+### Summary while live
+
+The default reader setting: one live line, the log closed.
+
+<ComponentPreview
+  name="chatMessagePartsSummary"
+  file="components/preview/chat-message-parts.tsx"
+/>
+
+### Verbose
+
+Thinking notes open in full and each call shows its input.
+
+<ComponentPreview
+  name="chatMessagePartsVerbose"
+  file="components/preview/chat-message-parts.tsx"
+/>
+
+### With a task list
+
+The task list leads; its header is a count and a time, never a second spinner.
+
+<ComponentPreview
+  name="chatMessagePartsTaskList"
+  file="components/preview/chat-message-parts.tsx"
+/>
+
+### Couldn't finish
+
+A quiet row with the amber glyph, what was and wasn't changed, and one action.
+
+<ComponentPreview
+  name="chatMessagePartsError"
+  file="components/preview/chat-message-parts.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-message-parts.tsx"
+  name="MessagePartsProps"
+/>
+
+## Accessibility
+
+- The live words are a polite status for screen readers; the ticking timer is hidden from them.
+- The work line is a disclosure button (`aria-expanded`) for the log.
+- A message renders at most one `TextSpinner`, whatever its parts (a tested invariant).
+
+<StatesTested name="chat-message-parts" />
+
+## Do / Don't
+
+<DoDont
+  do="Let the server write the sentences; pass the reader setting through."
+  dont="Fold the agent's answer behind Show more, or add a spinner per row."
+/>

@@ -1,0 +1,89 @@
+---
+title: Chat Subagents
+description: "A turn's Subagents as one block whose rows open beside the chat, and background work in Claude Code's two weights."
+audience: public
+registry: chat-subagents
+status: stable
+since: 0.79.0
+a11y: each row is a named button; the settled line is a disclosure
+preview: chatSubagents
+---
+
+## Install
+
+<InstallSteps name="chat-subagents" />
+
+## Usage
+
+```tsx
+import { BackgroundWork, SubagentsBlock } from "@/components/ui/chat-subagents";
+
+<SubagentsBlock
+  parts={subagentParts}
+  live={running}
+  onOpen={openBeside}
+  onRetry={retry}
+/>;
+```
+
+While the turn runs the rows show at once: a status word, the short title the engine gave the
+Subagent and quiet meta ("3 steps · 41s", "waiting on you", "ran out of steps · Retry"). Each row
+opens its steps beside the chat (a sheet on a phone). Settled, the block is one muted sentence
+("Finished 4 Subagents · 1 stopped (ran out of steps) · $0.006") that opens the same rows. The
+block never spins — the turn's live line does. `BackgroundWork` is a chip while work is live or
+partly failed, and a muted line once it settles.
+
+<ComponentPreview
+  name="chatSubagents"
+  file="components/preview/chat-subagents.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="chat-subagents" />
+
+## Examples
+
+### Settled
+
+One sentence that opens the rows.
+
+<ComponentPreview
+  name="chatSubagentsSettled"
+  file="components/preview/chat-subagents.tsx"
+/>
+
+### Background work
+
+A chip while live or partly failed; a muted line once settled.
+
+<ComponentPreview
+  name="chatSubagentsBackground"
+  file="components/preview/chat-subagents.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-subagents.tsx"
+  name="SubagentsBlockProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-subagents.tsx"
+  name="BackgroundWorkProps"
+/>
+
+## Accessibility
+
+- Each row is a button named by its status word, title and meta; Retry and "waiting on you" are separate buttons.
+- The settled line is a disclosure (`aria-expanded`).
+
+<StatesTested name="chat-subagents" />
+
+## Do / Don't
+
+<DoDont
+  do="Let a failed Subagent say why in words and offer Retry."
+  dont="Show a spinner per row or a red ✕."
+/>

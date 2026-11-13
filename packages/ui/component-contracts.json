@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 815,
-    "components": 223,
+    "totalRegistryItems": 822,
+    "components": 230,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 33,
+    "AI/chat": 40,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -271,7 +271,14 @@
       "chat-menu",
       "composer-meta",
       "model-effort-menu",
-      "context-panel"
+      "context-panel",
+      "chat-work-log",
+      "chat-subagents",
+      "chat-task-list",
+      "chat-user-bubble",
+      "chat-skeleton",
+      "chat-details",
+      "chat-message-parts"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -32660,6 +32667,1283 @@
                 "chat-group-summary",
                 "chat-group-trigger"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-message-parts",
+      "registryType": "registry:ui",
+      "title": "Chat Message Parts",
+      "summary": "One agent turn drawn straight from its AI SDK UIMessage parts: the task list, one live line (or its settled sentence) over the work log, the Subagents block, the answer never folded, files and the app's cards for data parts. Summary, Normal and Verbose reader settings; at most one spinner per message.",
+      "status": "stable",
+      "since": "0.79.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-message-parts.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatDataPart",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDataRenderer",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatMessageLike",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatTurn",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessageParts",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MessagePartsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-message-parts.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-message-parts.tsx + packages/ui/registry/ui/chat-message-parts.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["named-controls"],
+          "evidence": "packages/ui/registry/ui/chat-message-parts.tsx + packages/ui/registry/ui/chat-message-parts.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-message-parts.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["base-ui-lifecycle"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-message-parts",
+      "registryDependencies": [
+        "@vegastack/chat-card",
+        "@vegastack/chat-subagents",
+        "@vegastack/chat-task-list",
+        "@vegastack/chat-work-log",
+        "@vegastack/markdown-view"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-message-parts.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-message-parts",
+      "dataAttributes": {
+        "MessageParts": {
+          "attributes": [
+            {
+              "name": "data-detail",
+              "values": []
+            },
+            {
+              "name": "data-live",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["message-parts", "message-work"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-details",
+      "registryType": "registry:ui",
+      "title": "Chat Details",
+      "summary": "The chat details panel beside the thread: quiet sections (Context, Outputs, Subagents and background work, Connectors) of icon, name and meta rows with Show more, and a back header for a Subagent's steps.",
+      "status": "stable",
+      "since": "0.79.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-details.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatDetails",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-details.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDetailsBack",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-details.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDetailsBackProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-details.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDetailsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-details.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDetailsRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-details.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDetailsRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-details.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDetailsSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-details.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDetailsSectionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-details.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-details.tsx + packages/ui/registry/ui/chat-details.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["named-controls"],
+          "evidence": "packages/ui/registry/ui/chat-details.tsx + packages/ui/registry/ui/chat-details.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-details.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["base-ui-lifecycle"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-details",
+      "registryDependencies": ["@vegastack/button"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-details.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-details",
+      "dataAttributes": {
+        "ChatDetails": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-details"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatDetailsSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-details-section"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatDetailsRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-details-row"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatDetailsBack": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-details-back"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-skeleton",
+      "registryType": "registry:ui",
+      "title": "Chat Skeleton",
+      "summary": "A chat thread while it loads in the shapes it will take (ChatSkeleton), and ScrollToLatest, the round ↓ back to the latest message with a new-words dot.",
+      "status": "stable",
+      "since": "0.79.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-skeleton.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-skeleton.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-skeleton.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ScrollToLatest",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-skeleton.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ScrollToLatestProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-skeleton.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-skeleton.tsx + packages/ui/registry/ui/chat-skeleton.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["named-controls"],
+          "evidence": "packages/ui/registry/ui/chat-skeleton.tsx + packages/ui/registry/ui/chat-skeleton.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-skeleton.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["base-ui-lifecycle"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-skeleton",
+      "registryDependencies": ["@vegastack/button", "@vegastack/skeleton"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-skeleton.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-skeleton",
+      "dataAttributes": {
+        "ChatSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ScrollToLatest": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": []
+            },
+            {
+              "name": "data-new",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["scroll-to-latest", "scroll-to-latest-dot"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-user-bubble",
+      "registryType": "registry:ui",
+      "title": "Chat User Bubble",
+      "summary": "The person's own chat message: Markdown rendered, images as thumbnails above it, clipped at about nine lines with a soft fade into Show more, Copy and Edit on hover.",
+      "status": "stable",
+      "since": "0.79.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-user-bubble.tsx"],
+      "publicSymbols": [
+        {
+          "name": "UserBubble",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-user-bubble.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "UserBubbleFile",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-user-bubble.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "UserBubbleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-user-bubble.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-user-bubble.tsx + packages/ui/registry/ui/chat-user-bubble.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["named-controls"],
+          "evidence": "packages/ui/registry/ui/chat-user-bubble.tsx + packages/ui/registry/ui/chat-user-bubble.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-user-bubble.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["base-ui-lifecycle"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-user-bubble",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-chip",
+        "@vegastack/copy-button",
+        "@vegastack/markdown-view"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-user-bubble.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-user-bubble",
+      "dataAttributes": {
+        "UserBubble": {
+          "attributes": [
+            {
+              "name": "data-clipped",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "user-bubble",
+                "user-bubble-actions",
+                "user-bubble-body",
+                "user-bubble-content",
+                "user-bubble-fade",
+                "user-bubble-images",
+                "user-bubble-more"
+              ]
+            }
+          ],
+          "cssVariables": ["--vs-bubble-lines"]
+        }
+      }
+    },
+    {
+      "name": "chat-task-list",
+      "registryType": "registry:ui",
+      "title": "Chat Task List",
+      "summary": "An agent's task list as the turn's progress (task list v2): a hairline box with a count-and-time header, ✓ ◐ ◌ ⊘ rows with reasons inside the row, folding on the chat motion. Data is the chat contract's data-tasklist payload.",
+      "status": "stable",
+      "since": "0.79.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-task-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatTaskList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatTaskListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TaskListData",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TaskListDataItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TaskListItemState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-task-list.tsx + packages/ui/registry/ui/chat-task-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["named-controls"],
+          "evidence": "packages/ui/registry/ui/chat-task-list.tsx + packages/ui/registry/ui/chat-task-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-task-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["base-ui-lifecycle"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-task-list",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-work-log",
+        "@vegastack/collapsible",
+        "@vegastack/status-glyph"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-task-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-task-list",
+      "dataAttributes": {
+        "ChatTaskList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-task-list",
+                "chat-task-list-content",
+                "chat-task-list-header",
+                "chat-task-list-item"
+              ]
+            },
+            {
+              "name": "data-state-list",
+              "values": []
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-subagents",
+      "registryType": "registry:ui",
+      "title": "Chat Subagents",
+      "summary": "A turn's Subagents as one block whose rows open beside the chat (status word, title, quiet meta, waiting on you, Retry), and BackgroundWork in Claude Code's two weights: a chip while live, a muted line once settled.",
+      "status": "stable",
+      "since": "0.79.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-subagents.tsx"],
+      "publicSymbols": [
+        {
+          "name": "BackgroundWork",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "BackgroundWorkProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "subagentOf",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SubagentOutput",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SubagentsBlock",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SubagentsBlockProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "subagentsSummary",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SubagentStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SubagentView",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-subagents.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-subagents.tsx + packages/ui/registry/ui/chat-subagents.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["named-controls"],
+          "evidence": "packages/ui/registry/ui/chat-subagents.tsx + packages/ui/registry/ui/chat-subagents.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-subagents.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["base-ui-lifecycle"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-subagents",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-card",
+        "@vegastack/chat-chip",
+        "@vegastack/chat-work-log",
+        "@vegastack/status-glyph"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-subagents.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-subagents",
+      "dataAttributes": {
+        "SubagentsBlock": {
+          "attributes": [
+            {
+              "name": "data-live",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["subagents-block", "subagents-rows"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BackgroundWork": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["background-work"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "chat-work-log",
+      "registryType": "registry:ui",
+      "title": "Chat Work Log",
+      "summary": "A turn's work read as sentences: LiveLine (the turn's one moving thing — braille spinner, words, timer, the stuck line), WorkSummary (the settled sentence in the same 28px), WorkLog (muted verb, subject, meta rows and muted thinking notes), ErrorRow and StuckRow, and ChatClock.",
+      "status": "stable",
+      "since": "0.79.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/chat-work-log.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ChatClock",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatClockProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatDetail",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatNoticeRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatPart",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatProviderMetadata",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatReasoningPart",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatToolPart",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatToolState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatWords",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ErrorRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "formatClock",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "humanize",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "isSubagentPart",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "isToolPart",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "isToolRunning",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "isWorkPart",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "LiveLine",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "LiveLineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "StuckRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "toolNameOf",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "wordsOf",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "WorkLog",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "WorkLogProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "WorkSummary",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "WorkSummaryProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-work-log.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-work-log.tsx + packages/ui/registry/ui/chat-work-log.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["named-controls"],
+          "evidence": "packages/ui/registry/ui/chat-work-log.tsx + packages/ui/registry/ui/chat-work-log.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default"],
+          "evidence": "packages/ui/registry/ui/chat-work-log.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+      },
+      "motion": {
+        "status": "covered",
+        "mechanisms": ["base-ui-lifecycle"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/chat-work-log",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-card",
+        "@vegastack/collapsible",
+        "@vegastack/status-glyph",
+        "@vegastack/text-spinner"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.14.0",
+        "@vegastack/design@^0.14.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/chat-work-log.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "chat-work-log",
+      "dataAttributes": {
+        "ChatClock": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-clock"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "LiveLine": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "live-line",
+                "live-line-stuck",
+                "live-line-trigger",
+                "live-line-words"
+              ]
+            },
+            {
+              "name": "data-stuck",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "WorkSummary": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["work-summary"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "WorkLog": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["work-log", "work-log-root"]
             }
           ],
           "cssVariables": []

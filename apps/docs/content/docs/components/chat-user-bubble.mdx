@@ -1,0 +1,65 @@
+---
+title: Chat User Bubble
+description: "The person's own chat message: their Markdown rendered, images above it, a long message fading into Show more."
+audience: public
+registry: chat-user-bubble
+status: stable
+since: 0.79.0
+a11y: Show more discloses; copy and edit are named buttons
+preview: chatUserBubble
+---
+
+## Install
+
+<InstallSteps name="chat-user-bubble" />
+
+## Usage
+
+```tsx
+import { UserBubble } from "@/components/ui/chat-user-bubble";
+
+<UserBubble text={message.text} files={files} time="14:02" onEdit={edit} />;
+```
+
+The person's Markdown renders (bold, italic, code, lists, links, mentions as chips); images show as
+thumbnails above the bubble and other files as chips. A long message is clipped at about nine
+lines, the last 48px fading into the bubble's colour, with "Show more" — it opens on the chat's
+state motion and becomes "Show less". Copy and Edit keep the source and show on hover (always on a
+touch screen). Agent replies are never clipped.
+
+<ComponentPreview
+  name="chatUserBubble"
+  file="components/preview/chat-user-bubble.tsx"
+/>
+
+## Examples
+
+### With files
+
+Images as thumbnails above the bubble; other files as chips.
+
+<ComponentPreview
+  name="chatUserBubbleFiles"
+  file="components/preview/chat-user-bubble.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-user-bubble.tsx"
+  name="UserBubbleProps"
+/>
+
+## Accessibility
+
+- "Show more" is a button with `aria-expanded` and `aria-controls` on the message.
+- Copy and Edit are named icon buttons, reachable by keyboard even while hidden on hover.
+
+<StatesTested name="chat-user-bubble" />
+
+## Do / Don't
+
+<DoDont
+  do="Clip only the person's long messages."
+  dont="Clip an agent's answer."
+/>
