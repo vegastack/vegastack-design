@@ -22,7 +22,7 @@ const REFS: ResourceRef[] = [
     kind: "github_pr",
     url: "https://github.com/vegastack/app/pull/1738",
     title: "Subagents finish on time",
-    meta: "vegastack/app#1738",
+    meta: "vegastack/app, pull request 1738",
   },
 ];
 
@@ -33,7 +33,7 @@ export function resourcePill(): ReactNode {
     <Wrapper className="flex-col flex-nowrap items-stretch gap-3 bg-background">
       <MarkdownView linkResource={(href) => byUrl.get(href)}>
         {
-          "The call is on [the invite](https://meet.google.com/abc-defg-hij) and the notes are in https://docs.google.com/document/d/1Q3pricing. The fix is in [#1738](https://github.com/vegastack/app/pull/1738)."
+          "The call is on [the invite](https://meet.google.com/abc-defg-hij) and the notes are in https://docs.google.com/document/d/1Q3pricing. The fix is in [this pull request](https://github.com/vegastack/app/pull/1738)."
         }
       </MarkdownView>
     </Wrapper>

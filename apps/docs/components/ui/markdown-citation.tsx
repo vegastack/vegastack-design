@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.81.0 sha256-/8zWz0JVKrqZTc4SKpf450PjP8jT48EhF85A1E8KtIg=
+// @vegastack markdown-view@0.81.0 sha256-C///Nd/ykXyIsHgNZOluCjq7BlVI1GPdHzu2zSgAx3I=
 
 "use client";
 
@@ -189,13 +189,23 @@ export function MarkdownCitationMarker({
           />
           <PopoverContent
             // Under the marker, from its start, and shifted back inside the reading column when it
-            // would run past the column's end: the card never covers the line above (an answer's
-            // author line) and never hangs off the column.
+            // would run past the column's end: it doesn't cover the line above (an answer's author
+            // line) or hang off the column. Only with no room below the viewport's edge does it flip
+            // above, where it stays readable.
             side="bottom"
             align="start"
             alignOffset={({ positioner }) =>
-              // The card is never wider than its `max-w-80` (320px), whatever the first measure says.
-              columnShift(triggerRef.current, Math.min(positioner.width, 320))
+              // The card is never wider than its `max-w-80` (20rem), whatever the first measure says.
+              columnShift(
+                triggerRef.current,
+                Math.min(
+                  positioner.width,
+                  20 *
+                    (parseFloat(
+                      getComputedStyle(document.documentElement).fontSize,
+                    ) || 16),
+                ),
+              )
             }
             initialFocus={false}
             finalFocus={false}
