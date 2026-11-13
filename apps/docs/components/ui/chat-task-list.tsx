@@ -1,4 +1,4 @@
-// @vegastack chat-task-list@0.79.0 sha256-12LrrbPxYNGZcD5YkVH5oJrXeeow+FWHNCbZiNZnDjs=
+// @vegastack chat-task-list@0.79.0 sha256-g1ltP3NMrhI1Ec3CSlyM+kWk8KtKBgwozaD1uOTh/lI=
 
 "use client";
 
@@ -210,7 +210,7 @@ function ChatTaskList({
                           variant="link"
                           size="xs"
                           onClick={() => onWhy(item.id)}
-                          className="h-auto shrink-0 px-0 text-xs"
+                          className="shrink-0 px-1 text-xs"
                         >
                           see why ›
                         </Button>
