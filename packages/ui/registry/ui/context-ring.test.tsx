@@ -156,3 +156,30 @@ test("the ring and its panel show one total, even when the parts say more than t
     panel()!.querySelector("[data-slot=context-panel-used]")!.textContent,
   ).toBe("100% used100k / 100k");
 });
+
+test("a drop the parts make is said too", async () => {
+  function Host() {
+    const [big, setBig] = useState(true);
+    return (
+      <>
+        <ContextRing
+          used={20_000}
+          window={100_000}
+          onOpen={() => {}}
+          parts={[
+            { id: "a", label: "Conversation", tokens: big ? 90_000 : 20_000 },
+          ]}
+        />
+        <Button onClick={() => setBig(false)}>Shrink</Button>
+      </>
+    );
+  }
+  const screen = await render(<Host />);
+  await page.getByRole("button", { name: "Shrink" }).click();
+  await vi.waitFor(() =>
+    expect(
+      screen.container.querySelector<HTMLElement>('[role="status"]')!
+        .textContent,
+    ).toBe("Chat memory 20% used"),
+  );
+});

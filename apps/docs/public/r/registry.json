@@ -19871,7 +19871,7 @@
         "whenToUse": "Show how much of a chat's working window the last request used, in ComposerMeta's context slot.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
         "version": "0.77.0",
-        "integrity": "sha256-E4gE5ryZnLTOBs/iel/8ceuGnna3xCAGeJatgAS790I="
+        "integrity": "sha256-+cX0pH2MP5vJaB8HS9wPYezVutUUoPUmp34Gajv785o="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.77.0 sha256-KkX0r4a2bTilTXdK6OVgOPiN3OAhjYdoxx0HLUtsF8g=
+// @vegastack context-ring@0.77.0 sha256-E4gE5ryZnLTOBs/iel/8ceuGnna3xCAGeJatgAS790I=
 
 "use client";
 
@@ -120,12 +120,13 @@ export function ContextRing({
 
   const { announce, Announcer } = useAnnouncer();
   // Say the new share once when it drops (a summary ran), never on mount or as it grows.
-  const previous = React.useRef(used);
+  // The share shown is what's compared, so a drop the parts make is said too.
+  const previous = React.useRef(total);
   React.useEffect(() => {
     const before = previous.current;
-    previous.current = used;
-    if (before !== null && used !== null && used < before) announce(name);
-  }, [used, name, announce]);
+    previous.current = total;
+    if (before !== null && total !== null && total < before) announce(name);
+  }, [total, name, announce]);
 
   const [open, setOpen] = React.useState(false);
   const timer = React.useRef<ReturnType<typeof setTimeout> | null>(null);
