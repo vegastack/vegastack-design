@@ -1341,22 +1341,40 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
                 line: lineAt(at),
                 match: `<${tag.name}> ${token}`,
               });
-          // `className={cls}`: the `const cls = …` it names, wherever the file declares it.
+          // `className={cls}`: the nearest `const cls = …` above the tag (its own scope in
+          // practice), read to the end of its initializer, across lines.
           const name =
             cls.kind === "expr"
               ? /^\s*([\w$]+)\s*$/.exec(scan.slice(cls.from, cls.to))?.[1]
               : null;
-          if (name)
-            for (const d of src.matchAll(
-              new RegExp(`\\bconst\\s+${name}\\s*=\\s*([^;\\n]+)`, "g"),
+          if (name) {
+            let decl = null;
+            for (const d of scan.matchAll(
+              new RegExp(`\\b(?:const|let)\\s+${name}\\s*=`, "g"),
             ))
-              for (const token of greenClasses(d[1]))
+              if (d.index < tag.index) decl = d;
+            if (decl) {
+              let depth = 0;
+              let k = decl.index + decl[0].length;
+              for (; k < scan.length; k += 1) {
+                const c = scan[k];
+                if ("([{".includes(c)) depth += 1;
+                else if (")]}".includes(c)) {
+                  if (depth === 0) break;
+                  depth -= 1;
+                } else if ((c === ";" || c === "\n") && depth === 0) break;
+              }
+              for (const token of greenClasses(
+                read.slice(decl.index + decl[0].length, k),
+              ))
                 greenChecks.push({
                   file,
                   line: lineAt(tag.index),
                   match: `<${tag.name}> ${token}`,
                   hint: `via ${name}`,
                 });
+            }
+          }
         }
       }
       if (tag.name === "header" && overlays.length > 0) {

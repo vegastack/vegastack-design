@@ -468,8 +468,17 @@ test("COL-25: a lucide check in a success or green ink is reported, inline or pa
     // A className read from a const.
     "src/via.tsx": [
       `import { Check } from "lucide-react";`,
-      `const cls = "size-4 text-success-text";`,
-      `<Check className={cls} />`,
+      `function Bad() {`,
+      `  const cls = cn(`,
+      `    "size-4",`,
+      `    "text-success-text",`,
+      `  );`,
+      `  return <Check className={cls} />;`,
+      `}`,
+      `function Good() {`,
+      `  const cls = "text-info-text";`,
+      `  return <Check className={cls} />;`,
+      `}`,
     ].join("\n"),
   });
   assert.deepEqual(lines(compositionOf(root).greenChecks), [
@@ -477,7 +486,7 @@ test("COL-25: a lucide check in a success or green ink is reported, inline or pa
     "src/result.tsx:3 <Done> text-green-600",
     "src/result.tsx:5 <Check> text-emerald-500",
     "src/status.ts:3 text-success-text",
-    "src/via.tsx:3 <Check> text-success-text",
+    "src/via.tsx:7 <Check> text-success-text",
   ]);
   const verdict = run(["--dir", root]);
   assert.equal(verdict.code, 1, verdict.output);

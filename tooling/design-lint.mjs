@@ -1557,6 +1557,40 @@ for (const root of tokenCssRoots) {
         // entry. Comparison operands (`status === "success"`) and object keys are not classes.
         const declarationOf = (identifier) => {
           for (let scope = identifier.parent; scope; scope = scope.parent) {
+            // A parameter, loop or catch binding of the same name shadows anything further out,
+            // and its value is not knowable here: stop.
+            const binds = (name) =>
+              ts.isIdentifier(name)
+                ? name.text === identifier.text
+                : ts.isObjectBindingPattern(name) ||
+                    ts.isArrayBindingPattern(name)
+                  ? name.elements.some(
+                      (element) =>
+                        !ts.isOmittedExpression(element) && binds(element.name),
+                    )
+                  : false;
+            if (
+              ts.isFunctionLike(scope) &&
+              scope.parameters?.some((parameter) => binds(parameter.name))
+            )
+              return null;
+            if (
+              (ts.isForOfStatement(scope) ||
+                ts.isForInStatement(scope) ||
+                ts.isForStatement(scope)) &&
+              scope.initializer &&
+              ts.isVariableDeclarationList(scope.initializer) &&
+              scope.initializer.declarations.some((declaration) =>
+                binds(declaration.name),
+              )
+            )
+              return null;
+            if (
+              ts.isCatchClause(scope) &&
+              scope.variableDeclaration &&
+              binds(scope.variableDeclaration.name)
+            )
+              return null;
             const statements =
               ts.isSourceFile(scope) ||
               ts.isBlock(scope) ||
@@ -1667,11 +1701,7 @@ for (const root of tokenCssRoots) {
                 !attribute.initializer
               )
                 continue;
-              if (
-                stringsIn(attribute.initializer).some((text) =>
-                  GREEN_INK.test(text),
-                )
-              ) {
+              if (stringsIn(attribute.initializer).some(greenClass)) {
                 console.log(
                   `${file}:${lineOf(node)} [no-success-check] a check in success/green ink (COL-25): every check is the blue accent — \`text-info-text\` or StatusGlyph — never green`,
                 );
@@ -1691,9 +1721,7 @@ for (const root of tokenCssRoots) {
               node.properties.some(
                 (property) =>
                   ts.isPropertyAssignment(property) &&
-                  stringsIn(property.initializer).some((text) =>
-                    GREEN_INK.test(text),
-                  ),
+                  stringsIn(property.initializer).some(greenClass),
               )
             ) {
               console.log(

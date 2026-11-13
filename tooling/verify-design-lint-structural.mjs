@@ -716,6 +716,17 @@ export function ShadowGood() {
   return <Check className={cls} />;
 }
 
+// A multi-class string and a variant still read as green.
+export function Multi() {
+  return <Check className="size-4 hover:text-success-text" />;
+}
+
+// A parameter shadows the module's green const: not knowable, not flagged.
+const tint = 'text-success-text';
+export function Param({ tint }: { tint: string }) {
+  return <Check className={tint} />;
+}
+
 // Not violations: a comparison operand is not a class, and a map read by a known key is that entry.
 const TONE = { done: 'text-info-text', ok: 'text-success-text' };
 export function Fine({ status }: { status: string }) {
@@ -737,12 +748,12 @@ export function Fine({ status }: { status: string }) {
   };
   if (
     agentBad.status === 0 ||
-    agentCounts["no-success-check"] !== 6 ||
+    agentCounts["no-success-check"] !== 7 ||
     agentCounts["no-status-fill"] !== 5 ||
     agentCounts["chat-motion-tokens"] !== 4
   ) {
     console.error(
-      `  observed ${JSON.stringify(agentCounts)} of {"no-success-check":6,"no-status-fill":5,"chat-motion-tokens":4}`,
+      `  observed ${JSON.stringify(agentCounts)} of {"no-success-check":7,"no-status-fill":5,"chat-motion-tokens":4}`,
     );
     fail(
       "design-lint accepted a green check, a status fill or hand-set motion in agent UI (COL-25 / MOT-14)",
@@ -794,7 +805,7 @@ export function Good({ done }: { done: boolean }) {
       `hover vocabulary, avatar's ring-2 gap, a border surface, prose that mentions a ring, a "ring" VALUE inside a ` +
       `class builder (a call argument, an element-access key, a cva matcher or default), prose ending in "!", plus all ` +
       `three spellings of naming an icon Button through its host; the email kit's generated ` +
-      `colour module alone may carry hex and \`!important\`; and in agent UI a green check (6 spellings, ` +
+      `colour module alone may carry hex and \`!important\`; and in agent UI a green check (7 spellings, ` +
       `shadowing resolved lexically), a status fill (5, variants included) and hand-set motion (4) are ` +
       `rejected while the blue check, a comparison operand, a keyed map entry, the chat card surface ` +
       `and the chat motion set pass (COL-25, MOT-14)`,
