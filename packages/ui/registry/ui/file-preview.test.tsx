@@ -191,3 +191,16 @@ test("a new file starts fresh: a failed preview given a readable file shows it",
   await expect.poll(() => card().dataset.state).toBe("text");
   expect(card().querySelector("h1")?.textContent).toBe("Fresh");
 });
+
+test("a streamed file part passes as-is: its name comes from provider metadata", async () => {
+  const part = {
+    type: "file",
+    url: "/never-fetched.zip",
+    mediaType: "application/zip",
+    providerMetadata: { vegastack: { filename: "drawings.zip" } },
+  };
+  const screen = await render(<FilePreview {...part} onOpen={() => {}} />);
+  await expect
+    .element(screen.getByRole("button", { name: "drawings.zip" }))
+    .toBeVisible();
+});

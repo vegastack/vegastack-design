@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.81.0 sha256-Wy4emmcy2AUSi46SbiFJaoLUOekKnY2W0ZZdDDTnuP8=
+// @vegastack file-viewer@0.81.0 sha256-0tG7nt6/uNFqDSrRFAYjOLJSmq5YJr67/g2ORtk/XpI=
 
 "use client";
 
@@ -38,7 +38,13 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
 import { useMediaQuery } from "@/components/ui/use-media-query";
 import { useModalInert } from "@/components/ui/use-modal-inert";
 import { VideoPlayer } from "@/components/ui/video-player";
-import { FileTypeIcon, fileKindOf, formatBytes } from "@/lib/file-kind";
+import {
+  FileTypeIcon,
+  fileKindOf,
+  fileNameOf,
+  formatBytes,
+  type FilePartLike,
+} from "@/lib/file-kind";
 
 /* ---
 `FileViewer` is the full-screen look at a stored file: an image you can zoom and pan, a PDF you
@@ -138,6 +144,31 @@ export type FileViewerPreview =
       }[];
     }
   | { kind: "card"; thumb?: string | null; facts?: readonly string[] };
+
+/**
+ * A chat message's `file` part as a viewer item, as-is: its name is `filename` or
+ * `providerMetadata.vegastack.filename`; the part's own URL (on the app's origin, range-capable)
+ * is the source, the PDF source and, unless given, the download.
+ *
+ * @example
+ * <FileViewer mode="side" items={parts.map((part) => fileViewerItemOf(part))} … />
+ */
+export function fileViewerItemOf(
+  part: FilePartLike,
+  options: { id?: string; size?: number | null; downloadHref?: string } = {},
+): FileViewerItem {
+  const name = fileNameOf(part);
+  const pdf = fileKindOf(part.mediaType, name) === "pdf";
+  return {
+    id: options.id ?? part.url,
+    name,
+    contentType: part.mediaType,
+    size: options.size ?? null,
+    src: part.url,
+    pdfSrc: pdf ? part.url : null,
+    downloadHref: options.downloadHref ?? part.url,
+  };
+}
 
 /** Props accepted by `FileViewer`. */
 export interface FileViewerProps {

@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.81.0 sha256-e4xCyhPEoQch5YtL0bu+kjHOOfYNU7HwpnpHUakaSMo=
+// @vegastack chat-message-parts@0.81.0 sha256-EAGM1NbPIQ3zq34dNfqoSux/aIy4JFtgXS85+u1Sf8o=
 
 "use client";
 
@@ -27,6 +27,7 @@ import {
   type ChatToolPart,
 } from "@/components/ui/chat-work-log";
 import { MarkdownView } from "@/components/ui/markdown-view";
+import { fileNameOf, type FilePartLike } from "@/lib/file-kind";
 
 /* ------------------------------------------------------------------------------------------------
  * MessageParts — one agent turn, drawn straight from its AI SDK `UIMessage` parts.
@@ -289,11 +290,8 @@ function MessageParts({
       return;
     }
     if (part.type === "file") {
-      const file = part as unknown as {
-        url: string;
-        mediaType: string;
-        filename?: string;
-      };
+      const file = part as unknown as FilePartLike;
+      const name = fileNameOf(file);
       body.push(
         <ChatRow
           key={key}
@@ -305,14 +303,12 @@ function MessageParts({
                 strokeWidth={1.5}
                 className="size-4 shrink-0 text-muted-foreground"
               />
-              <span className="truncate">
-                {file.filename ?? file.mediaType}
-              </span>
+              <span className="truncate">{name}</span>
             </span>
           }
           onOpen={
             onOpenFile
-              ? () => onOpenFile(file.url, file.mediaType, file.filename)
+              ? () => onOpenFile(file.url, file.mediaType, name)
               : undefined
           }
         />,

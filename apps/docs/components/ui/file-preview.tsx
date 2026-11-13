@@ -1,4 +1,4 @@
-// @vegastack file-preview@0.81.0 sha256-hjWOuR4WWOZYnYbxMkxHNSTUjgxu06WnKBg5/stgbEc=
+// @vegastack file-preview@0.81.0 sha256-xEzuq+tIDKaYfgm26tFDsvvuvMULgwzHr4kW0YwjGXU=
 
 "use client";
 
@@ -16,7 +16,13 @@ import {
 } from "@/components/ui/file-viewer";
 import { MarkdownView } from "@/components/ui/markdown-view";
 import { useOverflow } from "@/components/ui/use-overflow";
-import { FileTypeIcon, fileKindOf, formatBytes } from "@/lib/file-kind";
+import {
+  FileTypeIcon,
+  fileKindOf,
+  fileNameOf,
+  formatBytes,
+  type FilePartLike,
+} from "@/lib/file-kind";
 
 /* ------------------------------------------------------------------------------------------------
  * FilePreview — a file in a chat answer, previewed where it was made, on the chat's card surface:
@@ -78,8 +84,14 @@ export interface FilePreviewProps {
   url: string;
   /** Its type (`text/markdown`, `application/pdf`); the name's extension decides when it is generic. */
   mediaType: string;
-  /** Its name, as the header shows it. */
-  filename: string;
+  /**
+   * Its name, as the header shows it. A streamed file part's name rides in `providerMetadata`, so
+   * a `file` part passes as-is.
+   * @default providerMetadata.vegastack.filename, else what the file is ("PDF")
+   */
+  filename?: string | null;
+  /** A file part's provider metadata: its name when `filename` is absent. @default undefined */
+  providerMetadata?: FilePartLike["providerMetadata"];
   /** Its size in bytes: "1.2 KB" in the header. @default undefined */
   size?: number | null;
   /** A PDF's page count, when the server knows it; otherwise the preview counts. @default undefined */
@@ -113,7 +125,11 @@ export function FilePreview(props: FilePreviewProps) {
   // Each file starts fresh — its own reading state and, for a PDF, its own canvas — so nothing
   // from the last file (a failure, a half-drawn page) carries over.
   return (
-    <FilePreviewCard key={`${props.url}\n${props.mediaType}`} {...props} />
+    <FilePreviewCard
+      key={`${props.url}\n${props.mediaType}`}
+      {...props}
+      filename={fileNameOf(props)}
+    />
   );
 }
 
@@ -128,7 +144,7 @@ function FilePreviewCard({
   menu,
   actions,
   className,
-}: FilePreviewProps) {
+}: FilePreviewProps & { filename: string }) {
   const kind = previewKindOf(mediaType, filename);
   const [attempt, setAttempt] = React.useState(0);
   const [loaded, setLoaded] = React.useState<Loaded>({ state: "loading" });

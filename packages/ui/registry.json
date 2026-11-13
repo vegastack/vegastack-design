@@ -16406,7 +16406,8 @@
         "@vegastack/chat-subagents",
         "@vegastack/chat-task-list",
         "@vegastack/chat-work-log",
-        "@vegastack/markdown-view"
+        "@vegastack/markdown-view",
+        "@vegastack/file-kind"
       ],
       "files": [
         {

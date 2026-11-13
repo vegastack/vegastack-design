@@ -2777,7 +2777,7 @@
         "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
         "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
         "version": "0.81.0",
-        "integrity": "sha256-rUwe8TXA8VSwQw0Xz0RFGhS/zaV3v/uE2id33Q7Qo0w="
+        "integrity": "sha256-Cd/J8G7d9NH5p/VTHWEcHRi0uMe7cjgUb8Ko6eW3dVI="
       }
     },
     {
@@ -16633,7 +16633,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.81.0",
-        "integrity": "sha256-Wy4emmcy2AUSi46SbiFJaoLUOekKnY2W0ZZdDDTnuP8="
+        "integrity": "sha256-0tG7nt6/uNFqDSrRFAYjOLJSmq5YJr67/g2ORtk/XpI="
       }
     },
     {
@@ -19981,7 +19981,8 @@
         "@vegastack/chat-subagents",
         "@vegastack/chat-task-list",
         "@vegastack/chat-work-log",
-        "@vegastack/markdown-view"
+        "@vegastack/markdown-view",
+        "@vegastack/file-kind"
       ],
       "files": [
         {
@@ -19994,7 +19995,7 @@
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
         "version": "0.81.0",
-        "integrity": "sha256-e4xCyhPEoQch5YtL0bu+kjHOOfYNU7HwpnpHUakaSMo="
+        "integrity": "sha256-EAGM1NbPIQ3zq34dNfqoSux/aIy4JFtgXS85+u1Sf8o="
       }
     },
     {
@@ -20091,7 +20092,7 @@
         "whenToUse": "A file an agent made or a person attached, shown in the chat where it appeared.",
         "whenNotToUse": "A list of a record's files (FileCard), a file named inside running text (InlineChip's file chip), or a file being uploaded (UploadCard).",
         "version": "0.81.0",
-        "integrity": "sha256-hjWOuR4WWOZYnYbxMkxHNSTUjgxu06WnKBg5/stgbEc="
+        "integrity": "sha256-xEzuq+tIDKaYfgm26tFDsvvuvMULgwzHr4kW0YwjGXU="
       }
     },
     {

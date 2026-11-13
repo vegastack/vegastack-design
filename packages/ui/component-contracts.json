@@ -16980,6 +16980,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "fileViewerItemOf",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/file-viewer-office.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -32835,7 +32844,8 @@
         "@vegastack/chat-subagents",
         "@vegastack/chat-task-list",
         "@vegastack/chat-work-log",
-        "@vegastack/markdown-view"
+        "@vegastack/markdown-view",
+        "@vegastack/file-kind"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.15.0",
@@ -60713,6 +60723,24 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "fileNameOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "FilePartLike",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/file-kind.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],
