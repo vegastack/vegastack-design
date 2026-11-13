@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.72.0 sha256-326bP5VELYc1KOmHIjdqW6D+GdDsGleQTs/qJ/Nrvo4=
+// @vegastack message-parts@0.72.0 sha256-2KfmI/O1Heb7VR/4K67TMk8Oo68lKhLOYXTocT+PbWA=
 
 "use client";
 
@@ -153,7 +153,7 @@ const STEP_STATUS_LABELS: Record<MessageStepStatus, string> = {
 const STEP_ICONS: Record<MessageStepStatus, React.ReactNode> = {
   pending: <Circle aria-hidden className="text-muted-foreground/50" />,
   running: <Spinner aria-hidden role={undefined} aria-label={undefined} />,
-  done: <Check aria-hidden />,
+  done: <Check aria-hidden className="text-info-text" />,
   failed: <X aria-hidden className="text-muted-foreground" />,
   stopped: <Minus aria-hidden />,
 };

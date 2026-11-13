@@ -601,11 +601,13 @@ const AGENT_UI_FILE =
   /^(?:message-[\w-]+|task-list|plan-card|request-card|approval-card|memory-[\w-]+|agent-[\w-]+|chat-[\w-]+|activity-feed|status-icon|status-glyph|text-spinner|upload-panel|context-ring|run-usage|tool-call-chip|cited-list|file-card)\.tsx$/;
 const CHECK_ICON =
   /^(?:Check|CheckCheck|CircleCheck|CircleCheckBig|CheckCircle2?|BookmarkCheck|SquareCheck|SquareCheckBig|ListChecks|CopyCheck|BadgeCheck)(?:Icon)?$/;
-const GREEN_INK = /success|green|emerald/;
-const STATUS_FILL =
-  /(?:^|\s)(?:[\w-]+:)*bg-(?:success|warning|destructive)(?:\/\d+)?(?=$|[\s"'`])/;
+// Tested against a token's utility with its variants removed (`utilityOf`), so
+// `data-[state=error]:bg-warning/10` and `[&>span]:duration-150` are read as what they apply.
+const GREEN_INK =
+  /^-?(?:text|bg|fill|stroke|border|ring|outline|decoration)-(?:success|green|emerald|tag-green)(?:-|\/|$)/;
+const STATUS_FILL = /^bg-(?:success|warning|destructive)(?:\/\d+)?$/;
 const RAW_CHAT_MOTION =
-  /(?:^|\s)(?:[\w-]+:)*(?:duration-(?:\d+|\[[^\]\s]*\])|ease-(?:\[[^\]\s]*\]|linear|in-out|in|out))(?=$|[\s"'`])/;
+  /^(?:duration-(?:\d+|_)|ease-(?:_|linear|in-out|in|out))$/;
 const VENDOR_UI = "vendor/shadcn/4.21.0/ui";
 
 // §7.6 Base UI render contract — a wrapper over a SINGLE Base UI root MUST keep Base UI's
@@ -1549,45 +1551,106 @@ for (const root of tokenCssRoots) {
             if (CHECK_ICON.test(imported)) checkLocals.add(element.name.text);
           }
         }
-        // Every `const x = …` in the file, module-level maps and a component's local class
-        // string alike (`const cls = cn("size-4", TONE_TEXT[tone])`), so a className that reads
-        // one is followed to the strings it can produce.
-        const topLevel = new Map();
-        const collectDeclarations = (node) => {
-          if (
-            ts.isVariableDeclaration(node) &&
-            ts.isIdentifier(node.name) &&
-            node.initializer
-          )
-            topLevel.set(node.name.text, node.initializer);
-          ts.forEachChild(node, collectDeclarations);
+        // A className is followed to the class strings it can produce: literals, `cn()` and
+        // conditional arguments, and any `const` it reads — resolved lexically (the nearest
+        // enclosing scope that declares the name), with a map read by a known key narrowed to that
+        // entry. Comparison operands (`status === "success"`) and object keys are not classes.
+        const declarationOf = (identifier) => {
+          for (let scope = identifier.parent; scope; scope = scope.parent) {
+            const statements =
+              ts.isSourceFile(scope) ||
+              ts.isBlock(scope) ||
+              ts.isModuleBlock(scope)
+                ? scope.statements
+                : ts.isCaseClause(scope) || ts.isDefaultClause(scope)
+                  ? scope.statements
+                  : null;
+            if (!statements) continue;
+            for (const statement of statements) {
+              if (!ts.isVariableStatement(statement)) continue;
+              for (const declaration of statement.declarationList.declarations)
+                if (
+                  ts.isIdentifier(declaration.name) &&
+                  declaration.name.text === identifier.text &&
+                  declaration.initializer
+                )
+                  return declaration.initializer;
+            }
+          }
+          return null;
         };
-        collectDeclarations(sf);
+        const COMPARISON = new Set([
+          ts.SyntaxKind.EqualsEqualsEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsEqualsToken,
+          ts.SyntaxKind.EqualsEqualsToken,
+          ts.SyntaxKind.ExclamationEqualsToken,
+        ]);
         const stringsIn = (node, seen = new Set()) => {
           const out = [];
           const visit = (n) => {
-            if (ts.isStringLiteralLike(n)) out.push(n.text);
-            else if (ts.isTemplateExpression(n)) {
+            if (!n) return;
+            if (ts.isStringLiteralLike(n)) return void out.push(n.text);
+            if (ts.isTemplateExpression(n)) {
               out.push(n.head.text);
               for (const span of n.templateSpans) {
                 out.push(span.literal.text);
                 visit(span.expression);
               }
               return;
-            } else if (
-              ts.isIdentifier(n) &&
-              topLevel.has(n.text) &&
-              !seen.has(n.text)
-            ) {
-              seen.add(n.text);
-              visit(topLevel.get(n.text));
+            }
+            if (
+              ts.isBinaryExpression(n) &&
+              COMPARISON.has(n.operatorToken.kind)
+            )
               return;
+            if (ts.isConditionalExpression(n)) {
+              visit(n.whenTrue);
+              visit(n.whenFalse);
+              return;
+            }
+            if (ts.isPropertyAssignment(n)) return void visit(n.initializer);
+            if (ts.isIdentifier(n)) {
+              const target = !seen.has(n) && declarationOf(n);
+              if (target) {
+                seen.add(n);
+                visit(target);
+              }
+              return;
+            }
+            // `MAP.done` / `MAP["done"]`: only that entry, when the map is an object literal here.
+            const key = ts.isPropertyAccessExpression(n)
+              ? n.name.text
+              : ts.isElementAccessExpression(n) &&
+                  ts.isStringLiteralLike(n.argumentExpression)
+                ? n.argumentExpression.text
+                : null;
+            const base =
+              ts.isPropertyAccessExpression(n) ||
+              ts.isElementAccessExpression(n)
+                ? n.expression
+                : null;
+            if (key && base && ts.isIdentifier(base)) {
+              const map = declarationOf(base);
+              if (map && ts.isObjectLiteralExpression(map)) {
+                const entry = map.properties.find(
+                  (property) =>
+                    ts.isPropertyAssignment(property) &&
+                    (ts.isIdentifier(property.name) ||
+                      ts.isStringLiteralLike(property.name)) &&
+                    property.name.text === key,
+                );
+                if (entry) return void visit(entry.initializer);
+              }
             }
             ts.forEachChild(n, visit);
           };
           visit(node);
           return out;
         };
+        const greenClass = (text) =>
+          text
+            .split(/\s+/)
+            .some((token) => token && GREEN_INK.test(utilityOf(token)));
         const lineOf = (node) =>
           sf.getLineAndCharacterOfPosition(node.getStart(sf)).line + 1;
         const visitChecks = (node) => {
@@ -1652,20 +1715,18 @@ for (const root of tokenCssRoots) {
                     ...node.templateSpans.map((span) => span.literal.text),
                   ]
                 : [];
-            for (const text of texts) {
-              const fill = text.match(STATUS_FILL);
-              if (fill) {
+            for (const token of texts.flatMap((text) => text.split(/\s+/))) {
+              if (!token) continue;
+              const utility = utilityOf(token);
+              if (STATUS_FILL.test(utility)) {
                 console.log(
-                  `${file}:${lineOf(node)} [no-status-fill] "${fill[0].trim()}" paints a status colour as a fill in agent UI (COL-25): a status hue is a glyph or words, never a fill — use \`bg-chat-card\`, \`bg-muted\` or no fill`,
+                  `${file}:${lineOf(node)} [no-status-fill] "${token}" paints a status colour as a fill in agent UI (COL-25): a status hue is a glyph or words, never a fill — use \`bg-chat-card\`, \`bg-muted\` or no fill`,
                 );
                 violations++;
               }
-              const motion = upstreamBacked
-                ? null
-                : text.match(RAW_CHAT_MOTION);
-              if (motion) {
+              if (!upstreamBacked && RAW_CHAT_MOTION.test(utility)) {
                 console.log(
-                  `${file}:${lineOf(node)} [chat-motion-tokens] "${motion[0].trim()}" sets its own motion in agent UI (MOT-14): use the chat set — \`duration-instant|quick|quick-exit|state|state-exit|layout\` with \`ease-enter|exit|standard\``,
+                  `${file}:${lineOf(node)} [chat-motion-tokens] "${token}" sets its own motion in agent UI (MOT-14): use the chat set — \`duration-instant|quick|quick-exit|state|state-exit|layout\` with \`ease-enter|exit|standard\``,
                 );
                 violations++;
               }

@@ -457,22 +457,31 @@ test("COL-25: a lucide check in a success or green ink is reported, inline or pa
       `  queued: { icon: Clock, tone: "text-muted-foreground" },`,
       `};`,
     ].join("\n"),
-    // Green that is not on a check, and a check whose word only mentions success, pass.
+    // Green that is not on a check, a word that only mentions success, and a map entry whose
+    // class is blue, pass.
     "src/fine.tsx": [
       `import { Check, Circle } from "lucide-react";`,
       `<Circle className="text-success-text" />`,
       `<Check className="text-info-text" aria-label="success" />`,
+      `const ROW = { icon: Check, className: "text-info-text", label: "success" };`,
+    ].join("\n"),
+    // A className read from a const.
+    "src/via.tsx": [
+      `import { Check } from "lucide-react";`,
+      `const cls = "size-4 text-success-text";`,
+      `<Check className={cls} />`,
     ].join("\n"),
   });
   assert.deepEqual(lines(compositionOf(root).greenChecks), [
     "src/result.tsx:2 <Check> text-success-text",
     "src/result.tsx:3 <Done> text-green-600",
     "src/result.tsx:5 <Check> text-emerald-500",
-    `src/status.ts:3 "text-success-text"`,
+    "src/status.ts:3 text-success-text",
+    "src/via.tsx:3 <Check> text-success-text",
   ]);
   const verdict = run(["--dir", root]);
   assert.equal(verdict.code, 1, verdict.output);
-  assert.match(verdict.output, /✗ check colour — 4 check icon/);
+  assert.match(verdict.output, /✗ check colour — 5 check icon/);
 });
 
 test("a width class on a popover, menu or select popup is reported; other parts are not", () => {

@@ -1194,7 +1194,15 @@ function lineIndex(text) {
  */
 const CHECK_ICON =
   /^(?:Check|CheckCheck|CircleCheck|CircleCheckBig|CheckCircle2?|BookmarkCheck|SquareCheck|SquareCheckBig|ListChecks|CopyCheck|BadgeCheck)(?:Icon)?$/;
-const GREEN_INK = /success|green|emerald/;
+// Read against a class token's utility (variants removed), so a word like "success" in a label or
+// a comparison is not an ink.
+const GREEN_INK =
+  /^-?(?:text|bg|fill|stroke|border|ring|outline|decoration)-(?:success|green|emerald|tag-green)(?:-|\/|$)/;
+const greenToken = (token) => GREEN_INK.test(utilityOf(token));
+const greenClasses = (text) =>
+  [...text.matchAll(/(["'`])((?:(?!\1)[^\\]|\\.)*)\1/g)]
+    .flatMap((m) => m[2].split(/\s+/))
+    .filter((token) => token && greenToken(token));
 
 /** The local names a file imports lucide's check icons under. */
 export function checkIconLocals(src) {
@@ -1297,14 +1305,14 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
       for (const m of src.matchAll(
         new RegExp(`\\{[^{}]*\\b(?:${names})\\b[^{}]*\\}`, "g"),
       )) {
-        const green = /["'`][^"'`]*(?:success|green|emerald)[^"'`]*["'`]/.exec(
-          m[0],
-        );
+        // A JSX expression (`{ok && <CircleCheck … />}`) is the tag rule's, not a map.
+        if (m[0].includes("<")) continue;
+        const [green] = greenClasses(m[0]);
         if (green)
           greenChecks.push({
             file,
-            line: lineAt(m.index + green.index),
-            match: green[0],
+            line: lineAt(m.index + m[0].indexOf(green)),
+            match: green,
             hint: "a check icon paired with a green class",
           });
       }
@@ -1325,14 +1333,31 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
       }
       if (checks.has(tag.name)) {
         const cls = tagAttributes(tag, scan).get("className");
-        if (cls && cls.kind !== "flag")
+        if (cls && cls.kind !== "flag") {
           for (const { token, at } of classTokens(cls, scan, read))
-            if (GREEN_INK.test(token))
+            if (greenToken(token))
               greenChecks.push({
                 file,
                 line: lineAt(at),
                 match: `<${tag.name}> ${token}`,
               });
+          // `className={cls}`: the `const cls = …` it names, wherever the file declares it.
+          const name =
+            cls.kind === "expr"
+              ? /^\s*([\w$]+)\s*$/.exec(scan.slice(cls.from, cls.to))?.[1]
+              : null;
+          if (name)
+            for (const d of src.matchAll(
+              new RegExp(`\\bconst\\s+${name}\\s*=\\s*([^;\\n]+)`, "g"),
+            ))
+              for (const token of greenClasses(d[1]))
+                greenChecks.push({
+                  file,
+                  line: lineAt(tag.index),
+                  match: `<${tag.name}> ${token}`,
+                  hint: `via ${name}`,
+                });
+        }
       }
       if (tag.name === "header" && overlays.length > 0) {
         const inside = overlays[overlays.length - 1];

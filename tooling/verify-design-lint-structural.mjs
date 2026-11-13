@@ -701,6 +701,27 @@ export function Bad({ tone }: { tone: 'done' | 'pending' }) {
     <div className="transition-opacity duration-150" />
     <div className="transition-all ease-[cubic-bezier(0.2,0,0,1)]" />
     <div className="transition-colors ease-in-out" />
+    <div className="data-[state=error]:bg-warning/10 [&>span]:bg-destructive/10" />
+    <div className="data-[state=open]:duration-150" />
+  </>;
+}
+
+// Shadowing: the nearer \`cls\` decides. Bad's is green; Good's, declared later, is blue.
+export function ShadowBad() {
+  const cls = 'text-success-text';
+  return <Check className={cls} />;
+}
+export function ShadowGood() {
+  const cls = 'text-info-text';
+  return <Check className={cls} />;
+}
+
+// Not violations: a comparison operand is not a class, and a map read by a known key is that entry.
+const TONE = { done: 'text-info-text', ok: 'text-success-text' };
+export function Fine({ status }: { status: string }) {
+  return <>
+    <Check className={status === 'success' ? 'text-info-text' : 'text-muted-foreground'} />
+    <Check className={TONE.done} />
   </>;
 }
 `,
@@ -716,12 +737,12 @@ export function Bad({ tone }: { tone: 'done' | 'pending' }) {
   };
   if (
     agentBad.status === 0 ||
-    agentCounts["no-success-check"] !== 5 ||
-    agentCounts["no-status-fill"] !== 3 ||
-    agentCounts["chat-motion-tokens"] !== 3
+    agentCounts["no-success-check"] !== 6 ||
+    agentCounts["no-status-fill"] !== 5 ||
+    agentCounts["chat-motion-tokens"] !== 4
   ) {
     console.error(
-      `  observed ${JSON.stringify(agentCounts)} of {"no-success-check":5,"no-status-fill":3,"chat-motion-tokens":3}`,
+      `  observed ${JSON.stringify(agentCounts)} of {"no-success-check":6,"no-status-fill":5,"chat-motion-tokens":4}`,
     );
     fail(
       "design-lint accepted a green check, a status fill or hand-set motion in agent UI (COL-25 / MOT-14)",
@@ -773,9 +794,10 @@ export function Good({ done }: { done: boolean }) {
       `hover vocabulary, avatar's ring-2 gap, a border surface, prose that mentions a ring, a "ring" VALUE inside a ` +
       `class builder (a call argument, an element-access key, a cva matcher or default), prose ending in "!", plus all ` +
       `three spellings of naming an icon Button through its host; the email kit's generated ` +
-      `colour module alone may carry hex and \`!important\`; and in agent UI a green check (5 spellings), ` +
-      `a status fill (3) and hand-set motion (3) are rejected while the blue check, the chat card ` +
-      `surface and the chat motion set pass (COL-25, MOT-14)`,
+      `colour module alone may carry hex and \`!important\`; and in agent UI a green check (6 spellings, ` +
+      `shadowing resolved lexically), a status fill (5, variants included) and hand-set motion (4) are ` +
+      `rejected while the blue check, a comparison operand, a keyed map entry, the chat card surface ` +
+      `and the chat motion set pass (COL-25, MOT-14)`,
   );
 } finally {
   rmSync(scratch, { recursive: true, force: true });
