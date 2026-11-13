@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.77.1
+
+### Patch Changes
+
+- [#972](https://github.com/vegastack/vegastack-design/pull/972) [`2c7a077`](https://github.com/vegastack/vegastack-design/commit/2c7a077ec78c3a83f88e0225fd212038a308b12d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Checks are `primary`, never green (COL-25, as the operator confirmed): every check that 0.77.0 drew in the blue accent — `StatusGlyph` done, `ChatMenu`'s selected ✓, task lists, plan, request and approval cards, memory notes, uploads, the success toast, `StatusIcon` done, `CopyButton` and `Terminal` copied — is `text-primary` now: a near-black circle-check in light and a white circle with a white check in dark. The lint and doctor messages, the decision register and the foundations pages say so.
+
+- Updated dependencies [[`2c7a077`](https://github.com/vegastack/vegastack-design/commit/2c7a077ec78c3a83f88e0225fd212038a308b12d)]:
+  - @vegastack/design@0.14.1
+
 ## 0.77.0
 
 ### Minor Changes

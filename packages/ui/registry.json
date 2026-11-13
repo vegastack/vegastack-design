@@ -356,7 +356,7 @@
       "meta": {
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -1452,7 +1452,7 @@
       "meta": {
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -2753,7 +2753,7 @@
       "meta": {
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -15657,7 +15657,7 @@
       "meta": {
         "whenToUse": "Indicate the workflow state of a task or issue — backlog, todo, in progress, in review, done, canceled, duplicate, triage — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -16071,7 +16071,7 @@
       "meta": {
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -16224,7 +16224,7 @@
       "meta": {
         "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
         "whenNotToUse": "An agent asking to act (ApprovalCard, RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -16355,7 +16355,7 @@
       "meta": {
         "whenToUse": "The state of a chat step, task, Subagent, request or upload, in a row or a meta line.",
         "whenNotToUse": "Workflow status of a record (StatusIcon), a live loop (TextSpinner), or a pass/fail result outside agent UI (Badge).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -16435,7 +16435,7 @@
       "meta": {
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -16466,7 +16466,7 @@
       "meta": {
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
         "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -16499,7 +16499,7 @@
       "meta": {
         "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
         "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -16596,7 +16596,7 @@
       "meta": {
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -19625,7 +19625,7 @@
       "meta": {
         "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
         "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -19658,7 +19658,7 @@
       "meta": {
         "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
         "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {
@@ -19733,7 +19733,7 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
-        "version": "0.77.0"
+        "version": "0.77.1"
       }
     },
     {

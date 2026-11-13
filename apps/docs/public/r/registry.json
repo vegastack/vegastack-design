@@ -392,8 +392,8 @@
       "meta": {
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
-        "version": "0.77.0",
-        "integrity": "sha256-LjjOHYHcyBOsRYuovYNMBT4rljB0Pw+cwuEVJobY8ic="
+        "version": "0.77.1",
+        "integrity": "sha256-O0jHUixa2g+4H6Cy9HgIEzzBbjIFBqZafWmpIb/Shwc="
       }
     },
     {
@@ -1630,8 +1630,8 @@
       "meta": {
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
-        "version": "0.77.0",
-        "integrity": "sha256-Zg++OEts/cat06T8r8uWl4drgEVem1nfLDh1MbdC5pQ="
+        "version": "0.77.1",
+        "integrity": "sha256-LMmOjBfuLAFc4H7Vw6ejGBWI1WRcQmo/IFQ0a7YyNXQ="
       }
     },
     {
@@ -3100,8 +3100,8 @@
       "meta": {
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
-        "version": "0.77.0",
-        "integrity": "sha256-aiBwxRXeLkg8BoBkyDBR5mfeYMX0OtawFk9Sh6qjMQU="
+        "version": "0.77.1",
+        "integrity": "sha256-b3vb0C2SSxLTGBHKDSHZeoUKF/3FspLmmqctWczEd+s="
       }
     },
     {
@@ -19127,8 +19127,8 @@
       "meta": {
         "whenToUse": "Indicate the workflow state of a task or issue — backlog, todo, in progress, in review, done, canceled, duplicate, triage — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
-        "version": "0.77.0",
-        "integrity": "sha256-pU8hrTM7BPvQ43R2R5IfbsF/KwkUiWuaC/rz5Op0i+s="
+        "version": "0.77.1",
+        "integrity": "sha256-gwKoDPX7tp6mDw3i/Bz1RPWPi6ylF9LQkgbQ/XY8xy0="
       }
     },
     {
@@ -19596,8 +19596,8 @@
       "meta": {
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
-        "version": "0.77.0",
-        "integrity": "sha256-xa7TgRZdyMrJ+nEs0kc1+S3Qb0qSiZzjYXO/fJYsxyk="
+        "version": "0.77.1",
+        "integrity": "sha256-5xurV+r3806o+yt2PGtvez7+bjdQJfBwUypeRocTvT0="
       }
     },
     {
@@ -19776,8 +19776,8 @@
       "meta": {
         "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
         "whenNotToUse": "An agent asking to act (ApprovalCard, RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
-        "version": "0.77.0",
-        "integrity": "sha256-gioaqA0zzKan4n4BdJK0X88/vwwhIrArL3lpQ/JiCLE="
+        "version": "0.77.1",
+        "integrity": "sha256-XuXlZkG0rxf7jGBV+OA3w14+phpdIkFVkHLIaTHRHuY="
       }
     },
     {
@@ -19924,8 +19924,8 @@
       "meta": {
         "whenToUse": "The state of a chat step, task, Subagent, request or upload, in a row or a meta line.",
         "whenNotToUse": "Workflow status of a record (StatusIcon), a live loop (TextSpinner), or a pass/fail result outside agent UI (Badge).",
-        "version": "0.77.0",
-        "integrity": "sha256-dneZynM1ztYUwgJDLcuITv6W12bqZoYV0YwyU543+Ug="
+        "version": "0.77.1",
+        "integrity": "sha256-PUBzGDXMEuYeDdtFB5rPqSbHb+C7zEKUwoxKVI4hBCM="
       }
     },
     {
@@ -20018,8 +20018,8 @@
       "meta": {
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
-        "version": "0.77.0",
-        "integrity": "sha256-h8G0OitcNA6mcoBtQ557/GBRhe6HVAgCR/GKzPqF1rk="
+        "version": "0.77.1",
+        "integrity": "sha256-ufwUAkw5SS6NZ4C3oIegzf6WwELh9VfEIUNZmKttJ/w="
       }
     },
     {
@@ -20052,8 +20052,8 @@
       "meta": {
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
         "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
-        "version": "0.77.0",
-        "integrity": "sha256-UgM1XmLsbgW/P2yx5pRorIE774G4O5/wdlHnYDGiFJA="
+        "version": "0.77.1",
+        "integrity": "sha256-y6OS+bVJdgYlSCRwutWOG6AiCYYMJMRNNpP4Tymg7XA="
       }
     },
     {
@@ -20088,8 +20088,8 @@
       "meta": {
         "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
         "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
-        "version": "0.77.0",
-        "integrity": "sha256-jqpCBOC5EvFKJYoBSuDz7IPif6+CZyddIFo7Ohbuchk="
+        "version": "0.77.1",
+        "integrity": "sha256-NISirF1bh9a29D8D0NWhb4FDINb4jAWcoykiheUbOwQ="
       }
     },
     {
@@ -20194,8 +20194,8 @@
       "meta": {
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
-        "version": "0.77.0",
-        "integrity": "sha256-jYxRxbPYgYWecD8hTDq2QH9orQccAlDsdRLlS0+tP6Q="
+        "version": "0.77.1",
+        "integrity": "sha256-786cFphoe/P7WB3UuxpbDHJG//yP82P5TRP5TDdvWmM="
       }
     },
     {
@@ -23919,8 +23919,8 @@
       "meta": {
         "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
         "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.77.0",
-        "integrity": "sha256-PyxzA0pHvMx5y1rv/7CB8uxFcv0XG/uNOjH/Jm91uQg="
+        "version": "0.77.1",
+        "integrity": "sha256-9yHWK7ZSwNcSTll6r/91zTeGVwHQ5mGQAO4BF+GZZ0E="
       }
     },
     {
@@ -23955,8 +23955,8 @@
       "meta": {
         "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
         "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.77.0",
-        "integrity": "sha256-v/J/OTeCIFWs/mDG0UxlmGQJr3XfdNa55pf4mptc2V4="
+        "version": "0.77.1",
+        "integrity": "sha256-q7gi2PqpLK4DIm4xtsY37zo5AJSEmTbiZiSIAX9/6gw="
       }
     },
     {
@@ -24036,8 +24036,8 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
-        "version": "0.77.0",
-        "integrity": "sha256-CUc5E0oOutHAgX59e6C3nroRnvuf/PPWYElERVfBuA0="
+        "version": "0.77.1",
+        "integrity": "sha256-55qcLQRl2nYHTejRt5O9yUY0Hc3QpU0rd0VGKR1oFBc="
       }
     },
     {

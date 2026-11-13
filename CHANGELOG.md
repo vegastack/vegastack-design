@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.77.1] — November 13, 2026
+
+<!-- assembled from 1 changeset: d0b42c415208 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.14.1`** (was `0.14.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.77.0 → 0.77.1.
+
+### 🐛 Fixed
+
+- Checks are `primary`, never green (COL-25, as the operator confirmed): every check that 0.77.0 drew in the blue accent — `StatusGlyph` done, `ChatMenu`'s selected ✓, task lists, plan, request and approval cards, memory notes, uploads, the success toast, `StatusIcon` done, `CopyButton` and `Terminal` copied — is `text-primary` now: a near-black circle-check in light and a white circle with a white check in dark. The lint and doctor messages, the decision register and the foundations pages say so.
+  [`2c7a077`](https://github.com/VegaStack/vegastack-design/commit/2c7a077)
+
 ## [0.77.0] — November 13, 2026
 
 <!-- assembled from 1 changeset: 770ffd11a3c5 -->
