@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.81.1
+
+### Patch Changes
+
+- [#980](https://github.com/vegastack/vegastack-design/pull/980) [`3f112f8`](https://github.com/vegastack/vegastack-design/commit/3f112f88f95beffc54f20e0a1396c17093fda0e1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `MessageParts` and `UserBubble` read a file's name from `providerMetadata.vegastack.filename` when the part has no `filename` (a streamed `file` chunk carries none), and `ChatTurn.waitingOn` accepts `null`, which the chat sends once a turn stops waiting.
+
 ## 0.81.0
 
 ### Minor Changes

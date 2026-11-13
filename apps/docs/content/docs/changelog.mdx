@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.81.1] — November 13, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.81.0 → 0.81.1.
+
+### 🐛 Fixed
+
+- `MessageParts` and `UserBubble` read a file's name from `providerMetadata.vegastack.filename` when the part has no `filename` (a streamed `file` chunk carries none), and `ChatTurn.waitingOn` accepts `null`, which the chat sends once a turn stops waiting.
+  [`3f112f8`](https://github.com/VegaStack/vegastack-design/commit/3f112f8)
+
 ## [0.81.0] — November 13, 2026
 
 ### 🧩 New components

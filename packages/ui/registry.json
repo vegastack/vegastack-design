@@ -16417,7 +16417,7 @@
       "meta": {
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
-        "version": "0.81.0"
+        "version": "0.81.1"
       }
     },
     {
@@ -16497,7 +16497,7 @@
       "meta": {
         "whenToUse": "A message the person sent in an agent chat.",
         "whenNotToUse": "Agent replies, which are never clipped (MessageParts).",
-        "version": "0.81.0"
+        "version": "0.81.1"
       }
     },
     {
