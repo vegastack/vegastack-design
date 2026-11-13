@@ -32676,7 +32676,7 @@
     {
       "name": "chat-message-parts",
       "registryType": "registry:ui",
-      "title": "Message Parts",
+      "title": "Chat Message Parts",
       "summary": "One agent turn drawn straight from its AI SDK UIMessage parts: the task list, one live line (or its settled sentence) over the work log, the Subagents block, the answer never folded, files and the app's cards for data parts. Summary, Normal and Verbose reader settings; at most one spinner per message.",
       "status": "stable",
       "since": "0.79.0",

@@ -58,8 +58,8 @@ const STEPS = [
   },
 ];
 
-function Panel() {
-  const [subagent, setSubagent] = useState<string | null>(null);
+function Panel({ initial = null }: { initial?: string | null }) {
+  const [subagent, setSubagent] = useState<string | null>(initial);
   return (
     <div className="h-120 w-80 overflow-hidden rounded-lg border border-chat-hairline bg-background">
       {subagent ? (
@@ -143,6 +143,14 @@ export function chatDetails(): ReactNode {
   return (
     <Wrapper className="bg-muted/40">
       <Panel />
+    </Wrapper>
+  );
+}
+
+export function chatDetailsSubagent(): ReactNode {
+  return (
+    <Wrapper className="bg-muted/40">
+      <Panel initial="Hublit and Halonix" />
     </Wrapper>
   );
 }

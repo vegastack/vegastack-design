@@ -19965,7 +19965,7 @@
     {
       "name": "chat-message-parts",
       "type": "registry:ui",
-      "title": "Message Parts",
+      "title": "Chat Message Parts",
       "description": "One agent turn drawn straight from its AI SDK UIMessage parts: the task list, one live line (or its settled sentence) over the work log, the Subagents block, the answer never folded, files and the app's cards for data parts. Summary, Normal and Verbose reader settings; at most one spinner per message.",
       "categories": [
         "chat"
@@ -19993,7 +19993,7 @@
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
         "version": "0.79.0",
-        "integrity": "sha256-UCJj4ZWbq67ZyTJ4wPQNRVwpOWl7KXIahTWs5LebDUs="
+        "integrity": "sha256-NcqzjmxYzUH0y7agnSqFiIQH9Z3XZFKl3IJD/mUTjJs="
       }
     },
     {
