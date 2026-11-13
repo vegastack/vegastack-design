@@ -1,5 +1,0 @@
----
-"@vegastack/ui": minor
----
-
-🧩 Agent chat cards, drawn from the chat's parts. `ChatRequestCard` draws exactly the offer the server stored with a request — Allow once, one "Always allow" menu with each scope, Decline with a note — says why when Always can't be offered, and holds while the answer is in flight; `RequestBundleCard` answers several asks at once or each on its own; `RequestLine` is the muted line an answered or refused ask settles into, with Undo and the way on. `ChatPlanCard` is a plan as a document inside the turn — numbered steps, Will change, Won't, Needs your OK, and what changed since the last version — with Approve and run, Approve, ask before changes and Keep planning ▾, settling into `PlanLine`. `QuestionCard` draws the agent's questions whole — a pager, a close, full-width options with muted descriptions and no radios, Other, number keys and a Next → / Submit pill — settling into `QuestionLine`. `MemoryGroup` shows what a turn remembered as one quiet fold with Undo and Edit. Every check is primary. `RequestCard`, `PlanCard`, `AgentQuestionForm` and `MemoryNote` stay unchanged until the app moves over.

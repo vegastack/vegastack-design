@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.80.0] — November 13, 2026
+
+<!-- assembled from 2 changesets: 269f23e48c83 -->
+
+### 🧩 New components
+
+- Agent chat cards, drawn from the chat's parts. `ChatRequestCard` draws exactly the offer the server stored with a request — Allow once, one "Always allow" menu with each scope, Decline with a note — says why when Always can't be offered, and holds while the answer is in flight; `RequestBundleCard` answers several asks at once or each on its own; `RequestLine` is the muted line an answered or refused ask settles into, with Undo and the way on. `ChatPlanCard` is a plan as a document inside the turn — numbered steps, Will change, Won't, Needs your OK, and what changed since the last version — with Approve and run, Approve, ask before changes and Keep planning ▾, settling into `PlanLine`. `QuestionCard` draws the agent's questions whole — a pager, a close, full-width options with muted descriptions and no radios, Other, number keys and a Next → / Submit pill — settling into `QuestionLine`. `MemoryGroup` shows what a turn remembered as one quiet fold with Undo and Edit. Every check is primary. `RequestCard`, `PlanCard`, `AgentQuestionForm` and `MemoryNote` stay unchanged until the app moves over.
+  [`7935076`](https://github.com/VegaStack/vegastack-design/commit/7935076)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.79.1 → 0.80.0.
+
+### 📚 Docs
+
+- The `llms.txt` index tripwire is raised to 192 KiB (operator, 13-11-2026: "Raise cap to 192 KB"), so the agent chat cards' pages fit; no package change.
+  [`7935076`](https://github.com/VegaStack/vegastack-design/commit/7935076)
+
 ## [0.79.1] — November 13, 2026
 
 <!-- assembled from 1 changeset: fea41c58914b -->
