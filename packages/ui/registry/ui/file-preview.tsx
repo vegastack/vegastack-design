@@ -109,7 +109,15 @@ export interface FilePreviewProps {
  * <FilePreview url="/api/files/f2/content" mediaType="application/pdf" filename="open-tasks.pdf"
  *   pages={3} onOpen={() => openViewer(file)} menu={<FileMenu file={file} />} />
  */
-export function FilePreview({
+export function FilePreview(props: FilePreviewProps) {
+  // Each file starts fresh — its own reading state and, for a PDF, its own canvas — so nothing
+  // from the last file (a failure, a half-drawn page) carries over.
+  return (
+    <FilePreviewCard key={`${props.url}\n${props.mediaType}`} {...props} />
+  );
+}
+
+function FilePreviewCard({
   url,
   mediaType,
   filename,

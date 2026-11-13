@@ -1,4 +1,4 @@
-// @vegastack file-preview@0.81.0 sha256-9YtFMVR9vspJOWXbMxjFc/EcQjAHEWh71RcQZxJMdNk=
+// @vegastack file-preview@0.81.0 sha256-L3f7Yv8sPr747lcX0bRCdfcxZ+HK3+6DT0FvWsafmC4=
 
 "use client";
 
@@ -109,7 +109,15 @@ export interface FilePreviewProps {
  * <FilePreview url="/api/files/f2/content" mediaType="application/pdf" filename="open-tasks.pdf"
  *   pages={3} onOpen={() => openViewer(file)} menu={<FileMenu file={file} />} />
  */
-export function FilePreview({
+export function FilePreview(props: FilePreviewProps) {
+  // Each file starts fresh — its own reading state and, for a PDF, its own canvas — so nothing
+  // from the last file (a failure, a half-drawn page) carries over.
+  return (
+    <FilePreviewCard key={`${props.url}\n${props.mediaType}`} {...props} />
+  );
+}
+
+function FilePreviewCard({
   url,
   mediaType,
   filename,

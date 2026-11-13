@@ -16633,7 +16633,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.81.0",
-        "integrity": "sha256-4coWBb8Rw68ICVnfziLJiWRobewQ1KagQ/C9LwFaUVo="
+        "integrity": "sha256-Wy4emmcy2AUSi46SbiFJaoLUOekKnY2W0ZZdDDTnuP8="
       }
     },
     {
@@ -16996,7 +16996,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.81.0",
-        "integrity": "sha256-GngPZPm9/F984PnEJrblCR3Zi16bQr853bbK6uvlqL0="
+        "integrity": "sha256-/8zWz0JVKrqZTc4SKpf450PjP8jT48EhF85A1E8KtIg="
       }
     },
     {
@@ -20091,7 +20091,7 @@
         "whenToUse": "A file an agent made or a person attached, shown in the chat where it appeared.",
         "whenNotToUse": "A list of a record's files (FileCard), a file named inside running text (InlineChip's file chip), or a file being uploaded (UploadCard).",
         "version": "0.81.0",
-        "integrity": "sha256-9YtFMVR9vspJOWXbMxjFc/EcQjAHEWh71RcQZxJMdNk="
+        "integrity": "sha256-L3f7Yv8sPr747lcX0bRCdfcxZ+HK3+6DT0FvWsafmC4="
       }
     },
     {

@@ -599,7 +599,11 @@ const TOO_LARGE = "Too large to preview";
  */
 export function previewFailureReason(error: unknown): string | null {
   if (!(error instanceof Error)) return "something went wrong reading it";
-  if (error.name === "AbortError" || error.name === "AbortException")
+  if (
+    error.name === "AbortError" ||
+    error.name === "AbortException" ||
+    error.name === "RenderingCancelledException"
+  )
     return null;
   if (error.message === TOO_LARGE) return null;
   const status =

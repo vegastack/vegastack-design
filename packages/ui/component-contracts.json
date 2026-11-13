@@ -52241,38 +52241,7 @@
         "vrt": "required"
       },
       "previewModule": "file-preview",
-      "dataAttributes": {
-        "FilePreview": {
-          "attributes": [
-            {
-              "name": "data-icon",
-              "values": ["inline-end"]
-            },
-            {
-              "name": "data-kind",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "file-preview",
-                "file-preview-body",
-                "file-preview-download",
-                "file-preview-error",
-                "file-preview-fade",
-                "file-preview-meta",
-                "file-preview-open",
-                "file-preview-open-full"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        }
-      }
+      "dataAttributes": {}
     },
     {
       "name": "source-list",

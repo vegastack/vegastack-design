@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.81.0 sha256-4coWBb8Rw68ICVnfziLJiWRobewQ1KagQ/C9LwFaUVo=
+// @vegastack file-viewer@0.81.0 sha256-Wy4emmcy2AUSi46SbiFJaoLUOekKnY2W0ZZdDDTnuP8=
 
 "use client";
 
@@ -60,28 +60,39 @@ export async function renderPdfFirstPage(
   width: number,
   signal: AbortSignal,
 ): Promise<{ pages: number }> {
+  const aborted = () => new DOMException("Aborted", "AbortError");
   const pdfjs = await loadPdfjs();
+  // A preview that moved on while pdf.js loaded never fetches or paints.
+  if (signal.aborted) throw aborted();
   const task = pdfjs.getDocument({
     url: src,
     rangeChunkSize: 65536,
     disableAutoFetch: true,
   });
-  const stop = () => void task.destroy();
+  let render: { cancel: () => void } | undefined;
+  const stop = () => {
+    render?.cancel();
+    void task.destroy();
+  };
   signal.addEventListener("abort", stop, { once: true });
   try {
     const pdf = await task.promise;
     const page = await pdf.getPage(1);
+    if (signal.aborted) throw aborted();
     const scale = width / page.getViewport({ scale: 1 }).width;
     const viewport = page.getViewport({
       scale: scale * (window.devicePixelRatio || 1),
     });
     canvas.width = Math.floor(viewport.width);
     canvas.height = Math.floor(viewport.height);
-    await page.render({ canvas, viewport }).promise;
+    const drawing = page.render({ canvas, viewport });
+    render = drawing;
+    await drawing.promise;
+    if (signal.aborted) throw aborted();
     return { pages: pdf.numPages };
   } finally {
     signal.removeEventListener("abort", stop);
-    stop();
+    void task.destroy();
   }
 }
 

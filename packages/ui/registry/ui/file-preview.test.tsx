@@ -174,3 +174,20 @@ test("menu and actions land in the header's end and under the preview", async ()
     .element();
   expect(attach.closest('[data-slot="chat-card-actions"]')).not.toBeNull();
 });
+
+test("a new file starts fresh: a failed preview given a readable file shows it", async () => {
+  const props = {
+    mediaType: "text/markdown",
+    filename: "notes.md",
+    onOpen: () => {},
+  };
+  const screen = await render(
+    <FilePreview url="/definitely-not-here.md" {...props} />,
+  );
+  await expect.poll(() => card().dataset.state).toBe("failed");
+  await screen.rerender(
+    <FilePreview url={dataUrl("# Fresh", "text/markdown")} {...props} />,
+  );
+  await expect.poll(() => card().dataset.state).toBe("text");
+  expect(card().querySelector("h1")?.textContent).toBe("Fresh");
+});

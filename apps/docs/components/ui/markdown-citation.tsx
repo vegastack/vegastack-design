@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.81.0 sha256-GngPZPm9/F984PnEJrblCR3Zi16bQr853bbK6uvlqL0=
+// @vegastack markdown-view@0.81.0 sha256-/8zWz0JVKrqZTc4SKpf450PjP8jT48EhF85A1E8KtIg=
 
 "use client";
 
@@ -45,18 +45,22 @@ export interface MarkdownCitationMarkerProps extends MarkdownCitation {
 
 /**
  * How far to move a card that starts at the marker back inside the reading column (the
- * `MarkdownView` around it) so its end stays inside the column's: never past the column's start.
- * Left-to-right only; a right-to-left column keeps the card at the marker.
+ * `MarkdownView` around it) so its end stays inside the column's, never past the column's start.
+ * The offset is logical: negative moves the card toward its start side, so one sign serves a
+ * left-to-right column (the card shifts left) and a right-to-left one (it shifts right).
  */
 function columnShift(trigger: HTMLElement | null, width: number): number {
   const column = trigger?.closest<HTMLElement>("[data-slot=markdown-view]");
-  if (!trigger || !column || getComputedStyle(column).direction === "rtl")
-    return 0;
+  if (!trigger || !column) return 0;
   const marker = trigger.getBoundingClientRect();
   const bounds = column.getBoundingClientRect();
-  const overflow = marker.left + width - bounds.right;
+  const rtl = getComputedStyle(column).direction === "rtl";
+  const overflow = rtl
+    ? bounds.left - (marker.right - width)
+    : marker.left + width - bounds.right;
   if (overflow <= 0) return 0;
-  return -Math.min(overflow, Math.max(0, marker.left - bounds.left));
+  const room = rtl ? bounds.right - marker.right : marker.left - bounds.left;
+  return -Math.min(overflow, Math.max(0, room));
 }
 
 /** How long a touch must rest on the marker before its `content` opens instead of a tap. */
@@ -190,7 +194,8 @@ export function MarkdownCitationMarker({
             side="bottom"
             align="start"
             alignOffset={({ positioner }) =>
-              columnShift(triggerRef.current, positioner.width)
+              // The card is never wider than its `max-w-80` (320px), whatever the first measure says.
+              columnShift(triggerRef.current, Math.min(positioner.width, 320))
             }
             initialFocus={false}
             finalFocus={false}

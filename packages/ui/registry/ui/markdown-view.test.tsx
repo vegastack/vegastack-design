@@ -2301,3 +2301,47 @@ test("a citation's card opens under its pill, from its start, never above the li
     (marker.element() as HTMLElement).getBoundingClientRect().bottom,
   );
 });
+
+test("a citation's card stays inside the answer's column at either edge, left-to-right and right-to-left", async () => {
+  for (const dir of ["ltr", "rtl"] as const) {
+    const screen = await render(
+      <div dir={dir} style={{ width: 320, marginInline: 40 }}>
+        <MarkdownView
+          citation={(n) => ({
+            label: `Source ${n} ${dir}`,
+            content: (
+              <span style={{ display: "block", width: 240 }}>Card {n}</span>
+            ),
+          })}
+        >
+          {
+            "A long enough sentence that ends right at the column's far edge here [[1]]"
+          }
+        </MarkdownView>
+      </div>,
+    );
+    const marker = screen.getByRole("button", { name: `Source 1 ${dir}` });
+    (marker.element() as HTMLElement).click();
+    const card = await expect
+      .poll(() =>
+        document.querySelector<HTMLElement>(
+          '[data-slot="markdown-citation-content"]',
+        ),
+      )
+      .not.toBeNull()
+      .then(() =>
+        document.querySelector<HTMLElement>(
+          '[data-slot="markdown-citation-content"]',
+        )!,
+      );
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    const column = screen.container
+      .querySelector<HTMLElement>('[data-slot="markdown-view"]')!
+      .getBoundingClientRect();
+    const box = card.getBoundingClientRect();
+    expect(box.left).toBeGreaterThanOrEqual(column.left - 1);
+    expect(box.right).toBeLessThanOrEqual(column.right + 1);
+    (marker.element() as HTMLElement).click();
+    await screen.unmount();
+  }
+});
