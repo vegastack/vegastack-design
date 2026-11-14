@@ -1,4 +1,4 @@
-// @vegastack composer-meta@0.81.0 sha256-TZost2fzYi6C7X6FIuHiDr2f5tFa78tuaB4w3/gE9ag=
+// @vegastack composer-meta@0.81.0 sha256-zA7/zw4gCR5a/qwWYrS3EK1lctd1zE0kndJTtJj9heU=
 
 "use client";
 
@@ -117,7 +117,7 @@ export function ComposerMeta({
       {note && privacyDetail ? (
         <>
           <Tooltip open={open} onOpenChange={setOpen}>
-            <TooltipTrigger render={note} />
+            <TooltipTrigger render={note} closeOnClick={false} />
             <TooltipContent className="max-w-80">
               {privacyDetail}
             </TooltipContent>

@@ -39,7 +39,7 @@ test("privacy on the left, Plan · model · ring on the right, in that order", a
       document.querySelector("[data-slot=tooltip-content]")?.textContent,
     ).toBe("Only you can see this chat."),
   );
-  // A screen reader hears the full sentence with the note, shown or not; a tap toggles it.
+  // A screen reader hears the full sentence with the note, shown or not.
   const note = page.getByRole("button", {
     name: "Private · AI can make mistakes",
   });
@@ -47,6 +47,32 @@ test("privacy on the left, Plan · model · ring on the right, in that order", a
     .element(note)
     .toHaveAccessibleDescription("Only you can see this chat.");
   await expectNoA11yViolations(screen.container);
+});
+
+test("a touch tap on the note shows the sentence and keeps it; a second tap hides it", async () => {
+  await render(
+    <ComposerMeta
+      privacy="Private · AI can make mistakes"
+      privacyDetail="Only you can see this chat."
+    />,
+  );
+  const note = page
+    .getByRole("button", { name: "Private · AI can make mistakes" })
+    .element() as HTMLElement;
+  const tap = () => {
+    note.dispatchEvent(
+      new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch" }),
+    );
+    note.click();
+  };
+  const shown = () =>
+    document.querySelector("[data-slot=tooltip-content]")?.textContent;
+  tap();
+  await vi.waitFor(() => expect(shown()).toBe("Only you can see this chat."));
+  await new Promise((r) => setTimeout(r, 300));
+  expect(shown()).toBe("Only you can see this chat.");
+  tap();
+  await vi.waitFor(() => expect(shown()).toBeUndefined());
 });
 
 test("Plan is a toggle: on reads primary with a dot; held keeps its reason and doesn't toggle", async () => {
@@ -77,6 +103,7 @@ test("at 320px the privacy note gives way and the controls stay whole", async ()
     <div style={{ width: 320 }}>
       <ComposerMeta
         privacy="Shared with 3 people · AI can make mistakes"
+        privacyDetail="Ana, Ben and Chen can see this chat."
         plan={{ on: false, onToggle: () => {} }}
         model={<button type="button">Sonnet 5.5 Medium</button>}
         context={<button type="button">26%</button>}
@@ -91,4 +118,8 @@ test("at 320px the privacy note gives way and the controls stay whole", async ()
     .getBoundingClientRect();
   expect(controls.right).toBeLessThanOrEqual(line.right + 0.5);
   expect(controls.left).toBeGreaterThanOrEqual(line.left);
+  const note = screen.container.querySelector<HTMLElement>(
+    "[data-slot=composer-meta-privacy] span",
+  )!;
+  expect(note.scrollWidth).toBeGreaterThan(note.clientWidth);
 });
