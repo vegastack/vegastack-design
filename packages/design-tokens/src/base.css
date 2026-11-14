@@ -259,7 +259,8 @@
   textarea,
   select,
   [contenteditable="true"],
-  [contenteditable=""] {
+  [contenteditable=""],
+  [contenteditable="plaintext-only"] {
     font-size: max(16px, 1em);
   }
 }

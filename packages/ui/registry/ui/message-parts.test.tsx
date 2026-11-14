@@ -20,12 +20,9 @@ import {
   MessageBubble,
   MessageChange,
   MessageDisclaimer,
-  MessageFold,
-  foldLineCut,
   MessageHandoff,
   MessageNotice,
   MessagePlan,
-  MessageSourceList,
   MessageSources,
   MessageStatus,
   MessageTime,
@@ -303,73 +300,6 @@ test("the version switch needs two versions and stops at each end", async () => 
   expect(position.textContent).toBe("2 of 2");
 });
 
-test("a fold holds long content until Show more", async () => {
-  const onOpenChange = vi.fn();
-  const screen = await render(
-    <MessageFold onOpenChange={onOpenChange}>
-      <div style={{ height: 800 }}>Long</div>
-    </MessageFold>,
-  );
-  const content = slot(screen.container, "message-fold-content")!;
-  const more = page.getByRole("button", { name: "Show more" });
-  await expect.element(more).toBeVisible();
-  expect(content.getBoundingClientRect().height).toBeLessThan(400);
-  expect(slot(screen.container, "message-fold")!.dataset.folded).toBe("");
-  await more.click();
-  expect(content.getBoundingClientRect().height).toBe(800);
-  expect(onOpenChange).toHaveBeenLastCalledWith(true);
-  await expect
-    .element(page.getByRole("button", { name: "Show less" }))
-    .toBeVisible();
-  await expectNoA11yViolations(screen.container);
-});
-
-test("content that fits is never folded", async () => {
-  const screen = await render(
-    <MessageFold>
-      <div style={{ height: 100 }}>Short</div>
-    </MessageFold>,
-  );
-  await new Promise((done) => requestAnimationFrame(() => done(null)));
-  const root = slot(screen.container, "message-fold")!;
-  expect(root.dataset.folded).toBeUndefined();
-  expect(getComputedStyle(slot(root, "message-fold-content")!).maskImage).toBe(
-    "none",
-  );
-  expect(screen.container.querySelector("button")).toBeNull();
-});
-
-test("an open fold stays open, and tabbing into a folded one opens it", async () => {
-  const screen = await render(
-    <MessageFold defaultOpen>
-      <div style={{ height: 800 }}>Streamed here</div>
-    </MessageFold>,
-  );
-  expect(
-    slot(screen.container, "message-fold-content")!.getBoundingClientRect()
-      .height,
-  ).toBe(800);
-  const folded = await render(
-    <>
-      <button type="button">Before</button>
-      <MessageFold>
-        <div style={{ height: 700 }} />
-        <a href="#deep">Deep link</a>
-      </MessageFold>
-    </>,
-  );
-  const more = folded.getByRole("button", { name: "Show more" });
-  await expect.element(more).toBeVisible();
-  (
-    folded.getByRole("button", { name: "Before" }).element() as HTMLElement
-  ).focus();
-  await userEvent.tab();
-  await expect
-    .element(folded.getByRole("button", { name: "Show less" }))
-    .toBeVisible();
-  expect(document.activeElement?.textContent).toBe("Deep link");
-});
-
 const SOURCES = [
   {
     href: "https://ies.org/tm-21",
@@ -468,39 +398,6 @@ test("every button in the actions row, wrapped in a trigger or not, is one 28px 
     const glyph = getComputedStyle(button.querySelector("svg")!);
     expect([glyph.width, glyph.height]).toEqual(["16px", "16px"]);
   }
-});
-
-test("the source list: closed, three icons and a count; open, numbered links with a globe for a missing icon", async () => {
-  const screen = await render(<MessageSourceList sources={SOURCES} />);
-  const trigger = page.getByRole("button", { name: "Sources · 5" });
-  await expect.element(trigger).toHaveAttribute("aria-expanded", "false");
-  const icons = screen.container.querySelectorAll(
-    "[data-slot=message-source-list-trigger] [data-slot=message-site-icon]",
-  );
-  expect(icons).toHaveLength(3);
-  // No letter avatars: an icon is an image or a globe, never text.
-  for (const icon of icons) expect(icon.textContent).toBe("");
-  await trigger.click();
-  const links = screen.container.querySelectorAll<HTMLAnchorElement>(
-    "[data-slot=message-source]",
-  );
-  expect(links).toHaveLength(5);
-  expect(links[0]!.getAttribute("target")).toBe("_blank");
-  expect(links[0]!.getAttribute("rel")).toBe("noreferrer noopener");
-  // A missing title shows the site; the failing icon falls back to the globe.
-  expect(links[1]!.textContent).toContain("energystar.gov");
-  await vi.waitFor(
-    () =>
-      expect(
-        links[2]!.querySelector("[data-slot=message-site-icon] svg"),
-        links[2]!.innerHTML,
-      ).not.toBeNull(),
-    { timeout: 5000 },
-  );
-  expect(links[0]!.querySelector("img")).not.toBeNull();
-  await expectNoA11yViolations(screen.container);
-  const empty = await render(<MessageSourceList sources={[]} />);
-  expect(empty.container.innerHTML).toBe("");
 });
 
 test("activity: a done summary with its time opens to notes and steps; a step opens its results", async () => {
@@ -765,41 +662,4 @@ test("activity opens while running, closes once a second after, and stays as the
   await page.getByRole("button", { name: "Toggle run" }).click();
   await new Promise((resolve) => setTimeout(resolve, 1300));
   await expect.element(trigger).toHaveAttribute("aria-expanded", "true");
-});
-
-test("a fold ends between two lines of text, never through one", async () => {
-  const screen = await render(
-    <div style={{ width: 240 }}>
-      <MessageFold>
-        <p style={{ lineHeight: "30px", fontSize: 14, margin: 0 }}>
-          {"word ".repeat(400)}
-        </p>
-      </MessageFold>
-    </div>,
-  );
-  const content = slot(screen.container, "message-fold-content")!;
-  await expect
-    .element(page.getByRole("button", { name: "Show more" }))
-    .toBeVisible();
-  // 20rem is 320px, which falls through the 11th 30px line (300–330): its text crosses it.
-  await expect
-    .poll(() => content.getBoundingClientRect().height)
-    .toBeLessThan(320);
-  const height = content.getBoundingClientRect().height;
-  const top = content.getBoundingClientRect().top;
-  const range = document.createRange();
-  range.selectNodeContents(content.querySelector("p")!.firstChild!);
-  const rects = [...range.getClientRects()];
-  expect(rects.length).toBeGreaterThan(11);
-  for (const rect of rects)
-    expect(rect.top - top < height && rect.bottom - top > height + 0.5).toBe(
-      false,
-    );
-});
-
-test("foldLineCut keeps the limit when no text crosses it", async () => {
-  const screen = await render(<div style={{ height: 400 }} />);
-  expect(
-    foldLineCut(screen.container.firstElementChild as HTMLElement, 320),
-  ).toBe(320);
 });

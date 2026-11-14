@@ -241,7 +241,7 @@ that catch bugs nobody can see in review.
     rule: checks are primary (`text-primary`, `StatusGlyph`), never green.
     `vegastack-design doctor` runs the same pattern over an app's own code as a failure.
 27. **`no-status-fill`** (COL-25, **new 2026-11-13**) — in the agent component set (`message-*`,
-    `task-list`, `plan-card`, `request-card`, `approval-card`, `memory-*`, `agent-*`, `chat-*`,
+    `task-list`, `plan-card`, `request-card`, `memory-*`, `agent-*`, `chat-*`,
     `activity-feed`, `status-icon`, `status-glyph`, `text-spinner`, `upload-panel`, `context-ring`,
     `run-usage`, `tool-call-chip`, `cited-list`, `file-card`): `bg-success`, `bg-warning` or
     `bg-destructive`, with any variant and `/NN`. A status hue in agent UI is a glyph or words; a card
