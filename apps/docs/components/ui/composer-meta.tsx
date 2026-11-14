@@ -1,4 +1,4 @@
-// @vegastack composer-meta@0.81.0 sha256-2AAuQYMQRVsyPcrU8/F5Qz4I4llCjxMOqRIwiX/b1ug=
+// @vegastack composer-meta@0.81.0 sha256-zA7/zw4gCR5a/qwWYrS3EK1lctd1zE0kndJTtJj9heU=
 
 "use client";
 
@@ -14,7 +14,8 @@ import {
 
 /* ------------------------------------------------------------------------------------------------
  * ComposerMeta — the one quiet line under a chat's composer box: a short privacy note on the left
- * (its full sentence in a tooltip), and on the right Plan, the model and effort, and the chat memory
+ * (its full sentence in a tooltip on hover or focus, on a tap on a touch screen, and as its
+ * description for a screen reader), and on the right Plan, the model and effort, and the chat memory
  * ring. Small muted text, no outlines; each control gets a faint pill on hover. On a narrow screen
  * the privacy note gives way first.
  * ----------------------------------------------------------------------------------------------*/
@@ -77,14 +78,32 @@ export function ComposerMeta({
   className,
   ...props
 }: ComposerMetaProps) {
+  // The full sentence on every input: a hover or keyboard focus shows it, a tap on a touch screen
+  // toggles it, and a screen reader hears it as the note's description whether or not it shows.
+  const [open, setOpen] = React.useState(false);
+  const detailId = React.useId();
   const note = privacy ? (
-    <span
-      data-slot="composer-meta-privacy"
-      tabIndex={privacyDetail ? 0 : undefined}
-      className="inline-block h-7 min-w-0 truncate rounded-md px-1 leading-7"
-    >
-      {privacy}
-    </span>
+    privacyDetail ? (
+      <Button
+        variant="ghost"
+        size="xs"
+        data-slot="composer-meta-privacy"
+        aria-describedby={detailId}
+        onPointerDown={(event) => {
+          if (event.pointerType === "touch") setOpen((was) => !was);
+        }}
+        className="h-7 min-w-0 shrink justify-start truncate px-1 font-normal text-muted-foreground"
+      >
+        <span className="min-w-0 truncate">{privacy}</span>
+      </Button>
+    ) : (
+      <span
+        data-slot="composer-meta-privacy"
+        className="inline-block h-7 min-w-0 truncate rounded-md px-1 leading-7"
+      >
+        {privacy}
+      </span>
+    )
   ) : null;
   return (
     <div
@@ -96,10 +115,17 @@ export function ComposerMeta({
       {...props}
     >
       {note && privacyDetail ? (
-        <Tooltip>
-          <TooltipTrigger render={note} />
-          <TooltipContent className="max-w-80">{privacyDetail}</TooltipContent>
-        </Tooltip>
+        <>
+          <Tooltip open={open} onOpenChange={setOpen}>
+            <TooltipTrigger render={note} closeOnClick={false} />
+            <TooltipContent className="max-w-80">
+              {privacyDetail}
+            </TooltipContent>
+          </Tooltip>
+          <span id={detailId} className="sr-only">
+            {privacyDetail}
+          </span>
+        </>
       ) : (
         note
       )}
