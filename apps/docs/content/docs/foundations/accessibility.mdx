@@ -121,6 +121,10 @@ in non-semantic markup.
   `aria-hidden` unless given an `aria-label`.
 - **Roles** — Base UI emits the right `role` and state attributes; we never ship `<div onClick>` as a
   button.
+- **Focus traps** — a modal (Dialog, Sheet, Drawer, AlertDialog) keeps Base UI's focus-trap guards:
+  invisible `aria-hidden` sentinels at its edges that screen readers skip. Tabbing past the last
+  control can pause on them before focus loops back, but focus never reaches the page behind. We
+  accept that rather than patch upstream (low severity; a fork would drift).
 
 <DoDont
   do="Use focus-visible:outline-ring, build on Base UI primitives, label every control, and let the global reduced-motion block do its job."
