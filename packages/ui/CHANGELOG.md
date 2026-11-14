@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.87.1
+
+### Patch Changes
+
+- [#991](https://github.com/vegastack/vegastack-design/pull/991) [`031dadb`](https://github.com/vegastack/vegastack-design/commit/031dadb95bab90862d5cac0f0c95328a83462afd) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 A compact `RequestCard` (Home, Needs you) keeps a send's quote preview, the words it would send, under its title, so Allow once is never pressed blind. A long quote scrolls with its own keyboard stop. Every other preview stays out of the compact row.
+
 ## 0.87.0
 
 ### Minor Changes

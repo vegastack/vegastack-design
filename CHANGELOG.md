@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.87.1] — November 14, 2026
+
+<!-- assembled from 1 changeset: e8096c60c3c6 -->
+
+### 🔧 Changed components
+
+- A compact `RequestCard` (Home, Needs you) keeps a send's quote preview, the words it would send, under its title, so Allow once is never pressed blind. A long quote scrolls with its own keyboard stop. Every other preview stays out of the compact row.
+  [`031dadb`](https://github.com/VegaStack/vegastack-design/commit/031dadb)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.87.0 → 0.87.1.
+
 ## [0.87.0] — November 14, 2026
 
 <!-- assembled from 1 changeset: d3d4d656a81c -->
