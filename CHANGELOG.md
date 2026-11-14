@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.87.2] — November 14, 2026
+
+<!-- assembled from 1 changeset: 4b24a314bca4 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.87.1 → 0.87.2.
+
+### 🐛 Fixed
+
+- QuestionLine: an answer typed under Other reads "You answered: …", and "You chose" is kept for a picked option. ChatPlanCard: Will change and Won't items written as sentences read as sentences, never "…page. and Changing…".
+  [`23742a1`](https://github.com/VegaStack/vegastack-design/commit/23742a1)
+
 ## [0.87.1] — November 14, 2026
 
 <!-- assembled from 1 changeset: e8096c60c3c6 -->

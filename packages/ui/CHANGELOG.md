@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.87.2
+
+### Patch Changes
+
+- [#992](https://github.com/vegastack/vegastack-design/pull/992) [`23742a1`](https://github.com/vegastack/vegastack-design/commit/23742a15ee71df29ae6c2eca57e40e410a809c74) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 QuestionLine: an answer typed under Other reads "You answered: …", and "You chose" is kept for a picked option. ChatPlanCard: Will change and Won't items written as sentences read as sentences, never "…page. and Changing…".
+
 ## 0.87.1
 
 ### Patch Changes
