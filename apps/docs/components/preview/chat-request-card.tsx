@@ -41,6 +41,7 @@ const EMAIL: RequestData = {
           label: "for anyone at vegastack.com",
         },
       },
+      { id: "never", label: "Never allow this" },
       { id: "decline", label: "Decline" },
     ],
   },
@@ -80,7 +81,20 @@ const site = (n: number, host: string, subagent: string): RequestData => ({
       },
       { id: "decline", label: "Decline" },
     ],
-    bundle: { key: "b1", count: 4 },
+    bundle: {
+      key: "b1",
+      count: 4,
+      choices: [
+        { id: "once", label: "Allow once" },
+        {
+          id: "always:exact",
+          label: "Always allow",
+          scope: { kind: "exact", value: "", label: "" },
+        },
+        { id: "never", label: "Never allow this" },
+        { id: "decline", label: "Decline" },
+      ],
+    },
   },
   state: "open",
 });

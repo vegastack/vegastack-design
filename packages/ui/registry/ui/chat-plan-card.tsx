@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.81.0 sha256-4XV7o2NfC6SoofljfxPZTWcCjFUSmN/xD4OHAebeunA=
+// @vegastack chat-plan-card@0.81.0 sha256-gId7bK1FkM2gDPGE7oBPYn5SQqzCPwMzWk1y8+FF7eg=
 
 "use client";
 
@@ -228,8 +228,11 @@ function planWords(data: PlanData): string {
   if (data.state === "superseded")
     return `Replaced by a newer plan · v${data.version}`;
   const by = data.answer?.by ?? "you";
+  // With nothing that needed an OK there was one Approve, and nothing to ask about.
   const mode =
-    data.answer?.mode === "ask_before_changes" ? " · asks before changes" : "";
+    data.answer?.mode === "ask_before_changes" && data.needsOk.length
+      ? " · asks before changes"
+      : "";
   return `Plan approved by ${by} · ${count}${mode}`;
 }
 
@@ -252,7 +255,7 @@ function PlanLine({
       data-slot="plan-line"
       data-state={data.state}
       className={cn(
-        "flex min-h-7 min-w-0 items-center gap-2 px-2 text-sm text-muted-foreground",
+        "-mx-2 flex min-h-7 min-w-0 items-center gap-2 px-2 text-sm text-muted-foreground",
         className,
       )}
       {...props}
@@ -303,8 +306,8 @@ export interface ChatPlanCardProps extends Omit<
 /**
  * A plan waiting for the person, inside the turn: "Plan · v2", a one-line title, a short goal,
  * numbered steps, then Will change / Won't / Needs your OK as quiet rows — no colour pills, no risk
- * dot. Actions: Approve and run (primary), Approve, ask before changes (outline), Keep planning ▾
- * (with a note; Reject inside it). "Changed ›" shows what changed since the previous version.
+ * dot. Actions: Approve and run (primary) and Approve, ask before changes (outline), or one Approve
+ * when no step needs an OK; then Keep planning ▾ (with a note; Reject inside it). "Changed ›" shows what changed since the previous version.
  * Approved, rejected or replaced, it settles into a `PlanLine` that can show the plan again.
  *
  * @example
@@ -466,21 +469,36 @@ function PlanCardBody({
             </div>
           ) : (
             <>
-              <Button
-                size="sm"
-                disabled={decided}
-                onClick={() => decide(() => onApprove("run"))}
-              >
-                Approve and run
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                disabled={decided}
-                onClick={() => decide(() => onApprove("ask_before_changes"))}
-              >
-                Approve, ask before changes
-              </Button>
+              {data.needsOk.length ? (
+                <>
+                  <Button
+                    size="sm"
+                    disabled={decided}
+                    onClick={() => decide(() => onApprove("run"))}
+                  >
+                    Approve and run
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={decided}
+                    onClick={() =>
+                      decide(() => onApprove("ask_before_changes"))
+                    }
+                  >
+                    Approve, ask before changes
+                  </Button>
+                </>
+              ) : (
+                // Nothing still asks, so there is nothing to allow: one Approve.
+                <Button
+                  size="sm"
+                  disabled={decided}
+                  onClick={() => decide(() => onApprove("ask_before_changes"))}
+                >
+                  Approve
+                </Button>
+              )}
               <ChatMenu
                 trigger={
                   <Button size="sm" variant="ghost" disabled={decided}>

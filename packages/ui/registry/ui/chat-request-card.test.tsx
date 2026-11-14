@@ -120,6 +120,23 @@ test("Always allow lists each offered scope and answers with its id", async () =
   expect(onAnswer).toHaveBeenCalledWith("always:domain", undefined);
 });
 
+test("Never is offered only when the server offers it, and answers at once", async () => {
+  const onAnswer = vi.fn(async () => {});
+  const choices = [...EMAIL.offer.choices];
+  choices.splice(3, 0, { id: "never", label: "Never allow this" });
+  const screen = await render(
+    <ChatRequestCard
+      agent={agent}
+      data={{ ...EMAIL, offer: { choices } }}
+      onAnswer={onAnswer}
+    />,
+  );
+  await userEvent.click(
+    screen.getByRole("button", { name: "Never allow this" }),
+  );
+  expect(onAnswer).toHaveBeenCalledWith("never", undefined);
+});
+
 test("Decline opens a note and sends it", async () => {
   const onAnswer = vi.fn(async () => {});
   const screen = await render(
@@ -224,8 +241,23 @@ const bundle = (n: number): RequestData => ({
           label: `for site${n}.com`,
         },
       },
+      { id: "never", label: "Never allow this" },
       { id: "decline", label: "Decline" },
     ],
+    bundle: {
+      key: "b",
+      count: 4,
+      choices: [
+        { id: "once", label: "Allow once" },
+        {
+          id: "always:exact",
+          label: "Always allow",
+          scope: { kind: "exact", value: "", label: "" },
+        },
+        { id: "never", label: "Never allow this" },
+        { id: "decline", label: "Decline" },
+      ],
+    },
   },
 });
 
@@ -247,8 +279,11 @@ test("a bundle answers all at once, or each row on its own after Choose each", a
   await userEvent.click(
     screen.getByRole("button", { name: "Always allow these sites" }),
   );
-  expect(onAnswerAll).toHaveBeenCalledWith("always:sites");
+  expect(onAnswerAll).toHaveBeenCalledWith("always:exact");
   expect(onAnswerAll).toHaveBeenCalledOnce();
+  await expect
+    .element(screen.getByRole("button", { name: "Never allow these" }))
+    .toBeInTheDocument();
 });
 
 test("Choose each answers a row on its own, carries a decline note, and holds the answers for all meanwhile", async () => {

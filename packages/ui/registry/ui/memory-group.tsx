@@ -1,4 +1,4 @@
-// @vegastack memory-group@0.81.0 sha256-3Y4BhV3mea/nVbNh7FMwMwFV8oVCJHHLJL0WP2gvwkI=
+// @vegastack memory-group@0.81.0 sha256-66qRtDSztrduz+QL2eWMMdMJhUXVpO6hns5VsZLiliQ=
 
 "use client";
 
@@ -70,7 +70,7 @@ function MemoryGroup({
             <li
               key={item.id}
               data-slot="memory-group-item"
-              className="flex min-h-7 min-w-0 items-center gap-2 px-2 text-sm"
+              className="-mx-2 flex min-h-7 min-w-0 items-center gap-2 px-2 text-sm"
             >
               <span className="min-w-0 flex-1 text-foreground">
                 {item.text}

@@ -1,4 +1,4 @@
-// @vegastack chat-subagents@0.81.0 sha256-9pP4O43Pq/LJ9NneqIxLyfmdKqJxvMKMnQ2VLWZWHpw=
+// @vegastack chat-subagents@0.81.0 sha256-qfp+2EXR76FcvAcOwuSzqzzx2idHBXuLGfQhlyJbrA8=
 
 "use client";
 
@@ -283,7 +283,7 @@ function SubagentsBlock({
     >
       {live ? (
         <div className="flex min-w-0 flex-col gap-1">
-          <p className="px-2 text-xs text-muted-foreground tabular-nums">
+          <p className="text-xs text-muted-foreground tabular-nums">
             {summary ?? subagentsSummary(views)}
           </p>
           {rows}
@@ -353,7 +353,7 @@ function BackgroundWork({
       onClick={onOpen}
       data-slot="background-work"
       className={cn(
-        "h-7 w-fit max-w-full min-w-0 justify-start gap-1.5 border-0 px-2 text-sm font-normal text-muted-foreground hover:text-muted-foreground",
+        "-mx-2 h-7 w-fit max-w-[calc(100%+1rem)] min-w-0 justify-start gap-1.5 border-0 px-2 text-sm font-normal text-muted-foreground hover:text-muted-foreground",
         className,
       )}
     >
