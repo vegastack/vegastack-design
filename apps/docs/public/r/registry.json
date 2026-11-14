@@ -1568,8 +1568,8 @@
       "meta": {
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
-        "version": "0.81.0",
-        "integrity": "sha256-BoytEiqPTwzm9oSLnQJeGJMtTBklGSoM44nd07UD4pA="
+        "version": "0.84.0",
+        "integrity": "sha256-E9cemKmm3U+tIQISZM6yfMsMTezKrEA8G3mmb720QsI="
       }
     },
     {
@@ -19746,8 +19746,8 @@
       "meta": {
         "whenToUse": "An agent offering a next step the person may ignore: tasks from a chat, a draft, a follow-up.",
         "whenNotToUse": "A risky action that waits for a decision (RequestCard), or a change already made (AgentEditBanner).",
-        "version": "0.81.0",
-        "integrity": "sha256-4BVI9tDHPGBi/OmPOEhQpJ7+EJGrBttUDxiZbU99WpM="
+        "version": "0.84.0",
+        "integrity": "sha256-+/Rfd9Jc7+npazsLF/KQ4F+SWSfyn2/xS/rpwZHQwQw="
       }
     },
     {
@@ -19777,8 +19777,8 @@
       "meta": {
         "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
         "whenNotToUse": "An agent asking to act (RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
-        "version": "0.81.0",
-        "integrity": "sha256-WS0wDRWFfpIxMv9O/phQloyftVpsAELkZ0lpbxUcAtA="
+        "version": "0.84.0",
+        "integrity": "sha256-LMSmwCRPs/CG/BmI5f2qvfEo1Ezc7JOUtJoyNNrp6kU="
       }
     },
     {
@@ -19994,8 +19994,8 @@
       "meta": {
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
-        "version": "0.82.0",
-        "integrity": "sha256-61BTnLpviL/MXuzoOn7wVgp3vDFUuBRIQvrlRQ0ivDg="
+        "version": "0.84.0",
+        "integrity": "sha256-vT2DQ/ymhWWvRlIxQMbBM/m0FxjkCbQZvYoNKSPDp+8="
       }
     },
     {
@@ -20286,8 +20286,8 @@
       "meta": {
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
-        "version": "0.83.0",
-        "integrity": "sha256-2S2hzmFmjHbQkNzb/ONQwGi62yYBizFx06+YRXH3cBw="
+        "version": "0.84.0",
+        "integrity": "sha256-s8un77Td/BkfFEGWjHdJG4gcjKP8usmyOzW1zTbSqTQ="
       }
     },
     {
@@ -20751,8 +20751,8 @@
       "meta": {
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
-        "version": "0.81.0",
-        "integrity": "sha256-t5SFL5ZgYhz0FHyYd4xQk9+5rOSTdyP3cx6Ealbvx4Q="
+        "version": "0.84.0",
+        "integrity": "sha256-5bjsP1gxWRYuhXmMD7tQJoETU2SoKCynA9zal9sp2P4="
       }
     },
     {
@@ -24513,8 +24513,8 @@
       "meta": {
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (RequestCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
-        "version": "0.81.0",
-        "integrity": "sha256-k4M0soMf3kjDCBtry4ZCvca1U6zDvoxe57nVZUiLgX4="
+        "version": "0.84.0",
+        "integrity": "sha256-nO8EHG10Lu7ZaFMD3zwbWoW25Zbu15QrP8G1dXUF09Q="
       }
     },
     {
@@ -24560,8 +24560,8 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
-        "version": "0.81.0",
-        "integrity": "sha256-th759zdYtSbppQYzIYDsPJwEFPnKc2ekN76IrcJXheU="
+        "version": "0.84.0",
+        "integrity": "sha256-ciBCaavzGCMSTBawBVCZV9CaTmis6m7Dejkq6lmZ0Yk="
       }
     },
     {
@@ -24593,8 +24593,8 @@
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (RequestCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
-        "version": "0.81.0",
-        "integrity": "sha256-q4vCt6JtyNFLy22Rf+7saLTPFPPtbPLFWghSjM0e4oY="
+        "version": "0.84.0",
+        "integrity": "sha256-pQVW+xHidNWpfSzbvrmhmp3yO8VY+17KLNxpupHgzZ8="
       }
     },
     {

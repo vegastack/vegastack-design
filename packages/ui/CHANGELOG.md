@@ -1,5 +1,19 @@
 # @vegastack/ui
 
+## 0.84.0
+
+### Minor Changes
+
+- [#983](https://github.com/vegastack/vegastack-design/pull/983) [`6c5af56`](https://github.com/vegastack/vegastack-design/commit/6c5af56176ebba6229034c63108530a96b92e31d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 The old chat pieces the new thread replaced are removed, with no aliases: `ApprovalCard` (`approval-card`; an agent asking to act is `RequestCard`, or `ChatRequestCard` in a chat), and from `message-parts` `MessageFold`, `foldLineCut` and `MessageSourceList` (the pages an answer cites are `SourceList`, and an answer never folds; `UserBubble` fades a long message from the person). `MessageActivityResults` now draws its site icons with `source-list`'s `SiteIcon`, so `message-parts` installs `source-list`. `CommandLoading`'s animated search glyph and its motion engine load only once a search runs, with the still search glyph until then, so a command menu's first load no longer carries them.
+
+- [#983](https://github.com/vegastack/vegastack-design/pull/983) [`6c5af56`](https://github.com/vegastack/vegastack-design/commit/6c5af56176ebba6229034c63108530a96b92e31d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `LiveLine` and `MessageParts` take `agentName`, so the live line's screen-reader status says who is working: "William is working: Searching the web". The timer stays out of it.
+
+### Patch Changes
+
+- Updated dependencies [[`6c5af56`](https://github.com/vegastack/vegastack-design/commit/6c5af56176ebba6229034c63108530a96b92e31d)]:
+  - @vegastack/design-tokens@0.15.2
+  - @vegastack/design@0.15.2
+
 ## 0.83.0
 
 ### Minor Changes
