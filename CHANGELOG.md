@@ -9,6 +9,31 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.84.0] — November 14, 2026
+
+<!-- assembled from 3 changesets: ab8a918c9e4f -->
+
+### 🔧 Changed components
+
+- `LiveLine` and `MessageParts` take `agentName`, so the live line's screen-reader status says who is working: "William is working: Searching the web". The timer stays out of it.
+  [`6c5af56`](https://github.com/VegaStack/vegastack-design/commit/6c5af56)
+
+### 🗑 Removed / renamed
+
+- The old chat pieces the new thread replaced are removed, with no aliases: `ApprovalCard` (`approval-card`; an agent asking to act is `RequestCard`, or `ChatRequestCard` in a chat), and from `message-parts` `MessageFold`, `foldLineCut` and `MessageSourceList` (the pages an answer cites are `SourceList`, and an answer never folds; `UserBubble` fades a long message from the person). `MessageActivityResults` now draws its site icons with `source-list`'s `SiteIcon`, so `message-parts` installs `source-list`. `CommandLoading`'s animated search glyph and its motion engine load only once a search runs, with the still search glyph until then, so a command menu's first load no longer carries them.
+  [`6c5af56`](https://github.com/VegaStack/vegastack-design/commit/6c5af56)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.15.2`** (was `0.15.1`).
+- **`@vegastack/design`** → **`0.15.2`** (was `0.15.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.83.0 → 0.84.0.
+
+### 🐛 Fixed
+
+- INT-13's 16px text-entry rule on touch pointers also covers `contenteditable="plaintext-only"`, so a plain-text editor can't bring back iOS focus zoom now that the viewport's scale stays uncapped. `@vegastack/design` ships beside it, so its `@vegastack/design-tokens` range names the tokens it is released with.
+  [`6c5af56`](https://github.com/VegaStack/vegastack-design/commit/6c5af56)
+
 ## [0.83.0] — November 14, 2026
 
 <!-- assembled from 2 changesets: 3665e17812dc -->

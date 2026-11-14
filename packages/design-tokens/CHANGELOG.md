@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.15.2
+
+### Patch Changes
+
+- [#983](https://github.com/vegastack/vegastack-design/pull/983) [`6c5af56`](https://github.com/vegastack/vegastack-design/commit/6c5af56176ebba6229034c63108530a96b92e31d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 INT-13's 16px text-entry rule on touch pointers also covers `contenteditable="plaintext-only"`, so a plain-text editor can't bring back iOS focus zoom now that the viewport's scale stays uncapped. `@vegastack/design` ships beside it, so its `@vegastack/design-tokens` range names the tokens it is released with.
+
 ## 0.15.1
 
 ### Patch Changes
