@@ -32,7 +32,8 @@ import { MessageParts } from "@/components/ui/chat-message-parts";
 `message` is an AI SDK `UIMessage` (typed structurally, so the registry needs no `ai` dependency).
 From the top: the task list when there is one (it **is** the turn's progress); the work line —
 `LiveLine` while the turn runs, the only moving thing, then `WorkSummary`, the same 28px so the
-swap never reflows — over the work log; then the Subagents block, the answer's text (never folded,
+swap never reflows — over the work log (a turn whose only work was Subagents settles into the
+Subagents line alone, which then carries the turn's summary); then the Subagents block, the answer's text (never folded,
 new prose fading in while it streams), files and the cards the app draws for data parts; last, an
 error row. Every sentence comes from the server (`providerMetadata.vegastack`, `metadata.turn`).
 

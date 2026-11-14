@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.83.0 sha256-8v6Z6mXWxsz2dpQZCqP5gkJ2hM+b7EGakSPEOtDFhXU=
+// @vegastack chat-question-card@0.83.0 sha256-REhcdFUfUt0yctHsFaMfCQ3G4cVgfAZC0zKR573B+WE=
 
 "use client";
 
@@ -297,6 +297,15 @@ function QuestionForm({
     ? null
     : (choices.find((id) => draft.picked.includes(id)) ?? choices[0]);
   const titleId = `question-${data.interactionId}-${question.id}`;
+  const title = (
+    <h3
+      id={titleId}
+      data-slot="question-title"
+      className="min-w-0 flex-1 text-base font-semibold text-foreground"
+    >
+      {question.prompt}
+    </h3>
+  );
   return (
     <div
       data-slot="chat-question-card"
@@ -311,7 +320,7 @@ function QuestionForm({
     >
       <div
         data-slot="question-header"
-        className="flex min-w-0 items-center gap-1"
+        className="flex min-w-0 items-start gap-2"
       >
         {total > 1 ? (
           <div
@@ -340,25 +349,22 @@ function QuestionForm({
               <ChevronRight strokeWidth={1.5} className="rtl:rotate-180" />
             </Button>
           </div>
-        ) : null}
+        ) : (
+          // One question: its title shares the row with Skip, so no empty band sits above it.
+          title
+        )}
         <Button
           size="icon-sm"
           variant="ghost"
           aria-label={total > 1 ? "Skip these questions" : "Skip this question"}
           disabled={pending}
-          className="ms-auto rounded-full text-muted-foreground"
+          className="-my-1 ms-auto shrink-0 rounded-full text-muted-foreground"
           onClick={() => decide(onSkip)}
         >
           <X strokeWidth={1.5} />
         </Button>
       </div>
-      <h3
-        id={titleId}
-        data-slot="question-title"
-        className="text-base font-semibold text-foreground"
-      >
-        {question.prompt}
-      </h3>
+      {total > 1 ? title : null}
       <div
         ref={optionsRef}
         role={question.multi ? "group" : "radiogroup"}

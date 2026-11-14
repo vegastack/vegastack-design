@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.83.0 sha256-PR4t/2My9ztgnaPK9seSQ4aZlkK/DeIiKhI3N/RUXsY=
+// @vegastack chat-plan-card@0.83.0 sha256-EC5MuBE8mapoAjPG8auhrz70sCKsaR2IEBVxJwh92iw=
 
 "use client";
 
@@ -227,6 +227,7 @@ function planWords(data: PlanData): string {
   if (data.state === "rejected") return "You didn't approve this plan";
   if (data.state === "superseded")
     return `Replaced by a newer plan · v${data.version}`;
+  if (data.state === "waiting") return `Plan waiting for approval · ${count}`;
   const by = data.answer?.by ?? "you";
   // With nothing that needed an OK there was one Approve, and nothing to ask about.
   const mode =
@@ -295,19 +296,25 @@ export interface ChatPlanCardProps extends Omit<
 > {
   /** The plan, as the chat contract carries it. */
   data: PlanData;
-  /** Approves: run it, or run it asking before anything that changes something. */
-  onApprove: (mode: "run" | "ask_before_changes") => void | Promise<void>;
-  /** Asks for another version, with an optional note. */
-  onKeepPlanning: (note?: string) => void | Promise<void>;
-  /** Turns the plan down, with an optional note. */
-  onReject: (note?: string) => void | Promise<void>;
+  /**
+   * Approves: run it, or run it asking before anything that changes something. Leave all three
+   * handlers out for a reader who can't decide: the plan shows read-only, "Waiting for approval".
+   * @default undefined
+   */
+  onApprove?: (mode: "run" | "ask_before_changes") => void | Promise<void>;
+  /** Asks for another version, with an optional note. @default undefined */
+  onKeepPlanning?: (note?: string) => void | Promise<void>;
+  /** Turns the plan down, with an optional note. @default undefined */
+  onReject?: (note?: string) => void | Promise<void>;
 }
 
 /**
  * A plan waiting for the person, inside the turn: "Plan · v2", a one-line title, a short goal,
  * numbered steps, then Will change / Won't / Needs your OK as quiet rows — no colour pills, no risk
  * dot. Actions: Approve and run (primary) and Approve, ask before changes (outline), or one Approve
- * when no step needs an OK; then Keep planning ▾ (with a note; Reject inside it). "Changed ›" shows what changed since the previous version.
+ * when no step needs an OK; then Keep planning ▾ (with a note; Reject inside it). "Changed ›"
+ * shows what changed since the previous version. Without handlers it is read-only, for a reader
+ * who can't decide.
  * Approved, rejected or replaced, it settles into a `PlanLine` that can show the plan again.
  *
  * @example
@@ -375,10 +382,13 @@ function PlanCardBody({
         setDecided(false);
       });
   };
+  const readOnly = !onApprove && !onKeepPlanning && !onReject;
   const send = () => {
     const text = note.trim() || undefined;
     const kind = noting;
-    decide(() => (kind === "reject" ? onReject(text) : onKeepPlanning(text)));
+    decide(() =>
+      kind === "reject" ? onReject?.(text) : onKeepPlanning?.(text),
+    );
     setNoting(null);
     setNote("");
   };
@@ -392,7 +402,11 @@ function PlanCardBody({
     >
       <ChatCard
         title={data.title}
-        meta={`Plan · v${data.version}`}
+        meta={
+          readOnly
+            ? `Plan · v${data.version} · Waiting for approval`
+            : `Plan · v${data.version}`
+        }
         aside={
           data.changedFrom ? (
             <Button
@@ -416,7 +430,7 @@ function PlanCardBody({
           ) : undefined
         }
         actions={
-          noting ? (
+          readOnly ? undefined : noting ? (
             <div
               data-slot="plan-note"
               className="flex w-full min-w-0 flex-col gap-2"
@@ -469,7 +483,7 @@ function PlanCardBody({
             </div>
           ) : (
             <>
-              {data.needsOk.length ? (
+              {!onApprove ? null : data.needsOk.length ? (
                 <>
                   <Button
                     size="sm"
@@ -499,31 +513,37 @@ function PlanCardBody({
                   Approve
                 </Button>
               )}
-              <ChatMenu
-                trigger={
-                  <Button size="sm" variant="ghost" disabled={decided}>
-                    Keep planning
-                    <ChevronDown
-                      aria-hidden="true"
-                      data-icon="inline-end"
-                      strokeWidth={1.5}
-                    />
-                  </Button>
-                }
-              >
-                <ChatMenuItem
-                  hint="Tell the agent what to change"
-                  onSelect={() => setNoting("keep")}
+              {onKeepPlanning || onReject ? (
+                <ChatMenu
+                  trigger={
+                    <Button size="sm" variant="ghost" disabled={decided}>
+                      {onKeepPlanning ? "Keep planning" : "Reject"}
+                      <ChevronDown
+                        aria-hidden="true"
+                        data-icon="inline-end"
+                        strokeWidth={1.5}
+                      />
+                    </Button>
+                  }
                 >
-                  Keep planning…
-                </ChatMenuItem>
-                <ChatMenuItem
-                  hint="Nothing runs"
-                  onSelect={() => setNoting("reject")}
-                >
-                  Reject…
-                </ChatMenuItem>
-              </ChatMenu>
+                  {onKeepPlanning ? (
+                    <ChatMenuItem
+                      hint="Tell the agent what to change"
+                      onSelect={() => setNoting("keep")}
+                    >
+                      Keep planning…
+                    </ChatMenuItem>
+                  ) : null}
+                  {onReject ? (
+                    <ChatMenuItem
+                      hint="Nothing runs"
+                      onSelect={() => setNoting("reject")}
+                    >
+                      Reject…
+                    </ChatMenuItem>
+                  ) : null}
+                </ChatMenu>
+              ) : null}
             </>
           )
         }
