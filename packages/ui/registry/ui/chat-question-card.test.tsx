@@ -187,6 +187,24 @@ test("answered and skipped settle into lines", async () => {
   );
 });
 
+test("several picks and typed words: picks read as their labels, the line as typed", async () => {
+  const screen = await render(
+    <QuestionCard
+      data={{
+        ...DATA,
+        questions: [{ ...DATA.questions[1]!, multi: true }],
+        state: "answered",
+        answers: { tone: "warm, a bit playful" },
+      }}
+      onSubmit={() => {}}
+      onSkip={() => {}}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="question-line"]')!.textContent,
+  ).toBe("You answered: Warm, a bit playful");
+});
+
 test("no a11y violations — open, picked with Other, answered", async () => {
   const screen = await render(
     <div>

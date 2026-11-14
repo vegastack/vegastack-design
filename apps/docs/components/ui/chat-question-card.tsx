@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.84.1 sha256-GJ22ksLHR4jqhc13oy6JmX+LKP1Y4tNgo4pG6DJIrX0=
+// @vegastack chat-question-card@0.84.1 sha256-tkypE/V49NZ6AEFOIQEKzQb/OeHPR52vRg+lEjpCM00=
 
 "use client";
 
@@ -61,15 +61,13 @@ function answerWords(
   if (!answer) return { words: "", typed: false };
   const byId = new Map(question.options.map((o) => [o.id, o.label]));
   if (byId.has(answer)) return { words: byId.get(answer)!, typed: false };
-  if (question.multi) {
-    const parts = answer.split(", ");
-    if (parts.every((part) => byId.has(part)))
-      return {
-        words: parts.map((part) => byId.get(part)!).join(", "),
-        typed: false,
-      };
-  }
-  return { words: answer, typed: true };
+  if (!question.multi) return { words: answer, typed: true };
+  // Several picks and words under Other, joined by ", ": each pick reads as its label.
+  const parts = answer.split(", ");
+  return {
+    words: parts.map((part) => byId.get(part) ?? part).join(", "),
+    typed: parts.some((part) => !byId.has(part)),
+  };
 }
 
 /** Props accepted by `QuestionCard`. */

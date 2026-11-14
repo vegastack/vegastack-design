@@ -20381,7 +20381,7 @@
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
         "version": "0.84.1",
-        "integrity": "sha256-GJ22ksLHR4jqhc13oy6JmX+LKP1Y4tNgo4pG6DJIrX0="
+        "integrity": "sha256-tkypE/V49NZ6AEFOIQEKzQb/OeHPR52vRg+lEjpCM00="
       }
     },
     {
@@ -20416,7 +20416,7 @@
         "whenToUse": "A plan waiting for a person's approval in an agent chat, and its approved, rejected or replaced line.",
         "whenNotToUse": "The task list a running plan becomes (TaskList); a static checklist in a document.",
         "version": "0.87.0",
-        "integrity": "sha256-gygKF4rHrJVF4z8R8gkglrqJvxlm7UivxJ2LQkXl/sY="
+        "integrity": "sha256-i9VqzBACkzFJJcprXd1dSQWmWjEAgDK0mvYdJjvABh8="
       }
     },
     {

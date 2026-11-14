@@ -53,7 +53,11 @@ test("won't items written as sentences read as sentences, never joined with 'and
     <ChatPlanCard
       data={{
         ...PLAN,
-        wont: ["Touch the published page.", "Changing the owner"],
+        wont: [
+          "Touch the published page.",
+          "Changing the owner",
+          "Leave production. 🔒",
+        ],
       }}
       {...props()}
     />,
@@ -61,7 +65,9 @@ test("won't items written as sentences read as sentences, never joined with 'and
   const facts = screen.container.querySelector<HTMLElement>(
     '[data-slot="plan-facts"]',
   )!.textContent;
-  expect(facts).toContain("Won'tTouch the published page. Changing the owner.");
+  expect(facts).toContain(
+    "Won'tTouch the published page. Changing the owner. Leave production. 🔒",
+  );
   expect(screen.container.innerHTML).not.toMatch(
     /bg-(success|warning|destructive)/,
   );
