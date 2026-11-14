@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.81.0 sha256-yRojODlDB9X5IzgcN4EkyxpSbv0kBz0Qt5IxqKiQKng=
+// @vegastack text-edit@0.81.0 sha256-c6wvpfdTeEKelx85n2z2WZTUpjlemM2KeNgUnn4DGZs=
 
 "use client";
 
@@ -11775,6 +11775,7 @@ export function TextEditEditor({
   disabled = false,
   "aria-label": ariaLabel,
   variant = "document",
+  framed = false,
   mentions: mentionsProp,
   mentionHref,
   mentionImage,
@@ -12825,8 +12826,9 @@ export function TextEditEditor({
         editable && hasSlash && hintClassName,
       ),
       // `document`: the caret is this surface's whole focus cue — no ring, border or fill (see
-      // the geometry lane's caret-only exemption). `boxed`: the box's border is the cue.
-      "data-focus-cue": boxed ? "border" : "caret",
+      // the geometry lane's caret-only exemption). `boxed`, or `framed` by an ancestor's field
+      // group: that border is the cue.
+      "data-focus-cue": boxed || framed ? "border" : "caret",
       ...(resolvedId ? { id: resolvedId } : {}),
       ...(ariaLabel ? { "aria-label": ariaLabel } : {}),
       ...(resolvedLabelledBy ? { "aria-labelledby": resolvedLabelledBy } : {}),
@@ -12849,6 +12851,7 @@ export function TextEditEditor({
       menuControls,
       menuActive,
       boxed,
+      framed,
       saving,
       disabled,
       editable,

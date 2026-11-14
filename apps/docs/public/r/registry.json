@@ -19510,7 +19510,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.81.0",
-        "integrity": "sha256-yRojODlDB9X5IzgcN4EkyxpSbv0kBz0Qt5IxqKiQKng="
+        "integrity": "sha256-c6wvpfdTeEKelx85n2z2WZTUpjlemM2KeNgUnn4DGZs="
       }
     },
     {
@@ -19837,10 +19837,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A mode or a choice in ChatComposer: the Plan toggle in its header, a model shown read-only, a chip that travels with the message.",
+        "whenToUse": "A mode or a choice in ChatComposer: the Plan toggle at the end of its context strip (ChatComposerHeader), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
         "version": "0.81.0",
-        "integrity": "sha256-xWwvamn4/2YYyrJ2N/PIU/5fImCe8VyNNtxthEHOp4U="
+        "integrity": "sha256-VSDKFfTBMStWZB3uWbBEmubMHXiaDlllCEQPCZEdO0c="
       }
     },
     {
@@ -20620,7 +20620,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.81.0",
-        "integrity": "sha256-eYNXICMzGwLBSobE6t5q3kjaltosbBEV9xSXSEl4MLw="
+        "integrity": "sha256-+t1GMJDgLsjRpHjIUjtZKLht4VBymVxP+E00xiGEU9k="
       }
     },
     {

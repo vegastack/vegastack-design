@@ -632,6 +632,12 @@ function tintCarriers(control: Element): Element[] {
     carriers.push(ancestor);
     ancestor = ancestor.parentElement;
   }
+  // A bordered field group (`data-field-group`) IS the carrier of the text it frames, however deep
+  // the text sits: ChatComposer's card frames a `framed` TextEdit several hops down. It joins the
+  // set for every control inside it, so a button in the group is held to a group border that
+  // never moves for it.
+  const group = control.closest("[data-field-group]");
+  if (group && !carriers.includes(group)) carriers.push(group);
   // An agent's avatar button paints its tint on a hexagon layer INSIDE it (`AgentShapeLayer`): the
   // button can't be masked to the shape without clipping the avatar's corner circle, so the layer
   // is the tint's surface. It must still change to the gradient, as any carrier must.

@@ -16277,7 +16277,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A mode or a choice in ChatComposer: the Plan toggle in its header, a model shown read-only, a chip that travels with the message.",
+        "whenToUse": "A mode or a choice in ChatComposer: the Plan toggle at the end of its context strip (ChatComposerHeader), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
         "version": "0.81.0"
       }

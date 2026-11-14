@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.81.0 sha256-yRojODlDB9X5IzgcN4EkyxpSbv0kBz0Qt5IxqKiQKng=
+// @vegastack text-edit@0.81.0 sha256-c6wvpfdTeEKelx85n2z2WZTUpjlemM2KeNgUnn4DGZs=
 
 "use client";
 
@@ -1715,6 +1715,14 @@ export interface TextEditProps {
    */
   variant?: "document" | "boxed" | "composer";
   /**
+   * `variant="document"` inside a bordered frame an ancestor draws (a `data-field-group`, such as
+   * `ChatComposer`'s card): the surface declares that frame's border as its focus cue
+   * (`data-focus-cue="border"`) instead of the caret, and the frame darkens its border while the
+   * text has focus (FOC-14's text-entry cue). The editor itself still draws no border or fill.
+   * @default false
+   */
+  framed?: boolean;
+  /**
    * `variant="boxed"`: content inside the box above the text (a chat's context chips).
    * @default undefined
    */
@@ -2571,7 +2579,7 @@ export function TextEdit(props: TextEditProps) {
   const surface = {
     className: surfaceClassName,
     "data-slot": "text-edit-read",
-    "data-focus-cue": boxed ? "border" : "caret",
+    "data-focus-cue": boxed || props.framed ? "border" : "caret",
     role: entry ? "textbox" : "document",
     "aria-multiline": entry || undefined,
     id: resolvedId,

@@ -374,6 +374,12 @@ test("the handle opens the mention menu, after a word too", async () => {
   handle.current!.openMentionMenu();
   await vi.waitFor(() => expect(search).toHaveBeenCalled());
   await expect.element(page.getByText("BOQ processor")).toBeVisible();
+  // Enter picks the active option, so wait for the menu to make one active (slow under load).
+  await vi.waitFor(() =>
+    expect(
+      document.activeElement?.getAttribute("aria-activedescendant"),
+    ).toBeTruthy(),
+  );
   await userEvent.keyboard("{Enter}");
   await expect.element(box()).toHaveTextContent("BOQ processor");
   await userEvent.keyboard("hello");
@@ -767,9 +773,9 @@ const header = (
 
 test("the context strip is one named trigger above a hairline, with Plan at its end", async () => {
   const screen = await mount({ header, onSubmit: () => {} });
-  // The role follows a pause: "…Montgomery, Chief of staff…".
   const trigger = page.getByRole("button", {
-    name: /^Talking to William Shakespeare-Montgomery\s?, Chief of staff of the whole operations group$/,
+    name: "Talking to William Shakespeare-Montgomery, Chief of staff of the whole operations group",
+    exact: true,
   });
   await expect.element(trigger).toBeVisible();
   const strip = screen.container.querySelector<HTMLElement>(
@@ -876,4 +882,41 @@ test("the parts need the root", async () => {
   } finally {
     error.mockRestore();
   }
+});
+
+test("a turned-off composer turns its context strip off too", async () => {
+  const screen = await mount({ header, disabled: true });
+  await expect
+    .element(page.getByRole("button", { name: /^Talking to William/ }))
+    .toHaveAttribute("aria-disabled", "true");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the card's border is the text's focus cue, and only the text's", async () => {
+  const screen = await mount({
+    header,
+    onSubmit: () => {},
+    onAttach: () => {},
+    mention: true,
+  });
+  const card = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-box]",
+  )!;
+  expect(card.hasAttribute("data-field-group")).toBe(true);
+  const border = () => getComputedStyle(card).borderTopColor;
+  const rest = border();
+  // A control in the strip or the actions row takes the tint; the card's border holds.
+  for (const name of [/^Talking to William/, "Plan", "Add", "Mention"]) {
+    (page.getByRole("button", { name }).element() as HTMLElement).focus();
+    await new Promise((done) => setTimeout(done, 250));
+    expect(border()).toBe(rest);
+  }
+  await userEvent.click(box());
+  await vi.waitFor(() =>
+    expect(document.activeElement?.className).toContain("ProseMirror"),
+  );
+  expect(document.activeElement?.getAttribute("data-focus-cue")).toBe("border");
+  await vi.waitFor(() => expect(border()).not.toBe(rest));
+  (page.getByRole("button", { name: "Add" }).element() as HTMLElement).focus();
+  await vi.waitFor(() => expect(border()).toBe(rest));
 });

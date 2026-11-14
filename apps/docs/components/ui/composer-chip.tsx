@@ -1,4 +1,4 @@
-// @vegastack composer-chip@0.81.0 sha256-xWwvamn4/2YYyrJ2N/PIU/5fImCe8VyNNtxthEHOp4U=
+// @vegastack composer-chip@0.81.0 sha256-VSDKFfTBMStWZB3uWbBEmubMHXiaDlllCEQPCZEdO0c=
 
 "use client";
 
@@ -16,7 +16,7 @@ import {
 
 /* ------------------------------------------------------------------------------------------------
  * ComposerChip — a small round chip for the chat composer: Plan at the end of its context strip
- * (`ChatComposerHeader`), or something that travels with the message. Three forms from one look:
+ * (`ChatComposerHeader`), or another mode or choice the composer shows. Three forms from one look:
  *
  * - a toggle (pass `pressed` or `defaultPressed`): a mode such as Plan. Off it is a quiet outline,
  *   on it fills with the primary tint and says so with `aria-pressed`;

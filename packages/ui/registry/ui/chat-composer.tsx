@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.81.0 sha256-eYNXICMzGwLBSobE6t5q3kjaltosbBEV9xSXSEl4MLw=
+// @vegastack chat-composer@0.81.0 sha256-+t1GMJDgLsjRpHjIUjtZKLht4VBymVxP+E00xiGEU9k=
 
 "use client";
 
@@ -482,6 +482,9 @@ export function ChatComposer({
         ) : null}
         <div
           data-slot="chat-composer-box"
+          // A bordered field group around text entry: its border is the text's focus cue, and
+          // base.css hangs the forced-colours focus outline on it (FOC-3/FOC-14).
+          data-field-group=""
           data-disabled={disabled ? "" : undefined}
           data-dragging={dragging ? "" : undefined}
           className={cn(
@@ -774,13 +777,16 @@ export function ChatComposerHeaderTrigger({
   media,
   description,
   chevron = true,
+  disabled,
   className,
   ...props
 }: ChatComposerHeaderTriggerProps) {
+  const composer = useComposer("ChatComposerHeaderTrigger");
   return (
     <Button
       variant="ghost"
       data-slot="chat-composer-header-trigger"
+      disabled={disabled || composer.disabled}
       className={cn(
         "h-8 min-w-0 flex-1 justify-start gap-1.5 rounded-full ps-2 pe-3 text-sm font-normal",
         className,
@@ -798,7 +804,11 @@ export function ChatComposerHeaderTrigger({
       ) : null}
       <span className="min-w-0 shrink truncate font-medium text-foreground">
         {children}
-        {description ? <span className="sr-only">,</span> : null}
+        {description ? (
+          // The pause before the role, read straight after the words ("William, Chief of
+          // staff"): an inline, unseen run in the same text, so no space opens before it.
+          <span className="opacity-0 select-none">,</span>
+        ) : null}
       </span>
       {chevron ? (
         <ChevronDown aria-hidden className="size-3.5 shrink-0" />
@@ -1150,6 +1160,7 @@ export function ChatComposerInput({
         format="markdown"
         // The card draws the frame and its focus cue; the editor is only the text.
         variant="document"
+        framed
         defaultValue={composer.draft.value}
         placeholder={placeholder}
         aria-label={composer.labels?.message ?? "Message"}

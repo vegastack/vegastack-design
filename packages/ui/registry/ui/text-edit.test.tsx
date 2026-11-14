@@ -8791,3 +8791,15 @@ test("without submitOnEnter, Enter still breaks the line", async () => {
   await userEvent.keyboard("One{Enter}two");
   expect(onSubmit).not.toHaveBeenCalled();
 });
+
+test("framed: a document editor declares its ancestor frame's border as its focus cue", async () => {
+  const screen = await render(
+    <TextEdit format="markdown" framed aria-label="Message" />,
+  );
+  const box = screen.container.querySelector<HTMLElement>("[role=textbox]")!;
+  expect(box.getAttribute("data-focus-cue")).toBe("border");
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="text-edit"]',
+  )!;
+  expect(getComputedStyle(root).borderTopWidth).toBe("0px");
+});

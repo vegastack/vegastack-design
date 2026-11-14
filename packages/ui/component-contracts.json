@@ -35537,6 +35537,10 @@
               "values": [""]
             },
             {
+              "name": "data-field-group",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "chat-composer",
