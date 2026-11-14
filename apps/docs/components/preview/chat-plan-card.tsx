@@ -104,6 +104,11 @@ export function chatPlanCardLines(): ReactNode {
       />
       <ChatPlanCard data={{ ...PLAN, state: "rejected" }} {...cardProps} />
       <ChatPlanCard data={{ ...PLAN, state: "superseded" }} {...cardProps} />
+      <ChatPlanCard
+        data={{ ...PLAN, state: "changes_requested" }}
+        {...cardProps}
+      />
+      <ChatPlanCard data={{ ...PLAN, state: "expired" }} {...cardProps} />
     </Wrapper>
   );
 }

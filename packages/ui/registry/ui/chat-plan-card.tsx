@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.84.1 sha256-orw1OT4u0My5lJbaHC3fl7ohueiU1lmOOMBJBJBMhGk=
+// @vegastack chat-plan-card@0.84.1 sha256-FmtxdFLD/WayH2/qvzzs18BiwFhw0HeyY2xCGRJ08ks=
 
 "use client";
 
@@ -31,7 +31,13 @@ export type PlanData = {
   /** Its version, from 1; "Plan · v2" from the second. */
   version: number;
   /** Where it stands. */
-  state: "waiting" | "approved" | "rejected" | "superseded";
+  state:
+    | "waiting"
+    | "approved"
+    | "rejected"
+    | "superseded"
+    | "changes_requested"
+    | "expired";
   /** One line: what the plan does. */
   title: string;
   /** A short goal under the title. */
@@ -227,6 +233,10 @@ function planWords(data: PlanData): string {
   if (data.state === "rejected") return "You didn't approve this plan";
   if (data.state === "superseded")
     return `Replaced by a newer plan · v${data.version}`;
+  // Keep planning was asked and no new version has come yet; or no one answered in time.
+  if (data.state === "changes_requested")
+    return `Changes asked for · v${data.version}`;
+  if (data.state === "expired") return `Plan expired · v${data.version}`;
   if (data.state === "waiting") return `Plan waiting for approval · ${count}`;
   const by = data.answer?.by ?? "you";
   // With nothing that needed an OK there was one Approve, and nothing to ask about.
