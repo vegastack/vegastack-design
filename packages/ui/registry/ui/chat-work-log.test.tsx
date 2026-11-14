@@ -40,6 +40,7 @@ test("LiveLine: one spinner, the words and the timer in one line; the words reac
   const screen = await render(
     <LiveLine
       words="Searching the web"
+      agentName="William"
       startedAt={ago(9_000)}
       open={false}
       onToggle={onToggle}
@@ -52,7 +53,7 @@ test("LiveLine: one spinner, the words and the timer in one line; the words reac
   await userEvent.click(trigger);
   expect(onToggle).toHaveBeenCalledOnce();
   expect(screen.getByRole("status").element().textContent).toBe(
-    "Searching the web",
+    "William is working: Searching the web",
   );
   expect(slot(screen.container, "live-line-stuck")).toBeNull();
   await expectNoA11yViolations(screen.container);

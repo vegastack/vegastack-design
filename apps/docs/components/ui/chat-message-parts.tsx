@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.82.0 sha256-n54G4StHORaW9pOnPmTL0SL29KgqsnaFEW2Xh2zjs8w=
+// @vegastack chat-message-parts@0.82.0 sha256-kRcYIW9+Fu7/I+z4LogIHc4e9tb/2Z1iQDD6FSBbf0s=
 
 "use client";
 
@@ -88,6 +88,8 @@ export type ChatDataRenderer = (part: ChatDataPart) => React.ReactNode;
 export interface MessagePartsProps {
   /** The agent's message. */
   message: ChatMessageLike;
+  /** The agent's name, for the live line's screen-reader status ("William is working: …"). @default undefined */
+  agentName?: string;
   /** The reader setting. @default "summary" */
   detail?: ChatDetail;
   /** The turn is running: the live line shows, with its spinner and timer. @default false */
@@ -186,6 +188,7 @@ function waitingWords(turn: ChatTurn, parts: readonly ChatPart[]) {
  */
 function MessageParts({
   message,
+  agentName,
   detail = "summary",
   live = false,
   renderData,
@@ -349,6 +352,7 @@ function MessageParts({
           {showLive ? (
             <LiveLine
               words={liveWordsOf(parts)}
+              agentName={agentName}
               startedAt={turn.startedAt}
               workedMs={turn.workedMs}
               countedAt={turn.countedAt}
