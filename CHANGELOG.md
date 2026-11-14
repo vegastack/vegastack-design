@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.86.0] — November 14, 2026
+
+<!-- assembled from 1 changeset: 06daff9e2253 -->
+
+### 🔧 Changed components
+
+- ChatRequestCard: `data.quote` shows the exact text a step would send, such as a message or an email's To, Subject and body, under its subject.
+  [`9737cc3`](https://github.com/VegaStack/vegastack-design/commit/9737cc3)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.85.0 → 0.86.0.
+
 ## [0.85.0] — November 14, 2026
 
 <!-- assembled from 1 changeset: f22cc2e2984d -->

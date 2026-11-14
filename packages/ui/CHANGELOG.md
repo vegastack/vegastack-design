@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.86.0
+
+### Minor Changes
+
+- [#989](https://github.com/vegastack/vegastack-design/pull/989) [`9737cc3`](https://github.com/vegastack/vegastack-design/commit/9737cc3605da6bbd673144a5938b06650e7d8c66) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 ChatRequestCard: `data.quote` shows the exact text a step would send, such as a message or an email's To, Subject and body, under its subject.
+
 ## 0.85.0
 
 ### Minor Changes
