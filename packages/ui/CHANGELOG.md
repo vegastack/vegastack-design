@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.84.4
+
+### Patch Changes
+
+- Updated dependencies [[`32ada8b`](https://github.com/vegastack/vegastack-design/commit/32ada8b937a4ab722851e5e3b90094696cae6a88)]:
+  - @vegastack/design-tokens@0.15.3
+  - @vegastack/design@0.15.3
+
 ## 0.84.3
 
 ### Patch Changes

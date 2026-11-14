@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.84.4] — November 14, 2026
+
+<!-- assembled from 1 changeset: f9b2a517db02 -->
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.15.3`** (was `0.15.2`).
+- **`@vegastack/design`** → **`0.15.3`** (was `0.15.2`).
+- The design-system registry (`@vegastack/ui`) bumps 0.84.3 → 0.84.4.
+
+### 📚 Docs
+
+- The viewport's `maximumScale: 1` is back in the install docs, the consume guide and INT-13's note in `base.css` (operator's ruling): it pairs with the 16px touch rule to stop iOS focus zoom while pinch-zoom keeps working on iOS. The 16px rule and its `contenteditable="plaintext-only"` coverage are unchanged.
+  [`32ada8b`](https://github.com/VegaStack/vegastack-design/commit/32ada8b)
+
 ## [0.84.3] — November 14, 2026
 
 <!-- assembled from 1 changeset: 7a01501c73f5 -->
