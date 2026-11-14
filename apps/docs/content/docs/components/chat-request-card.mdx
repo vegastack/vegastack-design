@@ -32,6 +32,10 @@ quiet text button that opens a note to the agent. When Always can't be offered,
 `offer.noAlways.words` says why under the buttons. While `onAnswer` runs the buttons hold; once
 the request is answered, refused, withdrawn or expired the card becomes a `RequestLine`.
 
+`data.quote` is the exact text the step would send, such as a message, or an email's To, Subject
+and body. It's quoted under the subject with its line breaks and spacing kept, so whoever answers sees what
+they allow. A long quote scrolls inside its block instead of pushing the buttons away, and the block is a tab stop so a keyboard can scroll it.
+
 <ComponentPreview
   name="chatRequestCard"
   file="components/preview/chat-request-card.tsx"

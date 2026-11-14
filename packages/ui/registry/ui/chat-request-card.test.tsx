@@ -393,3 +393,26 @@ test("a late failure of an answer whose asks already settled can't free a newer 
     .element(screen.getByRole("button", { name: "Allow all once" }))
     .toBeDisabled();
 });
+
+test("quotes the exact words it would send under the subject, line breaks kept", async () => {
+  const screen = await render(
+    <ChatRequestCard
+      data={{
+        ...EMAIL,
+        quote:
+          "To: sm@vegastack.com\nSubject: Weekly summary\n\nHi Simran,\nhere it is.",
+      }}
+      agent={agent}
+      onAnswer={vi.fn()}
+    />,
+  );
+  const quote = screen.container.querySelector<HTMLElement>(
+    "[data-slot=request-quote]",
+  )!;
+  expect(quote.tagName).toBe("BLOCKQUOTE");
+  expect(quote.tabIndex).toBe(0);
+  expect(quote.textContent).toBe(
+    "To: sm@vegastack.com\nSubject: Weekly summary\n\nHi Simran,\nhere it is.",
+  );
+  await expectNoA11yViolations(screen.container);
+});

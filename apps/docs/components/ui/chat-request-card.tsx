@@ -1,4 +1,4 @@
-// @vegastack chat-request-card@0.83.0 sha256-uVLT39H7ig23ujeP0vLzETnVPsZA9tSv45/MWErGxmg=
+// @vegastack chat-request-card@0.83.0 sha256-1v++YerTGarWgfwzB9dTNYQmYqZyYy/yqLPImxMEHg8=
 
 "use client";
 
@@ -55,6 +55,11 @@ export type RequestData = {
   detail?: string;
   /** A link to look at what will be sent or opened. */
   preview?: { label: string; href?: string };
+  /**
+   * The exact words it would send (a message; an email's To, Subject and body), quoted under the
+   * subject so whoever answers sees what they allow.
+   */
+  quote?: string;
   /** The Subagent that asked, when it wasn't the agent itself. */
   from?: { subagentTitle: string; callId: string };
   /** What the server will accept, in order, and why Always can't be offered when it can't. */
@@ -152,6 +157,17 @@ function RequestSubject({
               <span className="ms-auto shrink-0">{data.preview.label}</span>
             ) : null}
           </div>
+        ) : null}
+        {data.quote ? (
+          <blockquote
+            data-slot="request-quote"
+            // A long quote scrolls: a stop of its own, so a keyboard can read it all before answering.
+            tabIndex={0}
+            aria-label="What it would send"
+            className="mt-1.5 max-h-48 overflow-y-auto rounded-lg bg-muted px-3 py-2 text-sm whitespace-pre-wrap wrap-anywhere text-foreground"
+          >
+            {data.quote}
+          </blockquote>
         ) : null}
       </div>
     </div>
