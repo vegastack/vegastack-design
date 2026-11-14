@@ -20416,7 +20416,7 @@
         "whenToUse": "A plan waiting for a person's approval in an agent chat, and its approved, rejected or replaced line.",
         "whenNotToUse": "The task list a running plan becomes (TaskList); a static checklist in a document.",
         "version": "0.83.0",
-        "integrity": "sha256-Dh1FLbR8EcCsoQKmCJtNSbVI00B/dEFQU3pp/p8xLt4="
+        "integrity": "sha256-EC5MuBE8mapoAjPG8auhrz70sCKsaR2IEBVxJwh92iw="
       }
     },
     {

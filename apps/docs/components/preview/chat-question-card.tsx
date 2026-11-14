@@ -86,6 +86,29 @@ export function chatQuestionCard(): ReactNode {
   );
 }
 
+export function chatQuestionCardOne(): ReactNode {
+  // One question: its title shares Skip's row, and a long one wraps beside it.
+  return (
+    <Wrapper className={COLUMN}>
+      <QuestionCard
+        data={{
+          ...QUESTIONS,
+          interactionId: "q-one",
+          questions: [
+            {
+              ...QUESTIONS.questions[1]!,
+              prompt:
+                "Which address should get the comparison, Simran's work address or the shared sales inbox she reads every morning?",
+            },
+          ],
+        }}
+        onSubmit={noop}
+        onSkip={noop}
+      />
+    </Wrapper>
+  );
+}
+
 export function chatQuestionCardLines(): ReactNode {
   return (
     <Wrapper className={COLUMN}>

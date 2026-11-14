@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.83.0 sha256-Dh1FLbR8EcCsoQKmCJtNSbVI00B/dEFQU3pp/p8xLt4=
+// @vegastack chat-plan-card@0.83.0 sha256-EC5MuBE8mapoAjPG8auhrz70sCKsaR2IEBVxJwh92iw=
 
 "use client";
 
@@ -517,7 +517,7 @@ function PlanCardBody({
                 <ChatMenu
                   trigger={
                     <Button size="sm" variant="ghost" disabled={decided}>
-                      Keep planning
+                      {onKeepPlanning ? "Keep planning" : "Reject"}
                       <ChevronDown
                         aria-hidden="true"
                         data-icon="inline-end"
