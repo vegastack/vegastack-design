@@ -271,6 +271,21 @@ test("a turn of only Subagents keeps its line when the answer starts", async () 
   expect(line.tagName).toBe("P");
 });
 
+test("a settled turn of only Subagents says so once, on the Subagents line", async () => {
+  const screen = await render(
+    <MessageParts
+      message={message([subagent("s1", "done", "Hublit and Halonix")], {
+        summary: "Worked for 21s · 1 Subagent",
+      })}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="work-summary"]'),
+  ).toBeNull();
+  expect(screen.getByText("Worked for 21s · 1 Subagent")).toBeVisible();
+  expect(screen.container.textContent).not.toContain("Finished 1 Subagent");
+});
+
 test("a text-only turn shows no work line once it answers", async () => {
   const screen = await render(<MessageParts message={message([])} live />);
   expect(

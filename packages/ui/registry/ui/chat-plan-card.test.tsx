@@ -96,6 +96,16 @@ test("with nothing that needs an OK there is one Approve, which accepts without 
   expect(p.onApprove).toHaveBeenCalledWith("ask_before_changes");
 });
 
+test("without handlers a waiting plan is read-only for a reader who can't decide", async () => {
+  const screen = await render(<ChatPlanCard data={PLAN} />);
+  await expect
+    .element(screen.getByText(/Waiting for approval/))
+    .toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: /Approve|Keep planning/ }).query(),
+  ).toBeNull();
+});
+
 test("Reject carries a note, from inside Keep planning", async () => {
   const p = props();
   const screen = await render(<ChatPlanCard data={PLAN} {...p} />);

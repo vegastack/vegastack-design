@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.82.0 sha256-kRcYIW9+Fu7/I+z4LogIHc4e9tb/2Z1iQDD6FSBbf0s=
+// @vegastack chat-message-parts@0.82.0 sha256-61BTnLpviL/MXuzoOn7wVgp3vDFUuBRIQvrlRQ0ivDg=
 
 "use client";
 
@@ -236,11 +236,15 @@ function MessageParts({
   // The settled line fades in only when it replaces a live line, never on a history load.
   const [wasLive, setWasLive] = React.useState(showLive);
   if (showLive && !wasLive) setWasLive(true);
-  // A turn that showed its live line keeps its line once settled, even with only Subagents.
+  // A settled turn whose only work was Subagents says so once: the Subagents block's own line
+  // carries the turn's summary, and no second line repeats it.
+  const subagentsOnly = !live && workParts.length === 0 && subagents.length > 0;
   const showWork =
     showLive ||
     workParts.length > 0 ||
-    (wasLive && (subagents.length > 0 || turn.summary != null));
+    (wasLive &&
+      !subagentsOnly &&
+      (subagents.length > 0 || turn.summary != null));
   const summary =
     turn.summary ??
     (turn.workedMs != null && !live
@@ -261,6 +265,7 @@ function MessageParts({
           key="subagents"
           parts={subagents}
           live={live}
+          summary={subagentsOnly ? (turn.summary ?? undefined) : undefined}
           onOpen={(callId) => onOpenSubagent?.(callId)}
           onOpenRequest={onOpenSubagentRequest}
           onRetry={onRetrySubagent}

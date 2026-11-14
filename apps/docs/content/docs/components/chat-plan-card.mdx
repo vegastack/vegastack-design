@@ -30,7 +30,9 @@ Meta is only "Plan · v2". Under the title and goal come numbered steps (eight s
 and three quiet rows: Will change, Won't, and Needs your OK — the steps the permission engine says
 will still ask. No colour pills, no risk dot. Approve and run is primary, Approve, ask before
 changes is outline, and Keep planning ▾ holds a note and Reject. When no step needs an OK there is
-nothing to allow, so the card shows one Approve (`onApprove("ask_before_changes")`). Approved, rejected or replaced,
+nothing to allow, so the card shows one Approve (`onApprove("ask_before_changes")`). A reader
+who can't decide gets the plan read-only: pass no handlers, and the meta reads "Plan · v2 ·
+Waiting for approval". Approved, rejected or replaced,
 the card becomes a `PlanLine` that can show the plan again.
 
 <ComponentPreview

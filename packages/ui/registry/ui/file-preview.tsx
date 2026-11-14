@@ -1,9 +1,9 @@
-// @vegastack file-preview@0.82.0 sha256-FEuCaDuaNxazc3sDiAMSgGtftxN3brvc8yYXb713pHQ=
+// @vegastack file-preview@0.82.0 sha256-GXqln0eVxF8ekYDsXz5KvxKdt5tDawQbzTy/J2isTYI=
 
 "use client";
 
 import * as React from "react";
-import { ChevronRight, Download, Maximize2 } from "lucide-react";
+import { ChevronRight, Download } from "lucide-react";
 import { cn } from "@vegastack/design";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -26,7 +26,8 @@ import {
 
 /* ------------------------------------------------------------------------------------------------
  * FilePreview — a file in a chat answer, previewed where it was made, on the chat's card surface:
- * the header names it (its type's icon, its name, its size or page count) with Download and Open;
+ * the header names it (its type's icon, its name, its size or page count), and the name opens it,
+ * beside Download;
  * the body shows what is in it — Markdown rendered with its formatting (the first dozen lines,
  * fading out), a CSV's first five rows as a table, a PDF's first page, an image — and opens the
  * viewer (`FileViewer` in `mode="side"`) on a click. A file with nothing to preview is the header
@@ -110,8 +111,8 @@ export interface FilePreviewProps {
 
 /**
  * A file the agent made, previewed in the answer: Markdown formatted, a CSV's first rows, a PDF's
- * first page, an image; Download and Open in the header, and a click on the preview opens the
- * viewer.
+ * first page, an image; the name opens it, Download sits beside it, and a click on the preview
+ * opens the viewer.
  *
  * @example
  * <FilePreview url="/api/files/f1/content" mediaType="text/markdown" filename="open-tasks.md"
@@ -386,16 +387,6 @@ function FilePreviewCard({
           >
             <Download strokeWidth={1.5} />
           </a>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={`Open ${filename}`}
-            data-slot="file-preview-open"
-            onClick={onOpen}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <Maximize2 strokeWidth={1.5} />
-          </Button>
           {menu}
         </>
       }

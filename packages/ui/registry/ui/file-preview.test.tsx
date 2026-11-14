@@ -34,11 +34,12 @@ test("Markdown renders with its formatting; the header names it with its size, D
     .getByRole("link", { name: "Download open-tasks.md" })
     .element();
   expect(download.getAttribute("download")).toBe("open-tasks.md");
-  await userEvent.click(
-    screen.getByRole("button", { name: "Open open-tasks.md" }),
-  );
+  // The name is the one open target in the header: no second Open button beside Download.
+  expect(
+    screen.getByRole("button", { name: "Open open-tasks.md" }).query(),
+  ).toBeNull();
   await userEvent.click(screen.getByRole("button", { name: "open-tasks.md" }));
-  expect(onOpen).toHaveBeenCalledTimes(2);
+  expect(onOpen).toHaveBeenCalledOnce();
   await expectNoA11yViolations(screen.container);
 });
 

@@ -1,6 +1,6 @@
 ---
 title: File Preview
-description: "A file in a chat answer on the chat card: Markdown formatted, a CSV's first rows, a PDF's first page, an image, with Download, Open and Retry."
+description: "A file in a chat answer on the chat card: Markdown formatted, a CSV's first rows, a PDF's first page, an image, with Download and Retry; its name opens it."
 audience: public
 registry: file-preview
 status: stable
@@ -28,9 +28,9 @@ import { FilePreview } from "@/components/ui/file-preview";
 ```
 
 A file the agent made shows where it was made, on the chat's card surface: its type's icon, its
-name and its size (or a PDF's pages), with Download and Open. Markdown is rendered with its
+name and its size (or a PDF's pages), with Download; the name opens it. Markdown is rendered with its
 formatting and fades out after a dozen lines; a CSV shows its first five rows; a PDF its first
-page; an image itself. A click on the preview, the name or Open opens the viewer — pair it with
+page; an image itself. A click on the preview or the name opens the viewer — pair it with
 [`FileViewer`](/docs/components/file-viewer) in `mode="side"`. Pass the file's own URL on the
 app's origin: the preview reads only the first 32 KB of a text file, with one `Range` request.
 
@@ -44,7 +44,7 @@ app's origin: the preview reads only the first 32 KB of a text file, with one `R
 ### A table, an image and a file with nothing to preview
 
 A CSV's first five rows; an image at up to 256px tall; anything else is the header alone, still
-with Download and Open.
+with Download, and its name opens it.
 
 <ComponentPreview
   name="filePreviewKinds"
