@@ -70,7 +70,7 @@
     "test": "node test/compare.test.mjs && node test/check-updates.test.mjs && node test/skills-install.test.mjs && node test/doctor.test.mjs && node --test test/merge-refs.test.mjs test/registry-credentials.test.mjs test/registry-fetch.test.mjs"
   },
   "dependencies": {
-    "@vegastack/design-tokens": "^0.15.0",
+    "@vegastack/design-tokens": "^0.15.1",
     "clsx": "^2.1.1",
     "tailwind-merge": "^3.6.0",
     "tsconfig-paths": "^4.2.0",
