@@ -1,4 +1,4 @@
-// @vegastack chat-work-log@0.81.0 sha256-HnkpfU3LY2vmkuj/bf2siWaPG4og85zaR7PKfz0xpDg=
+// @vegastack chat-work-log@0.81.0 sha256-NXzZuHPC9zPyR02IbTeVt92NKI+raBL7LTOBeOOtidY=
 
 "use client";
 
@@ -603,7 +603,7 @@ function WorkLog({
       open={open}
       data-slot="work-log-root"
       // The panel clips, so it reaches into both gutters to keep the rows' hanging fills.
-      className="min-w-0 [&>[data-slot=collapsible-content]]:-mx-2 [&>[data-slot=collapsible-content]]:w-[calc(100%+1rem)]"
+      className="min-w-0 [&>[data-slot=work-log]]:-mx-2 [&>[data-slot=work-log]]:w-[calc(100%+1rem)]"
     >
       <CollapsibleContent
         data-slot="work-log"

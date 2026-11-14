@@ -1,4 +1,4 @@
-// @vegastack chat-card@0.81.0 sha256-T777loydV2YBvXA/k+vtRpFBDgnye09Sk5pY0pNA3dI=
+// @vegastack chat-card@0.81.0 sha256-D553OuPQbJKaQY5oNHkm0YJX8YogRsKRD3ddtoCz0+8=
 
 "use client";
 
@@ -325,7 +325,7 @@ function ChatGroup({
       onOpenChange={(next) => onOpenChange?.(next)}
       className={cn(
         // The open panel clips, so it reaches into both gutters to keep the rows' hanging fills.
-        "flex min-w-0 flex-col [&>[data-slot=collapsible-content]]:-mx-2 [&>[data-slot=collapsible-content]]:w-[calc(100%+1rem)]",
+        "flex min-w-0 flex-col [&>[data-slot=chat-group-content]]:-mx-2 [&>[data-slot=chat-group-content]]:w-[calc(100%+1rem)]",
         className,
       )}
     >

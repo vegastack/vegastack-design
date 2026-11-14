@@ -19960,7 +19960,7 @@
         "whenToUse": "A waiting request, question or plan, the task list or a file preview (ChatCard); a line of work with its verb, subject, meta and duration (ChatRow); a fold of work behind one summary line (ChatGroup).",
         "whenNotToUse": "Settled work, memory saves, answered asks and errors, which are flat lines in the column; a record or settings card outside a chat (Card).",
         "version": "0.81.0",
-        "integrity": "sha256-T777loydV2YBvXA/k+vtRpFBDgnye09Sk5pY0pNA3dI="
+        "integrity": "sha256-D553OuPQbJKaQY5oNHkm0YJX8YogRsKRD3ddtoCz0+8="
       }
     },
     {
@@ -20287,7 +20287,7 @@
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
         "version": "0.81.0",
-        "integrity": "sha256-HnkpfU3LY2vmkuj/bf2siWaPG4og85zaR7PKfz0xpDg="
+        "integrity": "sha256-NXzZuHPC9zPyR02IbTeVt92NKI+raBL7LTOBeOOtidY="
       }
     },
     {
