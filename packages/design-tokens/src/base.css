@@ -241,9 +241,8 @@
    system's controls are 14px. On a touch pointer every text-entry control renders at 16px at
    least, so Safari never zooms; desktop keeps the 14px density. Deliberately OUTSIDE `@layer
    base`: unlayered rules outrank the utilities layer, so a control's own `text-sm` cannot undo
-   it, and no `!important` is needed. This alone stops focus zoom: leave the viewport's scale
-   uncapped (no `maximumScale`, no `user-scalable=no`), since a cap blocks pinch-zoom on browsers
-   that honour it (WCAG 1.4.4). */
+   it, and no `!important` is needed. Pair it with the viewport's `maximumScale: 1` (see the
+   consume guide), which stops focus zoom while pinch-zoom keeps working on iOS. */
 @media (pointer: coarse) {
   input:not(
     [type="checkbox"],
