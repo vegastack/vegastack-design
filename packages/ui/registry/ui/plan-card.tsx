@@ -1,4 +1,4 @@
-// @vegastack plan-card@0.81.0 sha256-iB+DM09xDWws1sfWHcnMFZobTQgWKDdNo3RUvCd+mf4=
+// @vegastack plan-card@0.81.0 sha256-J2tpMmhbZuuupMe4cW8GtECu1K4AUZtG0ShB6X5vPO8=
 
 "use client";
 
@@ -199,10 +199,10 @@ const LABELS: PlanCardLabels = {
   acceptedAllowed: (by, n) =>
     `Plan accepted${by} · ${n} ${n === 1 ? "step" : "steps"} · these actions are allowed in this chat`,
   changesRequested: (by) =>
-    by ? `${by.trim()} asked for changes` : "Changes asked for",
+    by ? `Changes asked for · by ${by.trim()}` : "Changes asked for",
   rejected: (by) => `Plan rejected${by}`,
   replaced: (v) => (v ? `Plan replaced by v${v}` : "Plan replaced"),
-  expired: "Plan expired: no answer in 7 days",
+  expired: "Plan expired · no answer in 7 days",
   waiting: (who) =>
     who ? `Waiting for ${who}'s answer` : "Waiting for an answer",
 };

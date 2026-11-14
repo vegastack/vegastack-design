@@ -20516,7 +20516,7 @@
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
         "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
         "version": "0.81.0",
-        "integrity": "sha256-iB+DM09xDWws1sfWHcnMFZobTQgWKDdNo3RUvCd+mf4="
+        "integrity": "sha256-J2tpMmhbZuuupMe4cW8GtECu1K4AUZtG0ShB6X5vPO8="
       }
     },
     {

@@ -209,10 +209,10 @@ const SETTLED: [PlanCardState, string][] = [
     "accepted_allowed",
     "Plan accepted by Priya · 4 steps · these actions are allowed in this chat",
   ],
-  ["changes_requested", "Priya asked for changes"],
+  ["changes_requested", "Changes asked for · by Priya"],
   ["rejected", "Plan rejected by Priya"],
   ["replaced", "Plan replaced by v3"],
-  ["expired", "Plan expired: no answer in 7 days"],
+  ["expired", "Plan expired · no answer in 7 days"],
 ];
 
 test.each(SETTLED)(
