@@ -106,6 +106,31 @@ test("without handlers a waiting plan is read-only for a reader who can't decide
   ).toBeNull();
 });
 
+test("changes asked for and expired plans settle into a line with no actions", async () => {
+  const screen = await render(
+    <>
+      <ChatPlanCard
+        data={{ ...PLAN, state: "changes_requested" }}
+        {...props()}
+      />
+      <ChatPlanCard data={{ ...PLAN, state: "expired" }} {...props()} />
+    </>,
+  );
+  const lines = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="plan-line"]',
+  );
+  expect(lines).toHaveLength(2);
+  expect(
+    screen.container.querySelector('[data-slot="status-glyph"]'),
+  ).toBeNull();
+  expect(
+    screen.getByRole("button", { name: /Approve|Keep planning/ }).query(),
+  ).toBeNull();
+  expect(screen.getByRole("button", { name: "Show" }).elements()).toHaveLength(
+    2,
+  );
+});
+
 test("Reject carries a note, from inside Keep planning", async () => {
   const p = props();
   const screen = await render(<ChatPlanCard data={PLAN} {...p} />);

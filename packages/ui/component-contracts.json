@@ -51734,6 +51734,8 @@
             "approved",
             "rejected",
             "superseded",
+            "changes_requested",
+            "expired",
             "shown"
           ],
           "evidence": "packages/ui/registry/ui/chat-plan-card.tsx + packages/ui/registry/ui/chat-plan-card.test.tsx"
@@ -51755,6 +51757,8 @@
             "approved",
             "rejected",
             "superseded",
+            "changes_requested",
+            "expired",
             "shown"
           ],
           "evidence": "packages/ui/registry/ui/chat-plan-card.tsx"

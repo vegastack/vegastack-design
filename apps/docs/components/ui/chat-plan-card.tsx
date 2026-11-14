@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.84.1 sha256-FmtxdFLD/WayH2/qvzzs18BiwFhw0HeyY2xCGRJ08ks=
+// @vegastack chat-plan-card@0.84.1 sha256-L0v42ybMcMPLrESGu5WJdtd5wcBMXXsQx+ET/kuDwaw=
 
 "use client";
 
@@ -325,7 +325,8 @@ export interface ChatPlanCardProps extends Omit<
  * when no step needs an OK; then Keep planning ▾ (with a note; Reject inside it). "Changed ›"
  * shows what changed since the previous version. Without handlers it is read-only, for a reader
  * who can't decide.
- * Approved, rejected or replaced, it settles into a `PlanLine` that can show the plan again.
+ * Once settled (approved, rejected, replaced, changes asked for or expired) it becomes a `PlanLine`
+ * that can show the plan again.
  *
  * @example
  * <ChatPlanCard data={plan} onApprove={approve} onKeepPlanning={revise} onReject={reject} />
