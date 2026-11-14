@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.84.1 sha256-yQlTpLvh1h1LczRy5IF/KHKgbqijDuC8sD3phYtoIQs=
+// @vegastack chat-question-card@0.84.1 sha256-tkypE/V49NZ6AEFOIQEKzQb/OeHPR52vRg+lEjpCM00=
 
 "use client";
 
@@ -50,16 +50,24 @@ const OTHER = "\u0000other";
 const SETTLE = "animate-in fade-in-0 duration-state ease-enter";
 
 /** What a question's answer reads as: option labels, or the person's own words. */
-function answerWords(question: QuestionItem, answer: string | undefined) {
-  if (!answer) return "";
+/**
+ * An answer in words, and whether the person typed it: an option's id reads as its label ("You
+ * chose …"); anything else is what they wrote under Other ("You answered: …").
+ */
+function answerWords(
+  question: QuestionItem,
+  answer: string | undefined,
+): { words: string; typed: boolean } {
+  if (!answer) return { words: "", typed: false };
   const byId = new Map(question.options.map((o) => [o.id, o.label]));
-  if (byId.has(answer)) return byId.get(answer)!;
-  if (question.multi) {
-    const parts = answer.split(", ");
-    if (parts.every((part) => byId.has(part)))
-      return parts.map((part) => byId.get(part)!).join(", ");
-  }
-  return answer;
+  if (byId.has(answer)) return { words: byId.get(answer)!, typed: false };
+  if (!question.multi) return { words: answer, typed: true };
+  // Several picks and words under Other, joined by ", ": each pick reads as its label.
+  const parts = answer.split(", ");
+  return {
+    words: parts.map((part) => byId.get(part) ?? part).join(", "),
+    typed: parts.some((part) => !byId.has(part)),
+  };
 }
 
 /** Props accepted by `QuestionCard`. */
@@ -546,7 +554,8 @@ export interface QuestionLineProps extends Omit<
 }
 
 /**
- * Answered or skipped questions as quiet lines: "✓ You chose sm@vegastack.com" for one question, a
+ * Answered or skipped questions as quiet lines: "✓ You chose sm@vegastack.com" for one question
+ * (an answer typed under Other reads "✓ You answered: …"), a
  * fold "Answered 2 questions" for several, "You skipped 2 questions." when skipped.
  *
  * @example
@@ -572,15 +581,19 @@ function QuestionLine({ data, className, ...props }: QuestionLineProps) {
   }
   const rows = data.questions.map((question) => ({
     question,
-    words: answerWords(question, data.answers?.[question.id]),
+    ...answerWords(question, data.answers?.[question.id]),
   }));
-  const line = (words: string, prompt?: string) => (
+  const line = (
+    { words, typed }: { words: string; typed: boolean },
+    prompt?: string,
+  ) => (
     <div className="-mx-2 flex min-h-7 min-w-0 items-center gap-2 px-2 text-sm text-muted-foreground">
       <StatusGlyph status="done" label={null} />
       <span className="min-w-0 truncate">
         {words ? (
           <>
-            You chose <span className="text-foreground">{words}</span>
+            {typed ? "You answered: " : "You chose "}
+            <span className="text-foreground">{words}</span>
           </>
         ) : (
           "You didn't answer"
@@ -597,7 +610,7 @@ function QuestionLine({ data, className, ...props }: QuestionLineProps) {
         className={cn("min-w-0", className)}
         {...props}
       >
-        {line(rows[0]!.words)}
+        {line(rows[0]!)}
       </div>
     );
   return (
@@ -608,9 +621,9 @@ function QuestionLine({ data, className, ...props }: QuestionLineProps) {
       {...props}
     >
       <ChatGroup summary={`Answered ${total} questions`}>
-        {rows.map(({ question, words }) => (
-          <React.Fragment key={question.id}>
-            {line(words, question.prompt)}
+        {rows.map((row) => (
+          <React.Fragment key={row.question.id}>
+            {line(row, row.question.prompt)}
           </React.Fragment>
         ))}
       </ChatGroup>

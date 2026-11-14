@@ -46,6 +46,31 @@ test("waiting: meta, eight steps then Show more, the three quiet rows and no pil
   )!.textContent;
   expect(facts).toContain("Will changea new Google Doc and 1 email");
   expect(facts).toContain("Needs your OKstep 4 (sharing outside the chat)");
+});
+
+test("won't items written as sentences read as sentences, never joined with 'and'", async () => {
+  const screen = await render(
+    <ChatPlanCard
+      data={{
+        ...PLAN,
+        wont: [
+          "Touch the published page.",
+          "Changing the owner",
+          "Leave production. 🔒",
+          "Keep the owner. 👍🏽",
+          "Ship it! 🇮🇳 Keep it. 1️⃣",
+          "Keep it. 1️⃣",
+        ],
+      }}
+      {...props()}
+    />,
+  );
+  const facts = screen.container.querySelector<HTMLElement>(
+    '[data-slot="plan-facts"]',
+  )!.textContent;
+  expect(facts).toContain(
+    "Won'tTouch the published page. Changing the owner. Leave production. 🔒 Keep the owner. 👍🏽 Ship it! 🇮🇳",
+  );
   expect(screen.container.innerHTML).not.toMatch(
     /bg-(success|warning|destructive)/,
   );
