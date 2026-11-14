@@ -16199,7 +16199,7 @@
       ],
       "meta": {
         "whenToUse": "An agent offering a next step the person may ignore: tasks from a chat, a draft, a follow-up.",
-        "whenNotToUse": "A risky action that waits for a decision (ApprovalCard), or a change already made (AgentEditBanner).",
+        "whenNotToUse": "A risky action that waits for a decision (RequestCard), or a change already made (AgentEditBanner).",
         "version": "0.81.0"
       }
     },
@@ -16224,7 +16224,7 @@
       ],
       "meta": {
         "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
-        "whenNotToUse": "An agent asking to act (ApprovalCard, RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
+        "whenNotToUse": "An agent asking to act (RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
         "version": "0.81.0"
       }
     },
@@ -17061,7 +17061,7 @@
       "name": "message-parts",
       "type": "registry:ui",
       "title": "Message Parts",
-      "description": "What an agent's answer is made of beyond its text: steps, a plan checklist, status and notice lines, changes with Undo, a hand-off divider, sources, the disclaimer, actions, a version switch and a fold.",
+      "description": "What an agent's answer is made of beyond its text: steps, a plan checklist, status and notice lines, changes with Undo, a hand-off divider, sources, the disclaimer, actions and a version switch.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -17076,10 +17076,10 @@
         "@vegastack/spinner",
         "@vegastack/status-line",
         "@vegastack/tool-call-chip",
-        "@vegastack/use-overflow",
         "@vegastack/bubble",
         "@vegastack/date-time",
-        "@vegastack/relative-time"
+        "@vegastack/relative-time",
+        "@vegastack/source-list"
       ],
       "files": [
         {
@@ -20094,36 +20094,6 @@
       }
     },
     {
-      "name": "approval-card",
-      "type": "registry:ui",
-      "title": "Approval Card",
-      "description": "An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.",
-      "categories": ["chat"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.15.0",
-        "@vegastack/design-tokens@^0.15.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/person-avatar",
-        "@vegastack/relative-time",
-        "@vegastack/use-announcer"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/approval-card.tsx",
-          "type": "registry:ui",
-          "target": "@ui/approval-card.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
-        "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.81.0"
-      }
-    },
-    {
       "name": "request-card",
       "type": "registry:ui",
       "title": "Request Card",
@@ -20183,7 +20153,7 @@
       ],
       "meta": {
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
-        "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
+        "whenNotToUse": "An agent asking before it acts (RequestCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
         "version": "0.81.0"
       }
     },
@@ -20227,7 +20197,7 @@
       ],
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
-        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
+        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
         "version": "0.81.0"
       }
     },
@@ -20257,7 +20227,7 @@
       ],
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
-        "whenNotToUse": "An agent asking to perform one action (ApprovalCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
+        "whenNotToUse": "An agent asking to perform one action (RequestCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
         "version": "0.81.0"
       }
     },

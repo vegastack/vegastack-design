@@ -1,6 +1,6 @@
 ---
 title: Message Parts
-description: A conversation beyond the answer's text — the person's bubble and times, activity, steps, sources, actions, versions and a fold.
+description: A conversation beyond the answer's text — the person's bubble and times, activity, steps, sources, actions and versions.
 audience: public
 registry: message-parts
 status: stable
@@ -25,9 +25,9 @@ import {
   MessageActivityResults,
   MessageActivityStep,
   MessageBubble,
-  MessageSourceList,
   MessageTime,
 } from "@/components/ui/message-parts";
+import { SourceList } from "@/components/ui/source-list";
 
 <Message align="end">
   <MessageContent className="gap-1">
@@ -44,7 +44,7 @@ import {
       </MessageActivityStep>
     </MessageActivity>
     <MarkdownView typeScale="reading" citation={cite}>{answer}</MarkdownView>
-    <MessageSourceList sources={sources} />
+    <SourceList sources={sources} />
     <div className="flex items-center gap-2">
       <MessageActions>{/* Copy, Retry, 👍, 👎 */}</MessageActions>
       <MessageTime date={answer.createdAt} reveal="hover" />
@@ -59,7 +59,8 @@ message is `MessageBubble`, which reads at the same size and leading. The AI dis
 under the composer ([`ChatComposer`](/docs/components/chat-composer)'s `hint`), not on every answer.
 
 A site icon (`MessageSource.icon`) comes from the host: serve favicons through the app's own origin
-so the reader's browser never calls the cited site. A missing or failing icon is a neutral globe,
+so the reader's browser never calls the cited site. The pages an answer cites are
+[`SourceList`](/docs/components/source-list). A missing or failing icon is a neutral globe,
 never a letter.
 
 `MessageSources` takes [`Citation`](/docs/components/cited-list) chips for records (a meeting, a
@@ -169,17 +170,6 @@ steps".
   file="components/preview/message-parts.tsx"
 />
 
-### Web sources
-
-`MessageSourceList` lists the pages an answer cites, numbered as its `[[n]]` pills. Closed, it is one
-line: the first three sites' icons and "Sources · 5" in a rounded pill. Open, each row — number, icon, title, site and
-↗ — is the link, and opens a new tab. A row with no title shows its site.
-
-<ComponentPreview
-  name="messagePartsSourceList"
-  file="components/preview/message-parts.tsx"
-/>
-
 ### Record sources and the disclaimer
 
 `MessageSources` is the row of records an answer rests on. `MessageDisclaimer` is the muted line for
@@ -251,18 +241,6 @@ for a single version. `formatPosition` can say more: `Previous answer (1 of 2)`.
   file="components/preview/message-parts.tsx"
 />
 
-### Long messages
-
-`MessageFold` holds a long message to 20rem with a fade and Show more. It measures, so content that
-fits is left alone, and it ends the fold between two lines of text, never through one, so the fade
-covers whole lines. Open a turn streamed in this session with `defaultOpen`: only history folds, and
-an answer never shuts while someone is reading it.
-
-<ComponentPreview
-  name="messagePartsFold"
-  file="components/preview/message-parts.tsx"
-/>
-
 ## API Reference
 
 <ApiTable
@@ -293,11 +271,6 @@ an answer never shuts while someone is reading it.
 <ApiTable
   path="../../packages/ui/registry/ui/message-parts.tsx"
   name="MessageActivityResultsProps"
-/>
-
-<ApiTable
-  path="../../packages/ui/registry/ui/message-parts.tsx"
-  name="MessageSourceListProps"
 />
 
 <ApiTable
@@ -345,11 +318,6 @@ an answer never shuts while someone is reading it.
   name="MessageVersionSwitchProps"
 />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/message-parts.tsx"
-  name="MessageFoldProps"
-/>
-
 `MessageStatus` and `MessageNotice` take [`StatusLine`](/docs/components/status-line)'s props.
 `MessageBubble` takes [`Bubble`](/docs/components/bubble)'s, defaulting to `variant="muted"` and
 `align="end"`.
@@ -365,7 +333,7 @@ an answer never shuts while someone is reading it.
   was given and whether or not a `TooltipTrigger` or `PopoverTrigger` wraps it, so Copy, Retry, 👍
   and 👎 are always one style. Put only icon buttons in the row. `MessageTime reveal="hover"`
   reveals the same way.
-- `MessageActivity`, each step with children and `MessageSourceList` are disclosures: buttons with
+- `MessageActivity` and each step with children are disclosures: buttons with
   `aria-expanded`, opened by Enter or Space, nested ones included. A step's status is read before it
   ("Failed: Opened ies.org"). The live timer is hidden from screen readers while it ticks; the
   host announces the answer.
@@ -373,7 +341,6 @@ an answer never shuts while someone is reading it.
   opens. A nested group is a list named by its `label` and described by its count line.
 - A thinking note's Show more is a button with `aria-expanded` that controls the note's text.
 - Source and result rows are links that say they open a new tab; site icons are decorative.
-- Tabbing to a link inside a folded message opens the fold.
 
 | Key                                 | Action                                                                          |
 | ----------------------------------- | ------------------------------------------------------------------------------- |

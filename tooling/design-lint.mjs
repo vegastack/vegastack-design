@@ -598,7 +598,7 @@ const RAW_INTERACTIVE_TAGS = new Set(["button", "input", "select", "textarea"]);
 // agent panels. `no-status-fill` and `chat-motion-tokens` read only these files; `no-success-check`
 // reads all registry source.
 const AGENT_UI_FILE =
-  /^(?:message-[\w-]+|task-list|plan-card|request-card|approval-card|memory-[\w-]+|agent-[\w-]+|chat-[\w-]+|activity-feed|status-icon|status-glyph|text-spinner|upload-panel|context-ring|run-usage|tool-call-chip|cited-list|file-card)\.tsx$/;
+  /^(?:message-[\w-]+|task-list|plan-card|request-card|memory-[\w-]+|agent-[\w-]+|chat-[\w-]+|activity-feed|status-icon|status-glyph|text-spinner|upload-panel|context-ring|run-usage|tool-call-chip|cited-list|file-card)\.tsx$/;
 const CHECK_ICON =
   /^(?:Check|CheckCheck|CircleCheck|CircleCheckBig|CheckCircle2?|BookmarkCheck|SquareCheck|SquareCheckBig|ListChecks|CopyCheck|BadgeCheck)(?:Icon)?$/;
 // Tested against a token's utility with its variants removed (`utilityOf`), so

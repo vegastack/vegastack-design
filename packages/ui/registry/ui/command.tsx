@@ -1,4 +1,4 @@
-// @vegastack command@0.81.0 sha256-VofOYYmJvZe2co4ODjZNaaBFpMMP55YlECZRF/2tXsQ=
+// @vegastack command@0.81.0 sha256-BoytEiqPTwzm9oSLnQJeGJMtTBklGSoM44nd07UD4pA=
 
 "use client";
 
@@ -15,10 +15,7 @@ import {
 } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { SearchIcon, CheckIcon } from "lucide-react";
-import {
-  SearchIcon as AnimatedSearchIcon,
-  type SearchIconHandle,
-} from "@/components/ui/icons/search";
+import type { SearchIconHandle } from "@/components/ui/icons/search";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { usePlatform } from "@/components/ui/use-platform";
 
@@ -347,15 +344,34 @@ function CommandFilters({ className, ...props }: React.ComponentProps<"div">) {
   );
 }
 
-/** The animated search glyph, replayed while the search is running. */
+/**
+ * The animated glyph and its motion engine load only once a search runs, so the menu's first load
+ * carries none of it.
+ */
+const AnimatedSearchingIcon = React.lazy(() =>
+  import("@/components/ui/icons/search").then(({ SearchIcon: Animated }) => ({
+    default: function AnimatedSearchingIcon() {
+      const ref = React.useRef<SearchIconHandle>(null);
+      React.useEffect(() => {
+        ref.current?.startAnimation();
+        const id = window.setInterval(
+          () => ref.current?.startAnimation(),
+          1200,
+        );
+        return () => window.clearInterval(id);
+      }, []);
+      return <Animated ref={ref} size={16} aria-hidden />;
+    },
+  })),
+);
+
+/** The search glyph, replayed while the search is running; the still glyph until it has loaded. */
 function CommandSearchingIcon() {
-  const ref = React.useRef<SearchIconHandle>(null);
-  React.useEffect(() => {
-    ref.current?.startAnimation();
-    const id = window.setInterval(() => ref.current?.startAnimation(), 1200);
-    return () => window.clearInterval(id);
-  }, []);
-  return <AnimatedSearchIcon ref={ref} size={16} aria-hidden />;
+  return (
+    <React.Suspense fallback={<SearchIcon size={16} aria-hidden />}>
+      <AnimatedSearchingIcon />
+    </React.Suspense>
+  );
 }
 
 function CommandList({

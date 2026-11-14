@@ -306,7 +306,7 @@ heading down `n` levels (capped at h6) so the outline never skips back up.
 comment, a card or a short message; `"document"` for a page; `"reading"` for long-form text an agent
 or an AI wrote, read beside the work (a chat answer, an Ask AI answer, a summary). Pass `streaming`
 while an answer arrives. A conversation is built from `message-parts`: `MessageBubble` for the
-person, `MessageActivity` for thinking and steps, `MessageSourceList` for cited pages, `MessageTime`,
+person, `MessageActivity` for thinking and steps, `SourceList` (`source-list`) for cited pages, `MessageTime`,
 `MessageActions`; the AI disclaimer goes once under `ChatComposer` (`hint`), and notices attach to
 its top (`notice`). A `[[n]]` citation never navigates on click — its card's link does.
 

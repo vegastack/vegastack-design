@@ -1,10 +1,9 @@
-// @vegastack message-parts@0.81.0 sha256-W68ZJgyGD/2ZoGZIxlwBr1HUxhJ4mJn5hpvc0ykrHMY=
+// @vegastack message-parts@0.81.0 sha256-t5SFL5ZgYhz0FHyYd4xQk9+5rOSTdyP3cx6Ealbvx4Q=
 
 "use client";
 
 import * as React from "react";
 import {
-  ArrowUpRight,
   Check,
   ChevronLeft,
   ChevronRight,
@@ -13,7 +12,6 @@ import {
   CircleMinus,
   CircleX,
   CornerDownRight,
-  Globe,
   Minus,
   X,
 } from "lucide-react";
@@ -33,10 +31,10 @@ import {
   type RelativeTimeProps,
 } from "@/components/ui/relative-time";
 import { Separator } from "@/components/ui/separator";
+import { SiteIcon } from "@/components/ui/source-list";
 import { Spinner } from "@/components/ui/spinner";
 import { StatusLine, type StatusLineProps } from "@/components/ui/status-line";
 import { ToolCallChip } from "@/components/ui/tool-call-chip";
-import { useOverflow } from "@/components/ui/use-overflow";
 
 /* ------------------------------------------------------------------------------------------------
  * Message parts — what an agent's answer is made of beyond its text, composed inside
@@ -654,163 +652,6 @@ export function MessageVersionSwitch({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * MessageFold
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `MessageFold`. */
-export interface MessageFoldProps extends React.ComponentProps<"div"> {
-  /** Controlled: the whole message shows. Pair with `onOpenChange`. @default undefined */
-  open?: boolean;
-  /**
-   * Start with the whole message showing. A turn streamed in this session starts open, so an answer
-   * never folds up while someone is reading it; only history folds.
-   * @default false
-   */
-  defaultOpen?: boolean;
-  /** Called when Show more or Show less is pressed, or focus reaches folded content. @default undefined */
-  onOpenChange?: (open: boolean) => void;
-  /** @default "Show more" */
-  showMoreLabel?: string;
-  /** @default "Show less" */
-  showLessLabel?: string;
-}
-
-/**
- * Where a fold of `element` at `limit` pixels should end so no line of text is cut through: the top
- * of the first text line that crosses `limit`, or `limit` when none does. Text only, line by line
- * (a Range over each text node), so a block's box never counts as a line; a cut that would keep
- * less than half the fold (one tall unbroken line) stays at `limit`.
- */
-export function foldLineCut(element: HTMLElement, limit: number): number {
-  if (typeof document === "undefined" || !document.createRange) return limit;
-  const top = element.getBoundingClientRect().top;
-  const range = document.createRange();
-  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-  let cut = limit;
-  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
-    range.selectNodeContents(node);
-    const box = range.getBoundingClientRect();
-    // Text below the fold ends the walk; text wholly above the cut has no line to cut.
-    if (box.top - top >= limit) break;
-    if (box.bottom - top <= cut) continue;
-    for (const rect of range.getClientRects()) {
-      const lineTop = rect.top - top;
-      if (lineTop >= limit) break;
-      if (rect.height > 0 && lineTop < cut && rect.bottom - top > cut)
-        cut = lineTop;
-    }
-  }
-  return cut >= limit / 2 ? Math.floor(cut) : limit;
-}
-
-/**
- * `MessageFold` — holds a long message to 20rem, fading at the foot, with Show more. It measures:
- * content that fits is left alone, with no fade and no button. The fold ends between two lines of
- * text, never through one, and the fade covers the last whole lines. Tabbing to a link in the hidden
- * part opens it, so the keyboard never lands on something out of sight.
- *
- * @example
- * <MessageFold defaultOpen={streamedHere}>
- *   <MarkdownView>{text}</MarkdownView>
- * </MessageFold>
- */
-export function MessageFold({
-  open: openProp,
-  defaultOpen = false,
-  onOpenChange,
-  showMoreLabel = "Show more",
-  showLessLabel = "Show less",
-  className,
-  children,
-  ...props
-}: MessageFoldProps) {
-  const [ownOpen, setOwnOpen] = React.useState(defaultOpen);
-  const open = openProp ?? ownOpen;
-  const setOpen = (next: boolean) => {
-    setOwnOpen(next);
-    onOpenChange?.(next);
-  };
-  const [content, setContent] = React.useState<HTMLDivElement | null>(null);
-  // Frozen while open: unclamped content no longer overflows, which would take Show less away.
-  const overflowing = useOverflow(content, { axis: "block", paused: open });
-  const contentId = React.useId();
-  const folded = !open && overflowing;
-  // The fold's height: 20rem, raised to the line boundary above it once laid out.
-  const [cut, setCut] = React.useState<number | null>(null);
-  React.useLayoutEffect(() => {
-    if (!folded || !content || typeof ResizeObserver === "undefined") {
-      setCut(null);
-      return;
-    }
-    const measure = () => {
-      // `max-h-80`: 20rem, read from the root size rather than the element, whose max-height is
-      // the last cut once one is set.
-      const limit =
-        20 * parseFloat(getComputedStyle(document.documentElement).fontSize);
-      if (!Number.isFinite(limit)) return;
-      // Content that now fits under 20rem needs no cut (and the fold lets it go).
-      const next =
-        content.scrollHeight <= limit ? null : foldLineCut(content, limit);
-      setCut((previous) => (previous === next ? previous : next));
-    };
-    measure();
-    // A width change rewraps the lines; the unclipped children change with the text.
-    const observer = new ResizeObserver(measure);
-    observer.observe(content);
-    for (const child of content.children) observer.observe(child);
-    const mutations = new MutationObserver(() => {
-      for (const child of content.children) observer.observe(child);
-      measure();
-    });
-    mutations.observe(content, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-    });
-    return () => {
-      observer.disconnect();
-      mutations.disconnect();
-    };
-  }, [folded, content]);
-  return (
-    <div
-      data-slot="message-fold"
-      data-folded={folded ? "" : undefined}
-      className={cn("flex min-w-0 flex-col items-start gap-1", className)}
-      {...props}
-    >
-      <div
-        ref={setContent}
-        id={contentId}
-        data-slot="message-fold-content"
-        onFocusCapture={(event) => {
-          if (folded && event.target.matches(":focus-visible")) setOpen(true);
-        }}
-        style={folded && cut !== null ? { maxHeight: cut } : undefined}
-        className={cn(
-          "w-full min-w-0",
-          !open && "max-h-80 overflow-hidden",
-          folded && "mask-b-from-80% mask-b-to-100%",
-        )}
-      >
-        {children}
-      </div>
-      {overflowing ? (
-        <Button
-          variant="ghost"
-          size="xs"
-          aria-controls={contentId}
-          onClick={() => setOpen(!open)}
-          className="-ms-2 text-muted-foreground hover:text-foreground"
-        >
-          {open ? showLessLabel : showMoreLabel}
-        </Button>
-      ) : null}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------------------------------------
  * MessageBubble
  * ----------------------------------------------------------------------------------------------*/
 
@@ -888,7 +729,7 @@ export function MessageTime({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Site icons and source rows — shared by MessageSourceList and MessageActivityResults
+ * Sources — what MessageActivityResults lists
  * ----------------------------------------------------------------------------------------------*/
 
 /** A web page an answer cites or a search found. */
@@ -905,169 +746,6 @@ export interface MessageSource {
    * @default undefined
    */
   icon?: string | null;
-}
-
-/** A site's 16px icon, or a globe when there is none or it fails to load. Decorative. */
-function SiteIcon({
-  src,
-  className,
-}: {
-  src?: string | null;
-  className?: string;
-}) {
-  const [failed, setFailed] = React.useState<string | null>(null);
-  const showImage = Boolean(src) && failed !== src;
-  return (
-    <span
-      aria-hidden
-      data-slot="message-site-icon"
-      className={cn(
-        "inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-sm bg-background text-muted-foreground [&_svg]:size-3.5",
-        className,
-      )}
-    >
-      {showImage ? (
-        <img
-          src={src!}
-          alt=""
-          width={16}
-          height={16}
-          decoding="async"
-          referrerPolicy="no-referrer"
-          // Dark-on-transparent icons vanish on a dark ground: a light backing in dark mode.
-          className="size-full rounded-[inherit] object-contain dark:bg-foreground/90"
-          // An image that failed before hydration never fires `error` for React: check on mount.
-          ref={(node) => {
-            if (node?.complete && node.naturalWidth === 0) setFailed(src!);
-          }}
-          onError={() => setFailed(src!)}
-        />
-      ) : (
-        <Globe />
-      )}
-    </span>
-  );
-}
-
-/* ------------------------------------------------------------------------------------------------
- * MessageSourceList
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `MessageSourceList`. */
-export interface MessageSourceListProps extends Omit<
-  React.ComponentProps<typeof Collapsible>,
-  "className" | "children"
-> {
-  /** The pages the answer cites, in the order of its `[[n]]` markers. Empty: nothing renders. */
-  sources: readonly MessageSource[];
-  /** The word on the closed line, which also names the list. @default "Sources" */
-  label?: string;
-  /** The closed line's words. @default (count) => `${label} · ${count}` */
-  formatSummary?: (count: number) => React.ReactNode;
-  /** Read after each row's title, since it opens a new tab. @default "(opens in new tab)" */
-  newTabLabel?: string;
-  /** Classes for the root. @default undefined */
-  className?: string;
-}
-
-/**
- * `MessageSourceList` — the web pages an answer cites, under its text. Closed, one quiet line: the
- * first three sites' icons and "Sources · 3". Open, a numbered row per page — icon, title, site and
- * ↗ — each row the link. Numbers match the answer's `[[n]]` pills.
- *
- * @example
- * <MessageSourceList sources={[
- *   { href: "https://www.ies.org/standards/tm-21", title: "TM-21-21", site: "ies.org", icon: "/api/favicon?site=ies.org" },
- * ]} />
- */
-export function MessageSourceList({
-  sources,
-  label = "Sources",
-  formatSummary,
-  newTabLabel = "(opens in new tab)",
-  className,
-  ...props
-}: MessageSourceListProps) {
-  if (!sources.length) return null;
-  return (
-    <Collapsible
-      data-slot="message-source-list"
-      className={cn(
-        "flex w-full min-w-0 flex-col items-start gap-1",
-        className,
-      )}
-      {...props}
-    >
-      <CollapsibleTrigger
-        data-slot="message-source-list-trigger"
-        render={
-          <Button
-            variant="ghost"
-            size="sm"
-            className={cn(
-              disclosureTriggerClasses,
-              "group/message-source-list max-w-full min-w-0 gap-2 rounded-full border-border ps-1.5 pe-2.5 text-sm font-normal text-muted-foreground hover:text-foreground aria-expanded:not-hover:text-muted-foreground",
-            )}
-          />
-        }
-      >
-        <span aria-hidden className="flex shrink-0 items-center -space-x-1.5">
-          {sources.slice(0, 3).map((source, index) => (
-            <SiteIcon
-              key={`${source.href}-${index}`}
-              src={source.icon}
-              className="size-5 rounded-full bg-background p-0.5"
-            />
-          ))}
-        </span>
-        <span className="min-w-0 truncate">
-          {formatSummary
-            ? formatSummary(sources.length)
-            : `${label} · ${sources.length}`}
-        </span>
-        <ChevronRight
-          aria-hidden
-          className="transition-transform group-aria-expanded/message-source-list:rotate-90"
-        />
-      </CollapsibleTrigger>
-      <CollapsibleContent
-        data-slot="message-source-list-content"
-        className="w-full min-w-0"
-      >
-        <ol aria-label={label} className="flex min-w-0 flex-col">
-          {sources.map((source, index) => (
-            <li key={`${source.href}-${index}`} className="min-w-0">
-              <a
-                href={source.href}
-                target="_blank"
-                rel="noreferrer noopener"
-                data-slot="message-source"
-                className="group/message-source flex min-w-0 items-start gap-2 rounded-md px-2 py-1.5 no-underline state-layer"
-              >
-                <span className="w-4 shrink-0 text-end text-xs leading-5 text-muted-foreground tabular-nums">
-                  {index + 1}
-                </span>
-                <SiteIcon src={source.icon} className="mt-0.5" />
-                <span className="flex min-w-0 flex-1 flex-col">
-                  <span className="truncate text-sm leading-5 text-foreground">
-                    {source.title || source.site}
-                  </span>
-                  <span className="truncate text-xs text-muted-foreground">
-                    {source.site}
-                  </span>
-                </span>
-                <ArrowUpRight
-                  aria-hidden
-                  className="mt-0.5 size-4 shrink-0 text-muted-foreground group-hover/message-source:text-foreground"
-                />
-                <span className="sr-only">{newTabLabel}</span>
-              </a>
-            </li>
-          ))}
-        </ol>
-      </CollapsibleContent>
-    </Collapsible>
-  );
 }
 
 /* ------------------------------------------------------------------------------------------------

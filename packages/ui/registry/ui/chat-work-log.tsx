@@ -1,4 +1,4 @@
-// @vegastack chat-work-log@0.83.0 sha256-EIUltiUmNF1Wvkql/q7SOuxvlWwa0lGRqi43Zzp2yz8=
+// @vegastack chat-work-log@0.83.0 sha256-2S2hzmFmjHbQkNzb/ONQwGi62yYBizFx06+YRXH3cBw=
 
 "use client";
 
@@ -240,6 +240,11 @@ const KEEP_WAITING_MS = 5 * 60_000;
 export interface LiveLineProps {
   /** The current step, in words: "Searching the web", "Running 4 Subagents". */
   words: React.ReactNode;
+  /**
+   * Who is working, for a screen reader only: the status says "William is working: Searching the
+   * web". @default undefined
+   */
+  agentName?: string;
   /** When the turn started (ISO); the timer counts from it. @default undefined */
   startedAt?: string;
   /** Working time so far, as of `countedAt`; the timer counts on from it (see `ChatClock`). @default undefined */
@@ -292,6 +297,7 @@ function Chevron({ open }: { open?: boolean }) {
  */
 function LiveLine({
   words,
+  agentName,
   startedAt,
   workedMs,
   countedAt,
@@ -359,6 +365,7 @@ function LiveLine({
       )}
       {/* The words, for a screen reader: polite, and never the ticking timer. */}
       <span role="status" className="sr-only">
+        {agentName ? `${agentName} is working: ` : null}
         {words}
       </span>
       {isStuck ? (

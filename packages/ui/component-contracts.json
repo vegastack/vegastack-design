@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 829,
-    "components": 237,
+    "totalRegistryItems": 828,
+    "components": 236,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 47,
+    "AI/chat": 46,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -247,7 +247,6 @@
       "tool-call-chip",
       "questionnaire",
       "transcript",
-      "approval-card",
       "agent-edit-banner",
       "agent-panel",
       "delegate-popover",
@@ -36031,25 +36030,6 @@
           }
         },
         {
-          "name": "MessageFold",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/message-parts.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Props, including ref, spread onto the root div."
-          }
-        },
-        {
-          "name": "MessageFoldProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/message-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "MessageActivity",
           "kind": "component",
           "source": "packages/ui/registry/ui/message-parts.tsx",
@@ -36140,24 +36120,6 @@
           }
         },
         {
-          "name": "MessageSourceList",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/message-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "MessageSourceListProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/message-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "MessageTime",
           "kind": "component",
           "source": "packages/ui/registry/ui/message-parts.tsx",
@@ -36169,15 +36131,6 @@
         {
           "name": "MessageTimeProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/message-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "foldLineCut",
-          "kind": "function",
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
@@ -36329,10 +36282,10 @@
         "@vegastack/spinner",
         "@vegastack/status-line",
         "@vegastack/tool-call-chip",
-        "@vegastack/use-overflow",
         "@vegastack/bubble",
         "@vegastack/date-time",
-        "@vegastack/relative-time"
+        "@vegastack/relative-time",
+        "@vegastack/source-list"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.15.0",
@@ -36468,19 +36421,6 @@
           ],
           "cssVariables": []
         },
-        "MessageFold": {
-          "attributes": [
-            {
-              "name": "data-folded",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["message-fold", "message-fold-content"]
-            }
-          ],
-          "cssVariables": []
-        },
         "MessageBubble": {
           "attributes": [
             {
@@ -36499,20 +36439,6 @@
             {
               "name": "data-slot",
               "values": ["message-time"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "MessageSourceList": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "message-source",
-                "message-source-list",
-                "message-source-list-content",
-                "message-source-list-trigger"
-              ]
             }
           ],
           "cssVariables": []
@@ -47040,177 +46966,6 @@
             },
             {
               "name": "data-zone",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "approval-card",
-      "registryType": "registry:ui",
-      "title": "Approval Card",
-      "summary": "An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.",
-      "status": "stable",
-      "since": "0.25.28",
-      "family": "chat",
-      "wave": "AI/chat",
-      "sourceFiles": ["packages/ui/registry/ui/approval-card.tsx"],
-      "publicSymbols": [
-        {
-          "name": "ApprovalCard",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/approval-card.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "section",
-            "rationale": "Props, including ref, spread onto the section root."
-          }
-        },
-        {
-          "name": "ApprovalCardProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/approval-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ApprovalCardItem",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/approval-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ApprovalCardStatus",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/approval-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ApprovalCardDecision",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/approval-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "One look; the request status is a data attribute, not a variant."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Fills its container; the footer stacks under a 24rem container."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "pending",
-            "approving",
-            "approved",
-            "declined",
-            "expired",
-            "cancelled",
-            "already",
-            "cannot-decide",
-            "busy",
-            "error"
-          ],
-          "evidence": "packages/ui/registry/ui/approval-card.tsx + packages/ui/registry/ui/approval-card.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "labeled-region",
-            "described-buttons",
-            "announced-outcome",
-            "browser-accessibility-test"
-          ],
-          "evidence": "packages/ui/registry/ui/approval-card.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["pending", "decided", "narrow"],
-          "evidence": "packages/ui/registry/ui/approval-card.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "text-truncation-and-flex-shrink"
-        ],
-        "rationale": "A container query stacks the buttons full width (Approve on top) under 24rem; record titles truncate."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion; the busy spinner is Button`s."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/approval-card",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/person-avatar",
-        "@vegastack/relative-time",
-        "@vegastack/use-announcer"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.15.0",
-        "@vegastack/design@^0.15.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/approval-card.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "approval-card",
-      "dataAttributes": {
-        "ApprovalCard": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "approval-card",
-                "approval-card-actions",
-                "approval-card-footer",
-                "approval-card-header",
-                "approval-card-item",
-                "approval-card-items",
-                "approval-card-link",
-                "approval-card-meta",
-                "approval-card-more",
-                "approval-card-reason",
-                "approval-card-reassurance",
-                "approval-card-status",
-                "approval-card-title",
-                "approval-card-verb"
-              ]
-            },
-            {
-              "name": "data-status",
               "values": []
             }
           ],

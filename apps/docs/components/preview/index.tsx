@@ -71,7 +71,6 @@ export * from "./source-list";
 export * from "./resource-pill";
 export * from "./chat-composer";
 export * from "./message-parts";
-export * from "./approval-card";
 export * from "./request-card";
 export * from "./agent-edit-banner";
 export * from "./agent-panel";

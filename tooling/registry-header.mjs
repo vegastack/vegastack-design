@@ -16,8 +16,10 @@ import {
   readFileSync,
   writeFileSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   rmSync,
+  statSync,
 } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -116,6 +118,9 @@ let syncedCopyIns = 0;
   }
 }
 
+// Every docs copy-in a current item owns; whatever else carries a provenance header is pruned below.
+const ownedCopies = new Set();
+
 for (const f of readdirSync(dir).filter(
   (n) => n.endsWith(".json") && !SKIP.has(n),
 )) {
@@ -182,6 +187,7 @@ for (const f of readdirSync(dir).filter(
       // upstream dashboard block briefly shipped a broken /dashboard route into the showcase).
       if (file.target && file.target.startsWith("@")) {
         const copyPath = resolveDocsCopyPath(file.target);
+        ownedCopies.add(copyPath);
         const sourceContent = readFileSync(
           assertExistingPathInside(repoRoot, srcPath),
           "utf8",
@@ -207,6 +213,38 @@ for (const f of readdirSync(dir).filter(
   }
 }
 
+// A removed or renamed item's docs copy-in would otherwise stay behind, still compiling into the docs
+// app (caught: approval-card's copy outlived its item). Only files that carry the generated provenance
+// header are copy-ins; anything hand-written in the docs app is never touched.
+let prunedCopies = 0;
+function pruneOrphanCopies(directory) {
+  if (!existsSync(directory)) return;
+  // Symlinks are never followed, and every path is checked to resolve inside the docs app.
+  const real = assertExistingPathInside(docsRoot, directory);
+  if (lstatSync(directory).isSymbolicLink() || !statSync(real).isDirectory())
+    return;
+  for (const entry of readdirSync(real, { withFileTypes: true })) {
+    if (entry.isSymbolicLink()) continue;
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) {
+      pruneOrphanCopies(path);
+      continue;
+    }
+    if (!/\.(tsx?|css)$/.test(entry.name) || ownedCopies.has(path)) continue;
+    const safePath = assertExistingPathInside(docsRoot, path);
+    if (!readFileSync(safePath, "utf8").startsWith("// @vegastack ")) continue;
+    rmSync(safePath);
+    prunedCopies++;
+    console.log(
+      `pruned orphan docs copy-in ${path.slice(docsRoot.length + 1)}`,
+    );
+  }
+}
+for (const alias of new Set(Object.values(docsAliases))) {
+  if (typeof alias !== "string") continue;
+  pruneOrphanCopies(resolveInside(docsRoot, alias.replace(/^@\//, "")));
+}
+
 console.log(
-  `stamped provenance header v${version}: ${stampedItems} item JSON(s), ${stampedSources} source file(s), ${syncedCopyIns} copy-in(s) updated`,
+  `stamped provenance header v${version}: ${stampedItems} item JSON(s), ${stampedSources} source file(s), ${syncedCopyIns} copy-in(s) updated, ${prunedCopies} orphan(s) pruned`,
 );

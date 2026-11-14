@@ -1569,7 +1569,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.81.0",
-        "integrity": "sha256-VofOYYmJvZe2co4ODjZNaaBFpMMP55YlECZRF/2tXsQ="
+        "integrity": "sha256-BoytEiqPTwzm9oSLnQJeGJMtTBklGSoM44nd07UD4pA="
       }
     },
     {
@@ -19745,9 +19745,9 @@
       ],
       "meta": {
         "whenToUse": "An agent offering a next step the person may ignore: tasks from a chat, a draft, a follow-up.",
-        "whenNotToUse": "A risky action that waits for a decision (ApprovalCard), or a change already made (AgentEditBanner).",
+        "whenNotToUse": "A risky action that waits for a decision (RequestCard), or a change already made (AgentEditBanner).",
         "version": "0.81.0",
-        "integrity": "sha256-MqJYYfV5dKUYzzJKKHfAZsZJMvpt7euwwfN8fygLDXs="
+        "integrity": "sha256-4BVI9tDHPGBi/OmPOEhQpJ7+EJGrBttUDxiZbU99WpM="
       }
     },
     {
@@ -19776,9 +19776,9 @@
       ],
       "meta": {
         "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
-        "whenNotToUse": "An agent asking to act (ApprovalCard, RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
+        "whenNotToUse": "An agent asking to act (RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
         "version": "0.81.0",
-        "integrity": "sha256-7fXkeNlg3oTCF0aPE2zDpyZpu+gYstOnWc1UH89/bu4="
+        "integrity": "sha256-WS0wDRWFfpIxMv9O/phQloyftVpsAELkZ0lpbxUcAtA="
       }
     },
     {
@@ -19995,7 +19995,7 @@
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
         "version": "0.82.0",
-        "integrity": "sha256-n54G4StHORaW9pOnPmTL0SL29KgqsnaFEW2Xh2zjs8w="
+        "integrity": "sha256-kRcYIW9+Fu7/I+z4LogIHc4e9tb/2Z1iQDD6FSBbf0s="
       }
     },
     {
@@ -20287,7 +20287,7 @@
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
         "version": "0.83.0",
-        "integrity": "sha256-EIUltiUmNF1Wvkql/q7SOuxvlWwa0lGRqi43Zzp2yz8="
+        "integrity": "sha256-2S2hzmFmjHbQkNzb/ONQwGi62yYBizFx06+YRXH3cBw="
       }
     },
     {
@@ -20719,7 +20719,7 @@
       "name": "message-parts",
       "type": "registry:ui",
       "title": "Message Parts",
-      "description": "What an agent's answer is made of beyond its text: steps, a plan checklist, status and notice lines, changes with Undo, a hand-off divider, sources, the disclaimer, actions, a version switch and a fold.",
+      "description": "What an agent's answer is made of beyond its text: steps, a plan checklist, status and notice lines, changes with Undo, a hand-off divider, sources, the disclaimer, actions and a version switch.",
       "categories": [
         "chat"
       ],
@@ -20736,10 +20736,10 @@
         "@vegastack/spinner",
         "@vegastack/status-line",
         "@vegastack/tool-call-chip",
-        "@vegastack/use-overflow",
         "@vegastack/bubble",
         "@vegastack/date-time",
-        "@vegastack/relative-time"
+        "@vegastack/relative-time",
+        "@vegastack/source-list"
       ],
       "files": [
         {
@@ -20752,7 +20752,7 @@
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
         "version": "0.81.0",
-        "integrity": "sha256-W68ZJgyGD/2ZoGZIxlwBr1HUxhJ4mJn5hpvc0ykrHMY="
+        "integrity": "sha256-t5SFL5ZgYhz0FHyYd4xQk9+5rOSTdyP3cx6Ealbvx4Q="
       }
     },
     {
@@ -24448,39 +24448,6 @@
       }
     },
     {
-      "name": "approval-card",
-      "type": "registry:ui",
-      "title": "Approval Card",
-      "description": "An agent asks its owner to approve a risky action: who asks, the action in words, the records it touches, its reason, a reassurance, the expiry, and one Approve / Decline for the whole request — then the outcome.",
-      "categories": [
-        "chat"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.15.0",
-        "@vegastack/design-tokens@^0.15.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/person-avatar",
-        "@vegastack/relative-time",
-        "@vegastack/use-announcer"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/approval-card.tsx",
-          "type": "registry:ui",
-          "target": "@ui/approval-card.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Approve or decline an action an agent may not take on its own (move to Trash, share, publish) — on the record, in the inbox detail, or a sheet.",
-        "whenNotToUse": "A person asking for access (InboxItem actions), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.81.0",
-        "integrity": "sha256-XDc7lBNbBQAaaOJXbvCafJFeKKlXBOVJgnz97CPqRys="
-      }
-    },
-    {
       "name": "request-card",
       "type": "registry:ui",
       "title": "Request Card",
@@ -24545,9 +24512,9 @@
       ],
       "meta": {
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
-        "whenNotToUse": "An agent asking before it acts (ApprovalCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
+        "whenNotToUse": "An agent asking before it acts (RequestCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
         "version": "0.81.0",
-        "integrity": "sha256-f4LJQj6US/OUOtbDHh8+p/Sy8VCMFavXo/5isRIFpYE="
+        "integrity": "sha256-k4M0soMf3kjDCBtry4ZCvca1U6zDvoxe57nVZUiLgX4="
       }
     },
     {
@@ -24592,9 +24559,9 @@
       ],
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
-        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (ApprovalCard), or choosing the agent (DelegatePopover).",
+        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
         "version": "0.81.0",
-        "integrity": "sha256-SRdnCfTCdazppcFic/OLWYCn2anZUQYfg4plRIzJ3fM="
+        "integrity": "sha256-th759zdYtSbppQYzIYDsPJwEFPnKc2ekN76IrcJXheU="
       }
     },
     {
@@ -24625,9 +24592,9 @@
       ],
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
-        "whenNotToUse": "An agent asking to perform one action (ApprovalCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
+        "whenNotToUse": "An agent asking to perform one action (RequestCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
         "version": "0.81.0",
-        "integrity": "sha256-ShZubr4XR7BI3aD+xCPBn8F5ViK+Rv8btSSWy7YBPWQ="
+        "integrity": "sha256-q4vCt6JtyNFLy22Rf+7saLTPFPPtbPLFWghSjM0e4oY="
       }
     },
     {

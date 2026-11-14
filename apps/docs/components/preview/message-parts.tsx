@@ -40,11 +40,9 @@ import {
   MessageBubble,
   MessageChange,
   MessageDisclaimer,
-  MessageFold,
   MessageHandoff,
   MessageNotice,
   MessagePlan,
-  MessageSourceList,
   MessageSources,
   MessageStatus,
   MessageTime,
@@ -53,6 +51,7 @@ import {
   MessageVersionSwitch,
 } from "@/components/ui/message-parts";
 import { PersonAvatar } from "@/components/ui/person-avatar";
+import { SourceList } from "@/components/ui/source-list";
 import { Toggle } from "@/components/ui/toggle";
 
 const assistant = { name: "Assistant", kind: "agent" as const };
@@ -208,7 +207,7 @@ export function messageParts(): ReactNode {
               </MessageActivityStep>
             </MessageActivity>
             <Answer />
-            <MessageSourceList sources={WEB_SOURCES.slice(0, 3)} />
+            <SourceList sources={WEB_SOURCES.slice(0, 3)} />
             <div className="flex items-center gap-2">
               <Actions reveal="always" />
               <MessageTime date={TEN_MINUTES_AGO} now={NOW} reveal="hover" />
@@ -540,17 +539,6 @@ export function messagePartsActivityLong(): ReactNode {
 
 const THINKING = `${"The person wants every task due before today in Ops moved to Backlog with a note. I'll search Ops for tasks with a due date before today, read the ones that come back to check none is already closed, then move them and add the note. ".repeat(7)}Last, I'll post one summary line.`;
 
-export function messagePartsSourceList(): ReactNode {
-  // Closed, then open: numbered rows of icon, title and site, each the link. The last icon
-  // failed to load and shows the globe.
-  return (
-    <Wrapper className="flex-col items-stretch justify-start gap-6">
-      <MessageSourceList sources={WEB_SOURCES.slice(0, 3)} />
-      <MessageSourceList defaultOpen sources={WEB_SOURCES} />
-    </Wrapper>
-  );
-}
-
 export function messagePartsStreaming(): ReactNode {
   // Mid-answer: `aria-busy` sits on the text alone, so the status beside it is never held back.
   return (
@@ -676,23 +664,6 @@ export function messagePartsVersions(): ReactNode {
   return (
     <Wrapper>
       <Demo />
-    </Wrapper>
-  );
-}
-
-export function messagePartsFold(): ReactNode {
-  return (
-    <Wrapper className="items-start justify-start">
-      <MessageFold className="w-full max-w-sm">
-        <div className="flex flex-col gap-2 text-sm">
-          {Array.from({ length: 16 }, (_, line) => (
-            <p key={line}>
-              <FileText aria-hidden className="me-1 inline size-3.5" />
-              Line {line + 1} of the BOQ matched a 4000 K IP65 downlight.
-            </p>
-          ))}
-        </div>
-      </MessageFold>
     </Wrapper>
   );
 }
