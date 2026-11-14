@@ -10,6 +10,23 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.83.0] — November 14, 2026
+
+### 🔧 Changed components
+
+- Chat lines hang and cards offer what the server offers. Work lines, `ChatRow`, `ChatGroup`'s summary, the Subagents line, `BackgroundWork`, error and stuck rows, memory, source, question, request and plan lines now start their text on the answer's own column, and their hover fill reaches 8px into the gutter instead of pushing the words in; the guide line under an open group moves with them. `ChatRequestCard` draws a `never` choice ("Never allow this") as a quiet text button beside Decline, and a request answered with it reads "Never allowed · …". `RequestBundleCard` draws the choices every ask offers from `offer.bundle.choices` (Always as a menu when there are several scopes, Never allow these, Decline) and `onAnswerAll` now gets the chosen choice's id as a `string`. `ChatPlanCard` shows one Approve when no step needs an OK (`onApprove("ask_before_changes")`); the settled line then leaves out "asks before changes".
+  [`25dd2a3`](https://github.com/VegaStack/vegastack-design/commit/25dd2a3)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.15.1`** (was `0.15.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.82.0 → 0.83.0.
+
+### 📚 Docs
+
+- INT-13's 16px text-entry rule on touch pointers stops iOS focus zoom by itself, so the install docs and `base.css` no longer advise a viewport `maximumScale: 1`: keep the viewport's scale uncapped (no `maximumScale`, no `user-scalable=no`), since a cap blocks pinch-zoom where browsers honour it (WCAG 1.4.4). Apps that set it should remove it.
+  [`25dd2a3`](https://github.com/VegaStack/vegastack-design/commit/25dd2a3)
+
 ## [0.82.0] — November 13, 2026
 
 ### 🧩 New components

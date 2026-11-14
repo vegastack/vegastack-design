@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.15.1
+
+### Patch Changes
+
+- [#982](https://github.com/vegastack/vegastack-design/pull/982) [`25dd2a3`](https://github.com/vegastack/vegastack-design/commit/25dd2a3bfe46571640836a48ed090afa15d1f1e9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 INT-13's 16px text-entry rule on touch pointers stops iOS focus zoom by itself, so the install docs and `base.css` no longer advise a viewport `maximumScale: 1`: keep the viewport's scale uncapped (no `maximumScale`, no `user-scalable=no`), since a cap blocks pinch-zoom where browsers honour it (WCAG 1.4.4). Apps that set it should remove it.
+
 ## 0.15.0
 
 ### Minor Changes

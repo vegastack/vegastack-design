@@ -16387,7 +16387,7 @@
       "meta": {
         "whenToUse": "A waiting request, question or plan, the task list or a file preview (ChatCard); a line of work with its verb, subject, meta and duration (ChatRow); a fold of work behind one summary line (ChatGroup).",
         "whenNotToUse": "Settled work, memory saves, answered asks and errors, which are flat lines in the column; a record or settings card outside a chat (Card).",
-        "version": "0.81.0"
+        "version": "0.83.0"
       }
     },
     {
@@ -16475,7 +16475,7 @@
       "meta": {
         "whenToUse": "Web search results an agent's answer cites, under the answer, and the cards its [[n]] pills open.",
         "whenNotToUse": "The person's own things such as a Doc, a Meet or a pull request (ResourcePill), records cited by a summary (CitedList), or search results the agent looked at but didn't cite (the work log).",
-        "version": "0.82.0"
+        "version": "0.83.0"
       }
     },
     {
@@ -16648,7 +16648,7 @@
       "meta": {
         "whenToUse": "Subagent calls of an agent turn; background work summaries.",
         "whenNotToUse": "A single tool call (WorkLog row).",
-        "version": "0.81.0"
+        "version": "0.83.0"
       }
     },
     {
@@ -16679,7 +16679,7 @@
       "meta": {
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
-        "version": "0.81.0"
+        "version": "0.83.0"
       }
     },
     {
@@ -16729,7 +16729,7 @@
       "meta": {
         "whenToUse": "Notes an agent saved to memory during a chat turn.",
         "whenNotToUse": "A memory notebook page or a single note card outside a chat.",
-        "version": "0.81.0"
+        "version": "0.83.0"
       }
     },
     {
@@ -16759,7 +16759,7 @@
       "meta": {
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
-        "version": "0.81.0"
+        "version": "0.83.0"
       }
     },
     {
@@ -16791,7 +16791,7 @@
       "meta": {
         "whenToUse": "A plan waiting for a person's approval in an agent chat, and its approved, rejected or replaced line.",
         "whenNotToUse": "The task list a running plan becomes (TaskList); a static checklist in a document.",
-        "version": "0.81.0"
+        "version": "0.83.0"
       }
     },
     {
@@ -16822,7 +16822,7 @@
       "meta": {
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
-        "version": "0.81.0"
+        "version": "0.83.0"
       }
     },
     {

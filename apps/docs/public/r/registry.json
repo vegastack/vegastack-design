@@ -19959,8 +19959,8 @@
       "meta": {
         "whenToUse": "A waiting request, question or plan, the task list or a file preview (ChatCard); a line of work with its verb, subject, meta and duration (ChatRow); a fold of work behind one summary line (ChatGroup).",
         "whenNotToUse": "Settled work, memory saves, answered asks and errors, which are flat lines in the column; a record or settings card outside a chat (Card).",
-        "version": "0.81.0",
-        "integrity": "sha256-D553OuPQbJKaQY5oNHkm0YJX8YogRsKRD3ddtoCz0+8="
+        "version": "0.83.0",
+        "integrity": "sha256-Sjt+4cp6DaYSoEBn47cHej+MLgNokqRQ4Jv3kLoJjoE="
       }
     },
     {
@@ -20056,8 +20056,8 @@
       "meta": {
         "whenToUse": "Web search results an agent's answer cites, under the answer, and the cards its [[n]] pills open.",
         "whenNotToUse": "The person's own things such as a Doc, a Meet or a pull request (ResourcePill), records cited by a summary (CitedList), or search results the agent looked at but didn't cite (the work log).",
-        "version": "0.82.0",
-        "integrity": "sha256-nVYwpQiDBL7mtuciBS6NWkzgsN9exyQsXMJBoszzaNI="
+        "version": "0.83.0",
+        "integrity": "sha256-6n5N4k4cp3tYyGbTt7qhrvEORl0m2IXClwWsP1HT7rI="
       }
     },
     {
@@ -20252,8 +20252,8 @@
       "meta": {
         "whenToUse": "Subagent calls of an agent turn; background work summaries.",
         "whenNotToUse": "A single tool call (WorkLog row).",
-        "version": "0.81.0",
-        "integrity": "sha256-qfp+2EXR76FcvAcOwuSzqzzx2idHBXuLGfQhlyJbrA8="
+        "version": "0.83.0",
+        "integrity": "sha256-e+558hdv3m5HdR/Lx7uwfVvoqNAYY+BnSqA91Jltfl4="
       }
     },
     {
@@ -20286,8 +20286,8 @@
       "meta": {
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
-        "version": "0.81.0",
-        "integrity": "sha256-NXzZuHPC9zPyR02IbTeVt92NKI+raBL7LTOBeOOtidY="
+        "version": "0.83.0",
+        "integrity": "sha256-EIUltiUmNF1Wvkql/q7SOuxvlWwa0lGRqi43Zzp2yz8="
       }
     },
     {
@@ -20347,8 +20347,8 @@
       "meta": {
         "whenToUse": "Notes an agent saved to memory during a chat turn.",
         "whenNotToUse": "A memory notebook page or a single note card outside a chat.",
-        "version": "0.81.0",
-        "integrity": "sha256-66qRtDSztrduz+QL2eWMMdMJhUXVpO6hns5VsZLiliQ="
+        "version": "0.83.0",
+        "integrity": "sha256-t8w7pNf0pT8w/B6phdPmbtnP3sY6e1Y5CPkurT8e52w="
       }
     },
     {
@@ -20380,8 +20380,8 @@
       "meta": {
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
-        "version": "0.81.0",
-        "integrity": "sha256-Llp1QK62ZFAzRsDwR9DqJ86rLS/mjRaxQIljwBcNZEo="
+        "version": "0.83.0",
+        "integrity": "sha256-8v6Z6mXWxsz2dpQZCqP5gkJ2hM+b7EGakSPEOtDFhXU="
       }
     },
     {
@@ -20415,8 +20415,8 @@
       "meta": {
         "whenToUse": "A plan waiting for a person's approval in an agent chat, and its approved, rejected or replaced line.",
         "whenNotToUse": "The task list a running plan becomes (TaskList); a static checklist in a document.",
-        "version": "0.81.0",
-        "integrity": "sha256-gId7bK1FkM2gDPGE7oBPYn5SQqzCPwMzWk1y8+FF7eg="
+        "version": "0.83.0",
+        "integrity": "sha256-PR4t/2My9ztgnaPK9seSQ4aZlkK/DeIiKhI3N/RUXsY="
       }
     },
     {
@@ -20449,8 +20449,8 @@
       "meta": {
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
-        "version": "0.81.0",
-        "integrity": "sha256-VO9qNVyFHamAfLBK17LHNpPxJo7wtK4vBDznjFJx1wg="
+        "version": "0.83.0",
+        "integrity": "sha256-uVLT39H7ig23ujeP0vLzETnVPsZA9tSv45/MWErGxmg="
       }
     },
     {
