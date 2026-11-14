@@ -20,7 +20,10 @@ test("privacy on the left, Plan · model · ring on the right, in that order", a
   const line = screen.container.querySelector<HTMLElement>(
     "[data-slot=composer-meta]",
   )!;
-  const order = [...line.querySelectorAll("button")].map((b) => b.textContent);
+  // The controls' order; the privacy note is a button of its own, on the left.
+  const order = [
+    ...line.querySelectorAll("[data-slot=composer-meta-controls] button"),
+  ].map((b) => b.textContent);
   expect(order).toEqual(["Plan", "Sonnet 5.5 Medium", "26%"]);
   const privacy = line
     .querySelector<HTMLElement>("[data-slot=composer-meta-privacy]")!
@@ -36,6 +39,13 @@ test("privacy on the left, Plan · model · ring on the right, in that order", a
       document.querySelector("[data-slot=tooltip-content]")?.textContent,
     ).toBe("Only you can see this chat."),
   );
+  // A screen reader hears the full sentence with the note, shown or not; a tap toggles it.
+  const note = page.getByRole("button", {
+    name: "Private · AI can make mistakes",
+  });
+  await expect
+    .element(note)
+    .toHaveAccessibleDescription("Only you can see this chat.");
   await expectNoA11yViolations(screen.container);
 });
 
