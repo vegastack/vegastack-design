@@ -263,7 +263,7 @@ export function requestCardStates(): ReactNode {
 }
 
 export function requestCardCompact(): ReactNode {
-  // One row for Home and Inbox: the title, where it came from and the buttons.
+  // One row for Home and Inbox: the title, where it came from, a send's words and the buttons.
   return (
     <Wrapper className="flex-col items-stretch">
       <div className="flex w-full max-w-2xl flex-col divide-y divide-border rounded-lg border border-border px-3">
@@ -284,6 +284,25 @@ export function requestCardCompact(): ReactNode {
         />
         <RequestCard
           spec={hard}
+          state="pending"
+          compact
+          onAllowOnce={() => {}}
+          onDecline={() => {}}
+        />
+        <RequestCard
+          // A long send keeps its words in the row; they scroll inside their own box.
+          spec={{
+            ...spec,
+            title: "Inbox assistant wants to email priya@acme.com",
+            preview: {
+              kind: "quote",
+              text: Array.from(
+                { length: 8 },
+                (_, i) =>
+                  `Line ${i + 1}: the Friday demo moves to 3 pm, and the deck is in Ops / Reports.`,
+              ).join("\n"),
+            },
+          }}
           state="pending"
           compact
           onAllowOnce={() => {}}
