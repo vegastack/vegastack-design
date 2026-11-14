@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.84.3] — November 14, 2026
+
+<!-- assembled from 1 changeset: 7a01501c73f5 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.84.2 → 0.84.3.
+
+### 📚 Docs
+
+- The accessibility foundations page says why a modal keeps Base UI's focus-trap guards: invisible sentinels that screen readers skip, where Tab can pause before focus loops back, but focus never reaches the page behind.
+  [`1a1ad2b`](https://github.com/VegaStack/vegastack-design/commit/1a1ad2b)
+
 ## [0.84.2] — November 14, 2026
 
 <!-- assembled from 1 changeset: c562cdacb626 -->

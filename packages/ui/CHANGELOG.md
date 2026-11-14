@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.84.3
+
+### Patch Changes
+
+- [#986](https://github.com/vegastack/vegastack-design/pull/986) [`1a1ad2b`](https://github.com/vegastack/vegastack-design/commit/1a1ad2bbff3586b88682004989f1dbab4149c85e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The accessibility foundations page says why a modal keeps Base UI's focus-trap guards: invisible sentinels that screen readers skip, where Tab can pause before focus loops back, but focus never reaches the page behind.
+
 ## 0.84.2
 
 ### Patch Changes
