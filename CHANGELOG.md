@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.84.2] — November 14, 2026
+
+<!-- assembled from 1 changeset: c562cdacb626 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.84.1 → 0.84.2.
+
+### 🐛 Fixed
+
+- `ComposerMeta`'s privacy note gives its full sentence on every input: a tap toggles it on a touch screen (a tooltip alone never opened there), keyboard focus and hover show it as before, and a screen reader hears it as the note's description whether or not it shows. The note is a ghost `Button` when it has a detail.
+  [`09b7105`](https://github.com/VegaStack/vegastack-design/commit/09b7105)
+
 ## [0.84.1] — November 14, 2026
 
 <!-- assembled from 1 changeset: 8a2f06a1fe54 -->

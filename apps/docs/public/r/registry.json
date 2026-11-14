@@ -20649,8 +20649,8 @@
       "meta": {
         "whenToUse": "Under ChatComposer (its meta prop), holding the privacy note, Plan, a ModelEffortMenu and a ContextRing.",
         "whenNotToUse": "Toolbars and filters (Toolbar), or a form's helper text (FieldDescription).",
-        "version": "0.81.0",
-        "integrity": "sha256-zA7/zw4gCR5a/qwWYrS3EK1lctd1zE0kndJTtJj9heU="
+        "version": "0.84.2",
+        "integrity": "sha256-zHPIbLZHQHZqW25JkoLJvgaN6GvsFLooQNboSGTDIE8="
       }
     },
     {

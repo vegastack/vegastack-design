@@ -1,4 +1,4 @@
-// @vegastack composer-meta@0.81.0 sha256-zA7/zw4gCR5a/qwWYrS3EK1lctd1zE0kndJTtJj9heU=
+// @vegastack composer-meta@0.84.2 sha256-zHPIbLZHQHZqW25JkoLJvgaN6GvsFLooQNboSGTDIE8=
 
 "use client";
 

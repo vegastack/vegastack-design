@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.84.2
+
+### Patch Changes
+
+- [#984](https://github.com/vegastack/vegastack-design/pull/984) [`09b7105`](https://github.com/vegastack/vegastack-design/commit/09b71058cec7822340cdcc84b077913c100f71b5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `ComposerMeta`'s privacy note gives its full sentence on every input: a tap toggles it on a touch screen (a tooltip alone never opened there), keyboard focus and hover show it as before, and a screen reader hears it as the note's description whether or not it shows. The note is a ghost `Button` when it has a detail.
+
 ## 0.84.1
 
 ### Patch Changes
