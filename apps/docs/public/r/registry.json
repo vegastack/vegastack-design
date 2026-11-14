@@ -19994,8 +19994,8 @@
       "meta": {
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
-        "version": "0.84.0",
-        "integrity": "sha256-vT2DQ/ymhWWvRlIxQMbBM/m0FxjkCbQZvYoNKSPDp+8="
+        "version": "0.84.1",
+        "integrity": "sha256-2EmdgLO7s1h43+tC7qM/dfLmDPPgSiTTrlx4vNXjooY="
       }
     },
     {
@@ -20091,8 +20091,8 @@
       "meta": {
         "whenToUse": "A file an agent made or a person attached, shown in the chat where it appeared.",
         "whenNotToUse": "A list of a record's files (FileCard), a file named inside running text (InlineChip's file chip), or a file being uploaded (UploadCard).",
-        "version": "0.82.0",
-        "integrity": "sha256-GXqln0eVxF8ekYDsXz5KvxKdt5tDawQbzTy/J2isTYI="
+        "version": "0.84.1",
+        "integrity": "sha256-4PDYM9e79vQCTEBfNzGI7o/vA1c4VvwdPN3h/YncvS8="
       }
     },
     {
@@ -20380,8 +20380,8 @@
       "meta": {
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
-        "version": "0.83.0",
-        "integrity": "sha256-REhcdFUfUt0yctHsFaMfCQ3G4cVgfAZC0zKR573B+WE="
+        "version": "0.84.1",
+        "integrity": "sha256-yQlTpLvh1h1LczRy5IF/KHKgbqijDuC8sD3phYtoIQs="
       }
     },
     {
@@ -20415,8 +20415,8 @@
       "meta": {
         "whenToUse": "A plan waiting for a person's approval in an agent chat, and its approved, rejected or replaced line.",
         "whenNotToUse": "The task list a running plan becomes (TaskList); a static checklist in a document.",
-        "version": "0.83.0",
-        "integrity": "sha256-EC5MuBE8mapoAjPG8auhrz70sCKsaR2IEBVxJwh92iw="
+        "version": "0.84.1",
+        "integrity": "sha256-orw1OT4u0My5lJbaHC3fl7ohueiU1lmOOMBJBJBMhGk="
       }
     },
     {

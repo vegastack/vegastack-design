@@ -16419,7 +16419,7 @@
       "meta": {
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
-        "version": "0.84.0"
+        "version": "0.84.1"
       }
     },
     {
@@ -16507,7 +16507,7 @@
       "meta": {
         "whenToUse": "A file an agent made or a person attached, shown in the chat where it appeared.",
         "whenNotToUse": "A list of a record's files (FileCard), a file named inside running text (InlineChip's file chip), or a file being uploaded (UploadCard).",
-        "version": "0.82.0"
+        "version": "0.84.1"
       }
     },
     {
@@ -16759,7 +16759,7 @@
       "meta": {
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
-        "version": "0.83.0"
+        "version": "0.84.1"
       }
     },
     {
@@ -16791,7 +16791,7 @@
       "meta": {
         "whenToUse": "A plan waiting for a person's approval in an agent chat, and its approved, rejected or replaced line.",
         "whenNotToUse": "The task list a running plan becomes (TaskList); a static checklist in a document.",
-        "version": "0.83.0"
+        "version": "0.84.1"
       }
     },
     {
