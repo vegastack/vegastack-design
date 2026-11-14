@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.15.3
+
+### Patch Changes
+
+- [#987](https://github.com/vegastack/vegastack-design/pull/987) [`32ada8b`](https://github.com/vegastack/vegastack-design/commit/32ada8b937a4ab722851e5e3b90094696cae6a88) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The viewport's `maximumScale: 1` is back in the install docs, the consume guide and INT-13's note in `base.css` (operator's ruling): it pairs with the 16px touch rule to stop iOS focus zoom while pinch-zoom keeps working on iOS. The 16px rule and its `contenteditable="plaintext-only"` coverage are unchanged.
+
 ## 0.15.2
 
 ### Patch Changes
