@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
+  Asterisk,
   AtSign,
   Clock,
   FolderOpen,
@@ -14,14 +15,29 @@ import { Wrapper } from "./wrapper";
 import { Button } from "@/components/ui/button";
 import {
   ChatComposer,
+  ChatComposerActions,
+  ChatComposerActionsEnd,
+  ChatComposerActionsStart,
+  ChatComposerAddButton,
+  ChatComposerAttachments,
+  ChatComposerHeader,
+  ChatComposerHeaderTrigger,
+  ChatComposerInput,
+  ChatComposerMentionButton,
   ChatComposerNotice,
+  ChatComposerSubmit,
   type ChatComposerHandle,
+  type ChatComposerProps,
   type ComposerAttachment,
   type ComposerState,
   type ComposerSteer,
 } from "@/components/ui/chat-composer";
-import { ChatMenuItem, ChatMenuSeparator } from "@/components/ui/chat-menu";
-import { ComposerMeta } from "@/components/ui/composer-meta";
+import {
+  ChatMenu,
+  ChatMenuItem,
+  ChatMenuSeparator,
+} from "@/components/ui/chat-menu";
+import { ComposerChip } from "@/components/ui/composer-chip";
 import { ContextRing } from "@/components/ui/context-ring";
 import {
   ModelEffortMenu,
@@ -77,10 +93,16 @@ function ContextChip(): ReactNode {
   );
 }
 
-function Column({ children }: { children: ReactNode }): ReactNode {
+function Column({
+  children,
+  width = "max-w-xl",
+}: {
+  children: ReactNode;
+  width?: string;
+}): ReactNode {
   return (
     <Wrapper className="items-stretch justify-start">
-      <div className="w-full max-w-xl">{children}</div>
+      <div className={`w-full ${width}`}>{children}</div>
     </Wrapper>
   );
 }
@@ -110,64 +132,43 @@ const MORE = [
   { id: "gemini", label: "Gemini 3 Pro", available: true },
 ];
 
-/** The quiet line under the box, as a chat shows it. */
-function Meta({
-  plan,
-  onPlan,
-}: {
-  plan: boolean;
-  onPlan: () => void;
-}): ReactNode {
-  const [model, setModel] = useState("sonnet");
-  const [effort, setEffort] = useState<EffortLevel>("high");
+function Model(): ReactNode {
+  const [model, setModel] = useState("haiku");
+  const [effort, setEffort] = useState<EffortLevel>("medium");
   return (
-    <ComposerMeta
-      privacy="Private · AI can make mistakes"
-      privacyDetail="Only you can see this chat. AI can make mistakes; check important info."
-      plan={{ on: plan, onToggle: onPlan, shortcut: "⇧Tab" }}
-      model={
-        <ModelEffortMenu
-          models={MODELS}
-          moreModels={MORE}
-          modelId={model}
-          onModel={setModel}
-          efforts={["low", "medium", "high", "max"]}
-          recommended={model === "sonnet" ? "high" : "medium"}
-          effort={effort}
-          onEffort={setEffort}
-        />
-      }
-      context={
-        <ContextRing
-          used={25_900}
-          window={200_000}
-          parts={[
-            {
-              id: "instructions",
-              label: "Instructions and tools",
-              tokens: 15_700,
-            },
-            { id: "memory", label: "Memory", tokens: 2_100 },
-            { id: "conversation", label: "Conversation", tokens: 6_900 },
-            { id: "tools", label: "Tool results", tokens: 1_200 },
-          ]}
-          onSummarize={() => {}}
-        />
-      }
+    <ModelEffortMenu
+      models={MODELS}
+      moreModels={MORE}
+      modelId={model}
+      onModel={setModel}
+      efforts={["low", "medium", "high", "max"]}
+      recommended="medium"
+      effort={effort}
+      onEffort={setEffort}
     />
   );
 }
 
-function AddMenu({
-  onUpload,
-  onMention,
-}: {
-  onUpload: () => void;
-  onMention: () => void;
-}): ReactNode {
+function Ring(): ReactNode {
+  return (
+    <ContextRing
+      used={25_900}
+      window={200_000}
+      parts={[
+        { id: "instructions", label: "Instructions and tools", tokens: 15_700 },
+        { id: "memory", label: "Memory", tokens: 2_100 },
+        { id: "conversation", label: "Conversation", tokens: 6_900 },
+        { id: "tools", label: "Tool results", tokens: 1_200 },
+      ]}
+      onSummarize={() => {}}
+    />
+  );
+}
+
+function AddMenu({ onMention }: { onMention: () => void }): ReactNode {
   return (
     <>
-      <ChatMenuItem onSelect={onUpload}>
+      <ChatMenuItem onSelect={() => {}}>
         <span className="inline-flex items-center gap-2">
           <Upload aria-hidden className="size-4 text-muted-foreground" />
           Upload files
@@ -196,6 +197,80 @@ function AddMenu({
   );
 }
 
+/** The context strip: who the message goes to, and Plan. */
+function Header({
+  plan,
+  onPlan,
+}: {
+  plan?: boolean;
+  onPlan?: (on: boolean) => void;
+}): ReactNode {
+  return (
+    <ChatComposerHeader>
+      <ChatMenu
+        trigger={
+          <ChatComposerHeaderTrigger
+            media={<Asterisk className="text-primary" />}
+            description="Chief of staff"
+          >
+            Talking to William
+          </ChatComposerHeaderTrigger>
+        }
+      >
+        <ChatMenuItem selected onSelect={() => {}}>
+          William
+        </ChatMenuItem>
+        <ChatMenuItem onSelect={() => {}}>BOQ processor</ChatMenuItem>
+      </ChatMenu>
+      {onPlan ? (
+        <ComposerChip
+          pressed={plan}
+          onPressedChange={onPlan}
+          tooltip="Plan first, then wait for your go-ahead"
+        >
+          Plan
+        </ComposerChip>
+      ) : null}
+    </ChatComposerHeader>
+  );
+}
+
+/** One composer the way a chat lays it out; the examples vary its root props. */
+function Composer({
+  placeholder = "Ask William anything…",
+  header = true,
+  notice,
+  chips,
+  ring = false,
+  ...props
+}: Omit<ChatComposerProps, "children"> & {
+  placeholder?: string;
+  header?: boolean;
+  notice?: ReactNode;
+  chips?: ReactNode;
+  ring?: boolean;
+}): ReactNode {
+  return (
+    <ChatComposer onSubmit={() => {}} onStop={() => {}} {...props}>
+      {notice}
+      {header ? <Header plan={false} onPlan={() => {}} /> : null}
+      <ChatComposerAttachments>{chips}</ChatComposerAttachments>
+      <ChatComposerInput placeholder={placeholder} mentions={mentions} />
+      <ChatComposerActions>
+        <ChatComposerActionsStart>
+          <ChatComposerAddButton onClick={() => {}} />
+          <ChatComposerMentionButton />
+        </ChatComposerActionsStart>
+        <ChatComposerActionsEnd>
+          {ring ? <Ring /> : null}
+          <Model />
+          <ChatComposerSubmit />
+        </ChatComposerActionsEnd>
+      </ChatComposerActions>
+    </ChatComposer>
+  );
+}
+
 export function chatComposer(): ReactNode {
   function Demo(): ReactNode {
     const [state, setState] = useState<ComposerState>("idle");
@@ -219,25 +294,12 @@ export function chatComposer(): ReactNode {
     return (
       <ChatComposer
         handleRef={handle}
-        placeholder={
-          state === "running"
-            ? "Type to steer, or wait…"
-            : "Ask William anything…"
-        }
         state={state}
         queues
-        mentions={mentions}
         steers={steers}
         onCancelSteer={(id) =>
           setSteers((all) => all.filter((steer) => steer.id !== id))
         }
-        addMenu={
-          <AddMenu
-            onUpload={() => {}}
-            onMention={() => handle.current?.openMentionMenu()}
-          />
-        }
-        meta={<Meta plan={plan} onPlan={() => setPlan((on) => !on)} />}
         onSubmit={(text) => {
           if (state === "running") {
             setSteers((all) => [
@@ -249,13 +311,76 @@ export function chatComposer(): ReactNode {
           setState("sending");
         }}
         onStop={() => setState("stopping")}
-      />
+      >
+        {state === "stopping" ? (
+          <ChatComposerNotice tone="progress">Stopping…</ChatComposerNotice>
+        ) : null}
+        <Header plan={plan} onPlan={setPlan} />
+        <ChatComposerAttachments />
+        <ChatComposerInput
+          placeholder={
+            state === "running"
+              ? "Type to steer, or wait…"
+              : plan
+                ? "Describe the job. It plans first."
+                : "Ask William anything…"
+          }
+          mentions={mentions}
+        />
+        <ChatComposerActions>
+          <ChatComposerActionsStart>
+            <ChatComposerAddButton
+              menu={
+                <AddMenu onMention={() => handle.current?.openMentionMenu()} />
+              }
+            />
+            <ChatComposerMentionButton />
+          </ChatComposerActionsStart>
+          <ChatComposerActionsEnd>
+            <Ring />
+            <Model />
+            <ChatComposerSubmit />
+          </ChatComposerActionsEnd>
+        </ChatComposerActions>
+      </ChatComposer>
     );
   }
   return (
     <Column>
       <Demo />
     </Column>
+  );
+}
+
+export function chatComposerQuickAsk(): ReactNode {
+  return (
+    <Column width="max-w-md">
+      <Composer header={false} placeholder="Ask anything…" autoFocus={false} />
+    </Column>
+  );
+}
+
+export function chatComposerStates(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch justify-start gap-4">
+      {(["idle", "sending", "running", "stopping"] as const).map((state) => (
+        <div key={state} className="w-full max-w-xl">
+          <Composer
+            header={false}
+            placeholder={`state="${state}"`}
+            defaultValue={state === "idle" ? "Plan my day" : undefined}
+            state={state}
+            notice={
+              state === "stopping" ? (
+                <ChatComposerNotice tone="progress">
+                  Stopping…
+                </ChatComposerNotice>
+              ) : undefined
+            }
+          />
+        </div>
+      ))}
+    </Wrapper>
   );
 }
 
@@ -286,7 +411,7 @@ export function chatComposerAttachments(): ReactNode {
   function Demo(): ReactNode {
     const [files, setFiles] = useState(FILES);
     return (
-      <ChatComposer
+      <Composer
         defaultValue="Compare these with last quarter"
         attachments={files}
         chips={<ContextChip />}
@@ -294,8 +419,16 @@ export function chatComposerAttachments(): ReactNode {
           setFiles((all) => all.filter((file) => file.id !== id))
         }
         onRetryAttachment={() => {}}
-        onAttach={() => {}}
-        onSubmit={() => {}}
+        onFiles={(added) =>
+          setFiles((all) => [
+            ...all,
+            ...added.map((file) => ({
+              id: `${file.name}-${Date.now()}`,
+              name: file.name,
+              mediaType: file.type || "application/octet-stream",
+            })),
+          ])
+        }
       />
     );
   }
@@ -309,7 +442,7 @@ export function chatComposerAttachments(): ReactNode {
 export function chatComposerRunning(): ReactNode {
   return (
     <Column>
-      <ChatComposer
+      <Composer
         placeholder="Type to steer, or wait…"
         state="running"
         queues
@@ -329,37 +462,8 @@ export function chatComposerRunning(): ReactNode {
             Reconnecting — your agent kept working
           </ChatComposerNotice>
         }
-        onAttach={() => {}}
-        onSubmit={() => {}}
-        onStop={() => {}}
       />
     </Column>
-  );
-}
-
-export function chatComposerStates(): ReactNode {
-  return (
-    <Wrapper className="flex-col items-stretch justify-start gap-4">
-      {(["idle", "sending", "running", "stopping"] as const).map((state) => (
-        <div key={state} className="w-full max-w-xl">
-          <ChatComposer
-            placeholder={`state="${state}"`}
-            defaultValue={state === "idle" ? "Plan my day" : undefined}
-            state={state}
-            onAttach={() => {}}
-            onSubmit={() => {}}
-            onStop={() => {}}
-            notice={
-              state === "stopping" ? (
-                <ChatComposerNotice tone="progress">
-                  Stopping…
-                </ChatComposerNotice>
-              ) : undefined
-            }
-          />
-        </div>
-      ))}
-    </Wrapper>
   );
 }
 
@@ -367,9 +471,9 @@ export function chatComposerNotice(): ReactNode {
   function Demo(): ReactNode {
     const [shown, setShown] = useState(true);
     return (
-      <ChatComposer
+      <Composer
+        header={false}
         placeholder="Ask a follow-up…"
-        onAttach={() => {}}
         notice={
           shown ? (
             <ChatComposerNotice
@@ -384,38 +488,37 @@ export function chatComposerNotice(): ReactNode {
             </ChatComposerNotice>
           ) : null
         }
-        onSubmit={() => {}}
       />
     );
   }
   return (
-    <Wrapper className="flex-col items-stretch justify-start gap-6">
-      <div className="w-full max-w-xl">
-        <Demo />
-      </div>
-      <div className="w-full max-w-xl">
-        <ChatComposer
-          placeholder="Ask a follow-up…"
-          onAttach={() => {}}
-          notice={
-            <ChatComposerNotice tone="warning">
-              BOQ processor is paused. Your message sends when it's turned on.
-            </ChatComposerNotice>
-          }
-        />
-      </div>
-    </Wrapper>
+    <Column>
+      <Demo />
+    </Column>
+  );
+}
+
+export function chatComposerOffline(): ReactNode {
+  return (
+    <Column>
+      <Composer
+        defaultValue="Draft the site visit summary"
+        submitDisabled
+        notice={
+          <ChatComposerNotice tone="warning" live>
+            You're offline. What you write stays here and sends once you're
+            back.
+          </ChatComposerNotice>
+        }
+      />
+    </Column>
   );
 }
 
 export function chatComposerError(): ReactNode {
   return (
     <Column>
-      <ChatComposer
-        defaultValue="Plan my day"
-        error="Couldn't send. Try again."
-        onAttach={() => {}}
-      />
+      <Composer defaultValue="Plan my day" error="Couldn't send. Try again." />
     </Column>
   );
 }
@@ -423,11 +526,49 @@ export function chatComposerError(): ReactNode {
 export function chatComposerDisabled(): ReactNode {
   return (
     <Column>
-      <ChatComposer
-        placeholder="BOQ processor is paused"
-        disabled
-        onAttach={() => {}}
-      />
+      <Composer placeholder="William is paused" disabled />
+    </Column>
+  );
+}
+
+const LONG =
+  "Here is the full brief for the site visit on Thursday.\n\n" +
+  Array.from(
+    { length: 14 },
+    (_, i) =>
+      `${i + 1}. Check the panel schedule against drawing E-${200 + i} and note any differences.`,
+  ).join("\n");
+
+export function chatComposerLongText(): ReactNode {
+  return (
+    <Column>
+      <Composer defaultValue={LONG} ring />
+    </Column>
+  );
+}
+
+export function chatComposerNarrow(): ReactNode {
+  return (
+    <Wrapper className="items-stretch justify-start">
+      <div className="w-full max-w-80">
+        <Composer
+          defaultValue="Summarise yesterday's site reports"
+          attachments={FILES.slice(0, 3)}
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+export function chatComposerRtl(): ReactNode {
+  return (
+    <Column>
+      <div dir="rtl">
+        <Composer
+          placeholder="اسأل ويليام أي شيء…"
+          attachments={FILES.slice(2, 4)}
+        />
+      </div>
     </Column>
   );
 }

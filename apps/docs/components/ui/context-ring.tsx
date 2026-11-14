@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.81.0 sha256-3wta3hPXu+ygmSZmrIsWEUuPxp0C+Mx8DoFK75ZM9Q4=
+// @vegastack context-ring@0.81.0 sha256-huN4wKCin+EBkWrd//vNUip+ZhUZrFUM1j5A+OPvo60=
 
 "use client";
 
@@ -77,7 +77,7 @@ const ARC: Record<ContextRingTone, string> = {
 const OPEN_DELAY_MS = 150;
 
 /**
- * `ContextRing` — a still 10px ring and its share ("◔ 26%") for `ComposerMeta`'s `context`: muted
+ * `ContextRing` — a still 10px ring and its share ("◔ 26%") for a chat composer's actions row (`ChatComposerActionsEnd`): muted
  * track, foreground arc, primary from 75%, the warning ink from 90%. Hidden until measured. Hover or
  * focus opens `ContextPanel` after 150ms and a click toggles it; with `onOpen` the host opens its
  * own surface instead. When the share drops (a summary ran) it says the new share once.
@@ -150,7 +150,7 @@ export function ContextRing({
       data-tone={tone}
       aria-label={name}
       className={cn(
-        "h-7 gap-1.5 rounded-md px-2 text-xs font-normal text-muted-foreground tabular-nums hover:text-foreground",
+        "h-8 gap-1.5 rounded-full px-2.5 text-xs font-normal text-muted-foreground tabular-nums hover:text-foreground",
         className,
       )}
       onClick={(event) => {

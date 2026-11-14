@@ -31,8 +31,9 @@ import { ComposerChip } from "@/components/ui/composer-chip";
 One look, three forms. With `pressed` or `defaultPressed` it is a toggle: a quiet outline when off,
 the primary tint when on. With `menu` it is a picker's trigger with a chevron, and it spreads every
 prop onto its button so a menu can render it (`render={<ComposerChip menu … />}`). With `readOnly` it
-shows the same words with no control, for a reader who may not change them. Pass the chips to
-`ChatComposer`'s toolbar. For what travels with the message, use the composer's own chips.
+shows the same words with no control, for a reader who may not change them. Plan goes at the end of
+[`ChatComposer`](/docs/components/chat-composer)'s context strip (`ChatComposerHeader`). For what
+travels with the message, use the composer's own chips (`ChatComposerAttachments`' children).
 
 <ComponentPreview
   name="composerChip"

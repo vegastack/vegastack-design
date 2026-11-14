@@ -1,4 +1,4 @@
-// @vegastack model-effort-menu@0.81.0 sha256-ESi2dVnBs0qHK7gRT8T0mQ5v8itKCal5ziTQNawfmWw=
+// @vegastack model-effort-menu@0.81.0 sha256-k1xQc7PuhrPBHMCIrxcMr7eVUk7bc9GxK7+3CxlHI9s=
 
 "use client";
 
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------------------------------------
- * ModelEffortMenu — the model and its effort, as quiet text under a chat's composer ("Sonnet 5.5
+ * ModelEffortMenu — the model and its effort, as quiet text in a chat composer's actions row ("Sonnet 5.5
  * Medium ▾"), opening one compact menu: the models with a primary ✓ and a number shortcut sharing
  * the right slot, then "Effort  Medium ›" (only the levels the chosen model supports, Recommended on
  * its default, a usage warning on Max), then "More models ›" with the ones this person can't use,
@@ -113,7 +113,7 @@ const LEVELS: Record<EffortLevel, string> = {
 };
 
 const TRIGGER =
-  "h-7 min-w-0 gap-1 rounded-md px-2 text-xs font-normal text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3";
+  "h-8 min-w-0 shrink gap-1 rounded-full px-3 text-xs font-normal text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3";
 
 /** Is this a Mac (⌘) or everything else (Ctrl)? */
 const isMac = () =>
@@ -239,7 +239,7 @@ export function ModelEffortMenu({
               data-slot="model-effort-menu"
               data-readonly=""
               className={cn(
-                "inline-flex h-7 min-w-0 items-center gap-1 rounded-md px-2 text-xs text-muted-foreground",
+                "inline-flex h-8 min-w-0 items-center gap-1 rounded-full px-3 text-xs text-muted-foreground",
                 className,
               )}
             />

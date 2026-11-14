@@ -291,6 +291,8 @@ const TEXT_ENTRY_FOCUS_BORDER_FILES = [
   "ui/questionnaire.tsx",
   "ui/text-edit.tsx",
   "ui/template-editor.tsx",
+  // ChatComposer's card is a `data-field-group` framing a `framed` TextEdit, which draws no border.
+  "ui/chat-composer.tsx",
 ];
 const TEXT_ENTRY_FOCUS_BORDER = /:border-ring\/50$/;
 const isTextEntryFocusBorderFile = (file) => {

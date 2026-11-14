@@ -307,8 +307,11 @@ comment, a card or a short message; `"document"` for a page; `"reading"` for lon
 or an AI wrote, read beside the work (a chat answer, an Ask AI answer, a summary). Pass `streaming`
 while an answer arrives. A conversation is built from `message-parts`: `MessageBubble` for the
 person, `MessageActivity` for thinking and steps, `SourceList` (`source-list`) for cited pages, `MessageTime`,
-`MessageActions`; the AI disclaimer goes once under `ChatComposer` (`hint`), and notices attach to
-its top (`notice`). A `[[n]]` citation never navigates on click — its card's link does.
+`MessageActions`. The box is `ChatComposer`, a compound: a `ChatComposerNotice` on its top edge, an
+optional context strip (`ChatComposerHeader` + `ChatComposerHeaderTrigger`, Plan as a `ComposerChip` at
+its end), `ChatComposerAttachments`, `ChatComposerInput`, then `ChatComposerActions` (+ and @ at the
+start; the model, the ring and `ChatComposerSubmit` at the end). Nothing goes under the card but a
+failed send. A `[[n]]` citation never navigates on click — its card's link does.
 
 **Markdown is read with `MarkdownView` and edited with `TextEdit format="markdown"`** — never a
 textarea, a local prose class, or a hand-rolled editor. For in-place editing, swap the view for

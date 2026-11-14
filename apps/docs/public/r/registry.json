@@ -19510,7 +19510,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.81.0",
-        "integrity": "sha256-yRojODlDB9X5IzgcN4EkyxpSbv0kBz0Qt5IxqKiQKng="
+        "integrity": "sha256-c6wvpfdTeEKelx85n2z2WZTUpjlemM2KeNgUnn4DGZs="
       }
     },
     {
@@ -19837,17 +19837,17 @@
         }
       ],
       "meta": {
-        "whenToUse": "A mode or a choice in ChatComposer's toolbar: the Plan toggle, the model picker's trigger, a model shown read-only.",
+        "whenToUse": "A mode or a choice in ChatComposer: the Plan toggle at the end of its context strip (ChatComposerHeader), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
         "version": "0.81.0",
-        "integrity": "sha256-3jiwkFVdtod3bnqtOEh/SZKZDpNke5U4FnU7jnBxgAk="
+        "integrity": "sha256-VSDKFfTBMStWZB3uWbBEmubMHXiaDlllCEQPCZEdO0c="
       }
     },
     {
       "name": "context-ring",
       "type": "registry:ui",
       "title": "Context Ring",
-      "description": "How full a chat's working memory is: a still 10px ring and its share in the composer's meta line, primary from 75%, the warning ink from 90%, opening its ContextPanel on hover, focus or click.",
+      "description": "How full a chat's working memory is: a still 10px ring and its share in the composer's actions row, primary from 75%, the warning ink from 90%, opening its ContextPanel on hover, focus or click.",
       "categories": [
         "chat"
       ],
@@ -19869,10 +19869,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Show how much of a chat's working window the last request used, in ComposerMeta's context slot.",
+        "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposerActionsEnd beside the model.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
         "version": "0.81.0",
-        "integrity": "sha256-3wta3hPXu+ygmSZmrIsWEUuPxp0C+Mx8DoFK75ZM9Q4="
+        "integrity": "sha256-huN4wKCin+EBkWrd//vNUip+ZhUZrFUM1j5A+OPvo60="
       }
     },
     {
@@ -20593,7 +20593,7 @@
       "name": "chat-composer",
       "type": "registry:ui",
       "title": "Chat Composer",
-      "description": "The box a person talks to an agent in: two lines at rest, + and Send inside, files above the text, steers waiting above the box, a notice on its top edge, and Send that morphs into Stop.",
+      "description": "The box a person talks to an agent in, as a compound: an optional context strip (who it's talking to, Plan), files above an auto-growing text, and an actions row with round + and @ buttons, the model, and a round Send that morphs into Stop.",
       "categories": [
         "chat"
       ],
@@ -20617,40 +20617,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat. Put Plan, the model and the memory ring in its meta line (ComposerMeta).",
+        "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.81.0",
-        "integrity": "sha256-rD7X8fK7kWY8Sm5LFfwVo9LW22nJyCGNR05dAyJDqKc="
-      }
-    },
-    {
-      "name": "composer-meta",
-      "type": "registry:ui",
-      "title": "Composer Meta",
-      "description": "The quiet line under a chat's composer: a short privacy note, then Plan, the model and effort, and the chat memory ring, as small muted text with a faint pill on hover.",
-      "categories": [
-        "chat"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.15.0",
-        "@vegastack/design-tokens@^0.15.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/tooltip"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/composer-meta.tsx",
-          "type": "registry:ui",
-          "target": "@ui/composer-meta.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Under ChatComposer (its meta prop), holding the privacy note, Plan, a ModelEffortMenu and a ContextRing.",
-        "whenNotToUse": "Toolbars and filters (Toolbar), or a form's helper text (FieldDescription).",
-        "version": "0.84.2",
-        "integrity": "sha256-zHPIbLZHQHZqW25JkoLJvgaN6GvsFLooQNboSGTDIE8="
+        "integrity": "sha256-S21iHGZGENIYSbh6itykAjbzPbuvk4JM2Dh9JR6bGx4="
       }
     },
     {
@@ -20679,10 +20649,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing the model and effort for a chat, from its composer's meta line.",
+        "whenToUse": "Choosing the model and effort for a chat, in its composer's actions row (ChatComposerActionsEnd).",
         "whenNotToUse": "An agent's default model in settings (Select or a settings form), or a list of many options that needs search (Combobox).",
         "version": "0.81.0",
-        "integrity": "sha256-ESi2dVnBs0qHK7gRT8T0mQ5v8itKCal5ziTQNawfmWw="
+        "integrity": "sha256-k1xQc7PuhrPBHMCIrxcMr7eVUk7bc9GxK7+3CxlHI9s="
       }
     },
     {

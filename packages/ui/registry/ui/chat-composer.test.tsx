@@ -7,10 +7,22 @@ import { Button } from "./button";
 import { ChatMenuItem } from "./chat-menu";
 import {
   ChatComposer,
+  ChatComposerActions,
+  ChatComposerActionsEnd,
+  ChatComposerActionsStart,
+  ChatComposerAddButton,
+  ChatComposerAttachments,
+  ChatComposerHeader,
+  ChatComposerHeaderTrigger,
+  ChatComposerInput,
+  ChatComposerMentionButton,
   ChatComposerNotice,
+  ChatComposerSubmit,
   type ChatComposerHandle,
+  type ChatComposerInputProps,
   type ChatComposerProps,
 } from "./chat-composer";
+import { ComposerChip } from "./composer-chip";
 import { preloadTextEdit } from "./text-edit";
 import "../../test/geometry.css";
 
@@ -28,8 +40,56 @@ async function typeInto(text: string) {
   await userEvent.keyboard(text);
 }
 
-const mount = (props: ChatComposerProps = {}) =>
-  render(<ChatComposer placeholder="Ask anything" {...props} />);
+type FullProps = Omit<ChatComposerProps, "children"> &
+  Pick<ChatComposerInputProps, "placeholder" | "mentions" | "maxRows"> & {
+    onAttach?: () => void;
+    addMenu?: React.ReactNode;
+    chips?: React.ReactNode;
+    notice?: React.ReactNode;
+    header?: React.ReactNode;
+    mention?: boolean;
+  };
+
+/** The composer laid out as a chat lays it out; each test varies the root's props. */
+function Full({
+  placeholder,
+  mentions,
+  maxRows,
+  onAttach,
+  addMenu,
+  chips,
+  notice,
+  header,
+  mention = false,
+  ...props
+}: FullProps) {
+  return (
+    <ChatComposer {...props}>
+      {notice}
+      {header}
+      <ChatComposerAttachments>{chips}</ChatComposerAttachments>
+      <ChatComposerInput
+        placeholder={placeholder}
+        mentions={mentions}
+        maxRows={maxRows}
+      />
+      <ChatComposerActions>
+        <ChatComposerActionsStart>
+          {onAttach || addMenu ? (
+            <ChatComposerAddButton onClick={onAttach} menu={addMenu} />
+          ) : null}
+          {mention ? <ChatComposerMentionButton /> : null}
+        </ChatComposerActionsStart>
+        <ChatComposerActionsEnd>
+          <ChatComposerSubmit />
+        </ChatComposerActionsEnd>
+      </ChatComposerActions>
+    </ChatComposer>
+  );
+}
+
+const mount = (props: FullProps = {}) =>
+  render(<Full placeholder="Ask anything" {...props} />);
 
 test("Enter sends and clears; Shift+Enter breaks the line", async () => {
   const onSubmit = vi.fn();
@@ -51,7 +111,7 @@ test("an empty box sends nothing, unless something is attached", async () => {
   await typeInto("{Enter}");
   expect(onSubmit).not.toHaveBeenCalled();
   await screen.rerender(
-    <ChatComposer
+    <Full
       onSubmit={onSubmit}
       attachments={[{ id: "f", name: "a.pdf", mediaType: "application/pdf" }]}
     />,
@@ -75,7 +135,7 @@ test("Send is the Stop button while the agent answers, and typing carries on", a
   await stop.click();
   expect(onStop).toHaveBeenCalledTimes(1);
   await screen.rerender(
-    <ChatComposer onSubmit={onSubmit} onStop={onStop} state="idle" />,
+    <Full onSubmit={onSubmit} onStop={onStop} state="idle" />,
   );
   await expect.element(send()).toBeVisible();
 });
@@ -171,7 +231,7 @@ test("a held Send keeps the text", async () => {
 test("the placeholder follows the prop while the box is empty", async () => {
   const screen = await mount({ placeholder: "Ask a follow-up…" });
   await userEvent.click(box());
-  await screen.rerender(<ChatComposer placeholder="Answer Bob…" />);
+  await screen.rerender(<Full placeholder="Answer Bob…" />);
   await vi.waitFor(() =>
     expect(
       screen.container
@@ -314,6 +374,12 @@ test("the handle opens the mention menu, after a word too", async () => {
   handle.current!.openMentionMenu();
   await vi.waitFor(() => expect(search).toHaveBeenCalled());
   await expect.element(page.getByText("BOQ processor")).toBeVisible();
+  // Enter picks the active option, so wait for the menu to make one active (slow under load).
+  await vi.waitFor(() =>
+    expect(
+      document.activeElement?.getAttribute("aria-activedescendant"),
+    ).toBeTruthy(),
+  );
   await userEvent.keyboard("{Enter}");
   await expect.element(box()).toHaveTextContent("BOQ processor");
   await userEvent.keyboard("hello");
@@ -346,16 +412,27 @@ test("no slash menu in a chat", async () => {
   expect(document.querySelector("[data-slot=suggestion-menu]")).toBeNull();
 });
 
-test("the box stops growing at its share of the window", async () => {
-  const screen = await mount({ defaultValue: "x\n\n".repeat(60) });
+test("the text grows to maxRows lines, then scrolls inside", async () => {
+  const screen = await mount({ defaultValue: "x\n\n".repeat(60), maxRows: 4 });
   await vi.waitFor(() =>
     expect(screen.container.querySelector("[role=textbox]")).not.toBeNull(),
   );
-  const height = screen.container
-    .querySelector("[data-slot=text-edit]")!
-    .getBoundingClientRect().height;
-  // 35% of the window for the text, plus the padding and the toolbar.
-  expect(height).toBeLessThanOrEqual(window.innerHeight * 0.35 + 80);
+  const content = screen.container.querySelector<HTMLElement>(
+    "[data-slot=text-edit-content], [data-slot=chat-composer-input] .overflow-y-auto",
+  );
+  const lineHeight = parseFloat(
+    getComputedStyle(
+      screen.container.querySelector(
+        "[data-slot=chat-composer-input] [data-slot=text-edit]",
+      )!,
+    ).lineHeight,
+  );
+  const input = screen.container
+    .querySelector("[data-slot=chat-composer-input]")!
+    .getBoundingClientRect();
+  // Four lines of text plus the input's own 12px of padding.
+  expect(input.height).toBeLessThanOrEqual(lineHeight * 4 + 16);
+  expect(content).not.toBeNull();
 });
 
 test("Enter stays a line in a code block, and ``` then Enter opens one", async () => {
@@ -437,13 +514,11 @@ test("a notice sits on the box's top edge, inside its hairline, with its action 
   expect(notice.getAttribute("role")).toBeNull();
   expect(frame.contains(notice)).toBe(true);
   expect(notice.querySelector("[data-slot=text-spinner]")).not.toBeNull();
-  // Edge to edge on the box's top edge, inside its hairline, with the text below it.
+  // Edge to edge on the card's top edge, inside its hairline, with the text below it.
   const a = notice.getBoundingClientRect();
-  const editor = screen.container
-    .querySelector<HTMLElement>("[data-slot=text-edit]")!
-    .getBoundingClientRect();
-  expect(Math.round(a.top - editor.top)).toBe(1);
-  expect(Math.round(editor.right - a.right)).toBe(1);
+  const card = frame.getBoundingClientRect();
+  expect(Math.round(a.top - card.top)).toBe(1);
+  expect(Math.round(card.right - a.right)).toBe(1);
   const text = box().element().getBoundingClientRect();
   expect(text.top).toBeGreaterThanOrEqual(a.bottom);
   await page.getByRole("button", { name: "Dismiss" }).click();
@@ -499,13 +574,13 @@ test("Send morphs in place: a spinner while sending, Stop while running, held wh
     sending.element().querySelector("[data-slot=text-spinner]"),
   ).not.toBeNull();
   await screen.rerender(
-    <ChatComposer onSubmit={() => {}} onStop={onStop} state="running" />,
+    <Full onSubmit={() => {}} onStop={onStop} state="running" />,
   );
   await expect
     .element(page.getByRole("button", { name: "Stop" }))
     .toHaveAttribute("data-face", "stop");
   await screen.rerender(
-    <ChatComposer onSubmit={() => {}} onStop={onStop} state="stopping" />,
+    <Full onSubmit={() => {}} onStop={onStop} state="stopping" />,
   );
   const stopping = page.getByRole("button", { name: "Stopping" });
   await expect.element(stopping).toHaveAttribute("aria-disabled", "true");
@@ -616,7 +691,7 @@ test("+ opens the add menu above the box", async () => {
 test("at 320px the box keeps + and Send inside it, on one line", async () => {
   const screen = await render(
     <div style={{ width: 320 }}>
-      <ChatComposer onSubmit={() => {}} onAttach={() => {}} />
+      <Full onSubmit={() => {}} onAttach={() => {}} />
     </div>,
   );
   const frame = screen.container
@@ -648,7 +723,7 @@ test("one steer at a time: a pending one holds Send, and stopping takes none", a
   expect(onSubmit).toHaveBeenCalledTimes(1);
   settle();
   await screen.rerender(
-    <ChatComposer
+    <Full
       onSubmit={onSubmit}
       onStop={() => {}}
       state="stopping"
@@ -680,4 +755,168 @@ test("a turned-off box takes nothing off and takes no steer back", async () => {
     page.getByRole("button", { name: "Remove a.pdf" }).element() as HTMLElement
   ).click();
   expect(remove).not.toHaveBeenCalled();
+});
+
+const header = (
+  <ChatComposerHeader>
+    <ChatComposerHeaderTrigger
+      media={<span>W</span>}
+      description="Chief of staff of the whole operations group"
+    >
+      Talking to William Shakespeare-Montgomery
+    </ChatComposerHeaderTrigger>
+    <ComposerChip pressed={false} onPressedChange={() => {}}>
+      Plan
+    </ComposerChip>
+  </ChatComposerHeader>
+);
+
+test("the context strip is one named trigger above a hairline, with Plan at its end", async () => {
+  const screen = await mount({ header, onSubmit: () => {} });
+  const trigger = page.getByRole("button", {
+    name: "Talking to William Shakespeare-Montgomery, Chief of staff of the whole operations group",
+    exact: true,
+  });
+  await expect.element(trigger).toBeVisible();
+  const strip = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-header]",
+  )!;
+  expect(getComputedStyle(strip).borderBottomWidth).toBe("1px");
+  const editor = box().element().getBoundingClientRect();
+  expect(editor.top).toBeGreaterThanOrEqual(
+    strip.getBoundingClientRect().bottom,
+  );
+  await expect
+    .element(page.getByRole("button", { name: "Plan" }))
+    .toHaveAttribute("aria-pressed", "false");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("at 320px the strip truncates its words and keeps Plan inside the card", async () => {
+  const screen = await render(
+    <div style={{ width: 320 }}>
+      <Full header={header} onSubmit={() => {}} onAttach={() => {}} mention />
+    </div>,
+  );
+  const card = screen.container
+    .querySelector("[data-slot=chat-composer-box]")!
+    .getBoundingClientRect();
+  const trigger = screen.container
+    .querySelector("[data-slot=chat-composer-header-trigger]")!
+    .getBoundingClientRect();
+  const plan = page
+    .getByRole("button", { name: "Plan" })
+    .element()
+    .getBoundingClientRect();
+  expect(trigger.right).toBeLessThanOrEqual(plan.left);
+  expect(plan.right).toBeLessThanOrEqual(card.right);
+  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(
+    window.innerWidth,
+  );
+});
+
+test("+, @ and Send are one round 32px size, centred on one line", async () => {
+  await mount({ onSubmit: () => {}, onAttach: () => {}, mention: true });
+  const rects = ["Add", "Mention", "Send"].map((name) =>
+    page.getByRole("button", { name }).element().getBoundingClientRect(),
+  );
+  for (const rect of rects) {
+    expect(rect.width).toBe(32);
+    expect(rect.height).toBe(32);
+    expect(Math.round(rect.top)).toBe(Math.round(rects[0]!.top));
+  }
+  const radius = getComputedStyle(send().element()).borderTopLeftRadius;
+  expect(parseFloat(radius)).toBeGreaterThanOrEqual(16);
+});
+
+test("@ opens the mention list at the caret", async () => {
+  const search = vi.fn(async () => [
+    { kind: "agent", id: "a1", label: "BOQ processor" },
+  ]);
+  await mount({
+    mention: true,
+    mentions: {
+      kinds: [{ id: "agent", noun: "Agent", plural: "Agents", order: 0 }],
+      search,
+    },
+  });
+  await page.getByRole("button", { name: "Mention" }).click();
+  await vi.waitFor(() => expect(search).toHaveBeenCalled());
+  await expect.element(page.getByText("BOQ processor")).toBeVisible();
+});
+
+test("a press on the card's padding puts the caret in the text", async () => {
+  const screen = await mount({ onSubmit: () => {} });
+  const row = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-actions]",
+  )!;
+  const rect = row.getBoundingClientRect();
+  await userEvent.click(row, {
+    position: { x: rect.width / 2, y: rect.height / 2 },
+  });
+  await vi.waitFor(() =>
+    expect(document.activeElement?.className).toContain("ProseMirror"),
+  );
+});
+
+test("right to left, Send sits at the start edge's opposite and + at the start", async () => {
+  await render(
+    <div dir="rtl" style={{ width: 400 }}>
+      <Full onSubmit={() => {}} onAttach={() => {}} />
+    </div>,
+  );
+  const plus = page
+    .getByRole("button", { name: "Add" })
+    .element()
+    .getBoundingClientRect();
+  const sendBox = send().element().getBoundingClientRect();
+  expect(sendBox.right).toBeLessThan(plus.left);
+});
+
+test("the parts need the root", async () => {
+  const error = vi.spyOn(console, "error").mockImplementation(() => {});
+  try {
+    await expect(render(<ChatComposerSubmit />)).rejects.toThrow(
+      "ChatComposerSubmit must be used inside <ChatComposer>.",
+    );
+  } finally {
+    error.mockRestore();
+  }
+});
+
+test("a turned-off composer turns its context strip off too", async () => {
+  const screen = await mount({ header, disabled: true });
+  await expect
+    .element(page.getByRole("button", { name: /^Talking to William/ }))
+    .toHaveAttribute("aria-disabled", "true");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("the card's border is the text's focus cue, and only the text's", async () => {
+  const screen = await mount({
+    header,
+    onSubmit: () => {},
+    onAttach: () => {},
+    mention: true,
+  });
+  const card = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-box]",
+  )!;
+  expect(card.hasAttribute("data-field-group")).toBe(true);
+  const border = () => getComputedStyle(card).borderTopColor;
+  const rest = border();
+  // A control in the strip or the actions row takes the tint; the card's border holds.
+  for (const name of [/^Talking to William/, "Plan", "Add", "Mention"]) {
+    (page.getByRole("button", { name }).element() as HTMLElement).focus();
+    await new Promise((done) => setTimeout(done, 250));
+    expect(border()).toBe(rest);
+  }
+  await userEvent.click(box());
+  await vi.waitFor(() =>
+    expect(document.activeElement?.className).toContain("ProseMirror"),
+  );
+  expect(document.activeElement?.getAttribute("data-focus-cue")).toBe("border");
+  await vi.waitFor(() => expect(border()).not.toBe(rest));
+  (page.getByRole("button", { name: "Add" }).element() as HTMLElement).focus();
+  await vi.waitFor(() => expect(border()).toBe(rest));
 });
