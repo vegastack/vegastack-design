@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.87.0] — November 14, 2026
+
+### 🔧 Changed components
+
+- `PlanData.state` adds `changes_requested` and `expired`, both settled. `PlanLine` reads "Changes asked for · v1" when Keep planning was asked and no new version has come yet, and "Plan expired · v1" when no one answered in time, instead of "Replaced by a newer plan". The ✓ stays for an approved plan only. `PlanCard`'s settled words match the chat's: "Changes asked for · by Priya" and "Plan expired · no answer in 7 days".
+  [`a0b246a`](https://github.com/VegaStack/vegastack-design/commit/a0b246a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.86.0 → 0.87.0.
+
 ## [0.86.0] — November 14, 2026
 
 ### 🔧 Changed components

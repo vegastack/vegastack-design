@@ -16791,7 +16791,7 @@
       "meta": {
         "whenToUse": "A plan waiting for a person's approval in an agent chat, and its approved, rejected or replaced line.",
         "whenNotToUse": "The task list a running plan becomes (TaskList); a static checklist in a document.",
-        "version": "0.84.1"
+        "version": "0.87.0"
       }
     },
     {
@@ -16882,7 +16882,7 @@
       "meta": {
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
         "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
-        "version": "0.81.0"
+        "version": "0.87.0"
       }
     },
     {

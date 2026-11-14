@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.87.0
+
+### Minor Changes
+
+- [#990](https://github.com/vegastack/vegastack-design/pull/990) [`a0b246a`](https://github.com/vegastack/vegastack-design/commit/a0b246a90d95b7b2380e236b74732b8885541d2f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `PlanData.state` adds `changes_requested` and `expired`, both settled. `PlanLine` reads "Changes asked for · v1" when Keep planning was asked and no new version has come yet, and "Plan expired · v1" when no one answered in time, instead of "Replaced by a newer plan". The ✓ stays for an approved plan only. `PlanCard`'s settled words match the chat's: "Changes asked for · by Priya" and "Plan expired · no answer in 7 days".
+
 ## 0.86.0
 
 ### Minor Changes
