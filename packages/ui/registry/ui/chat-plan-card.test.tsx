@@ -83,6 +83,19 @@ test("one decision per version: Approve holds every action until the plan's stat
     .toBeEnabled();
 });
 
+test("with nothing that needs an OK there is one Approve, which accepts without allowing", async () => {
+  const p = props();
+  const screen = await render(
+    <ChatPlanCard data={{ ...PLAN, needsOk: [] }} {...p} />,
+  );
+  expect(screen.getByText("Approve and run").query()).toBeNull();
+  expect(screen.getByText("Approve, ask before changes").query()).toBeNull();
+  await userEvent.click(
+    screen.getByRole("button", { name: "Approve", exact: true }),
+  );
+  expect(p.onApprove).toHaveBeenCalledWith("ask_before_changes");
+});
+
 test("Reject carries a note, from inside Keep planning", async () => {
   const p = props();
   const screen = await render(<ChatPlanCard data={PLAN} {...p} />);

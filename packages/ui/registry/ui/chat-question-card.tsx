@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.81.0 sha256-ci8TxB/k7M4Xqa6LgAcHwGn0D7vsfZEtct29kGt+r4U=
+// @vegastack chat-question-card@0.81.0 sha256-Llp1QK62ZFAzRsDwR9DqJ86rLS/mjRaxQIljwBcNZEo=
 
 "use client";
 
@@ -555,7 +555,7 @@ function QuestionLine({ data, className, ...props }: QuestionLineProps) {
         data-slot="question-line"
         data-state="skipped"
         className={cn(
-          "flex min-h-7 min-w-0 items-center px-2 text-sm text-muted-foreground",
+          "-mx-2 flex min-h-7 min-w-0 items-center px-2 text-sm text-muted-foreground",
           className,
         )}
         {...props}
@@ -569,7 +569,7 @@ function QuestionLine({ data, className, ...props }: QuestionLineProps) {
     words: answerWords(question, data.answers?.[question.id]),
   }));
   const line = (words: string, prompt?: string) => (
-    <div className="flex min-h-7 min-w-0 items-center gap-2 px-2 text-sm text-muted-foreground">
+    <div className="-mx-2 flex min-h-7 min-w-0 items-center gap-2 px-2 text-sm text-muted-foreground">
       <StatusGlyph status="done" label={null} />
       <span className="min-w-0 truncate">
         {words ? (

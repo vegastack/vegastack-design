@@ -29,7 +29,8 @@ import { ChatPlanCard } from "@/components/ui/chat-plan-card";
 Meta is only "Plan · v2". Under the title and goal come numbered steps (eight show, the rest open)
 and three quiet rows: Will change, Won't, and Needs your OK — the steps the permission engine says
 will still ask. No colour pills, no risk dot. Approve and run is primary, Approve, ask before
-changes is outline, and Keep planning ▾ holds a note and Reject. Approved, rejected or replaced,
+changes is outline, and Keep planning ▾ holds a note and Reject. When no step needs an OK there is
+nothing to allow, so the card shows one Approve (`onApprove("ask_before_changes")`). Approved, rejected or replaced,
 the card becomes a `PlanLine` that can show the plan again.
 
 <ComponentPreview
@@ -55,7 +56,8 @@ and lists what was removed.
 
 ### A long plan
 
-Eight steps show; the rest open with "Show 3 more".
+Eight steps show; the rest open with "Show 3 more". No step needs an OK here, so there is one
+Approve.
 
 <ComponentPreview
   name="chatPlanCardLong"

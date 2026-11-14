@@ -1,6 +1,6 @@
 ---
 title: Chat Request Card
-description: "An agent asking for an OK, drawn from the server's offer: Allow once, Always allow with its scopes, Decline with a note, and bundles."
+description: "An agent asking for an OK, drawn from the server's offer: Allow once, Always allow with its scopes, Never, Decline with a note, and bundles."
 audience: public
 registry: chat-request-card
 status: stable
@@ -26,8 +26,9 @@ import { ChatRequestCard } from "@/components/ui/chat-request-card";
 ```
 
 The buttons are exactly `data.offer.choices`, the options the server says it will accept: `once`
-is the primary button, every `always:*` choice sits in one "Always allow" menu with its scope, and
-`decline` is a quiet text button that opens a note to the agent. When Always can't be offered,
+is the primary button, every `always:*` choice sits in one "Always allow" menu with its scope,
+`never` is a quiet text button with the server's words ("Never allow this"), and `decline` is a
+quiet text button that opens a note to the agent. When Always can't be offered,
 `offer.noAlways.words` says why under the buttons. While `onAnswer` runs the buttons hold; once
 the request is answered, refused, withdrawn or expired the card becomes a `RequestLine`.
 
@@ -53,8 +54,10 @@ No Always choice in the offer, so no Always button, and the footnote says why.
 
 ### Several at once
 
-Subagents asking together become one card: Allow all once, Always allow these, or Choose each to
-answer row by row.
+Subagents asking together become one card with the choices every ask offers
+(`offer.bundle.choices`): Allow all once, Always allow these (a menu when there are several
+scopes), Never allow these, Decline, or Choose each to answer row by row. `onAnswerAll` gets the
+chosen bundle choice's id.
 
 <ComponentPreview
   name="chatRequestCardBundle"

@@ -1,4 +1,4 @@
-// @vegastack source-list@0.82.0 sha256-TJJ5O7m3cUt5P/FyuHw7Yfl5bu46jxX2PArrwyJv5B4=
+// @vegastack source-list@0.82.0 sha256-nVYwpQiDBL7mtuciBS6NWkzgsN9exyQsXMJBoszzaNI=
 
 "use client";
 
@@ -237,7 +237,7 @@ export function SourceList({
                   rel="noreferrer noopener"
                   title={title}
                   data-slot="source-list-row"
-                  className="group/source-row state-layer flex min-h-7 min-w-0 items-center gap-2 rounded-md px-2 text-sm no-underline"
+                  className="group/source-row state-layer -mx-2 flex min-h-7 min-w-0 items-center gap-2 rounded-md px-2 text-sm no-underline"
                 >
                   <span className="w-4 shrink-0 text-end text-xs text-muted-foreground tabular-nums">
                     {index + 1}

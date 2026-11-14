@@ -1,4 +1,4 @@
-// @vegastack chat-request-card@0.81.0 sha256-66WYlxXscJLHZc9HdmgkeaP55R56XmlXgsYvpwDrGd0=
+// @vegastack chat-request-card@0.81.0 sha256-aqcuQIXhiiMBkGnW0G3eZrumWf8U75SD9OKfHFe6YIw=
 
 "use client";
 
@@ -27,8 +27,8 @@ import { Textarea } from "@/components/ui/textarea";
 /* ------------------------------------------------------------------------------------------------
  * ChatRequestCard — an agent asking a person's OK, drawn from the offer the server stored with the
  * request. The card never computes its own buttons: `once` is the primary button, every `always:*`
- * choice sits in one "Always allow" menu with its scope, and `decline` is a quiet text button that
- * can carry a note. Nothing on the card can fail when pressed because nothing on it was invented
+ * choice sits in one "Always allow" menu with its scope, and `never` and `decline` are quiet text
+ * buttons (a decline can carry a note). Nothing on the card can fail when pressed because nothing on it was invented
  * here. Once answered, refused, withdrawn or expired the card settles into one muted line.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -40,6 +40,7 @@ export type RequestChoice =
       label: string;
       scope: { kind: string; value: string; label: string };
     }
+  | { id: "never"; label: string }
   | { id: "decline"; label: string };
 
 /** A request as the chat contract carries it (the `data-request` part). */
@@ -60,7 +61,11 @@ export type RequestData = {
   offer: {
     choices: RequestChoice[];
     noAlways?: { code: string; words: string };
-    bundle?: { key: string; count: number };
+    /**
+     * Set while asks of one turn wait together: `choices` are the ones every ask offers, which the
+     * bundle card's answer-all buttons send.
+     */
+    bundle?: { key: string; count: number; choices: RequestChoice[] };
   };
   /** Where the request stands. */
   state: "open" | "answered" | "refused" | "withdrawn" | "expired";
@@ -157,7 +162,8 @@ type Answer = (choiceId: string, note?: string) => Promise<void>;
 
 /**
  * The offered choices as buttons — exactly the server's, never more. `once` primary, the
- * `always:*` choices in one outline menu, `decline` a text button that opens a note field.
+ * `always:*` choices in one outline menu, `never` a text button, `decline` a text button that opens
+ * a note field.
  */
 function RequestChoices({
   choices,
@@ -176,6 +182,7 @@ function RequestChoices({
   const [note, setNote] = React.useState("");
   const once = choices.find((choice) => choice.id === "once");
   const always = choices.filter((choice) => choice.id.startsWith("always:"));
+  const never = choices.find((choice) => choice.id === "never");
   const decline = choices.find((choice) => choice.id === "decline");
   if (noting && decline) {
     const send = () => void onAnswer("decline", note.trim() || undefined);
@@ -263,6 +270,18 @@ function RequestChoices({
           ))}
         </ChatMenu>
       ) : null}
+      {never ? (
+        <Button
+          size={size}
+          variant="ghost"
+          disabled={busy}
+          data-choice="never"
+          className="text-muted-foreground"
+          onClick={() => void onAnswer("never")}
+        >
+          {never.label}
+        </Button>
+      ) : null}
       {decline ? (
         <Button
           size={size}
@@ -344,6 +363,8 @@ function settledWords(data: RequestData): {
   const choiceId = data.answer?.choiceId;
   if (choiceId === "decline")
     return { status: "skipped", words: `Declined · ${data.title}` };
+  if (choiceId === "never")
+    return { status: "skipped", words: `Never allowed · ${data.title}` };
   if (choiceId?.startsWith("always:")) {
     const choice = data.offer.choices.find((c) => c.id === choiceId);
     const scope = choice && "scope" in choice ? ` ${choice.scope.label}` : "";
@@ -371,7 +392,7 @@ function RequestLine({ data, onUndo, className, ...props }: RequestLineProps) {
       data-slot="request-line"
       data-state={data.state}
       className={cn(
-        "flex min-h-7 min-w-0 items-start gap-2 px-2 py-1 text-sm text-muted-foreground",
+        "-mx-2 flex min-h-7 min-w-0 items-start gap-2 px-2 py-1 text-sm text-muted-foreground",
         className,
       )}
       {...props}
@@ -428,7 +449,7 @@ export interface ChatRequestCardProps extends Omit<
 
 /**
  * An agent asking a person's OK, drawn from the server's stored offer: Allow once (primary), one
- * "Always allow ▾" menu with each scope, and Decline as text with an optional note. When Always
+ * "Always allow ▾" menu with each scope, Never as text, and Decline as text with an optional note. When Always
  * can't be offered the card says why in a muted footnote. While an answer is in flight the buttons
  * hold (`aria-busy`); once settled the card becomes a `RequestLine`.
  *
@@ -509,8 +530,8 @@ export interface RequestBundleCardProps extends Omit<
 > {
   /** The requests asked together (Subagents asking at once), in the order they were asked. */
   items: RequestData[];
-  /** Answers every open item at once. */
-  onAnswerAll: (choiceId: "once" | "always:sites" | "decline") => Promise<void>;
+  /** Answers every open item at once with one of the bundle's choices (`offer.bundle.choices`). */
+  onAnswerAll: (choiceId: string) => Promise<void>;
   /** Answers one item, from "Choose each"; a decline may carry a note. */
   onAnswer: (
     interactionId: string,
@@ -523,10 +544,22 @@ export interface RequestBundleCardProps extends Omit<
 
 const WEB_KIND = /web|site|url|open|fetch|browse/i;
 
+/** The choices every open ask offers: the bundle's own when the server sent them. */
+function bundleChoicesOf(open: RequestData[]): RequestChoice[] {
+  const sent = open[0]?.offer.bundle?.choices;
+  if (sent) return sent;
+  const [first] = open;
+  if (!first) return [];
+  return first.offer.choices.filter((choice) =>
+    open.every((item) => item.offer.choices.some((c) => c.id === choice.id)),
+  );
+}
+
 /**
  * Several asks at once — usually Subagents opening sites in parallel — as one card: one row per
- * ask (subject · for "<Subagent>"), then Allow all once, Always allow these (only when every ask
- * offers an Always), Choose each › (each row gets its own buttons) and Decline. Settled asks
+ * ask (subject · for "<Subagent>"), then the choices every ask offers: Allow all once, Always allow
+ * these (a menu when there are several scopes), Choose each › (each row gets its own buttons),
+ * Never allow these and Decline. Settled asks
  * become `RequestLine`s; when none is open the card is gone.
  *
  * @example
@@ -559,7 +592,7 @@ function RequestBundleCard({
   const open = items.filter((item) => item.state === "open");
   const all = useAnswer((choiceId) => {
     covered.current = new Set(open.map((item) => item.interactionId));
-    return onAnswerAll(choiceId as "once" | "always:sites" | "decline");
+    return onAnswerAll(choiceId);
   });
   const allHeld =
     all.busy && open.some((item) => covered.current.has(item.interactionId));
@@ -570,11 +603,11 @@ function RequestBundleCard({
   // A row's answer in flight holds the answers for all, and the other way round.
   const bulkHeld = allHeld || rowsBusy.size > 0;
   const settled = items.filter((item) => item.state !== "open");
-  const offers = (id: "once" | "decline") =>
-    open.every((item) => item.offer.choices.some((c) => c.id === id));
-  const allAlways = open.every((item) =>
-    item.offer.choices.some((c) => c.id.startsWith("always:")),
-  );
+  const choices = bundleChoicesOf(open);
+  const once = choices.find((c) => c.id === "once");
+  const always = choices.filter((c) => c.id.startsWith("always:"));
+  const never = choices.find((c) => c.id === "never");
+  const decline = choices.find((c) => c.id === "decline");
   const sites = open.every((item) => WEB_KIND.test(item.kind));
   return (
     <div
@@ -606,24 +639,56 @@ function RequestBundleCard({
               </Button>
             ) : (
               <>
-                {offers("once") ? (
+                {once ? (
                   <Button
                     size="sm"
                     disabled={bulkHeld}
-                    onClick={() => void all.run("once")}
+                    data-choice="once"
+                    onClick={() => void all.run(once.id)}
                   >
                     Allow all once
                   </Button>
                 ) : null}
-                {allAlways ? (
+                {always.length === 1 ? (
                   <Button
                     size="sm"
                     variant="outline"
                     disabled={bulkHeld}
-                    onClick={() => void all.run("always:sites")}
+                    data-choice="always"
+                    onClick={() => void all.run(always[0]!.id)}
                   >
                     {sites ? "Always allow these sites" : "Always allow these"}
                   </Button>
+                ) : always.length > 1 ? (
+                  <ChatMenu
+                    trigger={
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={bulkHeld}
+                        data-choice="always"
+                      >
+                        {sites
+                          ? "Always allow these sites"
+                          : "Always allow these"}
+                        <ChevronDown
+                          aria-hidden="true"
+                          data-icon="inline-end"
+                          strokeWidth={1.5}
+                        />
+                      </Button>
+                    }
+                  >
+                    {always.map((choice, index) => (
+                      <ChatMenuItem
+                        key={choice.id}
+                        shortcut={index < 9 ? String(index + 1) : undefined}
+                        onSelect={() => void all.run(choice.id)}
+                      >
+                        {choice.label}
+                      </ChatMenuItem>
+                    ))}
+                  </ChatMenu>
                 ) : null}
                 <Button
                   size="sm"
@@ -639,13 +704,26 @@ function RequestBundleCard({
                     className="rtl:rotate-180"
                   />
                 </Button>
-                {offers("decline") ? (
+                {never ? (
                   <Button
                     size="sm"
                     variant="ghost"
                     disabled={bulkHeld}
+                    data-choice="never"
                     className="text-muted-foreground"
-                    onClick={() => void all.run("decline")}
+                    onClick={() => void all.run(never.id)}
+                  >
+                    {open.length === 1 ? never.label : "Never allow these"}
+                  </Button>
+                ) : null}
+                {decline ? (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={bulkHeld}
+                    data-choice="decline"
+                    className="text-muted-foreground"
+                    onClick={() => void all.run(decline.id)}
                   >
                     Decline
                   </Button>

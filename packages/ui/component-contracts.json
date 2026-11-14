@@ -51707,6 +51707,10 @@
         "RequestBundleCard": {
           "attributes": [
             {
+              "name": "data-choice",
+              "values": ["always", "decline", "never", "once"]
+            },
+            {
               "name": "data-icon",
               "values": ["inline-end"]
             },

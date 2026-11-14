@@ -1,4 +1,4 @@
-// @vegastack chat-card@0.81.0 sha256-GbbH1kjbmZj3qeyzncu/azqJa2l2s+zy3+KKNBbeL8Q=
+// @vegastack chat-card@0.81.0 sha256-btWuKXYk9f5586XrVdWVOEZQ2Lh0H8wa/wlzJJl5Zpc=
 
 "use client";
 
@@ -164,8 +164,9 @@ export interface ChatRowProps extends Omit<
   href?: string;
 }
 
+// Rows hang: the text starts on the column (the prose), the hover fill reaches 8px into the gutter.
 const ROW =
-  "flex min-h-7 min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm";
+  "-mx-2 flex min-h-7 min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm";
 
 /**
  * One line of work in a chat: an optional state glyph, a muted verb, the subject in the body ink,
@@ -233,7 +234,7 @@ function ChatRow({
       >
         <a
           href={href}
-          className={cn(ROW, "state-layer w-full no-underline")}
+          className={cn(ROW, "state-layer no-underline")}
           data-slot="chat-row-link"
         >
           {content}
@@ -254,7 +255,7 @@ function ChatRow({
           onClick={onOpen}
           className={cn(
             ROW,
-            "h-auto w-full justify-start border-0 font-normal whitespace-normal",
+            "h-auto w-[calc(100%+1rem)] justify-start border-0 font-normal whitespace-normal",
           )}
           data-slot="chat-row-button"
         >
@@ -326,7 +327,7 @@ function ChatGroup({
     >
       <CollapsibleTrigger
         data-slot="chat-group-trigger"
-        className="group/chat-group state-layer flex min-h-7 w-fit max-w-full min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm text-muted-foreground"
+        className="group/chat-group state-layer -mx-2 flex min-h-7 w-fit max-w-[calc(100%+1rem)] min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm text-muted-foreground"
       >
         {live ? <TextSpinner label="" /> : null}
         <span data-slot="chat-group-summary" className="min-w-0 truncate">
@@ -342,7 +343,7 @@ function ChatGroup({
         data-slot="chat-group-content"
         className={cn(
           "flex flex-col gap-1 pt-1",
-          guide && "ms-3 border-s border-chat-hairline ps-2",
+          guide && "ms-1 border-s border-chat-hairline ps-4",
         )}
       >
         {children}

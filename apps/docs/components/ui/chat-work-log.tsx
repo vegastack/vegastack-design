@@ -1,4 +1,4 @@
-// @vegastack chat-work-log@0.81.0 sha256-wAWYCtQ+d8lwG0JbLpWzPNFxxOizk0QobJEBdkgTMIs=
+// @vegastack chat-work-log@0.81.0 sha256-vNd/CKHkeY/NgCfbNkzKoqa3ZA11/KJK1qVTlzjXfeE=
 
 "use client";
 
@@ -267,7 +267,7 @@ export interface LiveLineProps {
 }
 
 const LINE =
-  "flex h-7 w-fit max-w-full min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm text-muted-foreground";
+  "-mx-2 flex h-7 w-fit max-w-[calc(100%+1rem)] min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm text-muted-foreground";
 
 function Chevron({ open }: { open?: boolean }) {
   return (
@@ -492,7 +492,7 @@ function WorkNote({ text, clamp }: { text: string; clamp: boolean }) {
     return (
       <p
         data-slot="work-note"
-        className="min-w-0 px-2 py-0.5 text-xs whitespace-pre-line text-muted-foreground"
+        className="-mx-2 min-w-0 px-2 py-0.5 text-xs whitespace-pre-line text-muted-foreground"
       >
         {body}
       </p>
@@ -503,7 +503,7 @@ function WorkNote({ text, clamp }: { text: string; clamp: boolean }) {
       aria-expanded={open}
       onClick={() => setOpen((value) => !value)}
       data-slot="work-note"
-      className="h-auto w-full justify-start border-0 px-2 py-0.5 text-start text-xs font-normal whitespace-pre-line text-muted-foreground hover:text-muted-foreground aria-expanded:bg-transparent aria-expanded:text-muted-foreground"
+      className="-mx-2 h-auto w-[calc(100%+1rem)] justify-start border-0 px-2 py-0.5 text-start text-xs font-normal whitespace-pre-line text-muted-foreground hover:text-muted-foreground aria-expanded:bg-transparent aria-expanded:text-muted-foreground"
     >
       {body}
     </Button>
@@ -560,7 +560,7 @@ function WorkToolRow({
       {input ? (
         <pre
           data-slot="work-row-input"
-          className="ms-2 mb-1 max-h-40 overflow-auto rounded-md bg-chat-card px-2 py-1 font-mono text-xs whitespace-pre-wrap text-muted-foreground"
+          className="-mx-2 mb-1 max-h-40 overflow-auto rounded-md bg-chat-card px-2 py-1 font-mono text-xs whitespace-pre-wrap text-muted-foreground"
         >
           {input}
         </pre>
@@ -603,7 +603,7 @@ function WorkLog({
       <CollapsibleContent
         data-slot="work-log"
         className={cn(
-          "ms-3.5 flex min-w-0 flex-col gap-1 border-s border-chat-hairline ps-2 pt-1",
+          "ms-1.5 flex min-w-0 flex-col gap-1 border-s border-chat-hairline ps-4 pt-1",
           className,
         )}
       >
@@ -650,7 +650,7 @@ function NoticeRow({
     <div
       data-slot={kind === "error" ? "error-row" : "stuck-row"}
       className={cn(
-        "flex min-w-0 items-start gap-2 px-2 py-1 text-sm",
+        "-mx-2 flex min-w-0 items-start gap-2 px-2 py-1 text-sm",
         className,
       )}
     >
