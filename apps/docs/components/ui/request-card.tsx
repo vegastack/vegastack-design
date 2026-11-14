@@ -1,4 +1,4 @@
-// @vegastack request-card@0.81.0 sha256-1DoEDgtvZ9gwk2y0kMh9l102DnTvX1Tw0fRwwqBdeLY=
+// @vegastack request-card@0.81.0 sha256-a682aB/swaTFhNPekOBeF4UslfUtWcamN0by9oI0qtA=
 
 "use client";
 
@@ -342,14 +342,26 @@ function agentPerson(agent: CardAgent): Person {
   };
 }
 
-function PreviewBlock({ preview }: { preview: CardPreview }) {
+function PreviewBlock({
+  preview,
+  className,
+}: {
+  preview: CardPreview;
+  className?: string;
+}) {
   switch (preview.kind) {
     case "quote":
       return (
         <blockquote
           data-slot="request-card-preview"
           data-kind="quote"
-          className="rounded-lg bg-muted px-3 py-2 whitespace-pre-line wrap-anywhere"
+          // A long quote scrolls: a stop of its own, so a keyboard can read it all before answering.
+          tabIndex={0}
+          aria-label="What it would send"
+          className={cn(
+            "max-h-48 overflow-y-auto rounded-lg bg-muted px-3 py-2 whitespace-pre-line wrap-anywhere",
+            className,
+          )}
         >
           “{preview.text}”
         </blockquote>
@@ -900,8 +912,19 @@ export function RequestCard({
             {spec.why}
           </p>
         ) : null}
-        {!compact && spec.preview && !isBundle ? (
-          <PreviewBlock preview={spec.preview} />
+        {spec.preview &&
+        !isBundle &&
+        // A compact row keeps one preview: the words a send would send, so Allow once is never
+        // pressed blind.
+        (!compact || spec.preview.kind === "quote") ? (
+          <PreviewBlock
+            preview={spec.preview}
+            // Lined up under the title, past the avatar; in a wide row, under the title and its answers.
+            className={cn(
+              compact &&
+                "ms-8.5 max-h-32 @2xl/request-card:order-last @2xl/request-card:ms-0 @2xl/request-card:basis-full",
+            )}
+          />
         ) : null}
         {nudge}
         {actions}

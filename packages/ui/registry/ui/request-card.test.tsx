@@ -315,11 +315,31 @@ test("compact: one row with the title, from and small buttons", async () => {
     .element(screen.getByRole("region"))
     .toHaveAttribute("data-compact", "true");
   expect(slot(screen.container, "why")).toBeNull();
-  expect(slot(screen.container, "preview")).toBeNull();
+  // The words a send would send stay, so Allow once is never pressed blind.
+  expect(slot(screen.container, "preview")?.textContent).toContain(
+    "Friday demo time?",
+  );
   await expect
     .element(screen.getByRole("button", { name: "Allow once" }))
     .toHaveClass("h-7");
   await expectNoA11yViolations(screen.container);
+});
+
+test("compact: other previews stay out of the row", async () => {
+  const screen = await render(
+    <RequestCard
+      spec={{
+        ...spec,
+        preview: { kind: "recipients", items: ["sm@vegastack.com"] },
+      }}
+      state="pending"
+      compact
+      onAllowOnce={vi.fn()}
+      onAlways={vi.fn()}
+      onDecline={vi.fn()}
+    />,
+  );
+  expect(slot(screen.container, "preview")).toBeNull();
 });
 
 test("What I've allowed: uses, last used, paused, Revoke, Undo and Keep", async () => {
