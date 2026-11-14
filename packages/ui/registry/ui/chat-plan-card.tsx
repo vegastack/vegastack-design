@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.87.0 sha256-8UIDMsvsrKkfdHPSzVOKrV/mD93EVe5UzuzK/8LUuXU=
+// @vegastack chat-plan-card@0.87.0 sha256-Fw+ygdlSz3Qc36LBoTQDJDDh0c13+GZ427TXCmIy3Pg=
 
 "use client";
 
@@ -72,7 +72,7 @@ const SETTLE = "animate-in fade-in-0 duration-state ease-enter";
  */
 /** A sentence's end: . ! or ?, then only closing quotes, brackets, spaces or emoji (whole sequences). */
 const SENTENCE_END =
-  /[.!?][\s"'”’)\]\p{Extended_Pictographic}\p{Emoji_Modifier}\p{Regional_Indicator}\u200D\uFE0F\u20E3]*$/u;
+  /[.!?](?:[\s"'”’)\]\p{Extended_Pictographic}\p{Emoji_Modifier}\p{Regional_Indicator}\u200D\uFE0F]|[0-9#*]\uFE0F?\u20E3)*$/u;
 
 function inWords(items: string[]): string {
   if (items.length <= 1) return items.join("");

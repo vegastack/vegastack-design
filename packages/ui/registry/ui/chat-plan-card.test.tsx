@@ -58,7 +58,8 @@ test("won't items written as sentences read as sentences, never joined with 'and
           "Changing the owner",
           "Leave production. 🔒",
           "Keep the owner. 👍🏽",
-          "Ship it! 🇮🇳",
+          "Ship it! 🇮🇳 Keep it. 1️⃣",
+          "Keep it. 1️⃣",
         ],
       }}
       {...props()}
