@@ -16,8 +16,10 @@ import {
   readFileSync,
   writeFileSync,
   existsSync,
+  lstatSync,
   mkdirSync,
   rmSync,
+  statSync,
 } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
@@ -217,15 +219,21 @@ for (const f of readdirSync(dir).filter(
 let prunedCopies = 0;
 function pruneOrphanCopies(directory) {
   if (!existsSync(directory)) return;
-  for (const entry of readdirSync(directory, { withFileTypes: true })) {
+  // Symlinks are never followed, and every path is checked to resolve inside the docs app.
+  const real = assertExistingPathInside(docsRoot, directory);
+  if (lstatSync(directory).isSymbolicLink() || !statSync(real).isDirectory())
+    return;
+  for (const entry of readdirSync(real, { withFileTypes: true })) {
+    if (entry.isSymbolicLink()) continue;
     const path = join(directory, entry.name);
     if (entry.isDirectory()) {
       pruneOrphanCopies(path);
       continue;
     }
     if (!/\.(tsx?|css)$/.test(entry.name) || ownedCopies.has(path)) continue;
-    if (!readFileSync(path, "utf8").startsWith("// @vegastack ")) continue;
-    rmSync(path);
+    const safePath = assertExistingPathInside(docsRoot, path);
+    if (!readFileSync(safePath, "utf8").startsWith("// @vegastack ")) continue;
+    rmSync(safePath);
     prunedCopies++;
     console.log(
       `pruned orphan docs copy-in ${path.slice(docsRoot.length + 1)}`,
