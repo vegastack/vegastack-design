@@ -1,4 +1,4 @@
-// @vegastack chat-request-card@0.81.0 sha256-aqcuQIXhiiMBkGnW0G3eZrumWf8U75SD9OKfHFe6YIw=
+// @vegastack chat-request-card@0.81.0 sha256-VO9qNVyFHamAfLBK17LHNpPxJo7wtK4vBDznjFJx1wg=
 
 "use client";
 
@@ -683,6 +683,11 @@ function RequestBundleCard({
                       <ChatMenuItem
                         key={choice.id}
                         shortcut={index < 9 ? String(index + 1) : undefined}
+                        hint={
+                          "scope" in choice && choice.scope.label
+                            ? choice.scope.label
+                            : undefined
+                        }
                         onSelect={() => void all.run(choice.id)}
                       >
                         {choice.label}

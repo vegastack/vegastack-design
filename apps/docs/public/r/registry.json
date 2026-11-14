@@ -19960,7 +19960,7 @@
         "whenToUse": "A waiting request, question or plan, the task list or a file preview (ChatCard); a line of work with its verb, subject, meta and duration (ChatRow); a fold of work behind one summary line (ChatGroup).",
         "whenNotToUse": "Settled work, memory saves, answered asks and errors, which are flat lines in the column; a record or settings card outside a chat (Card).",
         "version": "0.81.0",
-        "integrity": "sha256-btWuKXYk9f5586XrVdWVOEZQ2Lh0H8wa/wlzJJl5Zpc="
+        "integrity": "sha256-T777loydV2YBvXA/k+vtRpFBDgnye09Sk5pY0pNA3dI="
       }
     },
     {
@@ -20287,7 +20287,7 @@
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
         "version": "0.81.0",
-        "integrity": "sha256-vNd/CKHkeY/NgCfbNkzKoqa3ZA11/KJK1qVTlzjXfeE="
+        "integrity": "sha256-HnkpfU3LY2vmkuj/bf2siWaPG4og85zaR7PKfz0xpDg="
       }
     },
     {
@@ -20450,7 +20450,7 @@
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
         "version": "0.81.0",
-        "integrity": "sha256-aqcuQIXhiiMBkGnW0G3eZrumWf8U75SD9OKfHFe6YIw="
+        "integrity": "sha256-VO9qNVyFHamAfLBK17LHNpPxJo7wtK4vBDznjFJx1wg="
       }
     },
     {

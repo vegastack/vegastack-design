@@ -1,4 +1,4 @@
-// @vegastack chat-card@0.81.0 sha256-btWuKXYk9f5586XrVdWVOEZQ2Lh0H8wa/wlzJJl5Zpc=
+// @vegastack chat-card@0.81.0 sha256-T777loydV2YBvXA/k+vtRpFBDgnye09Sk5pY0pNA3dI=
 
 "use client";
 
@@ -323,7 +323,11 @@ function ChatGroup({
       open={open}
       defaultOpen={defaultOpen}
       onOpenChange={(next) => onOpenChange?.(next)}
-      className={cn("flex min-w-0 flex-col", className)}
+      className={cn(
+        // The open panel clips, so it reaches into both gutters to keep the rows' hanging fills.
+        "flex min-w-0 flex-col [&>[data-slot=collapsible-content]]:-mx-2 [&>[data-slot=collapsible-content]]:w-[calc(100%+1rem)]",
+        className,
+      )}
     >
       <CollapsibleTrigger
         data-slot="chat-group-trigger"
@@ -342,8 +346,8 @@ function ChatGroup({
       <CollapsibleContent
         data-slot="chat-group-content"
         className={cn(
-          "flex flex-col gap-1 pt-1",
-          guide && "ms-1 border-s border-chat-hairline ps-4",
+          "flex flex-col gap-1 px-2 pt-1",
+          guide && "ms-3 border-s border-chat-hairline ps-4",
         )}
       >
         {children}
