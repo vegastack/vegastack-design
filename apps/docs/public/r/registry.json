@@ -20620,7 +20620,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.81.0",
-        "integrity": "sha256-+t1GMJDgLsjRpHjIUjtZKLht4VBymVxP+E00xiGEU9k="
+        "integrity": "sha256-S21iHGZGENIYSbh6itykAjbzPbuvk4JM2Dh9JR6bGx4="
       }
     },
     {

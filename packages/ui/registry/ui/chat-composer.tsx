@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.81.0 sha256-+t1GMJDgLsjRpHjIUjtZKLht4VBymVxP+E00xiGEU9k=
+// @vegastack chat-composer@0.81.0 sha256-S21iHGZGENIYSbh6itykAjbzPbuvk4JM2Dh9JR6bGx4=
 
 "use client";
 
@@ -782,9 +782,16 @@ export function ChatComposerHeaderTrigger({
   ...props
 }: ChatComposerHeaderTriggerProps) {
   const composer = useComposer("ChatComposerHeaderTrigger");
+  // Plain-text names read with a pause before the role ("William, Chief of staff") without
+  // any hidden punctuation taking up width in the truncating label; a caller's label wins.
+  const label =
+    typeof children === "string" && typeof description === "string"
+      ? `${children}, ${description}`
+      : undefined;
   return (
     <Button
       variant="ghost"
+      aria-label={label}
       data-slot="chat-composer-header-trigger"
       disabled={disabled || composer.disabled}
       className={cn(
@@ -804,11 +811,6 @@ export function ChatComposerHeaderTrigger({
       ) : null}
       <span className="min-w-0 shrink truncate font-medium text-foreground">
         {children}
-        {description ? (
-          // The pause before the role, read straight after the words ("William, Chief of
-          // staff"): an inline, unseen run in the same text, so no space opens before it.
-          <span className="opacity-0 select-none">,</span>
-        ) : null}
       </span>
       {chevron ? (
         <ChevronDown aria-hidden className="size-3.5 shrink-0" />
