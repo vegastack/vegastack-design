@@ -410,6 +410,7 @@ test("quotes the exact words it would send under the subject, line breaks kept",
     "[data-slot=request-quote]",
   )!;
   expect(quote.tagName).toBe("BLOCKQUOTE");
+  expect(quote.tabIndex).toBe(0);
   expect(quote.textContent).toBe(
     "To: sm@vegastack.com\nSubject: Weekly summary\n\nHi Simran,\nhere it is.",
   );

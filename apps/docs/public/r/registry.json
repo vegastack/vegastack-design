@@ -20450,7 +20450,7 @@
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
         "version": "0.83.0",
-        "integrity": "sha256-84gRRqVLmfQIcBR4qYD3xVV+uKZiES3moslxDQj7GVY="
+        "integrity": "sha256-1v++YerTGarWgfwzB9dTNYQmYqZyYy/yqLPImxMEHg8="
       }
     },
     {
