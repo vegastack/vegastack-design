@@ -32,7 +32,7 @@ will still ask. No colour pills, no risk dot. Approve and run is primary, Approv
 changes is outline, and Keep planning ▾ holds a note and Reject. When no step needs an OK there is
 nothing to allow, so the card shows one Approve (`onApprove("ask_before_changes")`). A reader
 who can't decide gets the plan read-only: pass no handlers, and the meta reads "Plan · v2 ·
-Waiting for approval". Approved, rejected or replaced,
+Waiting for approval". Once settled (approved, rejected, replaced, changes asked for or expired),
 the card becomes a `PlanLine` that can show the plan again.
 
 <ComponentPreview
@@ -68,7 +68,9 @@ Approve.
 
 ### Settled lines
 
-Approved (primary ✓), not approved, and replaced by a newer version. "Show" opens the plan again.
+Approved (primary ✓), not approved, replaced by a newer version, changes asked for with no new
+version yet ("Changes asked for · v1"), and expired with no answer ("Plan expired · v1"). "Show"
+opens the plan again.
 
 <ComponentPreview
   name="chatPlanCardLines"

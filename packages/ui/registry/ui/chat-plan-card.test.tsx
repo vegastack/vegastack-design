@@ -106,6 +106,31 @@ test("without handlers a waiting plan is read-only for a reader who can't decide
   ).toBeNull();
 });
 
+test("changes asked for and expired plans settle into a line with no actions", async () => {
+  const screen = await render(
+    <>
+      <ChatPlanCard
+        data={{ ...PLAN, state: "changes_requested" }}
+        {...props()}
+      />
+      <ChatPlanCard data={{ ...PLAN, state: "expired" }} {...props()} />
+    </>,
+  );
+  const lines = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="plan-line"]',
+  );
+  expect(lines).toHaveLength(2);
+  expect(
+    screen.container.querySelector('[data-slot="status-glyph"]'),
+  ).toBeNull();
+  expect(
+    screen.getByRole("button", { name: /Approve|Keep planning/ }).query(),
+  ).toBeNull();
+  expect(screen.getByRole("button", { name: "Show" }).elements()).toHaveLength(
+    2,
+  );
+});
+
 test("Reject carries a note, from inside Keep planning", async () => {
   const p = props();
   const screen = await render(<ChatPlanCard data={PLAN} {...p} />);
@@ -128,6 +153,8 @@ test("settled plans are one line; approved carries the primary ✓ and Show open
         {...props()}
       />
       <PlanLine data={{ ...PLAN, state: "rejected" }} />
+      <PlanLine data={{ ...PLAN, state: "changes_requested" }} />
+      <PlanLine data={{ ...PLAN, state: "expired" }} />
     </>,
   );
   const lines = screen.container.querySelectorAll<HTMLElement>(
@@ -140,6 +167,9 @@ test("settled plans are one line; approved carries the primary ✓ and Show open
       .getAttribute("class"),
   ).toContain("text-primary");
   expect(lines[1]!.textContent).toBe("You didn't approve this plan");
+  // Nothing replaced these two: they say what happened.
+  expect(lines[2]!.textContent).toBe(`Changes asked for · v${PLAN.version}`);
+  expect(lines[3]!.textContent).toBe(`Plan expired · v${PLAN.version}`);
   await userEvent.click(screen.getByRole("button", { name: "Show" }));
   await expect
     .element(screen.getByText("A comparison Simran can edit."))
