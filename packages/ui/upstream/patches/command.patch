@@ -74,7 +74,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..2e9242f 100644
+index 5cb64c9..6fb79a9 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -90,7 +90,7 @@ index 5cb64c9..2e9242f 100644
  
  import {
    Dialog,
-@@ -10,42 +10,272 @@ import {
+@@ -10,42 +10,269 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
@@ -98,18 +98,15 @@ index 5cb64c9..2e9242f 100644
 +} from "@/components/ui/dialog";
 +import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 +import { SearchIcon, CheckIcon } from "lucide-react";
++import type { SearchIconHandle } from "@/components/ui/icons/search";
++import { Kbd, KbdGroup } from "@/components/ui/kbd";
++import { usePlatform } from "@/components/ui/use-platform";
++
  import {
 -  InputGroup,
 -  InputGroupAddon,
 -} from "@/components/ui/input-group"
 -import { SearchIcon, CheckIcon } from "lucide-react"
-+  SearchIcon as AnimatedSearchIcon,
-+  type SearchIconHandle,
-+} from "@/components/ui/icons/search";
-+import { Kbd, KbdGroup } from "@/components/ui/kbd";
-+import { usePlatform } from "@/components/ui/use-platform";
-+
-+import {
 +  ItemDescriptionContext,
 +  useItemDescriptionId,
 +} from "@/components/ui/item";
@@ -385,7 +382,7 @@ index 5cb64c9..2e9242f 100644
  }) {
    return (
      <Dialog {...props}>
-@@ -55,15 +285,20 @@ function CommandDialog({
+@@ -55,15 +282,20 @@ function CommandDialog({
        </DialogHeader>
        <DialogContent
          className={cn(
@@ -410,7 +407,7 @@ index 5cb64c9..2e9242f 100644
  }
  
  function CommandInput({
-@@ -76,8 +311,12 @@ function CommandInput({
+@@ -76,8 +308,12 @@ function CommandInput({
          <CommandPrimitive.Input
            data-slot="command-input"
            className={cn(
@@ -425,7 +422,7 @@ index 5cb64c9..2e9242f 100644
            )}
            {...props}
          />
-@@ -86,36 +325,278 @@ function CommandInput({
+@@ -86,36 +322,297 @@ function CommandInput({
          </InputGroupAddon>
        </InputGroup>
      </div>
@@ -450,15 +447,34 @@ index 5cb64c9..2e9242f 100644
 +  );
 +}
 +
-+/** The animated search glyph, replayed while the search is running. */
++/**
++ * The animated glyph and its motion engine load only once a search runs, so the menu's first load
++ * carries none of it.
++ */
++const AnimatedSearchingIcon = React.lazy(() =>
++  import("@/components/ui/icons/search").then(({ SearchIcon: Animated }) => ({
++    default: function AnimatedSearchingIcon() {
++      const ref = React.useRef<SearchIconHandle>(null);
++      React.useEffect(() => {
++        ref.current?.startAnimation();
++        const id = window.setInterval(
++          () => ref.current?.startAnimation(),
++          1200,
++        );
++        return () => window.clearInterval(id);
++      }, []);
++      return <Animated ref={ref} size={16} aria-hidden />;
++    },
++  })),
++);
++
++/** The search glyph, replayed while the search is running; the still glyph until it has loaded. */
 +function CommandSearchingIcon() {
-+  const ref = React.useRef<SearchIconHandle>(null);
-+  React.useEffect(() => {
-+    ref.current?.startAnimation();
-+    const id = window.setInterval(() => ref.current?.startAnimation(), 1200);
-+    return () => window.clearInterval(id);
-+  }, []);
-+  return <AnimatedSearchIcon ref={ref} size={16} aria-hidden />;
++  return (
++    <React.Suspense fallback={<SearchIcon size={16} aria-hidden />}>
++      <AnimatedSearchingIcon />
++    </React.Suspense>
++  );
  }
  
  function CommandList({
@@ -711,7 +727,7 @@ index 5cb64c9..2e9242f 100644
  }
  
  function CommandGroup({
-@@ -127,11 +608,11 @@ function CommandGroup({
+@@ -127,11 +624,11 @@ function CommandGroup({
        data-slot="command-group"
        className={cn(
          "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
@@ -725,7 +741,7 @@ index 5cb64c9..2e9242f 100644
  }
  
  function CommandSeparator({
-@@ -144,27 +625,44 @@ function CommandSeparator({
+@@ -144,27 +641,44 @@ function CommandSeparator({
        className={cn("-mx-1 h-px bg-border", className)}
        {...props}
      />
@@ -775,7 +791,7 @@ index 5cb64c9..2e9242f 100644
  }
  
  function CommandShortcut({
-@@ -176,21 +674,26 @@ function CommandShortcut({
+@@ -176,21 +690,26 @@ function CommandShortcut({
        data-slot="command-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",
