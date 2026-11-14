@@ -19509,8 +19509,8 @@
       "meta": {
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
-        "version": "0.81.0",
-        "integrity": "sha256-c6wvpfdTeEKelx85n2z2WZTUpjlemM2KeNgUnn4DGZs="
+        "version": "0.85.0",
+        "integrity": "sha256-suwydITTMOCOHLiSX4Fy/xktgN/2Lnpl7/lv4hH5x0E="
       }
     },
     {
@@ -19839,8 +19839,8 @@
       "meta": {
         "whenToUse": "A mode or a choice in ChatComposer: the Plan toggle at the end of its context strip (ChatComposerHeader), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
-        "version": "0.81.0",
-        "integrity": "sha256-VSDKFfTBMStWZB3uWbBEmubMHXiaDlllCEQPCZEdO0c="
+        "version": "0.85.0",
+        "integrity": "sha256-Kw/qSv4FO0PP3fsQ2to6FnqgTNdo8CQhEENutL9VSD4="
       }
     },
     {
@@ -19871,8 +19871,8 @@
       "meta": {
         "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposerActionsEnd beside the model.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
-        "version": "0.81.0",
-        "integrity": "sha256-huN4wKCin+EBkWrd//vNUip+ZhUZrFUM1j5A+OPvo60="
+        "version": "0.85.0",
+        "integrity": "sha256-EHYFoU/eUvDmaO0vWRuatHal93JzJlT0SFt23Wg99tQ="
       }
     },
     {
@@ -20619,8 +20619,8 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.81.0",
-        "integrity": "sha256-S21iHGZGENIYSbh6itykAjbzPbuvk4JM2Dh9JR6bGx4="
+        "version": "0.85.0",
+        "integrity": "sha256-ALMSooSw4fDQ/SS+t7RSBA44XpkdP7kplyEGvitHG34="
       }
     },
     {
@@ -20651,8 +20651,8 @@
       "meta": {
         "whenToUse": "Choosing the model and effort for a chat, in its composer's actions row (ChatComposerActionsEnd).",
         "whenNotToUse": "An agent's default model in settings (Select or a settings form), or a list of many options that needs search (Combobox).",
-        "version": "0.81.0",
-        "integrity": "sha256-k1xQc7PuhrPBHMCIrxcMr7eVUk7bc9GxK7+3CxlHI9s="
+        "version": "0.85.0",
+        "integrity": "sha256-UxQZ9zw63/fTgiv6i0KCAqrl/BY+k+PK5cE1f1L4qMI="
       }
     },
     {

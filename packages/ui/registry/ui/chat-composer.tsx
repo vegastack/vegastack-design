@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.81.0 sha256-S21iHGZGENIYSbh6itykAjbzPbuvk4JM2Dh9JR6bGx4=
+// @vegastack chat-composer@0.85.0 sha256-ALMSooSw4fDQ/SS+t7RSBA44XpkdP7kplyEGvitHG34=
 
 "use client";
 

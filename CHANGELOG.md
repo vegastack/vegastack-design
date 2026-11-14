@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.85.0] — November 14, 2026
+
+<!-- assembled from 1 changeset: f22cc2e2984d -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.84.4 → 0.85.0.
+
+### ⚠️ Breaking
+
+- The chat composer, rebuilt from the ground up as a compound. `ChatComposer` is now the card and owns the turn (`state`, `onSubmit`, `onStop`, `queues`, `disabled`, `submitDisabled`, `attachments`, `onFiles`, `steers`, `error`, `handleRef` and the rest keep their meaning); its parts lay it out: `ChatComposerNotice` on the top edge, an optional context strip (`ChatComposerHeader` with `ChatComposerHeaderTrigger` — media, words, ▾ and a muted `description`, one button that a menu can render — and trailing chips such as Plan), `ChatComposerAttachments` (the root's files, then its children as chips), `ChatComposerInput` (`placeholder`, `mentions`, `minRows` 2 and `maxRows` 8 in the text's own line height) and `ChatComposerActions` with `ChatComposerActionsStart` / `ChatComposerActionsEnd`, holding `ChatComposerAddButton` (`menu` or `onClick`), `ChatComposerMentionButton` (opens the `@` list), `ChatComposerIconButton` and `ChatComposerSubmit`, a round Send / Sending / Stop the size of the icon buttons. One radius, `rounded-3xl`, with concentric insides. Removed, with no aliases: `ComposerMeta` (`composer-meta`) and `ChatComposer`'s `placeholder`, `mentions`, `mentionHref`, `mentionImage`, `mentionStatus`, `maxHeightRatio`, `addMenu`, `onAttach`, `chips`, `notice` and `meta` props — move each into its part (the chat-composer page has the table); the privacy note has no place in the card. The card is a `data-field-group`, and `TextEdit` gains `framed` (a `document` editor whose focus cue is an ancestor frame's border), which `ChatComposerInput` sets. `ModelEffortMenu`'s trigger and `ContextRing`'s are now 32px and fully round, to sit in the actions row.
+  [`93737bc`](https://github.com/VegaStack/vegastack-design/commit/93737bc)
+
 ## [0.84.4] — November 14, 2026
 
 <!-- assembled from 1 changeset: f9b2a517db02 -->
