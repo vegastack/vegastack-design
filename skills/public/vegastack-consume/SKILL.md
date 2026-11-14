@@ -120,7 +120,8 @@ putting `className="isolate"` on your `<body>` yourself. Without it, popups can 
 chrome or mis-position in stacking-context-heavy layouts.
 
 **Stop iOS focus zoom.** iOS Safari zooms into any focused field under 16px. `base.css` renders
-text-entry controls at 16px on touch pointers. Keep zoom unrestricted; do not add a maximum-scale cap. In Next.js, in the root layout:
+text-entry controls at 16px on touch pointers; also cap the viewport's scale, which stops focus zoom
+while pinch-zoom keeps working on iOS. In Next.js, in the root layout:
 
 ```tsx
 import type { Viewport } from "next";
@@ -128,6 +129,7 @@ import type { Viewport } from "next";
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  maximumScale: 1,
 };
 ```
 
