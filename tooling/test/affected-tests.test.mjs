@@ -64,6 +64,8 @@ describe("affected component closure", () => {
       "issue-detail-01",
       "library-01",
       "markdown-view",
+      // message-parts' search results draw site icons with source-list's SiteIcon.
+      "message-parts",
       // page-editor-01 composes comments and TextEdit (2026-09-29).
       "page-editor-01",
       // TextEdit's read view is a MarkdownView (2026-09-27).
@@ -89,6 +91,7 @@ describe("affected component closure", () => {
       // markdown-view's measured lane: the reading scale and the citation pill (2026-11-10).
       "packages/ui/registry/ui/markdown-view-reading.test.tsx",
       "packages/ui/registry/ui/markdown-view.test.tsx",
+      "packages/ui/registry/ui/message-parts.test.tsx",
       "packages/ui/registry/ui/source-list.test.tsx",
       "packages/ui/registry/ui/text-edit.test.tsx",
       "packages/ui/registry/ui/upload-dialog.test.tsx",
@@ -174,6 +177,8 @@ describe("affected component closure", () => {
       "issue-detail-01",
       "library-01",
       "markdown-view",
+      // message-parts' search results draw site icons with source-list's SiteIcon.
+      "message-parts",
       "page-editor-01",
       // share-dialog's public link and footer copy with CopyButton; share-01 composes it.
       "share-01",
@@ -228,6 +233,8 @@ describe("affected component closure", () => {
       "issue-detail-01",
       "library-01",
       "markdown-view",
+      // message-parts' search results draw site icons with source-list's SiteIcon.
+      "message-parts",
       "page-editor-01",
       "provider",
       "source-list",
