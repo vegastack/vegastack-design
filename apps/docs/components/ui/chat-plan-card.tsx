@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.87.0 sha256-i9VqzBACkzFJJcprXd1dSQWmWjEAgDK0mvYdJjvABh8=
+// @vegastack chat-plan-card@0.87.0 sha256-8UIDMsvsrKkfdHPSzVOKrV/mD93EVe5UzuzK/8LUuXU=
 
 "use client";
 
@@ -70,8 +70,9 @@ const SETTLE = "animate-in fade-in-0 duration-state ease-enter";
  * anyone"); items a model wrote as sentences (one ends with . ! or ?) as sentences, each closed,
  * never "…page. and Changing…".
  */
-/** A sentence's end: . ! or ?, then only closing quotes, brackets, spaces or emoji. */
-const SENTENCE_END = /[.!?][\s"'”’)\]\p{Extended_Pictographic}\uFE0F]*$/u;
+/** A sentence's end: . ! or ?, then only closing quotes, brackets, spaces or emoji (whole sequences). */
+const SENTENCE_END =
+  /[.!?][\s"'”’)\]\p{Extended_Pictographic}\p{Emoji_Modifier}\p{Regional_Indicator}\u200D\uFE0F\u20E3]*$/u;
 
 function inWords(items: string[]): string {
   if (items.length <= 1) return items.join("");

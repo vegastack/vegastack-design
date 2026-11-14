@@ -57,6 +57,8 @@ test("won't items written as sentences read as sentences, never joined with 'and
           "Touch the published page.",
           "Changing the owner",
           "Leave production. 🔒",
+          "Keep the owner. 👍🏽",
+          "Ship it! 🇮🇳",
         ],
       }}
       {...props()}
@@ -66,7 +68,7 @@ test("won't items written as sentences read as sentences, never joined with 'and
     '[data-slot="plan-facts"]',
   )!.textContent;
   expect(facts).toContain(
-    "Won'tTouch the published page. Changing the owner. Leave production. 🔒",
+    "Won'tTouch the published page. Changing the owner. Leave production. 🔒 Keep the owner. 👍🏽 Ship it! 🇮🇳",
   );
   expect(screen.container.innerHTML).not.toMatch(
     /bg-(success|warning|destructive)/,
