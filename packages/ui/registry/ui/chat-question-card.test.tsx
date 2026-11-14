@@ -164,6 +164,16 @@ test("answered and skipped settle into lines", async () => {
         onSubmit={() => {}}
         onSkip={() => {}}
       />
+      <QuestionCard
+        data={{
+          ...DATA,
+          questions: [DATA.questions[0]!],
+          state: "answered",
+          answers: { address: "ana@example.com, the finance one" },
+        }}
+        onSubmit={() => {}}
+        onSkip={() => {}}
+      />
     </>,
   );
   const lines = screen.container.querySelectorAll(
@@ -171,6 +181,10 @@ test("answered and skipped settle into lines", async () => {
   );
   expect(lines[0]!.textContent).toBe("You chose sm@vegastack.com");
   expect(lines[1]!.textContent).toBe("You skipped 2 questions.");
+  // Typed under Other: what they wrote, never "You chose".
+  expect(lines[2]!.textContent).toBe(
+    "You answered: ana@example.com, the finance one",
+  );
 });
 
 test("no a11y violations — open, picked with Other, answered", async () => {

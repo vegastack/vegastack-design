@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.87.0 sha256-Y0IHvBfe+hjNwKfLE6EFznsgy+3FHGv9v4akR/+qc3M=
+// @vegastack chat-plan-card@0.87.0 sha256-gygKF4rHrJVF4z8R8gkglrqJvxlm7UivxJ2LQkXl/sY=
 
 "use client";
 
@@ -65,8 +65,18 @@ const SHOWN_STEPS = 8;
 const SETTLE = "animate-in fade-in-0 duration-state ease-enter";
 
 /** "a, b and c" — the way a list reads in a sentence. */
+/**
+ * A row's items in one line: short phrases as a list ("create tasks, post in Slack and email
+ * anyone"); items a model wrote as sentences (one ends with . ! or ?) as sentences, each closed,
+ * never "…page. and Changing…".
+ */
 function inWords(items: string[]): string {
   if (items.length <= 1) return items.join("");
+  if (items.some((item) => /[.!?]["”’)]?$/u.test(item.trim())))
+    return items
+      .map((item) => item.trim())
+      .map((item) => (/[.!?]["”’)]?$/u.test(item) ? item : `${item}.`))
+      .join(" ");
   return `${items.slice(0, -1).join(", ")} and ${items.at(-1)}`;
 }
 
