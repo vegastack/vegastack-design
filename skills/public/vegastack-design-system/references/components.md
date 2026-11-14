@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**236 components**, plus 467 animated-icon items, 19 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `geo-data`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 828 registry items in total.
+**235 components**, plus 467 animated-icon items, 19 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `geo-data`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 827 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -230,7 +230,7 @@ starts with `icon-` is a component and never an icon.
 - **`agent-question-form`** — An agent asks one to five questions at once: options with their descriptions in view, the first recommended unless turned off, own words and a note per question, previews, steps and a review; and the read-only answers.
 - **`chat-card`** — The chat's one card surface (ChatCard), one line of work (ChatRow) and a fold of work that opens and closes smoothly (ChatGroup).
 - **`chat-chip`** — A compact pill for background work and counts on the chat card surface, with an attention tone that never fills.
-- **`chat-composer`** — The box a person talks to an agent in: + and Send inside, files above the text, steers above the box, Send that morphs into Stop.
+- **`chat-composer`** — The box a person talks to an agent in, as a compound: an optional context strip, files above an auto-growing text, and an actions row with round + and @, the model, and a round Send that morphs into Stop.
 - **`chat-details`** — The chat details panel: sections of outputs, Subagents, context and connectors.
 - **`chat-menu`** — A menu with the chat's density: tight rows, a blue ✓ and a number shortcut in one right slot, submenus that open on hover or →.
 - **`chat-message-parts`** — One agent turn from its AI SDK parts: live line or summary, work log, Subagents, answer, cards.
@@ -244,7 +244,6 @@ starts with `icon-` is a component and never an icon.
 - **`chat-work-log`** — A turn's work as sentences: LiveLine, WorkSummary, WorkLog, ErrorRow, StuckRow.
 - **`cited-list`** — An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render.
 - **`composer-chip`** — A round toolbar chip for the chat composer: a toggle (Plan), a menu trigger with a chevron (the model), or read-only words, with an optional tooltip.
-- **`composer-meta`** — The quiet line under a chat's composer: a privacy note, then Plan, the model and effort, and the memory ring.
 - **`context-panel`** — What fills a chat's working memory, adding up to its window: share, a segmented bar, a legend, free, Summarize now.
 - **`context-ring`** — How full a chat's memory is: a still 10px ring and its share, opening its ContextPanel on hover, focus or click.
 - **`delegate-popover`** — Delegate a record or rows to an agent: search agents (disabled with a reason), instructions, When finished, Connect an agent; bulk, empty and loading states.

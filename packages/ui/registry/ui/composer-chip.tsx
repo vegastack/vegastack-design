@@ -1,4 +1,4 @@
-// @vegastack composer-chip@0.81.0 sha256-3jiwkFVdtod3bnqtOEh/SZKZDpNke5U4FnU7jnBxgAk=
+// @vegastack composer-chip@0.81.0 sha256-xWwvamn4/2YYyrJ2N/PIU/5fImCe8VyNNtxthEHOp4U=
 
 "use client";
 
@@ -15,8 +15,8 @@ import {
 } from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------------------------------------
- * ComposerChip — a small round chip for the chat composer's toolbar, the same height as its 📎
- * and @ buttons. Three forms from one look:
+ * ComposerChip — a small round chip for the chat composer: Plan at the end of its context strip
+ * (`ChatComposerHeader`), or something that travels with the message. Three forms from one look:
  *
  * - a toggle (pass `pressed` or `defaultPressed`): a mode such as Plan. Off it is a quiet outline,
  *   on it fills with the primary tint and says so with `aria-pressed`;
@@ -52,8 +52,8 @@ export interface ComposerChipProps extends Omit<
 }
 
 /**
- * `ComposerChip` — a mode or a choice in the composer's toolbar: the Plan toggle, the model picker's
- * trigger, or the model shown read-only. Pass `toolbarEnd` chips to `ChatComposer`.
+ * `ComposerChip` — a mode or a choice in the composer: the Plan toggle in `ChatComposerHeader`, a
+ * picker's trigger, or a choice shown read-only.
  *
  * @example
  * <ComposerChip icon={<ListChecks />} pressed={plan} onPressedChange={setPlan} tooltip="Plan first">Plan</ComposerChip>

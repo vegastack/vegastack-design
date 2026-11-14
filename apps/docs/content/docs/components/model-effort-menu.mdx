@@ -50,8 +50,8 @@ import { ModelEffortMenu } from "@/components/ui/model-effort-menu";
 />;
 ```
 
-The model and its effort, "Sonnet 5.5 Medium ▾", in [`ComposerMeta`](/docs/components/composer-meta)'s
-`model` slot. It opens one [`ChatMenu`](/docs/components/chat-menu) about 240px wide: the models,
+The model and its effort, "Sonnet 5.5 Medium ▾", in the composer's actions row
+(`ChatComposerActionsEnd`, see [`ChatComposer`](/docs/components/chat-composer)), just before Send. It opens one [`ChatMenu`](/docs/components/chat-menu) about 240px wide: the models,
 each with a primary ✓ or its number in one right slot and its purpose as a tooltip — never a detail
 pane; then **Effort Medium ›**, whose submenu opens with a one-line explainer and lists only the
 levels the chosen model supports (`efforts`), "Recommended" on its default and a usage warning, the

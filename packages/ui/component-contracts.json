@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 828,
-    "components": 236,
+    "totalRegistryItems": 827,
+    "components": 235,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 46,
+    "AI/chat": 45,
     "Hooks": 19,
     "Block": 15,
     "Animated icons": 467
@@ -268,7 +268,6 @@
       "chat-card",
       "chat-chip",
       "chat-menu",
-      "composer-meta",
       "model-effort-menu",
       "context-panel",
       "chat-work-log",
@@ -35124,7 +35123,7 @@
       "name": "chat-composer",
       "registryType": "registry:ui",
       "title": "Chat Composer",
-      "summary": "The box a person talks to an agent in: + and Send inside, files above the text, steers above the box, Send that morphs into Stop.",
+      "summary": "The box a person talks to an agent in, as a compound: an optional context strip, files above an auto-growing text, and an actions row with round + and @, the model, and a round Send that morphs into Stop.",
       "status": "stable",
       "since": "0.43.0",
       "family": "chat",
@@ -35221,6 +35220,195 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ChatComposerActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerActionsEnd",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerActionsEndProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerActionsProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerActionsStart",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerActionsStartProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerAddButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerAddButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerAttachments",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerAttachmentsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerHeaderProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerHeaderTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerHeaderTriggerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerIconButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerIconButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerInput",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerInputProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerMentionButton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerMentionButtonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerSubmit",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -35231,7 +35419,7 @@
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "Fills its container and grows with its text to about eight lines."
+        "rationale": "Fills its container; the text grows from minRows to maxRows lines (2 and 8 by default), then scrolls inside."
       },
       "states": {
         "behavior": {
@@ -35250,13 +35438,19 @@
             "chips",
             "steers",
             "notice",
+            "offline",
             "submit-held",
             "send-failed",
             "disabled",
             "dragging",
             "edit-last",
             "filled-by-handle",
-            "add-menu"
+            "add-menu",
+            "mention-button",
+            "context-strip",
+            "long-text",
+            "narrow",
+            "rtl"
           ],
           "evidence": "packages/ui/registry/ui/chat-composer.tsx + packages/ui/registry/ui/chat-composer.test.tsx"
         },
@@ -35268,6 +35462,7 @@
             "named-buttons",
             "face-named-buttons",
             "alert-on-failure",
+            "named-context-trigger",
             "browser-accessibility-test"
           ],
           "evidence": "packages/ui/registry/ui/chat-composer.test.tsx"
@@ -35276,13 +35471,19 @@
           "status": "observed",
           "values": [
             "empty",
+            "context-strip",
             "attachments",
             "steers",
             "notice",
+            "offline",
             "running",
             "stopping",
             "error",
-            "disabled"
+            "disabled",
+            "dragging",
+            "long-text",
+            "narrow",
+            "rtl"
           ],
           "evidence": "packages/ui/registry/ui/chat-composer.tsx"
         }
@@ -35290,7 +35491,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Fills its container; chips wrap, and the text scrolls inside past about eight lines."
+        "rationale": "Fills its container down to 320px: the context strip's description, then its label, truncate first; the model menu shrinks before + or Send; the text scrolls inside past maxRows."
       },
       "motion": {
         "status": "modeled",
@@ -35325,6 +35526,33 @@
       },
       "previewModule": "chat-composer",
       "dataAttributes": {
+        "ChatComposer": {
+          "attributes": [
+            {
+              "name": "data-disabled",
+              "values": [""]
+            },
+            {
+              "name": "data-dragging",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-composer",
+                "chat-composer-box",
+                "chat-composer-drop",
+                "chat-composer-error",
+                "chat-composer-steers"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
         "ChatComposerNotice": {
           "attributes": [
             {
@@ -35338,160 +35566,104 @@
           ],
           "cssVariables": []
         },
-        "ChatComposer": {
+        "ChatComposerHeader": {
           "attributes": [
             {
-              "name": "data-dragging",
+              "name": "data-slot",
+              "values": ["chat-composer-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatComposerHeaderTrigger": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "chat-composer-header-description",
+                "chat-composer-header-media",
+                "chat-composer-header-trigger"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatComposerAttachments": {
+          "attributes": [
+            {
+              "name": "data-fade-end",
+              "values": [""]
+            },
+            {
+              "name": "data-fade-start",
               "values": [""]
             },
             {
               "name": "data-slot",
-              "values": [
-                "chat-composer",
-                "chat-composer-actions",
-                "chat-composer-add",
-                "chat-composer-box",
-                "chat-composer-chips",
-                "chat-composer-drop",
-                "chat-composer-error",
-                "chat-composer-notice-slot",
-                "chat-composer-steers",
-                "chat-composer-toolbar"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": []
+              "values": ["chat-composer-attachments", "chat-composer-chips"]
             }
           ],
           "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "composer-meta",
-      "registryType": "registry:ui",
-      "title": "Composer Meta",
-      "summary": "The quiet line under a chat's composer: a privacy note, then Plan, the model and effort, and the memory ring.",
-      "status": "stable",
-      "since": "0.78.0",
-      "family": "chat",
-      "wave": "AI/chat",
-      "sourceFiles": ["packages/ui/registry/ui/composer-meta.tsx"],
-      "publicSymbols": [
-        {
-          "name": "ComposerMeta",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/composer-meta.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
         },
-        {
-          "name": "ComposerMetaPlan",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/composer-meta.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ComposerMetaProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/composer-meta.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "privacy",
-            "privacy-detail",
-            "plan-off",
-            "plan-on",
-            "plan-held",
-            "model",
-            "context"
-          ],
-          "evidence": "packages/ui/registry/ui/composer-meta.tsx + packages/ui/registry/ui/composer-meta.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "plan-aria-pressed",
-            "plan-aria-disabled",
-            "privacy-tooltip-focusable"
-          ],
-          "evidence": "packages/ui/registry/ui/composer-meta.tsx + packages/ui/registry/ui/composer-meta.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": [
-            "plan-on-primary-dot",
-            "hover-pill",
-            "narrow-privacy-truncates"
-          ],
-          "evidence": "packages/ui/registry/ui/composer-meta.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": ["tw-animate"],
-        "reducedMotion": {
-          "status": "modeled",
-          "rationale": "The Plan dot's zoom-in uses the chat motion tokens, 0ms under reduced motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/composer-meta",
-      "registryDependencies": ["@vegastack/button", "@vegastack/tooltip"],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.15.0",
-        "@vegastack/design@^0.15.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/composer-meta.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "composer-meta",
-      "dataAttributes": {
-        "ComposerMeta": {
+        "ChatComposerInput": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": [
-                "composer-meta",
-                "composer-meta-context",
-                "composer-meta-controls",
-                "composer-meta-model",
-                "composer-meta-privacy"
-              ]
+              "values": ["chat-composer-input"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatComposerActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-composer-actions"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatComposerActionsStart": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-composer-actions-start"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatComposerActionsEnd": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-composer-actions-end"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatComposerIconButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-composer-icon-button"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatComposerAddButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-composer-add"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ChatComposerMentionButton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["chat-composer-mention"]
             }
           ],
           "cssVariables": []

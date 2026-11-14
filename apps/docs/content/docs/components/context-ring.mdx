@@ -16,30 +16,30 @@ preview: contextRing
 ## Usage
 
 ```tsx
-import { ComposerMeta } from "@/components/ui/composer-meta";
+import { ChatComposerActionsEnd } from "@/components/ui/chat-composer";
 import { ContextRing } from "@/components/ui/context-ring";
 
-<ComposerMeta
-  context={
-    <ContextRing
-      used={25_900}
-      window={200_000}
-      parts={[
-        { id: "instructions", label: "Instructions and tools", tokens: 15_700 },
-        { id: "memory", label: "Memory", tokens: 2_100 },
-        { id: "conversation", label: "Conversation", tokens: 6_900 },
-        { id: "tools", label: "Tool results", tokens: 1_200 },
-      ]}
-      onSummarize={summarize}
-      summarizing={summarizing}
-    />
-  }
-/>;
+<ChatComposerActionsEnd>
+  <ContextRing
+    used={25_900}
+    window={200_000}
+    parts={[
+      { id: "instructions", label: "Instructions and tools", tokens: 15_700 },
+      { id: "memory", label: "Memory", tokens: 2_100 },
+      { id: "conversation", label: "Conversation", tokens: 6_900 },
+      { id: "tools", label: "Tool results", tokens: 1_200 },
+    ]}
+    onSummarize={summarize}
+    summarizing={summarizing}
+  />
+  {modelMenu}
+  <ChatComposerSubmit />
+</ChatComposerActionsEnd>;
 ```
 
 `used` is what the last request carried and `window` the working window of the model the chat runs
-on, both in tokens. The ring sits at the end of [`ComposerMeta`](/docs/components/composer-meta),
-the quiet line under the composer. It is still — it never spins — and shows nothing until the
+on, both in tokens. The ring sits in the composer's actions row, before the model
+(`ChatComposerActionsEnd`, see [`ChatComposer`](/docs/components/chat-composer)). It is still — it never spins — and shows nothing until the
 chat's first answer measures it. Hover or focus opens [`ContextPanel`](/docs/components/context-panel)
 after 150ms, so passing over it does nothing; a click toggles it. Tokens and shares only, never
 money, so everyone who can read the chat may see it; pass `onSummarize` only to people who can send.

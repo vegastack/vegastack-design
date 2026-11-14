@@ -56,7 +56,7 @@ import { SourceList } from "@/components/ui/source-list";
 Compose these inside [`MessageContent`](/docs/components/message), next to the text. The answer's
 text is [`MarkdownView`](/docs/components/markdown-view) at `typeScale="reading"`; a person's
 message is `MessageBubble`, which reads at the same size and leading. The AI disclaimer belongs once
-under the composer ([`ChatComposer`](/docs/components/chat-composer)'s `hint`), not on every answer.
+near the composer (a [`ChatComposerNotice`](/docs/components/chat-composer) or the chat's header), not on every answer.
 
 A site icon (`MessageSource.icon`) comes from the host: serve favicons through the app's own origin
 so the reader's browser never calls the cited site. The pages an answer cites are

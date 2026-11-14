@@ -48,7 +48,6 @@ export * from "./run-usage";
 export * from "./task-list";
 export * from "./context-ring";
 export * from "./context-panel";
-export * from "./composer-meta";
 export * from "./model-effort-menu";
 export * from "./text-spinner";
 export * from "./status-glyph";

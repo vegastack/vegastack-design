@@ -1068,12 +1068,6 @@
       "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
       "rationale": "A density wrapper over upstream's dropdown-menu with a blue selected ✓, per-level number shortcuts and value-carrying submenus; no patch."
     },
-    "composer-meta": {
-      "disposition": "keep",
-      "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph5 composer — operator batch approval 13-11-2026 \"Agent chat ground up\" (Round 3)",
-      "rationale": "Upstream has no chat meta line. Muted text over upstream button and tooltip: the privacy note, a Plan toggle, and slots for the model menu and the memory ring; no patch."
-    },
     "model-effort-menu": {
       "disposition": "keep",
       "family": "chat",
