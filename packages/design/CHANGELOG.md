@@ -1,5 +1,16 @@
 # @vegastack/design
 
+## 0.17.0
+
+### Minor Changes
+
+- [#995](https://github.com/vegastack/vegastack-design/pull/995) [`4470fba`](https://github.com/vegastack/vegastack-design/commit/4470fba36a3fe6bbba887eaec0aebe68df29c20b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠️ Corners are a role, not a size (BRD-12). Eleven corner tokens (`--corner-*`, read as `rounded-control`, `rounded-icon`, `rounded-chip`, `rounded-inline`, `rounded-mark`, `rounded-item`, `rounded-block`, `rounded-card`, `rounded-bubble`, `rounded-overlay`, `rounded-tile`) replace the size ramp in every component. Single-line controls are pills at every size (Button, Input, Select, InputGroup, Toggle, ToggleGroup, segmented Tabs), icon-only buttons are circles, tokens inside text keep a 6px corner, rows with a fill are 10px inside 16px menus padded 6px, blocks in content 12px, cards, popovers, menus and toasts 16px, bubbles and the command palette 20px, dialogs, drawers and sheets 24px, square media 25%. Table rows take the new `row-fill` utility, so their hover, pressed, selected and focus fills are an inset 10px shape like a select option. The `@vegastack/design` prose recipe follows them too (images, code blocks and tables 12px, inline code 6px, highlights 4px), and so do emails and the docs site. `rounded-chat-card` and `--chat-card-radius` are removed (use `rounded-card`). `design-lint` gains `no-radius-ramp`, and `vegastack-design doctor` reports `rounded-chat-card` and off-role corners (`rounded-sm|md|lg|xl…`, `rounded-[…]`) in app code.
+
+### Patch Changes
+
+- Updated dependencies [[`4470fba`](https://github.com/vegastack/vegastack-design/commit/4470fba36a3fe6bbba887eaec0aebe68df29c20b)]:
+  - @vegastack/design-tokens@0.17.0
+
 ## 0.16.0
 
 ### Patch Changes

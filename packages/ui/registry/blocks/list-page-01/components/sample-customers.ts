@@ -1,4 +1,4 @@
-// @vegastack list-page-01@0.88.0 sha256-4xOidmwcYs4VUyq5AY8WMMKgzockqitvFwJ8EzHicTM=
+// @vegastack list-page-01@0.89.0 sha256-hB8La3cbY//N40UyT90+cG7NwRZIsuxA83ZtUpSubZo=
 
 /**
  * Sample data for `list-page-01`: twenty customers, served a page at a time by `fetchCustomers`.

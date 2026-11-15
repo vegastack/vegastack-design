@@ -1,4 +1,4 @@
-// @vegastack rating-bars@0.88.0 sha256-1VyvQyMR8bsPSZ414sSLH/N6HhsTh/lNPhEjYevCyDA=
+// @vegastack rating-bars@0.89.0 sha256-dwn51K9ZYOilKLgJ8GRxEgye0fttVvVhxUrsXLAgmgg=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

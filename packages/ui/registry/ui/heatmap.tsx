@@ -1,4 +1,4 @@
-// @vegastack heatmap@0.88.0 sha256-sygemLfwlqxDWdMhMZzf61Zobf/Pybz9KggNxM2OAdE=
+// @vegastack heatmap@0.89.0 sha256-xJSbVPiExJ6uS3HFB4Mnzkmngy9g60spEuJ/NArdIo8=
 
 "use client";
 

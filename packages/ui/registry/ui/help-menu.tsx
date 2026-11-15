@@ -1,4 +1,4 @@
-// @vegastack help-menu@0.88.0 sha256-jNGoZMqM0QoXdId5iwRVARkPG4oBpi96IU3yl1lOunE=
+// @vegastack help-menu@0.89.0 sha256-5bQschnjgJ8/qaeWk9AYCZHJn0xgeJYA4BAFG7bonNU=
 
 import * as React from "react";
 import {
