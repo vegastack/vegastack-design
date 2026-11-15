@@ -1,4 +1,4 @@
-// @vegastack context-panel@0.81.0 sha256-/oY3cHZf8X00KXYSo+WbT3a8p4WuTvcsMSIw26uqeLs=
+// @vegastack context-panel@0.81.0 sha256-gVT1QWr33XAx8WRFLy4NG9yvBYG9iGjjgMzECoWO6lY=
 
 "use client";
 
@@ -265,7 +265,7 @@ export function ContextPanel({
           onClick={summarize}
           className="self-end"
         >
-          {/* The braille loader is the one moving thing (no icon spinner). */}
+          {/* The bolt loader is the one moving thing (no icon spinner). */}
           {busy ? <TextSpinner label="" /> : null}
           {busy
             ? (labels?.summarizing ?? "Summarizing")

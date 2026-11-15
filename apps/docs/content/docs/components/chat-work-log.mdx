@@ -33,7 +33,8 @@ import { LiveLine, WorkLog, WorkSummary } from "@/components/ui/chat-work-log";
 <WorkLog parts={message.parts} detail={detail} open={open} />;
 ```
 
-`LiveLine` is the turn's one moving thing: the braille spinner, the current step in words and a
+`LiveLine` is the turn's one moving thing: the bolt spinner (Strike while a step runs, Pulse while
+it is still Thinking or paused), the current step in words and a
 timer in tabular figures with its width reserved. After 45 seconds with no event it adds what the
 turn waits on, with Stop and Keep waiting. `WorkSummary` replaces it in place, the same 28px. Rows
 in `WorkLog` read as a muted verb, the subject in the body ink and muted meta and duration; thinking

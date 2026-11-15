@@ -31,7 +31,7 @@ Agent UI moves on one set (MOT-14), and no chat component sets its own duration 
 | `duration-state` / `duration-state-exit`   | 220ms / 160ms | `ease-enter` / `ease-exit` | a fold opening and closing, its chevron, Send↔Stop, a card settling to its line, Show more |
 | `duration-layout`                          | 280ms         | `ease-enter`               | a new message or card arriving (opacity + 6px rise), a side sheet sliding in               |
 | `--duration-stream-word`                   | 180ms         | `ease-enter`               | a streamed word fading in, prose only (never code, tables or maths)                        |
-| `--duration-loader-frame` / `-loader-dots` | 80ms / 300ms  | steps                      | one frame of the braille or dots [`TextSpinner`](/docs/components/text-spinner)            |
+| `--duration-loader-frame` / `-loader-dots` | 80ms / 300ms  | steps                      | one frame of the [`TextSpinner`](/docs/components/text-spinner) bolt: Strike / Pulse       |
 
 `--motion-ease-enter` is `cubic-bezier(0.16, 1, 0.3, 1)`: a fast start that settles softly. Every
 exit uses `ease-exit`, and an exit is never slower than its enter. The stream and loader cadences
@@ -41,7 +41,7 @@ are animation lengths, read as `var(--duration-*)`; the others are also `duratio
   line in the same 28px.
 - **Completion is a state change**, not a celebration: no bounce, no confetti.
 - **Nothing animates on history load** — only what arrives while you watch.
-- **One moving thing per turn**: the live line's braille spinner. A running row is a still ◐.
+- **One moving thing per turn**: the live line's bolt spinner. A running row is a still ◐.
 - `CollapsibleContent` animates its height both ways on `duration-state` / `duration-state-exit`,
   so every fold built on it — `ChatGroup` among them — opens and closes smoothly.
 
@@ -87,7 +87,7 @@ on every new error.
 ## Sanctioned utilities
 
 `motion-pop-in`, `motion-enter-up`, `motion-shake`, `motion-flash`, `motion-indeterminate` and
-`motion-frames` (the `TextSpinner`'s frame strip, the second sanctioned loop) — from
+`motion-strike` / `motion-pulse` (the `TextSpinner`'s bolt, the second sanctioned loop) — from
 `@vegastack/design-tokens/utilities.css` — are our mount-animation classes, and `motion-dock-in` /
 `motion-dock-out` — from the same file — are our one _transition_ pair, for a docked control that
 stays mounted and flips `data-active`.

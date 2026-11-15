@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.85.0 sha256-ALMSooSw4fDQ/SS+t7RSBA44XpkdP7kplyEGvitHG34=
+// @vegastack chat-composer@0.85.0 sha256-8J6/AE7mwvA6ruhER1wYgLRcGZ23gkQcx+LZiHRBU7s=
 
 "use client";
 
@@ -269,7 +269,7 @@ export interface ChatComposerProps extends Omit<
 /**
  * `ChatComposer` — the root: a card (one 22px radius, one hairline that darkens a little while the
  * text has focus) that owns the turn. Enter sends and Shift+Enter breaks the line, except on a
- * phone, where return breaks the line and Send sends. Send morphs in place — a braille spinner while
+ * phone, where return breaks the line and Send sends. Send morphs in place — the bolt spinner while
  * the message goes (`state="sending"`), Stop while the agent works (`running`), Stop held while it
  * winds down (`stopping`). Typing carries on meanwhile; with `queues`, Enter sends it as a steer,
  * which the host shows in `steers` above the card. Files dropped or pasted on the card go to
@@ -631,11 +631,12 @@ export interface ChatComposerNoticeProps extends Omit<
   /** What the person should know: "Reconnecting — your agent kept working". */
   children: React.ReactNode;
   /**
-   * `info` is neutral; `warning` draws ⚠ in the warning ink; `progress` leads with the braille
-   * loader ("⠹ Reconnecting"), the one moving thing. The card never turns red. @default "info"
+   * `info` is neutral; `warning` draws ⚠ in the warning ink; `progress` leads with the bolt
+   * spinner's Pulse (Reconnecting, Stopping: waiting, not working), the one moving thing. The card
+   * never turns red. @default "info"
    */
   tone?: "info" | "warning" | "progress";
-  /** Replaces the tone's lead. @default ⓘ, ⚠ or the braille loader by tone */
+  /** Replaces the tone's lead. @default ⓘ, ⚠ or the pulsing bolt by tone */
   icon?: React.ReactNode;
   /** One small action at the end: a `Button size="xs" variant="ghost"` such as Reload. @default undefined */
   action?: React.ReactNode;
@@ -654,7 +655,7 @@ export interface ChatComposerNoticeProps extends Omit<
 const NOTICE_LEAD = {
   info: <Info aria-hidden className="text-muted-foreground" />,
   warning: <TriangleAlert aria-hidden className="text-warning-text" />,
-  progress: <TextSpinner label="" />,
+  progress: <TextSpinner variant="waiting" label="" />,
 } as const;
 
 /**
@@ -1488,7 +1489,7 @@ function ActionButton({
 
 /**
  * `ChatComposerSubmit` — the one round action at the end of the row, the size of the icon buttons:
- * ↑ Send (a quiet outline while there is nothing to send), a braille spinner while the message goes,
+ * ↑ Send (a quiet outline while there is nothing to send), the bolt spinner while the message goes,
  * ■ Stop while the agent works (with the root's `onStop`), held while it winds down. Its name
  * follows its face. A double click on Send never lands on the Stop that replaces it. With `queues`
  * and text in the box while it works, a Send stands beside Stop, for a phone with no Enter.

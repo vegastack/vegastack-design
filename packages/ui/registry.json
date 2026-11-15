@@ -16315,7 +16315,7 @@
       "name": "text-spinner",
       "type": "registry:ui",
       "title": "Text Spinner",
-      "description": "The one inline text loader: a monospace braille spinner (⠋ ⠙ ⠹ …) one character wide, or three dots, CSS only, a still … under reduced motion.",
+      "description": "The one inline text loader: a dot-matrix bolt as tall as capital letters, Strike while working and Pulse while waiting, CSS only, a still bolt under reduced motion.",
       "categories": ["chat"],
       "dependencies": [
         "@vegastack/design@^0.15.0",
@@ -16655,7 +16655,7 @@
       "name": "chat-work-log",
       "type": "registry:ui",
       "title": "Chat Work Log",
-      "description": "A turn's work read as sentences: LiveLine (the turn's one moving thing — braille spinner, words, timer, the stuck line), WorkSummary (the settled sentence in the same 28px), WorkLog (muted verb, subject, meta rows and muted thinking notes), ErrorRow and StuckRow, and ChatClock.",
+      "description": "A turn's work read as sentences: LiveLine (the turn's one moving thing — bolt spinner, words, timer, the stuck line), WorkSummary (the settled sentence in the same 28px), WorkLog (muted verb, subject, meta rows and muted thinking notes), ErrorRow and StuckRow, and ChatClock.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",

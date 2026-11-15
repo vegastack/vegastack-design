@@ -781,8 +781,8 @@
  *   - motion-indeterminate : a sanctioned looping utility — the sweeping
  *                         segment of an indeterminate Progress. Looping motion is
  *                         otherwise banned; an indeterminate bar has no other way
- *                         to say "still working" (audit M-06). `motion-frames`
- *                         (the TextSpinner's frame strip, MOT-14) is the other.
+ *                         to say "still working" (audit M-06). `motion-strike` /
+ *                         `motion-pulse` (the TextSpinner's bolt, MOT-14) are the other.
  *
  * `motion-dock-in` / `motion-dock-out` below are the one PAIR in this family and
  * the one that is not keyed presence — see their own header.
@@ -960,31 +960,59 @@
 }
 
 /* ---------------------------------------------------------------------------
- * motion-frames — the text loader's frame strip (MOT-14 / ICO-8 amended,
- * operator 2026-11-13: "braille spinner ⠹").
+ * motion-strike / motion-pulse — the text loader's bolt (MOT-14 / ICO-8 amended,
+ * operator 2026-11-15: "Strike + Pulse").
  *
- * The second sanctioned loop, and the only other one: `TextSpinner` stacks its
- * frames (⠋ ⠙ ⠹ … or · ·· ···) one per line inside a one-line clip and this
- * steps the strip up a line per frame — `--vs-frame-count` frames, each
- * `--duration-loader-frame` long (the dots variant sets
- * `--vs-frame-duration: var(--duration-loader-dots)`). A transform, never
- * `content`, so it runs in every engine and never reflows. Reduced motion zeroes
- * the frame token and the global reset ends the loop; TextSpinner swaps the
- * strip for a still "…" with `motion-reduce:hidden`, an end-state choice.
+ * The second sanctioned loop, and the only other one: `TextSpinner` draws a
+ * dot-matrix bolt, 13 dots on six rows.
+ *   - motion-strike : on each dot. The bolt fills top to bottom, holds, then
+ *                     clears top to bottom: 17 frames of `--duration-loader-frame`,
+ *                     a dot lit for 10 and dim for 7. Each dot sets `--vs-row`
+ *                     (0–5) and starts that many frames later, through a
+ *                     negative delay so the first cycle is already in step.
+ *   - motion-pulse  : on the whole bolt. Six frames of `--duration-loader-dots`
+ *                     stepping .65 → .3 → .3 → .65 → 1 → 1.
+ * Both step (`step-end`), so they read as frames, not a fade. Both keyframes END
+ * on the full bolt (opacity 1, the resting style), so under reduced motion the
+ * global reset and the 0ms loader tokens leave a still bolt with no override.
  * ------------------------------------------------------------------------- */
-@keyframes vs-frames {
+@keyframes vs-strike {
+  from {
+    opacity: 0.18;
+  }
+  41.1765% {
+    opacity: 1;
+  }
   to {
-    translate: 0 -100%;
+    opacity: 1;
   }
 }
 
-@utility motion-frames {
-  animation: vs-frames
-    calc(
-      var(--vs-frame-duration, var(--duration-loader-frame)) *
-        var(--vs-frame-count, 10)
-    )
-    steps(var(--vs-frame-count, 10)) infinite;
+@utility motion-strike {
+  animation: vs-strike calc(var(--duration-loader-frame) * 17) step-end infinite;
+  animation-delay: calc((var(--vs-row, 0) - 7) * var(--duration-loader-frame));
+}
+
+@keyframes vs-pulse {
+  from {
+    opacity: 0.65;
+  }
+  16.6667% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.65;
+  }
+  66.6667% {
+    opacity: 1;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@utility motion-pulse {
+  animation: vs-pulse calc(var(--duration-loader-dots) * 6) step-end infinite;
 }
 
 /* ---------------------------------------------------------------------------

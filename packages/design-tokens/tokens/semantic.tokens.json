@@ -718,7 +718,7 @@
       "value": 1200,
       "unit": "ms"
     },
-    "$description": "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-frames`, the TextSpinner, MOT-14). Not an interaction duration: interactions use fast/base/slow."
+    "$description": "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-strike` / `motion-pulse`, the TextSpinner's bolt, MOT-14). Not an interaction duration: interactions use fast/base/slow."
   },
   "motion-ease-standard": {
     "$type": "cubicBezier",
@@ -799,7 +799,7 @@
       "value": 80,
       "unit": "ms"
     },
-    "$description": "MOT-14: one frame of the braille TextSpinner (⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)."
+    "$description": "MOT-14: one frame of the TextSpinner's Strike (`working`: the bolt fills, holds and clears in 17 frames)."
   },
   "duration-loader-dots": {
     "$type": "duration",
@@ -807,7 +807,7 @@
       "value": 300,
       "unit": "ms"
     },
-    "$description": "MOT-14: one frame of the dots TextSpinner (· ·· ···)."
+    "$description": "MOT-14: one frame of the TextSpinner's Pulse (`waiting`: the whole bolt steps through six opacities)."
   },
   "motion-ease-enter": {
     "$type": "cubicBezier",

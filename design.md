@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 29663
-      sha256: "821167cb498f0dd8b477b91532b9bca1d21b001023262b1c7a4222360355c99b"
+      bytes: 29747
+      sha256: "d18694753d651ab5b4d78e3adb6bdd895192c6b05a4afa59f1c28f626a3e305c"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13441
@@ -128,7 +128,7 @@ themes:
     duration-indeterminate:
       type: "duration"
       value: "1200ms"
-      description: "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-frames`, the TextSpinner, MOT-14). Not an interaction duration: interactions use fast/base/slow."
+      description: "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-strike` / `motion-pulse`, the TextSpinner's bolt, MOT-14). Not an interaction duration: interactions use fast/base/slow."
     duration-instant:
       type: "duration"
       value: "100ms"
@@ -140,11 +140,11 @@ themes:
     duration-loader-dots:
       type: "duration"
       value: "300ms"
-      description: "MOT-14: one frame of the dots TextSpinner (· ·· ···)."
+      description: "MOT-14: one frame of the TextSpinner's Pulse (`waiting`: the whole bolt steps through six opacities)."
     duration-loader-frame:
       type: "duration"
       value: "80ms"
-      description: "MOT-14: one frame of the braille TextSpinner (⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)."
+      description: "MOT-14: one frame of the TextSpinner's Strike (`working`: the bolt fills, holds and clears in 17 frames)."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -530,7 +530,7 @@ themes:
     duration-indeterminate:
       type: "duration"
       value: "1200ms"
-      description: "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-frames`, the TextSpinner, MOT-14). Not an interaction duration: interactions use fast/base/slow."
+      description: "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-strike` / `motion-pulse`, the TextSpinner's bolt, MOT-14). Not an interaction duration: interactions use fast/base/slow."
     duration-instant:
       type: "duration"
       value: "100ms"
@@ -542,11 +542,11 @@ themes:
     duration-loader-dots:
       type: "duration"
       value: "300ms"
-      description: "MOT-14: one frame of the dots TextSpinner (· ·· ···)."
+      description: "MOT-14: one frame of the TextSpinner's Pulse (`waiting`: the whole bolt steps through six opacities)."
     duration-loader-frame:
       type: "duration"
       value: "80ms"
-      description: "MOT-14: one frame of the braille TextSpinner (⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏)."
+      description: "MOT-14: one frame of the TextSpinner's Strike (`working`: the bolt fills, holds and clears in 17 frames)."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -1135,7 +1135,7 @@ size (TYP-14). Icons are lucide,
 the lucide-animated mirrors and `thesvg` brand glyphs through `Icon`/`BrandIcon` and nothing else
 (ICO-1); no inline `<svg>` as an icon (ICO-3); the animated-icon factory owns the trigger and
 reduced-motion rules (ICO-6); **the indeterminate loading mark is lucide `Loader`, never
-`Loader2`/`LoaderCircle`**, and the braille `TextSpinner` is the one inline text loader (ICO-8). The token additions themselves are the next section.
+`Loader2`/`LoaderCircle`**, and the dot-bolt `TextSpinner` is the one inline text loader (ICO-8). The token additions themselves are the next section.
 
 **COL-20 is narrower than it was.** `bg-black/10` and `bg-white` pass — they are upstream's own scrim
 vocabulary — and a raw `/NN` alpha or an `opacity-50` is ordinary Tailwind now, because the alpha and
@@ -1160,8 +1160,8 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   (MOT-14) is the one cadence for agent UI — `instant` 100, `quick` 160/120, `state` 220/160,
   `layout` 280, `ease-enter` in and `ease-exit` out — and `CollapsibleContent` animates its height
   both ways on it. Motion never shifts layout (fixed-width glyphs, tabular figures), completion is a
-  state change rather than a celebration, and nothing animates on history load. The braille
-  `TextSpinner` is the one inline text loader (ICO-8, amended); a turn shows at most one.
+  state change rather than a celebration, and nothing animates on history load. The dot-bolt
+  `TextSpinner` is the one inline text loader (ICO-8, amended), Strike for work and Pulse for waiting; a turn shows at most one.
 - **Prose** (TYP-13) — one recipe, `proseClassName` from `@vegastack/design`, expressed as descendant
   variants, with no `@tailwindcss/typography`. `MarkdownView` and `TextEdit` both wear it, so rendered
   rich text is identical in both. Because it is descendant-expressed, an element-level class on a

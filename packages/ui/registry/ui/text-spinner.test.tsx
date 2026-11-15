@@ -7,40 +7,35 @@ import "../../test/geometry.css";
 const slot = (root: ParentNode, name: string) =>
   root.querySelector<HTMLElement>(`[data-slot="${name}"]`)!;
 
-test("braille is the default: ten frames on the frame strip, hidden from assistive technology", async () => {
+test("working is the default: thirteen bolt dots, each striking on its own row, hidden from assistive technology", async () => {
   const screen = await render(<TextSpinner />);
   const root = slot(screen.container, "text-spinner");
-  expect(root.dataset.variant).toBe("braille");
-  const frames = slot(screen.container, "text-spinner-frames");
-  expect(frames.getAttribute("aria-hidden")).toBe("true");
-  expect([...frames.children].map((frame) => frame.textContent)).toEqual([
-    "⠋",
-    "⠙",
-    "⠹",
-    "⠸",
-    "⠼",
-    "⠴",
-    "⠦",
-    "⠧",
-    "⠇",
-    "⠏",
-  ]);
-  expect(frames.className).toContain("motion-frames");
-  expect(frames.className).toContain("[--vs-frame-count:10]");
-  expect(root.className).toContain("font-mono");
+  expect(root.dataset.variant).toBe("working");
   expect(root.className).toContain("text-muted-foreground");
+  const bolt = slot(screen.container, "text-spinner-bolt");
+  expect(bolt.getAttribute("aria-hidden")).toBe("true");
+  expect(bolt.getAttribute("class")).not.toContain("motion-pulse");
+  const dots = [...bolt.querySelectorAll("circle")];
+  expect(dots).toHaveLength(13);
+  // Six rows, top to bottom: each dot starts its row's frame later, so the bolt fills downwards.
+  expect(
+    new Set(dots.map((dot) => dot.style.getPropertyValue("--vs-row"))),
+  ).toEqual(new Set(["0", "1", "2", "3", "4", "5"]));
+  for (const dot of dots)
+    expect(dot.getAttribute("class")).toBe("motion-strike");
 });
 
-test("dots step three padded frames on the slower dots cadence", async () => {
-  const screen = await render(<TextSpinner variant="dots" />);
-  const frames = slot(screen.container, "text-spinner-frames");
-  expect(frames.children).toHaveLength(3);
-  // Every frame is three characters wide, so the words beside it never move.
-  for (const frame of frames.children)
-    expect(frame.textContent?.length).toBe(3);
-  expect(frames.className).toContain(
-    "[--vs-frame-duration:var(--duration-loader-dots)]",
+test("waiting pulses the whole bolt and leaves the dots unstepped", async () => {
+  const screen = await render(<TextSpinner variant="waiting" />);
+  expect(slot(screen.container, "text-spinner").dataset.variant).toBe(
+    "waiting",
   );
+  const bolt = slot(screen.container, "text-spinner-bolt");
+  expect(bolt.getAttribute("class")).toContain("motion-pulse");
+  for (const dot of bolt.querySelectorAll("circle")) {
+    expect(dot.getAttribute("class")).toBeNull();
+    expect(dot.style.getPropertyValue("--vs-row")).toBe("");
+  }
 });
 
 test("a screen reader hears the label, Working by default, and nothing when the label is empty", async () => {
@@ -56,36 +51,36 @@ test("a screen reader hears the label, Working by default, and nothing when the 
   expect(silent.container.querySelector(".sr-only")).toBeNull();
 });
 
-test("reduced motion: the strip hides and a still ellipsis shows", async () => {
-  const screen = await render(<TextSpinner />);
-  const frames = slot(screen.container, "text-spinner-frames");
-  expect(frames.className).toContain("motion-reduce:hidden");
-  const still = [
-    ...screen.container.querySelectorAll<HTMLElement>('[aria-hidden="true"]'),
-  ].find((element) => element.textContent === "…")!;
-  expect(still.className).toContain("hidden");
-  expect(still.className).toContain("motion-reduce:inline");
-});
-
-test("no a11y violations — braille and dots", async () => {
+test("no a11y violations — working and waiting", async () => {
   const screen = await render(
     <p>
-      <TextSpinner /> Searching <TextSpinner variant="dots" label="" />
+      <TextSpinner /> Searching <TextSpinner variant="waiting" label="" />
     </p>,
   );
   await expectNoA11yViolations(screen.container);
 });
 
-test("compiled: the strip keeps every frame one line tall, so a step moves exactly one frame", async () => {
-  const screen = await render(<TextSpinner />);
-  const root = slot(screen.container, "text-spinner");
-  const frames = slot(screen.container, "text-spinner-frames");
-  const line = root.getBoundingClientRect().height;
-  expect(line).toBeGreaterThan(0);
-  // Ten frames stacked, not squeezed into the one-line clip: translate -100% then travels ten
-  // lines in ten steps, one frame per step.
-  expect(frames.getBoundingClientRect().height).toBeCloseTo(line * 10, 0);
-  for (const frame of frames.children)
-    expect(frame.getBoundingClientRect().height).toBeCloseTo(line, 0);
-  expect(getComputedStyle(root).overflowY).toBe("clip");
+test("compiled: the bolt is as tall as capital letters, in a fixed slot, on the two loader utilities", async () => {
+  const screen = await render(
+    <p className="text-sm">
+      <TextSpinner label="" />
+      <TextSpinner variant="waiting" label="" />
+    </p>,
+  );
+  const [working, waiting] = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="text-spinner"]',
+    ),
+  ];
+  const fontSize = parseFloat(getComputedStyle(working!).fontSize);
+  const bolt = slot(working!, "text-spinner-bolt").getBoundingClientRect();
+  expect(bolt.height).toBeCloseTo(fontSize * 0.72, 0);
+  expect(bolt.width).toBeCloseTo(fontSize * 0.48, 0);
+  expect(working!.getBoundingClientRect().width).toBeCloseTo(fontSize * 0.6, 0);
+  expect(
+    getComputedStyle(working!.querySelector("circle")!).animationName,
+  ).toBe("vs-strike");
+  expect(
+    getComputedStyle(slot(waiting!, "text-spinner-bolt")).animationName,
+  ).toBe("vs-pulse");
 });

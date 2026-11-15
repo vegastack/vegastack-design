@@ -23,10 +23,10 @@ export function textSpinnerVariants(): ReactNode {
         <TextSpinner label="" /> Reading 4 sites · 41s
       </p>
       <p className="flex items-center gap-2 text-sm text-muted-foreground">
-        <TextSpinner variant="dots" label="" /> Thinking
+        <TextSpinner variant="waiting" label="" /> Thinking
       </p>
       <p className="flex items-center gap-2 text-sm text-muted-foreground">
-        <TextSpinner variant="dots" label="" /> Reconnecting
+        <TextSpinner variant="waiting" label="" /> Reconnecting
       </p>
     </Wrapper>
   );
