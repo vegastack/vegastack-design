@@ -19995,7 +19995,7 @@
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
         "version": "0.84.1",
-        "integrity": "sha256-S3RsmzHaH1c9AGj6m8cGIHA/bI7A/LkcCkCiF0kNr60="
+        "integrity": "sha256-NyGUewr11wZwIwskL7aJXxWnVczpI9nzvNxSZWQr3QA="
       }
     },
     {

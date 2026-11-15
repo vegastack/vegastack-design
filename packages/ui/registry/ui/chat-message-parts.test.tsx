@@ -99,6 +99,26 @@ test("the live line pulses before any work starts or while paused, and strikes o
   );
   expect(variant(working.container)).toBe("working");
   await working.unmount();
+  // A server status waits in its thinking, stopping and reconnecting phases.
+  for (const [phase, expected] of [
+    ["thinking", "waiting"],
+    ["stopping", "waiting"],
+    ["reconnecting", "waiting"],
+    ["working", "working"],
+  ] as const) {
+    const status = await render(
+      <MessageParts
+        message={message([
+          { type: "data-status", data: { phase, words: "Status words" } },
+        ])}
+        detail="normal"
+        live
+      />,
+    );
+    expect(status.container.textContent).toContain("Status words");
+    expect(variant(status.container)).toBe(expected);
+    await status.unmount();
+  }
   const paused = await render(
     <MessageParts
       message={message([tool("c1", "input-available")], {

@@ -84,3 +84,82 @@ test("compiled: the bolt is as tall as capital letters, in a fixed slot, on the 
     getComputedStyle(slot(waiting!, "text-spinner-bolt")).animationName,
   ).toBe("vs-pulse");
 });
+
+/** Every rule of the page's compiled CSS, nested rules (`@layer`) included. */
+function cssRules(): CSSRule[] {
+  const out: CSSRule[] = [];
+  const walk = (rules: CSSRuleList) => {
+    for (const rule of rules) {
+      out.push(rule);
+      if ("cssRules" in rule) walk((rule as CSSGroupingRule).cssRules);
+    }
+  };
+  for (const sheet of document.styleSheets) walk(sheet.cssRules);
+  return out;
+}
+
+const keyframes = (name: string) =>
+  [
+    ...cssRules().find(
+      (rule): rule is CSSKeyframesRule =>
+        rule instanceof CSSKeyframesRule && rule.name === name,
+    )!.cssRules,
+  ].map((frame) => [
+    parseFloat((frame as CSSKeyframeRule).keyText),
+    Number((frame as CSSKeyframeRule).style.opacity),
+  ]);
+
+test("compiled motion: Strike lights each row from its own frame for 10 of 17; Pulse steps six opacities and ends on the full bolt", async () => {
+  await render(<TextSpinner />);
+  // The cycle and each row's offset, as the utility declares them. A shorthand holding var() is
+  // empty in the CSSOM until computed, and this page's reset overrides the computed values, so
+  // read the compiled stylesheet's own text.
+  const css = [...document.querySelectorAll("style")]
+    .map((style) => style.textContent)
+    .join("\n");
+  const strike = css.match(/\.motion-strike\s*\{([^}]*)\}/)![1]!;
+  expect(strike).toMatch(
+    /vs-strike\s+calc\(var\(--duration-loader-frame\)\s*\*\s*17\)\s+step-end\s+infinite/,
+  );
+  expect(strike).toMatch(
+    /animation-delay:\s*calc\(\(var\(--vs-row,\s*0\)\s*-\s*7\)\s*\*\s*var\(--duration-loader-frame\)\)/,
+  );
+  // Dim until 7/17 of the cycle, then lit to the end (the resting style), stepped.
+  expect(keyframes("vs-strike")).toEqual([
+    [0, 0.18],
+    [41.1764, 1],
+    [100, 1],
+  ]);
+  // Replay the cycle: a dot's own frame is (frame + 7 − row) mod 17, lit from frame 7.
+  for (let row = 0; row < 6; row++) {
+    const lit = Array.from({ length: 17 }, (_, frame) => frame).filter(
+      (frame) => (((frame + 7 - row) % 17) / 17) * 100 >= 41.1764,
+    );
+    expect(lit).toEqual(Array.from({ length: 10 }, (_, i) => row + i));
+  }
+  // Pulse: one value per sixth, held (step-end), ending on the full bolt.
+  const pulse = keyframes("vs-pulse");
+  const at = (frame: number) =>
+    pulse.filter(([offset]) => offset! <= (frame / 6) * 100 + 0.01).at(-1)![1];
+  expect([0, 1, 2, 3, 4, 5].map(at)).toEqual([0.65, 0.3, 0.3, 0.65, 1, 1]);
+  expect(pulse.at(-1)).toEqual([100, 1]);
+});
+
+test("reduced motion (the reset this page mirrors from base.css): both variants rest on the full bolt", async () => {
+  const screen = await render(
+    <p>
+      <TextSpinner label="" />
+      <TextSpinner variant="waiting" label="" />
+    </p>,
+  );
+  await Promise.all(
+    screen.container.getAnimations({ subtree: true }).map((a) => a.finished),
+  );
+  for (const bolt of screen.container.querySelectorAll<SVGElement>(
+    '[data-slot="text-spinner-bolt"]',
+  )) {
+    expect(getComputedStyle(bolt).opacity).toBe("1");
+    for (const dot of bolt.querySelectorAll("circle"))
+      expect(getComputedStyle(dot).opacity).toBe("1");
+  }
+});

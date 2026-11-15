@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.84.1 sha256-S3RsmzHaH1c9AGj6m8cGIHA/bI7A/LkcCkCiF0kNr60=
+// @vegastack chat-message-parts@0.84.1 sha256-NyGUewr11wZwIwskL7aJXxWnVczpI9nzvNxSZWQr3QA=
 
 "use client";
 
@@ -136,7 +136,9 @@ const plural = (n: number, one: string, many = `${one}s`) =>
 
 /**
  * The live line's words: the server's status, else the running step, else "Thinking" — and
- * whether any of that is work yet (`started`), which picks the spinner's Strike over its Pulse.
+ * whether any of that is work yet (`started`), which picks the spinner's Strike over its Pulse. A
+ * status is work only in its `working` phase (or with no phase); thinking, stopping and
+ * reconnecting wait.
  */
 function liveLineOf(parts: readonly ChatPart[]): {
   words: string;
@@ -145,8 +147,13 @@ function liveLineOf(parts: readonly ChatPart[]): {
   for (let i = parts.length - 1; i >= 0; i--) {
     const part = parts[i]!;
     if (part.type === "data-status") {
-      const words = ((part as ChatDataPart).data as { words?: string })?.words;
-      if (words) return { words, started: true };
+      const status = (part as ChatDataPart).data as
+        { words?: string; phase?: string } | undefined;
+      if (status?.words)
+        return {
+          words: status.words,
+          started: (status.phase ?? "working") === "working",
+        };
     }
   }
   const subagents = parts.filter(isSubagentPart);
