@@ -438,6 +438,11 @@ test("DataGrid: the selection ActionBar paints above the grid's sticky summary r
   const top = Math.max(b.top, f.top);
   const bottom = Math.min(b.bottom, f.bottom);
   expect(bottom - top).toBeGreaterThan(4);
-  const hit = document.elementFromPoint(b.left + 6, (top + bottom) / 2);
+  // The bar is a pill (`rounded-control`, BRD-12), and hit testing follows its curve: probe one
+  // corner radius in from its start edge, where the overlap band is inside the painted shape.
+  const hit = document.elementFromPoint(
+    b.left + b.height / 2,
+    (top + bottom) / 2,
+  );
   expect(hit != null && bar.contains(hit)).toBe(true);
 });

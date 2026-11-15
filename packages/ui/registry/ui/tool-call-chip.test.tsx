@@ -54,7 +54,7 @@ test("the chip IS a Badge, in its outline variant", async () => {
   );
   const chip = screen.getByTestId("chip").element() as HTMLElement;
   expect(chip.dataset.variant).toBe("outline");
-  expect(chip.className).toContain("rounded-4xl");
+  expect(chip.className).toContain("rounded-chip");
   expect(chip.className).toContain("border-border");
   // …and the two things Badge does not know about a tool label.
   expect(chip.className).toContain("min-w-0");

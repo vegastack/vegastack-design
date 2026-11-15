@@ -126,10 +126,16 @@ for (const theme of ["light", "dark"] as const) {
       '[data-slot="data-list-row"]',
     )!;
     await expect.poll(() => row.matches(":has(:focus-visible)")).toBe(true);
+    // BRD-12: the row's fills live on each cell's `row-fill` `::before` (an inset `item` shape),
+    // so the bar is the first layer of the first cell's shape and the wash is the layer under it.
     const cell = row.firstElementChild as HTMLElement;
-    const image = getComputedStyle(cell).backgroundImage;
-    expect(image).toContain("gradient");
-    expect(getComputedStyle(cell).backgroundSize).toBe("2px 100%");
-    expect(getComputedStyle(row).backgroundColor).not.toBe("rgba(0, 0, 0, 0)");
+    const shape = getComputedStyle(cell, "::before");
+    const [bar, wash] = shape.backgroundImage.split(/,\s*(?=linear-gradient)/);
+    expect(bar).toContain("gradient");
+    expect(shape.backgroundSize).toBe("2px 100%, 100% 100%");
+    expect(wash).toContain("gradient");
+    // The wash covers the whole row, not only the cell that holds the bar.
+    const rest = getComputedStyle(row.lastElementChild!, "::before");
+    expect(rest.backgroundImage).toContain("gradient");
   });
 }

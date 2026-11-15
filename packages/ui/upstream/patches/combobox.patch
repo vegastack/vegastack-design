@@ -99,7 +99,7 @@
 #     (no ring or glow; invalid keeps only its destructive border), and read-only as the `readonly`
 #     fill on a transparent border.
 diff --git a/combobox.tsx b/combobox.tsx
-index 39e776a..2f29398 100644
+index 39e776a..a5dde14 100644
 --- a/combobox.tsx
 +++ b/combobox.tsx
 @@ -1,22 +1,29 @@
@@ -543,7 +543,7 @@ index 39e776a..2f29398 100644
 +              variant="ghost"
 +              size="icon-xs"
 +              aria-label="Remove"
-+              className="size-4 active:not-aria-[haspopup]:translate-y-0"
++              className="active:not-aria-[haspopup]:translate-y-0"
 +            />
 +          }
            className="-ms-1 opacity-50 hover:opacity-100"

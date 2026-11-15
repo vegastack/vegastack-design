@@ -1,4 +1,4 @@
-// @vegastack combobox@0.88.0 sha256-wuQir3Zj5iIZLZfOaCsHrYYiA28IdN65hFePNGZkVtg=
+// @vegastack combobox@0.88.0 sha256-Hm7RxlhDk4ia/5ubovOMuL8aK3y3eZopRKyGu0n6MtI=
 
 "use client";
 
@@ -413,7 +413,7 @@ function ComboboxChip({
               variant="ghost"
               size="icon-xs"
               aria-label="Remove"
-              className="size-4 active:not-aria-[haspopup]:translate-y-0"
+              className="active:not-aria-[haspopup]:translate-y-0"
             />
           }
           className="-ms-1 opacity-50 hover:opacity-100"

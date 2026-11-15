@@ -138,7 +138,7 @@ test("a leading image removes the top padding and rounds with the card (Image)",
   const card = screen.container.querySelector("[data-slot=card]")!;
   expect(card.querySelector(":scope > img:first-child")).not.toBe(null);
   expect(card.className).toContain("has-[>img:first-child]:pt-0");
-  expect(card.className).toContain("*:[img:first-child]:rounded-t-xl");
+  expect(card.className).toContain("*:[img:first-child]:rounded-t-card");
   expect(card.className).toContain("overflow-hidden");
 });
 
@@ -176,9 +176,9 @@ test("BRD-1: the card draws a real border, not a ring outline", async () => {
   const card =
     screen.container.querySelector<HTMLElement>('[data-slot="card"]')!;
   expectBorderNotRing(card);
-  // The image-edge rounding stays upstream's: `overflow-hidden` clips at the border's inner edge.
+  // The image-edge rounding follows the card (BRD-12): `overflow-hidden` clips at the border's inner edge.
   expect(card.className).toContain("overflow-hidden");
-  expect(card.className).toContain("*:[img:first-child]:rounded-t-xl");
+  expect(card.className).toContain("*:[img:first-child]:rounded-t-card");
 });
 
 test("no a11y violations — rest", async () => {

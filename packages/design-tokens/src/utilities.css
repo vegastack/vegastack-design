@@ -202,6 +202,14 @@
     position: relative;
     isolation: isolate;
   }
+  /* Each cell is now a stacking context, painted in tree order, so a later cell would cover a
+     control whose hit area reaches past its own cell (the selection checkbox's `-inset-x-3`
+     `::after`, which spills into the next column). The cell holding such a control is lifted one
+     step, back above its neighbours, as it was when cells were not positioned; a sticky or frozen
+     cell's own z-index still wins. */
+  & > :where(td, th):where(:has([role="checkbox"], [role="radio"])) {
+    z-index: 1;
+  }
   & > :where(td, th)::before {
     content: "";
     position: absolute;

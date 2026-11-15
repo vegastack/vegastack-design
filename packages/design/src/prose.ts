@@ -80,7 +80,7 @@ export const prose = {
   em: "[&_em]:italic",
   del: "[&_del]:line-through [&_s]:line-through",
   // A highlight (`==text==`): its colour's subtle tag fill behind body ink, kept on paper too.
-  mark: "[&_mark]:rounded-xs [&_mark]:bg-tag-yellow-subtle [&_mark]:px-0.5 [&_mark]:text-inherit [&_mark]:box-decoration-clone [&_mark]:[print-color-adjust:exact] [&_mark[data-color=green]]:bg-tag-green-subtle [&_mark[data-color=blue]]:bg-tag-blue-subtle [&_mark[data-color=purple]]:bg-tag-purple-subtle [&_mark[data-color=pink]]:bg-tag-pink-subtle [&_mark[data-color=red]]:bg-tag-red-subtle",
+  mark: "[&_mark]:rounded-mark [&_mark]:bg-tag-yellow-subtle [&_mark]:px-0.5 [&_mark]:text-inherit [&_mark]:box-decoration-clone [&_mark]:[print-color-adjust:exact] [&_mark[data-color=green]]:bg-tag-green-subtle [&_mark[data-color=blue]]:bg-tag-blue-subtle [&_mark[data-color=purple]]:bg-tag-purple-subtle [&_mark[data-color=pink]]:bg-tag-pink-subtle [&_mark[data-color=red]]:bg-tag-red-subtle",
 
   // Lists. Items and markers are body text: family, size and ink inherit (a `::marker` takes the
   // item's font), so `1.` and `•` never read as a second typeface or a second colour. One thing
@@ -112,11 +112,11 @@ export const prose = {
   // is undone at higher specificity (`[&_pre_code]` is (0,1,2) against the chip's (0,1,1)).
   // Slack/Notion: a neutral grey chip with orange text (the syntax palette's literal colour), so
   // inline code reads apart from prose in both themes; `tag-orange-text` on `muted` clears AA.
-  code: "[&_code]:rounded-sm [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_code]:text-tag-orange-text",
+  code: "[&_code]:rounded-inline [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-sm [&_code]:text-tag-orange-text",
   // A bare `<pre>` wears `CodeBlock`'s surface — the same sunken panel, one vocabulary (B4-09).
   // `CodeBlock`'s own `pre` is excluded: it already sits inside a `figure` carrying the border,
   // radius and ground, and re-applying them here would draw a second panel inside the first.
-  pre: "[&_pre:not([data-slot='code-block-pre'])]:my-2 [&_pre:not([data-slot='code-block-pre'])]:overflow-x-auto [&_pre:not([data-slot='code-block-pre'])]:rounded-lg [&_pre:not([data-slot='code-block-pre'])]:border [&_pre:not([data-slot='code-block-pre'])]:border-border [&_pre:not([data-slot='code-block-pre'])]:bg-muted [&_pre:not([data-slot='code-block-pre'])]:p-4 [&_pre:not([data-slot='code-block-pre'])]:text-foreground",
+  pre: "[&_pre:not([data-slot='code-block-pre'])]:my-2 [&_pre:not([data-slot='code-block-pre'])]:overflow-x-auto [&_pre:not([data-slot='code-block-pre'])]:rounded-block [&_pre:not([data-slot='code-block-pre'])]:border [&_pre:not([data-slot='code-block-pre'])]:border-border [&_pre:not([data-slot='code-block-pre'])]:bg-muted [&_pre:not([data-slot='code-block-pre'])]:p-4 [&_pre:not([data-slot='code-block-pre'])]:text-foreground",
   preCode:
     "[&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:font-mono [&_pre_code]:text-sm [&_pre_code]:text-foreground",
 
@@ -134,13 +134,13 @@ export const prose = {
   // A table a component draws inside prose (an embedded DataGrid in a live block) is its own:
   // anything under `[data-prose="off"]` is left alone by every table rule here.
   table:
-    "[&_table:not([data-prose=off]_*)]:w-full [&_table:not([data-prose=off]_*)]:border-separate [&_table:not([data-prose=off]_*)]:border-spacing-0 [&_table:not([data-prose=off]_*)]:rounded-lg [&_table:not([data-prose=off]_*)]:border [&_table:not([data-prose=off]_*)]:border-border",
+    "[&_table:not([data-prose=off]_*)]:w-full [&_table:not([data-prose=off]_*)]:border-separate [&_table:not([data-prose=off]_*)]:border-spacing-0 [&_table:not([data-prose=off]_*)]:rounded-block [&_table:not([data-prose=off]_*)]:border [&_table:not([data-prose=off]_*)]:border-border",
   tableRules:
-    "[&_th:not([data-prose=off]_*)]:border-e [&_th:not([data-prose=off]_*)]:border-b [&_th:not([data-prose=off]_*)]:border-border [&_td:not([data-prose=off]_*)]:border-e [&_td:not([data-prose=off]_*)]:border-b [&_td:not([data-prose=off]_*)]:border-border [&_tr:not([data-prose=off]_*)>*:last-child]:border-e-0 [&_tbody:not([data-prose=off]_*)>tr:last-child>*]:border-b-0 [&_tr:not([data-prose=off]_*):first-child>*:first-child]:rounded-ss-lg [&_tr:not([data-prose=off]_*):first-child>*:last-child]:rounded-se-lg [&_tbody:not([data-prose=off]_*)>tr:last-child>*:first-child]:rounded-es-lg [&_tbody:not([data-prose=off]_*)>tr:last-child>*:last-child]:rounded-ee-lg",
+    "[&_th:not([data-prose=off]_*)]:border-e [&_th:not([data-prose=off]_*)]:border-b [&_th:not([data-prose=off]_*)]:border-border [&_td:not([data-prose=off]_*)]:border-e [&_td:not([data-prose=off]_*)]:border-b [&_td:not([data-prose=off]_*)]:border-border [&_tr:not([data-prose=off]_*)>*:last-child]:border-e-0 [&_tbody:not([data-prose=off]_*)>tr:last-child>*]:border-b-0 [&_tr:not([data-prose=off]_*):first-child>*:first-child]:rounded-ss-block [&_tr:not([data-prose=off]_*):first-child>*:last-child]:rounded-se-block [&_tbody:not([data-prose=off]_*)>tr:last-child>*:first-child]:rounded-es-block [&_tbody:not([data-prose=off]_*)>tr:last-child>*:last-child]:rounded-ee-block",
   tableCells:
     "[&_th:not([data-prose=off]_*)]:bg-muted/50 [&_th:not([data-prose=off]_*)]:px-3 [&_th:not([data-prose=off]_*)]:py-2 [&_th:not([data-prose=off]_*)]:text-start [&_th:not([data-prose=off]_*)]:align-top [&_th:not([data-prose=off]_*)]:font-medium [&_td:not([data-prose=off]_*)]:px-3 [&_td:not([data-prose=off]_*)]:py-2 [&_td:not([data-prose=off]_*)]:align-top [&_td_p:not([data-prose=off]_*)]:my-0 [&_th_p:not([data-prose=off]_*)]:my-0 [&_th:not([data-prose=off]_*)]:wrap-break-word [&_td:not([data-prose=off]_*)]:wrap-break-word",
 
-  img: "[&_img]:my-2 [&_img]:max-w-full [&_img]:rounded-lg [&_img]:border [&_img]:border-border",
+  img: "[&_img]:my-2 [&_img]:max-w-full [&_img]:rounded-block [&_img]:border [&_img]:border-border",
 } as const;
 
 /** The element roles the prose recipe covers. */

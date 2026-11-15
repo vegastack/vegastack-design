@@ -19,7 +19,7 @@ test("renders hue chips with the tag-token classes and data-hue", async () => {
   ) as HTMLElement;
   expect(chip.dataset.hue).toBe("yellow");
   expect(chip.className).toContain("bg-tag-yellow-subtle");
-  expect(chip.className).toContain("rounded-full");
+  expect(chip.className).toContain("rounded-chip");
   expect(chip.className).toContain("text-tag-yellow-text");
   const neutral = (
     screen.getByText("Neutral").element() as HTMLElement
@@ -79,7 +79,7 @@ test("onRemove renders a labelled remove button and fires", async () => {
   // `before:-inset-2` hit area was never hit-testable — Chromium clips a nested <button>'s
   // generated content to its own border box (see chip.test.tsx for the elementFromPoint proof).
   expect(remove.dataset.slot).toBe("chip-remove");
-  expect(remove.className).toContain("rounded-full");
+  expect(remove.className).toContain("rounded-icon");
   expect(remove.className).not.toContain("before:-inset-2");
   await expectNoA11yViolations(screen.container);
 });
@@ -102,7 +102,7 @@ test("overflow chip IS a chip — one pill that is its own 28px pointer target",
   // A chip is `w-fit`, and "+1" is narrower than the 24px pointer floor — the contract lane
   // measured 23.8px. The width floors at the tier's own height so the short cases are circles.
   expect(overflow.className).toContain("min-w-7");
-  expect(overflow.className).toContain("rounded-full");
+  expect(overflow.className).toContain("rounded-chip");
   expect(overflow.querySelector("span")).toBeNull();
   // The one interactive chip carries the shared state layer: hover and press (COL-24, INT-4).
   expect(overflow.className).toContain("state-layer");
@@ -128,7 +128,7 @@ test("a Tag is the Chip primitive at the inline tier, with a real 24px remove co
   expect(remove.dataset.slot).toBe("chip-remove");
   // Since Batch 2 the square tier is upstream's own `size-6`, not a `w-6` override of a text tier.
   expect(remove.className).toContain("size-6");
-  expect(remove.className).toContain("rounded-full");
+  expect(remove.className).toContain("rounded-icon");
 });
 
 test("forwards refs to tag and group roots", async () => {
