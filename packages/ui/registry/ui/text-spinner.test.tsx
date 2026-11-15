@@ -141,7 +141,7 @@ test("compiled motion: Strike lights each row from its own frame for 10 of 17; P
   const pulse = keyframes("vs-pulse");
   const at = (frame: number) =>
     pulse.filter(([offset]) => offset! <= (frame / 6) * 100 + 0.01).at(-1)![1];
-  expect([0, 1, 2, 3, 4, 5].map(at)).toEqual([0.65, 0.3, 0.3, 0.65, 1, 1]);
+  expect([0, 1, 2, 3, 4, 5].map(at)).toEqual([0.75, 0.45, 0.45, 0.75, 1, 1]);
   expect(pulse.at(-1)).toEqual([100, 1]);
 });
 
@@ -162,4 +162,25 @@ test("reduced motion (the reset this page mirrors from base.css): both variants 
     for (const dot of bolt.querySelectorAll("circle"))
       expect(getComputedStyle(dot).opacity).toBe("1");
   }
+});
+
+test("a container that sizes its icons (a Button, the live line's trigger, a notice's lead) leaves the bolt at text size", async () => {
+  const screen = await render(
+    <p className="text-sm">
+      <span className="[&_svg:not([class*='size-'])]:size-4">
+        <TextSpinner label="" />
+      </span>
+      <TextSpinner variant="waiting" label="" />
+    </p>,
+  );
+  const [inside, plain] = [
+    ...screen.container.querySelectorAll<SVGElement>(
+      '[data-slot="text-spinner-bolt"]',
+    ),
+  ].map((bolt) => bolt.getBoundingClientRect());
+  // Working inside the icon-sizing container and waiting outside it: one size, 0.72em × 0.48em.
+  expect(inside!.height).toBeCloseTo(plain!.height, 1);
+  expect(inside!.width).toBeCloseTo(plain!.width, 1);
+  expect(inside!.height).toBeCloseTo(14 * 0.72, 0);
+  expect(inside!.width).toBeCloseTo(14 * 0.48, 0);
 });

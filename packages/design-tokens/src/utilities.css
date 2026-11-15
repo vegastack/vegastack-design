@@ -971,7 +971,8 @@
  *                     (0–5) and starts that many frames later, through a
  *                     negative delay so the first cycle is already in step.
  *   - motion-pulse  : on the whole bolt. Six frames of `--duration-loader-dots`
- *                     stepping .65 → .3 → .3 → .65 → 1 → 1.
+ *                     stepping .75 → .45 → .45 → .75 → 1 → 1: never below .45,
+ *                     so a waiting bolt reads as clearly as a striking one.
  * Both step (`step-end`), so they read as frames, not a fade. Both keyframes END
  * on the full bolt (opacity 1, the resting style), so under reduced motion the
  * global reset and the 0ms loader tokens leave a still bolt with no override.
@@ -995,13 +996,13 @@
 
 @keyframes vs-pulse {
   from {
-    opacity: 0.65;
+    opacity: 0.75;
   }
   16.6667% {
-    opacity: 0.3;
+    opacity: 0.45;
   }
   50% {
-    opacity: 0.65;
+    opacity: 0.75;
   }
   66.6667% {
     opacity: 1;
