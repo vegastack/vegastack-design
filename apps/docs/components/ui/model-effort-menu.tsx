@@ -1,4 +1,4 @@
-// @vegastack model-effort-menu@0.85.0 sha256-UxQZ9zw63/fTgiv6i0KCAqrl/BY+k+PK5cE1f1L4qMI=
+// @vegastack model-effort-menu@0.88.0 sha256-/E3cnfT+NTjminFhh6ZMsOGFGC4FiJlOLyoQVa53KDo=
 
 "use client";
 

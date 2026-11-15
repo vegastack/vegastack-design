@@ -1,4 +1,4 @@
-// @vegastack sidebar-menu-flyout@0.81.0 sha256-e6mjAZy4V8inJpm3SoYNEig61pf3sld1qjstvju0XFk=
+// @vegastack sidebar-menu-flyout@0.88.0 sha256-8V4jcen28ilM49sX9/d8LrIOTgDJFB/pUUyAWDv+Glw=
 
 "use client";
 

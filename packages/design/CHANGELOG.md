@@ -1,5 +1,12 @@
 # @vegastack/design
 
+## 0.16.0
+
+### Patch Changes
+
+- Updated dependencies [[`7e9f5a8`](https://github.com/vegastack/vegastack-design/commit/7e9f5a8b900718bc5d7248093625096466fba089)]:
+  - @vegastack/design-tokens@0.16.0
+
 ## 0.15.3
 
 ### Patch Changes

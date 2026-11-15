@@ -1,4 +1,4 @@
-// @vegastack route-tabs@0.81.0 sha256-g1lW4oyBwo/qJkjwlzQgY7OGRYLuP95aOsrGsI6zlgE=
+// @vegastack route-tabs@0.88.0 sha256-J9Mp/ryhqgTVVGe1oD0Pp9d/nDfqpHhkERa8LEtxhlI=
 
 "use client";
 

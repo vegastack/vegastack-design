@@ -1,4 +1,4 @@
-// @vegastack info-hint@0.81.0 sha256-ki6Xj6wNkmQ/cVQusXQ88GkMXituioojSxVnJVWbxig=
+// @vegastack info-hint@0.88.0 sha256-fy98w3L42IwoSzP9AE1EIdqpe328ug4v7GFXH44IA7E=
 
 "use client";
 

@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.88.0] — November 15, 2026
+
+<!-- assembled from 1 changeset: 9f59571f40b9 -->
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.16.0`** (was `0.15.3`).
+- **`@vegastack/design`** → **`0.16.0`** (was `0.15.3`).
+- The design-system registry (`@vegastack/ui`) bumps 0.87.2 → 0.88.0.
+
+### ⚠️ Breaking
+
+- `TextSpinner` is now a dot-matrix bolt, the bolt of the VegaStack V in 13 dots, as tall as capital letters (`0.72em`) in a fixed `0.6em` slot, replacing the braille frames. `variant` is `"working" | "waiting"` (default `"working"`), replacing `"braille" | "dots"` with no alias. `working` is Strike: the bolt fills top to bottom, holds and clears. `waiting` is Pulse: the whole bolt fades through six slower frames. Under reduced motion it is a still bolt, not `…`. The design tokens replace `motion-frames` with `motion-strike` (per dot, reading `--vs-row`) and `motion-pulse`. Both keyframes end on the full bolt, so the global reduced-motion reset leaves it still with no override. `LiveLine` gains `waiting`, and `MessageParts` sets it while the turn is still Thinking or is paused on a person or a limit. A `ChatComposerNotice` with `tone="progress"` (Reconnecting, Stopping) now leads with the pulsing bolt. `text-spinner` joins design-lint's inline-SVG graphic allowlist (ICO-8, amended 2026-11-15).
+  [`7e9f5a8`](https://github.com/VegaStack/vegastack-design/commit/7e9f5a8)
+
 ## [0.87.2] — November 14, 2026
 
 <!-- assembled from 1 changeset: 4b24a314bca4 -->

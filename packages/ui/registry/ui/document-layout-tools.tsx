@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.81.0 sha256-W6BZcU5Z8FVrnLCoZcHNIeptRpJfgcuStn87VvhjyEU=
+// @vegastack document-layout@0.88.0 sha256-1R+EHUzU1jCHgTnH+fXdQplDQl4Ollou0jhAAR1VfnM=
 
 "use client";
 
