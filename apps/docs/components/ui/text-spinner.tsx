@@ -1,4 +1,4 @@
-// @vegastack text-spinner@0.88.0 sha256-yd2QxoT1+04tY/q/cDbv6JqScycKO+e3YWTUk/v63ps=
+// @vegastack text-spinner@0.88.0 sha256-VaCIggmqUoHuDSumij5piLGP2ush7VsjVrnPzKUMx20=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -81,7 +81,9 @@ function TextSpinner({
         viewBox="0 0 40 60"
         data-slot="text-spinner-bolt"
         className={cn(
-          "h-[0.72em] w-[0.48em] shrink-0 fill-current",
+          // `size-*` (not `h-*`) so a container's `[&_svg:not([class*='size-'])]:size-*` — a
+          // Button, the live line's trigger, a notice's lead — leaves the bolt at text size.
+          "size-[0.72em] w-[0.48em] shrink-0 fill-current",
           !working && "motion-pulse",
         )}
       >

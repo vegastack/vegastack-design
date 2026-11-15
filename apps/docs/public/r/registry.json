@@ -19899,7 +19899,7 @@
         "whenToUse": "The one moving thing on a chat turn's live line, Send while it sends, or dots before the first event (\"·· Thinking\", \"·· Reconnecting\").",
         "whenNotToUse": "Page or section loading (Spinner), a running task-list or Subagent row (StatusGlyph running, drawn still), or progress with a known amount (Progress).",
         "version": "0.88.0",
-        "integrity": "sha256-yd2QxoT1+04tY/q/cDbv6JqScycKO+e3YWTUk/v63ps="
+        "integrity": "sha256-VaCIggmqUoHuDSumij5piLGP2ush7VsjVrnPzKUMx20="
       }
     },
     {
