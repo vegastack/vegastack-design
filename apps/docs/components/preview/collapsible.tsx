@@ -55,18 +55,18 @@ export function collapsible(): ReactNode {
             <span className="sr-only">Toggle details</span>
           </CollapsibleTrigger>
         </div>
-        <div className="flex items-center justify-between rounded-md border px-4 py-2 text-sm">
+        <div className="flex items-center justify-between rounded-block border px-4 py-2 text-sm">
           <span className="text-muted-foreground">Status</span>
           <span className="font-medium">Shipped</span>
         </div>
         <CollapsibleContent className="flex flex-col gap-2">
-          <div className="rounded-md border px-4 py-2 text-sm">
+          <div className="rounded-block border px-4 py-2 text-sm">
             <p className="font-medium">Shipping address</p>
             <p className="text-muted-foreground">
               100 Market St, San Francisco
             </p>
           </div>
-          <div className="rounded-md border px-4 py-2 text-sm">
+          <div className="rounded-block border px-4 py-2 text-sm">
             <p className="font-medium">Items</p>
             <p className="text-muted-foreground">2x Studio Headphones</p>
           </div>
@@ -123,7 +123,7 @@ export function collapsibleBasic(): ReactNode {
     <Wrapper>
       <Card className="mx-auto w-full max-w-sm">
         <CardContent>
-          <Collapsible className="rounded-md data-open:bg-muted">
+          <Collapsible className="rounded-block data-open:bg-muted">
             <CollapsibleTrigger
               render={<Button variant="ghost" className="w-full" />}
             >
@@ -320,16 +320,16 @@ export function collapsibleRtl(): ReactNode {
               <span className="sr-only">{arabic.toggle}</span>
             </CollapsibleTrigger>
           </div>
-          <div className="flex items-center justify-between rounded-md border px-4 py-2 text-sm">
+          <div className="flex items-center justify-between rounded-block border px-4 py-2 text-sm">
             <span className="text-muted-foreground">{arabic.status}</span>
             <span className="font-medium">{arabic.shipped}</span>
           </div>
           <CollapsibleContent className="flex flex-col gap-2">
-            <div className="rounded-md border px-4 py-2 text-sm">
+            <div className="rounded-block border px-4 py-2 text-sm">
               <p className="font-medium">{arabic.shippingAddress}</p>
               <p className="text-muted-foreground">{arabic.address}</p>
             </div>
-            <div className="rounded-md border px-4 py-2 text-sm">
+            <div className="rounded-block border px-4 py-2 text-sm">
               <p className="font-medium">{arabic.items}</p>
               <p className="text-muted-foreground">{arabic.itemsDescription}</p>
             </div>

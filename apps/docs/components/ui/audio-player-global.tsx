@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.88.0 sha256-4oVMWWy8zzHkmAmm4t4ak7vZ9FoG9RoGi378T6US92M=
+// @vegastack audio-player@0.88.0 sha256-0fEeiDPae1HxSa7desbo5pVWTgmbOvga6jGbmQ+Y0Y8=
 
 "use client";
 
@@ -305,7 +305,7 @@ export function GlobalAudioPlayer({
     ? track.href
       ? renderLink({
           href: track.href,
-          className: "rounded-sm underline-offset-4 hover:underline",
+          className: "rounded-inline underline-offset-4 hover:underline",
           children: track.title,
         })
       : track.title

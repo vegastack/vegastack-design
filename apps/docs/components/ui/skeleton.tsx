@@ -1,4 +1,4 @@
-// @vegastack skeleton@0.88.0 sha256-Futeb3maGmY6HizJX7qCax4YHBVRip7px7F9nKJ9TGQ=
+// @vegastack skeleton@0.88.0 sha256-RXWPdopy10eLWWmJp4ok5+KYfbqV7WQ7LyPZHJszeH8=
 
 import { cn } from "@vegastack/design";
 
@@ -6,7 +6,7 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="skeleton"
-      className={cn("animate-pulse rounded-md bg-muted", className)}
+      className={cn("animate-pulse rounded-inline bg-muted", className)}
       {...props}
     />
   );
@@ -52,7 +52,7 @@ function SkeletonText({
           className={
             variant === "text"
               ? cn("h-4", TEXT_WIDTHS[index % TEXT_WIDTHS.length])
-              : "h-5 w-full"
+              : "h-5 w-full rounded-item"
           }
         />
       ))}

@@ -120,7 +120,17 @@ export const tokens = {
     "duration-loader-frame": "80ms",
     "duration-loader-dots": "300ms",
     "motion-ease-enter": "cubic-bezier(0.16, 1, 0.3, 1)",
-    "chat-card-radius": "0.75rem"
+    "corner-control": "9999px",
+    "corner-icon": "9999px",
+    "corner-chip": "9999px",
+    "corner-inline": "0.375rem",
+    "corner-mark": "0.25rem",
+    "corner-item": "0.625rem",
+    "corner-block": "0.75rem",
+    "corner-card": "1rem",
+    "corner-bubble": "1.25rem",
+    "corner-overlay": "1.5rem",
+    "corner-tile": "25%"
   },
   "dark": {
     "background": "oklch(0.145 0 0)",
@@ -242,7 +252,17 @@ export const tokens = {
     "duration-loader-frame": "80ms",
     "duration-loader-dots": "300ms",
     "motion-ease-enter": "cubic-bezier(0.16, 1, 0.3, 1)",
-    "chat-card-radius": "0.75rem"
+    "corner-control": "9999px",
+    "corner-icon": "9999px",
+    "corner-chip": "9999px",
+    "corner-inline": "0.375rem",
+    "corner-mark": "0.25rem",
+    "corner-item": "0.625rem",
+    "corner-block": "0.75rem",
+    "corner-card": "1rem",
+    "corner-bubble": "1.25rem",
+    "corner-overlay": "1.5rem",
+    "corner-tile": "25%"
   }
 } as const;
 export type Theme = keyof typeof tokens;

@@ -444,7 +444,7 @@ test("offscreenSortSummary states a sort only once its column has left the heade
 
 test("SELECTED_ROW_CLASS is the selected step, held through hover (COL-24)", () => {
   expect(SELECTED_ROW_CLASS).toBe(
-    "bg-state-selected hover:not-focus-visible:bg-none",
+    "[--row-fill-color:var(--state-selected)] hover:not-focus-visible:[--row-fill-layer:none]",
   );
 });
 

@@ -1,4 +1,4 @@
-// @vegastack thumbnail@0.88.0 sha256-gZXf623dk/p9ieAm9NXqcJL/F8N7orRDzP9cSvJWtH0=
+// @vegastack thumbnail@0.88.0 sha256-6hHOs/Xq6DywAfTA1GghmfFKgQwvFXj2ZvSc4q7XcRg=
 
 "use client";
 
@@ -90,7 +90,7 @@ export function Thumbnail({
       data-size={size}
       data-fallback={showImage ? undefined : ""}
       className={cn(
-        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted text-muted-foreground",
+        "relative inline-flex shrink-0 items-center justify-center overflow-hidden rounded-tile bg-muted text-muted-foreground",
         size === "sm"
           ? "size-8 [&_svg:not([class*='size-'])]:size-4"
           : "size-12 [&_svg:not([class*='size-'])]:size-6",

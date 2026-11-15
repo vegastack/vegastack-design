@@ -1,4 +1,4 @@
-// @vegastack toggle@0.88.0 sha256-oQv4jxEWvHy2k18MOKOKBhvi1ZSgSrbhDMymp95S8zI=
+// @vegastack toggle@0.88.0 sha256-IzqskUO3sYBsg+E0uJBh01LB01yC1v57OWY9VnHTz9A=
 
 "use client";
 
@@ -9,7 +9,7 @@ import { cn } from "@vegastack/design";
 import { Spinner } from "@/components/ui/spinner";
 
 const toggleVariants = cva(
-  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-lg text-sm font-medium whitespace-nowrap transition-all state-layer hover:text-foreground aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-state-selected aria-pressed:text-foreground data-[state=on]:bg-state-selected data-[state=on]:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground data-[state=on]:**:[svg:not([data-icon-tone])]:text-foreground",
+  "group/toggle relative inline-flex items-center justify-center gap-1 rounded-control text-sm font-medium whitespace-nowrap transition-all state-layer hover:text-foreground aria-invalid:border-destructive disabled:not-data-loading:opacity-50 aria-pressed:bg-state-selected aria-pressed:text-foreground data-[state=on]:bg-state-selected data-[state=on]:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground data-[state=on]:**:[svg:not([data-icon-tone])]:text-foreground",
   {
     variants: {
       variant: {
@@ -20,7 +20,7 @@ const toggleVariants = cva(
       size: {
         default:
           "h-8 min-w-8 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
-        sm: "h-7 min-w-7 rounded-[min(var(--radius-md),12px)] px-2.5 text-xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+        sm: "h-7 min-w-7 px-2.5 text-xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5",
         lg: "h-9 min-w-9 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2",
       },
     },

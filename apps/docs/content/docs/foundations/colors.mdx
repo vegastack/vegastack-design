@@ -74,7 +74,7 @@ colour`, a failure).
 A card in a chat is only for something a person acts on or opens — a waiting request, question or
 plan, the task list, a file preview — and it is one surface, the same in both themes:
 `--chat-card` is the foreground at 3% over the page, `--chat-hairline` the foreground at 10%, with
-`rounded-chat-card` (12px), 16px padding (12px under 640px) and no shadow. Because both are a
+`rounded-card` (16px), 16px padding (12px under 640px) and no shadow. Because both are a
 translucent layer of the foreground, a card sits exactly one faint step off the page in light and
 in dark — where the page's own `--card` is white on white in light and a lift in dark. See
 [`ChatCard`](/docs/components/chat-card).
@@ -191,8 +191,8 @@ family alone.
 Color is one of several token families. The same semantic-token, light/dark, single-override model
 extends to the rest of the system:
 
-- **[Radius](/docs/foundations/radius)** — one base radius, `--radius` (`0.625rem`), with the whole
-  `rounded-*` ramp derived from it.
+- **[Radius](/docs/foundations/radius)** — corner roles (`rounded-control`, `-item`, `-block`,
+  `-card`, `-overlay` …), one `--corner-*` variable each.
 - **[Elevation](/docs/foundations/elevation)** — borders on resting surfaces; a floating surface
   takes Tailwind's own `shadow-sm` / `shadow-md` / `shadow-lg`.
 

@@ -1,4 +1,4 @@
-// @vegastack native-select@0.88.0 sha256-KZGUmP5UyuaMykIzclPJI3VIIWFCJgJB+AP//IMSWMs=
+// @vegastack native-select@0.88.0 sha256-KXkjqg3F1JgjO47TB70NDsMEhszBgJeUO5jsBV6yVEQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -25,7 +25,7 @@ function NativeSelect({
       <select
         data-slot="native-select"
         data-size={size}
-        className="h-8 w-full min-w-0 appearance-none rounded-lg border border-input bg-transparent state-layer py-1 pe-8 ps-2.5 text-sm transition-colors select-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed aria-invalid:border-destructive data-[size=sm]:h-7 data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-[size=sm]:py-0.5 dark:bg-input/30 dark:aria-invalid:border-destructive/50"
+        className="h-8 w-full min-w-0 appearance-none rounded-control border border-input bg-transparent state-layer py-1 pe-8 ps-2.5 text-sm transition-colors select-none selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground disabled:cursor-not-allowed aria-invalid:border-destructive data-[size=sm]:h-7 data-[size=sm]:py-0.5 dark:bg-input/30 dark:aria-invalid:border-destructive/50"
         {...props}
       />
       <ChevronDownIcon

@@ -212,7 +212,6 @@ export function avatarDropdown(): ReactNode {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full"
               aria-label="Open account menu"
             />
           }

@@ -237,7 +237,7 @@ export function dropzoneDragging(): ReactNode {
         dragState="dragging"
         onFilesAccepted={noop}
       >
-        <div className="rounded-lg bg-muted p-4 text-center text-xs text-muted-foreground">
+        <div className="rounded-block bg-muted p-4 text-center text-xs text-muted-foreground">
           A non-Empty child still shows the drag state — the stroke belongs to
           the surface.
         </div>

@@ -1,4 +1,4 @@
-// @vegastack media-card@0.88.0 sha256-Gt2bMgQg/I0u6ckaVNBkziA/An+mWATLoVOX2E5dbPg=
+// @vegastack media-card@0.88.0 sha256-eOMAaBfbzr2Qvi769v1DVmAQOtEtQN5k08OsCdDSCTQ=
 
 "use client";
 
@@ -107,7 +107,7 @@ export const RECORD_TITLE_CLASS = "font-medium";
  * matches. A card with media pads `p-2 pe-3`.
  */
 export const RECORD_CARD_SURFACE_CLASS =
-  "rounded-lg border border-border bg-card transition-colors state-layer";
+  "rounded-card border border-border bg-card transition-colors state-layer";
 
 function CardLink({
   href,
@@ -124,7 +124,7 @@ function CardLink({
     // `min-w-6`: beside a badge the title truncates, but the link keeps a 24px pointer target.
     className: cn(
       RECORD_TITLE_CLASS,
-      "block min-h-6 min-w-6 truncate text-sm leading-6 text-inherit no-underline after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] hover:no-underline focus-visible:no-underline",
+      "block min-h-6 min-w-6 truncate text-sm leading-6 text-inherit no-underline after:absolute after:inset-0 after:rounded-card after:content-[''] hover:no-underline focus-visible:no-underline",
     ),
     children,
   };
@@ -259,7 +259,7 @@ export function MediaCard({
               data-slot="media-card-image-badge"
               // `scrim/60`, not the tile scrim's `/40`: small text on `/40` over a light frame
               // measures under 3:1.
-              className="pointer-events-none absolute end-2 bottom-2 flex items-center gap-1 rounded-sm bg-scrim/60 px-1.5 py-0.5 text-xs font-medium text-scrim-foreground tabular-nums [&_svg]:size-3"
+              className="pointer-events-none absolute end-2 bottom-2 flex items-center gap-1 rounded-chip bg-scrim/60 px-1.5 py-0.5 text-xs font-medium text-scrim-foreground tabular-nums [&_svg]:size-3"
             >
               {imageBadge}
             </span>

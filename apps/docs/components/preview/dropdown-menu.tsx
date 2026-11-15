@@ -511,14 +511,7 @@ export function dropdownMenuAvatar(): ReactNode {
     <Wrapper>
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full"
-              aria-label="Account"
-            />
-          }
+          render={<Button variant="ghost" size="icon" aria-label="Account" />}
         >
           <Avatar>
             <AvatarImage src="https://github.com/shadcn.png" alt="shadcn" />

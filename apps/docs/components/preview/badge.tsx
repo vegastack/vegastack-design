@@ -95,9 +95,6 @@ export function badgeCustomColors(): ReactNode {
       <Badge variant="outline" className="border-warning/40 text-warning-text">
         Outlined warning
       </Badge>
-      <Badge variant="outline" className="rounded-sm">
-        Square corners
-      </Badge>
     </Wrapper>
   );
 }

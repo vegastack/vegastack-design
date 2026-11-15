@@ -87,7 +87,7 @@ export function PropsPlayground<Keys extends string>({
   const code = toCode(state);
 
   return (
-    <div className="not-prose my-4 overflow-hidden rounded-lg border border-border bg-secondary">
+    <div className="not-prose my-4 overflow-hidden rounded-card border border-border bg-secondary">
       <div className="flex min-h-32 items-center justify-center border-b border-border bg-background p-6">
         {render(state)}
       </div>

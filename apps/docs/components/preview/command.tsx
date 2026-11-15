@@ -56,7 +56,7 @@ import { DirectionProvider } from "@/components/ui/direction";
 export function command(): ReactNode {
   return (
     <Wrapper>
-      <Command className="max-w-sm rounded-lg border">
+      <Command className="max-w-sm border">
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
@@ -102,7 +102,7 @@ export function command(): ReactNode {
 export function commandAbout(): ReactNode {
   return (
     <Wrapper>
-      <Command className="max-w-sm rounded-lg border">
+      <Command className="max-w-sm border">
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
@@ -120,7 +120,7 @@ export function commandAbout(): ReactNode {
 export function commandComposition(): ReactNode {
   return (
     <Wrapper>
-      <Command className="max-w-sm rounded-lg border">
+      <Command className="max-w-sm border">
         <CommandInput placeholder="Type a command or search..." />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
@@ -398,7 +398,7 @@ export function commandRtl(): ReactNode {
   return (
     <Wrapper className="flex-col items-center gap-4">
       <DirectionProvider direction="ltr">
-        <Command className="w-full max-w-sm rounded-lg border" dir="ltr">
+        <Command className="w-full max-w-sm border" dir="ltr">
           <CommandInput placeholder="Type a command or search..." dir="ltr" />
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
@@ -424,7 +424,7 @@ export function commandRtl(): ReactNode {
         </Command>
       </DirectionProvider>
       <DirectionProvider direction="rtl">
-        <Command className="w-full max-w-sm rounded-lg border" dir="rtl">
+        <Command className="w-full max-w-sm border" dir="rtl">
           <CommandInput placeholder="اكتب أمرًا أو ابحث..." dir="rtl" />
           <CommandList>
             <CommandEmpty>لم يتم العثور على نتائج.</CommandEmpty>
@@ -534,7 +534,7 @@ export function commandServerResults(): ReactNode {
 
   return (
     <Wrapper>
-      <Command shouldFilter={false} className="max-w-sm rounded-lg border">
+      <Command shouldFilter={false} className="max-w-sm border">
         <CommandInput
           value={search}
           onValueChange={setSearch}
@@ -558,7 +558,7 @@ export function commandServerResults(): ReactNode {
 export function commandTwoLineResults(): ReactNode {
   return (
     <Wrapper>
-      <Command className="max-w-sm rounded-lg border">
+      <Command className="max-w-sm border">
         <CommandInput placeholder="Search meetings…" />
         <CommandList>
           <CommandEmpty>No meetings found.</CommandEmpty>
@@ -580,7 +580,7 @@ export function commandTwoLineResults(): ReactNode {
 export function commandFooterHints(): ReactNode {
   return (
     <Wrapper>
-      <Command className="max-w-sm rounded-lg border">
+      <Command className="max-w-sm border">
         <CommandInput placeholder="Type a command or search…" />
         <CommandList>
           <CommandEmpty>No results found.</CommandEmpty>
@@ -628,7 +628,7 @@ export function commandFooterActions(): ReactNode {
   const [assignee, setAssignee] = React.useState<string | null>("Kavya Nair");
   return (
     <Wrapper>
-      <Command className="max-w-xs rounded-lg border">
+      <Command className="max-w-xs border">
         <CommandInput
           placeholder="Search members"
           aria-label="Search members"

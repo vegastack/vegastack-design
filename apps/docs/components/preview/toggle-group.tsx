@@ -210,7 +210,7 @@ function FontWeightSelector(): ReactNode {
         <ToggleGroupItem
           value="light"
           aria-label="Light"
-          className="flex size-16 flex-col items-center justify-center rounded-xl"
+          className="flex size-16 flex-col items-center justify-center rounded-tile"
         >
           <span className="text-2xl leading-none font-light">Aa</span>
           <span className="text-xs text-muted-foreground">Light</span>
@@ -218,7 +218,7 @@ function FontWeightSelector(): ReactNode {
         <ToggleGroupItem
           value="normal"
           aria-label="Normal"
-          className="flex size-16 flex-col items-center justify-center rounded-xl"
+          className="flex size-16 flex-col items-center justify-center rounded-tile"
         >
           <span className="text-2xl leading-none font-normal">Aa</span>
           <span className="text-xs text-muted-foreground">Normal</span>
@@ -226,7 +226,7 @@ function FontWeightSelector(): ReactNode {
         <ToggleGroupItem
           value="medium"
           aria-label="Medium"
-          className="flex size-16 flex-col items-center justify-center rounded-xl"
+          className="flex size-16 flex-col items-center justify-center rounded-tile"
         >
           <span className="text-2xl leading-none font-medium">Aa</span>
           <span className="text-xs text-muted-foreground">Medium</span>
@@ -234,7 +234,7 @@ function FontWeightSelector(): ReactNode {
         <ToggleGroupItem
           value="bold"
           aria-label="Bold"
-          className="flex size-16 flex-col items-center justify-center rounded-xl"
+          className="flex size-16 flex-col items-center justify-center rounded-tile"
         >
           <span className="text-2xl leading-none font-bold">Aa</span>
           <span className="text-xs text-muted-foreground">Bold</span>
@@ -242,7 +242,7 @@ function FontWeightSelector(): ReactNode {
       </ToggleGroup>
       <p className="text-sm text-muted-foreground">
         Use{" "}
-        <code className="rounded-md bg-muted px-1 py-0.5 font-mono">
+        <code className="rounded-inline bg-muted px-1 py-0.5 font-mono">
           font-{fontWeight}
         </code>{" "}
         to set the font weight.

@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.88.0 sha256-Ss5Va70LtyssCvmn4jIxH+9+XyM/cZPop7GbeHT7xm0=
+// @vegastack add-filter-menu@0.88.0 sha256-4dw/qyle3y0RJR8iOb8Ohzhzg/d7+cOt9Q898a8eLyU=
 
 "use client";
 
@@ -524,7 +524,7 @@ export function AddFilterMenu({
                 data-highlighted={index === active ? "" : undefined}
                 onPointerMove={() => setActive(index)}
                 onClick={() => choose(option)}
-                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-state-hover"
+                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-item px-2 text-sm data-highlighted:bg-state-hover"
               >
                 <Sparkles
                   aria-hidden
@@ -544,7 +544,7 @@ export function AddFilterMenu({
                 data-highlighted={index === active ? "" : undefined}
                 onPointerMove={() => setActive(index)}
                 onClick={() => choose(option)}
-                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-md px-1.5 text-sm data-highlighted:bg-state-hover [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
+                className="flex h-7 min-w-0 cursor-default items-center gap-1.5 rounded-item px-2 text-sm data-highlighted:bg-state-hover [&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground"
               >
                 {option.field.icon}
                 <span className="min-w-0 flex-1 truncate">
@@ -570,13 +570,13 @@ export function AddFilterMenu({
               <div
                 aria-hidden
                 data-slot="add-filter-menu-divider"
-                className="-mx-1 my-1 h-px bg-border"
+                className="-mx-1.5 my-1 h-px bg-border"
               />
             ) : null}
             <Button
               variant="ghost"
               data-slot="add-filter-menu-advanced"
-              className="h-7 w-full min-w-0 justify-between gap-1.5 rounded-md px-1.5 text-sm font-normal [&_svg]:text-muted-foreground"
+              className="h-7 w-full min-w-0 justify-between gap-1.5 rounded-item px-2 text-sm font-normal [&_svg]:text-muted-foreground"
               onClick={() => setPage(ADVANCED)}
             >
               <span className="min-w-0 truncate">{labels.advanced}</span>

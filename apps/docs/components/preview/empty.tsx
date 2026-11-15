@@ -307,7 +307,7 @@ export function emptyAsHeading(): ReactNode {
 export function emptyCompact(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-full max-w-xs rounded-xl border bg-card">
+      <div className="w-full max-w-xs rounded-card border bg-card">
         <Empty size="sm" icon={<ListTodoIcon />}>
           <EmptyHeader>
             <EmptyTitle>No tasks yet</EmptyTitle>

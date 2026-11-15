@@ -1,4 +1,4 @@
-// @vegastack chart-tooltip-advanced@0.88.0 sha256-SprpvsMOP35zoE+L+x8fK7zC55DYjRTFtLqQ+WURF/8=
+// @vegastack chart-tooltip-advanced@0.88.0 sha256-F8AAkcBGq95Jik+V9gy10ugd86P45KiTRrXHF/ZY28Y=
 
 "use client";
 
@@ -83,7 +83,7 @@ export function ChartTooltipAdvanced() {
                   formatter={(value, name, item, index) => (
                     <>
                       <div
-                        className="h-2.5 w-2.5 shrink-0 rounded-[2px] bg-(--color-bg)"
+                        className="h-2.5 w-2.5 shrink-0 rounded-mark bg-(--color-bg)"
                         style={
                           {
                             "--color-bg": `var(--color-${name})`,

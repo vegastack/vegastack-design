@@ -1,4 +1,4 @@
-// @vegastack chip@0.88.0 sha256-3Cqv3Lduk/FMiN9eH+y+tK0EKdFBZZgpgGNtOs9UILk=
+// @vegastack chip@0.88.0 sha256-fKtBXe5BBV/+8B6Otx6ukNROXWN6ij/8hW5z1FCAMTg=
 
 "use client";
 
@@ -179,7 +179,7 @@ export function Chip({
       "data-size": size,
       "data-active": active ? "" : undefined,
       className: cn(
-        "inline-flex w-fit max-w-full min-w-0 shrink-0 items-center rounded-full border whitespace-nowrap",
+        "inline-flex w-fit max-w-full min-w-0 shrink-0 items-center rounded-chip border whitespace-nowrap",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0",
         SIZE_CLASSES[size],
         active && hue === "neutral" ? ACTIVE_NEUTRAL : HUE_CLASSES[hue],
@@ -235,7 +235,7 @@ export function ChipRemove({
       size="icon-xs"
       data-slot={dataSlot ?? "chip-remove"}
       className={cn(
-        "rounded-full shrink-0 active:not-aria-[haspopup]:translate-y-0",
+        "shrink-0 active:not-aria-[haspopup]:translate-y-0",
         className,
       )}
       {...props}

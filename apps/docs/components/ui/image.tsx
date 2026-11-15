@@ -1,4 +1,4 @@
-// @vegastack image@0.88.0 sha256-zyp6cCDi6/Zt+vAnnXhCROknMXoTeC74sQZ5FhlRng4=
+// @vegastack image@0.88.0 sha256-engTaOVYhsoRb9XYb1ZS7DxMl/+XvSsSanG04eLgCAI=
 
 "use client";
 
@@ -8,8 +8,8 @@ import { cn, mergeRefs } from "@vegastack/design";
 
 /* ------------------------------------------------------------------------------------------------
  * Image variants — `aspectRatio` reserves space (so the layout never shifts as the image decodes)
- * and `rounded` controls the corner radius. Every value is a semantic token / scale utility
- * (`aspect-square`, `aspect-video`, `bg-muted`, `rounded-*`) — no hardcoded sizes or palettes. The
+ * and `rounded` picks the corner role. Every value is a semantic token / role utility
+ * (`aspect-square`, `aspect-video`, `bg-muted`, `rounded-block`) — no hardcoded sizes or palettes. The
  * root is always `overflow-hidden` with a `bg-muted` surface, so an in-flight or failed image never
  * flashes transparent.
  * ----------------------------------------------------------------------------------------------*/
@@ -26,13 +26,19 @@ export const imageVariants = cva("relative block overflow-hidden bg-muted", {
     },
     rounded: {
       none: "rounded-none",
-      sm: "rounded-sm",
-      md: "rounded-md",
-      lg: "rounded-lg",
+      /** A small mark (4px) — a tiny swatch or favicon-sized image. */
+      mark: "rounded-mark",
+      /** Media in the reading flow (12px). */
+      block: "rounded-block",
+      /** A card-sized surface (16px). */
+      card: "rounded-card",
+      /** A square media tile, thumbnail or logo: 25% of its size. */
+      tile: "rounded-tile",
+      /** A person's photo. */
       full: "rounded-full",
     },
   },
-  defaultVariants: { aspectRatio: "auto", rounded: "md" },
+  defaultVariants: { aspectRatio: "auto", rounded: "block" },
 });
 
 /** Props accepted by `Image`. */
@@ -64,10 +70,14 @@ export interface ImageProps
    */
   aspectRatio?: "square" | "video" | "auto";
   /**
-   * Corner radius of the frame (and the image clipped inside it).
-   * @default 'md'
+   * Corner role of the frame (and the image clipped inside it): `block` for media in the reading
+   * flow, `tile` for a square thumbnail or logo (25% of its size), `card` for a card-sized
+   * surface, `mark` for a tiny image, `full` for a person's photo, `none` for a full-bleed one.
+   * `sm`, `md` and `lg` are deprecated aliases of `mark`, `block` and `card`.
+   * @default 'block'
    */
-  rounded?: "none" | "sm" | "md" | "lg" | "full";
+  rounded?:
+    "none" | "mark" | "block" | "card" | "tile" | "full" | "sm" | "md" | "lg";
   /**
    * Content shown when the image fails to load (broken URL, network error) or
    * when no `src` is provided — e.g. an icon, initials, or a label. When omitted,
@@ -143,7 +153,7 @@ export function Image({
   src,
   alt,
   aspectRatio = "auto",
-  rounded = "md",
+  rounded = "block",
   fallback,
   placeholder,
   loading,

@@ -1,9 +1,9 @@
-// @vegastack email-kit@0.27.0 sha256-lrE/t4GQjlcSZqECtcq5wg2xb/3f9g5ZC7jQaXtKC4g=
+// @vegastack email-kit@0.27.0 sha256-gr+fQUsSDvRC5yLS2gyy4Whb7GIgV6ijZZJfq4XIOaI=
 
 import { Fragment, type CSSProperties, type ReactNode } from "react";
 import { Lexer, type Token, type Tokens } from "marked";
 import { Heading, Hr, Link, Section, Text } from "react-email";
-import { emailColors, emailFontFamily } from "./email-tokens";
+import { emailColors, emailFontFamily, emailRadius } from "./email-tokens";
 
 /**
  * Markdown (CommonMark + GFM) as email-safe React: the same reading styles the
@@ -73,7 +73,7 @@ function inlineToken(token: Token, ctx: Ctx): ReactNode {
           className="vs-quote"
           style={{
             backgroundColor: c.quoteBg,
-            borderRadius: "4px",
+            borderRadius: emailRadius.inline,
             fontFamily: mono,
             fontSize: "13px",
             padding: "1px 4px",
@@ -253,7 +253,7 @@ function block(token: Token, ctx: Ctx, key: number): ReactNode {
           style={{
             ...body,
             backgroundColor: c.quoteBg,
-            borderRadius: "6px",
+            borderRadius: emailRadius.block,
             fontFamily: mono,
             fontSize: "13px",
             lineHeight: "20px",

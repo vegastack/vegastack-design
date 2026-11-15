@@ -1,4 +1,4 @@
-// @vegastack transcript@0.88.0 sha256-SC22xP5EIcQzvIZVVQ6REElyMydRstzEZ3LIYE5N7/c=
+// @vegastack transcript@0.88.0 sha256-sc/8rpZY4K7w55NP2dHro1yZycPheC77k+tIUhH6He4=
 
 "use client";
 
@@ -778,7 +778,7 @@ function Highlighted({
         key={start}
         data-current={isCurrent ? "true" : undefined}
         className={cn(
-          "rounded-sm px-0.5 text-foreground",
+          "rounded-mark px-0.5 text-foreground",
           isCurrent ? "bg-primary text-primary-foreground" : "bg-primary/15",
         )}
       >
@@ -1349,7 +1349,7 @@ function SpeakerChip({
         data-slot="transcript-speaker"
         data-editing=""
         data-over-limit={over > 0 ? "" : undefined}
-        className="inline-flex h-7 items-center gap-1.5 rounded-full border border-ring ps-2.5 pe-1 data-over-limit:border-destructive"
+        className="inline-flex h-7 items-center gap-1.5 rounded-control border border-ring ps-2.5 pe-1 data-over-limit:border-destructive"
       >
         <SpeakerDot className={dot} />
         <Input
@@ -1388,7 +1388,7 @@ function SpeakerChip({
       role="listitem"
       data-slot="transcript-speaker"
       className={cn(
-        "inline-flex h-7 max-w-full items-center gap-1.5 rounded-full border border-border ps-2.5 text-xs font-medium text-foreground",
+        "inline-flex h-7 max-w-full items-center gap-1.5 rounded-chip border border-border ps-2.5 text-xs font-medium text-foreground",
         onRename ? "pe-0.5" : "pe-2.5",
       )}
     >
@@ -1400,7 +1400,7 @@ function SpeakerChip({
           variant="ghost"
           size="icon-xs"
           aria-label={renameLabel(name)}
-          className="rounded-full text-muted-foreground"
+          className="text-muted-foreground"
           onClick={() => {
             setDraft(name);
             setEditing(true);

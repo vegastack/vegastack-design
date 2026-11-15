@@ -89,7 +89,7 @@ function Demo({
               overflow={overflow}
               linkRender={<DemoLink />}
             />
-            <RouteTabsPanel className="rounded-lg border border-border p-4 text-sm text-muted-foreground">
+            <RouteTabsPanel className="rounded-card border border-border p-4 text-sm text-muted-foreground">
               {PAGES[path]}
             </RouteTabsPanel>
           </div>

@@ -1,4 +1,4 @@
-// @vegastack drawer@0.88.0 sha256-1mqFv02jzrstPJVfVXpK8ApjfeAHYFX9uUwyJpbU80U=
+// @vegastack drawer@0.88.0 sha256-A+RAl5jL80/3UmC+B63u1mgtOmhRq68srkj8UHro9PA=
 
 "use client";
 
@@ -145,8 +145,8 @@ function DrawerContent({
             "group/drawer-popup pointer-events-auto fixed z-50 m-(--drawer-inset,0px) flex h-(--drawer-content-height) max-h-(--drawer-content-max-height,none) min-h-0 w-(--drawer-content-width,auto) transform-[translate3d(var(--translate-x,0px),var(--translate-y,0px),0)_scale(var(--stack-scale))] flex-col bg-popover text-sm wrap-break-word text-popover-foreground transition-[transform,height,opacity,filter] duration-450 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform outline-none select-none [interpolate-size:allow-keywords]",
             // Inset (OVL-21): floats off every viewport edge, fully rounded and bordered; `flush` is upstream's edge-to-edge sheet.
             flush
-              ? "data-[swipe-direction=down]:rounded-t-xl data-[swipe-direction=down]:border-t data-[swipe-direction=left]:rounded-e-xl data-[swipe-direction=left]:border-e data-[swipe-direction=right]:rounded-s-xl data-[swipe-direction=right]:border-s data-[swipe-direction=up]:rounded-b-xl data-[swipe-direction=up]:border-b"
-              : "rounded-xl border [--drawer-bleed-background:transparent] [--drawer-inset:--spacing(2)]",
+              ? "data-[swipe-direction=down]:rounded-t-overlay data-[swipe-direction=down]:border-t data-[swipe-direction=left]:rounded-e-overlay data-[swipe-direction=left]:border-e data-[swipe-direction=right]:rounded-s-overlay data-[swipe-direction=right]:border-s data-[swipe-direction=up]:rounded-b-overlay data-[swipe-direction=up]:border-b"
+              : "rounded-overlay border [--drawer-bleed-background:transparent] [--drawer-inset:--spacing(2)]",
             // Nested.
             "data-nested-drawer-open:overflow-hidden data-nested-drawer-open:brightness-95",
             // Bleed.

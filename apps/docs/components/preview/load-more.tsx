@@ -15,10 +15,10 @@ export function loadMore(): ReactNode {
   const [error, setError] = React.useState<string | undefined>();
   return (
     <Wrapper className="flex-col items-stretch">
-      <div className="max-h-72 overflow-y-auto rounded-md border border-border p-2">
+      <div className="max-h-72 overflow-y-auto rounded-card border border-border p-2">
         <ul className="flex flex-col gap-1 text-sm">
           {TASKS.slice(0, count).map((task) => (
-            <li key={task} className="flex h-9 items-center rounded-md px-3">
+            <li key={task} className="flex h-9 items-center rounded-item px-3">
               {task}
             </li>
           ))}

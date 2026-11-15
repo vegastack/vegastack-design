@@ -51,7 +51,7 @@ export function IconGallery() {
           {FUNCTIONAL.map(({ as, label }) => (
             <div
               key={label}
-              className="flex w-20 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 text-foreground"
+              className="flex w-20 flex-col items-center gap-2 rounded-block border border-border bg-card p-3 text-foreground"
             >
               <Icon as={as} size="lg" aria-label={label} />
               <span className="text-xs leading-4 text-muted-foreground">
@@ -69,7 +69,7 @@ export function IconGallery() {
           {BRANDS.map((icon) => (
             <div
               key={icon.slug}
-              className="flex w-20 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3"
+              className="flex w-20 flex-col items-center gap-2 rounded-block border border-border bg-card p-3"
             >
               <BrandIcon icon={icon} variant="auto" size="lg" />
               <span className="text-xs leading-4 text-muted-foreground">
@@ -90,7 +90,7 @@ export function IconGallery() {
               key={chunkIndex}
               data-icon-chunk={chunkIndex}
               aria-label={`Animated icons ${chunkIndex * ANIMATED_ICON_CHUNK_SIZE + 1}–${chunkIndex * ANIMATED_ICON_CHUNK_SIZE + chunk.length}`}
-              className="rounded-lg border border-border p-3"
+              className="rounded-card border border-border p-3"
             >
               <p className="mb-3 text-sm text-muted-foreground">
                 Icons {chunkIndex * ANIMATED_ICON_CHUNK_SIZE + 1}–
@@ -106,7 +106,7 @@ export function IconGallery() {
                     label={label}
                     // A real button: the global `:focus-visible` outline applies, no hand-typed
                     // ring (DC-09/DC-12).
-                    className="flex w-20 flex-col items-center gap-2 rounded-lg border border-border bg-card p-3 text-foreground state-layer"
+                    className="flex w-20 flex-col items-center gap-2 rounded-block border border-border bg-card p-3 text-foreground state-layer"
                   />
                 ))}
               </div>

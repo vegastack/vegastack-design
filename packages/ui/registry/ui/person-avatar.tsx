@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.88.0 sha256-VVa89g5KChMNLzUFgK2snderYc8J2oWoIlrD/FIF9NI=
+// @vegastack person-avatar@0.88.0 sha256-opsfENfCwrydOj9a4GOwnBFrwTEk4W9zxSVnc2xi4CA=
 
 "use client";
 
@@ -177,7 +177,7 @@ const STEP: Record<
     /** Show one initial, not two: two letters crowd a 16 or 20px circle's edge. */
     oneInitial?: boolean;
     indicator: string;
-    /** The rounded square of a team or workspace: tighter at the row steps, so it never reads as a circle. */
+    /** The rounded square of a team or workspace: the `tile` corner, 25% of its size at every step, so it never reads as a circle. */
     square: string;
   }
 > = {
@@ -188,7 +188,7 @@ const STEP: Record<
     initials: "",
     oneInitial: true,
     indicator: "size-1.5",
-    square: "rounded-sm after:rounded-sm",
+    square: "rounded-tile after:rounded-tile",
   },
   xs: {
     box: "size-5",
@@ -197,7 +197,7 @@ const STEP: Record<
     initials: "",
     oneInitial: true,
     indicator: "size-2",
-    square: "rounded-sm after:rounded-sm",
+    square: "rounded-tile after:rounded-tile",
   },
   sm: {
     box: "",
@@ -205,7 +205,7 @@ const STEP: Record<
     mark: "size-3.5",
     initials: "",
     indicator: "size-2",
-    square: "rounded-md after:rounded-md",
+    square: "rounded-tile after:rounded-tile",
   },
   default: {
     box: "",
@@ -213,7 +213,7 @@ const STEP: Record<
     mark: "size-4.5",
     initials: "",
     indicator: "size-2.5",
-    square: "rounded-md after:rounded-md",
+    square: "rounded-tile after:rounded-tile",
   },
   lg: {
     box: "",
@@ -221,7 +221,7 @@ const STEP: Record<
     mark: "size-5.5",
     initials: "",
     indicator: "size-3",
-    square: "rounded-md after:rounded-md",
+    square: "rounded-tile after:rounded-tile",
   },
   xl: {
     box: "size-16",
@@ -229,7 +229,7 @@ const STEP: Record<
     mark: "size-9",
     initials: "text-lg",
     indicator: "size-4",
-    square: "rounded-xl after:rounded-xl",
+    square: "rounded-tile after:rounded-tile",
   },
 };
 
@@ -777,7 +777,7 @@ export function PersonAgentLabel({
     <span
       data-slot="person-agent-label"
       className={cn(
-        "shrink-0 rounded-sm bg-tag-purple-subtle px-1 text-xs font-medium whitespace-nowrap text-tag-purple-text",
+        "shrink-0 rounded-inline bg-tag-purple-subtle px-1 text-xs font-medium whitespace-nowrap text-tag-purple-text",
         className,
       )}
       {...props}

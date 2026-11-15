@@ -91,9 +91,13 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   both halves. `design-lint`'s `no-focus-ring-glow` rejects `ring-3`,
   `ring-[3px]`, `ring-ring/NN`, `focus-visible:ring-*`, `focus-visible:outline-*`,
   `aria-invalid:ring-*` and `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`.
-- **Size, radius, shadow, z-index, alpha, opacity are plain Tailwind** — `h-8`, `size-4`,
-  `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. Radius derives from one
-  `--radius` (0.625rem) exactly as upstream derives it. The `--size-*`, `--icon-*`, `--panel-width-*`,
+- **Corners are a role, never a size** (BRD-12, operator 2026-11-16): `rounded-control` (single-line
+  controls), `-icon`, `-chip`, `-inline` (6), `-mark` (4), `-item` (10, rows and tooltips), `-block`
+  (12), `-card` (16), `-bubble` (20), `-overlay` (24), `-tile` (25%); table rows use `row-fill`. The
+  tokens are `--corner-*`; `--radius` and its derived ramp stay for upstream parity only, and
+  `design-lint` `no-radius-ramp` rejects them in registry source (`design.md` § Corners).
+- **Size, shadow, z-index, alpha, opacity are plain Tailwind** — `h-8`, `size-4`,
+  `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The `--size-*`, `--icon-*`, `--panel-width-*`,
   `--z-*`, `--alpha-*`, `--opacity-*` and `--shadow-overlay` families are deleted. **`z-50` is the
   single overlay band and DOM order decides within it, with exactly ONE sanctioned exception**
   (OVL-15, MK 2026-09-22): the Toast viewport and `ToastPositioner` sit at `z-60`, because the

@@ -12,7 +12,7 @@ export function floatingCellEditor(): ReactNode {
   const [editing, setEditing] = React.useState(false);
   return (
     <Wrapper>
-      <div className="w-72 rounded-lg border border-border">
+      <div className="w-72 rounded-card border border-border">
         <div
           role="gridcell"
           className="flex h-9 items-center justify-between gap-2 px-3 text-sm"

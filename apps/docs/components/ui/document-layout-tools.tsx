@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.88.0 sha256-1R+EHUzU1jCHgTnH+fXdQplDQl4Ollou0jhAAR1VfnM=
+// @vegastack document-layout@0.88.0 sha256-4RBjcTC1Oqqw7WTdTfM1qefq6zkQTfY0lVCe5hZKOZQ=
 
 "use client";
 
@@ -198,7 +198,7 @@ export function DocumentLayoutJumpCue({
         variant="secondary"
         size="sm"
         className={cn(
-          "pointer-events-auto rounded-full border border-border shadow-md",
+          "pointer-events-auto border border-border shadow-md",
           className,
         )}
         {...props}
@@ -271,11 +271,7 @@ export function DocumentLayoutStarter({
       variant={more ? "ghost" : "outline"}
       size="sm"
       data-slot="document-layout-starter"
-      className={cn(
-        "rounded-full font-normal",
-        more && "text-muted-foreground",
-        className,
-      )}
+      className={cn("font-normal", more && "text-muted-foreground", className)}
       {...props}
     />
   );
@@ -386,7 +382,7 @@ export function DocumentLayoutDecisionBar({
           // scrolls, never part way down over it; 24px above the text it leads (the gap the header
           // keeps from the text); on a phone, floating at the bottom (no margin there: a fixed box's
           // margin would lift it off its inset).
-          "sticky top-(--document-layout-bar-top) z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm print:hidden",
+          "sticky top-(--document-layout-bar-top) z-20 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-card border border-border bg-card px-3 py-2 text-sm text-card-foreground shadow-sm print:hidden",
           "sm:mb-6 max-sm:fixed max-sm:inset-x-3 max-sm:top-auto max-sm:bottom-[calc(--spacing(3)+env(safe-area-inset-bottom))]",
           className,
         )}

@@ -319,7 +319,7 @@ test("a hairline sits between options and never under the last one, with Other o
     screen
       .getByRole("radio")
       .elements()
-      .map((row) => !row.className.split(" ").includes("border-b-0"));
+      .map((row) => !row.className.split(" ").includes("before:hidden"));
   expect(lines()).toEqual([true, true, false]);
   await userEvent.click(screen.getByRole("radio", { name: "Other" }));
   expect(lines()).toEqual([true, true, false]);

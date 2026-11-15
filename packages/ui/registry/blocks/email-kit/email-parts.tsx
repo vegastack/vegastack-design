@@ -1,10 +1,10 @@
-// @vegastack email-kit@0.27.0 sha256-lrE/t4GQjlcSZqECtcq5wg2xb/3f9g5ZC7jQaXtKC4g=
+// @vegastack email-kit@0.27.0 sha256-gr+fQUsSDvRC5yLS2gyy4Whb7GIgV6ijZZJfq4XIOaI=
 
 import { Fragment } from "react";
 import type { ReactNode } from "react";
 import { Button, Heading, Hr, Link, Section, Text } from "react-email";
 
-import { emailColors, emailFontFamily } from "./email-tokens";
+import { emailColors, emailFontFamily, emailRadius } from "./email-tokens";
 
 const c = emailColors.light;
 // Set on every text element: classic Outlook does not reliably inherit a font through tables.
@@ -138,7 +138,7 @@ export function EmailButton({ href, children }: EmailButtonProps) {
         style={{
           backgroundColor: c.buttonBg,
           border: `1px solid ${c.buttonBg}`,
-          borderRadius: "8px",
+          borderRadius: emailRadius.control,
           color: c.buttonText,
           fontFamily: font,
           fontSize: "15px",
@@ -210,7 +210,7 @@ export function EmailCard({
       className="vs-border"
       style={{
         border: `1px solid ${c.border}`,
-        borderRadius: "8px",
+        borderRadius: emailRadius.block,
         borderCollapse: "separate",
         margin: "0 0 16px",
         padding: "16px",
@@ -285,7 +285,7 @@ export function EmailQuote({ author, time, body }: EmailQuoteProps) {
       style={{
         backgroundColor: c.quoteBg,
         borderLeft: `3px solid ${c.quoteBar}`,
-        borderRadius: "4px",
+        borderRadius: emailRadius.block,
         margin: "0 0 16px",
         padding: "12px 16px",
       }}

@@ -1,4 +1,4 @@
-// @vegastack chat-task-list@0.88.0 sha256-aym7nkFHJzxlp1aZR21beaZrQtwiJPUlzT1EbdqK7Sk=
+// @vegastack chat-task-list@0.88.0 sha256-m9LN5w6RnKqLLimGvcpILzcebzTN3D7f/in5D7gutug=
 
 "use client";
 
@@ -148,13 +148,13 @@ function ChatTaskList({
         onOpenChange?.(next);
       }}
       className={cn(
-        "flex min-w-0 flex-col rounded-chat-card border border-chat-hairline",
+        "flex min-w-0 flex-col rounded-card border border-chat-hairline p-1",
         className,
       )}
     >
       <CollapsibleTrigger
         data-slot="chat-task-list-header"
-        className="group/task-list state-layer flex min-h-9 w-full min-w-0 items-center gap-2 rounded-chat-card px-3 text-start text-sm text-muted-foreground tabular-nums"
+        className="group/task-list state-layer flex min-h-7 w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-muted-foreground tabular-nums"
       >
         <span className="min-w-0 flex-1 truncate">
           <span className="sr-only">Task list, </span>
@@ -172,7 +172,7 @@ function ChatTaskList({
         />
       </CollapsibleTrigger>
       <CollapsibleContent data-slot="chat-task-list-content">
-        <ol className="flex min-w-0 flex-col gap-0.5 px-3 pb-2.5">
+        <ol className="flex min-w-0 flex-col gap-0.5 px-2 pb-1.5">
           {data.items.map((item) => {
             const ended = item.status === "skipped" || item.status === "failed";
             return (

@@ -1,4 +1,4 @@
-// @vegastack chat-skeleton@0.88.0 sha256-vKAUmxKafvO+VAF7ZxEYAm6ubGqBwWpxaNcWZjnGl0M=
+// @vegastack chat-skeleton@0.88.0 sha256-Po33UAP1VM6rSUmuPu8sMojxkBoR2mXJvW0Wem2ckbE=
 
 "use client";
 
@@ -38,7 +38,7 @@ function ChatSkeleton({ turns = 2, className, ...props }: ChatSkeletonProps) {
         <div key={turn} className="flex min-w-0 flex-col gap-3">
           <Skeleton
             className={cn(
-              "h-9 self-end rounded-2xl",
+              "h-9 self-end rounded-bubble",
               turn % 2 ? "w-1/3" : "w-1/2",
             )}
           />
@@ -98,7 +98,7 @@ function ScrollToLatest({
       tabIndex={visible ? undefined : -1}
       onClick={onClick}
       className={cn(
-        "relative rounded-full border-chat-hairline bg-popover text-popover-foreground shadow-sm dark:bg-popover",
+        "relative border-chat-hairline bg-popover text-popover-foreground shadow-sm dark:bg-popover",
         "transition-[opacity,translate] duration-quick ease-enter data-[active=false]:pointer-events-none data-[active=false]:translate-y-2 data-[active=false]:opacity-0 data-[active=false]:duration-quick-exit data-[active=true]:translate-y-0 data-[active=true]:opacity-100",
         className,
       )}

@@ -1,4 +1,4 @@
-// @vegastack toggle-group@0.88.0 sha256-6awzoqCFf17Gjl7zDWQKsm8vPKOHok9fzF1wAIXVE5s=
+// @vegastack toggle-group@0.88.0 sha256-wWaCFYyNNC5N4V2thUyJipavceMDTXs4wMVQ4Y1IhIs=
 
 "use client";
 
@@ -104,7 +104,7 @@ function ToggleGroup({
       data-wrap={wrap ? "" : undefined}
       style={{ "--gap": spacing } as React.CSSProperties}
       className={cn(
-        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-vertical:flex-col data-vertical:items-stretch",
+        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-control data-vertical:rounded-card data-vertical:flex-col data-vertical:items-stretch",
         "data-wrap:flex-wrap data-wrap:data-[spacing=0]:gap-y-2",
         className,
       )}
@@ -146,8 +146,8 @@ function ToggleGroupItem({
       data-size={context.size || size}
       data-spacing={context.spacing}
       className={cn(
-        "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-lg group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-lg group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-lg group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-lg group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:-ms-px group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:-mt-px group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:ms-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:mt-0 group-data-[spacing=0]/toggle-group:aria-pressed:z-10 group-data-[spacing=0]/toggle-group:data-[state=on]:z-10",
-        "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-lg group-data-wrap/toggle-group:data-[spacing=0]:data-row-end:rounded-e-lg group-data-wrap/toggle-group:data-[spacing=0]:data-[variant=outline]:data-row-start:ms-0",
+        "shrink-0 group-data-[spacing=0]/toggle-group:rounded-none group-data-[spacing=0]/toggle-group:px-2 focus:z-10 focus-visible:z-10 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-end]:pe-1.5 group-data-[spacing=0]/toggle-group:has-data-[icon=inline-start]:ps-1.5 group-data-horizontal/toggle-group:data-[spacing=0]:first:rounded-s-control group-data-vertical/toggle-group:data-[spacing=0]:first:rounded-t-item group-data-horizontal/toggle-group:data-[spacing=0]:last:rounded-e-control group-data-vertical/toggle-group:data-[spacing=0]:last:rounded-b-item group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:-ms-px group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:-mt-px group-data-horizontal/toggle-group:data-[spacing=0]:data-[variant=outline]:first:ms-0 group-data-vertical/toggle-group:data-[spacing=0]:data-[variant=outline]:first:mt-0 group-data-[spacing=0]/toggle-group:aria-pressed:z-10 group-data-[spacing=0]/toggle-group:data-[state=on]:z-10",
+        "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-control group-data-wrap/toggle-group:data-[spacing=0]:data-row-end:rounded-e-control group-data-wrap/toggle-group:data-[spacing=0]:data-[variant=outline]:data-row-start:ms-0",
         toggleVariants({
           variant: context.variant || variant,
           size: context.size || size,

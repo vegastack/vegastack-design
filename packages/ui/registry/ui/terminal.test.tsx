@@ -223,7 +223,7 @@ test("the block paints on the card surface, with its own hairline", async () => 
   // …and the same corner as `CodeBlock`, the system's other code surface. `rounded-[2px]` here
   // was the literal Batch 1 left behind when it deleted `--radius-sharp`, the marketing token
   // this panel used to read — a 2px corner on a page where nothing else has one.
-  expect(el.className).toContain("rounded-lg");
+  expect(el.className).toContain("rounded-block");
   expect(el.className).not.toContain("rounded-[2px]");
 });
 

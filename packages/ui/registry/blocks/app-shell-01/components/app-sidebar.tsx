@@ -1,4 +1,4 @@
-// @vegastack app-shell-01@0.88.0 sha256-q/iZyFV0sCzC6tQYqZFY2TBAGFvfDWEviSSRZj2DLgY=
+// @vegastack app-shell-01@0.88.0 sha256-QzLwAPqBpw2DKj4jsOzHFeaIJUGp5lWUzOACDwcV8AE=
 
 "use client";
 
@@ -169,7 +169,7 @@ export function AppSidebar() {
               >
                 <div
                   aria-hidden
-                  className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground"
+                  className="flex aspect-square size-8 items-center justify-center rounded-tile bg-primary text-primary-foreground"
                 >
                   <Sparkles className="size-4" />
                 </div>

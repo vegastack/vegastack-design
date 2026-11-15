@@ -123,7 +123,7 @@ export function documentLayout(): ReactNode {
           </section>
         </DocumentLayoutFoot>
         <DocumentLayoutMargin>
-          <div className="rounded-lg border border-border bg-card p-3 text-sm">
+          <div className="rounded-block border border-border bg-card p-3 text-sm">
             <p className="font-medium">Priya · 2m</p>
             <p className="text-muted-foreground">
               Is the 20-seat discount right?
@@ -151,7 +151,7 @@ export function documentLayoutWide(): ReactNode {
 
 function Thread({ who, text }: { who: string; text: string }) {
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-border bg-muted/30 p-3 text-sm">
+    <div className="flex flex-col gap-1 rounded-block border border-border bg-muted/30 p-3 text-sm">
       <p className="font-medium">{who}</p>
       <p className="text-muted-foreground">{text}</p>
     </div>

@@ -1,4 +1,4 @@
-// @vegastack memory-note@0.88.0 sha256-AFqy6UClazIw3f1ekOOwFVf6Zo/qOsam6wJ3Oz4dYN0=
+// @vegastack memory-note@0.88.0 sha256-j7rwTr7f3AQtLrzvK6dexJDgkVryP1vYVIS0uizBr14=
 
 "use client";
 
@@ -363,7 +363,7 @@ export function MemoryNote({
       aria-label={sentence}
       className={cn(
         "flex w-full min-w-0 flex-wrap items-start gap-x-3 gap-y-1 text-sm",
-        compact ? "py-0.5" : "rounded-md border border-border px-2.5 py-1.5",
+        compact ? "py-0.5" : "rounded-block border border-border px-2.5 py-1.5",
         className,
       )}
       {...props}

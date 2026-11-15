@@ -1,4 +1,4 @@
-// @vegastack display-menu@0.88.0 sha256-baNyFkt/NYrsbPrt+oi9+UbZqMQTJKyH+IHLbfl0x9w=
+// @vegastack display-menu@0.88.0 sha256-SaSlpSu2nv3hwfdItwNiNl8AO3SwZb3/rXPOH11zZuE=
 
 "use client";
 
@@ -265,7 +265,7 @@ function DrillRow({
       variant="ghost"
       data-slot={dataSlot}
       onClick={onOpen}
-      className="h-7 w-full justify-between gap-3 rounded-md px-1.5 font-normal"
+      className="h-7 w-full justify-between gap-3 rounded-item px-1.5 font-normal"
     >
       <span className="min-w-0 truncate">{label}</span>
       <span className="flex min-w-0 items-center gap-1 text-muted-foreground">
@@ -454,7 +454,7 @@ export function DisplayMenu({
           <Button
             variant="ghost"
             data-slot="display-menu-reset"
-            className="h-7 w-full justify-start rounded-md px-1.5 font-normal"
+            className="h-7 w-full justify-start rounded-item px-1.5 font-normal"
             onClick={onReset}
           >
             {resetLabel}

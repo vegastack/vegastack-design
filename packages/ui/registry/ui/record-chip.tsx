@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.88.0 sha256-PQGt0bvTqV9f6yyawvtsThu6EYZnga3qC1RvcmML7Rs=
+// @vegastack record-chip@0.88.0 sha256-PfhJFKr6WR06CcaIKrvKACJmhHj9VL9cfOOg83GAvZA=
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";
@@ -107,7 +107,7 @@ const defaultRenderLink: NonNullable<RecordChipProps["renderLink"]> = (
 export type SplitChipProps = React.ComponentProps<"span">;
 
 /**
- * `SplitChip` — the pill shell behind RecordChip: a bordered, rounded-full container with one
+ * `SplitChip` — the pill shell behind RecordChip: a bordered `rounded-chip` container with one
  * shared `p-0.5` inset and a surface-aware fill (none in light, the outline Button's translucent
  * `input/30` in dark), so it sits one step above a page, card, dialog, sheet or popover alike, so every segment inside it (a `SplitChipButton` main action, a
  * `SplitChipSeparator`, an icon link or button with `splitChipIconActionClassName`) shows its hover and open background with the
@@ -127,7 +127,7 @@ export function SplitChip({ className, ...props }: SplitChipProps) {
     <span
       data-slot="split-chip"
       className={cn(
-        "inline-flex max-w-full min-w-0 items-center rounded-full border border-border bg-transparent p-0.5 text-xs dark:bg-input/30 font-medium text-foreground",
+        "inline-flex max-w-full min-w-0 items-center rounded-chip border border-border bg-transparent p-0.5 text-xs dark:bg-input/30 font-medium text-foreground",
         className,
       )}
       {...props}
@@ -136,19 +136,19 @@ export function SplitChip({ className, ...props }: SplitChipProps) {
 }
 
 /**
- * Classes of a SplitChip's main (text) segment: 24px tall, rounded-full, muted when open. It drops
- * the Button's transparent 1px border, so its hover and open background fills the whole 24px box
- * and sits the same 2px from the pill's border as the icon segment's circle does — at both ends,
+ * Classes of a SplitChip's main (text) segment: 24px tall, a pill (`rounded-chip`), muted when
+ * open. It drops the Button's transparent 1px border, so its hover and open background fills the
+ * whole 24px box and sits the same 2px from the pill's border as the icon segment's circle does — at both ends,
  * top and bottom, and on either side of the separator. Before a separator its end padding drops to
  * 5px, so the chevron sits as far from the divider as the icon segment's glyph does on the other
  * side (2px margin + 5px of the 24px circle's inset). It never nudges on press.
  */
 export const splitChipButtonClassName =
-  "h-6 min-w-0 shrink border-0 justify-start gap-1.5 rounded-full px-2 text-xs text-inherit aria-expanded:bg-state-selected [&_svg:not([class*='size-'])]:size-3.5 active:not-aria-[haspopup]:translate-y-0 [&:has(+[data-slot=split-chip-separator])]:pe-1.25";
+  "h-6 min-w-0 shrink border-0 justify-start gap-1.5 rounded-chip px-2 text-xs text-inherit aria-expanded:bg-state-selected [&_svg:not([class*='size-'])]:size-3.5 active:not-aria-[haspopup]:translate-y-0 [&:has(+[data-slot=split-chip-separator])]:pe-1.25";
 
 /** Classes of a SplitChip's icon segment: a 24px circle (the 24px hit area). */
 export const splitChipIconActionClassName =
-  "inline-flex size-6 shrink-0 items-center justify-center rounded-full text-muted-foreground transition-colors state-layer hover:text-foreground [&_svg]:size-3.5";
+  "inline-flex size-6 shrink-0 items-center justify-center rounded-icon text-muted-foreground transition-colors state-layer hover:text-foreground [&_svg]:size-3.5";
 
 /**
  * A SplitChip's main segment — a ghost `Button` sized to the shared inset.
@@ -280,16 +280,15 @@ export function RecordChip({
         className={
           ghost
             ? cn(
-                // 24px tall and 6px of padding — a compact tint just around the text, the same box
-                // as an inline `EditableCell`: `PropertyValue` hangs both outside the row, so the
-                // text starts where plain values do and the row keeps its height. The ▾ is always
-                // laid out (only its opacity changes), so nothing moves on hover or open.
-                "h-6 gap-2 rounded-md px-1.5 text-sm font-normal [&:has(+[data-slot=split-chip-separator])]:pe-1.5 [&_svg:not([class*='size-'])]:size-3.5",
-                // Empty reads as the one empty pill every chip shares: a dashed rounded-full
-                // border around the muted placeholder, inside the same 24px box; 5px of padding
+                // 24px tall and 6px of padding — a compact pill tint just around the text (the
+                // chip's own pill, with a value or without): `PropertyValue` hangs it outside the
+                // row, so the text starts where plain values do and the row keeps its height. The ▾
+                // is always laid out (only its opacity changes), so nothing moves on hover or open.
+                "h-6 gap-2 px-1.5 text-sm font-normal [&:has(+[data-slot=split-chip-separator])]:pe-1.5 [&_svg:not([class*='size-'])]:size-3.5",
+                // Empty reads as the one empty pill every chip shares: a dashed pill border
+                // around the muted placeholder, inside the same 24px box; 5px of padding
                 // plus the 1px border keeps the text where plain values start.
-                !hasValue &&
-                  "rounded-full border border-dashed border-border px-1.25",
+                !hasValue && "border border-dashed border-border px-1.25",
               )
             : undefined
         }
@@ -321,7 +320,7 @@ export function RecordChip({
             href,
             "aria-label": linkLabel,
             className: ghost
-              ? cn(splitChipIconActionClassName, "size-6 rounded-md")
+              ? cn(splitChipIconActionClassName, "size-6")
               : splitChipIconActionClassName,
             children: <ArrowUpRight aria-hidden />,
           })}

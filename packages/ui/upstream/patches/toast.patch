@@ -1,6 +1,8 @@
 # component: toast
-# decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15, OVL-17, COL-25
+# decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15, OVL-17, COL-25, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   COL-25 (operator, 2026-11-13, agent chat ground up: "stop using green checks everywhere"): the
 #     success toast's check is primary, `text-primary`, never `text-success-text`.
 #   OVL-15: the bottom viewport positions also rise by `--toaster-offset-bottom` (default `0px`),
@@ -101,7 +103,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..7b19d8a 100644
+index 325d01b..367e5d2 100644
 --- a/toast.tsx
 +++ b/toast.tsx
 @@ -1,60 +1,273 @@
@@ -233,7 +235,7 @@ index 325d01b..7b19d8a 100644
 +];
 +
 +const toastVariants = cva(
-+  "group/toast pointer-events-auto w-full rounded-2xl border bg-popover text-popover-foreground shadow-lg select-none",
++  "group/toast pointer-events-auto w-full rounded-card border bg-popover text-popover-foreground shadow-lg select-none",
 +  {
 +    variants: {
 +      // Which edge the stack grows from — sets `origin` so the collapsed scale reads right, and

@@ -1,11 +1,11 @@
-// @vegastack alert@0.88.0 sha256-/htTyYgYeKb+X2Ykd1hBDSmr4kgRYVFNH1pD613YrEU=
+// @vegastack alert@0.88.0 sha256-mwhqCIwNSbDzCZ/sNIVAFQUnGCB+xxHDuYH5nIiX6iY=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
 const alertVariants = cva(
-  "group/alert @container/alert relative outline-none grid w-full gap-0.5 rounded-lg border px-3 py-2.5 text-start text-sm has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 @md/alert:has-data-[slot=alert-action]:grid-cols-[1fr_auto] @md/alert:has-data-[slot=alert-action]:gap-x-3 @md/alert:has-[>svg]:has-data-[slot=alert-action]:grid-cols-[auto_1fr_auto] *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:min-h-8 @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:content-center @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:[svg]:translate-y-2 *:[svg:not([class*='size-'])]:size-4",
+  "group/alert @container/alert relative outline-none grid w-full gap-0.5 rounded-block border px-3 py-2.5 text-start text-sm has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 @md/alert:has-data-[slot=alert-action]:grid-cols-[1fr_auto] @md/alert:has-data-[slot=alert-action]:gap-x-3 @md/alert:has-[>svg]:has-data-[slot=alert-action]:grid-cols-[auto_1fr_auto] *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:min-h-8 @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:content-center @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:[svg]:translate-y-2 *:[svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {

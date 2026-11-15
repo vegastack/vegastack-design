@@ -271,7 +271,7 @@ offers Retry as an action. `columns` does not apply.
 `layout="cards"` is the list row in a responsive grid: three columns on a wide container, two on a
 tablet, one on a phone — each column at least 16rem, so the count follows the group's own width, not the
 viewport's. Each card wears the same surface as [`MediaCard`](/docs/components/media-card) (`RECORD_CARD_SURFACE_CLASS`: card
-background, border, `rounded-lg`, `p-2 pe-3` padding, a subtle hover fill), the whole card the open
+background, border, `rounded-card`, `p-2 pe-3` padding, a subtle hover fill), the whole card the open
 button, with a 48px thumbnail in place of the list's 32px, the name, description lines and trailing
 actions. It is the layout [`FileCard`](/docs/components/file-card) is made for. `columns` does not apply.
 
@@ -402,7 +402,7 @@ Upstream's file plus `packages/ui/upstream/patches/attachment.patch`. Every hunk
   behalf of the invisible full-bleed trigger inside it, with the trigger's own affordance silenced;
   this system has one focus affordance and it belongs on the element that has focus.
   `rounded-[inherit]` on the trigger is part of the same hunk: the trigger is `absolute inset-0`
-  inside a `rounded-xl` (or `rounded-lg` at `size="xs"`) card, so without it the outline would cut a
+  inside a `rounded-card` (or `rounded-item` at `size="xs"`) card, so without it the outline would cut a
   rectangle across the card's corners.
 - **A11Y-2** — audited, **no hunk**. Every control in this file is a `Button`: `AttachmentAction`
   defaults to `size="icon-xs"`, which is `size-6` — 24px, exactly on the SC 2.5.8 floor — and

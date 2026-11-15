@@ -55,7 +55,7 @@ export function sourceListOpen(): ReactNode {
 export function sourceListCard(): ReactNode {
   return (
     <Wrapper className="bg-background">
-      <div className="w-72 rounded-lg border border-border bg-popover p-2.5">
+      <div className="w-72 rounded-card border border-border bg-popover p-2.5">
         <SourceCard source={SOURCES[0]!} />
       </div>
     </Wrapper>

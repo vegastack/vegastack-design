@@ -1,4 +1,4 @@
-// @vegastack dropzone@0.88.0 sha256-R7tXlNX5rTvXhRvkpqGRhX9VvA7JvR6AD7tLz0b0sbw=
+// @vegastack dropzone@0.88.0 sha256-+Sw4U6EVq7mH7rZYrKPx+T8Dl1lspJz1kNuZmnif/Ks=
 
 "use client";
 
@@ -174,9 +174,10 @@ export function Dropzone({
         data-slot="dropzone"
         data-disabled={options.disabled ? "" : undefined}
         className={cn(
-          "group/dropzone relative w-full min-w-0 cursor-pointer rounded-lg",
-          // The SURFACE reflects the drag, not one privileged descendant: an
-          // stroke following its own `rounded-lg`, primary while a valid payload
+          "group/dropzone relative w-full min-w-0 cursor-pointer rounded-card",
+          // The SURFACE reflects the drag, not one privileged descendant: an inset
+          // stroke 2px inside its `rounded-card` edge (on `rounded-block`, the nearest role
+          // below, so the two curves stay close to parallel), primary while a valid payload
           // hovers and destructive when it cannot be accepted. Before this the
           // tint was a `[&_[data-slot=empty]]` border override, so a Dropzone
           // wrapping an image, a card, or any non-`Empty` child showed no
@@ -184,7 +185,7 @@ export function Dropzone({
           // own stroke width: WebKit counts even an `inset-0` pseudo-element's two border edges in
           // scrollable overflow. Moving both edges one spacing step inward keeps the paint inside
           // without clipping arbitrary children; the host's real focus outline stays independent.
-          "outline-offset-0 after:pointer-events-none after:absolute after:inset-0.5 after:box-border after:rounded-[inherit] after:content-['']",
+          "outline-offset-0 after:pointer-events-none after:absolute after:inset-0.5 after:box-border after:rounded-block after:content-['']",
           "data-dragging:after:border-2 data-dragging:after:border-primary/50",
           "data-drag-invalid:after:border-2 data-drag-invalid:after:border-destructive/50",
           options.disabled && "pointer-events-none opacity-50",

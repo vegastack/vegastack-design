@@ -20,7 +20,7 @@ export function image(): ReactNode {
           src={SAMPLE}
           alt="A scenic landscape"
           aspectRatio="video"
-          rounded="lg"
+          rounded="block"
         />
       </div>
     </Wrapper>
@@ -41,18 +41,18 @@ export function imageAspectRatios(): ReactNode {
           src={SAMPLE}
           alt="Loaded image"
           aspectRatio="square"
-          rounded="md"
+          rounded="tile"
         />
       </div>
       <div className="w-40">
-        <Image alt="" aspectRatio="square" rounded="md" fallback={null} />
+        <Image alt="" aspectRatio="square" rounded="tile" fallback={null} />
       </div>
       <div className="w-40">
         <Image
           src={BROKEN}
           alt="Failed to load"
           aspectRatio="square"
-          rounded="md"
+          rounded="tile"
           fallback={<ImageOff aria-hidden />}
         />
       </div>
@@ -61,11 +61,12 @@ export function imageAspectRatios(): ReactNode {
 }
 
 /**
- * The full `rounded` scale, `none` → `full`, applied to the same square tile.
- * `full` clips the image to a circle — the avatar-style media frame.
+ * Every `rounded` role, `none` → `full`, applied to the same square image: `mark` (4px), `block`
+ * (12px, the default), `card` (16px), `tile` (25% of the size). `full` clips the image to a
+ * circle — a person's photo.
  */
 export function imageRounded(): ReactNode {
-  const radii = ["none", "sm", "md", "lg", "full"] as const;
+  const radii = ["none", "mark", "block", "card", "tile", "full"] as const;
   return (
     <Wrapper>
       {radii.map((rounded) => (
@@ -101,7 +102,6 @@ export function imageAuto(): ReactNode {
           src={SAMPLE}
           alt="A landscape at its intrinsic ratio"
           aspectRatio="auto"
-          rounded="md"
         />
       </div>
     </Wrapper>

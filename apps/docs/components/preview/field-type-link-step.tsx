@@ -148,7 +148,7 @@ export function fieldTypeLinkStepInline(): ReactNode {
   const [last, setLast] = useState("Nothing chosen yet");
   return (
     <Wrapper className="block max-w-sm">
-      <div className="overflow-hidden rounded-lg border border-border">
+      <div className="overflow-hidden rounded-card border border-border">
         <FieldTypePicker
           types={TYPES}
           onSelect={(id) => setLast(`Type: ${id}`)}

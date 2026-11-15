@@ -221,7 +221,7 @@ function TasksToolbar({ width }: { width?: number }) {
                           <Button
                             key={value}
                             variant="ghost"
-                            className="h-7 justify-start rounded-md px-1.5 font-normal"
+                            className="h-7 justify-start rounded-item px-1.5 font-normal"
                             onClick={() => {
                               addPriority(value);
                               done();
@@ -399,7 +399,7 @@ export function listToolbarWidths(): ReactNode {
             {viewport} · {content}px of content
           </figcaption>
           <div
-            className="rounded-md border border-dashed border-border p-2"
+            className="rounded-block border border-dashed border-border p-2"
             style={{ width: content + 18 }}
           >
             <TasksToolbar width={content} />

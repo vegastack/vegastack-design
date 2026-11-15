@@ -103,7 +103,7 @@ export function textEditMarkdown(): ReactNode {
         onValueChange={setMarkdown}
         aria-label="Release notes"
       />
-      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="min-w-0 overflow-x-auto rounded-block bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {markdown}
       </pre>
     </Wrapper>
@@ -174,11 +174,7 @@ export function textEditComposer(): ReactNode {
         placeholder="Add a comment…"
         aria-label="Comment"
         actions={
-          <Button
-            size="icon-sm"
-            aria-label="Send comment"
-            className="rounded-full"
-          >
+          <Button size="icon-sm" aria-label="Send comment">
             <ArrowUp aria-hidden />
           </Button>
         }
@@ -503,7 +499,7 @@ export function markdownTables(): ReactNode {
         onValueChange={setMarkdown}
         aria-label="Table"
       />
-      <pre className="overflow-x-auto rounded-lg border border-border bg-muted p-3 font-mono text-xs">
+      <pre className="overflow-x-auto rounded-block border border-border bg-muted p-3 font-mono text-xs">
         {markdown}
       </pre>
     </Wrapper>
@@ -611,7 +607,7 @@ export function textEditMentions(): ReactNode {
           aria-label="Notes with mentions"
         />
       </InlineChipProvider>
-      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="min-w-0 overflow-x-auto rounded-block bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {markdown}
       </pre>
     </Wrapper>
@@ -688,7 +684,7 @@ export function textEditCallouts(): ReactNode {
         onValueChange={setMarkdown}
         aria-label="Notes with callouts"
       />
-      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="min-w-0 overflow-x-auto rounded-block bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {markdown}
       </pre>
     </Wrapper>
@@ -736,7 +732,7 @@ export function textEditBlocks(): ReactNode {
         onValueChange={setMarkdown}
         aria-label="Notes with blocks"
       />
-      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="min-w-0 overflow-x-auto rounded-block bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {markdown}
       </pre>
     </Wrapper>
@@ -775,7 +771,7 @@ export function textEditEmbeds(): ReactNode {
         }
         aria-label="Notes with embeds"
       />
-      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="min-w-0 overflow-x-auto rounded-block bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {markdown}
       </pre>
     </Wrapper>

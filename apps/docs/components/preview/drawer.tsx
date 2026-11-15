@@ -182,7 +182,7 @@ export function drawerCustomSizes(): ReactNode {
               {Array.from({ length: 24 }, (_, index) => (
                 <div
                   key={index}
-                  className="rounded-md bg-muted p-3 text-sm text-muted-foreground"
+                  className="rounded-block bg-muted p-3 text-sm text-muted-foreground"
                 >
                   Scrollable row {index + 1}
                 </div>
@@ -205,7 +205,7 @@ export function drawerCustomSizes(): ReactNode {
             </DrawerDescription>
           </DrawerHeader>
           <div className="flex-1 p-4">
-            <div className="size-full rounded-lg bg-muted" />
+            <div className="size-full rounded-block bg-muted" />
           </div>
         </DrawerContent>
       </Drawer>
@@ -229,7 +229,6 @@ export function drawerStyling(): ReactNode {
               "--drawer-bleed-background": "var(--color-muted)",
             } as CSSProperties
           }
-          className="rounded-xl"
         >
           <DrawerHeader>
             <DrawerTitle>Inset Drawer</DrawerTitle>
@@ -239,7 +238,7 @@ export function drawerStyling(): ReactNode {
             </DrawerDescription>
           </DrawerHeader>
           <div className="flex-1 p-4">
-            <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground group-data-[swipe-axis=y]/drawer-popup:h-40">
+            <div className="rounded-block bg-muted p-4 text-sm text-muted-foreground group-data-[swipe-axis=y]/drawer-popup:h-40">
               Descendants can target the popup&apos;s state with
               `group-data-[swipe-axis=y]/drawer-popup:` — this block is only
               tall on a vertical drawer.
@@ -277,7 +276,7 @@ export function drawerInset(): ReactNode {
               </DrawerDescription>
             </DrawerHeader>
             <div className="flex-1 p-4">
-              <div className="size-full rounded-lg bg-muted" />
+              <div className="size-full rounded-block bg-muted" />
             </div>
             <DrawerFooter>
               <DrawerClose render={<Button />}>Close</DrawerClose>
@@ -312,7 +311,7 @@ export function drawerPosition(): ReactNode {
               </DrawerDescription>
             </DrawerHeader>
             <div className="flex-1 p-4">
-              <div className="rounded-lg bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-40 group-data-[swipe-axis=y]/drawer-popup:w-full" />
+              <div className="rounded-block bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-40 group-data-[swipe-axis=y]/drawer-popup:w-full" />
             </div>
             <DrawerFooter>
               <DrawerClose render={<Button />}>Close</DrawerClose>
@@ -337,7 +336,7 @@ export function drawerSwipeHandle(): ReactNode {
             <DrawerDescription>Drawer with a swipe handle.</DrawerDescription>
           </DrawerHeader>
           <div className="flex-1 p-4">
-            <div className="rounded-lg bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-40 group-data-[swipe-axis=y]/drawer-popup:w-full" />
+            <div className="rounded-block bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-40 group-data-[swipe-axis=y]/drawer-popup:w-full" />
           </div>
           <DrawerFooter>
             <DrawerClose render={<Button />}>Close</DrawerClose>
@@ -370,7 +369,7 @@ function DrawerNested(): ReactNode {
             </DrawerDescription>
           </DrawerHeader>
           <div className="flex-1 p-4">
-            <div className="rounded-lg bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:aspect-video group-data-[swipe-axis=y]/drawer-popup:w-full" />
+            <div className="rounded-block bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:aspect-video group-data-[swipe-axis=y]/drawer-popup:w-full" />
           </div>
           <DrawerFooter>
             <Drawer showSwipeHandle={isMobile} swipeDirection={swipeDirection}>
@@ -385,7 +384,7 @@ function DrawerNested(): ReactNode {
                   </DrawerDescription>
                 </DrawerHeader>
                 <div className="flex-1 p-4">
-                  <div className="rounded-lg bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:aspect-video group-data-[swipe-axis=y]/drawer-popup:w-full" />
+                  <div className="rounded-block bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:aspect-video group-data-[swipe-axis=y]/drawer-popup:w-full" />
                 </div>
                 <DrawerFooter>
                   <Drawer
@@ -403,7 +402,7 @@ function DrawerNested(): ReactNode {
                         </DrawerDescription>
                       </DrawerHeader>
                       <div className="flex-1 p-4">
-                        <div className="rounded-lg bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:aspect-video group-data-[swipe-axis=y]/drawer-popup:w-full" />
+                        <div className="rounded-block bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:aspect-video group-data-[swipe-axis=y]/drawer-popup:w-full" />
                       </div>
                       <DrawerFooter>
                         <DrawerClose render={<Button variant="secondary" />}>
@@ -444,7 +443,7 @@ export function drawerNonModal(): ReactNode {
             </DrawerDescription>
           </DrawerHeader>
           <div className="flex-1 p-4">
-            <div className="rounded-lg bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-40 group-data-[swipe-axis=y]/drawer-popup:w-full" />
+            <div className="rounded-block bg-muted group-data-[swipe-axis=x]/drawer-popup:size-full group-data-[swipe-axis=y]/drawer-popup:h-40 group-data-[swipe-axis=y]/drawer-popup:w-full" />
           </div>
           <DrawerFooter>
             <DrawerClose render={<Button />}>Close</DrawerClose>
@@ -518,7 +517,7 @@ function DrawerSnapPoints(): ReactNode {
                 </Button>
               ))}
             </div>
-            <div className="rounded-lg bg-muted p-4 text-sm text-muted-foreground">
+            <div className="rounded-block bg-muted p-4 text-sm text-muted-foreground">
               At the full snap point the popup gains `data-expanded`, so a
               header can grow a border or a title can shrink with the
               `data-expanded:` variant.

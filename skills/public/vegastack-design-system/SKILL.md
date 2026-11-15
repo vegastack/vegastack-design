@@ -97,7 +97,7 @@ overflow="menu"`) left; the search, then the tools — Filter (n), Sort (`SortMe
   (List | Board | Grid icons), Display (`DisplayMenu`: row height, columns, group) and ⋯ — right;
   it measures itself and folds tools into Display and ⋯ when tight. The Filter tool opens a
   `FilterRow`: `+ Filter` (`AddFilterMenu`), the pinned `ListFacet` / `PeopleFacet` /
-  `DateRangeFilter` chips (compact, rounded-md, dashed while unset, tinted when set), the other
+  `DateRangeFilter` chips (compact pills, dashed while unset, tinted when set), the other
   chips, Clear; people facets take `itemToSecondaryLabel={(p) => p.email}`. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
   `sortMode="client"`) and `rowActions` (the ⋯ column, always last); row links are never underlined.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
@@ -250,7 +250,7 @@ on shadcn's `neutral` base. Always use the utility, never a raw value.
 | Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                                                                                                             |
 | Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)                                                                                   |
 | Border   | `border-border` · `border-input` — there are no rings; focus is a global background tint (Tabs included)                                                                                                            |
-| Radius   | `rounded-{sm,md,lg,xl,2xl}` — all derived from the single `--radius`                                                                                                                                                |
+| Radius   | a role, never a size: `rounded-{control,icon,chip,inline,mark,item,block,card,bubble,overlay,tile}` · `row-fill` on table rows (BRD-12)                                                                             |
 | Type     | Tailwind's own `text-{xs…7xl}`. `text-sm` is 14px, `text-base` is 16px. Line-height and letter-spacing above `text-base` come from the theme — never write `tracking-*`, an arbitrary `text-[13px]`, or `uppercase` |
 | Font     | `font-sans` `font-mono` `font-serif` `font-heading`                                                                                                                                                                 |
 | Motion   | `duration-{fast,base,slow}` · `ease-{standard,emphasized,exit,spring}` — or Tailwind's own steps                                                                                                                    |
@@ -264,7 +264,7 @@ opaque `hover:bg-muted`/`hover:bg-accent` (lint rejects it):
 
 ```tsx
 // Any clickable surface — a row, a chip, a ghost control: hover AND press from one utility.
-<button className="rounded-md px-2 state-layer" />;
+<button className="rounded-item px-2 state-layer" />;
 
 // Selected / current / open: the selected step (weight 500 on a current row). Over a filled
 // part (a card, an outline button) use the layer form so the fill survives.
@@ -272,7 +272,7 @@ opaque `hover:bg-muted`/`hover:bg-accent` (lint rejects it):
 <div className="bg-card state-layer data-selected:layer-selected" />;
 
 // A tile inside a row: translucent, so it stays one step above the row in every state.
-<span className="size-7 rounded-md bg-state-tile" />;
+<span className="size-7 rounded-tile bg-state-tile" />;
 
 // A solid steps its own fill; a status tint keeps its `-text` ink.
 <button className="bg-primary text-primary-foreground hover:bg-primary/80 active:bg-primary/70" />;
@@ -416,8 +416,13 @@ contract.
   right-align a numeric column. `font-mono` is for code and identifiers (`SYS-1042`) only.
 - Title a page with `PageHeader` (`font-heading text-2xl font-semibold`); a section heading is
   `font-heading text-base font-medium`, a group label `text-xs font-medium text-muted-foreground`.
-- Reach for a plain Tailwind utility for size, radius, shadow, z-index, alpha, weight and motion:
-  `h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
+- Give every corner its ROLE, never a size (BRD-12): `rounded-control` for a single-line control,
+  `rounded-icon` for an icon-only button, `rounded-chip`, `rounded-inline` for a token inside text,
+  `rounded-mark`, `rounded-item` for a row with a fill or a tooltip, `rounded-block`,
+  `rounded-card`, `rounded-bubble`, `rounded-overlay`, `rounded-tile` for square media; `row-fill`
+  on a table row. Never `rounded-sm|md|lg|xl…`, bare `rounded` or `rounded-[…]`.
+- Reach for a plain Tailwind utility for size, shadow, z-index, alpha, weight and motion:
+  `h-8`, `size-4`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
   `font-semibold`, `transition-colors duration-100 ease-in-out` are all on-system now.
 
 **Don't**

@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.88.0 sha256-4oVMWWy8zzHkmAmm4t4ak7vZ9FoG9RoGi378T6US92M=
+// @vegastack audio-player@0.88.0 sha256-0fEeiDPae1HxSa7desbo5pVWTgmbOvga6jGbmQ+Y0Y8=
 
 "use client";
 
@@ -839,7 +839,7 @@ export function AudioPlayer({
       className={cn(
         "flex w-full flex-col gap-2",
         docked && [
-          "sticky bottom-0 z-10 rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-md",
+          "sticky bottom-0 z-10 rounded-card border border-border bg-popover p-3 text-popover-foreground shadow-md",
           // Pinned to the bottom edge → clear the safe-area inset.
           "pb-[calc(var(--spacing)*3+env(safe-area-inset-bottom))]",
           // The shared docked-control pair; only the travel distance is ours.
@@ -851,7 +851,7 @@ export function AudioPlayer({
           // rail. Inside AppShell it is set for a RecordLayout rail automatically.
           "@5xl/app-shell-content:[:has([data-slot=record-layout-rail])_&]:[--audio-player-inset-end:22rem]",
           "w-[calc(100%-2rem-var(--audio-player-inset-end,0px))] -translate-x-[calc(var(--audio-player-inset-end,0px)/2)] rtl:translate-x-[calc(var(--audio-player-inset-end,0px)/2)]",
-          "sticky bottom-4 z-20 mx-auto mt-auto max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-full border border-border bg-popover p-1.5 text-popover-foreground shadow-md",
+          "sticky bottom-4 z-20 mx-auto mt-auto max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-control border border-border bg-popover p-1.5 text-popover-foreground shadow-md",
           // Phone: full width on the bottom edge, clear of the safe-area inset.
           "max-sm:bottom-0 max-sm:w-full max-sm:translate-x-0 max-sm:rounded-none max-sm:border-x-0 max-sm:border-b-0 max-sm:px-1 max-sm:pb-[calc(var(--spacing)*1+env(safe-area-inset-bottom))]",
           "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+var(--spacing)*4+env(safe-area-inset-bottom))]",
@@ -953,7 +953,7 @@ export function AudioPlayer({
               setControlsMounted(true);
               void internalMediaRef.current?.play().catch(() => {});
             }}
-            className="shrink-0 rounded-full [&_svg:not([class*='size-'])]:size-5"
+            className="shrink-0 [&_svg:not([class*='size-'])]:size-5"
           >
             {showSpinner ? (
               <Spinner
@@ -1114,7 +1114,7 @@ export function AudioWaveform({
 // with `size-4` glyphs; play is the `size-9` filled primary. Space plays or
 // pauses and ←/→ move 5s anywhere on the pill except a slider, which owns them.
 
-const FLOATING_ICON_BUTTON = "size-8 shrink-0 rounded-full [&_svg]:size-4";
+const FLOATING_ICON_BUTTON = "size-8 shrink-0 [&_svg]:size-4";
 const FLOATING_KEY_SEEK = 5;
 
 function FloatingTip({
@@ -1291,7 +1291,7 @@ function FloatingSeek({
         <span
           aria-hidden
           data-slot="audio-player-seek-tooltip"
-          className="pointer-events-none absolute bottom-full mb-1 -translate-x-1/2 rounded-md bg-foreground px-1.5 py-0.5 text-xs font-medium tabular-nums text-background"
+          className="pointer-events-none absolute bottom-full mb-1 -translate-x-1/2 rounded-item bg-foreground px-1.5 py-0.5 text-xs font-medium tabular-nums text-background"
           style={{ left: hover.x }}
         >
           {formatTime(hover.at)}
@@ -1388,7 +1388,7 @@ function FloatingTransport({
             size="icon"
             aria-label={media.playing ? `Pause ${label}` : `Play ${label}`}
             aria-busy={loading || undefined}
-            className="size-9 shrink-0 rounded-full [&_svg]:size-4"
+            className="size-9 shrink-0 [&_svg]:size-4"
             onClick={toggle}
           >
             {loading ? (
@@ -1436,7 +1436,7 @@ function FloatingTransport({
                 <Button
                   variant="ghost"
                   aria-label={`Playback speed, ${media.rate}x`}
-                  className="h-8 min-w-11 shrink-0 rounded-full px-2 text-xs font-medium tabular-nums"
+                  className="h-8 min-w-11 shrink-0 px-2 text-xs font-medium tabular-nums"
                 />
               }
             >

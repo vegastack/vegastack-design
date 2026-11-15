@@ -1,4 +1,4 @@
-// @vegastack qr-code@0.88.0 sha256-8clhgN8wVCOk4igM/zHSRZIsH3y5mUhM3VCnEXukAEg=
+// @vegastack qr-code@0.88.0 sha256-0BSmor5lI9sm5QDW2/xXQ54+4N1B3L7QtPTf8Yl6WeE=
 
 import * as React from "react";
 import { encode } from "uqr";
@@ -112,7 +112,7 @@ export function QrCode({
       viewBox={`0 0 ${extent} ${extent}`}
       shapeRendering="crispEdges"
       className={cn(
-        "size-40 shrink-0 rounded-md bg-scrim-foreground fill-scrim",
+        "size-40 shrink-0 rounded-block bg-scrim-foreground fill-scrim",
         className,
       )}
       {...props}

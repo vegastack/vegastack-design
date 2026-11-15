@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 29747
-      sha256: "d18694753d651ab5b4d78e3adb6bdd895192c6b05a4afa59f1c28f626a3e305c"
+      bytes: 35457
+      sha256: "add57fa50b8645cee0a21dc934cff9c3f17a205181e63ccd508d4da0a5622bf0"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13441
@@ -100,14 +100,54 @@ themes:
       type: "color"
       value: "oklch(0.145 0 0 / 0.03)"
       description: "Chat surface rule (COL-25, operator 2026-11-13, agent chat ground up, Round 1): the ONE card surface in agent UI, for the things a person acts on or opens (a waiting request, question or plan, the task list, a file preview). The foreground at 3% over whatever is underneath, the same formula in both themes, so a card sits exactly one faint step off the page in light and in dark (light ≈ #f7f7f7 on white). Paired with `chat-hairline` and `rounded-chat-card`; no shadow inside a thread. Read it as `bg-chat-card`."
-    chat-card-radius:
-      type: "dimension"
-      value: "0.75rem"
-      description: "COL-25: the chat card's corner, 12px, bridged as `rounded-chat-card`."
     chat-hairline:
       type: "color"
       value: "oklch(0.145 0 0 / 0.1)"
       description: "COL-25: the chat card's hairline, guide lines inside a fold and dividers inside a card — the foreground at 10%, the same formula in both themes. Read it as `border-chat-hairline` / `bg-chat-hairline`."
+    corner-block:
+      type: "dimension"
+      value: "0.75rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 12px: a block in the reading flow — code, alerts, embeds, bookmarks, notes, previews, images in content — and a card nested in a card. Read it as `rounded-block`."
+    corner-bubble:
+      type: "dimension"
+      value: "1.25rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 20px: chat bubbles and the command palette. Read it as `rounded-bubble`."
+    corner-card:
+      type: "dimension"
+      value: "1rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 16px: cards, chat cards, popovers, hover cards, menus, toasts, floating panels and multi-line fields. Read it as `rounded-card`."
+    corner-chip:
+      type: "dimension"
+      value: "9999px"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): chips, badges and counts are pills. Read it as `rounded-chip`."
+    corner-control:
+      type: "dimension"
+      value: "9999px"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): every single-line control is a pill — Button at every size, Input, Select, InputGroup, Toggle, ToggleGroup, the segmented TabsList and its triggers, the single-line composer. Read it as `rounded-control`."
+    corner-icon:
+      type: "dimension"
+      value: "9999px"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): every icon-only button is a circle, so its hover is round. Read it as `rounded-icon`."
+    corner-inline:
+      type: "dimension"
+      value: "0.375rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 6px: a token inside running text — a mention, a record or file link, a template or due token, Kbd, inline code — keeps a medium corner, never a pill. Read it as `rounded-inline`."
+    corner-item:
+      type: "dimension"
+      value: "0.625rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the container's padding (a 16px menu with 6px padding). Read it as `rounded-item`."
+    corner-mark:
+      type: "dimension"
+      value: "0.25rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 4px: highlights, find matches, diff marks, the checkbox, chart swatches and the grid fill handle. Read it as `rounded-mark`."
+    corner-overlay:
+      type: "dimension"
+      value: "1.5rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 24px: dialogs, alert dialogs, drawers, sheets (top corners), the grown composer and floating desktop windows. Read it as `rounded-overlay`."
+    corner-tile:
+      type: "dimension"
+      value: "25%"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): a square media tile — icon tiles, thumbnails, logos, team and workspace avatars — is rounded at a quarter of its size at every size. Read it as `rounded-tile`."
     destructive:
       type: "color"
       value: "oklch(0.577 0.245 27.325)"
@@ -268,7 +308,7 @@ themes:
     radius:
       type: "dimension"
       value: "0.625rem"
-      description: "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are DERIVED from it in the @theme bridge exactly as upstream derives them (0.6/0.8/1/1.4/1.8/2.2/2.6x), so `rounded-xl` on a card is upstream's 14px. The pre-reset 12px cap and the `rounded-xl` ban are gone (BRD-6/BRD-7 = shadcn)."
+      description: "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are still DERIVED from it in the @theme bridge exactly as upstream derives them, but components never use that ramp: BRD-12 (ours, operator 2026-11-16) gives every element a role corner (`rounded-control`, `-icon`, `-chip`, `-inline`, `-mark`, `-item`, `-block`, `-card`, `-bubble`, `-overlay`, `-tile`), and design-lint `no-radius-ramp` enforces it."
     readonly:
       type: "color"
       value: "oklch(0.145 0 0 / 0.03)"
@@ -504,13 +544,53 @@ themes:
     chat-card:
       type: "color"
       value: "oklch(0.985 0 0 / 0.03)"
-    chat-card-radius:
-      type: "dimension"
-      value: "0.75rem"
-      description: "COL-25: the chat card's corner, 12px, bridged as `rounded-chat-card`."
     chat-hairline:
       type: "color"
       value: "oklch(0.985 0 0 / 0.1)"
+    corner-block:
+      type: "dimension"
+      value: "0.75rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 12px: a block in the reading flow — code, alerts, embeds, bookmarks, notes, previews, images in content — and a card nested in a card. Read it as `rounded-block`."
+    corner-bubble:
+      type: "dimension"
+      value: "1.25rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 20px: chat bubbles and the command palette. Read it as `rounded-bubble`."
+    corner-card:
+      type: "dimension"
+      value: "1rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 16px: cards, chat cards, popovers, hover cards, menus, toasts, floating panels and multi-line fields. Read it as `rounded-card`."
+    corner-chip:
+      type: "dimension"
+      value: "9999px"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): chips, badges and counts are pills. Read it as `rounded-chip`."
+    corner-control:
+      type: "dimension"
+      value: "9999px"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): every single-line control is a pill — Button at every size, Input, Select, InputGroup, Toggle, ToggleGroup, the segmented TabsList and its triggers, the single-line composer. Read it as `rounded-control`."
+    corner-icon:
+      type: "dimension"
+      value: "9999px"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): every icon-only button is a circle, so its hover is round. Read it as `rounded-icon`."
+    corner-inline:
+      type: "dimension"
+      value: "0.375rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 6px: a token inside running text — a mention, a record or file link, a template or due token, Kbd, inline code — keeps a medium corner, never a pill. Read it as `rounded-inline`."
+    corner-item:
+      type: "dimension"
+      value: "0.625rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the container's padding (a 16px menu with 6px padding). Read it as `rounded-item`."
+    corner-mark:
+      type: "dimension"
+      value: "0.25rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 4px: highlights, find matches, diff marks, the checkbox, chart swatches and the grid fill handle. Read it as `rounded-mark`."
+    corner-overlay:
+      type: "dimension"
+      value: "1.5rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 24px: dialogs, alert dialogs, drawers, sheets (top corners), the grown composer and floating desktop windows. Read it as `rounded-overlay`."
+    corner-tile:
+      type: "dimension"
+      value: "25%"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): a square media tile — icon tiles, thumbnails, logos, team and workspace avatars — is rounded at a quarter of its size at every size. Read it as `rounded-tile`."
     destructive:
       type: "color"
       value: "oklch(0.704 0.191 22.216)"
@@ -665,7 +745,7 @@ themes:
     radius:
       type: "dimension"
       value: "0.625rem"
-      description: "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are DERIVED from it in the @theme bridge exactly as upstream derives them (0.6/0.8/1/1.4/1.8/2.2/2.6x), so `rounded-xl` on a card is upstream's 14px. The pre-reset 12px cap and the `rounded-xl` ban are gone (BRD-6/BRD-7 = shadcn)."
+      description: "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are still DERIVED from it in the @theme bridge exactly as upstream derives them, but components never use that ramp: BRD-12 (ours, operator 2026-11-16) gives every element a role corner (`rounded-control`, `-icon`, `-chip`, `-inline`, `-mark`, `-item`, `-block`, `-card`, `-bubble`, `-overlay`, `-tile`), and design-lint `no-radius-ramp` enforces it."
     readonly:
       type: "color"
       value: "oklch(0.985 0 0 / 0.03)"
@@ -958,8 +1038,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 250 rows, 107 resolved as
-**shadcn** (upstream ships unchanged) and 143 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 251 rows, 105 resolved as
+**shadcn** (upstream ships unchanged) and 146 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1347,7 +1427,7 @@ seven `sidebar-*` tokens all carry upstream's values. On top of it:
 | `media-scrim`, `media-scrim-strong`, `media-foreground`    | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                                                                                                                                         | `media-chrome.browser.test.tsx` on compiled CSS                                                  |
 | `glass-ink`, `glass-ink-muted`, `glass-edge`, `glass-dim`  | Desktop only (operator 2026-11-14): text and edge for a window on native OS glass, read through `surface-glass`, which is transparent only under `data-native-glass` and opaque `popover` otherwise, under Reduce Transparency and under Increase Contrast. Never a CSS blur in a web page; the retired frosted glass stays retired | `contrast-check.mjs` (fallback + modelled worst-case backdrop), `surface-glass.browser.test.tsx` |
 | `duration-*`, `motion-ease-*`                              | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                                                                                                                                          | `verify-token-references`                                                                        |
-| `chat-card`, `chat-hairline`, `chat-card-radius`           | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and a 12px corner, the same formula in both themes, no shadow (COL-25)                                                                                                                                               | `verify-theme-parity`, `design-lint`                                                             |
+| `chat-card`, `chat-hairline`                               | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and the `card` corner (BRD-12), the same formula in both themes, no shadow (COL-25)                                                                                                                                  | `verify-theme-parity`, `design-lint`                                                             |
 | `duration-instant … loader-dots`, `motion-ease-enter`      | The chat motion set: hover, quick (menus, a check appearing), state (folds), layout (arrivals), the streamed-word fade and the loader cadences; all 0ms under reduced motion (MOT-14)                                                                                                                                               | `design-lint` `chat-motion-tokens`                                                               |
 | `font-family-*`                                            | Geist Sans / Geist Mono (TYP-10)                                                                                                                                                                                                                                                                                                    | `verify-theme-parity`                                                                            |
 
@@ -1385,7 +1465,7 @@ and never the ink of a check. `StatusGlyph` draws the six states; `design-lint` 
 `no-status-fill`) and `vegastack-design doctor` (`no-success-check`, over app code) keep it. A card
 appears only for something a person acts on or opens — a waiting request, question or plan, the
 task list, a file preview — and it is `ChatCard`: `bg-chat-card`, `border-chat-hairline`,
-`rounded-chat-card`, `p-4` (`p-3` under 640px), no shadow. Work, memory saves, answered asks and
+`rounded-card`, `p-4` (`p-3` under 640px), no shadow. Work, memory saves, answered asks and
 errors are flat lines in the column.
 
 A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
@@ -1398,12 +1478,46 @@ token CSS, so a consumer gets it with the preset.
 — and every component repaints in both themes. Never override a `--color-*` variable: that is the
 build-inlined Tailwind bridge, not the runtime contract.
 
-## Size, radius, shadow, z-index, alpha, type, motion — upstream's vocabulary
+## Corners — one per role (BRD-12)
+
+Operator, 2026-11-16 (corner system, Regent web app `.vegastack/plans/radius-system/`): "see that
+consistently tokens are being declared globally in web and mobile and desktop and they're being
+followed thorhgout in all apps and components consistently". A corner is chosen by the ROLE an element
+plays, never by its size, and the same eleven names exist on web (`rounded-<role>`, from
+`--corner-<role>`), in the Flutter app (`AppRadii.<role>`) and in the Mac app's native windows:
+
+| Role      | Value  | Used by                                                                                                                                |
+| --------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `control` | pill   | every single-line control: Button at every size, Input, Select, InputGroup, Toggle, ToggleGroup, segmented tabs, the one-line composer |
+| `icon`    | circle | every icon-only button, so its hover is round                                                                                          |
+| `chip`    | pill   | chips, badges, counts, tiny numeric citation markers                                                                                   |
+| `inline`  | 6px    | a token inside running text: mentions, record and file links, template and due tokens, Kbd, inline code                                |
+| `mark`    | 4px    | highlights, find matches, diff marks, the checkbox, chart swatches, the grid fill handle                                               |
+| `item`    | 10px   | every row with a hover, highlighted, selected or focus fill — menu, select, sidebar, tree, list, table rows — and tooltips             |
+| `block`   | 12px   | blocks in the reading flow (code, alerts, embeds, notes, previews, images) and a card nested in a card                                 |
+| `card`    | 16px   | cards, chat cards, popovers, hover cards, menus, toasts, panels, multi-line fields                                                     |
+| `bubble`  | 20px   | chat bubbles and the command palette                                                                                                   |
+| `overlay` | 24px   | dialogs, alert dialogs, drawers, sheets (top corners), the grown composer, floating desktop windows                                    |
+| `tile`    | 25%    | square media: icon tiles, thumbnails, logos, team and workspace avatars                                                                |
+
+Three rules follow from the table. **Rows follow their container**: a row's corner is its
+container's corner minus the container's padding, so menus are `rounded-card p-1.5` around
+`rounded-item` rows, and a fill always shows its corners — table rows take the `row-fill` utility,
+which draws their hover, pressed, selected and focus fills as an inset `item` shape like a select
+option. **Every hover has a shape**: no fill relies on a parent's `overflow-hidden` to look rounded.
+**Controls inside a pill are pills or circles**, so they stay concentric at any height. Indicators
+(progress, meters, grips, connectors) have pill ends, people are circles and agents keep their
+hexagon. `none`, `full` (a dot or a true circle that is not an icon button) and `[inherit]` stay
+structural. `--radius` and its derived ramp remain only so upstream's math still holds; no
+component uses the ramp, and `design-lint` (`no-radius-ramp`) rejects a ramp step, bare `rounded`, an
+arbitrary length or a radius variable in registry source.
+
+## Size, shadow, z-index, alpha, type, motion — upstream's vocabulary
 
 There is almost no doctrine in this section, and that is the point. These are plain Tailwind
-utilities: `h-8`, `size-4`, `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
-`font-semibold`, `text-4xl`, `transition-all duration-100 ease-in-out`. Radius derives from one
-`--radius` (0.625rem) exactly as upstream derives it. Type SIZES are Tailwind's stock scale —
+utilities: `h-8`, `size-4`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
+`font-semibold`, `text-4xl`, `transition-all duration-100 ease-in-out`. Corners are the exception
+above. Type SIZES are Tailwind's stock scale —
 `text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell.
 
 **Type metrics are the one exception, and they are global** (TYP-15/16/17/18, MK 2026-09-22).

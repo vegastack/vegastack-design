@@ -302,6 +302,27 @@ const isTextEntryFocusBorderFile = (file) => {
   );
 };
 
+const NO_RADIUS_RAMP_MSG =
+  "radius off the role scale (BRD-12): use the role corner — rounded-control (single-line controls), -icon (icon buttons), -chip, -inline (tokens in text), -mark, -item (rows, tooltips), -block, -card, -bubble, -overlay, -tile (square media) — never a ramp step, bare `rounded`, an arbitrary length or a radius variable";
+const RADIUS_ROLES = new Set([
+  "none",
+  "full",
+  "[inherit]",
+  "control",
+  "icon",
+  "chip",
+  "inline",
+  "mark",
+  "item",
+  "block",
+  "card",
+  "bubble",
+  "overlay",
+  "tile",
+]);
+const RADIUS_TOKEN =
+  /^!?rounded(?:-(?:t|r|b|l|s|e|tl|tr|br|bl|ss|se|es|ee))?(?:-(.+?))?!?$/;
+
 const NO_SURFACE_RING_MSG = RULES.find(
   (rule) => rule.id === "no-surface-ring",
 ).msg;
@@ -309,7 +330,7 @@ const NO_SURFACE_RING_MSG = RULES.find(
 const UPSTREAM_IMPORTANT =
   "upstream verbatim (vendor/shadcn/4.21.0) — overrides an equal-specificity declaration of a composed part; byte parity holds it";
 const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
-  ["/ui/command.tsx", { count: 7, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/command.tsx", { count: 6, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/sidebar.tsx", { count: 3, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/menubar.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/badge.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
@@ -1159,6 +1180,17 @@ for (const root of ROOTS) {
         report("no-surface-ring", `${NO_SURFACE_RING_MSG} ("${bareRing}")`);
       }
 
+      // (i) BRD-12 (ours, operator 2026-11-16) — one corner per ROLE. Registry source never takes
+      // a step of the derived ramp (`rounded-sm|md|lg|xl|2xl|3xl|4xl|xs`), bare `rounded`, an
+      // arbitrary length (`rounded-[4px]`, `rounded-[calc(var(--radius)-3px)]`) or a radius
+      // variable (`rounded-(--cell-radius)`): it names the role the element plays —
+      // control, icon, chip, inline, mark, item, block, card, bubble, overlay or tile — with any
+      // side prefix. `none`, `full` (a dot, a true circle) and `[inherit]` stay structural.
+      if (/(^|\/)packages\/ui\/registry\//.test(file)) {
+        const ramp = radiusRampClass(lit, classPosition);
+        if (ramp) report("no-radius-ramp", `${NO_RADIUS_RAMP_MSG} ("${ramp}")`);
+      }
+
       // (g) Tailwind's `!` modifier — the class-string half of the `important` rule. Counted per
       // file against IMPORTANT_MODIFIER_EXEMPTIONS after the loop.
       for (const token of importantModifierTokens(lit)) {
@@ -1975,6 +2007,38 @@ function bareRingClass(text, classPosition) {
   );
   const beside = tokens.some((token) => token !== bare && /[-:/[]/.test(token));
   return classShaped && beside ? bare : null;
+}
+
+/**
+ * BRD-12's class test: the first `rounded*` utility in a literal whose value is not a role,
+ * or null. A token's utility is what follows its last variant colon outside brackets. Outside a
+ * class position the literal must be class-shaped (every token utility-like, another utility
+ * beside it), so prose such as "rounded corners" never counts.
+ */
+function radiusRampClass(text, classPosition) {
+  const tokens = text.split(/\s+/).filter(Boolean);
+  const offending = tokens.find((token) => {
+    let depth = 0;
+    let cut = -1;
+    for (let i = 0; i < token.length; i++) {
+      const ch = token[i];
+      if (ch === "[" || ch === "(") depth++;
+      else if (ch === "]" || ch === ")") depth--;
+      else if (ch === ":" && depth === 0) cut = i;
+    }
+    const utility = token.slice(cut + 1);
+    const match = RADIUS_TOKEN.exec(utility);
+    if (!match) return false;
+    return !RADIUS_ROLES.has(match[1] ?? "");
+  });
+  if (!offending || classPosition) return offending ?? null;
+  const classShaped = tokens.every(
+    (token) => /[-:/[]/.test(token) || BARE_UTILITIES.has(utilityOf(token)),
+  );
+  const beside = tokens.some(
+    (token) => token !== offending && /[-:/[]/.test(token),
+  );
+  return classShaped && beside ? offending : null;
 }
 
 /** A class token with its variants removed: `[&>div]:hover:ring` → `ring`. */

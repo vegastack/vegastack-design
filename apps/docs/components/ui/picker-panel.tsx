@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.88.0 sha256-WsNkxzPjBfYXxo0GLhIaoEMlU+MfbsCpR+Q39tvXMsU=
+// @vegastack picker-panel@0.88.0 sha256-Qy+tBhLmgtxeA7NxfHTn7kCbh+xdyBl5JdJlDJ2mfuo=
 
 "use client";
 import * as React from "react";
@@ -259,7 +259,7 @@ export function PickerPanel({
               <Skeleton
                 key={index}
                 className={cn(
-                  "rounded-md",
+                  "rounded-icon",
                   size === "sm" ? "size-7" : "size-8",
                 )}
               />

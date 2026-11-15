@@ -87,7 +87,7 @@ function Frame({
 }) {
   return (
     <MessageScroller
-      className={cn("h-64 rounded-lg border border-border", className)}
+      className={cn("h-64 rounded-card border border-border", className)}
     >
       {children}
     </MessageScroller>
@@ -254,7 +254,7 @@ export function messageScrollerComposition(): ReactNode {
                   <MessageScrollerItem
                     key={id}
                     messageId={id}
-                    className="rounded-lg border border-dashed border-border p-2"
+                    className="rounded-block border border-dashed border-border p-2"
                   >
                     <Message align={i % 2 === 1 ? "end" : "start"}>
                       <MessageContent>
@@ -1154,7 +1154,7 @@ export function messageScrollerUnstyled(): ReactNode {
     <Wrapper className="justify-stretch">
       <div className="flex w-full max-w-md flex-col gap-2">
         <MessageScrollerPrimitive.Provider defaultScrollPosition="start">
-          <MessageScrollerPrimitive.Root className="relative flex h-64 min-h-0 flex-col overflow-hidden rounded-lg border border-border">
+          <MessageScrollerPrimitive.Root className="relative flex h-64 min-h-0 flex-col overflow-hidden rounded-card border border-border">
             <MessageScrollerPrimitive.Viewport
               aria-label="Conversation"
               className="min-h-0 w-full flex-1 overflow-y-auto p-4"
@@ -1164,7 +1164,7 @@ export function messageScrollerUnstyled(): ReactNode {
                   <MessageScrollerPrimitive.Item
                     key={id}
                     messageId={id}
-                    className="rounded-lg bg-muted px-3 py-2 text-sm"
+                    className="rounded-bubble bg-muted px-3 py-2 text-sm"
                   >
                     Unstyled row {i + 1}
                   </MessageScrollerPrimitive.Item>

@@ -26,7 +26,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 export function blockToolbar(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
-      <figure className="group/block relative m-0 grid h-48 place-items-center rounded-lg border border-border bg-muted text-sm text-muted-foreground">
+      <figure className="group/block relative m-0 grid h-48 place-items-center rounded-block border border-border bg-muted text-sm text-muted-foreground">
         An image block
         <BlockToolbar aria-label="Image actions" reveal="hover">
           <BlockToolbarButton label="Replace">
@@ -61,7 +61,7 @@ export function blockToolbar(): ReactNode {
 export function blockToolbarAlways(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
-      <figure className="group/block relative m-0 rounded-lg bg-muted p-3 pt-10 font-mono text-xs">
+      <figure className="group/block relative m-0 rounded-block bg-muted p-3 pt-10 font-mono text-xs">
         <BlockToolbar aria-label="Code block actions">
           <BlockToolbarButton label="Copy code">
             <Copy />

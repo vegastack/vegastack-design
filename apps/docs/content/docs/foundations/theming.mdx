@@ -62,7 +62,7 @@ component writes (`hover:bg-primary/80`), and the `--ring`-keyed focus outline a
 
 The bridge also exposes the non-color scales as Tailwind theme keys:
 
-- **Radius** — one token, `--radius`, with `--radius-sm/md/lg/xl/2xl/3xl/4xl` derived from it (0.6x / 0.8x / 1x / 1.4x / 1.8x / 2.2x / 2.6x). Retune the shape of the whole system by changing that one value.
+- **Radius** — the corner roles, each its own `--corner-*` variable bridged to a `rounded-*` utility: `rounded-control` and `rounded-chip` (pill), `rounded-icon` (circle), `rounded-inline` (6px), `rounded-mark` (4px), `rounded-item` (10px), `rounded-block` (12px), `rounded-card` (16px), `rounded-bubble` (20px), `rounded-overlay` (24px), `rounded-tile` (25%). Retune a role by changing its one variable. Upstream's `--radius` and its derived `--radius-sm…4xl` ramp stay for pasted snippets, but no VegaStack component reads them.
 - **Type** — Tailwind's own `--text-*` ramp, unremapped: `text-sm` is 14px everywhere.
 - **Fonts** — `--font-sans` / `--font-mono` / `--font-serif`, bridged from `--font-family-*`.
 - **Motion** — `--ease-standard` / `--ease-emphasized` / `--ease-exit` / `--ease-spring`, bridged from `--motion-ease-*`; durations as `--duration-fast|base|slow`.
@@ -82,8 +82,8 @@ diverge a token in dark mode only:
   --primary: oklch(0.53 0.189 295);
   --primary-foreground: oklch(0.985 0 0);
 
-  /* tighter corners everywhere */
-  --radius: 0.5rem;
+  /* tighter cards, menus and popovers everywhere */
+  --corner-card: 0.75rem;
 }
 
 .dark {

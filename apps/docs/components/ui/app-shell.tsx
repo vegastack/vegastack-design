@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.88.0 sha256-yBq/idgQyeCvvOf7VZeU4iC1Wsz0zilrOMdxoQFhlbU=
+// @vegastack app-shell@0.88.0 sha256-r8eurQOYv9wE0ziHgDmAPLkxxRGrcng10MOqupVEz7k=
 
 "use client";
 
@@ -202,7 +202,7 @@ export function AppShell({
       <a
         href={`#${resolvedContentId}`}
         data-slot="app-shell-skip-link"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-50 focus:rounded-md focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-xs focus:font-medium focus:text-foreground focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:start-2 focus:z-50 focus:rounded-control focus:border focus:border-border focus:bg-background focus:px-3 focus:py-2 focus:text-xs focus:font-medium focus:text-foreground focus:shadow-lg"
       >
         {skipLinkLabel}
       </a>
@@ -496,7 +496,7 @@ export function AppShellHeaderMobileAction({
         <span
           data-slot="app-shell-header-mobile-action-count"
           aria-hidden="true"
-          className="pointer-events-none absolute top-0.5 end-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-xs leading-4 font-medium text-primary-foreground tabular-nums"
+          className="pointer-events-none absolute top-0.5 end-0.5 flex h-4 min-w-4 items-center justify-center rounded-chip bg-primary px-1 text-xs leading-4 font-medium text-primary-foreground tabular-nums"
         >
           {shown}
         </span>
@@ -928,7 +928,7 @@ export interface AppShellContentProps extends React.ComponentProps<"div"> {
  * **Don't pair with `SidebarInset`.** `SidebarInset` (`sidebar.tsx`) also renders a `<main>` —
  * composing it alongside `AppShellContent` would produce a SECOND main landmark. For the `inset`
  * panel look inside `AppShell`, pass `variant="inset"` to `AppShellContent` itself instead: it
- * paints exactly what upstream's `SidebarInset` paints under that variant — `m-2 ms-0 rounded-xl
+ * paints exactly what upstream's `SidebarInset` paints under that variant — `m-2 ms-0 rounded-card
  * shadow-sm` from `md` up, no border — applied directly via this prop rather than through
  * `SidebarInset`'s `peer-data-[variant=inset]` selector, which requires being a DIRECT sibling of
  * `Sidebar`'s element and is incompatible with also keeping `AppShellHeader` a true sibling
@@ -965,7 +965,7 @@ export function AppShellContent({
       data-variant={variant}
       className={cn(
         "@container/app-shell-content relative flex min-h-0 outline-none min-w-0 flex-1 flex-col overflow-y-auto bg-background",
-        variant === "inset" && "md:m-2 md:ms-0 md:rounded-xl md:shadow-sm",
+        variant === "inset" && "md:m-2 md:ms-0 md:rounded-card md:shadow-sm",
         className,
       )}
       {...props}
@@ -1329,7 +1329,7 @@ export function AppShellAside({
         onKeyDown={onHandleKey}
         onDoubleClick={() => commit(defaultWidth)}
         className={cn(
-          "absolute inset-y-0 start-0 z-10 w-1 cursor-col-resize touch-none transition-colors outline-none select-none before:absolute before:inset-y-0 before:-start-3 before:-end-2 before:content-[''] hover:bg-border focus-visible:bg-border data-resizing:bg-border max-md:hidden",
+          "absolute inset-y-0 start-0 z-10 w-1 cursor-col-resize rounded-full touch-none transition-colors outline-none select-none before:absolute before:inset-y-0 before:-start-3 before:-end-2 before:content-[''] hover:bg-border focus-visible:bg-border data-resizing:bg-border max-md:hidden",
           // Closed, a docked panel is 0 wide at the window's edge: the hit area past it would
           // widen the page and scroll it sideways.
           !open && "hidden",
@@ -1626,7 +1626,7 @@ export function AppShellSkeleton({
             <div
               key={i}
               data-slot="app-shell-skeleton-nav-row"
-              className="flex h-8 items-center gap-2 rounded-md px-2"
+              className="flex h-8 items-center gap-2 rounded-item px-2"
             >
               <Skeleton
                 className={cn("h-4", NAV_ROW_WIDTHS[i % NAV_ROW_WIDTHS.length])}
@@ -1648,10 +1648,10 @@ export function AppShellSkeleton({
             className="grid grid-cols-1 gap-4 @sm/app-shell-content:grid-cols-2 @lg/app-shell-content:grid-cols-4"
           >
             {Array.from({ length: Math.max(0, statCardCount) }, (_, i) => (
-              <Skeleton key={i} className="h-24" />
+              <Skeleton key={i} className="h-24 rounded-card" />
             ))}
           </div>
-          <Skeleton className="h-64 flex-1" />
+          <Skeleton className="h-64 flex-1 rounded-card" />
         </div>
       </div>
     </div>

@@ -1,6 +1,8 @@
 # component: menubar
-# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FOC-1, FRM-4, INT-1, OVL-13, COL-24, INT-4
+# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FOC-1, FRM-4, INT-1, OVL-13, COL-24, INT-4, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   FOC-1: `outline-hidden` is dropped from `MenubarTrigger`. A trigger is a real focusable
 #     control (`role="menuitem"`, in the bar's roving tab order), and upstream's class suppressed
 #     the one 2px `:focus-visible` outline `base.css` owns, leaving it with no focus indicator at
@@ -38,7 +40,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/menubar.tsx b/menubar.tsx
-index de8698e..849e9ee 100644
+index de8698e..1496b96 100644
 --- a/menubar.tsx
 +++ b/menubar.tsx
 @@ -1,9 +1,9 @@
@@ -56,7 +58,7 @@ index de8698e..849e9ee 100644
  
  import {
    DropdownMenu,
-@@ -19,8 +19,13 @@ import {
+@@ -19,36 +19,41 @@ import {
    DropdownMenuSubContent,
    DropdownMenuSubTrigger,
    DropdownMenuTrigger,
@@ -72,11 +74,12 @@ index de8698e..849e9ee 100644
  
  function Menubar({ className, ...props }: MenubarPrimitive.Props) {
    return (
-@@ -28,27 +33,27 @@ function Menubar({ className, ...props }: MenubarPrimitive.Props) {
+     <MenubarPrimitive
        data-slot="menubar"
        className={cn(
-         "flex h-8 items-center gap-0.5 rounded-lg border p-[3px]",
+-        "flex h-8 items-center gap-0.5 rounded-lg border p-[3px]",
 -        className
++        "flex h-8 items-center gap-0.5 rounded-control border p-[3px]",
 +        className,
        )}
        {...props}
@@ -111,7 +114,7 @@ index de8698e..849e9ee 100644
        className={cn(
 -        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium outline-hidden select-none hover:bg-muted aria-expanded:bg-muted",
 -        className
-+        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
++        "flex items-center rounded-control px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
 +        className,
        )}
        {...props}
@@ -127,7 +130,7 @@ index de8698e..849e9ee 100644
        sideOffset={sideOffset}
 -      className={cn("min-w-36 rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95", className )}
 +      className={cn(
-+        "min-w-36 rounded-lg bg-popover p-1 text-popover-foreground shadow-md border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
++        "min-w-36 rounded-card bg-popover p-1.5 text-popover-foreground shadow-md border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
 +        className,
 +      )}
        {...props}
@@ -143,7 +146,7 @@ index de8698e..849e9ee 100644
        className={cn(
 -        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground not-data-[variant=destructive]:focus:**:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg]:text-destructive!",
 -        className
-+        "group/menubar-item gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-state-hover focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg:not([data-icon-tone])]:text-destructive! [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++        "group/menubar-item gap-1.5 rounded-item px-2 py-1 text-sm focus:bg-state-hover focus:text-accent-foreground not-data-[variant=destructive]:focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive-text dark:data-[variant=destructive]:focus:bg-destructive/20 data-disabled:opacity-50 [&_svg:not([class*='size-'])]:size-4 data-[variant=destructive]:*:[svg:not([data-icon-tone])]:text-destructive! [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +        className,
        )}
        {...props}
@@ -187,7 +190,7 @@ index de8698e..849e9ee 100644
 +        aria-describedby={description.id || undefined}
 +        data-inset={inset}
 +        className={cn(
-+          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++          "relative flex items-center gap-1.5 rounded-item py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +          className,
 +        )}
 +        checked={checked}
@@ -245,7 +248,7 @@ index de8698e..849e9ee 100644
 +        aria-describedby={description.id || undefined}
 +        data-inset={inset}
 +        className={cn(
-+          "relative flex items-center gap-1.5 rounded-md py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++          "relative flex items-center gap-1.5 rounded-item py-1 pe-1.5 ps-7 text-sm outline-hidden select-none focus:bg-state-hover focus:text-accent-foreground focus:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-inset:ps-7 data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +          className,
 +        )}
 +        {...props}
@@ -262,7 +265,7 @@ index de8698e..849e9ee 100644
  }
  
  function MenubarLabel({
-@@ -177,7 +191,7 @@ function MenubarLabel({
+@@ -177,19 +191,16 @@ function MenubarLabel({
    inset,
    ...props
  }: React.ComponentProps<typeof DropdownMenuLabel> & {
@@ -271,13 +274,13 @@ index de8698e..849e9ee 100644
  }) {
    return (
      <DropdownMenuLabel
-@@ -185,11 +199,11 @@ function MenubarLabel({
+       data-slot="menubar-label"
        data-inset={inset}
-       className={cn(
-         "px-1.5 py-1 text-sm font-medium data-inset:ps-7",
+-      className={cn(
+-        "px-1.5 py-1 text-sm font-medium data-inset:ps-7",
 -        className
-+        className,
-       )}
+-      )}
++      className={cn("px-2 py-1 text-sm font-medium data-inset:ps-7", className)}
        {...props}
      />
 -  )
@@ -285,8 +288,12 @@ index de8698e..849e9ee 100644
  }
  
  function MenubarSeparator({
-@@ -202,7 +216,7 @@ function MenubarSeparator({
-       className={cn("-mx-1 my-1 h-px bg-border", className)}
+@@ -199,10 +210,10 @@ function MenubarSeparator({
+   return (
+     <DropdownMenuSeparator
+       data-slot="menubar-separator"
+-      className={cn("-mx-1 my-1 h-px bg-border", className)}
++      className={cn("-mx-1.5 my-1 h-px bg-border", className)}
        {...props}
      />
 -  )
@@ -294,7 +301,7 @@ index de8698e..849e9ee 100644
  }
  
  function MenubarShortcut({
-@@ -214,17 +228,17 @@ function MenubarShortcut({
+@@ -214,17 +225,17 @@ function MenubarShortcut({
        data-slot="menubar-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-focus/menubar-item:text-accent-foreground",
@@ -315,7 +322,7 @@ index de8698e..849e9ee 100644
  }
  
  function MenubarSubTrigger({
-@@ -232,19 +246,19 @@ function MenubarSubTrigger({
+@@ -232,19 +243,19 @@ function MenubarSubTrigger({
    inset,
    ...props
  }: React.ComponentProps<typeof DropdownMenuSubTrigger> & {
@@ -329,7 +336,7 @@ index de8698e..849e9ee 100644
        className={cn(
 -        "gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-accent focus:text-accent-foreground data-inset:ps-7 data-open:bg-accent data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4",
 -        className
-+        "gap-1.5 rounded-md px-1.5 py-1 text-sm focus:bg-state-hover focus:text-accent-foreground data-inset:ps-7 data-open:bg-state-selected data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
++        "gap-1.5 rounded-item px-2 py-1 text-sm focus:bg-state-hover focus:text-accent-foreground data-inset:ps-7 data-open:bg-state-selected data-open:text-accent-foreground [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground focus:**:[svg:not([data-icon-tone])]:text-accent-foreground data-open:**:[svg:not([data-icon-tone])]:text-accent-foreground",
 +        className,
        )}
        {...props}
@@ -339,13 +346,13 @@ index de8698e..849e9ee 100644
  }
  
  function MenubarSubContent({
-@@ -254,10 +268,13 @@ function MenubarSubContent({
+@@ -254,10 +265,13 @@ function MenubarSubContent({
    return (
      <DropdownMenuSubContent
        data-slot="menubar-sub-content"
 -      className={cn("min-w-32 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg ring-1 ring-foreground/10 duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
 +      className={cn(
-+        "min-w-32 rounded-lg bg-popover p-1 text-popover-foreground shadow-lg border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++        "min-w-32 rounded-card bg-popover p-1.5 text-popover-foreground shadow-lg border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +        className,
 +      )}
        {...props}
@@ -355,7 +362,7 @@ index de8698e..849e9ee 100644
  }
  
  export {
-@@ -277,4 +294,4 @@ export {
+@@ -277,4 +291,4 @@ export {
    MenubarSub,
    MenubarSubTrigger,
    MenubarSubContent,

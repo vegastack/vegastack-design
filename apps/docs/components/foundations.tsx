@@ -135,7 +135,7 @@ export function ColorPalette() {
             {group.tokens.map((name) => (
               <div
                 key={name}
-                className="overflow-hidden rounded-lg border border-border"
+                className="overflow-hidden rounded-block border border-border"
               >
                 <div
                   className="h-12"
@@ -156,7 +156,7 @@ export function ColorPalette() {
 /** Live type-scale specimen — Geist across the stock Tailwind ladder plus the mono voice. */
 export function TypeScale() {
   return (
-    <div className="not-prose my-6 space-y-4 rounded-lg border border-border bg-card p-6">
+    <div className="not-prose my-6 space-y-4 rounded-card border border-border bg-card p-6">
       <p className="font-sans text-5xl font-semibold text-foreground">
         Geist display — hero heading
       </p>
@@ -177,29 +177,97 @@ export function TypeScale() {
 }
 
 /**
- * Corner-radius ramp. Each swatch reads the real `--radius-*` CSS variable, every one of which is
- * derived from the single `--radius` token exactly as upstream derives it.
+ * The corner roles (BRD-12). Each specimen wears the role's own `rounded-*` utility, so it reads the
+ * real `--corner-*` value; the shape is the element the role is for (a pill for a single line, a
+ * circle for an icon button, a square for a tile).
  */
-const RADIUS_STEPS: { token: string; value: string }[] = [
-  { token: "--radius-sm", value: "0.6 × --radius · 6px" },
-  { token: "--radius-md", value: "0.8 × --radius · 8px" },
-  { token: "--radius-lg", value: "1 × --radius · 10px" },
-  { token: "--radius-xl", value: "1.4 × --radius · 14px" },
+const CORNER_ROLES: {
+  role: string;
+  value: string;
+  usedBy: string;
+  className: string;
+}[] = [
+  {
+    role: "control",
+    value: "pill",
+    usedBy: "Single-line controls",
+    className: "h-9 w-24 rounded-control",
+  },
+  {
+    role: "icon",
+    value: "circle",
+    usedBy: "Icon-only buttons",
+    className: "size-10 rounded-icon",
+  },
+  {
+    role: "chip",
+    value: "pill",
+    usedBy: "Chips, badges, counts",
+    className: "h-6 w-16 rounded-chip",
+  },
+  {
+    role: "inline",
+    value: "6px",
+    usedBy: "Tokens in running text",
+    className: "h-6 w-20 rounded-inline",
+  },
+  {
+    role: "mark",
+    value: "4px",
+    usedBy: "Highlights, checkbox",
+    className: "size-5 rounded-mark",
+  },
+  {
+    role: "item",
+    value: "10px",
+    usedBy: "Rows with a fill, tooltips",
+    className: "h-9 w-28 rounded-item",
+  },
+  {
+    role: "block",
+    value: "12px",
+    usedBy: "Blocks in content, nested cards",
+    className: "h-14 w-24 rounded-block",
+  },
+  {
+    role: "card",
+    value: "16px",
+    usedBy: "Cards, menus, popovers",
+    className: "h-16 w-28 rounded-card",
+  },
+  {
+    role: "bubble",
+    value: "20px",
+    usedBy: "Chat bubbles, command",
+    className: "h-14 w-28 rounded-bubble",
+  },
+  {
+    role: "overlay",
+    value: "24px",
+    usedBy: "Dialogs, drawers, sheets",
+    className: "h-20 w-32 rounded-overlay",
+  },
+  {
+    role: "tile",
+    value: "25% of size",
+    usedBy: "Thumbnails, logos, team avatars",
+    className: "size-14 rounded-tile",
+  },
 ];
 
-/** Live radius specimen — each tile is rounded using its `--radius-*` token. */
+/** Live corner-role specimen — each shape is rounded with its role's own utility. */
 export function RadiusScale() {
   return (
-    <div className="not-prose my-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-      {RADIUS_STEPS.map(({ token, value }) => (
-        <div key={token} className="flex flex-col items-center gap-2">
-          <div
-            className="h-16 w-16 border border-border bg-muted"
-            style={{ borderRadius: `var(${token})` }}
-          />
+    <div className="not-prose my-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      {CORNER_ROLES.map(({ role, value, usedBy, className }) => (
+        <div key={role} className="flex flex-col items-center gap-2">
+          <div className="flex h-20 items-center justify-center">
+            <div className={`border border-border bg-muted ${className}`} />
+          </div>
           <div className="text-center">
-            <p className="font-mono text-xs text-foreground">{token}</p>
+            <p className="font-mono text-xs text-foreground">rounded-{role}</p>
             <p className="font-mono text-xs text-muted-foreground">{value}</p>
+            <p className="text-xs text-muted-foreground">{usedBy}</p>
           </div>
         </div>
       ))}
@@ -223,11 +291,11 @@ const SHADOW_STEPS: { utility: string; role: string }[] = [
 export function ShadowScale() {
   return (
     <div className="not-prose my-6">
-      <div className="flex flex-wrap items-start gap-6 rounded-xl bg-background p-8">
+      <div className="flex flex-wrap items-start gap-6 rounded-card bg-background p-8">
         {SHADOW_STEPS.map(({ utility, role }) => (
           <div key={utility} className="flex flex-col items-start gap-2">
             <div
-              className={`rounded-xl border border-border bg-card px-5 py-4 ${utility}`}
+              className={`rounded-card border border-border bg-card px-5 py-4 ${utility}`}
             >
               <p className="text-sm font-medium text-foreground">
                 Floating surface
@@ -256,7 +324,7 @@ export function SpacingScale() {
       {SPACING_STEPS.map((step) => (
         <div key={step} className="flex items-center gap-3">
           <div
-            className="h-4 rounded-sm bg-primary"
+            className="h-4 rounded-mark bg-primary"
             style={{ width: `calc(var(--spacing) * ${step})` }}
           />
           <span className="font-mono text-xs text-muted-foreground">
@@ -303,7 +371,7 @@ function MotionTrack({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <div className="relative h-6 overflow-hidden rounded-md border border-border bg-muted">
+      <div className="relative h-6 overflow-hidden rounded-full border border-border bg-muted">
         <span
           className="absolute start-1 top-1/2 h-4 w-4 -translate-y-1/2 rounded-full bg-primary"
           style={style}
@@ -393,7 +461,7 @@ const TYPE_STEPS: { token: string; px: string; ls?: string; note?: string }[] =
 /** Live type-ramp specimen. Every row wears the utility it names, so it reads the real value. */
 export function TypeScaleSizes() {
   return (
-    <div className="not-prose my-6 divide-y divide-border rounded-lg border border-border">
+    <div className="not-prose my-6 divide-y divide-border rounded-card border border-border">
       {TYPE_STEPS.map(({ token, px, ls, note }) => (
         <div
           key={token}
@@ -420,7 +488,7 @@ export function TypeScaleSizes() {
  */
 export function FocusRingSpecimen() {
   return (
-    <div className="not-prose my-6 space-y-3 rounded-lg border border-border bg-card p-6">
+    <div className="not-prose my-6 space-y-3 rounded-card border border-border bg-card p-6">
       <p className="text-xs text-muted-foreground">
         Press <Kbd>Tab</Kbd> to move focus onto these controls and reveal the{" "}
         <span className="font-mono">--ring</span> outline.
@@ -460,7 +528,7 @@ function LayoutFrame({
   return (
     <figure className="flex min-w-0 flex-col gap-2">
       <div
-        className={`flex h-44 overflow-hidden rounded-lg border border-border bg-background ${wide ? "w-full" : "mx-auto w-40"}`}
+        className={`flex h-44 overflow-hidden rounded-block border border-border bg-background ${wide ? "w-full" : "mx-auto w-40"}`}
         style={{ "--g": gutter } as CSSProperties}
       >
         {sidebar !== "overlay" && (
@@ -500,12 +568,12 @@ function LayoutPage({
         : "";
   return (
     <div className={`mx-auto flex w-full min-w-0 gap-(--g) p-(--g) ${max}`}>
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5 rounded-sm bg-primary/10 p-1.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5 rounded-mark bg-primary/10 p-1.5">
         <div className="h-1.5 w-1/2 rounded-full bg-primary/50" />
         {board ? (
           <div className="flex flex-1 gap-1">
             {[0, 1, 2, 3].map((i) => (
-              <div key={i} className="flex-1 rounded-sm bg-primary/15" />
+              <div key={i} className="flex-1 rounded-mark bg-primary/15" />
             ))}
           </div>
         ) : (
@@ -514,7 +582,7 @@ function LayoutPage({
           ))
         )}
       </div>
-      {rail && <div className="w-1/4 shrink-0 rounded-sm bg-primary/20" />}
+      {rail && <div className="w-1/4 shrink-0 rounded-mark bg-primary/20" />}
     </div>
   );
 }

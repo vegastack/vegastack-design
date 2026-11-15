@@ -11,7 +11,7 @@ import {
   RecordAsideSection,
 } from "./record-aside";
 
-test("renders sections and edge-to-edge rows", async () => {
+test("renders sections and inset rows", async () => {
   const screen = await render(
     <RecordAsideCard>
       <RecordAsideSection title="Tasks" count={1}>

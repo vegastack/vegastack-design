@@ -1,4 +1,4 @@
-// @vegastack attachment@0.88.0 sha256-NTDZy9j2pJaQuojUD4o+v3Oc5uCY/tss7VoHEe9PsVM=
+// @vegastack attachment@0.88.0 sha256-Cixg8S2bXPqxFOODIiTnoGGAUxzdOoQbu4nH1XiYfZU=
 
 "use client";
 
@@ -132,14 +132,14 @@ const attachmentVariants = cva(
   // card wearing a ring on behalf of the invisible `AttachmentTrigger` inside it, which upstream
   // silences with `outline-none`. This system has one focus affordance and it belongs on the
   // control that has focus, so the ring is gone and the trigger paints `base.css`'s outline.
-  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-xl border bg-card text-card-foreground transition-colors has-[>a,>button]:state-layer data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
+  "group/attachment relative flex w-fit max-w-full min-w-0 shrink-0 flex-wrap rounded-card border bg-card text-card-foreground transition-colors has-[>a,>button]:state-layer data-[state=error]:border-destructive/30 data-[state=idle]:border-dashed",
   {
     variants: {
       size: {
         default:
           "gap-2 text-sm has-data-[slot=attachment-content]:px-2.5 has-data-[slot=attachment-content]:py-2 has-data-[slot=attachment-media]:p-2",
         sm: "gap-2.5 text-xs has-data-[slot=attachment-content]:px-2 has-data-[slot=attachment-content]:py-1.5 has-data-[slot=attachment-media]:p-1.5",
-        xs: "gap-1.5 rounded-lg text-xs has-data-[slot=attachment-content]:px-1.5 has-data-[slot=attachment-content]:py-1 has-data-[slot=attachment-media]:p-1",
+        xs: "gap-1.5 rounded-item text-xs has-data-[slot=attachment-content]:px-1.5 has-data-[slot=attachment-content]:py-1 has-data-[slot=attachment-media]:p-1",
         lg: "gap-2.5 text-sm has-data-[slot=attachment-content]:px-3 has-data-[slot=attachment-content]:py-2.5 has-data-[slot=attachment-media]:p-2",
       },
       orientation: {
@@ -270,7 +270,7 @@ function AttachmentTile({
 }
 
 const attachmentMediaVariants = cva(
-  "relative flex aspect-square w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted text-foreground group-data-[orientation=vertical]/attachment:w-full group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-7 group-data-[size=lg]/attachment:group-data-[orientation=horizontal]/attachment:w-12 group-data-[size=xs]/attachment:rounded-md group-data-[state=error]/attachment:bg-destructive/10 group-data-[state=error]/attachment:text-destructive group-data-[orientation=vertical]/attachment:*:data-[slot=spinner]:size-6! [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6 group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5",
+  "relative flex aspect-square w-10 shrink-0 items-center justify-center overflow-hidden rounded-tile bg-muted group-data-[orientation=vertical]/attachment:rounded-block text-foreground group-data-[orientation=vertical]/attachment:w-full group-data-[size=sm]/attachment:w-8 group-data-[size=xs]/attachment:w-7 group-data-[size=lg]/attachment:group-data-[orientation=horizontal]/attachment:w-12 group-data-[state=error]/attachment:bg-destructive/10 group-data-[state=error]/attachment:text-destructive group-data-[orientation=vertical]/attachment:*:data-[slot=spinner]:size-6! [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 group-data-[orientation=vertical]/attachment:[&_svg:not([class*='size-'])]:size-6 group-data-[size=xs]/attachment:[&_svg:not([class*='size-'])]:size-3.5",
   {
     variants: {
       variant: {
@@ -523,7 +523,7 @@ function AttachmentGroup({
         className={cn(
           count ? tileColumnClasses[count] : undefined,
           layout === "list"
-            ? "flex min-w-0 flex-col gap-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-lg *:data-[slot=attachment]:not-data-[state=error]:border-transparent *:data-[slot=attachment]:bg-transparent **:data-[slot=attachment-media]:w-8 **:data-[slot=attachment-media]:rounded-md [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
+            ? "flex min-w-0 flex-col gap-0.5 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap *:data-[slot=attachment]:rounded-item *:data-[slot=attachment]:not-data-[state=error]:border-transparent *:data-[slot=attachment]:bg-transparent **:data-[slot=attachment-media]:w-8 [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
             : layout === "cards"
               ? "grid min-w-0 grid-cols-[repeat(auto-fill,minmax(min(100%,max(--spacing(64),calc((100%_-_var(--spacing)*4)/3))),1fr))] gap-2 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:flex-nowrap **:data-[slot=attachment-media]:w-12 [&_[data-slot=attachment-content]_[data-slot=attachment-progress]]:mt-1.5"
               : layout === "grid"
@@ -572,7 +572,7 @@ function AttachmentSkeletons({ count = 3 }: { count?: number }) {
     >
       {Array.from({ length: Math.max(0, count) }, (_, index) => (
         <div key={index} className="flex items-center gap-3 p-1">
-          <Skeleton className="size-8 shrink-0 rounded-md" />
+          <Skeleton className="size-8 shrink-0 rounded-tile" />
           <div className="flex flex-col gap-1.5">
             <Skeleton
               className={cn(

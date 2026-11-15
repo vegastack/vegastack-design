@@ -61,7 +61,7 @@ const STEPS = [
 function Panel({ initial = null }: { initial?: string | null }) {
   const [subagent, setSubagent] = useState<string | null>(initial);
   return (
-    <div className="h-120 w-80 overflow-hidden rounded-lg border border-chat-hairline bg-background">
+    <div className="h-120 w-80 overflow-hidden rounded-card border border-chat-hairline bg-background">
       {subagent ? (
         <ChatDetails>
           <ChatDetailsBack

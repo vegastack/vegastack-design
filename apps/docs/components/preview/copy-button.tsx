@@ -15,7 +15,7 @@ export function copyButton(): ReactNode {
           text-primary for ~1.5s. The copied state is owned internally by the
           component — both states are exercised on this live instance, no
           doc-local state hack. */}
-      <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-sm">
+      <code className="rounded-inline border border-border bg-muted px-2 py-1 font-mono text-sm">
         npx shadcn add @vegastack/button
       </code>
       <CopyButton value="npx shadcn add @vegastack/button" />
@@ -93,7 +93,7 @@ export function copyButtonWithToast(): ReactNode {
   return (
     <Wrapper>
       {/* `onCopied` fires after a successful write — surface a toast (live). */}
-      <code className="rounded-md border border-border bg-muted px-2 py-1 font-mono text-sm">
+      <code className="rounded-inline border border-border bg-muted px-2 py-1 font-mono text-sm">
         vsk_live_3f9a…
       </code>
       <CopyButton

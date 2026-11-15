@@ -158,7 +158,7 @@ redirection; retaining the digest before copy-in also detects replacement of the
 
 **Don't edit a copied-in component; customize around it.** In order of preference:
 
-- **A token override** — retune `--primary`, `--radius` or a font family once and every component
+- **A token override** — retune `--primary`, a corner role such as `--corner-card`, or a font family once and every component
   follows ([Theming](/docs/guides/theming)).
 - **`className` at the call site** — every part accepts one and merges it with `cn()`.
 - **A wrapper in your own file** — wrap `Button` in your own `SubmitButton` rather than forking

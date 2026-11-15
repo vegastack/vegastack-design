@@ -37,7 +37,7 @@ export function blockHeader(): ReactNode {
   const [view, setView] = React.useState("Grid");
   return (
     <Wrapper className="block">
-      <div className="rounded-lg border border-border">
+      <div className="rounded-block border border-border">
         <BlockHeader
           icon={<Table2 />}
           title="QA fixtures"
@@ -77,7 +77,7 @@ export function blockHeaderEmpty(): ReactNode {
   const picked = TABLES.find((t) => t.value === table);
   return (
     <Wrapper className="block">
-      <div className="rounded-lg border border-border">
+      <div className="rounded-block border border-border">
         <BlockHeader
           icon={<Table2 />}
           title={picked?.label}
@@ -121,7 +121,7 @@ export function blockHeaderEmpty(): ReactNode {
 export function blockHeaderTasks(): ReactNode {
   return (
     <Wrapper className="block space-y-3">
-      <div className="rounded-lg border border-border">
+      <div className="rounded-block border border-border">
         <BlockHeader
           icon={<ListTodo />}
           title="Tasks · My open"
@@ -132,7 +132,7 @@ export function blockHeaderTasks(): ReactNode {
           </BlockHeaderButton>
         </BlockHeader>
       </div>
-      <div className="max-w-72 rounded-lg border border-border">
+      <div className="max-w-72 rounded-block border border-border">
         <BlockHeader
           icon={<ListTodo />}
           title="Tasks · Assigned to me in this space"

@@ -1,4 +1,4 @@
-// @vegastack use-animation-replay@0.26.4 sha256-PNjXtzGTfhrzv65YSG/lDrqiAKVCNFqXBO/mWcrLP+o=
+// @vegastack use-animation-replay@0.26.4 sha256-mO+j7fyZQWw4bCgQjqZsllRiRvjGtS9EADrLoU+n9ds=
 
 "use client";
 
@@ -203,7 +203,7 @@ function readInvalidAttribute(element: HTMLElement): boolean {
  *     <input
  *       ref={ref}
  *       aria-invalid={invalid}
- *       className={cn('rounded-md border', shake.className)}
+ *       className={cn('rounded-control border', shake.className)}
  *       onAnimationEnd={shake.onAnimationEnd}
  *       {...props}
  *     />

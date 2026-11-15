@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.88.0 sha256-4zM+RtZwToSmrYP7Te4YJACFP1K6cYkVnK099mIW9Z4=
+// @vegastack field-cell@0.88.0 sha256-et1ROhVgHIA/4koVJZEkydrx8xIOhwBNvDaE7I1ncNo=
 
 "use client";
 
@@ -294,12 +294,7 @@ function FieldFileThumbnail({ file, src }: { file: FieldFile; src: string }) {
     file.href !== undefined ? file.href : resolver?.href?.("file", file.id),
   );
   const thumbnail = (
-    <Thumbnail
-      src={src}
-      alt={file.name}
-      size="sm"
-      className="h-5 w-8 rounded-sm"
-    />
+    <Thumbnail src={src} alt={file.name} size="sm" className="h-5 w-8" />
   );
   if (!href)
     return (
@@ -318,7 +313,7 @@ function FieldFileThumbnail({ file, src }: { file: FieldFile; src: string }) {
       data-slot="field-cell-file-thumbnail"
       aria-label={file.name}
       title={file.name}
-      className="h-5 w-8 rounded-sm border-0"
+      className="h-5 w-8 rounded-tile border-0"
       onClick={(event) => {
         if (event.metaKey || event.ctrlKey || event.shiftKey) {
           window.open(href, "_blank", "noopener,noreferrer");
@@ -1146,7 +1141,7 @@ export function FieldCellDisplay({
             <span
               key={file.id}
               title={file.name}
-              className="block size-6 shrink-0 overflow-hidden rounded-sm"
+              className="block size-6 shrink-0 overflow-hidden rounded-tile"
             >
               <FileKindTile
                 name={file.name}

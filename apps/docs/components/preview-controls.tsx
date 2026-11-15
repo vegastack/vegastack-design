@@ -175,7 +175,8 @@ export function PreviewFrameContainer({
         }
         className={cn(
           "mx-auto max-w-(--preview-frame-max-width) transition-[max-width] duration-fast ease-standard",
-          width !== "full" && "rounded-md border border-dashed border-border",
+          width !== "full" &&
+            "rounded-block border border-dashed border-border",
         )}
       >
         {children}

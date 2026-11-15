@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.88.0 sha256-lRBD7SjGcCzIHYtskPYHgWMTnUEwmi/7M7plu49P1UQ=
+// @vegastack action-bar@0.88.0 sha256-JmqgUzbaIIV6KUDvGFQP20FCY5tHncvbTgtNVN7NNQI=
 
 "use client";
 
@@ -233,7 +233,7 @@ export function ActionBar({
       }
       className={cn(
         // Never wider than the viewport (`100vw`, not the containing block), whatever it is centred on.
-        "fixed z-10 flex w-fit max-w-[calc(100vw-var(--spacing)*8)] items-center gap-2 rounded-lg border border-border bg-background py-1.5 ps-4 pe-2 max-sm:ps-3",
+        "fixed z-10 flex w-fit max-w-[calc(100vw-var(--spacing)*8)] items-center gap-2 rounded-control border border-border bg-background py-1.5 ps-4 pe-2 max-sm:ps-3",
         // Pinned to the bottom viewport edge → add the safe-area inset, and stack over whatever
         // docks below it (`GlobalAudioPlayer` sets `--dock-inset-bottom` while it is open).
         "bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))]",

@@ -298,10 +298,10 @@ test('AppShellContent variant="inset" paints what upstream\'s SidebarInset paint
   const main = screen.getByRole("main").element();
   expect(main.getAttribute("data-variant")).toBe("inset");
   // Read off `sidebar.tsx`'s own `peer-data-[variant=inset]` set, minus the sibling-only
-  // collapsed nudge: m-2, ms-0, rounded-xl, shadow-sm — and NO border. Before Batch 7c this
+  // collapsed nudge: m-2, ms-0, rounded-card, shadow-sm — and NO border. Before Batch 7c this
   // painted `rounded-lg` + `border` + `shadow-lg`, the radius cap and the elevation doctrine
   // Batch 1 deleted, so an inset shell and an inset sidebar disagreed on their own corner.
-  for (const cls of ["md:m-2", "md:ms-0", "md:rounded-xl", "md:shadow-sm"]) {
+  for (const cls of ["md:m-2", "md:ms-0", "md:rounded-card", "md:shadow-sm"]) {
     expect(main.className).toContain(cls);
   }
   expect(main.className).not.toContain("md:border");
@@ -312,7 +312,7 @@ test('AppShellContent defaults to variant="sidebar" (no inset panel classes)', a
   const screen = await render(<Demo />);
   const main = screen.getByRole("main").element();
   expect(main.getAttribute("data-variant")).toBe("sidebar");
-  expect(main.className).not.toContain("md:rounded-xl");
+  expect(main.className).not.toContain("md:rounded-card");
   expect(main.className).not.toContain("md:shadow-sm");
 });
 

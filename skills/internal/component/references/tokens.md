@@ -102,11 +102,19 @@ AA-gated rather than eyeballed.
 
 ## Radius
 
-**One token.** `--radius` is `0.625rem`, and Tailwind's ramp is derived from it exactly as upstream
-derives it: `sm` 0.6x, `md` 0.8x, `lg` 1x, `xl` 1.4x, `2xl` 1.8x, `3xl` 2.2x, `4xl` 2.6x.
+**A corner is a role** (BRD-12, `design.md` § Corners). Write the role the element plays:
+`rounded-control` (pill: every single-line control, Button at every size), `rounded-icon` (circle:
+icon-only buttons), `rounded-chip` (pill), `rounded-inline` (6px: tokens in running text),
+`rounded-mark` (4px: highlights, the checkbox, chart swatches), `rounded-item` (10px: every row with
+a fill, tooltips), `rounded-block` (12px: blocks in content, nested cards), `rounded-card` (16px),
+`rounded-bubble` (20px), `rounded-overlay` (24px), `rounded-tile` (25%: square media). Side forms
+(`rounded-t-overlay`, `rounded-s-item`) are fine; `none`, `full` (dots, people) and `[inherit]`
+are structural. A table row with a fill takes `row-fill`. A menu is `rounded-card p-1.5` around
+`rounded-item` rows — a row is its container's corner minus the padding.
 
-`rounded-xl` is a normal utility again — a card and a dialog wear it. The 12px cap, the
-`removed-radius-xl` lint and `--radius-sharp` are gone.
+`--radius` (0.625rem) and the ramp derived from it (`sm`…`4xl`) exist only so upstream's math holds;
+`design-lint` `no-radius-ramp` rejects a ramp step, bare `rounded`, an arbitrary length, a radius
+variable and the retired `rounded-chat-card` in registry source.
 
 ## Type
 
@@ -203,7 +211,7 @@ owns its own chrome now.
 | `--size-*` / `--icon-*` / `--panel-width-*`                   | `h-8` · `size-4` · `w-72`                              |
 | `--z-raised` / `--z-overlay` / `--z-toast`                    | `z-10` · `z-50` · `z-60`                               |
 | `--shadow-overlay`                                            | `shadow-sm` / `shadow-md` / `shadow-lg`, per component |
-| `--radius-sharp` / `--radius-xs`                              | `rounded-[2px]` (marketing is deleted) · `rounded-sm`  |
+| `--radius-sharp` / `--radius-xs`                              | `rounded-mark` (BRD-12)                                |
 | `--overlay`                                                   | `bg-black/10` (upstream's scrim)                       |
 | the `--type-product-*` / `--type-doc-*` ladders               | Tailwind's own `--text-*`                              |
 | `--font-family-pixel`, `--motion-blur`, `--effect-blur-glass` | deleted with the marketing layer and its effects       |

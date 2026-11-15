@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.88.0 sha256-PeJuU5n+mKFlmadts/AEckxPTWzXeCPBkP33a6GtB3g=
+// @vegastack list-toolbar@0.88.0 sha256-h4N/PcWT2X2iTVO92Ju5Xgko0YKp3/1EIKc4x8QtgOg=
 
 "use client";
 
@@ -575,7 +575,7 @@ export function ListToolbarPopover({
         aria-label={title}
         data-slot={dataSlot}
         className={cn(
-          "max-w-[calc(100vw-2rem)] gap-0 p-1",
+          "max-w-[calc(100vw-2rem)] gap-0 p-1.5",
           size === "lg" && "w-144",
           className,
         )}
@@ -628,7 +628,7 @@ export function ListToolbarDrillHeader({
         aria-label={backLabel}
         data-slot="list-toolbar-drill-back"
         onClick={onBack}
-        className="h-7 min-w-0 flex-1 justify-start gap-1.5 rounded-md px-1.5 text-sm font-medium [&_svg]:text-muted-foreground"
+        className="h-7 min-w-0 flex-1 justify-start gap-1.5 rounded-item px-2 text-sm font-medium [&_svg]:text-muted-foreground"
       >
         <ChevronLeft aria-hidden />
         <span className="min-w-0 truncate">{title}</span>

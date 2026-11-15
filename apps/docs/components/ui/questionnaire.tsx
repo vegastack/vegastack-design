@@ -1,4 +1,4 @@
-// @vegastack questionnaire@0.88.0 sha256-AfZBM8/fWBKKrMnjdbiZp/64As1BMGThd/FIT5THCIo=
+// @vegastack questionnaire@0.88.0 sha256-hTbcved912+0gykn5WQ2rYlME+HTEuJVYPvQWlYyKMk=
 
 "use client";
 
@@ -115,7 +115,7 @@ function QuestionnaireChoice({
         // itself, as a gradient image over its fill exactly as base.css lays it, so it still reads over
         // the hover and checked fills (the shape `input-otp`'s active slot uses). An invalid choice keeps its
         // destructive border in every state.
-        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-lg border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none state-layer has-[>input:focus-visible]:layer-focus data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-state-selected",
+        "group/questionnaire-choice relative flex min-h-11 cursor-pointer items-start gap-2.5 rounded-item border border-input bg-transparent px-3 py-2.5 text-start text-sm transition-colors outline-none select-none state-layer has-[>input:focus-visible]:layer-focus data-invalid:border-destructive dark:bg-input/20 data-checked:border-primary/40 data-checked:bg-state-selected",
         // FRM-4: `data-disabled:pointer-events-none` is dropped, so a disabled choice stays
         // hoverable and a Tooltip can explain why it cannot be picked. The engine keeps the
         // input's own `disabled`, so nothing becomes answerable.
@@ -131,7 +131,7 @@ function QuestionnaireChoice({
       <span
         aria-hidden="true"
         data-slot="questionnaire-choice-indicator"
-        className="pointer-events-none relative flex size-4 shrink-0 translate-y-[--spacing(0.45)] items-center justify-center rounded-[4px] border border-input group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[type=radio]/questionnaire-choice:rounded-full group-data-checked/questionnaire-choice:border-primary group-data-checked/questionnaire-choice:bg-primary group-data-checked/questionnaire-choice:text-primary-foreground dark:bg-input/30 dark:group-data-checked/questionnaire-choice:bg-primary"
+        className="pointer-events-none relative flex size-4 shrink-0 translate-y-[--spacing(0.45)] items-center justify-center rounded-mark border border-input group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[type=radio]/questionnaire-choice:rounded-full group-data-checked/questionnaire-choice:border-primary group-data-checked/questionnaire-choice:bg-primary group-data-checked/questionnaire-choice:text-primary-foreground dark:bg-input/30 dark:group-data-checked/questionnaire-choice:bg-primary"
       >
         <span
           data-slot="questionnaire-choice-indicator-dot"
@@ -150,7 +150,7 @@ function QuestionnaireChoice({
       </QuestionnairePrimitive.ChoiceLabel>
       <QuestionnairePrimitive.ChoiceShortcut
         data-slot="questionnaire-choice-shortcut"
-        className="pointer-events-none ms-auto hidden size-5 shrink-0 translate-y-[--spacing(0.45)] items-center justify-center rounded-md border border-input bg-background font-mono text-xs leading-none font-medium text-muted-foreground group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[shortcut]/questionnaire-choice:inline-flex"
+        className="pointer-events-none ms-auto hidden size-5 shrink-0 translate-y-[--spacing(0.45)] items-center justify-center rounded-inline border border-input bg-background font-mono text-xs leading-none font-medium text-muted-foreground group-has-data-[slot=questionnaire-choice-description]/questionnaire-choice:translate-y-0.5 group-data-[shortcut]/questionnaire-choice:inline-flex"
       />
     </QuestionnairePrimitive.Choice>
   );
@@ -188,7 +188,7 @@ function QuestionnaireInput({
           // An invalid answer keeps its destructive border in every state.
           // FRM-4: `disabled:pointer-events-none` is dropped, so a disabled answer field stays
           // hoverable and a Tooltip can explain it.
-          "h-8 min-h-11 w-full min-w-0 rounded-lg border border-input bg-transparent px-2.5 py-1 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden focus:not-aria-invalid:border-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "h-8 min-h-11 w-full min-w-0 rounded-control border border-input bg-transparent px-2.5 py-1 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden focus:not-aria-invalid:border-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
           "selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground",
           className,
         )}

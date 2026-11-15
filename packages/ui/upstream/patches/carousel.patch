@@ -1,6 +1,7 @@
 # component: carousel
-# decisions: DOC-1, DOC-2
+# decisions: DOC-1, DOC-2, BRD-12
 # hunks:
+#   BRD-12: the prev/next Buttons drop `rounded-full`, since every icon size is already `rounded-icon` (operator 2026-11-16).
 #   NO STYLING HUNK. New to this system in Batch 5. The arrows render through `Button`, which
 #     already owns focus, cursor and disabled behaviour, and the slide track has no focus
 #     affordance of its own. `embla-carousel-react` is the engine; it is pre-approved with
@@ -10,7 +11,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/carousel.tsx b/carousel.tsx
-index 53ff9d0..f4305d1 100644
+index 53ff9d0..5896108 100644
 --- a/carousel.tsx
 +++ b/carousel.tsx
 @@ -1,45 +1,45 @@
@@ -224,7 +225,12 @@ index 53ff9d0..f4305d1 100644
  
    return (
      <Button
-@@ -189,7 +189,7 @@ function CarouselPrevious({
+@@ -185,11 +185,11 @@ function CarouselPrevious({
+       variant={variant}
+       size={size}
+       className={cn(
+-        "absolute touch-manipulation rounded-full",
++        "absolute touch-manipulation",
          orientation === "horizontal"
            ? "inset-y-0 -start-12 my-auto"
            : "-top-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90",
@@ -251,7 +257,12 @@ index 53ff9d0..f4305d1 100644
  
    return (
      <Button
-@@ -219,7 +219,7 @@ function CarouselNext({
+@@ -215,11 +215,11 @@ function CarouselNext({
+       variant={variant}
+       size={size}
+       className={cn(
+-        "absolute touch-manipulation rounded-full",
++        "absolute touch-manipulation",
          orientation === "horizontal"
            ? "inset-y-0 -end-12 my-auto"
            : "-bottom-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90",

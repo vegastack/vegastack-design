@@ -21,9 +21,10 @@ const ASPECT_RATIO_OPTIONS = [
 
 const ROUNDED_OPTIONS = [
   { value: "none", label: "None" },
-  { value: "sm", label: "Small" },
-  { value: "md", label: "Medium" },
-  { value: "lg", label: "Large" },
+  { value: "mark", label: "Mark" },
+  { value: "block", label: "Block" },
+  { value: "card", label: "Card" },
+  { value: "tile", label: "Tile" },
   { value: "full", label: "Full" },
 ] as const;
 
@@ -41,7 +42,7 @@ const imagePlaygroundConfig: PlaygroundConfig<ImagePlaygroundKey> = {
       key: "rounded",
       label: "Rounded",
       options: ROUNDED_OPTIONS,
-      defaultValue: "md",
+      defaultValue: "block",
     },
   ],
   render: (state): ReactNode => (
@@ -58,7 +59,7 @@ const imagePlaygroundConfig: PlaygroundConfig<ImagePlaygroundKey> = {
     const props: string[] = [];
     if (state.aspectRatio !== "auto")
       props.push(`aspectRatio="${state.aspectRatio}"`);
-    if (state.rounded !== "md") props.push(`rounded="${state.rounded}"`);
+    if (state.rounded !== "block") props.push(`rounded="${state.rounded}"`);
     const propsString = props.length > 0 ? ` ${props.join(" ")}` : "";
     return `<Image src={url} alt="A scenic landscape"${propsString} />`;
   },

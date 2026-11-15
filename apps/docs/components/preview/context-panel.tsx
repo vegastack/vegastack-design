@@ -15,7 +15,7 @@ const PARTS = [
 function Frame({ children }: { children: ReactNode }): ReactNode {
   return (
     <Wrapper className="items-start">
-      <div className="w-80 rounded-xl border border-border bg-popover p-4 text-popover-foreground">
+      <div className="w-80 rounded-card border border-border bg-popover p-4 text-popover-foreground">
         {children}
       </div>
     </Wrapper>

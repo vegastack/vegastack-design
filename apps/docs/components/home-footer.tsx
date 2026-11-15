@@ -37,7 +37,7 @@ export function HomeFooter() {
                   target="_blank"
                   rel="noreferrer noopener"
                   aria-label={`VegaStack on ${social.label}`}
-                  className="inline-flex size-8 items-center justify-center rounded-full text-muted-foreground state-layer hover:text-foreground"
+                  className="inline-flex size-8 items-center justify-center rounded-icon text-muted-foreground state-layer hover:text-foreground"
                 >
                   <BrandIcon
                     icon={social.icon}

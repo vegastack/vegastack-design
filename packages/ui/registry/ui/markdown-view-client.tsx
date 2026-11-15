@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.88.0 sha256-E7siL54DFIL5PHyK99Y7zwm2I36Ayte4XJQ1b5Li+ZQ=
+// @vegastack markdown-view@0.88.0 sha256-spWOAK/WagA61OcFo6wa9q0ARKd+qVhPRBgi/gqze/E=
 
 "use client";
 
@@ -567,7 +567,7 @@ export function MarkdownViewEffects({
           data-slot="markdown-find-bar"
           role="search"
           aria-label={labels.label}
-          className="fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] z-50 flex h-8 items-center gap-0.5 rounded-lg border border-border bg-popover ps-2.5 pe-0.5 font-sans text-sm text-popover-foreground shadow-md print:hidden"
+          className="fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] z-50 flex h-8 items-center gap-0.5 rounded-control border border-border bg-popover ps-2.5 pe-0.5 font-sans text-sm text-popover-foreground shadow-md print:hidden"
           // Escape closes; Enter and Space stay the buttons' own (activate the focused one).
           onKeyDown={(event) => {
             if (event.key === "Escape" && onFindClose) {
@@ -865,9 +865,9 @@ function selectionAnchor(
 const VIEWPORT_GAP = 8;
 const SELECTION_GAP = 8;
 
-/** `TextEdit`'s menu surface. */
+/** `TextEdit`'s menu surface: a single-line floating bar, so a pill. */
 const MENU_SURFACE =
-  "z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md";
+  "z-50 rounded-control border border-border bg-popover p-1 text-popover-foreground shadow-md";
 
 /** Every scrolling ancestor's visible box, intersected with the viewport inside its safe area. */
 function visibleArea(root: HTMLElement, safeTop: number, safeBottom: number) {
@@ -1269,7 +1269,7 @@ export function MarkdownBlockedImage({
   return (
     <span
       data-slot="markdown-image-blocked"
-      className="my-2 flex min-w-0 items-center justify-between gap-2 rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
+      className="my-2 flex min-w-0 items-center justify-between gap-2 rounded-block border border-border bg-muted px-3 py-2 text-muted-foreground"
       {...props}
     >
       <span className="min-w-0 wrap-anywhere">
@@ -1726,7 +1726,7 @@ export function MarkdownBookmark({
       // A link of its own, never editable text: an editable anchor does not navigate.
       contentEditable={false}
       className={cn(
-        "my-2 flex w-full max-w-full min-w-0 items-center gap-3 rounded-lg border border-border bg-card p-3 text-card-foreground transition-colors state-layer",
+        "my-2 flex w-full max-w-full min-w-0 items-center gap-3 rounded-block border border-border bg-card p-3 text-card-foreground transition-colors state-layer",
         className,
       )}
       {...props}
@@ -1736,7 +1736,7 @@ export function MarkdownBookmark({
         className="flex min-w-0 flex-1 flex-col gap-1"
       >
         {loading ? (
-          <Skeleton className="h-4 w-2/3 rounded-sm" />
+          <Skeleton className="h-4 w-2/3" />
         ) : (
           <span
             data-slot="markdown-bookmark-title"
@@ -1761,7 +1761,7 @@ export function MarkdownBookmark({
             <img
               src={preview.icon}
               alt=""
-              className="size-4 shrink-0 rounded-sm"
+              className="size-4 shrink-0 rounded-mark"
             />
           ) : (
             <Globe aria-hidden className="size-3.5 shrink-0" />
@@ -1778,7 +1778,7 @@ export function MarkdownBookmark({
           data-slot="markdown-bookmark-image"
           src={preview.image}
           alt=""
-          className="aspect-[4/3] w-24 shrink-0 rounded-md object-cover max-sm:hidden"
+          className="aspect-[4/3] w-24 shrink-0 rounded-mark object-cover max-sm:hidden"
         />
       ) : null}
     </a>
@@ -1873,7 +1873,7 @@ export function MarkdownEmbed({
     >
       <div
         data-slot="markdown-embed-frame"
-        className="relative aspect-video w-full overflow-hidden rounded-lg border border-border bg-muted print:hidden"
+        className="relative aspect-video w-full overflow-hidden rounded-block border border-border bg-muted print:hidden"
       >
         {playing ? (
           <iframe
@@ -1925,7 +1925,7 @@ export function MarkdownEmbed({
  * swap to the frame moves nothing.
  */
 const blockViewClassName =
-  "@container/block-view group/block-view relative w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-border print:break-inside-avoid";
+  "@container/block-view group/block-view relative w-full min-w-0 max-w-full overflow-hidden rounded-block border border-border print:break-inside-avoid";
 const blockViewHeaderClassName =
   "flex h-9 items-center gap-1 border-b border-border ps-3 pe-1.5 select-none print:hidden";
 const blockViewLabelClassName =

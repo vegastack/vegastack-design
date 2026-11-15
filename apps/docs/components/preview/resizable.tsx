@@ -21,7 +21,7 @@ export function resizable(): ReactNode {
     <Wrapper>
       <ResizablePanelGroup
         orientation="horizontal"
-        className="max-w-sm rounded-lg border"
+        className="max-w-sm rounded-card border"
       >
         <ResizablePanel defaultSize="50%">
           <div className="flex h-[200px] items-center justify-center p-6">
@@ -54,7 +54,7 @@ export function resizableAbout(): ReactNode {
     <Wrapper>
       <ResizablePanelGroup
         orientation="horizontal"
-        className="min-h-[160px] max-w-sm rounded-lg border"
+        className="min-h-[160px] max-w-sm rounded-card border"
       >
         <ResizablePanel defaultSize="50%">
           <div className="flex h-full items-center justify-center p-6 text-center text-sm text-muted-foreground">
@@ -77,7 +77,7 @@ export function resizableComposition(): ReactNode {
     <Wrapper>
       <ResizablePanelGroup
         orientation="horizontal"
-        className="min-h-[160px] max-w-sm rounded-lg border"
+        className="min-h-[160px] max-w-sm rounded-card border"
       >
         <ResizablePanel defaultSize="50%">
           <div className="flex h-full items-center justify-center p-6">
@@ -100,7 +100,7 @@ export function resizableVertical(): ReactNode {
     <Wrapper>
       <ResizablePanelGroup
         orientation="vertical"
-        className="min-h-[200px] max-w-sm rounded-lg border"
+        className="min-h-[200px] max-w-sm rounded-card border"
       >
         <ResizablePanel defaultSize="25%">
           <div className="flex h-full items-center justify-center p-6">
@@ -128,7 +128,7 @@ export function resizableNested(): ReactNode {
     <Wrapper>
       <ResizablePanelGroup
         orientation="vertical"
-        className="min-h-[220px] max-w-sm rounded-lg border"
+        className="min-h-[220px] max-w-sm rounded-card border"
       >
         <ResizablePanel defaultSize="30%">
           <div className="flex h-full items-center justify-center p-6">
@@ -161,7 +161,7 @@ export function resizableHandle(): ReactNode {
     <Wrapper>
       <ResizablePanelGroup
         orientation="horizontal"
-        className="min-h-[200px] max-w-sm rounded-lg border"
+        className="min-h-[200px] max-w-sm rounded-card border"
       >
         <ResizablePanel defaultSize="25%">
           <div className="flex h-full items-center justify-center p-6">
@@ -187,7 +187,7 @@ export function resizableRtl(): ReactNode {
     <Wrapper dir="rtl">
       <ResizablePanelGroup
         orientation="horizontal"
-        className="max-w-sm rounded-lg border"
+        className="max-w-sm rounded-card border"
         dir="rtl"
       >
         <ResizablePanel defaultSize="50%">

@@ -107,11 +107,11 @@ test("every brand renders: a currentColor glyph, or its first letter where Simpl
 test("forwards ref and extra props to the tile", async () => {
   const ref = React.createRef<HTMLSpanElement>();
   const screen = await render(
-    <BrandLogo brand="mcp" ref={ref} className="rounded-md" title="MCP" />,
+    <BrandLogo brand="mcp" ref={ref} className="rounded-block" title="MCP" />,
   );
   const tile = tileOf(screen.container);
   expect(ref.current).toBe(tile);
-  expect(tile.className).toContain("rounded-md");
-  expect(tile.className).not.toContain("rounded-sm");
+  expect(tile.className).toContain("rounded-block");
+  expect(tile.className).not.toContain("rounded-tile");
   expect(tile.getAttribute("title")).toBe("MCP");
 });

@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.88.0 sha256-1R+EHUzU1jCHgTnH+fXdQplDQl4Ollou0jhAAR1VfnM=
+// @vegastack document-layout@0.88.0 sha256-4RBjcTC1Oqqw7WTdTfM1qefq6zkQTfY0lVCe5hZKOZQ=
 
 "use client";
 
@@ -184,7 +184,7 @@ export function DocumentLayoutSectionSkeleton({
       {...props}
     >
       <Skeleton className="h-4 w-32" />
-      <Skeleton className="h-12 w-full" />
+      <Skeleton className="h-12 w-full rounded-item" />
     </div>
   );
 }
@@ -292,7 +292,7 @@ export function DocumentLayoutPageLink({
       size="sm"
       data-slot="document-layout-page-link"
       className={cn(
-        "min-w-0 flex-1 rounded-none px-1 pointer-coarse:min-h-14",
+        "min-w-0 flex-1 rounded-item px-1 pointer-coarse:min-h-14",
         className,
       )}
       render={render}
@@ -348,7 +348,7 @@ export function DocumentLayoutBlock({
       data-slot="document-layout-block"
       contentEditable={false}
       className={cn(
-        "my-2 rounded-lg border border-border bg-card text-card-foreground",
+        "my-2 rounded-block border border-border bg-card text-card-foreground",
         className,
       )}
       {...props}

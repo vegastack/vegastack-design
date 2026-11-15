@@ -51,7 +51,7 @@ const FOUNDATION_GROUPS = [
       ["Design principles", "/docs/foundations/design-principles"],
     ],
     specimen: (
-      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border">
+      <div className="grid grid-cols-2 gap-px overflow-hidden rounded-card border border-border bg-border">
         {[
           ["Background", "bg-background"],
           ["Foreground", "bg-foreground"],
@@ -60,7 +60,7 @@ const FOUNDATION_GROUPS = [
         ].map(([label, className]) => (
           <div key={label} className="bg-card p-3">
             <span
-              className={`block h-14 rounded-md border border-border ${className}`}
+              className={`block h-14 rounded-block border border-border ${className}`}
             />
             <span className="mt-2 block font-sans text-xs text-muted-foreground">
               {label}
@@ -80,7 +80,7 @@ const FOUNDATION_GROUPS = [
       ["Accessibility", "/docs/foundations/accessibility"],
     ],
     specimen: (
-      <div className="flex min-h-40 flex-col justify-center gap-3 rounded-lg border border-border bg-card p-5">
+      <div className="flex min-h-40 flex-col justify-center gap-3 rounded-card border border-border bg-card p-5">
         <p className="text-3xl font-semibold text-foreground">
           Product hierarchy
         </p>
@@ -99,22 +99,22 @@ const FOUNDATION_GROUPS = [
   {
     title: "Space, shape & elevation",
     description:
-      "A 4px spacing foundation, restrained radii, and two named shadows keep surfaces coherent.",
+      "A 4px spacing foundation, role-based corners, and two named shadows keep surfaces coherent.",
     links: [
       ["Spacing", "/docs/foundations/spacing"],
       ["Radius", "/docs/foundations/radius"],
       ["Elevation", "/docs/foundations/elevation"],
     ],
     specimen: (
-      <div className="flex min-h-40 items-center justify-center rounded-lg border border-border bg-muted/50 p-6">
-        <div className="w-full max-w-sm rounded-lg border border-border bg-card p-4 shadow-lg">
-          <div className="h-3 w-2/5 rounded-sm bg-foreground" />
-          <div className="mt-4 h-2 w-full rounded-sm bg-muted" />
-          <div className="mt-2 h-2 w-4/5 rounded-sm bg-muted" />
+      <div className="flex min-h-40 items-center justify-center rounded-card border border-border bg-muted/50 p-6">
+        <div className="w-full max-w-sm rounded-card border border-border bg-card p-4 shadow-lg">
+          <div className="h-3 w-2/5 rounded-full bg-foreground" />
+          <div className="mt-4 h-2 w-full rounded-full bg-muted" />
+          <div className="mt-2 h-2 w-4/5 rounded-full bg-muted" />
           <div className="mt-5 grid grid-cols-3 gap-3">
-            <span className="h-10 rounded-md border border-border bg-background" />
-            <span className="h-10 rounded-md border border-border bg-background" />
-            <span className="h-10 rounded-md border border-border bg-background" />
+            <span className="h-10 rounded-control border border-border bg-background" />
+            <span className="h-10 rounded-control border border-border bg-background" />
+            <span className="h-10 rounded-control border border-border bg-background" />
           </div>
         </div>
       </div>
@@ -130,7 +130,7 @@ const FOUNDATION_GROUPS = [
       ["Empty states", "/docs/foundations/empty-states"],
     ],
     specimen: (
-      <div className="flex min-h-40 flex-col justify-center gap-4 rounded-lg border border-border bg-card p-5">
+      <div className="flex min-h-40 flex-col justify-center gap-4 rounded-card border border-border bg-card p-5">
         {[
           ["Fast response", "--duration-fast · 150ms", "w-1/3"],
           ["Standard movement", "--duration-base · 200ms", "w-2/3"],

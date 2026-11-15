@@ -350,7 +350,7 @@ test("paints drag state inside the surface without changing the resting focus ou
   expect(classes).toContain("after:absolute");
   expect(classes).toContain("after:inset-0.5");
   expect(classes).toContain("after:box-border");
-  expect(classes).toContain("after:rounded-[inherit]");
+  expect(classes).toContain("after:rounded-block");
   expect(classes).toContain("data-dragging:after:border-2");
   expect(classes).toContain("data-drag-invalid:after:border-2");
 });

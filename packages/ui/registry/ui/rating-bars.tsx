@@ -1,4 +1,4 @@
-// @vegastack rating-bars@0.88.0 sha256-z20gMw3QELVTcVwyblhdsVDl3A8tzzPseIEOHWYjY4Q=
+// @vegastack rating-bars@0.88.0 sha256-1VyvQyMR8bsPSZ414sSLH/N6HhsTh/lNPhEjYevCyDA=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -99,7 +99,7 @@ export function RatingBars({
             aria-hidden
             data-lit={index < lit}
             className={cn(
-              "rounded-xs",
+              "rounded-full",
               size === "sm" ? "h-1.5 w-2.5" : "h-2 w-3",
               index < lit ? "bg-primary" : "bg-muted",
             )}

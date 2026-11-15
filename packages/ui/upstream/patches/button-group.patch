@@ -1,16 +1,18 @@
 # component: button-group
-# decisions: API-16, DOC-2
+# decisions: API-16, DOC-2, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   API-16: `"use client"` is added — `useRender` calls `React.useRef` internally, so the module
 #           throws on import in an RSC without the boundary (`verify-rsc-safety.mjs`).
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/button-group.tsx b/button-group.tsx
-index 0517b1c..8e0236c 100644
+index 0517b1c..63727a9 100644
 --- a/button-group.tsx
 +++ b/button-group.tsx
-@@ -1,9 +1,11 @@
+@@ -1,26 +1,28 @@
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
 -import { cva, type VariantProps } from "class-variance-authority"
@@ -26,8 +28,19 @@ index 0517b1c..8e0236c 100644
 +import { Separator } from "@/components/ui/separator";
  
  const buttonGroupVariants = cva(
-   "flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-e-lg [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
-@@ -19,8 +21,8 @@ const buttonGroupVariants = cva(
+-  "flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-e-lg [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
++  "flex w-fit items-stretch *:focus-visible:relative *:focus-visible:z-10 has-[>[data-slot=button-group]]:gap-2 has-[select[aria-hidden=true]:last-child]:[&>[data-slot=select-trigger]:last-of-type]:rounded-e-control [&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit [&>input]:flex-1",
+   {
+     variants: {
+       orientation: {
+         horizontal:
+-          "*:data-slot:rounded-e-none [&>[data-slot]:not(:has(~[data-slot]))]:rounded-e-lg! [&>[data-slot]~[data-slot]]:rounded-s-none [&>[data-slot]~[data-slot]]:border-s-0",
++          "*:data-slot:rounded-e-none [&>[data-slot]:not(:has(~[data-slot]))]:rounded-e-control! [&>[data-slot]~[data-slot]]:rounded-s-none [&>[data-slot]~[data-slot]]:border-s-0",
+         vertical:
+-          "flex-col *:data-slot:rounded-b-none [&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-lg! [&>[data-slot]~[data-slot]]:rounded-t-none [&>[data-slot]~[data-slot]]:border-t-0",
++          "flex-col *:data-slot:rounded-t-item *:data-slot:rounded-b-none [&>[data-slot]:not(:has(~[data-slot]))]:rounded-b-item! [&>[data-slot]~[data-slot]]:rounded-t-none [&>[data-slot]~[data-slot]]:border-t-0",
+       },
+     },
      defaultVariants: {
        orientation: "horizontal",
      },
@@ -47,11 +60,13 @@ index 0517b1c..8e0236c 100644
  }
  
  function ButtonGroupText({
-@@ -49,16 +51,16 @@ function ButtonGroupText({
+@@ -48,17 +50,17 @@ function ButtonGroupText({
+     props: mergeProps<"div">(
        {
          className: cn(
-           "flex items-center gap-2 rounded-lg border bg-muted px-2.5 text-sm font-medium [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
+-          "flex items-center gap-2 rounded-lg border bg-muted px-2.5 text-sm font-medium [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
 -          className
++          "flex items-center gap-2 rounded-control border bg-muted px-2.5 text-sm font-medium [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4",
 +          className,
          ),
        },

@@ -283,12 +283,7 @@ export function itemAvatar(): ReactNode {
             <ItemDescription>Last seen 5 months ago</ItemDescription>
           </ItemContent>
           <ItemActions>
-            <Button
-              size="icon-sm"
-              variant="outline"
-              className="rounded-full"
-              aria-label="Invite"
-            >
+            <Button size="icon-sm" variant="outline" aria-label="Invite">
               <PlusIcon />
             </Button>
           </ItemActions>
@@ -401,7 +396,6 @@ export function itemGroup(): ReactNode {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="rounded-full"
                   aria-label={`Invite ${person.username}`}
                 >
                   <PlusIcon />
@@ -436,7 +430,7 @@ export function itemHeader(): ReactNode {
               <img
                 src={THUMBNAIL}
                 alt=""
-                className="aspect-square w-full rounded-sm object-cover"
+                className="aspect-square w-full rounded-tile object-cover"
               />
             </ItemHeader>
             <ItemContent>

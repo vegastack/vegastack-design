@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.88.0 sha256-dB6ENeKq3e+3wAYbAG+z2QMK5utpdIEu+59TM+RO64A=
+// @vegastack text-edit@0.88.0 sha256-JSCsUUT1BYxoK3Xsbo1vn52hs7VqgpZ86fdmgrEe078=
 
 "use client";
 
@@ -2855,12 +2855,13 @@ function failedUploadPlaceholder(
   root.setAttribute("role", "group");
   root.setAttribute("aria-label", `Couldn't upload ${upload.name}`);
   root.className =
-    "my-2 flex max-w-full items-center gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-2 align-bottom text-sm leading-snug";
+    "my-2 flex max-w-full items-center gap-3 rounded-block border border-destructive/40 bg-destructive/5 p-2 align-bottom text-sm leading-snug";
   if (upload.preview) {
     const thumb = document.createElement("img");
     thumb.src = upload.preview;
     thumb.alt = "";
-    thumb.className = "m-0 size-10 shrink-0 rounded-md object-cover opacity-60";
+    thumb.className =
+      "m-0 size-10 shrink-0 rounded-tile object-cover opacity-60";
     root.append(thumb);
   } else root.append(strokeIcon(ALERT_PATHS, "size-4 text-destructive-text"));
   const text = document.createElement("span");
@@ -2922,7 +2923,7 @@ function uploadPlaceholder(upload: UploadWidget): HTMLElement {
     const image = document.createElement("img");
     image.src = upload.preview;
     image.alt = "";
-    image.className = "block max-h-60 rounded-lg opacity-50";
+    image.className = "block max-h-60 rounded-block opacity-50";
     const overlay = document.createElement("span");
     overlay.className =
       "absolute inset-0 grid place-items-center text-foreground";
@@ -2947,7 +2948,7 @@ function uploadPlaceholder(upload: UploadWidget): HTMLElement {
     // A file chip with a ring that fills as the upload goes (a spinner until it reports).
     root.setAttribute("data-kind", "file");
     root.className =
-      "inline-flex max-w-full items-center gap-1.5 rounded-sm bg-muted px-1 align-baseline text-muted-foreground";
+      "inline-flex max-w-full items-center gap-1.5 rounded-inline bg-muted px-1 align-baseline text-muted-foreground";
     const name = document.createElement("span");
     name.className = "truncate";
     name.textContent = upload.name;
@@ -3448,7 +3449,7 @@ function mentionOptions(
           data-slot="text-edit-mention-icon"
           className={cn(
             "flex size-5 shrink-0 items-center justify-center overflow-hidden",
-            person && !option.icon ? "rounded-full" : "rounded-sm",
+            person && !option.icon ? "rounded-full" : "rounded-tile",
           )}
         >
           {option.icon ??
@@ -3515,14 +3516,14 @@ const IMAGE_SNAP = 8;
 /** The guides: a quarter, a half, three quarters and the full width left of the image. */
 const IMAGE_GUIDES = [0.25, 0.5, 0.75, 1] as const;
 
-// The image keeps one radius (`rounded-lg`, the media radius) at rest, hovered, selected and while
-// resizing; the selection is a thin primary outline hugging it (no frame, no extra spacing).
+// The image keeps one radius (`rounded-block`, the media radius) at rest, hovered, selected and
+// while resizing; the selection is a thin primary outline hugging it (no frame, no extra spacing).
 // An image that can't load (gone, or another site's the page may not show) keeps a visible frame
 // with its alt text, so its toolbar can still replace it.
 const IMAGE_CONTAINER =
-  "group/image relative my-2 flex-col items-start max-w-full leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-lg [&_img[data-broken]]:h-24 [&_img[data-broken]]:min-w-full [&_img[data-broken]]:border [&_img[data-broken]]:border-dashed [&_img[data-broken]]:border-border [&_img[data-broken]]:bg-muted [&_img[data-broken]]:p-3 [&_img[data-broken]]:text-sm [&_img[data-broken]]:text-muted-foreground";
+  "group/image relative my-2 flex-col items-start max-w-full leading-none [&_img]:block [&_img]:max-w-full [&_img]:rounded-block [&_img[data-broken]]:h-24 [&_img[data-broken]]:min-w-full [&_img[data-broken]]:border [&_img[data-broken]]:border-dashed [&_img[data-broken]]:border-border [&_img[data-broken]]:bg-muted [&_img[data-broken]]:p-3 [&_img[data-broken]]:text-sm [&_img[data-broken]]:text-muted-foreground";
 const IMAGE_WRAPPER =
-  "max-w-full rounded-lg outline-offset-0 in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-info group-data-[resize-state=true]/image:outline-2 group-data-[resize-state=true]/image:outline-info";
+  "max-w-full rounded-block outline-offset-0 in-[.ProseMirror-selectednode]:outline-2 in-[.ProseMirror-selectednode]:outline-info group-data-[resize-state=true]/image:outline-2 group-data-[resize-state=true]/image:outline-info";
 // Notion-style side handles: a pill bar inside the left and right edges, shown on hover, while
 // selected (a tap on touch) and while resizing; never in a read-only editor.
 const IMAGE_HANDLE = cn(
@@ -3532,11 +3533,11 @@ const IMAGE_HANDLE = cn(
 );
 /** The hover toolbar's frame: top-right on the image, a blurred translucent pill. */
 const IMAGE_MENU_SLOT =
-  "absolute end-2 top-2 z-20 flex items-center gap-0.5 rounded-md border border-border bg-background/70 p-0.5 shadow-sm backdrop-blur-sm opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden empty:hidden data-narrow:hidden";
+  "absolute end-2 top-2 z-20 flex items-center gap-0.5 rounded-control border border-border bg-background/70 p-0.5 shadow-sm backdrop-blur-sm opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden empty:hidden data-narrow:hidden";
 const IMAGE_CAPTION =
   "mt-1.5 max-w-full text-sm leading-snug text-muted-foreground wrap-break-word select-text";
 const IMAGE_SIZE_LABEL =
-  "pointer-events-none absolute bottom-1.5 start-1/2 z-10 hidden -translate-x-1/2 rounded-md bg-popover px-1.5 py-0.5 text-xs text-popover-foreground tabular-nums shadow-sm border border-border group-data-[resize-state=true]/image:block";
+  "pointer-events-none absolute bottom-1.5 start-1/2 z-10 hidden -translate-x-1/2 rounded-chip bg-popover px-1.5 py-0.5 text-xs text-popover-foreground tabular-nums shadow-sm border border-border group-data-[resize-state=true]/image:block";
 const IMAGE_GUIDE =
   "pointer-events-none absolute top-0 bottom-0 z-10 w-0 border-s border-dashed border-border data-active:border-solid data-active:border-primary";
 
@@ -4759,7 +4760,7 @@ function MediaView({ node, selected }: ReactNodeViewProps) {
       data-drag-handle=""
       contentEditable={false}
       data-selected={selected ? "true" : undefined}
-      className="my-2 rounded-lg"
+      className="my-2 rounded-block"
     >
       {kind === "video" ? (
         <video
@@ -4809,7 +4810,7 @@ function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
       data-drag-handle=""
       contentEditable={false}
       data-selected={selected ? "true" : undefined}
-      className="my-2 rounded-lg data-selected:[&_[data-slot=markdown-embed-frame]]:outline-2 data-selected:[&_[data-slot=markdown-embed-frame]]:outline-info"
+      className="my-2 rounded-block data-selected:[&_[data-slot=markdown-embed-frame]]:outline-2 data-selected:[&_[data-slot=markdown-embed-frame]]:outline-info"
     >
       <MarkdownEmbed
         url={String(node.attrs.url ?? "")}
@@ -4865,7 +4866,7 @@ function BookmarkView({
       >
         <div
           data-slot="text-edit-bookmark-form"
-          className="flex items-center gap-2 rounded-lg border border-dashed border-border p-2"
+          className="flex items-center gap-2 rounded-block border border-dashed border-border p-2"
         >
           <BookmarkIcon
             aria-hidden
@@ -4909,7 +4910,7 @@ function BookmarkView({
       data-drag-handle=""
       contentEditable={false}
       data-selected={selected ? "true" : undefined}
-      className="my-2 rounded-lg data-selected:[&_[data-slot=markdown-bookmark]]:outline-2 data-selected:[&_[data-slot=markdown-bookmark]]:outline-info"
+      className="my-2 rounded-block data-selected:[&_[data-slot=markdown-bookmark]]:outline-2 data-selected:[&_[data-slot=markdown-bookmark]]:outline-info"
     >
       <MarkdownBookmark
         url={url}
@@ -5024,7 +5025,7 @@ function TaskQueryView({
       data-drag-handle=""
       contentEditable={false}
       data-selected={selected ? "true" : undefined}
-      className="my-2 rounded-lg data-selected:outline-2 data-selected:outline-info"
+      className="my-2 rounded-block data-selected:outline-2 data-selected:outline-info"
     >
       {drawn ?? (
         <MarkdownLiveBlock
@@ -5811,7 +5812,7 @@ function collaboratorCaret(
   label.setAttribute("data-slot", "text-edit-caret-label");
   label.setAttribute("data-active", "");
   label.className = cn(
-    "pointer-events-none absolute start-[-1px] bottom-full z-10 rounded-sm px-1 py-px font-sans text-xs leading-none font-medium whitespace-nowrap select-none opacity-0 transition-opacity duration-150 group-hover/caret:opacity-100 data-active:opacity-100",
+    "pointer-events-none absolute start-[-1px] bottom-full z-10 rounded-inline px-1 py-px font-sans text-xs leading-none font-medium whitespace-nowrap select-none opacity-0 transition-opacity duration-150 group-hover/caret:opacity-100 data-active:opacity-100",
     hue.label,
   );
   if (!user) return caret;
@@ -6433,8 +6434,15 @@ const LINK_INVALID =
  * Styling
  * ----------------------------------------------------------------------------------------------*/
 
+/** A floating panel or menu: the card corner (`rounded-card`). */
 const MENU_SURFACE =
-  "z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md";
+  "z-50 rounded-card border border-border bg-popover p-1 text-popover-foreground shadow-md";
+/**
+ * A single-line floating toolbar (the paste offers, the link card): a pill (`rounded-control`), its
+ * buttons pills and circles inside.
+ */
+const TOOLBAR_SURFACE =
+  "z-50 rounded-control border border-border bg-popover p-1 text-popover-foreground shadow-md";
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS = TEXT_EDIT_SESSION_SELECTOR;
@@ -6903,7 +6911,7 @@ function PasteMenu({
           onClose(false);
           if (document.hasFocus()) onLeave(event.relatedTarget);
         }}
-        className={cn(MENU_SURFACE, "flex items-center gap-0.5")}
+        className={cn(TOOLBAR_SURFACE, "flex items-center gap-0.5")}
       >
         {pasted.offers.map((choice, at) => (
           <React.Fragment key={choice}>
@@ -6998,7 +7006,7 @@ function LinkCard({
         if (!document.hasFocus()) return;
         onLeave(event.relatedTarget);
       }}
-      className={cn(MENU_SURFACE, "flex max-w-80 items-center gap-0.5")}
+      className={cn(TOOLBAR_SURFACE, "flex max-w-80 items-center gap-0.5")}
     >
       <Toolbar.Button
         render={
@@ -7023,7 +7031,7 @@ function LinkCard({
             alt=""
             data-slot="text-edit-link-icon"
             onError={() => setIconFailed(true)}
-            className="size-4 shrink-0 rounded-sm"
+            className="size-4 shrink-0 rounded-tile"
           />
         ) : (
           <ExternalLink aria-hidden />
@@ -7338,7 +7346,7 @@ function TurnIntoPanel({
         const step = event.key === "ArrowDown" ? 1 : -1;
         items[(at + step + items.length) % items.length]?.focus();
       }}
-      className={cn(MENU_SURFACE, "flex w-52 flex-col")}
+      className={cn(MENU_SURFACE, "flex w-52 flex-col p-1.5")}
     >
       {BLOCK_TYPES.filter(
         (type) =>
@@ -7359,7 +7367,7 @@ function TurnIntoPanel({
               type.run(editor);
               onClose();
             }}
-            className="justify-start gap-2 px-2 font-normal aria-checked:font-medium focus:bg-state-hover"
+            className="justify-start gap-2 rounded-item px-2 font-normal aria-checked:font-medium focus:bg-state-hover"
           >
             <Icon />
             {type.label}
@@ -7758,13 +7766,13 @@ function startDrag(
 }
 
 const GRIP =
-  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm text-muted-foreground/70 state-layer hover:text-foreground active:cursor-grabbing data-popup-open:bg-state-selected data-popup-open:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
+  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-icon text-muted-foreground/70 state-layer hover:text-foreground active:cursor-grabbing data-popup-open:bg-state-selected data-popup-open:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
 /** A row or column grip: a small pill on the table's inner edge, over the cell padding. */
 const LINE_GRIP =
-  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-sm border border-border bg-background text-muted-foreground state-layer hover:text-foreground active:cursor-grabbing data-popup-open:layer-selected data-popup-open:text-foreground [&_svg]:size-3";
+  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-icon border border-border bg-background text-muted-foreground state-layer hover:text-foreground active:cursor-grabbing data-popup-open:layer-selected data-popup-open:text-foreground [&_svg]:size-3";
 /** Notion's "+" bars below and beside a table. */
 const ADD_BAR =
-  "fixed z-50 size-auto min-w-0 rounded-sm bg-muted/50 text-muted-foreground/70 state-layer hover:text-foreground [&_svg]:size-3";
+  "fixed z-50 size-auto min-w-0 bg-muted/50 text-muted-foreground/70 state-layer hover:text-foreground [&_svg]:size-3";
 // The drop line's ink is the shared reorder token (`drag-item`, info blue), the same as
 // SortableList's: a 2px rounded line.
 const DROP_LINE = cn(
@@ -8752,7 +8760,7 @@ function isFindMatch(state: EditorState, from: number, to: number): boolean {
 
 /** The matches' tints: every match, and the current one (darker, underlined). */
 const FIND_RESULT_CLASS =
-  "[&_.find-and-replace-result]:rounded-[2px] [&_.find-and-replace-result]:bg-warning/35 [&_.find-and-replace-result-current]:bg-warning/60 [&_.find-and-replace-result-current]:underline [&_.find-and-replace-result-current]:decoration-2 [&_.find-and-replace-result-current]:underline-offset-2 print:[&_.find-and-replace-result]:bg-transparent";
+  "[&_.find-and-replace-result]:rounded-mark [&_.find-and-replace-result]:bg-warning/35 [&_.find-and-replace-result-current]:bg-warning/60 [&_.find-and-replace-result-current]:underline [&_.find-and-replace-result-current]:decoration-2 [&_.find-and-replace-result-current]:underline-offset-2 print:[&_.find-and-replace-result]:bg-transparent";
 
 /** The find plugin's keys while the bar is open: ⌘G / ⇧⌘G step (Esc closes it: `handleKeyDown`). */
 interface FindRuntime {
@@ -8946,7 +8954,7 @@ function FindBar({
             findRef.current?.select();
           }
         }}
-        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-lg border bg-popover p-1.5 text-popover-foreground shadow-md print:hidden"
+        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-card border bg-popover p-1.5 text-popover-foreground shadow-md print:hidden"
       >
         <div className="flex flex-wrap items-center gap-1">
           <label htmlFor={inputId} className="sr-only">
@@ -10524,7 +10532,7 @@ function BlockMenuSheet({
   }
   // 44px rows, start-aligned: the sheet's menu items.
   const row =
-    "h-auto min-h-11 w-full justify-start gap-3 px-3 text-start font-normal [&_svg]:text-muted-foreground";
+    "h-auto min-h-11 w-full justify-start gap-3 rounded-item px-3 text-start font-normal [&_svg]:text-muted-foreground";
   const act = (run: () => void) => () => {
     onClose();
     run();
@@ -14658,7 +14666,7 @@ export function TextEditEditor({
                 <span
                   aria-hidden
                   data-slot="text-edit-slash-icon"
-                  className="flex size-7 items-center justify-center rounded-md border border-border bg-background"
+                  className="flex size-7 items-center justify-center rounded-tile border border-border bg-background"
                 >
                   {spec.glyph ?? <Icon />}
                 </span>

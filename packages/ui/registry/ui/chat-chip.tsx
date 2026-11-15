@@ -1,4 +1,4 @@
-// @vegastack chat-chip@0.88.0 sha256-2UD6A+S5z0ClYnGjL68IPpKRLzC9LYL4QoAcqhAudBs=
+// @vegastack chat-chip@0.88.0 sha256-5oJ37yfOiDxyvenBcvr2iRvD2Y+n8QWRnsHBZYginKg=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -30,7 +30,7 @@ export interface ChatChipProps extends Omit<
 }
 
 const CHIP =
-  "inline-flex h-7 max-w-full min-w-0 items-center gap-1.5 rounded-lg border border-chat-hairline bg-chat-card px-2.5 text-xs text-muted-foreground tabular-nums [&_svg:not([class*='size-'])]:size-3.5 [&_svg]:shrink-0";
+  "inline-flex h-7 max-w-full min-w-0 items-center gap-1.5 rounded-chip border border-chat-hairline bg-chat-card px-2.5 text-xs text-muted-foreground tabular-nums [&_svg:not([class*='size-'])]:size-3.5 [&_svg]:shrink-0";
 
 /**
  * A compact pill for background work and counts — "7 background commands done, 3 running ›" — on the

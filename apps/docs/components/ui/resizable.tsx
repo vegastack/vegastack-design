@@ -1,4 +1,4 @@
-// @vegastack resizable@0.88.0 sha256-/YPfoV/wFJI62OWOkjpedQbmLeJcMfbiFiMnECtoYjw=
+// @vegastack resizable@0.88.0 sha256-M4fd05IMKejAz9TJn270+Cuidm7U9c3Ws7A8x96avxU=
 
 "use client";
 
@@ -42,7 +42,7 @@ function ResizableHandle({
       {...props}
     >
       {withHandle && (
-        <div className="z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border" />
+        <div className="z-10 flex h-6 w-1 shrink-0 rounded-full bg-border" />
       )}
     </ResizablePrimitive.Separator>
   );

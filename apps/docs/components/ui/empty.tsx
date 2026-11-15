@@ -1,4 +1,4 @@
-// @vegastack empty@0.88.0 sha256-UXu7oBs4t2hnL4oq/b3eU0NUaHXVcBMZD9/oiuHNCdM=
+// @vegastack empty@0.88.0 sha256-UzufuLJGY6Y3Ho2OqrMqkrfsGe1Mpq8r1YE+P5Ko7hA=
 
 "use client";
 
@@ -23,12 +23,12 @@ function Empty({
       data-slot="empty"
       data-size={size}
       className={cn(
-        "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-xl border-dashed p-6 text-center text-balance",
+        "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-card border-dashed p-6 text-center text-balance",
         // An empty state always shows an icon: the default one stands down when the
         // composition brings its own `EmptyMedia`.
         "has-[[data-slot=empty-icon]:not([data-default])]:[&>[data-default]]:hidden",
         // The compact size for a small inline empty — "No tasks yet" inside a card.
-        "data-[size=sm]:gap-2 data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]]:size-10 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]]:rounded-lg data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]_svg]:size-5",
+        "data-[size=sm]:gap-2 data-[size=sm]:rounded-block data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]]:size-10 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]_svg]:size-5",
         className,
       )}
       {...props}
@@ -60,7 +60,7 @@ const emptyMediaVariants = cva(
         // A 48px bordered tile with a 24px muted icon; the tile sizes ANY icon passed in, so a
         // consumer's own `size-*` on the svg cannot shrink it (the compact `sm` Empty takes
         // 40px / 20px).
-        icon: "flex size-12 shrink-0 items-center justify-center rounded-xl border bg-muted text-muted-foreground [&_svg]:size-6",
+        icon: "flex size-12 shrink-0 items-center justify-center rounded-tile border bg-muted text-muted-foreground [&_svg]:size-6",
       },
     },
     defaultVariants: {

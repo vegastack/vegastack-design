@@ -77,7 +77,7 @@ function Article({
       />
       <div
         ref={scroller}
-        className="h-72 min-w-0 flex-1 overflow-y-auto rounded-md border border-border bg-background p-4 text-sm"
+        className="h-72 min-w-0 flex-1 overflow-y-auto rounded-card border border-border bg-background p-4 text-sm"
       >
         {SECTIONS.map((section) => {
           const Heading = `h${Math.min(section.level + 1, 6)}` as "h2";

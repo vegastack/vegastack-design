@@ -1,4 +1,4 @@
-// @vegastack settings-layout@0.88.0 sha256-e/gmAB3hQ77UY9ozmzL+tFbOIWtTAZOAycJx9xWhlxk=
+// @vegastack settings-layout@0.88.0 sha256-zIpq2RupgKH3lHiBQ/6xvSgjU52Lm49cyJc33BVsmRM=
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";
@@ -191,7 +191,7 @@ export function SettingsNav({
                       "data-active": active ? "" : undefined,
                       "aria-current": active ? "page" : undefined,
                       className:
-                        "flex h-8 min-w-0 flex-1 items-center gap-2 rounded-md px-2 text-sm text-foreground transition-colors duration-100 state-layer data-active:bg-state-selected data-active:font-medium @xs/settings-nav:h-11",
+                        "flex h-8 min-w-0 flex-1 items-center gap-2 rounded-item px-2 text-sm text-foreground transition-colors duration-100 state-layer data-active:bg-state-selected data-active:font-medium @xs/settings-nav:h-11",
                       children: (
                         <>
                           <span className="min-w-0 flex-1 truncate">
@@ -316,7 +316,7 @@ export function SettingsLayout({
                 href: backHref,
                 "data-slot": "settings-layout-back",
                 className:
-                  "-ms-2 inline-flex h-8 w-fit items-center gap-1 rounded-md pe-2 ps-1 text-sm text-muted-foreground transition-colors duration-100 state-layer hover:text-foreground @2xl/settings-layout:hidden",
+                  "-ms-2 inline-flex h-8 w-fit items-center gap-1 rounded-control pe-2 ps-1 text-sm text-muted-foreground transition-colors duration-100 state-layer hover:text-foreground @2xl/settings-layout:hidden",
                 children: (
                   <>
                     <ChevronLeft

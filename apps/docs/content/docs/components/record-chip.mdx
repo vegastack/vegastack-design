@@ -77,7 +77,7 @@ give it the standard tint, and a ▾ fades in at the end. The ▾ stays visible 
   `badge` (such as "Inactive") after it, like `PropertyPerson`. The person is the value: pass no
   `value` with it (it is ignored, with a development warning), so the name is drawn once.
 - **Due dates:** pass a `DueLabel` as the value. It keeps its overdue colour.
-- **Empty:** the same empty pill as the default variant — a dashed rounded-full border around the
+- **Empty:** the same empty pill as the default variant — a dashed `rounded-chip` border around the
   muted placeholder, such as "Set due date" — inside the same 24px box, so every unset property
   (status, priority, assignee, due date, customer, project) reads the same way.
 
@@ -121,7 +121,7 @@ Keep the default chips for links to other records, such as a "Linked to" section
 
 RecordChip is built on `SplitChip`, exported from the same file, for any pill that holds a main
 action plus a secondary icon action. The pill carries one shared `p-0.5` inset, and every segment is
-24px tall and rounded-full, so each hover or open background sits the same 2px from the border on
+24px tall and a pill (`rounded-chip`; an icon-only segment is a `rounded-icon` circle), so each hover or open background sits the same 2px from the border on
 every side. Segments are divided by `SplitChipSeparator`.
 
 ```tsx

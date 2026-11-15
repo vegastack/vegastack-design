@@ -186,7 +186,7 @@ function EmailFrame({ html, title }: { html: string; title: string }) {
       // Same origin so the frame can be measured; no scripts, no navigation out of the preview.
       sandbox="allow-same-origin"
       onLoad={fit}
-      className="block w-full rounded-md border border-border"
+      className="block w-full rounded-block border border-border"
       style={{ height }}
     />
   );
@@ -218,7 +218,7 @@ function EmailSample({ sample, label }: { sample: Sample; label: string }) {
               />
             ) : (
               <div
-                className="h-[560px] w-full rounded-md border border-border bg-muted"
+                className="h-[560px] w-full rounded-block border border-border bg-muted"
                 aria-hidden
               />
             )}

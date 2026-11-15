@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.88.0 sha256-3Of5CatiJzGdDZUdZFeADr9ciW/TtYLg47qLoFTLJwU=
+// @vegastack searchable-select@0.88.0 sha256-EjXf+/pXw1v2D1bGX01/wedAN6Qc+qF7oJ2fF9W8x2k=
 
 "use client";
 
@@ -830,7 +830,7 @@ export function SearchableSelect<
         data-slot={`${slot}-select-all-box`}
         data-checked={allSelected ? "" : undefined}
         data-indeterminate={selectedCount > 0 && !allSelected ? "" : undefined}
-        className="pointer-events-none flex size-4 shrink-0 items-center justify-center rounded-[4px] border border-input transition-colors dark:bg-input/30 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary"
+        className="pointer-events-none flex size-4 shrink-0 items-center justify-center rounded-mark border border-input transition-colors dark:bg-input/30 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary"
       >
         {allSelected ? (
           <CheckIcon data-icon-tone="" className="size-3.5 text-current" />

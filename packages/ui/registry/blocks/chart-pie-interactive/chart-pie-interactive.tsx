@@ -1,4 +1,4 @@
-// @vegastack chart-pie-interactive@0.88.0 sha256-POGU/x2MijXPeio+GEYzp2pgbdKRdjmjW8j6fq/CHBM=
+// @vegastack chart-pie-interactive@0.88.0 sha256-3rbVvZfjnkRcEw4xOIgG2Ve8SY8Cyr3APhmjp7JewUc=
 
 "use client";
 
@@ -118,12 +118,12 @@ export function ChartPieInteractive() {
           }}
         >
           <SelectTrigger
-            className="ml-auto h-7 w-[130px] rounded-lg pl-2.5"
+            className="ml-auto h-7 w-[130px] pl-2.5"
             aria-label="Select a value"
           >
             <SelectValue placeholder="Select month" />
           </SelectTrigger>
-          <SelectContent align="end" className="rounded-xl">
+          <SelectContent align="end">
             {months.map((key) => {
               const config = chartConfig[key as keyof typeof chartConfig];
 
@@ -132,14 +132,10 @@ export function ChartPieInteractive() {
               }
 
               return (
-                <SelectItem
-                  key={key}
-                  value={key}
-                  className="rounded-lg [&_span]:flex"
-                >
+                <SelectItem key={key} value={key} className="[&_span]:flex">
                   <div className="flex items-center gap-2 text-xs">
                     <span
-                      className="flex h-3 w-3 shrink-0 rounded-xs"
+                      className="flex h-3 w-3 shrink-0 rounded-mark"
                       style={{
                         backgroundColor: `var(--color-${key})`,
                       }}

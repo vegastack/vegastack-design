@@ -83,7 +83,7 @@ const THREADS = [
 export function notificationBellDot(): ReactNode {
   return (
     <Wrapper>
-      <ul className="flex w-full max-w-sm flex-col divide-y divide-border rounded-lg border border-border bg-background">
+      <ul className="flex w-full max-w-sm flex-col divide-y divide-border rounded-card border border-border bg-background">
         {THREADS.map((thread) => (
           <li
             key={thread.title}

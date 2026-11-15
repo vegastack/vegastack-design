@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.88.0 sha256-E7siL54DFIL5PHyK99Y7zwm2I36Ayte4XJQ1b5Li+ZQ=
+// @vegastack markdown-view@0.88.0 sha256-spWOAK/WagA61OcFo6wa9q0ARKd+qVhPRBgi/gqze/E=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -277,18 +277,18 @@ export const markdownExtrasClassName = cn(
   // here because a constant imported from a client module is a reference on the server).
   "[&_[data-slot=inline-chip]]:no-underline [&_[data-slot=inline-chip][data-interactive]:hover]:underline",
   // TextEdit's file links are link marks, not chips: the same ground, ink, padding and radius.
-  "[&_[data-slot=file-chip]]:box-decoration-clone [&_[data-slot=file-chip]]:rounded-sm [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:py-px [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground",
+  "[&_[data-slot=file-chip]]:box-decoration-clone [&_[data-slot=file-chip]]:rounded-inline [&_[data-slot=file-chip]]:bg-muted [&_[data-slot=file-chip]]:px-1 [&_[data-slot=file-chip]]:py-px [&_[data-slot=file-chip]]:font-medium [&_[data-slot=file-chip]]:no-underline [&_[data-slot=file-chip]]:text-foreground",
   // A bookmark card and a task line's ↗ are `<a>`s with their own ink and no underline.
   "[&_[data-slot=markdown-bookmark]]:text-card-foreground [&_[data-slot=markdown-bookmark]]:no-underline [&_[data-slot=task-inline-open]]:text-muted-foreground [&_[data-slot=task-inline-open]]:no-underline",
   // An image block (`markdown-figure`): the editor's image box, 8 from its neighbours.
   "[&_[data-slot=markdown-figure]]:my-2",
   "[&_details]:my-2 [&_summary]:flex [&_summary]:cursor-pointer [&_summary]:list-none [&_summary]:items-center [&_summary]:gap-1 [&_summary]:py-0.5 [&_summary]:font-medium [&_summary::-webkit-details-marker]:hidden [&_details>:not(summary)]:ms-6",
-  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-sm [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-state-hover [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
+  "[&_[data-slot=toggle-icon]]:size-5 [&_[data-slot=toggle-icon]]:shrink-0 [&_[data-slot=toggle-icon]]:rounded-icon [&_[data-slot=toggle-icon]]:p-1 [&_[data-slot=toggle-icon]]:fill-current [&_[data-slot=toggle-icon]]:text-muted-foreground [&_[data-slot=toggle-icon]]:transition-transform [&_[data-slot=toggle-icon]]:duration-150 [&_summary:hover_[data-slot=toggle-icon]]:bg-state-hover [&_summary:hover_[data-slot=toggle-icon]]:text-foreground [&_details[open]>summary>[data-slot=toggle-icon]]:rotate-90 rtl:[&_[data-slot=toggle-icon]]:-scale-x-100",
 );
 
 /** A video block: full width up to its natural size, rounded like an image. */
 export const MEDIA_VIDEO_CLASS =
-  "my-2 block aspect-video h-auto w-full max-w-full rounded-lg border border-border bg-muted";
+  "my-2 block aspect-video h-auto w-full max-w-full rounded-block border border-border bg-muted";
 /** An audio block: the native player, full width. */
 export const MEDIA_AUDIO_CLASS = "my-2 block w-full max-w-full";
 
@@ -404,7 +404,7 @@ export function MarkdownLiveBlock({
       role="group"
       aria-label={kind.label}
       className={cn(
-        "my-2 rounded-lg border border-border px-3 py-2 text-sm",
+        "my-2 rounded-block border border-border px-3 py-2 text-sm",
         className,
       )}
       {...props}
@@ -1044,7 +1044,7 @@ export interface MarkdownAnnotation {
 
 /** The highlight over a comment's words: a dashed warning underline, a wash on hover. */
 export const annotationHighlightClassName =
-  "cursor-pointer rounded-xs underline decoration-warning-text/60 decoration-dashed underline-offset-4 transition-colors duration-150 hover:bg-warning/15";
+  "cursor-pointer rounded-mark underline decoration-warning-text/60 decoration-dashed underline-offset-4 transition-colors duration-150 hover:bg-warning/15";
 /** The active highlight (its thread is open): filled, the underline solid. */
 export const annotationActiveClassName = "bg-warning/25 decoration-solid";
 /**
@@ -1053,7 +1053,7 @@ export const annotationActiveClassName = "bg-warning/25 decoration-solid";
  * pointer or below the `lg` breakpoint, where a comment margin has no room — CSS alone.
  */
 export const annotationCountClassName =
-  "relative ms-0.5 h-4 min-w-4 select-none items-center justify-center rounded-full bg-warning/10 px-1 align-middle font-sans text-xs leading-none font-medium text-warning-text tabular-nums transition-colors duration-150 before:absolute before:-inset-1 before:content-[''] hover:bg-warning/20 data-active:bg-warning/30";
+  "relative ms-0.5 h-4 min-w-4 select-none items-center justify-center rounded-chip bg-warning/10 px-1 align-middle font-sans text-xs leading-none font-medium text-warning-text tabular-nums transition-colors duration-150 before:absolute before:-inset-1 before:content-[''] hover:bg-warning/20 data-active:bg-warning/30";
 /** Where a count pill shows: `auto` on a coarse pointer or below `lg`, `always` everywhere. */
 export const annotationCountVisibilityClassName = {
   auto: "hidden pointer-coarse:inline-flex max-lg:inline-flex",
@@ -1949,7 +1949,7 @@ export interface MarkdownSectionMark {
 const SECTION_BAR =
   "relative after:pointer-events-none after:absolute after:bottom-0 after:w-0.5 after:rounded-full after:content-['']";
 const SECTION_MARKER =
-  "absolute top-[calc(0.5lh-12px)] z-[1] flex size-6 cursor-pointer items-center justify-center rounded-sm border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
+  "absolute top-[calc(0.5lh-12px)] z-[1] flex size-6 cursor-pointer items-center justify-center rounded-icon border-0 bg-transparent p-0 [&>span]:size-2 [&>span]:rounded-full [&>span]:ring-2 [&>span]:ring-background";
 
 /** A marked section's classes — its heading's, its other blocks', the marker's and its dot's — with the bar `at` its gutter offset and the marker's `marker` offset. */
 function sectionClasses(at: string, marker: string) {
@@ -2524,7 +2524,7 @@ function renderNode(
             key={key}
             data-slot="markdown-image-blocked"
             data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
-            className="my-2 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground wrap-anywhere"
+            className="my-2 block rounded-block border border-border bg-muted px-3 py-2 text-muted-foreground wrap-anywhere"
           >
             {words}
           </span>
@@ -2838,7 +2838,7 @@ function renderNode(
             data-slot="markdown-image-blocked"
             data-anchor-text={ctx.anchorAttrs ? LEAF_TEXT : undefined}
             data-anchor-block={ctx.anchorAttrs ? "" : undefined}
-            className="my-2 block rounded-lg border border-border bg-muted px-3 py-2 text-muted-foreground"
+            className="my-2 block rounded-block border border-border bg-muted px-3 py-2 text-muted-foreground"
           >
             {tag === "video" ? "Remote video blocked" : "Remote audio blocked"}
           </span>

@@ -162,7 +162,7 @@ export function peoplePickerContent(): ReactNode {
   const [chosen, setChosen] = React.useState<string[]>(["u1"]);
   return (
     <Wrapper>
-      <div className="w-72 rounded-lg border border-border bg-popover">
+      <div className="w-72 rounded-card border border-border bg-popover">
         <PeoplePickerContent
           options={DIRECTORY}
           includeInactive
@@ -197,7 +197,7 @@ export function peoplePickerAgents(): ReactNode {
   const [chosen, setChosen] = React.useState<string[]>(["a1"]);
   return (
     <Wrapper>
-      <div className="w-72 rounded-lg border border-border bg-popover">
+      <div className="w-72 rounded-card border border-border bg-popover">
         <PeoplePickerContent
           options={AGENTS}
           heading="Your agents"
@@ -253,7 +253,7 @@ export function peoplePickerGroups(): ReactNode {
   const [chosen, setChosen] = React.useState<string[]>(["p1"]);
   return (
     <Wrapper>
-      <div className="w-72 rounded-lg border border-border bg-popover">
+      <div className="w-72 rounded-card border border-border bg-popover">
         <PeoplePickerContent
           options={ASSIGNEES}
           groupOrder={["People", "Agents"]}

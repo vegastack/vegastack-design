@@ -206,7 +206,7 @@ export function accordionBorders(): ReactNode {
   return (
     <Wrapper>
       <Accordion
-        className="max-w-lg rounded-lg border"
+        className="max-w-lg rounded-card border"
         defaultValue={["billing"]}
       >
         {borderItems.map((item) => (

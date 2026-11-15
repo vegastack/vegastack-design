@@ -41,7 +41,7 @@ import { ItemContent, ItemDescription, ItemTitle } from "@/components/ui/item";
  * there is nothing for an always-open popup to anchor to.
  */
 const TRIGGER_SURFACE =
-  "flex aspect-video w-full max-w-xs items-center justify-center rounded-xl border border-dashed border-border text-sm text-muted-foreground";
+  "flex aspect-video w-full max-w-xs items-center justify-center rounded-card border border-dashed border-border text-sm text-muted-foreground";
 
 export function contextMenu(): ReactNode {
   return (

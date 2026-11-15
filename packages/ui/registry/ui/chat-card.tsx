@@ -1,4 +1,4 @@
-// @vegastack chat-card@0.88.0 sha256-TtKfvtNYRoueCOfR/rsuxY8lNmEPZy02z+nOJBeqX54=
+// @vegastack chat-card@0.88.0 sha256-i9F2jV/1yqxS7cxHKUANjK6hJRTK/zu060SJf18bgW0=
 
 "use client";
 
@@ -39,8 +39,8 @@ export interface ChatCardProps extends Omit<
 /**
  * The one card surface in agent UI (COL-25), for something a person acts on or opens — a waiting
  * request, question or plan, the task list, a file preview. Everything else in a chat is a flat
- * line. A faint fill one step off the page and a hairline, the same in light and dark, a 12px
- * corner, 16px padding (12px under 640px), no shadow.
+ * line. A faint fill one step off the page and a hairline, the same in light and dark, the card
+ * corner (`rounded-card`), 16px padding (12px under 640px), no shadow.
  *
  * @example
  * <ChatCard title="Send this email?" meta="Gmail · sm@vegastack.com" actions={<Button>Allow once</Button>}>
@@ -65,7 +65,7 @@ function ChatCard({
       ref={ref as React.Ref<HTMLDivElement>}
       data-slot="chat-card"
       className={cn(
-        "flex min-w-0 flex-col gap-3 rounded-chat-card border border-chat-hairline bg-chat-card p-4 text-sm max-sm:p-3",
+        "flex min-w-0 flex-col gap-3 rounded-card border border-chat-hairline bg-chat-card p-4 text-sm max-sm:p-3",
         className,
       )}
       {...props}
@@ -166,7 +166,7 @@ export interface ChatRowProps extends Omit<
 
 // Rows hang: the text starts on the column (the prose), the hover fill reaches 8px into the gutter.
 const ROW =
-  "-mx-2 flex min-h-7 min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm";
+  "-mx-2 flex min-h-7 min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm";
 
 /**
  * One line of work in a chat: an optional state glyph, a muted verb, the subject in the body ink,
@@ -331,7 +331,7 @@ function ChatGroup({
     >
       <CollapsibleTrigger
         data-slot="chat-group-trigger"
-        className="group/chat-group state-layer -mx-2 flex min-h-7 w-fit max-w-[calc(100%+1rem)] min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm text-muted-foreground"
+        className="group/chat-group state-layer -mx-2 flex min-h-7 w-fit max-w-[calc(100%+1rem)] min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-muted-foreground"
       >
         {live ? <TextSpinner label="" /> : null}
         <span data-slot="chat-group-summary" className="min-w-0 truncate">

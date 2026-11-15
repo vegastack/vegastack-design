@@ -39,7 +39,7 @@ export function calendar(): ReactNode {
         defaultMonth={new Date(YEAR, 0, 1)}
         selected={date}
         onSelect={setDate}
-        className="rounded-lg border"
+        className="rounded-card border"
       />
     </Wrapper>
   );
@@ -52,7 +52,7 @@ export function calendarAbout(): ReactNode {
         mode="single"
         defaultMonth={new Date(YEAR, 0, 1)}
         selected={new Date(YEAR, 0, 12)}
-        className="rounded-lg border"
+        className="rounded-card border"
       />
       <p className="max-w-sm text-center text-sm text-muted-foreground">
         The day grid, the range logic and the month navigation are React
@@ -93,7 +93,7 @@ export function calendarPersianHijriJalali(): ReactNode {
           mode="single"
           defaultMonth={new Date(YEAR, 0, 1)}
           selected={new Date(YEAR, 0, 12)}
-          className="rounded-lg border"
+          className="rounded-card border"
         />
       </div>
       <p className="max-w-sm text-center text-sm text-muted-foreground">
@@ -123,7 +123,7 @@ export function calendarSelectedDateWithTimeZone(): ReactNode {
         selected={date}
         onSelect={setDate}
         timeZone={timeZone}
-        className="rounded-lg border"
+        className="rounded-card border"
       />
       <p className="text-sm text-muted-foreground">
         Time zone: {timeZone ?? "detecting…"}
@@ -138,7 +138,7 @@ export function calendarBasic(): ReactNode {
       <Calendar
         mode="single"
         defaultMonth={new Date(YEAR, 0, 1)}
-        className="rounded-lg border"
+        className="rounded-card border"
       />
     </Wrapper>
   );
@@ -158,7 +158,7 @@ export function calendarRangeCalendar(): ReactNode {
         selected={dateRange}
         onSelect={setDateRange}
         numberOfMonths={2}
-        className="rounded-lg border"
+        className="rounded-card border"
       />
     </Wrapper>
   );
@@ -171,7 +171,7 @@ export function calendarMonthAndYearSelector(): ReactNode {
         mode="single"
         defaultMonth={new Date(YEAR, 0, 1)}
         captionLayout="dropdown"
-        className="rounded-lg border"
+        className="rounded-card border"
       />
     </Wrapper>
   );
@@ -381,7 +381,7 @@ export function calendarRtl(): ReactNode {
           mode="single"
           defaultMonth={new Date(YEAR, 0, 1)}
           selected={new Date(YEAR, 0, 12)}
-          className="rounded-lg border"
+          className="rounded-card border"
         />
       </div>
       <div dir="rtl">
@@ -389,7 +389,7 @@ export function calendarRtl(): ReactNode {
           mode="single"
           defaultMonth={new Date(YEAR, 0, 1)}
           selected={new Date(YEAR, 0, 12)}
-          className="rounded-lg border"
+          className="rounded-card border"
         />
       </div>
     </Wrapper>
@@ -407,7 +407,7 @@ export function calendarStates(): ReactNode {
         today={new Date(YEAR, 0, 20)}
         disabled={[new Date(YEAR, 0, 5), new Date(YEAR, 0, 6)]}
         showOutsideDays
-        className="rounded-lg border"
+        className="rounded-card border"
       />
     </Wrapper>
   );

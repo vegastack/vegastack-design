@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.88.0 sha256-p/fmfVccXytDvtb8CcJMzMfyzeJBO2GTHbmK6+0dRKo=
+// @vegastack editable-cell@0.88.0 sha256-Yi4CQXC4TQJ+foY3HRb5QZ0NH65MrR4AghN6XxtzBiU=
 
 "use client";
 
@@ -119,7 +119,7 @@ export function InlineEditTrigger({
       size="xs"
       type={type}
       className={cn(
-        "min-w-0 justify-start gap-1.5 rounded-md px-1.5 font-normal text-inherit active:not-aria-[haspopup]:translate-y-0 [&>span]:min-w-0 [&>span]:truncate",
+        "min-w-0 justify-start gap-1.5 rounded-item px-1.5 font-normal text-inherit active:not-aria-[haspopup]:translate-y-0 [&>span]:min-w-0 [&>span]:truncate",
         INLINE_EDIT_TINT,
         layout === "cell"
           ? // Block-level, so a table cell's `vertical-align: middle` centres it on the row
@@ -538,9 +538,9 @@ interface InlineTextEditorProps {
  * cursor is the pointer affordance; only keyboard focus on the resting value shows base.css's
  * tint (FOC-13). No focus ring or outline.
  */
-const boxClasses = "rounded-lg px-2.5 py-1.5";
+const boxClasses = "rounded-item px-2.5 py-1.5";
 /** The `heading` box: no padding, so a title is edited exactly where it is rendered. */
-const bareBoxClasses = "rounded-sm";
+const bareBoxClasses = "rounded-item";
 
 /** The field laid over the text: no chrome, inherits every type property from the box. */
 const fieldClasses =

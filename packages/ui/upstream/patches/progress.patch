@@ -1,6 +1,7 @@
 # component: progress
-# decisions: API-41, API-42, DOC-1, DOC-2
+# decisions: API-41, API-42, DOC-1, DOC-2, BRD-12
 # hunks:
+#   BRD-12: the indicator has pill ends (`rounded-full`), like the track, so a partial value never ends square (operator 2026-11-16).
 #   API-42: `tone="success"` (`bg-success`) and `size` (`default` · `lg`) on the root and track.
 #   API-41: `Progress` and `ProgressIndicator` take `tone` (`default` | `warning` | `danger`, written
 #     as `data-tone`), and the indicator's fill moves into `progressIndicatorVariants`: `bg-primary`
@@ -15,7 +16,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/progress.tsx b/progress.tsx
-index c3ff9ed..dba9ff6 100644
+index c3ff9ed..364a706 100644
 --- a/progress.tsx
 +++ b/progress.tsx
 @@ -1,53 +1,87 @@
@@ -28,7 +29,7 @@ index c3ff9ed..dba9ff6 100644
 +import { cva, type VariantProps } from "class-variance-authority";
 +import { cn } from "@vegastack/design";
 +
-+const progressIndicatorVariants = cva("h-full transition-all", {
++const progressIndicatorVariants = cva("h-full rounded-full transition-all", {
 +  variants: {
 +    tone: {
 +      default: "bg-primary",

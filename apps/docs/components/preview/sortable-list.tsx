@@ -279,7 +279,7 @@ export function sortableListGrid(): ReactNode {
                 src={PHOTO_SRC[item.id]}
                 alt=""
                 aspectRatio="square"
-                rounded="md"
+                rounded="tile"
               />
               <span className="truncate text-xs text-muted-foreground">
                 {item.label}

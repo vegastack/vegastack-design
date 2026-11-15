@@ -1,4 +1,4 @@
-// @vegastack model-effort-menu@0.88.0 sha256-/E3cnfT+NTjminFhh6ZMsOGFGC4FiJlOLyoQVa53KDo=
+// @vegastack model-effort-menu@0.88.0 sha256-W8nE2hNxOzEwjOEkBKmzRxxL2Hl0XR95bMxIRAWykTA=
 
 "use client";
 
@@ -113,7 +113,7 @@ const LEVELS: Record<EffortLevel, string> = {
 };
 
 const TRIGGER =
-  "h-8 min-w-0 shrink gap-1 rounded-full px-3 text-xs font-normal text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3";
+  "h-8 min-w-0 shrink gap-1 px-3 text-xs font-normal text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3";
 
 /** Is this a Mac (⌘) or everything else (Ctrl)? */
 const isMac = () =>
@@ -239,7 +239,7 @@ export function ModelEffortMenu({
               data-slot="model-effort-menu"
               data-readonly=""
               className={cn(
-                "inline-flex h-8 min-w-0 items-center gap-1 rounded-full px-3 text-xs text-muted-foreground",
+                "inline-flex h-8 min-w-0 items-center gap-1 rounded-control px-3 text-xs text-muted-foreground",
                 className,
               )}
             />
@@ -323,7 +323,7 @@ export function ModelEffortMenu({
                   {level === recommended ? (
                     <span
                       data-slot="model-effort-menu-recommended"
-                      className="rounded-full border border-border px-1.5 text-xs leading-4 text-muted-foreground"
+                      className="rounded-chip border border-border px-1.5 text-xs leading-4 text-muted-foreground"
                     >
                       {labels?.recommended ?? "Recommended"}
                     </span>

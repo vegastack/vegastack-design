@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.88.0 sha256-1R+EHUzU1jCHgTnH+fXdQplDQl4Ollou0jhAAR1VfnM=
+// @vegastack document-layout@0.88.0 sha256-4RBjcTC1Oqqw7WTdTfM1qefq6zkQTfY0lVCe5hZKOZQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -507,7 +507,7 @@ export function DocumentLayoutContentsButton({
       aria-label={ariaLabel}
       data-slot="document-layout-contents-button"
       className={cn(
-        "fixed end-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 rounded-full bg-background shadow-md @min-[40rem]/document-layout:hidden print:hidden",
+        "fixed end-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 bg-background shadow-md @min-[40rem]/document-layout:hidden print:hidden",
         // A phone's decision bar holds the window's bottom: the button floats above it, by the
         // height the bar measures and publishes (`--document-layout-dock`, unset without one).
         "max-sm:bottom-[calc(env(safe-area-inset-bottom)+1rem+var(--document-layout-dock,0px))]",
@@ -537,7 +537,7 @@ export function DocumentLayoutFloatingButton({
       size="lg"
       data-slot="document-layout-floating-button"
       className={cn(
-        "fixed end-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 rounded-full shadow-lg print:hidden",
+        "fixed end-4 bottom-[calc(env(safe-area-inset-bottom)+1rem)] z-40 shadow-lg print:hidden",
         // A phone's decision bar holds the window's bottom: the button floats above it, by the
         // height the bar measures and publishes (`--document-layout-dock`, unset without one).
         "max-sm:bottom-[calc(env(safe-area-inset-bottom)+1rem+var(--document-layout-dock,0px))]",

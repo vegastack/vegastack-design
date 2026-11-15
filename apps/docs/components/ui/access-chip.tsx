@@ -1,4 +1,4 @@
-// @vegastack access-chip@0.88.0 sha256-ma/LwaDe+xaGUjVdZbjAem8scjJAgBbBlWKlMtXNOAs=
+// @vegastack access-chip@0.88.0 sha256-aegaeIOZQnd81Hx5OHhnQIMjkDRq1XkpdErD6iZAE5Q=
 
 "use client";
 
@@ -128,7 +128,7 @@ export function AccessChip({
             aria-label={published ? `${name}, Published` : name}
             aria-description={sentence}
             className={cn(
-              "max-w-60 min-w-0 gap-1.5 rounded-md text-sm font-normal text-foreground",
+              "max-w-60 min-w-0 gap-1.5 text-sm font-normal text-foreground",
               iconOnly ? "relative" : "px-2",
               className,
             )}

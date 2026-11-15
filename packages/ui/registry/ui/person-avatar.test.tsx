@@ -52,7 +52,7 @@ test("a team is a rounded-square tile with the team icon on its hue, never initi
     '[data-slot="avatar"][data-kind="team"]',
   );
   expect(tiles).toHaveLength(2);
-  expect(tiles[0]!.className).toContain("rounded-md");
+  expect(tiles[0]!.className).toContain("rounded-tile");
   const tile = fallback(tiles[0]!);
   expect(tile.textContent).toBe("");
   expect(tile.dataset.hue).toBe("green");
@@ -80,7 +80,7 @@ test("a workspace is a rounded-square tile: its whole logo, else its initials on
     '[data-slot="avatar"][data-kind="workspace"]',
   );
   expect(tiles).toHaveLength(2);
-  expect(tiles[0]!.className).toContain("rounded-md");
+  expect(tiles[0]!.className).toContain("rounded-tile");
   expect(fallback(tiles[0]!).textContent).toBe("AL");
   expect(fallback(tiles[0]!).className).toContain("rounded-[inherit]");
   const logo = tiles[1]!.querySelector<HTMLImageElement>("img")!;

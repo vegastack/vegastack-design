@@ -62,8 +62,14 @@ rg -n 'style=\{\{' --glob '!components/ui/**'
 - **raw palette** — a Tailwind palette class. Use `bg-primary`, `text-muted-foreground`,
   `border-border`, or a status family. **error**
 - **hardcoded dimension** — an arbitrary px/rem value where a stock utility says the same thing
-  (`h-[32px]` for `h-8`, `rounded-[10px]` for `rounded-lg`). An arbitrary value that no utility
+  (`h-[32px]` for `h-8`). An arbitrary value that no utility
   expresses is not a finding; upstream writes several itself. **warning**
+- **off-role corner** — a corner that is not a role (BRD-12): `rounded-sm|md|lg|xl|2xl|3xl|4xl`,
+  bare `rounded`, `rounded-[…]`, `rounded-(--…)` or the retired `rounded-chat-card`. Name the role
+  the element plays: `rounded-control` (single-line control), `-icon` (icon-only button), `-chip`,
+  `-inline` (token in text), `-mark`, `-item` (row with a fill, tooltip), `-block`, `-card`,
+  `-bubble`, `-overlay`, `-tile` (square media); `row-fill` on a table row. A square hover fill on
+  an inset row is the same finding. **error**
 - **inline style** — allowed only when every key is a `--*` custom property. Any direct visual
   property is a finding. **error**
 
@@ -91,7 +97,7 @@ rg -n '(focus|focus-visible|focus-within|data-focused|popup-open)[^ "]*:border-(
 - a raw `<svg>` used as an icon — use lucide or `Icon`/`BrandIcon`. **error**
 - `React.forwardRef` — React 19 takes `ref` as a normal prop. **error**
 
-**Things that are NOT findings any more**, and reporting them is noise: `rounded-xl`, `shadow-md`,
+**Things that are NOT findings any more**, and reporting them is noise: `shadow-md`,
 `text-4xl`, `font-semibold`, `transition-all`, `transition-colors`, `duration-100`, `ease-in-out`,
 `z-50`, `opacity-50`, a raw `/NN` alpha, `h-8`/`size-4`, `cursor-default` on a menu row, an
 arbitrary `h-[18.4px]`, and a `hover:` with no `active:` beside it. Every one of those is upstream's

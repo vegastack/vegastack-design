@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.88.0 sha256-j80jAkc/Cg577CtM+YrEoLgE48TKcbS37zNZSu/XJ+g=
+// @vegastack file-viewer@0.88.0 sha256-YQZ90+aytUko3zB1UjWYftq7hJFOQ+O1nQiIp90/K/s=
 
 "use client";
 
@@ -1079,7 +1079,7 @@ function CardStage({
           <Image
             src={picture}
             alt=""
-            rounded="lg"
+            rounded="tile"
             draggable={false}
             data-slot="file-viewer-file-thumb"
             className="aspect-4/3 w-72 max-w-full border border-border bg-card [&_[data-slot=image-img]]:object-contain"
@@ -1176,7 +1176,7 @@ function SheetStage({
         aria-label={`${item.name} preview`}
         tabIndex={0}
         className={cn(
-          "min-h-0 w-full max-w-5xl overflow-auto rounded-lg border border-border bg-card text-card-foreground focus-visible:-outline-offset-2",
+          "min-h-0 w-full max-w-5xl overflow-auto rounded-card border border-border bg-card text-card-foreground focus-visible:-outline-offset-2",
           sheetClassName,
           side && "max-w-none flex-1 rounded-none border-0 bg-transparent",
         )}
@@ -1253,7 +1253,7 @@ function TableStage({
         role="region"
         aria-label={`${item.name} preview`}
         tabIndex={0}
-        className="max-h-full min-h-0 w-auto max-w-full shrink overflow-auto rounded-lg border border-border bg-card text-card-foreground focus-visible:-outline-offset-2"
+        className="max-h-full min-h-0 w-auto max-w-full shrink overflow-auto rounded-card border border-border bg-card text-card-foreground focus-visible:-outline-offset-2"
       >
         <table className="w-max min-w-full caption-bottom text-sm">
           <TableHeader className="sticky top-0 z-10 bg-card">
@@ -2160,7 +2160,7 @@ export function FileViewer({
                 aria-label="Previous file"
                 disabled={current === 0}
                 onClick={() => go(-1)}
-                className="absolute start-[calc(var(--spacing)*3+env(safe-area-inset-left))] inset-y-0 my-auto hidden rounded-full pointer-fine:inline-flex"
+                className="absolute start-[calc(var(--spacing)*3+env(safe-area-inset-left))] inset-y-0 my-auto hidden pointer-fine:inline-flex"
               >
                 <ChevronLeftIcon className="rtl:rotate-180" />
               </Button>
@@ -2170,7 +2170,7 @@ export function FileViewer({
                 aria-label="Next file"
                 disabled={current === count - 1}
                 onClick={() => go(1)}
-                className="absolute end-[calc(var(--spacing)*3+env(safe-area-inset-right))] inset-y-0 my-auto hidden rounded-full pointer-fine:inline-flex"
+                className="absolute end-[calc(var(--spacing)*3+env(safe-area-inset-right))] inset-y-0 my-auto hidden pointer-fine:inline-flex"
               >
                 <ChevronRightIcon className="rtl:rotate-180" />
               </Button>

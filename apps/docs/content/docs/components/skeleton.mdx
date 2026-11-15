@@ -18,7 +18,7 @@ preview: skeleton
 ```tsx
 import { Skeleton } from "@/components/ui/skeleton";
 
-<Skeleton className="h-[20px] w-[100px] rounded-full" />;
+<Skeleton className="h-[20px] w-[100px] rounded-chip" />;
 ```
 
 <ComponentPreview name="skeleton" file="components/preview/skeleton.tsx" />
@@ -114,4 +114,6 @@ technology; name the loading region around it.
 Upstream's file plus `packages/ui/upstream/patches/skeleton.patch`. Every hunk:
 
 - **DOC-2** — `cn` is imported from `@vegastack/design`. Nothing else differs: the element, the
-  `data-slot` and the `animate-pulse rounded-md bg-muted` recipe are upstream's.
+  `data-slot` and the `animate-pulse bg-muted` recipe are upstream's. The default corner is
+  `rounded-inline` (BRD-12): a skeleton copies the radius of what it stands in for, so pass the
+  real element's role (`rounded-control`, `rounded-item`, `rounded-card`, `rounded-full` for an avatar).

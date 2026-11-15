@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.26.4 sha256-UmS2zA91u0X0tH8Wi5rV+Xp7dLeRKimcHMJvfEoM2uw=
+// @vegastack use-drag-reorder@0.26.4 sha256-Up7sNEKvYvKFNizIVSIkZStWeNyXlAe654lo/biktqc=
 
 "use client";
 
@@ -259,14 +259,15 @@ function renderItemPreview(element: HTMLElement, container: HTMLElement) {
 
 /**
  * The native drag image for a drag that is better named than pictured — several selected items
- * ("3 items"), or a table row, whose copy would lose its table. A small flat label in the
- * popover's own surface; every class is a literal so a consumer's Tailwind scanner sees it.
+ * ("3 items"), or a table row, whose copy would lose its table. A small flat pill
+ * (`rounded-chip`) in the popover's own surface; every class is a literal so a consumer's Tailwind
+ * scanner sees it.
  */
 function renderLabelPreview(label: string, container: HTMLElement) {
   const pill = document.createElement("div");
   pill.setAttribute("data-slot", "drag-preview");
   pill.className =
-    "max-w-64 truncate rounded-md border border-border bg-popover px-2 py-1 text-sm text-popover-foreground";
+    "max-w-64 truncate rounded-chip border border-border bg-popover px-2 py-1 text-sm text-popover-foreground";
   pill.textContent = label;
   container.append(pill);
   return () => pill.remove();

@@ -1,4 +1,4 @@
-// @vegastack code-block@0.88.0 sha256-q9h3b7FC8SUGpNTOhC6zEoTVG9MFEzxczo5RzGP569o=
+// @vegastack code-block@0.88.0 sha256-wtFzXp/5d4TKjVzkVfEtbDTPzR+rKTpJvsJlFAcXEow=
 
 "use client";
 
@@ -164,7 +164,7 @@ function highlight(
  * type (`utilities.css`, unlayered, so a prose root's `pre code` size cannot override it).
  */
 export const codeBlockSurfaceClassName =
-  "group/code-block relative w-full min-w-0 max-w-full rounded-lg bg-muted/60 text-foreground";
+  "group/code-block relative w-full min-w-0 max-w-full rounded-block bg-muted/60 text-foreground";
 /**
  * The code panel. Its `white-space` is an inline style (`codeBlockWrapStyle`): it must outrank
  * ProseMirror's own `.ProseMirror pre { white-space: pre-wrap }` in the editor.

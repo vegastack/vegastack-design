@@ -69,9 +69,10 @@ strip (`ChatComposerHeader`), the files (`ChatComposerAttachments`), the text (`
 and the actions row (`ChatComposerActions`). Leave out what a surface doesn't need: a desktop quick
 ask has no strip.
 
-The card has one radius, `rounded-3xl` (22px, 2.2 × `--radius`), and one hairline that darkens a
-little while the text has focus. Everything inside is concentric with it: the strip and the actions
-row sit 6px in with fully round 32px controls, and the file tiles sit 10px in with `rounded-lg`. The
+The card has one radius, `rounded-overlay` (24px, the grown composer), and one hairline that darkens
+a little while the text has focus. Everything inside is concentric with it: the strip and the
+actions row sit 6px in with pill and circle 32px controls, and the attachments sit 10px in with
+`rounded-tile` thumbnails and pill (`rounded-chip`) file chips. The
 text is [`TextEdit`](/docs/components/text-edit), so a mention is the same chip a comment has. For a
 comment on a record use [`CommentComposer`](/docs/components/comments): this box is for a
 conversation, where Enter sends.

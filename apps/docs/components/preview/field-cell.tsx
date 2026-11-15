@@ -158,7 +158,7 @@ export function fieldCellEditor(): ReactNode {
   const [editing, setEditing] = useState(false);
   return (
     <Wrapper className="block">
-      <div className="flex h-10 w-64 items-center rounded-md border px-2">
+      <div className="flex h-10 w-64 items-center rounded-item border px-2">
         {editing ? (
           <FieldCellEditor
             type="single_choice"

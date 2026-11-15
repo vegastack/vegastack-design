@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.88.0 sha256-yHzbskAstrP3EzMLSkPbXSdZUsGj742SlauEfgkxQTg=
+// @vegastack chat-question-card@0.88.0 sha256-Kxs0/4u5eafrN3OAYcCVELcu0MZtTblgoSBPs/jAzJA=
 
 "use client";
 
@@ -321,7 +321,7 @@ function QuestionForm({
       aria-busy={pending || undefined}
       onKeyDown={onKeyDown}
       className={cn(
-        "flex min-w-0 flex-col gap-3 rounded-chat-card border border-chat-hairline bg-chat-card p-4 text-sm max-sm:p-3",
+        "flex min-w-0 flex-col gap-3 rounded-card border border-chat-hairline bg-chat-card p-4 text-sm max-sm:p-3",
         className,
       )}
       {...props}
@@ -366,7 +366,7 @@ function QuestionForm({
           variant="ghost"
           aria-label={total > 1 ? "Skip these questions" : "Skip this question"}
           disabled={pending}
-          className="-my-1 ms-auto shrink-0 rounded-full text-muted-foreground"
+          className="-my-1 ms-auto shrink-0 text-muted-foreground"
           onClick={() => decide(onSkip)}
         >
           <X strokeWidth={1.5} />
@@ -434,7 +434,7 @@ function QuestionForm({
       </div>
       <div data-slot="question-footer" className="flex justify-end">
         <Button
-          className="rounded-full px-4"
+          className="px-4"
           disabled={!answered || pending}
           onClick={() => advance()}
         >
@@ -499,11 +499,12 @@ function OptionRow({
       onClick={onPick}
       onKeyDown={onKeyDown}
       className={cn(
-        // A hairline between options, as in the reference card; the Button's own border-0 would
-        // otherwise defeat the list's divide-y.
-        "h-auto min-h-11 w-full min-w-0 justify-start gap-3 rounded-none border-0 border-b border-chat-hairline px-2 py-3 text-start font-normal whitespace-normal",
+        // An inset row (`rounded-item`), so its hover and selected fills keep their corners. The
+        // hairline between options, as in the reference card, is drawn inset under the text rather
+        // than as a bottom border, which would bend round the row's corners.
+        "h-auto min-h-11 w-full min-w-0 justify-start gap-3 rounded-item border-0 px-2 py-3 text-start font-normal whitespace-normal before:pointer-events-none before:absolute before:inset-x-2 before:bottom-0 before:h-px before:bg-chat-hairline before:content-['']",
         selected && "bg-state-selected",
-        last && "border-b-0",
+        last && "before:hidden",
       )}
     >
       <span className="flex min-w-0 flex-1 flex-col gap-0.5">

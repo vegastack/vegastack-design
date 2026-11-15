@@ -24,7 +24,7 @@ const [date, setDate] = React.useState<Date | undefined>(new Date());
   mode="single"
   selected={date}
   onSelect={setDate}
-  className="rounded-lg border"
+  className="rounded-card border"
 />;
 ```
 
@@ -82,7 +82,7 @@ hydration mismatch.
 
 ### Basic
 
-`className="rounded-lg border"` is all the surface a bare calendar needs.
+`className="rounded-card border"` is all the surface a bare calendar needs.
 
 <ComponentPreview name="calendarBasic" file="components/preview/calendar.tsx" />
 

@@ -1,4 +1,4 @@
-// @vegastack request-card@0.88.0 sha256-tHH6h9YBXLps2FLpwWn/Y+Gg+/ySZcZOs3IF9UvYybY=
+// @vegastack request-card@0.88.0 sha256-mBEoiIW44wXxJLx3sgwVcucxIB3zuLfLvxLiHmJM0+Y=
 
 "use client";
 
@@ -359,7 +359,7 @@ function PreviewBlock({
           tabIndex={0}
           aria-label="What it would send"
           className={cn(
-            "max-h-48 overflow-y-auto rounded-lg bg-muted px-3 py-2 whitespace-pre-line wrap-anywhere",
+            "max-h-48 overflow-y-auto rounded-block bg-muted px-3 py-2 whitespace-pre-line wrap-anywhere",
             className,
           )}
         >
@@ -387,7 +387,7 @@ function PreviewBlock({
           data-kind="items"
           className="flex min-w-0 flex-col gap-1.5"
         >
-          <ul className="flex min-w-0 flex-col divide-y divide-border rounded-lg border border-border">
+          <ul className="flex min-w-0 flex-col divide-y divide-border rounded-block border border-border">
             {preview.items.map((item, i) => (
               <li
                 key={`${item.title}-${i}`}
@@ -413,7 +413,7 @@ function PreviewBlock({
         <p
           data-slot="request-card-preview"
           data-kind="file"
-          className="flex min-w-0 items-center gap-2 rounded-lg border border-border px-3 py-2"
+          className="flex min-w-0 items-center gap-2 rounded-block border border-border px-3 py-2"
         >
           <FileText
             aria-hidden
@@ -432,7 +432,7 @@ function PreviewBlock({
         <p
           data-slot="request-card-preview"
           data-kind="from_to"
-          className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-lg border border-border px-3 py-2"
+          className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 rounded-block border border-border px-3 py-2"
         >
           <span className="min-w-0 wrap-anywhere">{preview.from}</span>
           <ArrowRight
@@ -817,7 +817,7 @@ export function RequestCard({
       <p
         data-slot="request-card-nudge"
         className={cn(
-          "flex min-w-0 items-start gap-1.5 rounded-md bg-info/10 px-2.5 py-1.5 text-xs text-info-text dark:bg-info/20",
+          "flex min-w-0 items-start gap-1.5 rounded-block bg-info/10 px-2.5 py-1.5 text-xs text-info-text dark:bg-info/20",
         )}
       >
         <Sparkles aria-hidden className="mt-px size-3.5 shrink-0" />
@@ -854,7 +854,7 @@ export function RequestCard({
       aria-labelledby={titleId}
       className={cn(
         "@container/request-card w-full min-w-0 text-sm text-card-foreground",
-        compact ? "py-2" : "rounded-xl border border-border bg-card p-4",
+        compact ? "py-2" : "rounded-card border border-border bg-card p-4",
         className,
       )}
       {...props}
@@ -1154,12 +1154,12 @@ export function PermissionList({
       {items.length === 0 ? (
         <p
           data-slot="permission-list-empty"
-          className="rounded-lg border border-dashed border-border px-3 py-3 text-sm text-muted-foreground"
+          className="rounded-block border border-dashed border-border px-3 py-3 text-sm text-muted-foreground"
         >
           {empty}
         </p>
       ) : (
-        <ul className="flex min-w-0 flex-col divide-y divide-border rounded-lg border border-border">
+        <ul className="flex min-w-0 flex-col divide-y divide-border rounded-block border border-border">
           {items.map((p) => (
             <li key={p.id} className="min-w-0">
               <PermissionRow

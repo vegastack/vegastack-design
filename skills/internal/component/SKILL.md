@@ -139,8 +139,9 @@ Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full voc
   colour; every control keeps its resting `border-border`/`border-input`. base.css owns the one cue,
   an `accent`/50 tint — except text entry: no fill, an eased `border-ring/50` border (MK 2026-09-27).
   This is the rule that keeps the reset from unwinding on the next pull.
-- Sizes, radii, shadows, z-index, alpha and opacity are **plain Tailwind** now: `h-8`, `size-4`,
-  `rounded-xl`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The token families that used
+- Corners are a **role** (BRD-12): `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile`
+  and `row-fill` for table rows (`references/tokens.md` § Radius). Sizes, shadows, z-index, alpha and
+  opacity are **plain Tailwind**: `h-8`, `size-4`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The token families that used
   to own them are deleted.
 - Type SIZES are Tailwind's stock scale and `font-semibold`/`text-4xl` are ordinary utilities; the
   role tokens (`text-h1`, `text-label`, `text-code`, `text-mono-label`) are gone. **The metrics are
@@ -232,8 +233,8 @@ decision tree in [references/conventions.md](references/conventions.md).
 - **Icon-only controls are `<Button size="icon">`** — plus `icon-xs`, `icon-sm` and `icon-lg`,
   upstream's four square tiers, each needing an explicit `aria-label`, which `icon-button-name`
   checks. There is no `IconButton`: Batch 7a of the shadcn reset retired it, so the accessible name
-  is a lint guarantee rather than a type-level one, and a round control is `className="rounded-full"`
-  on the same Button.
+  is a lint guarantee rather than a type-level one. Every icon size is already a circle
+  (`rounded-icon`, BRD-12) and every other size a pill (`rounded-control`).
 - **Chevron policy** — `ChevronsUpDown` marks combobox-style triggers that filter/search (Combobox,
   CountrySelect, RegionSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
   that open a fixed list (Select, DatePicker, ButtonGroup's menu trigger, Accordion — rotates

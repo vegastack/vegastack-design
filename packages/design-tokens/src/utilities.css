@@ -186,6 +186,84 @@
   background-image: linear-gradient(var(--state-focus), var(--state-focus));
 }
 
+/* BRD-12 (ours, operator 2026-11-16: "table hover bg for rows also should be following these
+   standards like how select dropdown options hover"): a table row draws its hover, pressed,
+   selected and keyboard-focus fills as one `rounded-item` (10px) shape inset 2px from its hairlines
+   and 4px from the table's sides, exactly like a menu option, instead of a square band. A `<tr>`
+   background cannot be rounded, so each cell paints its slice of the fill on a `::before` behind
+   its content: the first cell carries the start corners, the last the end corners. The fill is two
+   inherited custom properties (`--row-fill-color` for selected, `--row-fill-layer` for the hover,
+   pressed and focus layers), so a component with its own state (a peeked row, a drop target) sets
+   `--row-fill-color` instead of painting the row. Every selector sits in `:where()`, so a cell's
+   own `sticky` or `absolute` still wins. */
+@utility row-fill {
+  & > :where(td, th) {
+    position: relative;
+    isolation: isolate;
+  }
+  & > :where(td, th)::before {
+    content: "";
+    position: absolute;
+    inset-block: 2px;
+    inset-inline: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--row-fill-color, transparent);
+    background-image: var(--row-fill-layer, none);
+  }
+  & > :where(td, th):first-child::before {
+    inset-inline-start: 4px;
+    border-start-start-radius: var(--radius-item);
+    border-end-start-radius: var(--radius-item);
+  }
+  & > :where(td, th):last-child::before {
+    inset-inline-end: 4px;
+    border-start-end-radius: var(--radius-item);
+    border-end-end-radius: var(--radius-item);
+  }
+  @variant hover {
+    &:where(
+      :not(
+        :focus-visible,
+        :disabled,
+        [aria-disabled="true"],
+        [data-disabled],
+        [data-active],
+        [aria-current="page"],
+        [aria-current="true"],
+        [aria-selected="true"],
+        [data-state="selected"],
+        [data-peek-active],
+        [aria-expanded="true"],
+        :has([aria-expanded="true"])
+      )
+    ) {
+      --row-fill-layer: linear-gradient(var(--state-hover), var(--state-hover));
+    }
+  }
+  &:where(:active:not(:disabled, [aria-disabled="true"], [data-disabled])) {
+    --row-fill-layer: linear-gradient(
+      var(--state-pressed),
+      var(--state-pressed)
+    );
+  }
+  &:where(
+    [data-state="selected"],
+    [aria-selected="true"],
+    [data-peek-active],
+    [aria-current="page"],
+    [aria-current="true"],
+    :has([aria-expanded="true"])
+  ) {
+    --row-fill-color: var(--state-selected);
+  }
+  /* base.css paints the focus tint on the focused element itself; a row moves it into the shape. */
+  &:where(:focus-visible) {
+    background-image: none;
+    --row-fill-layer: linear-gradient(var(--state-focus), var(--state-focus));
+  }
+}
+
 /* Upstream's one scrollbar utility, which `sidebar` and `command` reach for. */
 @utility no-scrollbar {
   -ms-overflow-style: none;

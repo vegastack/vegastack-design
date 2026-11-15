@@ -393,8 +393,8 @@ function Panel({
       aria-label={title}
       className={
         wide
-          ? "flex w-full max-w-96 flex-col gap-3 rounded-lg border border-border bg-popover p-2.5 text-sm text-popover-foreground shadow-md"
-          : "flex w-full max-w-72 flex-col gap-3 rounded-lg border border-border bg-popover p-2.5 text-sm text-popover-foreground shadow-md"
+          ? "flex w-full max-w-96 flex-col gap-3 rounded-card border border-border bg-popover p-2.5 text-sm text-popover-foreground shadow-md"
+          : "flex w-full max-w-72 flex-col gap-3 rounded-card border border-border bg-popover p-2.5 text-sm text-popover-foreground shadow-md"
       }
     >
       <p className="font-heading text-base font-medium">{title}</p>

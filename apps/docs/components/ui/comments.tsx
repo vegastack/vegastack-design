@@ -1,4 +1,4 @@
-// @vegastack comments@0.88.0 sha256-5R5b+G0C1g3lG4MdZCuQNmKM2CzvcSqmr7egzvDJAmM=
+// @vegastack comments@0.88.0 sha256-gidZ/Xpx0YNOrf6LNsDvbgPtzzCVUz+lTsMTKxphOjg=
 
 "use client";
 
@@ -494,7 +494,7 @@ export function CommentItem({
         // Inside a thread or a replies list it is a row of that card, split from the row above by
         // a hairline (`comment-replies` / `CommentThread`). The border never changes on hover,
         // focus or edit (FOC-14); only a `#comment-<id>` highlight tints a row.
-        "flex min-w-0 scroll-mt-24 flex-col overflow-hidden rounded-lg border border-border bg-muted/30",
+        "flex min-w-0 scroll-mt-24 flex-col overflow-hidden rounded-card border border-border bg-muted/30",
         "in-data-[slot=comment-replies]:overflow-visible in-data-[slot=comment-replies]:rounded-none in-data-[slot=comment-replies]:border-0 in-data-[slot=comment-replies]:bg-transparent",
         className,
       )}
@@ -505,7 +505,7 @@ export function CommentItem({
         // 16px in from the card's sides, 12px above and below. An agent's comment has a violet
         // bar at its start, a question an amber one — on this row only, never on its replies.
         className={cn(
-          "group/comment flex min-w-0 flex-col px-4 py-3 transition-colors data-[highlighted]:bg-state-hover",
+          "group/comment m-1 flex min-w-0 flex-col rounded-item px-3 py-2 transition-colors data-[highlighted]:bg-state-hover",
           (agent || question) &&
             "relative before:absolute before:inset-y-2 before:start-0 before:w-0.5 before:rounded-full",
           question ? "before:bg-warning" : agent && "before:bg-tag-purple",
@@ -528,7 +528,7 @@ export function CommentItem({
             {question ? (
               <span
                 data-slot="comment-question"
-                className="shrink-0 rounded-sm bg-warning/10 px-1 text-xs font-medium whitespace-nowrap text-warning-text"
+                className="shrink-0 rounded-chip bg-warning/10 px-1.5 text-xs font-medium whitespace-nowrap text-warning-text"
               >
                 Needs your reply
               </span>
@@ -903,7 +903,7 @@ export function CommentMedia({
             file={item.file}
             state={item.state ?? "done"}
             data-slot="comment-media-item"
-            className="max-w-full overflow-hidden rounded-lg border-border bg-transparent p-0 has-[>a,>button]:hover:not-focus-visible:bg-none"
+            className="max-w-full overflow-hidden rounded-block border-border bg-transparent p-0 has-[>a,>button]:hover:not-focus-visible:bg-none"
           >
             <img
               src={item.src}
@@ -929,7 +929,7 @@ export function CommentMedia({
                 size="icon-xs"
                 aria-label={`Remove ${item.name}`}
                 onClick={item.onRemove}
-                className="absolute end-1 top-1 z-10 rounded-full shadow-sm"
+                className="absolute end-1 top-1 z-10 shadow-sm"
               >
                 <X aria-hidden />
               </Button>
@@ -1105,7 +1105,7 @@ function CommentBox({
                     aria-label="Attach files"
                     disabled={sending}
                     className={cn(
-                      "rounded-full text-muted-foreground hover:text-foreground",
+                      "text-muted-foreground hover:text-foreground",
                       TOUCH_TARGET,
                     )}
                     // A picker of our own, clicked in the gesture (the lazy editor may not be in
@@ -1292,7 +1292,7 @@ function CommentBox({
         <div
           aria-hidden
           data-slot="comment-box-drop"
-          className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-lg border-2 border-dashed border-primary bg-primary/5 text-sm font-medium text-primary"
+          className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-card border-2 border-dashed border-primary bg-primary/5 text-sm font-medium text-primary"
         >
           Drop files to attach
         </div>
@@ -1331,7 +1331,7 @@ function SendButton({
             onClick={onClick}
             {...props}
             className={cn(
-              "rounded-full data-disabled:not-data-loading:opacity-100 data-disabled:not-data-loading:text-muted-foreground",
+              "data-disabled:not-data-loading:opacity-100 data-disabled:not-data-loading:text-muted-foreground",
               TOUCH_TARGET,
             )}
           />
@@ -1628,7 +1628,7 @@ export function CommentComposer({
               variant="ghost"
               size="icon-xs"
               aria-label="Cancel reply"
-              className={cn("rounded-full", TOUCH_TARGET)}
+              className={TOUCH_TARGET}
               onClick={onCancelReply}
             >
               <X aria-hidden />
@@ -1862,7 +1862,7 @@ function RepliesToggle({
     );
   const Icon = expanded ? ChevronUp : ChevronDown;
   return (
-    <li data-slot="comment-thread-more">
+    <li data-slot="comment-thread-more" className="p-1">
       <Button
         variant="ghost"
         size="sm"
@@ -1874,7 +1874,7 @@ function RepliesToggle({
           setBusy(true);
           void result.catch(() => {}).finally(() => setBusy(false));
         }}
-        className="h-auto w-full justify-start gap-1.5 rounded-none px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+        className="h-auto w-full justify-start gap-1.5 rounded-item px-3 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
       >
         {busy ? (
           <Spinner className="size-3.5" />
@@ -2245,7 +2245,7 @@ export function CommentThread({
       className={cn(
         // One card: a hairline border and the light fill; its comments are rows (a descendant
         // rule beats the item's own card classes).
-        "flex min-w-0 flex-col overflow-hidden rounded-lg border border-border bg-muted/30 text-card-foreground transition-shadow duration-150 data-active:shadow-md",
+        "flex min-w-0 flex-col overflow-hidden rounded-card border border-border bg-muted/30 text-card-foreground transition-shadow duration-150 data-active:shadow-md",
         "[&_[data-slot=comment-item]]:overflow-visible [&_[data-slot=comment-item]]:rounded-none [&_[data-slot=comment-item]]:border-x-0 [&_[data-slot=comment-item]]:border-b-0 [&_[data-slot=comment-item]]:bg-transparent [&_[data-slot=comment-item][data-variant=root]]:border-t-0",
         className,
       )}
@@ -2270,7 +2270,7 @@ export function CommentThread({
                   variant="ghost"
                   onClick={onQuoteClick}
                   data-slot="comment-thread-quote"
-                  className="h-auto w-full min-w-0 justify-start rounded-none rounded-e-sm border-0 border-s-2 border-border px-2 py-0.5 text-start text-sm font-normal whitespace-normal text-muted-foreground"
+                  className="h-auto w-full min-w-0 justify-start rounded-none rounded-e-item border-0 border-s-2 border-border px-2 py-0.5 text-start text-sm font-normal whitespace-normal text-muted-foreground"
                 >
                   <span className="line-clamp-3 min-w-0">{quote}</span>
                 </Button>
@@ -2712,7 +2712,7 @@ export function CommentList({
         loading={loadingEarlier}
         onLoadMore={onLoadEarlier}
         rootMargin="160px 0px"
-        skeleton={<Skeleton className="h-16 w-full rounded-lg" />}
+        skeleton={<Skeleton className="h-16 w-full rounded-card" />}
       />
     ) : null;
   const composerShown = composer && !loading ? composer : null;
@@ -2865,7 +2865,7 @@ export function CommentThreadSkeleton() {
     <div
       aria-hidden
       data-slot="comment-thread-skeleton"
-      className="flex flex-col gap-1 rounded-lg border border-border px-4 py-3"
+      className="flex flex-col gap-1 rounded-card border border-border px-4 py-3"
     >
       <div className="flex h-6 items-center gap-2">
         <Skeleton className="size-5 shrink-0 rounded-full" />
@@ -2893,11 +2893,11 @@ export function CommentListSkeleton() {
     >
       <CommentThreadSkeleton />
       <CommentThreadSkeleton />
-      <div className="flex flex-col rounded-lg border border-border px-4 pt-3 pb-2">
+      <div className="flex flex-col rounded-card border border-border px-4 pt-3 pb-2">
         <Skeleton className="h-3.5 w-32" />
         <div className="flex justify-end gap-1 pt-5">
-          <Skeleton className="size-6 rounded-full" />
-          <Skeleton className="size-6 rounded-full" />
+          <Skeleton className="size-6 rounded-icon" />
+          <Skeleton className="size-6 rounded-icon" />
         </div>
       </div>
     </div>

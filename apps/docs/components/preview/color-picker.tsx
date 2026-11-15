@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/color-picker";
 
 /**
- * Interactive — click the `rounded-md` trigger to open the swatch grid. The chosen
+ * Interactive — click the round `rounded-icon` trigger to open the swatch grid. The chosen
  * swatch shows a check + `border-primary`; the trigger mirrors the current color.
  */
 export function colorPicker(): ReactNode {

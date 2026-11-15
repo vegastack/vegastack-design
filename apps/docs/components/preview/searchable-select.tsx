@@ -216,7 +216,7 @@ export function searchableSelectInline(): ReactNode {
   const [value, setValue] = React.useState<Repo | null>(REPOS[1]!);
   return (
     <Wrapper className="items-stretch">
-      <div className="flex w-full max-w-md min-w-0 items-center justify-between gap-3 rounded-lg border px-3 py-2">
+      <div className="flex w-full max-w-md min-w-0 items-center justify-between gap-3 rounded-card border px-3 py-2">
         <span className="min-w-0 truncate text-sm">Release 2026.09</span>
         <SearchableSelect<Repo>
           items={REPOS}

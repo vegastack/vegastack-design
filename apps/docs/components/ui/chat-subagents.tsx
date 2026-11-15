@@ -1,4 +1,4 @@
-// @vegastack chat-subagents@0.88.0 sha256-QGLygZpODRMHyZljCaIWmbaJQRT/qvg4eBfXksRFfYs=
+// @vegastack chat-subagents@0.88.0 sha256-bmDRy/G4ifp9TxiS3JuYrU8CC5llURjYrlthr+P5PqM=
 
 "use client";
 
@@ -184,12 +184,12 @@ function SubagentRow({
     <li
       data-slot="subagent-row"
       data-status={view.status}
-      className="flex min-h-9 min-w-0 items-center gap-1 pe-1"
+      className="flex min-h-9 min-w-0 items-center gap-1 px-1 py-0.5"
     >
       <Button
         variant="ghost"
         onClick={() => onOpen(view.callId)}
-        className="h-auto min-h-9 min-w-0 flex-1 justify-start gap-2 rounded-none border-0 px-3 py-1.5 text-start font-normal whitespace-normal"
+        className="h-auto min-h-8 min-w-0 flex-1 justify-start gap-2 rounded-item border-0 px-2 py-1 text-start font-normal whitespace-normal"
         data-slot="subagent-open"
       >
         <span className="w-24 shrink-0 truncate text-muted-foreground max-sm:w-auto">
@@ -262,7 +262,7 @@ function SubagentsBlock({
   const rows = (
     <ul
       data-slot="subagents-rows"
-      className="flex min-w-0 flex-col divide-y divide-chat-hairline overflow-hidden rounded-chat-card border border-chat-hairline"
+      className="flex min-w-0 flex-col divide-y divide-chat-hairline overflow-hidden rounded-card border border-chat-hairline"
     >
       {views.map((view) => (
         <SubagentRow

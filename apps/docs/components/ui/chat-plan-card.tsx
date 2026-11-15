@@ -1,4 +1,4 @@
-// @vegastack chat-plan-card@0.88.0 sha256-s1452wjl8EDAq9koCLhA+/nfyrKhsorijABhEEvG5WY=
+// @vegastack chat-plan-card@0.88.0 sha256-3ODdjzWmMVX1SICafCF8wqjvWRiySA9o3IGhdk0yg2Q=
 
 "use client";
 
@@ -135,7 +135,7 @@ function PlanStepRow({
   return (
     <li data-slot="plan-step" data-change={change} className="min-w-0">
       <Collapsible>
-        <CollapsibleTrigger className="group/plan-step state-layer flex min-h-7 w-full min-w-0 items-baseline gap-3 rounded-md px-2 py-1 text-sm">
+        <CollapsibleTrigger className="group/plan-step state-layer flex min-h-7 w-full min-w-0 items-baseline gap-3 rounded-item px-2 py-1 text-sm">
           {line}
           <ChevronRight
             aria-hidden="true"

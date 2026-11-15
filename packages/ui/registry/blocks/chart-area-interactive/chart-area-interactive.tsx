@@ -1,4 +1,4 @@
-// @vegastack chart-area-interactive@0.88.0 sha256-06gpCOEq5i9NgQPkq9lwNhf1gcbjD1vcALd6CbGCrxI=
+// @vegastack chart-area-interactive@0.88.0 sha256-nYEMhXT6ewL+TTedC43rUw2KuxQGxjjK8XiVjtJosss=
 
 "use client";
 
@@ -171,21 +171,15 @@ export function ChartAreaInteractive() {
           }}
         >
           <SelectTrigger
-            className="hidden w-[160px] rounded-lg sm:ml-auto sm:flex"
+            className="hidden w-[160px] sm:ml-auto sm:flex"
             aria-label="Select a value"
           >
             <SelectValue placeholder="Last 3 months" />
           </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="90d" className="rounded-lg">
-              Last 3 months
-            </SelectItem>
-            <SelectItem value="30d" className="rounded-lg">
-              Last 30 days
-            </SelectItem>
-            <SelectItem value="7d" className="rounded-lg">
-              Last 7 days
-            </SelectItem>
+          <SelectContent>
+            <SelectItem value="90d">Last 3 months</SelectItem>
+            <SelectItem value="30d">Last 30 days</SelectItem>
+            <SelectItem value="7d">Last 7 days</SelectItem>
           </SelectContent>
         </Select>
       </CardHeader>

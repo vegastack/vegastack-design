@@ -64,7 +64,8 @@ Claude subagent review instead; never skip the review.
   `<family>-text` on page and tint (A11Y-13). `contrast-check.mjs` gates it.
 - Focus: no focus rings anywhere (FOC-13); a background tint is the cue; a border never changes colour on
   focus except text entry, which darkens to `border-ring/50` (FOC-14).
-- Size, radius, shadow, z-index, alpha, opacity are plain Tailwind; `z-50` is the one overlay band
+- Corners are a role, never a size: `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile`
+  (BRD-12, `design.md` § Corners; `design-lint` `no-radius-ramp`). Size, shadow, z-index, alpha, opacity are plain Tailwind; `z-50` is the one overlay band
   (toasts `z-60`, OVL-15).
 - Type: Tailwind's stock sizes with our global heading tracking ramp; no `tracking-*` except
   `tracking-widest`, no arbitrary text sizes, no uppercase transform (TYP-15, TYP-7). Fonts: Geist.

@@ -1,4 +1,4 @@
-// @vegastack permission-menu@0.88.0 sha256-ZKKo/2Y7ephYeRUCl/0r1GwvZxWtLqYrKhU01/YhhKg=
+// @vegastack permission-menu@0.88.0 sha256-u2K24tAwgeeAmLVNxb/2/V4+8beh7UwEqEAdYraipHs=
 
 import * as React from "react";
 import { ChevronDownIcon, LockIcon } from "lucide-react";
@@ -137,7 +137,7 @@ export function PermissionMenu<Value extends string = string>({
         className={cn(
           // A locked level reads as muted text with a lock — not as a dimmed, broken control.
           "shrink-0 gap-1.5 text-sm font-normal text-muted-foreground data-disabled:not-data-loading:opacity-100",
-          variant === "chip" && "rounded-md px-2",
+          variant === "chip" && "px-2",
           variant === "outline" && "justify-between",
           className,
         )}
@@ -199,7 +199,7 @@ export function PermissionMenu<Value extends string = string>({
               "shrink-0 gap-1 text-sm font-normal",
               // The chip: the text in body ink, a compact tint just around it, a ▾ that is
               // always drawn, so the level reads as something you can change.
-              variant === "chip" && "rounded-md px-2 text-foreground",
+              variant === "chip" && "px-2 text-foreground",
               variant === "outline" && "justify-between gap-1.5",
               className,
             )}

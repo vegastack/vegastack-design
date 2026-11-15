@@ -1,4 +1,4 @@
-// @vegastack button@0.88.0 sha256-UxgAvuTsD6p9S3JX3Q8A18BNQeQVlXIM/pa6/SONSgQ=
+// @vegastack button@0.88.0 sha256-kR3NwnFcrj+/tp70rgXQtVeD316WfEfsldeAbcF3mRM=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -7,7 +7,7 @@ import { cn } from "@vegastack/design";
 import { Spinner } from "@/components/ui/spinner";
 
 const buttonVariants = cva(
-  "group/button relative inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none pointer-coarse:after:absolute pointer-coarse:after:content-[''] pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0 pointer-coarse:[&:has(+:is(button,a[href],input,select,textarea,[role=button]))]:after:end-0 active:not-aria-[haspopup]:not-data-disabled:translate-y-px aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button relative inline-flex shrink-0 items-center justify-center rounded-control border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all select-none pointer-coarse:after:absolute pointer-coarse:after:content-[''] pointer-coarse:[:is(button,a[href],input,select,textarea,[role=button])+&]:after:start-0 pointer-coarse:[&:has(+:is(button,a[href],input,select,textarea,[role=button]))]:after:end-0 active:not-aria-[haspopup]:not-data-disabled:translate-y-px aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 data-disabled:not-data-loading:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -26,15 +26,14 @@ const buttonVariants = cva(
       size: {
         default:
           "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 pointer-coarse:after:-inset-1.75",
-        xs: "h-6 gap-1 rounded-[min(var(--radius-md),10px)] px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 pointer-coarse:after:-inset-2.75",
-        sm: "h-7 gap-1 rounded-[min(var(--radius-md),12px)] px-2.5 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 pointer-coarse:after:-inset-2.25",
+        xs: "h-6 gap-1 px-2 text-xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 pointer-coarse:after:-inset-2.75",
+        sm: "h-7 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 pointer-coarse:after:-inset-2.25",
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 pointer-coarse:after:-inset-1.25",
-        icon: "size-8 pointer-coarse:after:-inset-1.75",
+        icon: "size-8 rounded-icon pointer-coarse:after:-inset-1.75",
         "icon-xs":
-          "size-6 rounded-[min(var(--radius-md),10px)] in-data-[slot=button-group]:rounded-lg [&_svg:not([class*='size-'])]:size-3 pointer-coarse:after:-inset-2.75",
-        "icon-sm":
-          "size-7 rounded-[min(var(--radius-md),12px)] in-data-[slot=button-group]:rounded-lg pointer-coarse:after:-inset-2.25",
-        "icon-lg": "size-9 pointer-coarse:after:-inset-1.25",
+          "size-6 rounded-icon [&_svg:not([class*='size-'])]:size-3 pointer-coarse:after:-inset-2.75",
+        "icon-sm": "size-7 rounded-icon pointer-coarse:after:-inset-2.25",
+        "icon-lg": "size-9 rounded-icon pointer-coarse:after:-inset-1.25",
       },
     },
     defaultVariants: {

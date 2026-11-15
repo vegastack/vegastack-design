@@ -33,6 +33,7 @@ const iconNameDir = groupDir("icon-name");
 const loaderMarkDir = groupDir("loader-mark");
 const importantDir = groupDir("important");
 const surfaceRingDir = groupDir("surface-ring");
+const radiusDir = groupDir("radius");
 const validDir = groupDir("valid");
 const textEntryBorderDir = groupDir("text-entry-border");
 for (const dir of [
@@ -45,6 +46,7 @@ for (const dir of [
   loaderMarkDir,
   importantDir,
   surfaceRingDir,
+  radiusDir,
   validDir,
 ]) {
   mkdirSync(dir, { recursive: true });
@@ -595,6 +597,51 @@ export function NamedByItsOwnChildren() {
     );
   }
 
+  // ── no-radius-ramp (BRD-12, ours, operator 2026-11-16) ──────────────────────────────────────
+  // One corner per role. Every spelling of a ramp step, bare `rounded`, an arbitrary length or a
+  // radius variable is rejected, under any variant and as a side form; prose that says "rounded"
+  // is not a class and passes.
+  const radiusForms = [
+    `<div className="rounded-lg border">a ramp step</div>`,
+    `<div className="rounded border">bare rounded</div>`,
+    `<div className="hover:rounded-md">a variant-scoped step</div>`,
+    `<div className="rounded-t-xl">a side form</div>`,
+    `<div className="rounded-[4px]">an arbitrary length</div>`,
+    `<div className="rounded-[calc(var(--radius)-3px)]">radius arithmetic</div>`,
+    `<div className="rounded-(--cell-radius)">a radius variable</div>`,
+    `<div className="data-[size=sm]:rounded-[min(var(--radius-md),10px)]">upstream's size clamp</div>`,
+    `<div className="[&_img]:rounded-sm">a descendant override</div>`,
+    `<div className="rounded-chat-card">the retired chat-card corner</div>`,
+    `<div className={cn("flex", open && "rounded-4xl")}>a conditional cn argument</div>`,
+  ];
+  writeFileSync(
+    join(radiusDir, "radius.tsx"),
+    `export function Corners() {\n  return <>\n${radiusForms.map((form) => `    ${form}`).join("\n")}\n    <div aria-label="rounded corners" className="rounded-item">prose is not a class</div>\n  </>;\n}\n`,
+  );
+  const radius = run(radiusDir);
+  const radiusReported = new Set(
+    [...radius.output.matchAll(/radius\.tsx:(\d+) \[no-radius-ramp\]/g)].map(
+      (m) => Number(m[1]),
+    ),
+  );
+  const radiusMissed = radiusForms
+    .map((_, index) => index + 3)
+    .filter((line) => !radiusReported.has(line));
+  const radiusExtra = [...radiusReported].filter(
+    (line) => line > radiusForms.length + 2,
+  );
+  if (
+    radius.status === 0 ||
+    radiusMissed.length > 0 ||
+    radiusExtra.length > 0
+  ) {
+    fail(
+      `design-lint no-radius-ramp: accepted specimen line(s) ${radiusMissed.join(", ") || "none"}, ` +
+        `rejected the prose line(s) ${radiusExtra.join(", ") || "none"} — BRD-12 names a role corner`,
+      radius.output,
+    );
+  }
+
   // ── the positive specimen ───────────────────────────────────────────────────────────────────
   // Every line below is a DELIBERATE non-violation. They are specimens, not decoration: without
   // them a later tightening would start rejecting a real upstream pattern and nothing would say so.
@@ -605,9 +652,9 @@ export function NamedByItsOwnChildren() {
 export function Textarea(props: ComponentProps<'textarea'>) {
   return <><textarea {...props} />
     <div className="transition-all duration-100 ease-in-out" />{/* upstream's own motion vocabulary (MOT-2/MOT-3 = shadcn) */}
-    <div className="rounded-xl shadow-md bg-muted/50 opacity-50" />{/* radius, shadow, raw alpha and raw opacity are upstream's (BRD-3/BRD-4/BRD-6, COL-20's ladder half) */}
-    <div className="h-[18.4px] rounded-[4px] p-[3px]" />{/* upstream's own arbitrary values (DOC-10 = shadcn) — but NOT an arbitrary FONT SIZE, which TYP-18 rejects: it bypasses the --text-* namespace and so receives neither half of the ramp */}
-    <div className="rounded-[min(var(--radius-md),10px)]" />{/* upstream's size-tier radius clamp */}
+    <div className="rounded-card shadow-md bg-muted/50 opacity-50" />{/* a role corner (BRD-12); shadow, raw alpha and raw opacity are upstream's (BRD-3/BRD-4, COL-20's ladder half) */}
+    <div className="h-[18.4px] rounded-mark p-[3px]" />{/* upstream's own arbitrary values (DOC-10 = shadcn) — but NOT an arbitrary FONT SIZE, which TYP-18 rejects: it bypasses the --text-* namespace and so receives neither half of the ramp */}
+    <div className="rounded-[inherit] rounded-s-item rounded-e-control rounded-t-overlay rounded-tile rounded-none rounded-full" />{/* structural corners and directional role corners (BRD-12) */}
     <div className="bg-black/10 supports-backdrop-filter:backdrop-blur-xs" />{/* upstream's modal scrim (OVL-3 = shadcn) */}
     <div className="[&_.recharts-cartesian-grid_line[stroke='#ccc']]:stroke-border/50 [&_.recharts-dot[stroke='#fff']]:stroke-transparent" />{/* a hex in an ATTRIBUTE-SELECTOR VALUE targets recharts' own default so a token can replace it — COL-20 enforced, not broken (Batch 6) */}
     <div className="text-4xl font-semibold" />{/* an upstream size step and a heavy weight are still upstream's (TYP-4/TYP-8 = shadcn). text-4xl now carries the ramp's own leading and -0.05em tracking, which is exactly why a LOCAL tracking utility beside it is rejected (TYP-15) */}
@@ -617,15 +664,15 @@ export function Textarea(props: ComponentProps<'textarea'>) {
     <div className="outline-2 outline-offset-1 outline-ring" />{/* the KEPT forced-colours affordance: an outline, never a ring */}
     <div className="sr-only focus:not-sr-only focus:border focus:border-border aria-invalid:border-destructive border-t-2" />{/* a width, the resting border colour and an unconditional invalid border are not a focus border change (FOC-14) */}
     <div className="translate-x-1 motion-reduce:transform-none" />{/* suppresses the END STATE, which base.css does not */}
-    <div className={["flex items-center", "gap-2 rounded-md"].join(" ")} />{/* the canonical multi-fragment join — cannot express the class-glue bug */}
+    <div className={["flex items-center", "gap-2 rounded-item"].join(" ")} />{/* the canonical multi-fragment join — cannot express the class-glue bug */}
     <div title={"a sentence split across two source lines " + "is prose, not a class seam"} />{/* no class context on either side */}
     <p>{"a multi-line literal mentioning max-h-40\\n\\nkeeps its blank lines: it is prose, not a class string"}</p>
     <div className="size-8 rounded-full ring-2 ring-background" />{/* avatar's stacking gap in a group — a separator in the page colour, not a surface outline (BRD-1) */}
-    <div className="rounded-xl border border-border bg-card" />{/* the BRD-1 surface edge */}
+    <div className="rounded-card border border-border bg-card" />{/* the BRD-1 surface edge */}
     <Swatches tokens={["border", "input", "ring"]} title="Add a ring" />{/* \`ring\` as a token NAME and as a word, not a class string (BRD-1) */}
     <p aria-label="Draw a ring around the user-selected item" title='keep the ring on the drop-zone edge'>x</p>{/* prose beside a hyphenated word, in a non-class attribute, is not a bare ring (BRD-1) */}
     <p className={cn("text-sm", variant === "ring" && "font-medium")}>{"a ring-shaped hint"}</p>{/* a compared VALUE inside cn and JSX prose are not classes */}
-    <div className="rounded-md ring-sidebar-ring ring-0" />{/* upstream's vestigial focus-ring COLOUR with no width, and a zeroed ring: neither draws an outline */}
+    <div className="rounded-item ring-sidebar-ring ring-0" />{/* upstream's vestigial focus-ring COLOUR with no width, and a zeroed ring: neither draws an outline */}
     <p className={cn(k.includes("ring") && "font-medium")} />{/* a call's own argument inside cn is a value, not a class (BRD-1) */}
     <p className={cn(s["ring"], open ? "text-sm" : "text-xs")} />{/* an element-access key inside cn is a value, not a class */}
     <p className={cn(t("ring"))} />{/* a translation key inside cn is a value, not a class */}
@@ -769,7 +816,7 @@ export function Good({ done }: { done: boolean }) {
   return <>
     <Check className="text-primary" />
     <CircleCheck className={cn('size-4', done && 'text-primary')} />
-    <div className="bg-chat-card border border-chat-hairline rounded-chat-card" />
+    <div className="bg-chat-card border border-chat-hairline rounded-card" />
     <span className="text-warning-text">needs you</span>
     <div className="transition-[height,opacity] duration-state ease-enter data-ending-style:duration-state-exit data-ending-style:ease-exit" />
   </>;

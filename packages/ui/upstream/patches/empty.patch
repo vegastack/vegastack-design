@@ -1,6 +1,8 @@
 # component: empty
-# decisions: API-16, API-22, API-29, DOC-2, TYP-15, LAY-17
+# decisions: API-16, API-22, API-29, DOC-2, TYP-15, LAY-17, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   API-29: `Empty` takes `size="sm"` (`data-size`), the compact inline empty: a 16px padding, an
 #     8px gap and no media margin.
 #   API-29: `Empty` always renders an icon — an `icon` prop, lucide `Inbox` by default — as a
@@ -25,7 +27,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/empty.tsx b/empty.tsx
-index e11ce34..00054d9 100644
+index e11ce34..72eee33 100644
 --- a/empty.tsx
 +++ b/empty.tsx
 @@ -1,17 +1,42 @@
@@ -55,13 +57,14 @@ index e11ce34..00054d9 100644
        data-slot="empty"
 +      data-size={size}
        className={cn(
-         "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-xl border-dashed p-6 text-center text-balance",
+-        "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-xl border-dashed p-6 text-center text-balance",
 -        className
++        "flex w-full min-w-0 flex-1 flex-col items-center justify-center gap-4 rounded-card border-dashed p-6 text-center text-balance",
 +        // An empty state always shows an icon: the default one stands down when the
 +        // composition brings its own `EmptyMedia`.
 +        "has-[[data-slot=empty-icon]:not([data-default])]:[&>[data-default]]:hidden",
 +        // The compact size for a small inline empty — "No tasks yet" inside a card.
-+        "data-[size=sm]:gap-2 data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]]:size-10 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]]:rounded-lg data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]_svg]:size-5",
++        "data-[size=sm]:gap-2 data-[size=sm]:rounded-block data-[size=sm]:p-4 data-[size=sm]:[&_[data-slot=empty-icon]]:mb-0 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]]:size-10 data-[size=sm]:[&_[data-slot=empty-icon][data-variant=icon]_svg]:size-5",
 +        className,
        )}
        {...props}
@@ -94,7 +97,7 @@ index e11ce34..00054d9 100644
 +        // A 48px bordered tile with a 24px muted icon; the tile sizes ANY icon passed in, so a
 +        // consumer's own `size-*` on the svg cannot shrink it (the compact `sm` Empty takes
 +        // 40px / 20px).
-+        icon: "flex size-12 shrink-0 items-center justify-center rounded-xl border bg-muted text-muted-foreground [&_svg]:size-6",
++        icon: "flex size-12 shrink-0 items-center justify-center rounded-tile border bg-muted text-muted-foreground [&_svg]:size-6",
        },
      },
      defaultVariants: {

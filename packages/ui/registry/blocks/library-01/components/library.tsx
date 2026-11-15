@@ -1,4 +1,4 @@
-// @vegastack library-01@0.88.0 sha256-mng38yggFYjbSrYqDEfQHCPizES2WbhKMyEbDn0gHno=
+// @vegastack library-01@0.88.0 sha256-STwKry41Zi+Ka+rcXN94eku/gU+55TBUh/Ji6vHisu8=
 
 "use client";
 
@@ -469,7 +469,7 @@ export function Library({
       ref={measureRef}
       data-slot="library"
       data-mode={wide ? "wide" : "narrow"}
-      className="@container/library flex h-full min-h-0 w-full overflow-hidden rounded-xl border bg-background"
+      className="@container/library flex h-full min-h-0 w-full overflow-hidden rounded-card border bg-background"
     >
       {wide ? (
         <ResizablePanelGroup orientation="horizontal">

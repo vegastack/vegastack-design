@@ -37,7 +37,7 @@ export const BROWSER_ONLY_NOTES: Record<string, string> = {
   TypeScaleSizes:
     "_Type size specimen — browser only; the scale is Tailwind's own, unmodified._",
   RadiusScale:
-    "_Radius specimen — browser only; every step derives from one `--radius`._",
+    "_Corner specimen — browser only; one shape per role, from `rounded-control` to `rounded-tile`._",
   ShadowScale:
     "_Shadow specimen — browser only; the steps are Tailwind's `shadow-sm`/`-md`/`-lg`._",
   SpacingScale:

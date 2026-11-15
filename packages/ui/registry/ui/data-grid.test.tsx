@@ -4154,25 +4154,22 @@ test("POL-01/13: hover is a faint wash, the open row carries the edge, and froze
       `[data-slot="data-grid-row"][data-row-id="${id}"]`,
     )!;
   await expect.poll(() => row("d1")).not.toBeNull();
-  // Hover is the shared state layer; a ticked row holds the selected step, hover stacking on it.
-  expect(row("d3").className.split(/\s+/)).toContain("state-layer");
-  expect(row("d1").className.split(/\s+/)).toContain("bg-state-selected");
+  // Hover is the shared row-fill shape; a ticked row holds the selected step as its fill colour.
+  expect(row("d3").className.split(/\s+/)).toContain("row-fill");
+  expect(row("d1").className.split(/\s+/)).toContain(
+    "[--row-fill-color:var(--state-selected)]",
+  );
   expect(row("d2").className).toContain(
-    "[&[data-peek-active]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))]",
+    "[&[data-peek-active]>:first-child]:before:bg-[image:linear-gradient(var(--color-foreground),var(--color-foreground)),var(--row-fill-layer,none)]",
   );
   expect(row("d1").hasAttribute("data-selected")).toBe(true);
-  // The row's `data-selected` is `""`: the frozen cell keys on presence, not the `="true"` variant.
+  // The pinned cell repaints no wash of its own: it keeps the row's `row-fill` shape (it is
+  // `sticky`, so the slice rule leaves its `::before` in place) over its opaque ground.
   const frozen = row("d1").querySelector<HTMLElement>(
     '[data-slot="data-grid-cell"]',
   )!;
-  expect(frozen.className).toContain(
-    "group-data-[selected]/row:layer-selected",
-  );
-  expect(frozen.className).not.toContain("group-data-selected/row:");
-  // Open outranks selected on a pinned cell as on the row (a doubled attribute selector).
-  expect(frozen.className).toContain(
-    "[[data-peek-active][data-peek-active]>&]:layer-selected",
-  );
+  expect(frozen.className.split(/\s+/)).toContain("sticky");
+  expect(frozen.className).not.toContain("layer-selected");
 });
 
 test("headerAlign starts a numeric column's header apart from its values; the grid-wide option leads every header", async () => {

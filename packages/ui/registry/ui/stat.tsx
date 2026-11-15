@@ -1,4 +1,4 @@
-// @vegastack stat@0.88.0 sha256-dpINwxR4JHTpxDMRt3uwhUcWw0CkNlY0jYKEKd/uWY8=
+// @vegastack stat@0.88.0 sha256-b5WsOExBmDoO32LDyyECSlrpjqOt+RHsyRA8lIaKrOc=
 
 "use client";
 
@@ -280,7 +280,7 @@ export function StatGroup({
     >
       <div
         data-slot="stat-group-grid"
-        className="grid grid-cols-2 overflow-hidden rounded-lg border border-border @sm/stat-group:auto-cols-fr @sm/stat-group:grid-flow-col @sm/stat-group:grid-cols-none"
+        className="grid grid-cols-2 overflow-hidden rounded-card border border-border @sm/stat-group:auto-cols-fr @sm/stat-group:grid-flow-col @sm/stat-group:grid-cols-none"
       >
         {items.map((item) => {
           const stat = (
@@ -323,9 +323,11 @@ export function StatGroup({
               href: item.href,
               "data-slot": "stat-group-item",
               "aria-busy": item.value === undefined ? true : undefined,
+              // The frame clips the cell square; the hover, press and focus fill is an inset
+              // `rounded-item` shape on `::before`, so it never reads as a square block.
               className: cn(
                 cellClass,
-                "transition-colors state-layer",
+                "relative isolate before:pointer-events-none before:absolute before:inset-1 before:-z-10 before:rounded-item before:transition-colors before:content-[''] focus-visible:bg-none hover:before:layer-hover active:before:bg-(--state-pressed) focus-visible:before:layer-focus",
                 template.props.className,
               ),
             } as object,

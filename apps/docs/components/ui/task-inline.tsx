@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.88.0 sha256-jTPKPX79oz6jGiRtkmzb/gx+ksIq+unaCetXmIh/kGM=
+// @vegastack task-inline@0.88.0 sha256-1SnaXzqfRxnLAcBr4qUbo/7JSQFVHMsMM4NEH3C4teY=
 
 "use client";
 
@@ -171,7 +171,7 @@ export function TaskInline({
   ...props
 }: TaskInlineProps) {
   const titleClass = cn(
-    "rounded-sm decoration-muted-foreground/50 underline-offset-2",
+    "rounded-inline decoration-muted-foreground/50 underline-offset-2",
     done && "text-muted-foreground",
     struck && "text-muted-foreground line-through",
   );
@@ -258,7 +258,7 @@ export function TaskInline({
           data-overdue={overdue ? "" : undefined}
           className={cn(
             META,
-            "rounded-sm bg-muted px-1 text-xs whitespace-nowrap text-muted-foreground",
+            "rounded-inline bg-muted px-1 text-xs whitespace-nowrap text-muted-foreground",
             overdue && "bg-destructive/10 text-destructive-text",
           )}
         >
@@ -276,7 +276,7 @@ export function TaskInline({
           contentEditable={false}
           title={openLabel}
           className={cn(
-            "ms-1.5 rounded-sm align-middle text-muted-foreground state-layer hover:text-accent-foreground",
+            "ms-1.5 rounded-icon align-middle text-muted-foreground state-layer hover:text-accent-foreground",
             // Visually hidden — still a tab stop — until the task is hovered or holds focus: out of
             // the way of the line below when the line wraps, and never a stray target on touch.
             "sr-only group-focus-within/task-inline:not-sr-only group-hover/task-inline:not-sr-only focus-visible:not-sr-only",

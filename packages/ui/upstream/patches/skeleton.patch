@@ -1,23 +1,27 @@
 # component: skeleton
-# decisions: DOC-2, API-36
+# decisions: DOC-2, API-36, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   API-36: `SkeletonText` — placeholder lines (`text` · `rows`) built from `Skeleton`, so an app
 #     never sizes bars by hand.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/skeleton.tsx b/skeleton.tsx
-index b7f61b3..2e7f365 100644
+index b7f61b3..6eb7340 100644
 --- a/skeleton.tsx
 +++ b/skeleton.tsx
-@@ -1,4 +1,4 @@
+@@ -1,13 +1,61 @@
 -import { cn } from "cn"
 +import { cn } from "@vegastack/design";
  
  function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
    return (
-@@ -7,7 +7,55 @@ function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
-       className={cn("animate-pulse rounded-md bg-muted", className)}
+     <div
+       data-slot="skeleton"
+-      className={cn("animate-pulse rounded-md bg-muted", className)}
++      className={cn("animate-pulse rounded-inline bg-muted", className)}
        {...props}
      />
 -  )
@@ -65,7 +69,7 @@ index b7f61b3..2e7f365 100644
 +          className={
 +            variant === "text"
 +              ? cn("h-4", TEXT_WIDTHS[index % TEXT_WIDTHS.length])
-+              : "h-5 w-full"
++              : "h-5 w-full rounded-item"
 +          }
 +        />
 +      ))}
