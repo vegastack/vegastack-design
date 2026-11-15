@@ -679,15 +679,22 @@ function inlineRadiusLiterals(file, src) {
   const visit = (node) => {
     if (ts.isPropertyAssignment(node)) {
       const name = node.name;
+      const keyNode = ts.isComputedPropertyName(name) ? name.expression : name;
       const key =
-        ts.isIdentifier(name) ||
-        ts.isStringLiteral(name) ||
-        ts.isNoSubstitutionTemplateLiteral(name)
-          ? name.text
+        ts.isIdentifier(keyNode) ||
+        ts.isStringLiteral(keyNode) ||
+        ts.isNoSubstitutionTemplateLiteral(keyNode)
+          ? keyNode.text
           : null;
       if (key && INLINE_RADIUS_KEY.test(key)) {
         let value = node.initializer;
-        while (ts.isParenthesizedExpression(value) || ts.isAsExpression(value))
+        while (
+          ts.isParenthesizedExpression(value) ||
+          ts.isAsExpression(value) ||
+          ts.isSatisfiesExpression(value) ||
+          ts.isNonNullExpression(value) ||
+          ts.isTypeAssertionExpression(value)
+        )
           value = value.expression;
         const literal =
           ts.isNumericLiteral(value) ||

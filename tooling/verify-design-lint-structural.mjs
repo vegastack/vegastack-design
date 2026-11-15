@@ -618,10 +618,13 @@ export function NamedByItsOwnChildren() {
     `<div style={{ borderTopLeftRadius: "6px" }}>an inline string</div>`,
     `<div style={{ borderRadius : 8 }}>a spaced key</div>`,
     `<div style={{ "borderRadius": 8 }}>a quoted key</div>`,
+    `<div style={{ borderRadius: 8 satisfies number }}>a satisfies wrapper</div>`,
+    `<div style={{ borderRadius: 8! }}>a non-null wrapper</div>`,
+    `<div style={{ ["borderRadius"]: 8 }}>a computed key</div>`,
   ];
   writeFileSync(
     join(radiusDir, "radius.tsx"),
-    `export function Corners() {\n  return <>\n${radiusForms.map((form) => `    ${form}`).join("\n")}\n    <div aria-label="rounded corners" className="rounded-item" style={{ borderRadius: "var(--corner-card)" }}>prose is not a class, a role token is a radius</div>\n  </>;\n}\n`,
+    `export function Corners() {\n  return <>\n${radiusForms.map((form) => `    ${form}`).join("\n")}\n    <div aria-label="rounded corners" className="rounded-item" style={{ borderRadius: "var(--corner-card)", ["borderTopLeftRadius"]: "var(--corner-item)" }}>prose is not a class, a role token is a radius</div>\n  </>;\n}\n`,
   );
   const radius = run(radiusDir);
   const radiusReported = new Set(
