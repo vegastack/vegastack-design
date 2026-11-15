@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.88.1] — November 15, 2026
+
+<!-- assembled from 1 changeset: fa9d62e95b62 -->
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.16.1`** (was `0.16.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.88.0 → 0.88.1.
+
+### 🐛 Fixed
+
+- `TextSpinner`'s bolt keeps its text size (0.72em × 0.48em) inside containers that size their icons with `[&_svg:not([class*='size-'])]:size-*`: a Button such as Send, `LiveLine`'s trigger and a `ChatComposerNotice` lead. It had grown to 16px there, so a striking bolt looked bigger than the pulsing "Thinking" one. Pulse now steps .75 → .45 → .45 → .75 → 1 → 1 (was .65 → .3 …), so a waiting bolt reads as clearly as a striking one.
+  [`6620ac8`](https://github.com/VegaStack/vegastack-design/commit/6620ac8)
+
 ## [0.88.0] — November 15, 2026
 
 <!-- assembled from 1 changeset: 9f59571f40b9 -->
