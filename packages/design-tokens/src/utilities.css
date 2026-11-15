@@ -251,7 +251,8 @@
         [data-state="selected"],
         [data-peek-active],
         [aria-expanded="true"],
-        :has([aria-expanded="true"])
+        :has([aria-expanded="true"]),
+        [data-row-static]
       )
     ) {
       --row-fill-layer: linear-gradient(var(--state-hover), var(--state-hover));

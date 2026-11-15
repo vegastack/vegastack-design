@@ -616,6 +616,8 @@ export function NamedByItsOwnChildren() {
     `<div className="[border-radius:calc(var(--radius)-2px)]">an arbitrary radius property</div>`,
     `<div style={{ borderRadius: 8 }}>an inline number</div>`,
     `<div style={{ borderTopLeftRadius: "6px" }}>an inline string</div>`,
+    `<div style={{ borderRadius : 8 }}>a spaced key</div>`,
+    `<div style={{ "borderRadius": 8 }}>a quoted key</div>`,
   ];
   writeFileSync(
     join(radiusDir, "radius.tsx"),

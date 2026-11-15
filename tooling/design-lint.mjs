@@ -110,14 +110,6 @@ const RULES = [
     msg: "raw Tailwind palette utility (use a semantic token, e.g. bg-primary)",
   },
   { id: "important", re: /!important/g, msg: "!important is not allowed" },
-  // BRD-12 — an inline radius is a radius too: a literal `borderRadius` (a number or a string) in a
-  // style object is off the role scale. A role token's value (`emailRadius.card`, `var(--corner-card)`)
-  // passes.
-  {
-    id: "no-radius-ramp",
-    re: /\bborder(?:(?:Top|Bottom)(?:Left|Right)|(?:Start|End)(?:Start|End))?Radius:\s*(?:-?[\d.]|["'`](?!var\(--(?:corner|radius)-(?:control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile)\)))/g,
-    msg: "inline radius off the role scale (BRD-12): a style object's border radius takes a role token (`var(--corner-card)`, or the email kit's `emailRadius.<role>`), never a literal",
-  },
   // ICO-1 — sanctioned icon SOURCES only. Importing any other icon library into component source
   // is banned (it bypasses the locked lucide/thesvg + Icon/BrandIcon contract). Denylist of the
   // common ones so there are no false positives on legitimate packages.
@@ -668,6 +660,54 @@ function sourceFileFor(file, src) {
 // Parse actual string/template literal nodes instead of pairing quote characters with a regex.
 // Comments and apostrophes outside literals are therefore structurally incapable of disabling the
 // transition/truncation/motion/uppercase rules for the rest of a source line.
+const INLINE_RADIUS_KEY =
+  /^border(?:(?:Top|Bottom)(?:Left|Right)|(?:Start|End)(?:Start|End))?Radius$|^border(?:-[a-z]+)*-radius$/;
+const ROLE_RADIUS_VALUE =
+  /^var\(--(?:corner|radius)-(?:control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile)\)$/;
+
+/** BRD-12: every style-object radius whose value is a number or a non-role string, with its line. */
+function inlineRadiusLiterals(file, src) {
+  if (!/radius/i.test(src)) return [];
+  const sf = ts.createSourceFile(
+    file,
+    src,
+    ts.ScriptTarget.Latest,
+    true,
+    file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  );
+  const found = [];
+  const visit = (node) => {
+    if (ts.isPropertyAssignment(node)) {
+      const name = node.name;
+      const key =
+        ts.isIdentifier(name) ||
+        ts.isStringLiteral(name) ||
+        ts.isNoSubstitutionTemplateLiteral(name)
+          ? name.text
+          : null;
+      if (key && INLINE_RADIUS_KEY.test(key)) {
+        let value = node.initializer;
+        while (ts.isParenthesizedExpression(value) || ts.isAsExpression(value))
+          value = value.expression;
+        const literal =
+          ts.isNumericLiteral(value) ||
+          (ts.isPrefixUnaryExpression(value) &&
+            ts.isNumericLiteral(value.operand)) ||
+          ((ts.isStringLiteral(value) ||
+            ts.isNoSubstitutionTemplateLiteral(value)) &&
+            !ROLE_RADIUS_VALUE.test(value.text.trim()));
+        if (literal)
+          found.push({
+            line: sf.getLineAndCharacterOfPosition(value.getStart(sf)).line + 1,
+          });
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sf);
+  return found;
+}
+
 function staticStringLiterals(file, src) {
   if (!/\.tsx?$/.test(file)) return [];
   const sourceFile = sourceFileFor(file, src);
@@ -1094,6 +1134,19 @@ for (const root of ROOTS) {
     // ── G1-b rules (issue #49 §7) — all literal-scoped, all with a negative fixture in
     // `verify-design-lint-structural.mjs`. Each is a token-vocabulary rule that source review kept
     // finding by hand; a rule nobody can forget is worth more than a review note.
+    // BRD-12 — an inline radius is a radius too. Read from the AST, so `borderRadius: 8`,
+    // `"borderRadius": "6px"` and a value on the next line all count; a role token's value
+    // (`var(--corner-card)`, the email kit's `emailRadius.card`) passes.
+    if (
+      /(^|\/)packages\/ui\/registry\//.test(resolve(file).replace(/\\/g, "/"))
+    ) {
+      for (const { line } of inlineRadiusLiterals(file, src)) {
+        console.log(
+          `${file}:${line} [no-radius-ramp] inline radius off the role scale (BRD-12): a style object's border radius takes a role token (\`var(--corner-card)\`, or the email kit's \`emailRadius.<role>\`), never a literal`,
+        );
+        violations++;
+      }
+    }
     const importantModifiers = [];
     for (const { text: lit, line, template, classPosition } of literals) {
       const report = (id, message) => {
