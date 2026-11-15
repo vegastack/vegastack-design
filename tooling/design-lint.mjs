@@ -110,6 +110,14 @@ const RULES = [
     msg: "raw Tailwind palette utility (use a semantic token, e.g. bg-primary)",
   },
   { id: "important", re: /!important/g, msg: "!important is not allowed" },
+  // BRD-12 — an inline radius is a radius too: a literal `borderRadius` (a number or a string) in a
+  // style object is off the role scale. A role token's value (`emailRadius.card`, `var(--corner-card)`)
+  // passes.
+  {
+    id: "no-radius-ramp",
+    re: /\bborder(?:(?:Top|Bottom)(?:Left|Right)|(?:Start|End)(?:Start|End))?Radius:\s*(?:-?[\d.]|["'`](?!var\(--(?:corner|radius)-(?:control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile)\)))/g,
+    msg: "inline radius off the role scale (BRD-12): a style object's border radius takes a role token (`var(--corner-card)`, or the email kit's `emailRadius.<role>`), never a literal",
+  },
   // ICO-1 — sanctioned icon SOURCES only. Importing any other icon library into component source
   // is banned (it bypasses the locked lucide/thesvg + Icon/BrandIcon contract). Denylist of the
   // common ones so there are no false positives on legitimate packages.
@@ -1186,7 +1194,9 @@ for (const root of ROOTS) {
       // variable (`rounded-(--cell-radius)`): it names the role the element plays —
       // control, icon, chip, inline, mark, item, block, card, bubble, overlay or tile — with any
       // side prefix. `none`, `full` (a dot, a true circle) and `[inherit]` stay structural.
-      if (/(^|\/)packages\/ui\/registry\//.test(file)) {
+      if (
+        /(^|\/)packages\/ui\/registry\//.test(resolve(file).replace(/\\/g, "/"))
+      ) {
         const ramp = radiusRampClass(lit, classPosition);
         if (ramp) report("no-radius-ramp", `${NO_RADIUS_RAMP_MSG} ("${ramp}")`);
       }
@@ -2027,6 +2037,13 @@ function radiusRampClass(text, classPosition) {
       else if (ch === ":" && depth === 0) cut = i;
     }
     const utility = token.slice(cut + 1);
+    // An arbitrary radius property is a radius too: `[border-radius:…]`, `[border-top-left-radius:…]`.
+    if (
+      /^\[border(?:-(?:top|bottom)-(?:left|right)|-(?:start|end)-(?:start|end))?-radius:/.test(
+        utility,
+      )
+    )
+      return true;
     const match = RADIUS_TOKEN.exec(utility);
     if (!match) return false;
     return !RADIUS_ROLES.has(match[1] ?? "");

@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 35457
-      sha256: "add57fa50b8645cee0a21dc934cff9c3f17a205181e63ccd508d4da0a5622bf0"
+      bytes: 33313
+      sha256: "8f42908d8c43416faed056a79bb54a5d40a5d7a1bda430103cf943ea60e0a684"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13441

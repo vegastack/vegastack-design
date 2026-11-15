@@ -1140,7 +1140,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.88.0",
-        "integrity": "sha256-kR3NwnFcrj+/tp70rgXQtVeD316WfEfsldeAbcF3mRM="
+        "integrity": "sha256-BGG8y9l4OPXf5wTDRZ6VeeKnn3IouV8GqpRStmn3+ww="
       }
     },
     {
@@ -1711,7 +1711,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.88.0",
-        "integrity": "sha256-QD0soy3/vLrOIF3eGP6Hs5p8lH/rOqskHPAPL4cRBPY="
+        "integrity": "sha256-DYeyNboZ4+T2U7odNqMWB0JukG+sUCZ1C/avqf/2Wzk="
       }
     },
     {
@@ -1885,7 +1885,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.88.0",
-        "integrity": "sha256-JIFgs1nQQxvS/0LiSoIvF6RjLf+df9drgena4xxNYZM="
+        "integrity": "sha256-RYnhDbYmQdH8XmXqLu2KrTvmJ6YZnKVgp9swBwru7Y8="
       }
     },
     {
@@ -2315,7 +2315,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.88.0",
-        "integrity": "sha256-+SHJhFR3zxEUvacb50HLVynnxcmpedo2U/AVGHYkkC0="
+        "integrity": "sha256-rdHmj9nitXmCoSiXrev36//oEDSPS8ZYulnAAgSk5+Y="
       }
     },
     {
@@ -16730,7 +16730,7 @@
         "whenToUse": "Display a resolved image URL with reserved aspect-ratio, a loading skeleton, and a graceful error fallback.",
         "whenNotToUse": "When you must fetch/resolve the source (R2/CDN keys) — presentational; resolve URLs app-side.",
         "version": "0.88.0",
-        "integrity": "sha256-engTaOVYhsoRb9XYb1ZS7DxMl/+XvSsSanG04eLgCAI="
+        "integrity": "sha256-AzcY2LcFyVB0TPM/cIzszcQoAzfASOE9R7LWLfvmvRE="
       }
     },
     {
@@ -16790,7 +16790,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.88.0",
-        "integrity": "sha256-j2VBl10jk5cfdy1XuKgs5ouBimF/SO87wo1/RERhROo="
+        "integrity": "sha256-sX5tMegsqsJX3FKC0+WTYgqNh3uGbueJj0OucLuFJqM="
       }
     },
     {
@@ -17091,7 +17091,7 @@
         "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
         "version": "0.88.0",
-        "integrity": "sha256-tkObmapHvVwje8Pz8t0zVN/oHd7Fd84PQkHMn+/3DMQ="
+        "integrity": "sha256-NhwjhpJZWQLNp91SB/ZkDa4ujxY9Y5Vd3CnE5f/cEn4="
       }
     },
     {
@@ -17463,7 +17463,7 @@
         "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
         "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
         "version": "0.88.0",
-        "integrity": "sha256-Nc6qbgc0wrD5f/bkvPHPNrqLnvVsCbe0DhPg5XxEK+w="
+        "integrity": "sha256-4LEATJUiD5ijigE7d/yemE20K0bbpmJ5aIjnQVH2XO8="
       }
     },
     {
@@ -18569,7 +18569,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.88.0",
-        "integrity": "sha256-EjXf+/pXw1v2D1bGX01/wedAN6Qc+qF7oJ2fF9W8x2k="
+        "integrity": "sha256-WHAr4bv4oleO0Nb8UNkcrWXJeigF3JxyzGO7VonUtnE="
       }
     },
     {
@@ -18664,7 +18664,7 @@
         "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.88.0",
-        "integrity": "sha256-VLQ5023dJYSazM66WTAxfXgz6WIaSw8zHmGnUryR270="
+        "integrity": "sha256-asrMdJQsZD5FgAVLVnh3hj9hYZps9lkZ4ZeU2/1bL7U="
       }
     },
     {
@@ -19258,7 +19258,7 @@
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
         "version": "0.88.0",
-        "integrity": "sha256-W37bezpx4xQlhhuzYwwL4X6ULP0qIu1CVXrdNjalw6U="
+        "integrity": "sha256-EBrRxA2/NbG4J8UzmfEoM957lFglIOc6g5mw1izRenA="
       }
     },
     {

@@ -8499,6 +8499,10 @@
               "values": [""]
             },
             {
+              "name": "data-row-static",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "data-grid",
@@ -11939,6 +11943,10 @@
         },
         "EmptyRow": {
           "attributes": [
+            {
+              "name": "data-row-static",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["data-table-empty-viewport"]
@@ -39940,6 +39948,10 @@
           "attributes": [
             {
               "name": "data-differs",
+              "values": [""]
+            },
+            {
+              "name": "data-row-static",
               "values": [""]
             },
             {

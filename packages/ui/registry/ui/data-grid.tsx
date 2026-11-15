@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.88.0 sha256-QD0soy3/vLrOIF3eGP6Hs5p8lH/rOqskHPAPL4cRBPY=
+// @vegastack data-grid@0.88.0 sha256-DYeyNboZ4+T2U7odNqMWB0JukG+sUCZ1C/avqf/2Wzk=
 
 "use client";
 
@@ -1249,7 +1249,7 @@ const ROW_BASE_CLASS = cn("border-b", ROW_HOVER_CLASS);
  * the shape, so the row reads as one rounded fill, never a square one.
  */
 const ROW_FILL_SLICE_CLASS =
-  "[&>:not(:first-child,:last-child,.sticky,.relative)]:static [&>:not(:first-child,:last-child,.sticky,.relative)]:isolation-auto [&>:not(:first-child,:last-child,.sticky,.relative)]:before:content-none [&>:not(:first-child,:last-child,.sticky,.relative)]:bg-[image:var(--row-fill-layer,none),linear-gradient(var(--row-fill-color,transparent),var(--row-fill-color,transparent))] [&>:not(:first-child,:last-child,.sticky,.relative)]:bg-no-repeat [&>:not(:first-child,:last-child,.sticky,.relative)]:bg-size-[100%_calc(100%-var(--spacing))] [&>:not(:first-child,:last-child,.sticky,.relative)]:bg-center";
+  "[&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:static [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:isolation-auto [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:before:content-none [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-[image:var(--row-fill-layer,none),linear-gradient(var(--row-fill-color,transparent),var(--row-fill-color,transparent))] [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-no-repeat [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-size-[100%_calc(100%-var(--spacing))] [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-center";
 // No `position` here: a positioned cell is a paint layer of its own, and at 150 columns the ~600
 // layered cells made paint and layerize most of a scroll tick. A cell is `relative` only while it
 // can hold an absolute child (a remote change's cue, the fill handle); a frozen one is `sticky`.
@@ -1386,6 +1386,12 @@ function stickyStyle(
 
 interface GridCellProps<T> {
   placed: PlacedColumn<T>;
+  /**
+   * Which end of the row's `row-fill` shape this cell carries when it is not the `<tr>`'s first or
+   * last child (BRD-12): the windowing spacers and the filler sit outside the real columns, so the
+   * first and last REAL cells hold the rounded ends.
+   */
+  rowEdge?: "start" | "end" | "both";
   row: T;
   rowId: string;
   tabStop: boolean;
@@ -1487,6 +1493,7 @@ const RowOpenButton = React.memo(function RowOpenButton({
 
 function GridCellImpl<T>({
   placed,
+  rowEdge,
   row,
   rowId,
   tabStop,
@@ -1677,6 +1684,10 @@ function GridCellImpl<T>({
         column.editable || (cellsMode && column.parse) ? undefined : true
       }
       data-slot="data-grid-cell"
+      data-row-start={
+        rowEdge === "start" || rowEdge === "both" ? "" : undefined
+      }
+      data-row-end={rowEdge === "end" || rowEdge === "both" ? "" : undefined}
       data-grid-row={rowId}
       data-grid-key={key}
       data-editing={editing ? "" : undefined}
@@ -1842,7 +1853,14 @@ interface GridRowProps<T> {
  * so a window move rewrites two `<col>`s rather than two cells in every row.
  */
 const SpacerCell = React.memo(function SpacerCell() {
-  return <td aria-hidden="true" data-slot="data-grid-spacer" className="p-0" />;
+  return (
+    <td
+      aria-hidden="true"
+      data-slot="data-grid-spacer"
+      data-row-fill-skip=""
+      className="p-0"
+    />
+  );
 });
 
 /**
@@ -1852,7 +1870,14 @@ const SpacerCell = React.memo(function SpacerCell() {
  * its width. It sits after the "+" column, which stays right beside the last real column.
  */
 const FillerCell = React.memo(function FillerCell() {
-  return <td aria-hidden="true" data-slot="data-grid-filler" className="p-0" />;
+  return (
+    <td
+      aria-hidden="true"
+      data-slot="data-grid-filler"
+      data-row-fill-skip=""
+      className="p-0"
+    />
+  );
 });
 
 /**
@@ -1922,10 +1947,28 @@ function GridRowImpl<T>({
   measure,
   dataIndex,
 }: GridRowProps<T>) {
+  // The row's rounded ends sit on its first and last REAL cells (BRD-12): a leading spacer is the
+  // first child when there is no select or frozen column, and the trailing spacer, the "+" column and
+  // the filler always follow the last column.
+  const startCell =
+    !w.selectable && w.frozen.length === 0 ? w.center[0] : undefined;
+  const endCell =
+    w.center.length > 0
+      ? w.center[w.center.length - 1]
+      : w.frozen[w.frozen.length - 1];
   const cell = (placed: PlacedColumn<T>) => (
     <GridCell
       key={placed.key}
       placed={placed}
+      rowEdge={
+        placed === startCell
+          ? placed === endCell
+            ? "both"
+            : "start"
+          : placed === endCell
+            ? "end"
+            : undefined
+      }
       row={row}
       rowId={rowId}
       tabStop={tabKey === placed.key}
@@ -1990,7 +2033,9 @@ function GridRowImpl<T>({
       {w.fixed ? <SpacerCell /> : null}
       {w.center.map(cell)}
       {w.fixed ? <SpacerCell /> : null}
-      {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
+      {w.trailing ? (
+        <td aria-hidden="true" data-row-fill-skip="" className="p-0" />
+      ) : null}
       {w.fixed ? <FillerCell /> : null}
     </tr>
   );
@@ -2545,7 +2590,9 @@ function FixedSkeletonRows<T>({
           <SpacerCell />
           {w.center.map(bar)}
           <SpacerCell />
-          {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
+          {w.trailing ? (
+            <td aria-hidden="true" data-row-fill-skip="" className="p-0" />
+          ) : null}
           <FillerCell />
         </tr>
       ))}
@@ -5221,7 +5268,8 @@ export function DataGrid<T>({
     >
       <TableRow
         aria-rowindex={footerRowIndex}
-        className={cn("hover:not-focus-visible:bg-none", SUMMARY_ROW_CLASS)}
+        data-row-static=""
+        className={SUMMARY_ROW_CLASS}
       >
         {selectable ? (
           <TableCell

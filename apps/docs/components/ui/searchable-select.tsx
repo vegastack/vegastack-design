@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.88.0 sha256-EjXf+/pXw1v2D1bGX01/wedAN6Qc+qF7oJ2fF9W8x2k=
+// @vegastack searchable-select@0.88.0 sha256-WHAr4bv4oleO0Nb8UNkcrWXJeigF3JxyzGO7VonUtnE=
 
 "use client";
 
@@ -1113,7 +1113,7 @@ export function SearchableSelect<
             {loading ? loadingLabel : null}
           </ComboboxStatus>
           {loading ? null : <ComboboxEmpty>{emptyMessage}</ComboboxEmpty>}
-          <ComboboxList className="p-1">
+          <ComboboxList>
             <ComboboxCollection>
               {grouped
                 ? (group: { value: string; items: (Item | ActionRow)[] }) => (

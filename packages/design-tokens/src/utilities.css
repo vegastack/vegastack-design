@@ -194,7 +194,8 @@
    its content: the first cell carries the start corners, the last the end corners. The fill is two
    inherited custom properties (`--row-fill-color` for selected, `--row-fill-layer` for the hover,
    pressed and focus layers), so a component with its own state (a peeked row, a drop target) sets
-   `--row-fill-color` instead of painting the row. Every selector sits in `:where()`, so a cell's
+   `--row-fill-color` instead of painting the row; a row that is not interactive (an empty-state or
+   summary row) carries `data-row-static` and takes no hover or pressed layer. Every selector sits in `:where()`, so a cell's
    own `sticky` or `absolute` still wins. */
 @utility row-fill {
   & > :where(td, th) {
@@ -221,6 +222,21 @@
     border-start-end-radius: var(--radius-item);
     border-end-end-radius: var(--radius-item);
   }
+  /* A component whose first or last child is not a real column (a windowing spacer, a filler)
+     marks the real end cells and the cells outside the shape. */
+  & > :where([data-row-start])::before {
+    inset-inline-start: 4px;
+    border-start-start-radius: var(--radius-item);
+    border-end-start-radius: var(--radius-item);
+  }
+  & > :where([data-row-end])::before {
+    inset-inline-end: 4px;
+    border-start-end-radius: var(--radius-item);
+    border-end-end-radius: var(--radius-item);
+  }
+  & > :where([data-row-fill-skip])::before {
+    content: none;
+  }
   @variant hover {
     &:where(
       :not(
@@ -241,7 +257,14 @@
       --row-fill-layer: linear-gradient(var(--state-hover), var(--state-hover));
     }
   }
-  &:where(:active:not(:disabled, [aria-disabled="true"], [data-disabled])) {
+  &:where(
+    :active:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-disabled],
+      [data-row-static]
+    )
+  ) {
     --row-fill-layer: linear-gradient(
       var(--state-pressed),
       var(--state-pressed)

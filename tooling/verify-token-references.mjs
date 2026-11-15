@@ -14,7 +14,8 @@
 //   with no definition, compiling to nothing, in silence.
 //
 // WHAT COUNTS AS DEFINED
-//   1. Anything in the built `@vegastack/design-tokens/theme.css` — the contract consumers get.
+//   1. Anything in the built `@vegastack/design-tokens/theme.css` or `utilities.css` — the contract
+//      consumers get.
 //      Built, not authored, so a token that fails to survive the Style Dictionary build is not
 //      "defined" here either.
 //   2. Anything the FILE ITSELF declares. Components legitimately compute a local variable and
@@ -37,6 +38,9 @@ import { createRequire } from "node:module";
 import { ROOT, walk } from "./lib/fs.mjs";
 
 const THEME = join(ROOT, "packages/design-tokens/dist/theme.css");
+// The shipped utilities declare the custom properties they read (BRD-12 `row-fill`: `--row-fill-color`
+// and `--row-fill-layer`), so a component that sets one is naming a real, published contract.
+const UTILITIES = join(ROOT, "packages/design-tokens/dist/utilities.css");
 // Tailwind v4 ships its own default theme as CSS custom properties (`--spacing`, `--container-*`,
 // `--color-*`, `--text-*`, …). A component that consumes one is consuming a real, defined variable,
 // so the contract for this gate is BOTH themes. Resolved rather than vendored so a Tailwind upgrade
@@ -171,7 +175,11 @@ function declaredIn(path) {
 }
 
 function contractTokens() {
-  return new Set([...declaredIn(THEME), ...declaredIn(TAILWIND_THEME)]);
+  return new Set([
+    ...declaredIn(THEME),
+    ...declaredIn(UTILITIES),
+    ...declaredIn(TAILWIND_THEME),
+  ]);
 }
 
 /** Custom properties a source file declares for itself. */

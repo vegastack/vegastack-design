@@ -613,10 +613,13 @@ export function NamedByItsOwnChildren() {
     `<div className="[&_img]:rounded-sm">a descendant override</div>`,
     `<div className="rounded-chat-card">the retired chat-card corner</div>`,
     `<div className={cn("flex", open && "rounded-4xl")}>a conditional cn argument</div>`,
+    `<div className="[border-radius:calc(var(--radius)-2px)]">an arbitrary radius property</div>`,
+    `<div style={{ borderRadius: 8 }}>an inline number</div>`,
+    `<div style={{ borderTopLeftRadius: "6px" }}>an inline string</div>`,
   ];
   writeFileSync(
     join(radiusDir, "radius.tsx"),
-    `export function Corners() {\n  return <>\n${radiusForms.map((form) => `    ${form}`).join("\n")}\n    <div aria-label="rounded corners" className="rounded-item">prose is not a class</div>\n  </>;\n}\n`,
+    `export function Corners() {\n  return <>\n${radiusForms.map((form) => `    ${form}`).join("\n")}\n    <div aria-label="rounded corners" className="rounded-item" style={{ borderRadius: "var(--corner-card)" }}>prose is not a class, a role token is a radius</div>\n  </>;\n}\n`,
   );
   const radius = run(radiusDir);
   const radiusReported = new Set(

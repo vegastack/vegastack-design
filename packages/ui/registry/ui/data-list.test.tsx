@@ -2619,10 +2619,17 @@ test("a folder row shows the seam alone on its edges and the into-wash alone in 
   await expect.poll(state).toBe("-/over");
   target.dispatchEvent(new DragEvent("dragover", at(0.9)));
   await expect.poll(state).toBe("bottom/-");
-  // While the seam shows, no wash (hover, keyboard cursor, selection) paints the row.
+  // While the seam shows, no wash (hover, keyboard cursor, selection) paints the row: the row's
+  // `row-fill` colour and layer are cleared, and the cells' shape gives way to the seam line.
   expect(target.className).toContain(
-    "[&[data-drop-edge][data-drop-edge]]:bg-transparent",
+    "[&[data-drop-edge][data-drop-edge]]:[--row-fill-color:transparent]",
   );
+  expect(target.className).toContain(
+    "[&[data-drop-edge][data-drop-edge]]:[--row-fill-layer:none]",
+  );
+  expect(
+    target.className.split(/\s+/).filter((c) => c === "row-fill"),
+  ).toHaveLength(1);
   target.dispatchEvent(new DragEvent("dragleave", at(0.9)));
   source.dispatchEvent(new DragEvent("dragend", at(0.9)));
   await expect.poll(state).toBe("-/-");
@@ -3000,7 +3007,9 @@ test("keyboardNavigation: the cursor follows the pointer and ignores keys typed 
   // The pointer's cursor is hover only: no start edge, which belongs to the open row (POL-01).
   expect(cole.getAttribute("data-cursor")).toBe("pointer");
   expect(cole.className).not.toContain("data-cursor:");
-  expect(cole.className).toContain("[&[data-cursor=key]>:first-child]:bg-");
+  expect(cole.className).toContain(
+    "[&[data-cursor=key]>:first-child]:before:bg-",
+  );
   await userEvent.keyboard("k");
   expect(
     document.querySelector('[data-row-id="b"]')!.hasAttribute("data-cursor"),

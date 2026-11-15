@@ -712,6 +712,58 @@ function composite(layers: string[]): [number, number, number] {
   return [r!, g!, b!];
 }
 
+/** The first colour of each `linear-gradient(…)` layer in a computed `background-image`, bottom
+ * layer first (CSS lists the top layer first). The row-state layers are flat two-stop gradients. */
+function gradientLayers(image: string): string[] {
+  const layers: string[] = [];
+  let at = image.indexOf("linear-gradient(");
+  while (at !== -1) {
+    let depth = 0;
+    let start = at + "linear-gradient(".length;
+    let first = "";
+    for (let i = start; i < image.length; i++) {
+      const char = image[i];
+      if (char === "(") depth++;
+      else if (char === ")") {
+        if (depth === 0) {
+          first ||= image.slice(start, i).trim();
+          at = i;
+          break;
+        }
+        depth--;
+      } else if (char === "," && depth === 0 && !first) {
+        first = image.slice(start, i).trim();
+        // A leading direction (`to right`, `180deg`) is not a colour: take the next argument.
+        if (/^(to |-?[\d.]+(deg|turn|rad))/.test(first)) {
+          first = "";
+          start = i + 1;
+        }
+      }
+    }
+    if (first) layers.push(first);
+    at = image.indexOf("linear-gradient(", at + 1);
+  }
+  return layers.reverse();
+}
+
+/**
+ * The fill a `row-fill` row paints behind `node`, bottom layer first: its cell's own ground, then
+ * either the cell's `::before` shape (its colour, then its layers) or, on a static grid cell, the
+ * same fill as the cell's background slice.
+ */
+function paintedRowFill(node: HTMLElement): string[] {
+  const cell = node.closest<HTMLElement>("td, th")!;
+  const own = getComputedStyle(cell);
+  const before = getComputedStyle(cell, "::before");
+  const shaped = before.content !== "none" && before.content !== "normal";
+  return [
+    own.backgroundColor,
+    ...(shaped
+      ? [before.backgroundColor, ...gradientLayers(before.backgroundImage)]
+      : gradientLayers(own.backgroundImage)),
+  ];
+}
+
 /** WCAG 2.x contrast ratio between two opaque sRGB colours. */
 function contrastRatio(
   a: [number, number, number],
@@ -802,10 +854,13 @@ for (const theme of ["light", "dark"] as const) {
       const page = getComputedStyle(
         screen.container.querySelector<HTMLElement>(".bg-background")!,
       ).backgroundColor;
-      const rowFill = getComputedStyle(row).backgroundColor;
+      // The row's wash is painted by its cells (`row-fill`: the cell's `::before` shape, or a
+      // static grid cell's own background slice), never the `<tr>`: measure what is painted
+      // behind the badge, layer by layer, bottom first.
+      const rowFill = paintedRowFill(badge);
       const badgeFill = getComputedStyle(badge).backgroundColor;
-      const rowPixel = composite([page, rowFill]);
-      const badgePixel = composite([page, rowFill, badgeFill]);
+      const rowPixel = composite([page, ...rowFill]);
+      const badgePixel = composite([page, ...rowFill, badgeFill]);
       // The row is visibly selected, and the badge is visibly a badge on it. The full-accent row
       // measured 1.00 here; the half wash measures ~1.05 light and ~1.17 dark.
       expect(contrastRatio(rowPixel, composite([page]))).toBeGreaterThan(1.03);

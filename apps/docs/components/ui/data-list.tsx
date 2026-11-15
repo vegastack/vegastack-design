@@ -1,4 +1,4 @@
-// @vegastack data-list@0.88.0 sha256-JIFgs1nQQxvS/0LiSoIvF6RjLf+df9drgena4xxNYZM=
+// @vegastack data-list@0.88.0 sha256-RYnhDbYmQdH8XmXqLu2KrTvmJ6YZnKVgp9swBwru7Y8=
 
 "use client";
 
@@ -33,7 +33,6 @@ import {
   revealColumns,
   PEEK_ACTIVE_CARD_CLASS,
   PEEK_ACTIVE_ROW_CLASS,
-  ROW_HOVER_CLASS,
   SELECTED_ROW_CLASS,
   SELECTION_COLUMN_WIDTH,
   SelectAllHead,
@@ -2074,8 +2073,8 @@ export function DataList<T>({
             : undefined
         }
         className={cn(
-          // Hover is a faint wash only (the row-state ladder in `data-table-parts`).
-          ROW_HOVER_CLASS,
+          // Hover is a faint wash only (the row-state ladder in `data-table-parts`): `TableRow`
+          // already carries its `row-fill` (`ROW_HOVER_CLASS`), so the row does not repeat it.
           clickable &&
             "cursor-pointer [&_a]:no-underline [&_a:focus-visible]:no-underline [&_a:hover]:no-underline",
           // A highlighted row (`rowProps` → `highlighted`) eases into the selected wash: the cells'

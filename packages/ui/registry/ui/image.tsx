@@ -1,4 +1,4 @@
-// @vegastack image@0.88.0 sha256-engTaOVYhsoRb9XYb1ZS7DxMl/+XvSsSanG04eLgCAI=
+// @vegastack image@0.88.0 sha256-AzcY2LcFyVB0TPM/cIzszcQoAzfASOE9R7LWLfvmvRE=
 
 "use client";
 
@@ -73,11 +73,9 @@ export interface ImageProps
    * Corner role of the frame (and the image clipped inside it): `block` for media in the reading
    * flow, `tile` for a square thumbnail or logo (25% of its size), `card` for a card-sized
    * surface, `mark` for a tiny image, `full` for a person's photo, `none` for a full-bleed one.
-   * `sm`, `md` and `lg` are deprecated aliases of `mark`, `block` and `card`.
    * @default 'block'
    */
-  rounded?:
-    "none" | "mark" | "block" | "card" | "tile" | "full" | "sm" | "md" | "lg";
+  rounded?: "none" | "mark" | "block" | "card" | "tile" | "full";
   /**
    * Content shown when the image fails to load (broken URL, network error) or
    * when no `src` is provided — e.g. an icon, initials, or a label. When omitted,
