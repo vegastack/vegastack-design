@@ -32255,7 +32255,7 @@
       "name": "text-spinner",
       "registryType": "registry:ui",
       "title": "Text Spinner",
-      "summary": "The one inline text loader: a monospace braille spinner one character wide, or three dots, CSS only, a still … under reduced motion.",
+      "summary": "The one inline text loader: a dot-matrix bolt as tall as capital letters, Strike while working and Pulse while waiting, CSS only, a still bolt under reduced motion.",
       "status": "stable",
       "since": "0.77.0",
       "family": "chat",
@@ -32286,10 +32286,10 @@
         "dimensions": [
           {
             "name": "variant",
-            "values": ["braille", "dots"]
+            "values": ["working", "waiting"]
           }
         ],
-        "rationale": "Braille for live work, dots before the first event."
+        "rationale": "Strike for live work, Pulse before the first step and while reconnecting."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -32299,31 +32299,31 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["braille", "dots", "no-label"],
+          "values": ["working", "waiting", "no-label"],
           "evidence": "packages/ui/registry/ui/text-spinner.tsx + packages/ui/registry/ui/text-spinner.test.tsx"
         },
         "accessibility": {
           "status": "covered",
-          "values": ["glyph-hidden", "sr-only-label"],
+          "values": ["bolt-hidden", "sr-only-label"],
           "evidence": "packages/ui/registry/ui/text-spinner.tsx + packages/ui/registry/ui/text-spinner.test.tsx"
         },
         "visual": {
           "status": "observed",
-          "values": ["braille", "dots", "reduced-motion-ellipsis"],
+          "values": ["working", "waiting", "reduced-motion-still-bolt"],
           "evidence": "packages/ui/registry/ui/text-spinner.tsx"
         }
       },
       "responsive": {
         "status": "modeled",
         "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
+        "rationale": "Text truncates inside a min-w-0 row; the bolt sits in a fixed 0.6em slot sized in em, so it scales with the text beside it."
       },
       "motion": {
         "status": "covered",
         "mechanisms": ["css-loop"],
         "reducedMotion": {
           "status": "covered",
-          "rationale": "The frame strip hides and a still … shows (motion-reduce:hidden); --duration-loader-* read 0ms."
+          "rationale": "Both keyframes end on the full bolt, so the global reset and the 0ms --duration-loader-* tokens leave a still bolt; no motion-reduce override."
         }
       },
       "engines": [],
@@ -32348,7 +32348,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["text-spinner", "text-spinner-frames"]
+              "values": ["text-spinner", "text-spinner-bolt"]
             },
             {
               "name": "data-variant",

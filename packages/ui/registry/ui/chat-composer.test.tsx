@@ -513,7 +513,11 @@ test("a notice sits on the box's top edge, inside its hairline, with its action 
   )!;
   expect(notice.getAttribute("role")).toBeNull();
   expect(frame.contains(notice)).toBe(true);
-  expect(notice.querySelector("[data-slot=text-spinner]")).not.toBeNull();
+  // A notice is waiting, not working: the bolt pulses.
+  expect(
+    notice.querySelector<HTMLElement>("[data-slot=text-spinner]")?.dataset
+      .variant,
+  ).toBe("waiting");
   // Edge to edge on the card's top edge, inside its hairline, with the text below it.
   const a = notice.getBoundingClientRect();
   const card = frame.getBoundingClientRect();

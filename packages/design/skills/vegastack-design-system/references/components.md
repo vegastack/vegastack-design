@@ -261,7 +261,7 @@ starts with `icon-` is a component and never an icon.
 - **`status-glyph`** — One glyph per state in agent UI: ✓ done in the blue accent, ◌ not started, ◐ running (still), ⊘ skipped, ✗ failed, ⚠ needs you.
 - **`suggestion-card`** — An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.
 - **`task-list`** — An agent's live checklist for a longer job: the live item on top, the next two, finished items folded into a count and the rest into +N more, a waiting badge, Subagent progress, and a sticky progress bar.
-- **`text-spinner`** — The one inline text loader: a monospace braille spinner one character wide, or three dots, CSS only, a still … under reduced motion.
+- **`text-spinner`** — The one inline text loader: a dot-matrix bolt as tall as capital letters, Strike while working and Pulse while waiting, CSS only, a still bolt under reduced motion.
 - **`tool-call-chip`** — An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.
 
 ## Communication

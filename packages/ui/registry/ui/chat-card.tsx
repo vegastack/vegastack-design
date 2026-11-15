@@ -1,4 +1,4 @@
-// @vegastack chat-card@0.83.0 sha256-Sjt+4cp6DaYSoEBn47cHej+MLgNokqRQ4Jv3kLoJjoE=
+// @vegastack chat-card@0.83.0 sha256-AlzJ60u+LNVIpIIRT1LYkLDWmxwp/Tls4ruON/fsTb8=
 
 "use client";
 
@@ -280,7 +280,7 @@ function ChatRow({
 export interface ChatGroupProps {
   /** The fold's one-line summary ("Worked for 41s · searched 3 times, opened 4 sites"). */
   summary: React.ReactNode;
-  /** While the work is live, the summary leads with the braille `TextSpinner`. @default false */
+  /** While the work is live, the summary leads with the bolt `TextSpinner`. @default false */
   live?: boolean;
   /** Controlled open state. @default undefined */
   open?: boolean;
@@ -299,7 +299,7 @@ export interface ChatGroupProps {
 /**
  * A fold of work: one quiet summary line and a chevron that turns, then the rows behind a hairline
  * guide. It opens and closes on the chat motion (MOT-14, through `Collapsible`). While `live`, the
- * summary carries the turn's one moving thing, the braille spinner.
+ * summary carries the turn's one moving thing, the bolt spinner.
  *
  * @example
  * <ChatGroup summary="Worked for 41s · searched 3 times, opened 4 sites">

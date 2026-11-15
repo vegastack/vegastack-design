@@ -1,11 +1,11 @@
 ---
 title: Text Spinner
-description: "The one inline text loader: a monospace braille spinner one character wide, or three dots. CSS only, and still under reduced motion."
+description: "The one inline text loader: a dot-matrix bolt that strikes while working and pulses while waiting. CSS only, and still under reduced motion."
 audience: public
 registry: text-spinner
 status: stable
 since: 0.77.0
-a11y: glyph hidden; the label is read once
+a11y: bolt hidden; the label is read once
 preview: textSpinner
 ---
 
@@ -23,11 +23,12 @@ import { TextSpinner } from "@/components/ui/text-spinner";
 </p>;
 ```
 
-A chat turn has one moving thing: its live line, led by this spinner. It is one frame wide and
-monospace, so the words and the timer beside it never move. It is CSS only (the frames step on the
-`motion-frames` utility), so it renders on the server and never re-renders. A running task or
-Subagent row is a still ◐ ([`StatusGlyph`](/docs/components/status-glyph)), and page or section
-loading stays [`Spinner`](/docs/components/spinner).
+A chat turn has one moving thing: its live line, led by this spinner. It is the bolt of the
+VegaStack V drawn in 13 dots, as tall as capital letters and set in a fixed slot sized in `em`, so
+it scales with the text beside it and the words and the timer never move. It is CSS only (the
+`motion-strike` and `motion-pulse` utilities), so it renders on the server and never re-renders. A
+running task or Subagent row is a still ◐ ([`StatusGlyph`](/docs/components/status-glyph)), and
+page or section loading stays [`Spinner`](/docs/components/spinner).
 
 <ComponentPreview
   name="textSpinner"
@@ -38,9 +39,10 @@ loading stays [`Spinner`](/docs/components/spinner).
 
 ### Variants
 
-`braille` (⠋ ⠙ ⠹ ⠸ ⠼ ⠴ ⠦ ⠧ ⠇ ⠏, 80ms a frame) is the live line and Send while it sends. `dots`
-(· ·· ···, 300ms a frame) is what comes before the first event: "·· Thinking", "·· Reconnecting", a
-composer notice.
+`working` is Strike: the bolt fills top to bottom, holds and clears, 80ms a frame. It is real
+work: the live line while a step runs, Send while it sends. `waiting` is Pulse: the whole bolt
+fades through six slower frames (300ms each). It comes before the first step and while the turn is
+paused or the connection comes back: "Thinking", "Reconnecting", a composer notice.
 
 <ComponentPreview
   name="textSpinnerVariants"
@@ -56,15 +58,16 @@ composer notice.
 
 ## Accessibility
 
-- The glyph is hidden from assistive technology. The label (`Working` by default) is visually hidden
+- The bolt is hidden from assistive technology. The label (`Working` by default) is visually hidden
   text; pass `label=""` when the words beside the spinner already say what is happening.
-- Under reduced motion the frames are replaced by a still `…` and the loader tokens read 0ms.
+- Under reduced motion the bolt stands still at full ink: both animations end on the full bolt and
+  the loader tokens read 0ms.
 
 <StatesTested name="text-spinner" />
 
 ## Do / Don't
 
 <DoDont
-  do="Show one spinner per turn, on the live line, with words that say what is happening."
+  do="Show one spinner per turn, on the live line, with words that say what is happening; pulse it while nothing has started yet."
   dont="Put a spinner on every running row, or use it for page loading: running rows are a still ◐, pages use Spinner."
 />

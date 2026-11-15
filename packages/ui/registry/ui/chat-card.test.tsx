@@ -123,7 +123,7 @@ test("ChatGroup: a closed fold with a summary and a chevron; it opens on click",
   ).toContain("border-chat-hairline");
 });
 
-test("ChatGroup: live leads with the braille spinner; guide={false} drops the hairline", async () => {
+test("ChatGroup: live leads with the bolt spinner; guide={false} drops the hairline", async () => {
   const screen = await render(
     <ChatGroup summary="Searching" live defaultOpen guide={false}>
       <ChatRow subject="one" />

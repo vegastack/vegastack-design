@@ -1,12 +1,27 @@
-// @vegastack text-spinner@0.81.0 sha256-B2BO1D5VtyQSuKf3NOy4WzNzBWcu9OpEfY3gzrPznS0=
+// @vegastack text-spinner@0.81.0 sha256-mRMyKWqR175kgPcfDqe96bZKS89vkPRAKYnrWlNh08k=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 
-/** The braille frames, one every `--duration-loader-frame` (80ms). */
-const BRAILLE = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"] as const;
-/** The dots frames, one every `--duration-loader-dots` (300ms); padded so every frame is three wide. */
-const DOTS = ["·  ", "·· ", "···"] as const;
+/**
+ * The bolt, `[row, column]` on a 4×6 dot grid read top to bottom: the bolt of the VegaStack V,
+ * drawn in 13 dots so it still reads at chat text size.
+ */
+const BOLT = [
+  [0, 2],
+  [0, 3],
+  [1, 1],
+  [1, 2],
+  [2, 0],
+  [2, 1],
+  [2, 2],
+  [2, 3],
+  [3, 1],
+  [3, 2],
+  [4, 0],
+  [4, 1],
+  [5, 0],
+] as const;
 
 /** Props accepted by `TextSpinner`. */
 export interface TextSpinnerProps extends Omit<
@@ -14,13 +29,14 @@ export interface TextSpinnerProps extends Omit<
   "children"
 > {
   /**
-   * `braille` (⠋ ⠙ ⠹ …) is the live line of a chat turn and Send while it sends; `dots` (· ·· ···)
-   * says "not started yet" — "·· Thinking", "·· Reconnecting", a composer notice.
-   * @default "braille"
+   * `working` (Strike: the bolt fills top to bottom, holds, clears) is real work — a chat turn's
+   * live line, Send while it sends. `waiting` (Pulse: the whole bolt fades slowly) is before the
+   * first step and while the connection comes back — "Thinking", "Reconnecting", a composer notice.
+   * @default "working"
    */
-  variant?: "braille" | "dots";
+  variant?: "working" | "waiting";
   /**
-   * What a screen reader hears; the glyph itself is hidden from assistive technology. Pass `""`
+   * What a screen reader hears; the bolt itself is hidden from assistive technology. Pass `""`
    * when the words beside the spinner already say it ("Searching the web").
    * @default "Working"
    */
@@ -28,11 +44,11 @@ export interface TextSpinnerProps extends Omit<
 }
 
 /**
- * The one inline text loader (ICO-8, amended 2026-11-13): a monospace braille spinner in the muted
- * ink, as wide as one frame so the words beside it never move. A turn shows at most one. It is CSS
- * only — the frames sit in a one-line clip and `motion-frames` steps them up a line at a time — so
- * it renders on the server and never re-renders. Under reduced motion it is a still `…`. Page-level
- * loading keeps `Spinner` (lucide `Loader`).
+ * The one inline text loader (ICO-8, amended 2026-11-15): a dot-matrix bolt in the muted ink, as
+ * tall as capital letters and in a fixed slot, so the words beside it never move. A turn shows at
+ * most one. It is CSS only — `motion-strike` steps each row's dots, `motion-pulse` the whole bolt —
+ * so it renders on the server and never re-renders. Both keyframes end on the full bolt, so under
+ * reduced motion it is a still bolt. Page-level loading keeps `Spinner` (lucide `Loader`).
  *
  * @example
  * <p className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -40,44 +56,48 @@ export interface TextSpinnerProps extends Omit<
  * </p>
  *
  * @example
- * <TextSpinner variant="dots" label="Reconnecting" />
+ * <TextSpinner variant="waiting" label="Reconnecting" />
  */
 function TextSpinner({
-  variant = "braille",
+  variant = "working",
   label = "Working",
   className,
   ...props
 }: TextSpinnerProps) {
-  const frames = variant === "dots" ? DOTS : BRAILLE;
+  const working = variant === "working";
   return (
     <span
       data-slot="text-spinner"
       data-variant={variant}
       className={cn(
-        "inline-flex h-lh shrink-0 items-start overflow-y-clip align-bottom font-mono text-muted-foreground tabular-nums select-none",
+        "inline-flex h-lh w-[0.6em] shrink-0 items-center justify-center align-bottom text-muted-foreground select-none",
         className,
       )}
       {...props}
     >
-      <span
+      <svg
         aria-hidden="true"
-        data-slot="text-spinner-frames"
+        focusable="false"
+        viewBox="0 0 40 60"
+        data-slot="text-spinner-bolt"
         className={cn(
-          "flex shrink-0 flex-col motion-frames motion-reduce:hidden",
-          variant === "dots"
-            ? "[--vs-frame-count:3] [--vs-frame-duration:var(--duration-loader-dots)]"
-            : "[--vs-frame-count:10]",
+          "h-[0.72em] w-[0.48em] shrink-0 fill-current",
+          !working && "motion-pulse",
         )}
       >
-        {frames.map((frame) => (
-          <span key={frame} className="h-lh shrink-0 whitespace-pre">
-            {frame}
-          </span>
+        {BOLT.map(([row, column]) => (
+          <circle
+            key={`${row}-${column}`}
+            cx={column * 10 + 5}
+            cy={row * 10 + 5}
+            r={3.7}
+            className={working ? "motion-strike" : undefined}
+            style={
+              working ? ({ "--vs-row": row } as React.CSSProperties) : undefined
+            }
+          />
         ))}
-      </span>
-      <span aria-hidden="true" className="hidden motion-reduce:inline">
-        …
-      </span>
+      </svg>
       {label ? <span className="sr-only">{label}</span> : null}
     </span>
   );

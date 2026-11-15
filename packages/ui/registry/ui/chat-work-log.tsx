@@ -1,4 +1,4 @@
-// @vegastack chat-work-log@0.84.0 sha256-s8un77Td/BkfFEGWjHdJG4gcjKP8usmyOzW1zTbSqTQ=
+// @vegastack chat-work-log@0.84.0 sha256-erWo0tUWhtH71efuz8wtfDF/UTchU9mQZu8XmDJ6eVw=
 
 "use client";
 
@@ -15,7 +15,7 @@ import { TextSpinner } from "@/components/ui/text-spinner";
 /* ------------------------------------------------------------------------------------------------
  * The work of one agent turn, read as sentences (Claude Code's two weights).
  *
- * While the turn runs, ONE line moves: `LiveLine`, the braille spinner, the current step's words and
+ * While the turn runs, ONE line moves: `LiveLine`, the bolt spinner, the current step's words and
  * a timer. When the answer starts it crossfades into `WorkSummary`, a muted line of the same 28px
  * height, so nothing below it moves. Both open `WorkLog`: a fold of rows that read as a muted verb,
  * the subject in the body ink and muted meta, with the agent's thinking as muted notes. No row has
@@ -253,6 +253,11 @@ export interface LiveLineProps {
   countedAt?: string;
   /** The turn waits on a person or a limit: the timer holds still. @default false */
   paused?: boolean;
+  /**
+   * No work has started yet ("Thinking") or the turn is paused: the spinner pulses (`waiting`)
+   * instead of striking. @default false
+   */
+  waiting?: boolean;
   /** What the turn waits on, for the stuck line: "4 Subagents", "you". @default undefined */
   waitingOn?: string;
   /** When the turn's last event arrived (ISO); 45s later the stuck line shows. @default undefined */
@@ -287,7 +292,7 @@ function Chevron({ open }: { open?: boolean }) {
 }
 
 /**
- * The turn's one moving thing: the braille spinner, the current step in words and a live timer, in
+ * The turn's one moving thing: the bolt spinner, the current step in words and a live timer, in
  * one 28px line. After 45 seconds with no event a second line says what the turn waits on, with Stop
  * and Keep waiting. When the answer starts, swap it for `WorkSummary`: same height, no reflow.
  *
@@ -302,6 +307,7 @@ function LiveLine({
   workedMs,
   countedAt,
   paused = false,
+  waiting = false,
   waitingOn,
   lastEventAt,
   stuck,
@@ -322,7 +328,7 @@ function LiveLine({
     now >= quietUntil;
   const content = (
     <>
-      <TextSpinner label="" />
+      <TextSpinner variant={waiting ? "waiting" : "working"} label="" />
       <span data-slot="live-line-words" className="min-w-0 truncate">
         {words}
       </span>

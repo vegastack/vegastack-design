@@ -68,11 +68,13 @@ test("Summarize now ends the panel, busy while its promise runs; held before the
   await button.click();
   const busy = page.getByRole("button", { name: "Summarizing" });
   await expect.element(busy).toHaveAttribute("aria-busy", "true");
-  // The braille loader, never an icon spinner.
+  // The bolt loader, never an icon spinner: its bolt is the only SVG in the button.
   expect(
     busy.element().querySelector("[data-slot=text-spinner]"),
   ).not.toBeNull();
-  expect(busy.element().querySelector("svg")).toBeNull();
+  expect(
+    busy.element().querySelector("svg:not([data-slot=text-spinner-bolt])"),
+  ).toBeNull();
   done();
   await expect.element(button).not.toHaveAttribute("aria-busy", "true");
   await screen.rerender(

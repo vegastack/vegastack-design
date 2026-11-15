@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.84.1 sha256-2EmdgLO7s1h43+tC7qM/dfLmDPPgSiTTrlx4vNXjooY=
+// @vegastack chat-message-parts@0.84.1 sha256-NyGUewr11wZwIwskL7aJXxWnVczpI9nzvNxSZWQr3QA=
 
 "use client";
 
@@ -134,13 +134,26 @@ const textOf = (part: ChatPart) =>
 const plural = (n: number, one: string, many = `${one}s`) =>
   `${n} ${n === 1 ? one : many}`;
 
-/** The live line's words: the server's status, else the running step, else "Thinking". */
-function liveWordsOf(parts: readonly ChatPart[]): string {
+/**
+ * The live line's words: the server's status, else the running step, else "Thinking" — and
+ * whether any of that is work yet (`started`), which picks the spinner's Strike over its Pulse. A
+ * status is work only in its `working` phase (or with no phase); thinking, stopping and
+ * reconnecting wait.
+ */
+function liveLineOf(parts: readonly ChatPart[]): {
+  words: string;
+  started: boolean;
+} {
   for (let i = parts.length - 1; i >= 0; i--) {
     const part = parts[i]!;
     if (part.type === "data-status") {
-      const words = ((part as ChatDataPart).data as { words?: string })?.words;
-      if (words) return words;
+      const status = (part as ChatDataPart).data as
+        { words?: string; phase?: string } | undefined;
+      if (status?.words)
+        return {
+          words: status.words,
+          started: (status.phase ?? "working") === "working",
+        };
     }
   }
   const subagents = parts.filter(isSubagentPart);
@@ -148,13 +161,19 @@ function liveWordsOf(parts: readonly ChatPart[]): string {
     const part = parts[i]!;
     if (!isToolPart(part) || !isToolRunning(part)) continue;
     if (isSubagentPart(part))
-      return `Running ${plural(subagents.length, "Subagent")}`;
+      return {
+        words: `Running ${plural(subagents.length, "Subagent")}`,
+        started: true,
+      };
     const words = wordsOf(part);
-    if (words.doing) return words.doing;
+    if (words.doing) return { words: words.doing, started: true };
     if (words.verb || words.subject)
-      return [words.verb, words.subject].filter(Boolean).join(" ");
+      return {
+        words: [words.verb, words.subject].filter(Boolean).join(" "),
+        started: true,
+      };
   }
-  return "Thinking";
+  return { words: "Thinking", started: false };
 }
 
 function waitingWords(turn: ChatTurn, parts: readonly ChatPart[]) {
@@ -233,6 +252,8 @@ function MessageParts({
   // The live line shows while the turn works and nothing else says so: a task list is the turn's
   // progress, and once the answer starts the line settles into its sentence.
   const showLive = live && !answerStarted && !taskList;
+  const liveLine = liveLineOf(parts);
+  const paused = turn.waitingOn === "person" || turn.waitingOn === "limit";
   // The settled line fades in only when it replaces a live line, never on a history load.
   const [wasLive, setWasLive] = React.useState(showLive);
   if (showLive && !wasLive) setWasLive(true);
@@ -356,12 +377,13 @@ function MessageParts({
         <div data-slot="message-work" className="flex min-w-0 flex-col">
           {showLive ? (
             <LiveLine
-              words={liveWordsOf(parts)}
+              words={liveLine.words}
+              waiting={!liveLine.started || paused}
               agentName={agentName}
               startedAt={turn.startedAt}
               workedMs={turn.workedMs}
               countedAt={turn.countedAt}
-              paused={turn.waitingOn === "person" || turn.waitingOn === "limit"}
+              paused={paused}
               lastEventAt={turn.lastEventAt}
               waitingOn={waitingWords(turn, parts)}
               onStop={onStop}

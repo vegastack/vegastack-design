@@ -1042,7 +1042,7 @@
       "disposition": "keep",
       "family": "chat",
       "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
-      "rationale": "Upstream ships only an icon spinner. The braille text loader the operator chose (ICO-8 amended): CSS-only frame strip on the `motion-frames` utility, a still … under reduced motion; no patch."
+      "rationale": "Upstream ships only an icon spinner. The dot-matrix bolt text loader the operator chose (ICO-8 amended 2026-11-15): CSS-only `motion-strike` / `motion-pulse` on an aria-hidden SVG, a still bolt under reduced motion; no patch."
     },
     "status-glyph": {
       "disposition": "keep",

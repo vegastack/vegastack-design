@@ -80,6 +80,57 @@ test("every tool state renders a row with words, and states are words, not spinn
   expect(spinners(screen.container)).toBe(0);
 });
 
+test("the live line pulses before any work starts or while paused, and strikes once a step runs", async () => {
+  const variant = (root: ParentNode) =>
+    root.querySelector<HTMLElement>('[data-slot="text-spinner"]')?.dataset
+      .variant;
+  const thinking = await render(
+    <MessageParts message={message([])} detail="normal" live />,
+  );
+  expect(thinking.container.textContent).toContain("Thinking");
+  expect(variant(thinking.container)).toBe("waiting");
+  await thinking.unmount();
+  const working = await render(
+    <MessageParts
+      message={message([tool("c1", "input-available")])}
+      detail="normal"
+      live
+    />,
+  );
+  expect(variant(working.container)).toBe("working");
+  await working.unmount();
+  // A server status waits in its thinking, stopping and reconnecting phases.
+  for (const [phase, expected] of [
+    ["thinking", "waiting"],
+    ["stopping", "waiting"],
+    ["reconnecting", "waiting"],
+    ["working", "working"],
+  ] as const) {
+    const status = await render(
+      <MessageParts
+        message={message([
+          { type: "data-status", data: { phase, words: "Status words" } },
+        ])}
+        detail="normal"
+        live
+      />,
+    );
+    expect(status.container.textContent).toContain("Status words");
+    expect(variant(status.container)).toBe(expected);
+    await status.unmount();
+  }
+  const paused = await render(
+    <MessageParts
+      message={message([tool("c1", "input-available")], {
+        waitingOn: "person",
+      })}
+      detail="normal"
+      live
+    />,
+  );
+  expect(variant(paused.container)).toBe("waiting");
+});
+
 test("one moving thing: at most one TextSpinner per message, whatever its parts", async () => {
   const parts = [
     { type: "reasoning", text: "Looking for Indian makers of LED downlights." },

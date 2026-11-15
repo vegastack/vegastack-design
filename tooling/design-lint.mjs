@@ -378,8 +378,10 @@ function importantModifierTokens(lit) {
 // approval 27-10-2026, D19, web app product-cohesion W2-MTG).
 // `kpi-card` draws a KPI's trend as one aria-hidden sparkline polyline — a data graphic, not an icon
 // (VegaStack agents overhaul P3, operator batch approval 10-11-2026).
+// `text-spinner` draws the loader's bolt as a 13-dot matrix whose rows animate on their own — a
+// dot-matrix graphic no icon can express (Regent bolt loader, operator 15-11-2026, ICO-8 amended).
 const SVG_GRAPHIC_ALLOWLIST =
-  /(?:^|\/)(?:empty|status-icon|qr-code|kpi-card)\.tsx$/;
+  /(?:^|\/)(?:empty|status-icon|qr-code|kpi-card|text-spinner)\.tsx$/;
 
 /**
  * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).

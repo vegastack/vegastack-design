@@ -19879,7 +19879,7 @@
       "name": "text-spinner",
       "type": "registry:ui",
       "title": "Text Spinner",
-      "description": "The one inline text loader: a monospace braille spinner (⠋ ⠙ ⠹ …) one character wide, or three dots, CSS only, a still … under reduced motion.",
+      "description": "The one inline text loader: a dot-matrix bolt as tall as capital letters, Strike while working and Pulse while waiting, CSS only, a still bolt under reduced motion.",
       "categories": [
         "chat"
       ],
@@ -19899,7 +19899,7 @@
         "whenToUse": "The one moving thing on a chat turn's live line, Send while it sends, or dots before the first event (\"·· Thinking\", \"·· Reconnecting\").",
         "whenNotToUse": "Page or section loading (Spinner), a running task-list or Subagent row (StatusGlyph running, drawn still), or progress with a known amount (Progress).",
         "version": "0.81.0",
-        "integrity": "sha256-B2BO1D5VtyQSuKf3NOy4WzNzBWcu9OpEfY3gzrPznS0="
+        "integrity": "sha256-mRMyKWqR175kgPcfDqe96bZKS89vkPRAKYnrWlNh08k="
       }
     },
     {
@@ -19960,7 +19960,7 @@
         "whenToUse": "A waiting request, question or plan, the task list or a file preview (ChatCard); a line of work with its verb, subject, meta and duration (ChatRow); a fold of work behind one summary line (ChatGroup).",
         "whenNotToUse": "Settled work, memory saves, answered asks and errors, which are flat lines in the column; a record or settings card outside a chat (Card).",
         "version": "0.83.0",
-        "integrity": "sha256-Sjt+4cp6DaYSoEBn47cHej+MLgNokqRQ4Jv3kLoJjoE="
+        "integrity": "sha256-AlzJ60u+LNVIpIIRT1LYkLDWmxwp/Tls4ruON/fsTb8="
       }
     },
     {
@@ -19995,7 +19995,7 @@
         "whenToUse": "Rendering an agent's UIMessage in a chat thread.",
         "whenNotToUse": "The person's own messages (UserBubble); non-agent chats (Message, Bubble).",
         "version": "0.84.1",
-        "integrity": "sha256-2EmdgLO7s1h43+tC7qM/dfLmDPPgSiTTrlx4vNXjooY="
+        "integrity": "sha256-NyGUewr11wZwIwskL7aJXxWnVczpI9nzvNxSZWQr3QA="
       }
     },
     {
@@ -20260,7 +20260,7 @@
       "name": "chat-work-log",
       "type": "registry:ui",
       "title": "Chat Work Log",
-      "description": "A turn's work read as sentences: LiveLine (the turn's one moving thing — braille spinner, words, timer, the stuck line), WorkSummary (the settled sentence in the same 28px), WorkLog (muted verb, subject, meta rows and muted thinking notes), ErrorRow and StuckRow, and ChatClock.",
+      "description": "A turn's work read as sentences: LiveLine (the turn's one moving thing — bolt spinner, words, timer, the stuck line), WorkSummary (the settled sentence in the same 28px), WorkLog (muted verb, subject, meta rows and muted thinking notes), ErrorRow and StuckRow, and ChatClock.",
       "categories": [
         "chat"
       ],
@@ -20287,7 +20287,7 @@
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
         "version": "0.84.0",
-        "integrity": "sha256-s8un77Td/BkfFEGWjHdJG4gcjKP8usmyOzW1zTbSqTQ="
+        "integrity": "sha256-erWo0tUWhtH71efuz8wtfDF/UTchU9mQZu8XmDJ6eVw="
       }
     },
     {
@@ -20620,7 +20620,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.85.0",
-        "integrity": "sha256-ALMSooSw4fDQ/SS+t7RSBA44XpkdP7kplyEGvitHG34="
+        "integrity": "sha256-8J6/AE7mwvA6ruhER1wYgLRcGZ23gkQcx+LZiHRBU7s="
       }
     },
     {
@@ -20682,7 +20682,7 @@
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.81.0",
-        "integrity": "sha256-/oY3cHZf8X00KXYSo+WbT3a8p4WuTvcsMSIw26uqeLs="
+        "integrity": "sha256-gVT1QWr33XAx8WRFLy4NG9yvBYG9iGjjgMzECoWO6lY="
       }
     },
     {
