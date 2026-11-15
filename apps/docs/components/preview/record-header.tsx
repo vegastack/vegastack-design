@@ -89,7 +89,6 @@ export function recordHeaderLeading(): ReactNode {
           <Button
             variant="ghost"
             size="icon-xs"
-            className="rounded-full"
             aria-label={done ? "Status: Done" : "Status: Todo"}
             onClick={() => setDone((d) => !d)}
           >

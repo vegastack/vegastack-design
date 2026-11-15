@@ -1,4 +1,4 @@
-// @vegastack toast@0.88.0 sha256-EzeucNWQIt5FeaH9wByOr0RJTf/28/KtW4J8OpYBKUk=
+// @vegastack toast@0.88.0 sha256-s4/W0Jo8SKNNofn7FzwhP8ZKQCZOuZFJvrqAF2BeIcY=
 
 "use client";
 
@@ -119,7 +119,7 @@ const TOAST_STACK = [
 ];
 
 const toastVariants = cva(
-  "group/toast pointer-events-auto w-full rounded-2xl border bg-popover text-popover-foreground shadow-lg select-none",
+  "group/toast pointer-events-auto w-full rounded-card border bg-popover text-popover-foreground shadow-lg select-none",
   {
     variants: {
       // Which edge the stack grows from — sets `origin` so the collapsed scale reads right, and

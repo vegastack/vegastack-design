@@ -1,4 +1,4 @@
-// @vegastack composer-chip@0.88.0 sha256-XWnXrVWRU0pQgm1lsmSgkXbaScD5XTOr788BZ9T1RWk=
+// @vegastack composer-chip@0.88.0 sha256-r2VYZcrZMHELKQUllWe1bVDzr1Lrt9gygLlNsVUHogc=
 
 "use client";
 
@@ -26,7 +26,7 @@ import {
  * ----------------------------------------------------------------------------------------------*/
 
 const CHIP =
-  "h-6 min-w-0 gap-1 rounded-full border border-input bg-transparent px-2 text-xs font-normal text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3.5";
+  "h-6 min-w-0 gap-1 border border-input bg-transparent px-2 text-xs font-normal text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3.5";
 
 /** Props accepted by `ComposerChip`. */
 export interface ComposerChipProps extends Omit<
@@ -95,7 +95,7 @@ export function ComposerChip({
         aria-label={props["aria-label"]}
         title={typeof tooltip === "string" ? tooltip : undefined}
         className={cn(
-          "inline-flex h-6 max-w-full min-w-0 items-center gap-1 rounded-full bg-muted px-2 text-xs text-muted-foreground [&_svg:not([class*='size-'])]:size-3.5",
+          "inline-flex h-6 max-w-full min-w-0 items-center gap-1 rounded-chip bg-muted px-2 text-xs text-muted-foreground [&_svg:not([class*='size-'])]:size-3.5",
           className,
         )}
       >

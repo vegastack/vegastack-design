@@ -313,7 +313,7 @@ test("RTL: the popup mirrors when the direction is rtl (RTL)", async () => {
   // exactly what upstream's own RTL example does.
   expect(getComputedStyle(slot("content")!).direction).toBe("rtl");
   expect(slot("shortcut")!.className).toContain("ms-auto");
-  expect(slot("checkbox-item")!.className).toContain("ps-1.5");
+  expect(slot("checkbox-item")!.className).toContain("ps-2");
 });
 
 test("INT-1: no menu row forces the default cursor", async () => {

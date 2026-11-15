@@ -64,8 +64,10 @@ is Tailwind's own step at the weight upstream gives that component — `shadow-s
 
 <ShadowScale />
 
-Corners derive from one `--radius` (0.625rem / 10px): `rounded-sm` 6px, `rounded-md` 8px,
-`rounded-lg` 10px, `rounded-xl` 14px. Closely nested edges must be concentric.
+Corners are roles, not a ramp: a single-line control is a pill (`rounded-control`), an icon
+button a circle (`rounded-icon`), a row with a fill `rounded-item` (10px), a block in the content
+`rounded-block` (12px), a card or menu `rounded-card` (16px), a dialog `rounded-overlay` (24px). A
+row is its container's corner minus the container's padding. See [Radius](/docs/foundations/radius).
 
 <RadiusScale />
 
@@ -83,7 +85,7 @@ never raw palettes or hardcoded values. Tokens are OKLCH variables defined in
 
 ```tsx
 // good — semantic tokens, themeable
-<button className="bg-primary text-primary-foreground rounded-md" />
+<button className="bg-primary text-primary-foreground rounded-control" />
 
 // bad — hardcoded hex / raw palette, opaque to overrides
 <button className="bg-[#18181b] text-white rounded-[6px]" />
@@ -94,7 +96,7 @@ an inline `style` — the only sanctioned inline-style use is assigning CSS cust
 single, file-scoped swatch-fill exception in `ColorPicker`).
 
 <DoDont
-  do="Style with semantic tokens: bg-primary, text-muted-foreground, border-border, rounded-md."
+  do="Style with semantic tokens: bg-primary, text-muted-foreground, border-border, rounded-control."
   dont="Hardcode hex or px, use raw palettes (bg-neutral-900), or put visual props in inline styles."
 />
 

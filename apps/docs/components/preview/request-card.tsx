@@ -266,7 +266,7 @@ export function requestCardCompact(): ReactNode {
   // One row for Home and Inbox: the title, where it came from, a send's words and the buttons.
   return (
     <Wrapper className="flex-col items-stretch">
-      <div className="flex w-full max-w-2xl flex-col divide-y divide-border rounded-lg border border-border px-3">
+      <div className="flex w-full max-w-2xl flex-col divide-y divide-border rounded-card border border-border px-3">
         <Live compact />
         <RequestCard
           spec={{ ...spec, title: "Inbox assistant wants to (09:46 run):" }}

@@ -1,4 +1,4 @@
-// @vegastack dialog@0.88.0 sha256-Z488QtyTxJcHm30iwkbxpy1R4vDK5vf42ON2MVakpxk=
+// @vegastack dialog@0.88.0 sha256-ZzcnPUkVmfXwecUJNf0zxiuNhauv3QrxUWo5PGUiDns=
 
 "use client";
 
@@ -104,7 +104,7 @@ function DialogContent({
         data-slot="dialog-content"
         data-size={size}
         className={cn(
-          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] grid-cols-1 -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-xl bg-popover p-4 text-sm wrap-break-word text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=md]:sm:max-w-lg data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl has-data-[slot=dialog-body]:flex has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)] has-data-[slot=dialog-body]:flex-col data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 start-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] grid-cols-1 -translate-x-1/2 rtl:translate-x-1/2 -translate-y-1/2 gap-4 rounded-overlay bg-popover p-4 text-sm wrap-break-word text-popover-foreground border border-border duration-100 outline-none sm:max-w-sm data-[size=sm]:sm:max-w-xs data-[size=md]:sm:max-w-lg data-[size=lg]:sm:max-w-2xl data-[size=xl]:sm:max-w-5xl has-data-[slot=dialog-body]:flex has-data-[slot=dialog-body]:max-h-[calc(100%-2rem)] has-data-[slot=dialog-body]:flex-col data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           // OVL-16 fullscreen: the viewport less a 16px inset (none on a phone), a flex column whose
           // header and footer stay put while the content between them scrolls.
           "data-[size=fullscreen]:flex data-[size=fullscreen]:h-[calc(100dvh-2rem)] data-[size=fullscreen]:max-h-[calc(100dvh-2rem)] data-[size=fullscreen]:flex-col data-[size=fullscreen]:sm:max-w-[calc(100%-2rem)] data-[size=fullscreen]:max-sm:h-dvh data-[size=fullscreen]:max-sm:max-h-dvh data-[size=fullscreen]:max-sm:max-w-full data-[size=fullscreen]:max-sm:rounded-none data-[size=fullscreen]:max-sm:border-0 data-[size=fullscreen]:max-sm:pt-[calc(--spacing(4)+env(safe-area-inset-top))] data-[size=fullscreen]:max-sm:pb-[calc(--spacing(4)+env(safe-area-inset-bottom))]",

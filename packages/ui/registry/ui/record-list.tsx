@@ -1,4 +1,4 @@
-// @vegastack record-list@0.88.0 sha256-Nc6qbgc0wrD5f/bkvPHPNrqLnvVsCbe0DhPg5XxEK+w=
+// @vegastack record-list@0.88.0 sha256-4LEATJUiD5ijigE7d/yemE20K0bbpmJ5aIjnQVH2XO8=
 
 import * as React from "react";
 import { ExternalLink } from "lucide-react";
@@ -379,7 +379,7 @@ export function RecordDiff({
       {...props}
     >
       <TableHeader>
-        <TableRow className="hover:not-focus-visible:bg-none">
+        <TableRow data-row-static="">
           <TableHead className="h-8 text-xs text-muted-foreground">
             {labelHeading}
           </TableHead>

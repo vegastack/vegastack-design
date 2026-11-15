@@ -1,4 +1,4 @@
-// @vegastack video-player@0.88.0 sha256-X+il+x2FylT/SVai8+PitvRwAuuLSjXfbmu6wtxvxOM=
+// @vegastack video-player@0.88.0 sha256-8GUHtYrBXM1GL5jUuuStdhfjVzIqrVtPI0rQ3bTeOhg=
 
 "use client";
 
@@ -553,7 +553,7 @@ export function VideoPlayer({
         role="group"
         aria-label={`${label} video player`}
         className={cn(
-          "relative overflow-hidden rounded-lg bg-muted",
+          "relative overflow-hidden rounded-block bg-muted",
           // The centralized 2px `:focus-visible` outline, pulled INSIDE because
           // the frame is `overflow-hidden` and would clip it — the one focus
           // deviation `design.md` permits (audit B4-03, D17). What was here

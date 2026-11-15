@@ -8499,6 +8499,10 @@
               "values": [""]
             },
             {
+              "name": "data-row-static",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "data-grid",
@@ -11939,6 +11943,10 @@
         },
         "EmptyRow": {
           "attributes": [
+            {
+              "name": "data-row-static",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["data-table-empty-viewport"]
@@ -39943,6 +39951,10 @@
               "values": [""]
             },
             {
+              "name": "data-row-static",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": ["record-diff", "record-diff-row"]
             }
@@ -59344,6 +59356,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "An async function that renders an email to HTML and text; it renders nothing into a page and takes no ref."
+          }
+        },
+        {
+          "name": "emailRadius",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

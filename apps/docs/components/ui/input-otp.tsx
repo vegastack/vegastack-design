@@ -1,4 +1,4 @@
-// @vegastack input-otp@0.88.0 sha256-z1EssSrUJ6/volc4LZ/HeLqWgRa60w2dQNXzc8257kU=
+// @vegastack input-otp@0.88.0 sha256-B9Gau9fxSDX3nlUmdxfdjttbpCtQ/AyrHsfVpaG8cEA=
 
 "use client";
 
@@ -33,7 +33,7 @@ function InputOTPGroup({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="input-otp-group"
       className={cn(
-        "flex items-center rounded-lg has-aria-invalid:border-destructive",
+        "flex items-center rounded-control has-aria-invalid:border-destructive",
         className,
       )}
       {...props}
@@ -56,7 +56,7 @@ function InputOTPSlot({
       data-slot="input-otp-slot"
       data-active={isActive}
       className={cn(
-        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-[color,background-color,border-color] duration-150 ease-out outline-none first:rounded-s-lg first:border-s last:rounded-e-lg aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:not-aria-invalid:border-ring/50 dark:bg-input/30",
+        "relative flex size-8 items-center justify-center border-y border-e border-input text-sm transition-[color,background-color,border-color] duration-150 ease-out outline-none first:rounded-s-control first:border-s last:rounded-e-control aria-invalid:border-destructive data-[active=true]:z-10 data-[active=true]:not-aria-invalid:border-ring/50 dark:bg-input/30",
         className,
       )}
       {...props}

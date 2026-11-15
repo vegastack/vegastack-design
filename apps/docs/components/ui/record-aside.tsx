@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.88.0 sha256-71GEXsPZ+UP0a+Wh0GTGDDsOM1M6YVJuH1MlVHbMU5g=
+// @vegastack record-aside@0.88.0 sha256-8ysnIVRh3itKsPNQb+O+zFaqlGuSurNBxT+2XWVGCXQ=
 
 "use client";
 
@@ -270,8 +270,10 @@ export function RecordAsideAction({
 export type ActionListProps = React.ComponentPropsWithRef<"div">;
 
 /**
- * `ActionList` — full-width rows that run to the card's edges (the Inbox's rows), for a section's
- * records: tasks, suggestions. Put `ActionListItem`s inside, or one `ActionListEmpty`.
+ * `ActionList` — full-width rows that run to 6px from the card's edges (the Inbox's rows), for a
+ * section's records: tasks, suggestions. The inset lets each row's `rounded-item` hover show its
+ * corners, concentric with the card (16 − 6 = 10). Put `ActionListItem`s inside, or one
+ * `ActionListEmpty`.
  *
  * @example
  * <ActionList><ActionListItem>…</ActionListItem></ActionList>
@@ -281,7 +283,7 @@ export function ActionList({ className, ...props }: ActionListProps) {
     <ItemGroup
       data-slot="action-list"
       className={cn(
-        "-mx-(--card-spacing) w-auto gap-0 has-data-[size=sm]:gap-0 has-data-[size=xs]:gap-0",
+        "-mx-(--card-spacing) w-auto gap-0 px-1.5 has-data-[size=sm]:gap-0 has-data-[size=xs]:gap-0",
         className,
       )}
       {...props}
@@ -296,7 +298,8 @@ export type ActionListItemProps = Omit<
 >;
 
 /**
- * `ActionListItem` — one edge-to-edge row: a hover tint, no underline, the card's own inset. A row
+ * `ActionListItem` — one inset row: a `rounded-item` hover tint, no underline, its text at the
+ * card's own inset. A row
  * that opens something takes `render` (a link or a button) or an `onClick`; `highlighted` flashes
  * a row that just arrived.
  *
@@ -309,7 +312,7 @@ export function ActionListItem({ className, ...props }: ActionListItemProps) {
       size="xs"
       data-slot="action-list-item"
       className={cn(
-        "flex-nowrap items-start rounded-none px-(--card-spacing) no-underline state-layer",
+        "flex-nowrap items-start px-[calc(var(--card-spacing)-var(--spacing)*1.5)] no-underline state-layer",
         className,
       )}
       {...props}
@@ -465,7 +468,7 @@ export function PropertyListSkeleton({ rows = 4 }: PropertyListSkeletonProps) {
           className="grid min-h-7 grid-cols-[--spacing(28)_minmax(0,1fr)] items-center gap-x-3"
         >
           <div className="flex items-center gap-1.5">
-            <Skeleton className="size-3.5 rounded-sm" />
+            <Skeleton className="size-3.5 rounded-mark" />
             <Skeleton className="h-3 w-16" />
           </div>
           <Skeleton className="h-3.5 w-24" />
@@ -493,7 +496,7 @@ export function PropertySectionSkeleton({
     >
       <Skeleton className="h-3 w-20" />
       {Array.from({ length: chips }, (_, i) => (
-        <Skeleton key={i} className="h-6 w-36 rounded-full" />
+        <Skeleton key={i} className="h-6 w-36 rounded-chip" />
       ))}
     </div>
   );
@@ -505,7 +508,7 @@ export interface ActionListSkeletonProps {
   rows?: number;
 }
 
-/** `ActionListSkeleton` — edge-to-edge action rows while they load: a status circle, a title bar and a meta bar. @example <ActionListSkeleton rows={3} /> */
+/** `ActionListSkeleton` — inset action rows while they load: a status circle, a title bar and a meta bar. @example <ActionListSkeleton rows={3} /> */
 export function ActionListSkeleton({ rows = 3 }: ActionListSkeletonProps) {
   return (
     <ActionList aria-hidden data-slot="action-list-skeleton">

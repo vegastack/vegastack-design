@@ -293,9 +293,9 @@ export function fileTypeIconGallery(): ReactNode {
       {(Object.keys(FILE_KIND_LABEL) as FileKind[]).map((kind) => (
         <div
           key={kind}
-          className="flex min-w-0 items-center gap-2 rounded-md bg-muted/50 p-2"
+          className="flex min-w-0 items-center gap-2 rounded-item bg-muted/50 p-2"
         >
-          <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted">
+          <span className="grid size-8 shrink-0 place-items-center rounded-tile bg-muted">
             <FileTypeIcon kind={kind} tinted className="size-4" />
           </span>
           <span className="flex min-w-0 flex-col">

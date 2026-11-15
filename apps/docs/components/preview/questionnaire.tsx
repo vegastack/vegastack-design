@@ -174,7 +174,7 @@ export function questionnaireComposition(): ReactNode {
           <QuestionnaireItem
             name="shape"
             required
-            className="rounded-lg border border-dashed border-border p-3"
+            className="rounded-card border border-dashed border-border p-3"
           >
             <QuestionnaireTitle>
               Which part owns which decision?

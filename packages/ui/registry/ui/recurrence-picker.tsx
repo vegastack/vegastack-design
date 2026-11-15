@@ -1,4 +1,4 @@
-// @vegastack recurrence-picker@0.88.0 sha256-n6KmqCh8PH/v8ajm5uP3Xr4DY6D9pPnRSN+HLxleOPk=
+// @vegastack recurrence-picker@0.88.0 sha256-aLzRkRPKydGMvFYLeITZso6xdvbwWO+m66TraJOub5s=
 
 "use client";
 
@@ -1142,7 +1142,7 @@ export function RecurrencePicker({
                 {labels.next}
               </span>
               {[0, 1, 2].map((i) => (
-                <Skeleton key={i} className="h-5 w-20 rounded-4xl" />
+                <Skeleton key={i} className="h-5 w-20 rounded-chip" />
               ))}
             </div>
           ) : previewError != null ? (

@@ -1,4 +1,4 @@
-// @vegastack chat-menu@0.88.0 sha256-x5J1Z3gCF0M9pWl5LPp1coMz/5S6BWEGlGjARQ5xuy0=
+// @vegastack chat-menu@0.88.0 sha256-w6VRTe44Lph6TVGuPS4IYy3PhLTgaVAGwnhMwbIZLM0=
 
 "use client";
 
@@ -114,7 +114,7 @@ function ChatMenu({
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 rounded-md px-2 text-xs font-normal text-muted-foreground"
+                className="h-7 px-2 text-xs font-normal text-muted-foreground"
               >
                 {trigger}
               </Button>

@@ -1,4 +1,4 @@
-// @vegastack terminal@0.88.0 sha256-XOZTA3D2t9LrgKP93e8DeftA766nCrym+CiSfA8uoWA=
+// @vegastack terminal@0.88.0 sha256-ii5EAjYHYXdr/uVK/h3ltU0tMc0McS5xziIJ6xIy2K8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -106,7 +106,7 @@ export function Terminal({
       className={cn(
         // The same shape as `CodeBlock`: these are the system's two code surfaces and they are
         // one object.
-        "overflow-hidden rounded-lg border border-border bg-card",
+        "overflow-hidden rounded-block border border-border bg-card",
         className,
       )}
       {...props}

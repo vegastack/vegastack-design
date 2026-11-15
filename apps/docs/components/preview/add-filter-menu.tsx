@@ -24,7 +24,7 @@ const FIELDS = [
           <Button
             key={value}
             variant="ghost"
-            className="h-7 justify-start rounded-md px-1.5 font-normal"
+            className="h-7 justify-start rounded-item px-1.5 font-normal"
             onClick={done}
           >
             {value}

@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.88.0 sha256-HlPLfM1HWlK1YIEQ/EWBDpX/urPuuJcQ0zTZNGD+pig=
+// @vegastack table-of-contents@0.88.0 sha256-77kskz7SdtF3IY5BH3ZfHqjkTiKpOP5zJhhQyxgUY/s=
 
 "use client";
 
@@ -800,18 +800,18 @@ function TableOfContentsNav({
 // A row is 28px tall in the list and the rail's panel and at least 24px wide, so the link itself
 // is the ≥24px target (WCAG 2.5.8) with room around it, and needs no invisible hit area.
 const LIST_LINK =
-  "group/table-of-contents-link relative -ms-px flex min-h-7 items-center rounded-e-md py-1 ps-[calc(--spacing(3)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors before:absolute before:inset-y-1 before:start-0 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] hover:text-foreground data-active:font-medium data-active:text-foreground data-active:before:opacity-100";
+  "group/table-of-contents-link relative -ms-px flex min-h-7 items-center rounded-item py-1 ps-[calc(--spacing(3)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors before:absolute before:inset-y-1 before:start-0 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] hover:text-foreground data-active:font-medium data-active:text-foreground data-active:before:opacity-100";
 const PANEL_LINK =
-  "relative flex min-h-7 items-center rounded-md py-1 ps-[calc(--spacing(2)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors state-layer hover:text-foreground focus-visible:text-foreground data-active:font-medium data-active:text-foreground before:absolute before:inset-y-1.5 before:start-0.5 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] data-active:before:opacity-100";
+  "relative flex min-h-7 items-center rounded-item py-1 ps-[calc(--spacing(2)+var(--table-of-contents-depth,0)*--spacing(3))] pe-2 text-sm text-muted-foreground transition-colors state-layer hover:text-foreground focus-visible:text-foreground data-active:font-medium data-active:text-foreground before:absolute before:inset-y-1.5 before:start-0.5 before:w-0.5 before:rounded-full before:bg-foreground before:opacity-0 before:content-[''] data-active:before:opacity-100";
 // The rail: a column of 10px rows, each holding one dash — 18 headings are 180px tall. A ghost
 // `Button` reshaped into the column (base.css paints its focus cue); on touch its hit area
 // reaches 44px wide.
 const RAIL_TRIGGER =
-  "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-md px-1 py-1.5 hover:not-focus-visible:bg-none active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0";
+  "h-auto w-6 flex-col justify-start gap-0 overflow-hidden rounded-item px-1 py-1.5 hover:not-focus-visible:bg-none active:translate-y-0 pointer-coarse:after:-inset-x-2.5 pointer-coarse:after:inset-y-0";
 // The panel floats over the page beside the rail, from its top corner (its frame places it);
 // closed, it is transparent and inert. Long outlines scroll inside it.
 const RAIL_PANEL =
-  "pointer-events-none flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-lg border border-border bg-popover p-1 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
+  "pointer-events-none flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-card border border-border bg-popover p-1.5 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
 
 interface TableOfContentsSheetProps extends Omit<
   TableOfContentsProps,

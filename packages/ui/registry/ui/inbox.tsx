@@ -1,4 +1,4 @@
-// @vegastack inbox@0.88.0 sha256-WCsRF9hQCyRX82E1rlbJ389ubbClf20v/4KVzsA34w4=
+// @vegastack inbox@0.88.0 sha256-/1SpVwCyrm11iKhyBqHcLksSFe7YS2x29KmEcYqTA1c=
 
 "use client";
 
@@ -794,8 +794,8 @@ export interface InboxItemProps extends Omit<
   /**
    * The events behind a grouped row, newest first. The count becomes a disclosure button that
    * lists them under the row (collapsed at first), across the row's full width on a thread rail
-   * that drops from the avatar, each event curving into its 16px avatar (10px radius), in line with
-   * the title.
+   * that drops from the avatar, each event curving into its 16px avatar (the item radius, 10px), in
+   * line with the title.
    * @default undefined
    */
   events?: readonly InboxItemEvent[];
@@ -1014,11 +1014,11 @@ export function InboxItem({
       tabIndex={tracked && !href && !inbox.open ? -1 : undefined}
       aria-current={active && !href && !inbox.open ? "true" : undefined}
       className={cn(
-        // LAY-20: the row sits 8px inside the pane (the list's `px-2`) on `rounded-md`, so its fill never
+        // LAY-20: the row sits 8px inside the pane (the list's `px-2`) on `rounded-item`, so its fill never
         // runs to the pane edge; unread is the dot and the title's ink, never a fill (COL-24).
         // Three columns — the avatar, the text, the time and controls — and, under them, the
         // expanded events across the whole row, threaded from the avatar.
-        "group/inbox-item relative grid scroll-mt-10 grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 rounded-md px-3 py-3 transition-colors state-layer",
+        "group/inbox-item relative grid scroll-mt-10 grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 rounded-item px-3 py-3 transition-colors state-layer",
         // The active row (the one the peek shows): the selected step and a 2px start bar.
         "data-active:bg-state-selected data-active:before:absolute data-active:before:inset-y-2 data-active:before:start-0 data-active:before:w-0.5 data-active:before:rounded-full data-active:before:bg-primary",
         tracked && !href && inbox.open && "cursor-pointer",
@@ -1058,7 +1058,7 @@ export function InboxItem({
         ) : icon ? (
           <span
             className={cn(
-              "flex size-7 items-center justify-center rounded-md bg-state-tile [&_svg]:size-4",
+              "flex size-7 items-center justify-center rounded-tile bg-state-tile [&_svg]:size-4",
               destructive ? "text-destructive-text" : "text-muted-foreground",
             )}
           >
@@ -1233,18 +1233,19 @@ export function InboxItem({
           data-slot="inbox-item-events"
           hidden={!expanded}
           // Across the whole row: the rail runs on from the avatar and each event curves into its own
-          // avatar (10px radius; the rail stops at the last one), in line with the title. Every
-          // vertical is a 1px start border at the same whole-pixel x. `--border` is translucent, so
-          // two lines over each other read brighter: a middle event's rail runs its full height and
-          // its connector masks off that first pixel column, leaving only the curve, so each height
-          // draws one line with no gap. The last event has no rail and keeps its whole connector.
+          // avatar (the item radius, `rounded-es-item`; the rail stops at the last one), in line with
+          // the title. Every vertical is a 1px start border at the same whole-pixel x. `--border` is
+          // translucent, so two lines over each other read brighter: a middle event's rail runs its
+          // full height and its connector masks off that first pixel column, leaving only the curve,
+          // so each height draws one line with no gap. The last event has no rail and keeps its
+          // whole connector.
           className="relative col-span-full flex flex-col pt-1 before:absolute before:start-[13px] before:top-0 before:h-1 before:w-0 before:border-s before:border-border"
         >
           {events!.map((event, i) => (
             <li
               key={event.id ?? i}
               data-slot="inbox-item-event"
-              className="relative flex min-w-0 items-start gap-1.5 ps-10 pb-0.5 text-xs leading-5 text-muted-foreground before:absolute before:start-[13px] before:top-0 before:h-3 before:w-6 before:rounded-es-[10px] before:border-s before:border-b before:border-border not-last:before:[mask-image:linear-gradient(to_right,transparent_1px,black_1px)] rtl:not-last:before:[mask-image:linear-gradient(to_left,transparent_1px,black_1px)] after:absolute after:inset-y-0 after:start-[13px] after:w-0 after:border-s after:border-border last:after:hidden"
+              className="relative flex min-w-0 items-start gap-1.5 ps-10 pb-0.5 text-xs leading-5 text-muted-foreground before:absolute before:start-[13px] before:top-0 before:h-3 before:w-6 before:rounded-es-item before:border-s before:border-b before:border-border not-last:before:[mask-image:linear-gradient(to_right,transparent_1px,black_1px)] rtl:not-last:before:[mask-image:linear-gradient(to_left,transparent_1px,black_1px)] after:absolute after:inset-y-0 after:start-[13px] after:w-0 after:border-s after:border-border last:after:hidden"
             >
               {/* Top-aligned to the first line, whatever the line wraps to. */}
               <span
@@ -1354,7 +1355,7 @@ export function InboxEmpty({
     <div className="flex flex-col items-center gap-2 px-6 py-12 text-center">
       <span
         aria-hidden
-        className="flex size-10 items-center justify-center rounded-lg bg-muted text-muted-foreground [&_svg]:size-5"
+        className="flex size-10 items-center justify-center rounded-tile bg-muted text-muted-foreground [&_svg]:size-5"
       >
         {icon}
       </span>
@@ -1397,7 +1398,7 @@ export function InboxError({
     >
       <span
         aria-hidden
-        className="flex size-10 items-center justify-center rounded-lg bg-muted text-destructive-text [&_svg]:size-5"
+        className="flex size-10 items-center justify-center rounded-tile bg-muted text-destructive-text [&_svg]:size-5"
       >
         <TriangleAlert />
       </span>

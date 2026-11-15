@@ -73,7 +73,7 @@ export function TraceInputLayers({
     <>
       <div className="flex h-full min-w-0 flex-col gap-5 p-5">
         {componentHeader}
-        <div className="flex min-h-44 flex-1 items-center justify-center rounded-lg border border-border bg-background p-5">
+        <div className="flex min-h-44 flex-1 items-center justify-center rounded-block border border-border bg-background p-5">
           <Field>
             <FieldLabel htmlFor="trace-project-name">Project name</FieldLabel>
             <Input
@@ -93,7 +93,7 @@ export function TraceInputLayers({
       </div>
       <div className="flex h-full min-w-0 flex-col gap-5 p-5">
         {patternHeader}
-        <div className="flex min-h-44 flex-1 items-center justify-center rounded-lg border border-border bg-background p-5">
+        <div className="flex min-h-44 flex-1 items-center justify-center rounded-block border border-border bg-background p-5">
           <div className="w-full max-w-sm">
             <p className="text-sm font-medium text-foreground">
               Project identity

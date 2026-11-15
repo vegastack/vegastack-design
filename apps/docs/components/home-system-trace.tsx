@@ -36,7 +36,7 @@ const TRACE_DATA = {
     tokens: [
       ["--primary", "action ink"],
       ["--primary-foreground", "on-action text"],
-      ["--radius-md", "8px"],
+      ["--corner-control", "pill"],
       ["--duration-fast", "150ms"],
     ],
   },
@@ -143,7 +143,7 @@ function StaticLayer({
   return (
     <div className="flex h-full min-w-0 flex-col gap-5 p-5">
       <LayerHeader index={index} title={title} />
-      <div className="flex min-h-44 flex-1 items-center justify-center rounded-lg border border-border bg-background p-5">
+      <div className="flex min-h-44 flex-1 items-center justify-center rounded-block border border-border bg-background p-5">
         {children}
       </div>
       <LayerCaption>{caption}</LayerCaption>
@@ -275,7 +275,7 @@ function TracePanel({ trace }: { trace: Trace }) {
 
 export function HomeSystemTrace() {
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-card">
+    <div className="overflow-hidden rounded-card border border-border bg-card">
       <div className="border-b border-border p-5">
         <div className="min-w-0">
           <p className="text-sm font-medium text-foreground">

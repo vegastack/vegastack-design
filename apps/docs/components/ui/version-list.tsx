@@ -1,4 +1,4 @@
-// @vegastack version-list@0.88.0 sha256-cMcGfJW4hz3piooey1TBuup8lSFLKop6e1WwEmsus8E=
+// @vegastack version-list@0.88.0 sha256-Ct7nTnPbnj178qQX2UqN2YTRlw1XI+mj3DMVerfap30=
 
 "use client";
 
@@ -230,7 +230,7 @@ export function VersionList({
         onClick={() => {
           if (!selected) onSelect?.(version.id);
         }}
-        className="flex min-w-0 cursor-default flex-col gap-1 rounded-md px-2 py-1.5 text-sm select-none state-layer data-selected:bg-state-selected"
+        className="flex min-w-0 cursor-default flex-col gap-1 rounded-item px-2 py-1.5 text-sm select-none state-layer data-selected:bg-state-selected"
       >
         <span className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
           {version.name ? (

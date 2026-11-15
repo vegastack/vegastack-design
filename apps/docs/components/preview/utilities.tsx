@@ -117,12 +117,12 @@ export function shimmerRtl(): ReactNode {
 export function scrollFade(): ReactNode {
   return (
     <Wrapper>
-      <div className="scroll-fade h-48 w-64 overflow-y-auto rounded-lg border border-border">
+      <div className="scroll-fade h-48 w-64 overflow-y-auto rounded-card border border-border">
         <div className="flex flex-col gap-2 p-4">
           {Array.from({ length: 24 }, (_, i) => (
             <div
               key={i}
-              className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
+              className="rounded-item bg-muted px-3 py-2 text-sm text-muted-foreground"
             >
               Row {i + 1}
             </div>
@@ -136,11 +136,11 @@ export function scrollFade(): ReactNode {
 export function scrollFadeHorizontal(): ReactNode {
   return (
     <Wrapper>
-      <div className="scroll-fade-x flex w-72 gap-2 overflow-x-auto rounded-lg border border-border p-3">
+      <div className="scroll-fade-x flex w-72 gap-2 overflow-x-auto rounded-card border border-border p-3">
         {Array.from({ length: 16 }, (_, i) => (
           <div
             key={i}
-            className="flex size-20 shrink-0 items-center justify-center rounded-md bg-muted text-sm text-muted-foreground"
+            className="flex size-20 shrink-0 items-center justify-center rounded-tile bg-muted text-sm text-muted-foreground"
           >
             {i + 1}
           </div>
@@ -163,13 +163,13 @@ export function scrollFadeEdge(): ReactNode {
               {edge}
             </span>
             <div
-              className={`${edge} h-44 w-40 overflow-y-auto rounded-lg border border-border`}
+              className={`${edge} h-44 w-40 overflow-y-auto rounded-card border border-border`}
             >
               <div className="flex flex-col gap-2 p-3">
                 {Array.from({ length: 20 }, (_, i) => (
                   <div
                     key={i}
-                    className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
+                    className="rounded-item bg-muted px-3 py-2 text-sm text-muted-foreground"
                   >
                     Row {i + 1}
                   </div>
@@ -194,13 +194,13 @@ export function scrollFadeSize(): ReactNode {
               {size}
             </span>
             <div
-              className={`scroll-fade ${size} h-44 w-40 overflow-y-auto rounded-lg border border-border`}
+              className={`scroll-fade ${size} h-44 w-40 overflow-y-auto rounded-card border border-border`}
             >
               <div className="flex flex-col gap-2 p-3">
                 {Array.from({ length: 20 }, (_, i) => (
                   <div
                     key={i}
-                    className="rounded-md bg-muted px-3 py-2 text-sm text-muted-foreground"
+                    className="rounded-item bg-muted px-3 py-2 text-sm text-muted-foreground"
                   >
                     Row {i + 1}
                   </div>
@@ -247,7 +247,7 @@ function StaggerDemo(): ReactNode {
             "Plan Q4",
             "Retro",
           ].map((title) => (
-            <li key={title} className="rounded-lg border p-3 text-sm">
+            <li key={title} className="rounded-block border p-3 text-sm">
               {title}
             </li>
           ))}
@@ -255,7 +255,7 @@ function StaggerDemo(): ReactNode {
       ) : (
         <div className="flex flex-col gap-2">
           {Array.from({ length: 5 }, (_, i) => (
-            <Skeleton key={i} className="h-11 w-full" />
+            <Skeleton key={i} className="h-11 w-full rounded-block" />
           ))}
         </div>
       )}
@@ -293,7 +293,7 @@ function ViewTransitionDemo(): ReactNode {
         {["One", "Two", "Three"].map((label) => (
           <div
             key={label}
-            className="rounded-lg border p-3 text-sm"
+            className="rounded-block border p-3 text-sm"
             style={{ viewTransitionName: `vt-demo-${label.toLowerCase()}` }}
           >
             {label}
@@ -330,7 +330,7 @@ function OptimisticUndoDemo(): ReactNode {
       {tasks.map((task) => (
         <li
           key={task}
-          className="flex items-center justify-between rounded-lg border p-2 ps-3 text-sm"
+          className="flex items-center justify-between rounded-block border p-2 ps-3 text-sm"
         >
           {task}
           <Button variant="ghost" size="sm" onClick={() => archive.run(task)}>

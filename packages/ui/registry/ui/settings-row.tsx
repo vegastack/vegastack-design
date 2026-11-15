@@ -1,4 +1,4 @@
-// @vegastack settings-row@0.88.0 sha256-5QTyRYVeiARhOo0gWj4s1fTuLSef5NcaeOFn7B2WfJc=
+// @vegastack settings-row@0.88.0 sha256-MtsuBIVnpwzbENE8F8EFcgO2ic1MC1zr7lzL9pEqftg=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -451,7 +451,7 @@ export function SettingsMatrix({
       ref={ref}
       data-slot="settings-matrix"
       className={cn(
-        "@container/settings-matrix rounded-xl border border-border bg-card text-sm text-card-foreground",
+        "@container/settings-matrix rounded-card border border-border bg-card text-sm text-card-foreground",
         className,
       )}
       style={
@@ -465,7 +465,7 @@ export function SettingsMatrix({
       <div
         data-slot="settings-matrix-header"
         aria-hidden
-        className="sticky top-0 z-10 hidden grid-cols-[minmax(0,1fr)_repeat(var(--settings-matrix-columns),calc(var(--spacing)*16))] items-center gap-x-4 rounded-t-xl border-b border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground @md/settings-matrix:grid"
+        className="sticky top-0 z-10 hidden grid-cols-[minmax(0,1fr)_repeat(var(--settings-matrix-columns),calc(var(--spacing)*16))] items-center gap-x-4 rounded-t-card border-b border-border bg-card px-4 py-2 text-xs font-medium text-muted-foreground @md/settings-matrix:grid"
       >
         <span className="min-w-0 truncate">{label}</span>
         {columns.map((column, index) => (

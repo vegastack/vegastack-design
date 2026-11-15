@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.88.0 sha256-j80jAkc/Cg577CtM+YrEoLgE48TKcbS37zNZSu/XJ+g=
+// @vegastack file-viewer@0.88.0 sha256-YQZ90+aytUko3zB1UjWYftq7hJFOQ+O1nQiIp90/K/s=
 
 "use client";
 
@@ -245,14 +245,14 @@ export function FileViewerPdf({
           data-slot="file-viewer-pdf-toolbar"
           className="absolute inset-x-0 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] flex justify-center"
         >
-          <div className="flex items-center gap-1 rounded-full border border-border bg-popover/90 p-1 text-popover-foreground shadow-md backdrop-blur-sm">
+          <div className="flex items-center gap-1 rounded-control border border-border bg-popover/90 p-1 text-popover-foreground shadow-md backdrop-blur-sm">
             <Button
               variant="ghost"
               size="icon-sm"
               aria-label="Zoom out"
               disabled={zoom <= ZOOM_STEPS[0]}
               onClick={() => step("out")}
-              className="rounded-full pointer-coarse:size-11"
+              className="pointer-coarse:size-11"
             >
               <ZoomOutIcon />
             </Button>
@@ -268,7 +268,7 @@ export function FileViewerPdf({
               aria-label="Zoom in"
               disabled={zoom >= ZOOM_STEPS[ZOOM_STEPS.length - 1]!}
               onClick={() => step("in")}
-              className="rounded-full pointer-coarse:size-11"
+              className="pointer-coarse:size-11"
             >
               <ZoomInIcon />
             </Button>
@@ -278,7 +278,7 @@ export function FileViewerPdf({
               aria-label="Fit to width"
               aria-pressed={zoom === 1}
               onClick={() => step("reset")}
-              className="rounded-full pointer-coarse:size-11"
+              className="pointer-coarse:size-11"
             >
               <ScanIcon />
             </Button>

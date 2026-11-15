@@ -1,4 +1,4 @@
-// @vegastack data-list@0.88.0 sha256-QUXMQNOxomH+27eZea9DAqwx8jqfM3pEXGtVize6SHA=
+// @vegastack data-list@0.88.0 sha256-RYnhDbYmQdH8XmXqLu2KrTvmJ6YZnKVgp9swBwru7Y8=
 
 "use client";
 
@@ -33,7 +33,6 @@ import {
   revealColumns,
   PEEK_ACTIVE_CARD_CLASS,
   PEEK_ACTIVE_ROW_CLASS,
-  ROW_HOVER_CLASS,
   SELECTED_ROW_CLASS,
   SELECTION_COLUMN_WIDTH,
   SelectAllHead,
@@ -1199,19 +1198,21 @@ const EMPTY_GROUP_STATE: GroupState = {};
  * `::before` on every cell — a table row can't position one of its own — above the next row's
  * cells. The line is the row's only cue: no hover, cursor or selection wash while it shows, so a
  * place between rows never reads as the "into this row" wash (the doubled attribute outranks
- * those washes' selectors without `!important`).
+ * those washes' selectors without `!important`). The seam reuses the cells' `row-fill` `::before`,
+ * so it drops that shape's inset, corners and fill while it shows.
  */
 const DROP_EDGE_ROW_CLASS =
-  "[&[data-drop-edge][data-drop-edge]]:bg-transparent [&[data-drop-edge][data-drop-edge]>:first-child]:bg-none [&[data-drop-edge]>td]:before:z-10 [&[data-drop-edge]>td]:relative [&[data-drop-edge=top]>td]:before:absolute [&[data-drop-edge=top]>td]:before:inset-x-0 [&[data-drop-edge=top]>td]:before:-top-px [&[data-drop-edge=top]>td]:before:h-0.5 [&[data-drop-edge=top]>td]:before:bg-info [&[data-drop-edge=top]>td]:before:content-[''] [&[data-drop-edge=bottom]>td]:before:absolute [&[data-drop-edge=bottom]>td]:before:inset-x-0 [&[data-drop-edge=bottom]>td]:before:-bottom-px [&[data-drop-edge=bottom]>td]:before:h-0.5 [&[data-drop-edge=bottom]>td]:before:bg-info [&[data-drop-edge=bottom]>td]:before:content-['']";
+  "[&[data-drop-edge][data-drop-edge]]:[--row-fill-color:transparent] [&[data-drop-edge][data-drop-edge]]:[--row-fill-layer:none] [&[data-drop-edge][data-drop-edge]>td]:before:bg-none [&[data-drop-edge]>td]:before:rounded-none [&[data-drop-edge]>td]:before:z-10 [&[data-drop-edge]>td]:relative [&[data-drop-edge=top]>td]:before:absolute [&[data-drop-edge=top]>td]:before:inset-x-0 [&[data-drop-edge=top]>td]:before:-top-px [&[data-drop-edge=top]>td]:before:bottom-auto [&[data-drop-edge=top]>td]:before:h-0.5 [&[data-drop-edge=top]>td]:before:bg-info [&[data-drop-edge=top]>td]:before:content-[''] [&[data-drop-edge=bottom]>td]:before:absolute [&[data-drop-edge=bottom]>td]:before:inset-x-0 [&[data-drop-edge=bottom]>td]:before:top-auto [&[data-drop-edge=bottom]>td]:before:-bottom-px [&[data-drop-edge=bottom]>td]:before:h-0.5 [&[data-drop-edge=bottom]>td]:before:bg-info [&[data-drop-edge=bottom]>td]:before:content-['']";
 
 /**
  * A row with keyboard focus inside it. `accent`/50 on a small link measured barely above 1:1, so
  * the whole row carries the cue: the hover wash (`muted`/50; a stronger fill drops muted text
- * under AA in light) plus a 2px start-edge bar in `foreground`, painted as a background image on
- * the first cell — a tint, not a ring or an outline (FOC-13).
+ * under AA in light) plus a 2px start-edge bar in `foreground`, painted as an extra layer of the
+ * first cell's `row-fill` shape — a tint inside the row's rounded `item` shape, not a ring or an
+ * outline (FOC-13).
  */
 const FOCUS_ROW_CLASS =
-  "has-[:focus-visible]:bg-state-focus [&:has(:focus-visible)>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&:has(:focus-visible)>:first-child]:bg-no-repeat [&:has(:focus-visible)>:first-child]:bg-size-[2px_100%] [&:has(:focus-visible)>:first-child]:bg-left rtl:[&:has(:focus-visible)>:first-child]:bg-right";
+  "has-[:focus-visible]:[--row-fill-layer:linear-gradient(var(--state-focus),var(--state-focus))] [&:has(:focus-visible)>:first-child]:before:bg-[image:linear-gradient(var(--color-foreground),var(--color-foreground)),var(--row-fill-layer,none)] [&:has(:focus-visible)>:first-child]:before:bg-no-repeat [&:has(:focus-visible)>:first-child]:before:bg-size-[2px_100%,100%_100%] [&:has(:focus-visible)>:first-child]:before:bg-left rtl:[&:has(:focus-visible)>:first-child]:before:bg-right";
 
 /**
  * The keyboard cursor's row (`keyboardNavigation` / `cursorId`): the same cue as keyboard focus,
@@ -1222,7 +1223,7 @@ const FOCUS_ROW_CLASS =
  * row, whose edge this is too (`PEEK_ACTIVE_ROW_CLASS`).
  */
 const CURSOR_ROW_CLASS =
-  "data-[cursor=key]:bg-state-focus [&[data-cursor=key]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-cursor=key]>:first-child]:bg-no-repeat [&[data-cursor=key]>:first-child]:bg-size-[2px_100%] [&[data-cursor=key]>:first-child]:bg-left rtl:[&[data-cursor=key]>:first-child]:bg-right";
+  "data-[cursor=key]:[--row-fill-layer:linear-gradient(var(--state-focus),var(--state-focus))] [&[data-cursor=key]>:first-child]:before:bg-[image:linear-gradient(var(--color-foreground),var(--color-foreground)),var(--row-fill-layer,none)] [&[data-cursor=key]>:first-child]:before:bg-no-repeat [&[data-cursor=key]>:first-child]:before:bg-size-[2px_100%,100%_100%] [&[data-cursor=key]>:first-child]:before:bg-left rtl:[&[data-cursor=key]>:first-child]:before:bg-right";
 
 /** Lists with `keyboardNavigation` on, in mount order: only the last one answers the keys. */
 const keyboardLists: object[] = [];
@@ -1342,7 +1343,7 @@ function RowLink({
     href,
     "data-slot": "data-list-row-link",
     className:
-      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-sm px-1 py-0.5 text-start text-inherit no-underline hover:no-underline focus-visible:no-underline [tr:not([data-selected])_&]:focus-visible:bg-none",
+      "-mx-1 -my-0.5 inline-flex max-w-full items-center rounded-inline px-1 py-0.5 text-start text-inherit no-underline hover:no-underline focus-visible:no-underline [tr:not([data-selected])_&]:focus-visible:bg-none",
     children,
   };
   if (render) {
@@ -2072,13 +2073,14 @@ export function DataList<T>({
             : undefined
         }
         className={cn(
-          // Hover is a faint wash only (the row-state ladder in `data-table-parts`).
-          ROW_HOVER_CLASS,
+          // Hover is a faint wash only (the row-state ladder in `data-table-parts`): `TableRow`
+          // already carries its `row-fill` (`ROW_HOVER_CLASS`), so the row does not repeat it.
           clickable &&
             "cursor-pointer [&_a]:no-underline [&_a:focus-visible]:no-underline [&_a:hover]:no-underline",
-          // A highlighted row (`rowProps` → `highlighted`) eases into the accent wash over
-          // `TableRow`'s own `transition-colors`; reduced motion drops the ease (global reset).
-          highlighted && "bg-state-selected duration-slow",
+          // A highlighted row (`rowProps` → `highlighted`) eases into the selected wash: the cells'
+          // `row-fill` shapes transition their colour; reduced motion drops the ease (global reset).
+          highlighted &&
+            "[--row-fill-color:var(--state-selected)] *:before:transition-colors *:before:duration-slow",
           // Keyboard focus anywhere in the row (FOC-13: a background tint, never a ring): the row
           // takes the hover wash — the strongest fill muted text keeps AA on — and its first cell
           // paints a 2px `foreground` edge as a background layer, the part that clears 3:1.
@@ -2087,7 +2089,7 @@ export function DataList<T>({
           // Drag into: the carried rows dim, and a target washes in the primary tint (in the
           // destructive tint when it refuses the drop) — `FolderTree`'s own drop vocabulary.
           drag &&
-            "data-dragging:opacity-50 data-drop-invalid:bg-destructive/10 data-drop-over:bg-primary/10",
+            "data-dragging:opacity-50 data-drop-invalid:[--row-fill-color:color-mix(in_oklab,var(--color-destructive)_10%,transparent)] data-drop-over:[--row-fill-color:color-mix(in_oklab,var(--color-primary)_10%,transparent)]",
           // Reorder: the seam is a 2px line in the drop-indicator blue across the row's top or
           // bottom edge, painted by every cell (a table row can't hold a positioned `::before`).
           drag && reorderable && DROP_EDGE_ROW_CLASS,
@@ -2176,7 +2178,7 @@ export function DataList<T>({
                 type="button"
                 data-slot="data-list-row-action"
                 onClick={(event) => onRowClick?.(row, index, event)}
-                className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-sm bg-transparent px-1 py-0.5 text-start text-inherit [tr:not([data-selected])_&]:focus-visible:bg-none"
+                className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-inline bg-transparent px-1 py-0.5 text-start text-inherit [tr:not([data-selected])_&]:focus-visible:bg-none"
               >
                 {content}
               </button>
@@ -3015,13 +3017,13 @@ export function DataList<T>({
             data-slot="data-list-grid-item"
             data-selected={isSelected ? "" : undefined}
             className={cn(
-              "group/data-list-card relative min-w-0 rounded-lg",
+              "group/data-list-card relative min-w-0 rounded-card",
               // A selected card keeps the list's selected wash over its own surface.
               isSelected && "*:data-[slot=media-card]:layer-selected",
               // Drag into — the list rows' vocabulary, laid over the card so any `renderCard`
               // shows it.
               drag &&
-                "data-dragging:opacity-50 data-drop-invalid:after:pointer-events-none data-drop-invalid:after:absolute data-drop-invalid:after:inset-0 data-drop-invalid:after:rounded-lg data-drop-invalid:after:bg-destructive/10 data-drop-invalid:after:content-[''] data-drop-over:after:pointer-events-none data-drop-over:after:absolute data-drop-over:after:inset-0 data-drop-over:after:rounded-lg data-drop-over:after:bg-primary/10 data-drop-over:after:content-['']",
+                "data-dragging:opacity-50 data-drop-invalid:after:pointer-events-none data-drop-invalid:after:absolute data-drop-invalid:after:inset-0 data-drop-invalid:after:rounded-card data-drop-invalid:after:bg-destructive/10 data-drop-invalid:after:content-[''] data-drop-over:after:pointer-events-none data-drop-over:after:absolute data-drop-over:after:inset-0 data-drop-over:after:rounded-card data-drop-over:after:bg-primary/10 data-drop-over:after:content-['']",
             )}
           >
             {renderCard
@@ -3034,7 +3036,7 @@ export function DataList<T>({
                 {...readShift}
                 data-slot="data-list-card-select"
                 className={cn(
-                  "absolute z-20 flex rounded-sm transition-opacity",
+                  "absolute z-20 flex rounded-inline transition-opacity",
                   // Centred in the default card's gutter; on an image (`lg`) or a host's own
                   // card, in the top corner.
                   !renderCard && gridSize !== "lg"
@@ -3085,7 +3087,7 @@ export function DataList<T>({
               <div
                 key={i}
                 data-slot="data-list-grid-skeleton-card"
-                className="flex min-w-0 flex-col overflow-hidden rounded-lg border border-border"
+                className="flex min-w-0 flex-col overflow-hidden rounded-card border border-border"
               >
                 <Skeleton className="aspect-video w-full rounded-none" />
                 <div className="flex flex-col gap-1 p-3">
@@ -3094,7 +3096,7 @@ export function DataList<T>({
                 </div>
               </div>
             ) : (
-              <Skeleton key={i} className="h-16 rounded-lg" />
+              <Skeleton key={i} className="h-16 rounded-card" />
             ),
           )}
         </div>

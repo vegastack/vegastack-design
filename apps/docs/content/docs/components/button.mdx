@@ -80,7 +80,10 @@ correct spacing.
 
 ### Rounded
 
-Use the `rounded-full` class to make the button rounded.
+Every button is a pill (`rounded-control`) at every size, and an icon-only button (`size="icon*"`)
+is a circle (`rounded-icon`), so its hover is round too. There is no shape to opt into: don't add
+`rounded-full` or another radius class to a Button. The one exception is a Button acting as a
+full-width row in a list or menu, which takes the row's `rounded-item`.
 
 <ComponentPreview name="buttonRounded" file="components/preview/button.tsx" />
 

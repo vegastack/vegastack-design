@@ -1,4 +1,4 @@
-// @vegastack chat-work-log@0.88.0 sha256-eHiU51Z7rhO00vjCDK/P9LiUndgiPQqVK9BK1U9Vtsk=
+// @vegastack chat-work-log@0.88.0 sha256-2D/eAfMFK7+PZR9H3d62SjSaegt3E7XUvDARSwNl8y8=
 
 "use client";
 
@@ -277,7 +277,7 @@ export interface LiveLineProps {
 }
 
 const LINE =
-  "-mx-2 flex h-7 w-fit max-w-[calc(100%+1rem)] min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm text-muted-foreground";
+  "-mx-2 flex h-7 w-fit max-w-[calc(100%+1rem)] min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-muted-foreground";
 
 function Chevron({ open }: { open?: boolean }) {
   return (
@@ -516,7 +516,7 @@ function WorkNote({ text, clamp }: { text: string; clamp: boolean }) {
       aria-expanded={open}
       onClick={() => setOpen((value) => !value)}
       data-slot="work-note"
-      className="-mx-2 h-auto w-[calc(100%+1rem)] justify-start border-0 px-2 py-0.5 text-start text-xs font-normal whitespace-pre-line text-muted-foreground hover:text-muted-foreground aria-expanded:bg-transparent aria-expanded:text-muted-foreground"
+      className="-mx-2 h-auto w-[calc(100%+1rem)] justify-start rounded-item border-0 px-2 py-0.5 text-start text-xs font-normal whitespace-pre-line text-muted-foreground hover:text-muted-foreground aria-expanded:bg-transparent aria-expanded:text-muted-foreground"
     >
       {body}
     </Button>
@@ -573,7 +573,7 @@ function WorkToolRow({
       {input ? (
         <pre
           data-slot="work-row-input"
-          className="-mx-2 mb-1 max-h-40 overflow-auto rounded-md bg-chat-card px-2 py-1 font-mono text-xs whitespace-pre-wrap text-muted-foreground"
+          className="-mx-2 mb-1 max-h-40 overflow-auto rounded-block bg-chat-card px-2 py-1 font-mono text-xs whitespace-pre-wrap text-muted-foreground"
         >
           {input}
         </pre>

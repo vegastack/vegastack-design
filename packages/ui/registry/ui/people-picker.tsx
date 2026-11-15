@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.88.0 sha256-Sty3Rl19N8O3TuCWgZTc2ASQ7m/48T1xl9YrCtRneWE=
+// @vegastack people-picker@0.88.0 sha256-0mF2aXw5fia07+tizAeZi8SRrznuDt2Euk+EYxzynb8=
 
 "use client";
 
@@ -370,7 +370,7 @@ function PeoplePickerRow({
           <span
             aria-hidden
             data-slot="people-picker-icon"
-            className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground [&_svg]:size-3.5"
+            className="flex size-6 shrink-0 items-center justify-center rounded-tile bg-muted text-muted-foreground [&_svg]:size-3.5"
           >
             {option.icon}
           </span>

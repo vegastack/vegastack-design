@@ -378,7 +378,7 @@ test("SettingsCard IS upstream's Card, flattened for a divided list", async () =
   );
   const card = screen.getByTestId("card").element() as HTMLElement;
   // Upstream's own card contract, not a copy of its values.
-  expect(card.className).toContain("rounded-xl");
+  expect(card.className).toContain("rounded-card");
   expect(card.className).toContain("bg-card");
   // BRD-1: the hairline is a real border, not upstream's ring outline.
   expect(card.className.split(/\s+/)).toContain("border");

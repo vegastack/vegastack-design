@@ -199,10 +199,10 @@ const PATH = [
 export function breadcrumbTrailCompact(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch">
-      <div className="flex h-14 items-center rounded-lg border border-border px-4 sm:w-80">
+      <div className="flex h-14 items-center rounded-card border border-border px-4 sm:w-80">
         <BreadcrumbTrail compact steps={PATH} />
       </div>
-      <div className="flex h-14 items-center rounded-lg border border-border px-4">
+      <div className="flex h-14 items-center rounded-card border border-border px-4">
         <BreadcrumbTrail compact="auto" steps={PATH} />
       </div>
     </Wrapper>

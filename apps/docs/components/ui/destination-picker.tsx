@@ -1,4 +1,4 @@
-// @vegastack destination-picker@0.88.0 sha256-LoWd9UDjR73epzE7VKxPd910PntPCKxqcXzyz2HeUpA=
+// @vegastack destination-picker@0.88.0 sha256-Iks/K9nrvEwaG4A4+F5hdqj9ErSOVmE5mzW34LeZjyc=
 
 "use client";
 
@@ -270,7 +270,7 @@ export function DestinationPicker({
       className={cn("flex min-h-0 flex-col gap-2", className)}
     >
       {search ? (
-        <PanelSearch className="static rounded-lg border">
+        <PanelSearch className="static rounded-control border">
           <PanelSearchField
             aria-label={searchPlaceholder}
             placeholder={searchPlaceholder}

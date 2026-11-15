@@ -17,7 +17,7 @@ export function chatSkeleton(): ReactNode {
 function Scroll() {
   const [visible, setVisible] = useState(true);
   return (
-    <div className="relative flex h-40 w-full max-w-180 items-start justify-start rounded-lg border border-border p-3">
+    <div className="relative flex h-40 w-full max-w-180 items-start justify-start rounded-card border border-border p-3">
       <Button size="xs" variant="outline" onClick={() => setVisible(!visible)}>
         {visible ? "Reader at the bottom" : "Reader scrolled up"}
       </Button>

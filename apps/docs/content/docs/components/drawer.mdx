@@ -235,7 +235,7 @@ Upstream's file plus `packages/ui/upstream/patches/drawer.patch`. Every hunk:
   through `useModalInert`. No new context: upstream's own `DrawerContext` already carries `modal`
   into `DrawerContent`, so the hook is gated on the value that is already there — which is why
   `modal={false}` keeps its outside pointer interaction.
-- **OVL-21** — the popup floats inset by default: `[--drawer-inset:--spacing(2)]`, `rounded-xl`, a
+- **OVL-21** — the popup floats inset by default: `[--drawer-inset:--spacing(2)]`, `rounded-overlay`, a
   full `border` and a transparent bleed. `Drawer` takes `flush` (carried on upstream's own
   `DrawerContext`, marked `data-flush` on the popup), which restores upstream's inner-edge rounding
   and border with the inset at `0px`.

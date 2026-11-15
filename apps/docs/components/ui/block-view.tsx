@@ -1,4 +1,4 @@
-// @vegastack block-view@0.88.0 sha256-ufrq1HsiZQxKzDXASyniVayIuE2wCO6zv5fXKsRqEpw=
+// @vegastack block-view@0.88.0 sha256-BXn3zU3EYRcm7W1HNLeyyIlHucTC6/y3WSDcRO7yx3c=
 
 "use client";
 
@@ -32,7 +32,7 @@ import { toast } from "@/components/ui/toast";
  * fallback (`markdown-view-client`) draws the same box, header and label — keep the three equal.
  */
 const blockViewClassName =
-  "@container/block-view group/block-view relative w-full min-w-0 max-w-full overflow-hidden rounded-lg border border-border print:break-inside-avoid";
+  "@container/block-view group/block-view relative w-full min-w-0 max-w-full overflow-hidden rounded-block border border-border print:break-inside-avoid";
 /** The header row: the label, then the controls at the end. */
 const blockViewHeaderClassName =
   "flex h-9 items-center gap-1 border-b border-border ps-3 pe-1.5 select-none print:hidden";
@@ -250,7 +250,7 @@ export function BlockViewFrame({
         <div
           role="group"
           aria-label={`${label} view`}
-          className="flex items-center gap-0.5 rounded-md bg-muted p-0.5"
+          className="flex items-center gap-0.5 rounded-control bg-muted p-0.5"
         >
           {(["preview", "code"] as const).map((each) => (
             <Button
@@ -475,7 +475,7 @@ function PanZoom({
         aria-label={`${label}. Drag or use the arrow keys to move, plus and minus to zoom.`}
         tabIndex={0}
         data-slot="block-view-pan-zoom"
-        className="relative size-full cursor-grab touch-none overflow-hidden rounded-lg border border-border bg-background select-none active:cursor-grabbing"
+        className="relative size-full cursor-grab touch-none overflow-hidden rounded-block border border-border bg-background select-none active:cursor-grabbing"
         onPointerDown={(event) => {
           event.currentTarget.setPointerCapture(event.pointerId);
           pointers.current.set(event.pointerId, {
@@ -537,7 +537,7 @@ function PanZoom({
       <div
         role="group"
         aria-label="Zoom"
-        className="absolute end-2 bottom-2 flex items-center gap-0.5 rounded-lg border border-border bg-popover p-0.5 shadow-sm"
+        className="absolute end-2 bottom-2 flex items-center gap-0.5 rounded-control border border-border bg-popover p-0.5 shadow-sm"
       >
         <Button
           type="button"

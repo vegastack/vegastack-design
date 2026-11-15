@@ -21,7 +21,7 @@ export function metaLine(): ReactNode {
 export function metaLineNarrow(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-64 rounded-lg border border-border p-3">
+      <div className="w-64 rounded-card border border-border p-3">
         <MetaLine>
           <MetaLineItem icon={<Video />}>Video call</MetaLineItem>
           <MetaLineItem icon={<Calendar />}>Sep 25 · 10:30 AM</MetaLineItem>

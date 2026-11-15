@@ -671,7 +671,7 @@
       "value": 0.625,
       "unit": "rem"
     },
-    "$description": "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are DERIVED from it in the @theme bridge exactly as upstream derives them (0.6/0.8/1/1.4/1.8/2.2/2.6x), so `rounded-xl` on a card is upstream's 14px. The pre-reset 12px cap and the `rounded-xl` ban are gone (BRD-6/BRD-7 = shadcn)."
+    "$description": "shadcn base-nova's radius. `--radius-sm/md/lg/xl/2xl/3xl/4xl` are still DERIVED from it in the @theme bridge exactly as upstream derives them, but components never use that ramp: BRD-12 (ours, operator 2026-11-16) gives every element a role corner (`rounded-control`, `-icon`, `-chip`, `-inline`, `-mark`, `-item`, `-block`, `-card`, `-bubble`, `-overlay`, `-tile`), and design-lint `no-radius-ramp` enforces it."
   },
   "font-family-sans": {
     "$type": "fontFamily",
@@ -814,12 +814,92 @@
     "$value": [0.16, 1, 0.3, 1],
     "$description": "MOT-14: the chat's entrance curve (a fast start that settles softly) for quick, state and layout arrivals; every exit uses `motion-ease-exit`."
   },
-  "chat-card-radius": {
+  "corner-control": {
+    "$type": "dimension",
+    "$value": {
+      "value": 9999,
+      "unit": "px"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): every single-line control is a pill — Button at every size, Input, Select, InputGroup, Toggle, ToggleGroup, the segmented TabsList and its triggers, the single-line composer. Read it as `rounded-control`."
+  },
+  "corner-icon": {
+    "$type": "dimension",
+    "$value": {
+      "value": 9999,
+      "unit": "px"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): every icon-only button is a circle, so its hover is round. Read it as `rounded-icon`."
+  },
+  "corner-chip": {
+    "$type": "dimension",
+    "$value": {
+      "value": 9999,
+      "unit": "px"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): chips, badges and counts are pills. Read it as `rounded-chip`."
+  },
+  "corner-inline": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.375,
+      "unit": "rem"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 6px: a token inside running text — a mention, a record or file link, a template or due token, Kbd, inline code — keeps a medium corner, never a pill. Read it as `rounded-inline`."
+  },
+  "corner-mark": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.25,
+      "unit": "rem"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 4px: highlights, find matches, diff marks, the checkbox, chart swatches and the grid fill handle. Read it as `rounded-mark`."
+  },
+  "corner-item": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.625,
+      "unit": "rem"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the container's padding (a 16px menu with 6px padding). Read it as `rounded-item`."
+  },
+  "corner-block": {
     "$type": "dimension",
     "$value": {
       "value": 0.75,
       "unit": "rem"
     },
-    "$description": "COL-25: the chat card's corner, 12px, bridged as `rounded-chat-card`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 12px: a block in the reading flow — code, alerts, embeds, bookmarks, notes, previews, images in content — and a card nested in a card. Read it as `rounded-block`."
+  },
+  "corner-card": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1,
+      "unit": "rem"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 16px: cards, chat cards, popovers, hover cards, menus, toasts, floating panels and multi-line fields. Read it as `rounded-card`."
+  },
+  "corner-bubble": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1.25,
+      "unit": "rem"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 20px: chat bubbles and the command palette. Read it as `rounded-bubble`."
+  },
+  "corner-overlay": {
+    "$type": "dimension",
+    "$value": {
+      "value": 1.5,
+      "unit": "rem"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 24px: dialogs, alert dialogs, drawers, sheets (top corners), the grown composer and floating desktop windows. Read it as `rounded-overlay`."
+  },
+  "corner-tile": {
+    "$type": "dimension",
+    "$value": {
+      "value": 25,
+      "unit": "%"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): a square media tile — icon tiles, thumbnails, logos, team and workspace avatars — is rounded at a quarter of its size at every size. Read it as `rounded-tile`."
   }
 }

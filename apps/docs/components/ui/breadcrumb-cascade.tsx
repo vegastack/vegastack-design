@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.88.0 sha256-EF7gq5L7Fl6mylgyZWdQfwrWEejRkssYusBsN4H30lo=
+// @vegastack breadcrumb-cascade@0.88.0 sha256-Kpw7nmPuLcYx9vR/k3oP3CL8iPqTy7lVNpEKFr3pHSg=
 
 "use client";
 
@@ -114,7 +114,7 @@ export function BreadcrumbDropTarget({
       className={cn(
         // The drop wash needs a little room around the text, so the crumb carries it always:
         // the -mx-1 keeps the trail's spacing where it was.
-        "-mx-1 rounded-sm px-1 data-drop-invalid:bg-destructive/10 data-drop-over:bg-primary/10 data-drop-over:text-foreground",
+        "-mx-1 rounded-item px-1 data-drop-invalid:bg-destructive/10 data-drop-over:bg-primary/10 data-drop-over:text-foreground",
         className,
       )}
       {...props}

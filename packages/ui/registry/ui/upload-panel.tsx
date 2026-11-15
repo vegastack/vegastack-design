@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.88.0 sha256-JXg9GloUW4a5IqKoOb3v2WhNPs8K9rNXuxQGEs7lG3M=
+// @vegastack upload-panel@0.88.0 sha256-gy5A10k+bfbkmoRujPN/AQ8NAIYiSroFUWHiRkG+KcU=
 
 "use client";
 
@@ -345,7 +345,7 @@ function UploadDestinationLink({
         event.preventDefault();
         onOpen(destination.href);
       }}
-      className="min-w-0 shrink-[4] truncate rounded-sm underline-offset-4 hover:text-foreground hover:underline"
+      className="min-w-0 shrink-[4] truncate rounded-inline underline-offset-4 hover:text-foreground hover:underline"
     >
       {destination.label}
     </a>
@@ -564,7 +564,7 @@ export function UploadItem({
           }
         />
       ) : (
-        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted">
+        <span className="grid size-8 shrink-0 place-items-center rounded-tile bg-muted">
           <FileTypeIcon
             contentType={file.contentType}
             name={file.name}
@@ -717,7 +717,7 @@ export function UploadGroup({
       {...props}
     >
       <div className="group/upload-row flex min-h-13 items-center gap-3 px-4 py-2">
-        <span className="grid size-8 shrink-0 place-items-center rounded-md bg-muted">
+        <span className="grid size-8 shrink-0 place-items-center rounded-tile bg-muted">
           <FolderIcon aria-hidden className="size-4 text-muted-foreground" />
         </span>
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -1132,7 +1132,7 @@ export function UploadPanel({
             setFocused(false);
         }}
         className={cn(
-          "fixed end-[calc(var(--spacing)*4+var(--app-shell-aside-inset,0px))] bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))] z-50 flex flex-col overflow-hidden rounded-xl bg-popover text-popover-foreground border border-border shadow-lg motion-enter-up",
+          "fixed end-[calc(var(--spacing)*4+var(--app-shell-aside-inset,0px))] bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))] z-50 flex flex-col overflow-hidden rounded-card bg-popover text-popover-foreground border border-border shadow-lg motion-enter-up",
           mobile ? "start-4" : "w-90 max-w-[calc(100vw-var(--spacing)*8)]",
           className,
         )}

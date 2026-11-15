@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.88.0 sha256-ps5+nxD1zb3VU8b9Grqqc3Yf/RgayIjwdh9cocW0XUw=
+// @vegastack kpi-card@0.88.0 sha256-EDky+fmXMGUTeIThlIZVR2JiOuu5p1EEdhOd2hEEak4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -307,7 +307,7 @@ export function KpiCard({
         "data-slot": "kpi-card-link",
         ...naming,
         className: cn(
-          "absolute inset-0 rounded-xl transition-colors state-layer",
+          "absolute inset-0 rounded-card transition-colors state-layer",
           template.props.className,
         ),
       } as object)

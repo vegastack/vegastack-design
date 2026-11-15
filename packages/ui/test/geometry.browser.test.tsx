@@ -666,17 +666,36 @@ type FocusSignature = {
   images: string[];
 };
 
+/**
+ * The painted surfaces of the carriers: each carrier itself, then its `::before`. BRD-12 (every
+ * hover has a shape) moved several fills off the element and onto an inset `rounded-item` layer:
+ * a table row's `row-fill` paints its hover, selected and focus fills — and DataList's start bar
+ * — on each cell's `::before`, and a StatGroup cell paints its own on an inset `::before`. That
+ * layer is what the eye sees, so it is a carrier like the agent avatar's hexagon. A `::before`
+ * that renders nothing (`content: none`) contributes nothing, and only its fill and image are
+ * read: a pseudo-element's border is never a focus cue.
+ */
+const paintedLayers = (control: Element) =>
+  tintCarriers(control).flatMap((element) => {
+    const own = getComputedStyle(element);
+    const before = getComputedStyle(element, "::before");
+    const rendered = before.content !== "none";
+    return [
+      { fill: own.backgroundColor, image: own.backgroundImage },
+      {
+        fill: rendered ? before.backgroundColor : "rgba(0, 0, 0, 0)",
+        image: rendered ? before.backgroundImage : "none",
+      },
+    ];
+  });
+
 const focusSignature = (control: Element): FocusSignature => ({
   outlineStyle: getComputedStyle(control).outlineStyle,
   borders: tintCarriers(control).map(
     (element) => getComputedStyle(element).borderColor,
   ),
-  fills: tintCarriers(control).map(
-    (element) => getComputedStyle(element).backgroundColor,
-  ),
-  images: tintCarriers(control).map(
-    (element) => getComputedStyle(element).backgroundImage,
-  ),
+  fills: paintedLayers(control).map((layer) => layer.fill),
+  images: paintedLayers(control).map((layer) => layer.image),
 });
 
 /**

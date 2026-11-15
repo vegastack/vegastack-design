@@ -12,8 +12,8 @@ in both directions, so an added or removed rule fails the build until this file 
 Batch 1 of `docs/plans/2026-09-18-shadcn-reset/` rebuilt the linter around one question: **would this
 rule reject the upstream file this system is now built from?** Every rule whose decision row in
 `decisions.md` resolves to **shadcn** was deleted, because upstream writes exactly what it banned —
-`transition-all`, `transition-colors`, `duration-100`, `ease-in-out`, `rounded-xl`, `shadow-md`,
-`bg-muted/50`, `opacity-50`, `z-50`, `h-[18.4px]`, `rounded-[4px]`, `text-4xl`, `font-semibold`,
+`transition-all`, `transition-colors`, `duration-100`, `ease-in-out`, `shadow-md`,
+`bg-muted/50`, `opacity-50`, `z-50`, `h-[18.4px]`, `text-4xl`, `font-semibold`,
 `tracking-tight`, `cursor-default` on menu rows, and a `hover:` with no `active:` beside it. Seventeen
 rules went; one arrived, `no-focus-ring-glow`, which is the machine half of the one visual decision
 this reset keeps against upstream everywhere. A second, `loader-mark`, arrived later for the same
@@ -251,10 +251,17 @@ that catch bugs nobody can see in review.
     stock or arbitrary `ease-*` (`ease-in`, `ease-out`, `ease-in-out`, `ease-linear`, `ease-[…]`).
     Use `duration-instant|quick|quick-exit|state|state-exit|layout` with
     `ease-enter|exit|standard`.
+29. **`no-radius-ramp`** (BRD-12, **new 2026-11-16**) — in registry source, a corner that is not a
+    role: a ramp step (`rounded-xs|sm|md|lg|xl|2xl|3xl|4xl`), bare `rounded`, an arbitrary length
+    (`rounded-[4px]`, `rounded-[calc(var(--radius)-3px)]`, upstream's `rounded-[min(var(--radius-md),10px)]`),
+    a radius variable (`rounded-(--cell-radius)`) or the retired `rounded-chat-card`, under any
+    variant and in any side form. Use `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile`;
+    `none`, `full` and `[inherit]` stay legal. Upstream pulls arrive with ramp steps, so this rule is
+    what makes a re-pull restate its corners.
 
 ### Deleted by the reset, and why (do not report these)
 
-`removed-radius-xl` (BRD-6), `raw-control-size` (LAY-1), `raw-icon-size` and `direct-lucide-size`
+`removed-radius-xl` (BRD-6; corners are policed again since 2026-11-16, by role, in `no-radius-ramp`), `raw-control-size` (LAY-1), `raw-icon-size` and `direct-lucide-size`
 (ICO-2), `raw-z-index` (OVL-2), `raw-alpha` / `raw-opacity` / `alpha-opacity-role` /
 `opacity-alpha-role` (the alpha and opacity ladders are gone), `off-scale-text` (TYP-8),
 `raw-heavy-weight` (TYP-4), `raw-tracking` (TYP-6), `raw-effect` (BRD-4), `faint-text-role` (FRM-2 —

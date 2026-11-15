@@ -7,7 +7,7 @@ import { ChatCard, ChatGroup, ChatRow, formatChatDuration } from "./chat-card";
 const slot = (root: ParentNode, name: string) =>
   root.querySelector<HTMLElement>(`[data-slot="${name}"]`);
 
-test("ChatCard: the COL-25 surface — faint fill, hairline, 12px corner, no shadow, the same in both themes", async () => {
+test("ChatCard: the COL-25 surface — faint fill, hairline, card corner, no shadow, the same in both themes", async () => {
   const screen = await render(
     <ChatCard title="Send this email?" meta="Gmail" aside={<span>⋯</span>}>
       Weekly summary.
@@ -18,7 +18,7 @@ test("ChatCard: the COL-25 surface — faint fill, hairline, 12px corner, no sha
   for (const cls of [
     "bg-chat-card",
     "border-chat-hairline",
-    "rounded-chat-card",
+    "rounded-card",
     "p-4",
     "max-sm:p-3",
   ])

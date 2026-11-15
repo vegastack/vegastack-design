@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.88.0 sha256-l6K+XK1t/GaWP086UHJ2pL4D8T+aHxb7+e4ia88S5i8=
+// @vegastack data-grid@0.88.0 sha256-DYeyNboZ4+T2U7odNqMWB0JukG+sUCZ1C/avqf/2Wzk=
 
 "use client";
 
@@ -1239,6 +1239,17 @@ function Cell<T>({
  * — style recalculation was most of the tick.
  */
 const ROW_BASE_CLASS = cn("border-b", ROW_HOVER_CLASS);
+/**
+ * The row's `row-fill` shape without a positioned cell per column. `row-fill` paints each cell's
+ * slice on a positioned `::before`, which at 150 columns would bring back the paint layers the
+ * note below removed. Here only the cells that are positioned anyway keep that `::before`: the
+ * first and last (the shape's rounded `item` ends, inset from the row's edges), frozen (`sticky`,
+ * which repaints the row's state over its opaque ground) and `relative` cells. Every other cell
+ * stays static and paints the same fill as its own background image, inset 2px top and bottom like
+ * the shape, so the row reads as one rounded fill, never a square one.
+ */
+const ROW_FILL_SLICE_CLASS =
+  "[&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:static [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:isolation-auto [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:before:content-none [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-[image:var(--row-fill-layer,none),linear-gradient(var(--row-fill-color,transparent),var(--row-fill-color,transparent))] [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-no-repeat [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-size-[100%_calc(100%-var(--spacing))] [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-center";
 // No `position` here: a positioned cell is a paint layer of its own, and at 150 columns the ~600
 // layered cells made paint and layerize most of a scroll tick. A cell is `relative` only while it
 // can hold an absolute child (a remote change's cue, the fill handle); a frozen one is `sticky`.
@@ -1270,16 +1281,13 @@ const HEAD_BASE_CLASS =
   "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground";
 
 /**
- * Sticky frozen cells are opaque, so scrolled cells never show through; the row's state washes mix
- * in at the row-state ladder's own strengths (hover 30%, selected 50%, open `accent`). The row's
- * `data-selected` is present-or-absent (`""`), so the selected step keys on `data-[selected]`:
- * the tokens' `data-selected` custom variant matches only `="true"`, which is why the pinned
- * column stayed white in a ticked row (web app POL-13). The open step is doubled in specificity so
- * it outranks selected, as it does on the row itself (an attribute variant beats the row's plain
- * selected wash): a row both open and ticked is open, pinned cells included.
+ * Sticky frozen cells are opaque, so scrolled cells never show through. The row's state washes
+ * need no repainting here: the cell keeps its `row-fill` `::before` (`ROW_FILL_SLICE_CLASS`), which
+ * paints the row's hover, selected and open steps over the opaque ground inside the cell's own
+ * stacking context — the same rounded shape as the rest of the row (POL-13: the pinned column
+ * never stays white in a ticked row).
  */
-const FROZEN_CELL_CLASS =
-  "sticky z-10 bg-background group-hover/row:layer-hover group-data-[selected]/row:layer-selected [[data-peek-active][data-peek-active]>&]:layer-selected";
+const FROZEN_CELL_CLASS = "sticky z-10 bg-background";
 /**
  * The frozen edge's cells while the viewport is scrolled sideways (`data-scrolled-x`): in dark,
  * where a shadow does not read, the edge's divider (`columnDividers`) is brighter than the rest.
@@ -1378,6 +1386,12 @@ function stickyStyle(
 
 interface GridCellProps<T> {
   placed: PlacedColumn<T>;
+  /**
+   * Which end of the row's `row-fill` shape this cell carries when it is not the `<tr>`'s first or
+   * last child (BRD-12): the windowing spacers and the filler sit outside the real columns, so the
+   * first and last REAL cells hold the rounded ends.
+   */
+  rowEdge?: "start" | "end" | "both";
   row: T;
   rowId: string;
   tabStop: boolean;
@@ -1430,7 +1444,7 @@ function RemoteCue({ remote }: { remote: DataGridRemoteChange }) {
       <span
         key={remote.at}
         aria-hidden
-        className="pointer-events-none absolute inset-0.5 rounded-sm motion-flash"
+        className="pointer-events-none absolute inset-0.5 rounded-mark motion-flash"
       />
       <span
         aria-hidden
@@ -1479,6 +1493,7 @@ const RowOpenButton = React.memo(function RowOpenButton({
 
 function GridCellImpl<T>({
   placed,
+  rowEdge,
   row,
   rowId,
   tabStop,
@@ -1669,6 +1684,10 @@ function GridCellImpl<T>({
         column.editable || (cellsMode && column.parse) ? undefined : true
       }
       data-slot="data-grid-cell"
+      data-row-start={
+        rowEdge === "start" || rowEdge === "both" ? "" : undefined
+      }
+      data-row-end={rowEdge === "end" || rowEdge === "both" ? "" : undefined}
       data-grid-row={rowId}
       data-grid-key={key}
       data-editing={editing ? "" : undefined}
@@ -1779,13 +1798,13 @@ function GridCellImpl<T>({
       ) : null}
       {remote ? <RemoteCue remote={remote} /> : null}
       {fillHandle ? (
-        // Pointer only: ⌘/Ctrl+D is the keyboard path. 8px square, 24px hit area. Under a frozen
-        // cell (`sticky z-10`): a cell scrolled beneath a frozen column must not draw its handle
-        // over it.
+        // Pointer only: ⌘/Ctrl+D is the keyboard path. An 8px `mark` (round at this size), 24px
+        // hit area. Under a frozen cell (`sticky z-10`): a cell scrolled beneath a frozen column
+        // must not draw its handle over it.
         <span
           aria-hidden
           data-slot="data-grid-fill-handle"
-          className="absolute end-0 bottom-0 z-1 size-2 cursor-ns-resize touch-none rounded-[1px] bg-info before:absolute before:-inset-2 before:content-['']"
+          className="absolute end-0 bottom-0 z-1 size-2 cursor-ns-resize touch-none rounded-mark bg-info before:absolute before:-inset-2 before:content-['']"
           onPointerDown={(event) => {
             event.stopPropagation();
             event.preventDefault();
@@ -1834,7 +1853,14 @@ interface GridRowProps<T> {
  * so a window move rewrites two `<col>`s rather than two cells in every row.
  */
 const SpacerCell = React.memo(function SpacerCell() {
-  return <td aria-hidden="true" data-slot="data-grid-spacer" className="p-0" />;
+  return (
+    <td
+      aria-hidden="true"
+      data-slot="data-grid-spacer"
+      data-row-fill-skip=""
+      className="p-0"
+    />
+  );
 });
 
 /**
@@ -1844,7 +1870,14 @@ const SpacerCell = React.memo(function SpacerCell() {
  * its width. It sits after the "+" column, which stays right beside the last real column.
  */
 const FillerCell = React.memo(function FillerCell() {
-  return <td aria-hidden="true" data-slot="data-grid-filler" className="p-0" />;
+  return (
+    <td
+      aria-hidden="true"
+      data-slot="data-grid-filler"
+      data-row-fill-skip=""
+      className="p-0"
+    />
+  );
 });
 
 /**
@@ -1914,10 +1947,28 @@ function GridRowImpl<T>({
   measure,
   dataIndex,
 }: GridRowProps<T>) {
+  // The row's rounded ends sit on its first and last REAL cells (BRD-12): a leading spacer is the
+  // first child when there is no select or frozen column, and the trailing spacer, the "+" column and
+  // the filler always follow the last column.
+  const startCell =
+    !w.selectable && w.frozen.length === 0 ? w.center[0] : undefined;
+  const endCell =
+    w.center.length > 0
+      ? w.center[w.center.length - 1]
+      : w.frozen[w.frozen.length - 1];
   const cell = (placed: PlacedColumn<T>) => (
     <GridCell
       key={placed.key}
       placed={placed}
+      rowEdge={
+        placed === startCell
+          ? placed === endCell
+            ? "both"
+            : "start"
+          : placed === endCell
+            ? "end"
+            : undefined
+      }
       row={row}
       rowId={rowId}
       tabStop={tabKey === placed.key}
@@ -1959,6 +2010,7 @@ function GridRowImpl<T>({
       className={cn(
         "group/row",
         ROW_BASE_CLASS,
+        ROW_FILL_SLICE_CLASS,
         w.rowHeight && ROW_CLASS[w.rowHeight],
         // The open row (`activeRowId`) takes the accent wash.
         PEEK_ACTIVE_ROW_CLASS,
@@ -1981,7 +2033,9 @@ function GridRowImpl<T>({
       {w.fixed ? <SpacerCell /> : null}
       {w.center.map(cell)}
       {w.fixed ? <SpacerCell /> : null}
-      {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
+      {w.trailing ? (
+        <td aria-hidden="true" data-row-fill-skip="" className="p-0" />
+      ) : null}
       {w.fixed ? <FillerCell /> : null}
     </tr>
   );
@@ -2529,14 +2583,16 @@ function FixedSkeletonRows<T>({
               )}
               style={stickyStyle(w.selectOffset)}
             >
-              <Skeleton className="size-3.5 rounded-sm" />
+              <Skeleton className="size-4 rounded-mark" />
             </td>
           ) : null}
           {w.frozen.map(bar)}
           <SpacerCell />
           {w.center.map(bar)}
           <SpacerCell />
-          {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
+          {w.trailing ? (
+            <td aria-hidden="true" data-row-fill-skip="" className="p-0" />
+          ) : null}
           <FillerCell />
         </tr>
       ))}
@@ -2869,7 +2925,7 @@ function GridCards<T>({
             key={index}
             aria-hidden="true"
             data-slot="data-grid-card-skeleton"
-            className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3"
+            className="flex flex-col gap-2 rounded-card border border-border bg-card p-3"
           >
             <Skeleton className="h-4 w-2/3" />
             {shown.map((column) => (
@@ -2930,7 +2986,7 @@ function GridCards<T>({
             data-row-id={id}
             data-selected={selected.has(id) ? "" : undefined}
             data-peek-active={activeRowId === id ? "" : undefined}
-            className="relative flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-sm text-card-foreground data-[selected]:layer-selected data-peek-active:layer-selected"
+            className="relative flex min-w-0 flex-col gap-2 rounded-card border border-border bg-card p-3 text-sm text-card-foreground data-[selected]:layer-selected data-peek-active:layer-selected"
           >
             {onOpen ? (
               <Button
@@ -5212,7 +5268,8 @@ export function DataGrid<T>({
     >
       <TableRow
         aria-rowindex={footerRowIndex}
-        className={cn("hover:not-focus-visible:bg-none", SUMMARY_ROW_CLASS)}
+        data-row-static=""
+        className={SUMMARY_ROW_CLASS}
       >
         {selectable ? (
           <TableCell
@@ -5495,7 +5552,7 @@ export function DataGrid<T>({
           flexFill && !cardMode && "flex-1",
           // Embedded: one framed block — header, rows and footer ruled from each other.
           embedded
-            ? "overflow-hidden rounded-lg border border-border"
+            ? "overflow-hidden rounded-block border border-border"
             : "gap-3",
           className,
         )}

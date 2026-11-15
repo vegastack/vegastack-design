@@ -1,4 +1,4 @@
-// @vegastack progress@0.88.0 sha256-4BVtmlnbfD36SLBi3pDLeGVHp/N0dlnuh9J53Ijoo8o=
+// @vegastack progress@0.88.0 sha256-fOdpOM4Ao8zBSubSyGYPfxbPiZUBCQ0gysDV/szi8GQ=
 
 "use client";
 
@@ -6,7 +6,7 @@ import { Progress as ProgressPrimitive } from "@base-ui/react/progress";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@vegastack/design";
 
-const progressIndicatorVariants = cva("h-full transition-all", {
+const progressIndicatorVariants = cva("h-full rounded-full transition-all", {
   variants: {
     tone: {
       default: "bg-primary",

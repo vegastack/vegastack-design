@@ -1,4 +1,4 @@
-// @vegastack number-field@0.88.0 sha256-p6Lp4MZ/fbXfsIxuP+7jjyDW5m3xCHrbCWtaFtLP/pM=
+// @vegastack number-field@0.88.0 sha256-Cp8Xq4eAyOMJqSlJdB6HdBwDmKsU9XQTqE9xLbfehbA=
 
 "use client";
 
@@ -141,8 +141,9 @@ export interface NumberFieldProps extends Omit<
 /**
  * FRM-13's stepper geometry, and the whole of what this file adds to upstream's button: the
  * control is the field's full height and ≥24px wide, square on the inside edge so it meets the
- * group's hairline cleanly, and it carries the negative outline offset the group's `overflow`
- * would otherwise clip (FOC-9).
+ * group's hairline cleanly and round on the outside (`rounded-s-control` / `rounded-e-control`, the
+ * pill group's own end) so its hover fill and focus ring follow the field's curve, and it carries
+ * the negative outline offset the group's `overflow` would otherwise clip (FOC-9).
  *
  * One hairline only: upstream's Button draws a 1px transparent border on all four sides, so
  * colouring it (`border-input`) painted a second box inside the group's own border — a double
@@ -153,10 +154,10 @@ export interface NumberFieldProps extends Omit<
 const stepperClasses =
   "h-auto w-7 shrink-0 self-stretch rounded-none border-0 p-0 focus-visible:-outline-offset-2 has-[>svg]:p-0 active:not-aria-[haspopup]:translate-y-0";
 
-/** The one divider each stepper draws, on the edge it shares with the input. */
+/** The one divider each stepper draws, on the edge it shares with the input, and its outer curve. */
 const stepperDividerClasses = {
-  decrement: "border-e border-e-input",
-  increment: "border-s border-s-input",
+  decrement: "rounded-s-control border-e border-e-input",
+  increment: "rounded-e-control border-s border-s-input",
 } as const;
 
 /**

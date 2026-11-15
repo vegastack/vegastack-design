@@ -1,4 +1,4 @@
-// @vegastack board-card@0.88.0 sha256-YByDzOJT2cvFo1Qev46pH8pfDUF0Sp1OxJVGeZ7Tuqg=
+// @vegastack board-card@0.88.0 sha256-OZWo9gJMDtnPLkbLw31lVaZLABzBo3MIGU7Am4yGc6s=
 
 "use client";
 
@@ -353,7 +353,7 @@ export function BoardCard({
       className={cn(
         "group/board-card relative flex min-w-0 flex-col gap-2 text-start text-card-foreground",
         surface &&
-          "rounded-lg border border-border bg-card p-3 shadow-xs transition-colors state-layer has-[[data-slot=board-card-link]:focus-visible]:layer-focus",
+          "rounded-block border border-border bg-card p-3 shadow-xs transition-colors state-layer has-[[data-slot=board-card-link]:focus-visible]:layer-focus",
         className,
       )}
       {...props}
@@ -577,7 +577,7 @@ export function BoardCardChip({
       {
         "data-empty": empty ? "" : undefined,
         className: cn(
-          "inline-flex h-6 max-w-full min-w-0 shrink-0 items-center gap-1 rounded-full border border-border bg-transparent px-2 text-xs whitespace-nowrap text-muted-foreground [&>svg]:pointer-events-none [&>svg]:size-3 [&>svg]:shrink-0 [a,button]:relative [a,button]:z-10",
+          "inline-flex h-6 max-w-full min-w-0 shrink-0 items-center gap-1 rounded-chip border border-border bg-transparent px-2 text-xs whitespace-nowrap text-muted-foreground [&>svg]:pointer-events-none [&>svg]:size-3 [&>svg]:shrink-0 [a,button]:relative [a,button]:z-10",
           // An empty value is invisible at rest — shown when the card is pointed at or focused
           // (standalone, or on a Board), when the chip itself has focus, while its menu is open,
           // and on touch. Invisible, not gone: it stays in the tab order (the `renderField`

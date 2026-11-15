@@ -53,7 +53,7 @@ export function templateEditor(): ReactNode {
           Type @ or {"{{"} to insert a spec. Enter starts a new paragraph.
         </FieldDescription>
       </Field>
-      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="min-w-0 overflow-x-auto rounded-block bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {value}
       </pre>
     </Wrapper>
@@ -94,7 +94,7 @@ export function templateEditorFormula(): ReactNode {
           used here.
         </FieldDescription>
       </Field>
-      <pre className="min-w-0 overflow-x-auto rounded-md bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
+      <pre className="min-w-0 overflow-x-auto rounded-block bg-muted p-3 font-mono text-xs break-all whitespace-pre-wrap">
         {value}
       </pre>
     </Wrapper>

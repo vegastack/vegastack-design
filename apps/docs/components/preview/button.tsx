@@ -159,13 +159,8 @@ export function buttonWithIcon(): ReactNode {
 export function buttonRounded(): ReactNode {
   return (
     <Wrapper>
-      <Button className="rounded-full">Get Started</Button>
-      <Button
-        variant="outline"
-        size="icon"
-        aria-label="Submit"
-        className="rounded-full"
-      >
+      <Button>Get Started</Button>
+      <Button variant="outline" size="icon" aria-label="Submit">
         <ArrowUpIcon />
       </Button>
     </Wrapper>

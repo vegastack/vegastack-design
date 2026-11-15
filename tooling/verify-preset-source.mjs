@@ -54,7 +54,7 @@ const ASSERTIONS = [
   // toast paints `bg-popover` and tints nothing — and `bg-destructive/10` kept passing anyway,
   // because Button's own destructive variant is in the same bundle, so half the probe had
   // silently stopped testing the Toaster at all. `text-warning-text` is the COL-12 icon ink of a
-  // warning toast and `rounded-2xl` the toast root's radius; neither is spelled anywhere else in
+  // warning toast and `shadow-lg` the toast root's shadow; neither is spelled anywhere else in
   // this dist. (Retargeted 2026-11-13 from `text-success-text`: COL-25 draws the success toast's
   // check in the blue accent, and `text-info-text` is in this bundle elsewhere.)
   {
@@ -62,8 +62,8 @@ const ASSERTIONS = [
     test: (css) => /\.text-warning-text\s*\{/.test(css),
   },
   {
-    label: "Toaster (@vegastack/ui dist) — rounded-2xl",
-    test: (css) => /\.rounded-2xl\s*\{/.test(css),
+    label: "Toaster (@vegastack/ui dist) — shadow-lg",
+    test: (css) => /\.shadow-lg\s*\{/.test(css),
   },
   {
     label: "BrandIcon (@vegastack/design/icons dist) — .shrink-0",
@@ -111,12 +111,12 @@ if (missing.length > 0) {
 // "@vegastack/ui"` is not resolved through node_modules — Tailwind reads it as a literal glob and
 // scans nothing. Re-verified here against the installed Tailwind, from a consumer that really has
 // `@vegastack/ui` in its node_modules (the docs app), with a control: the SAME package reached by
-// a relative path does generate the toast root's `rounded-2xl`, so an absent class means the bare
+// a relative path does generate the toast root's `shadow-lg`, so an absent class means the bare
 // form scanned nothing, not that the probe could never have seen it. If a Tailwind upgrade starts
 // resolving package names, this fails — and the preset's relative-path workaround and its comment
 // can be revisited rather than silently outliving their reason.
 const consumerDir = join(here, "..", "apps", "docs");
-const PROBE_CLASS = /\.rounded-2xl\s*\{/;
+const PROBE_CLASS = /\.shadow-lg\s*\{/;
 async function compileFrom(entry) {
   const compiler = await compile(entry, {
     base: consumerDir,
@@ -142,7 +142,7 @@ try {
 if (!PROBE_CLASS.test(relativeCss)) {
   fail(
     "the control probe — `@vegastack/ui/dist` reached by a relative @source from apps/docs — " +
-      "generated no `rounded-2xl`, so the bare-name probe below it proves nothing. Build " +
+      "generated no `shadow-lg`, so the bare-name probe below it proves nothing. Build " +
       "@vegastack/ui first.",
   );
 }

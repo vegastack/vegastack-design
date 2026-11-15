@@ -1,4 +1,4 @@
-// @vegastack source-list@0.88.0 sha256-zJDzjCKbfBk6cBphQRTLq0R4MXbAlJ/ukoajJo24vy4=
+// @vegastack source-list@0.88.0 sha256-6kofAFYjvT1E7D7ygMefHm7BtQl3O2TjB9dSfeLIGBI=
 
 "use client";
 
@@ -71,7 +71,7 @@ export function SiteIcon({ src, className }: SiteIconProps) {
       data-slot="site-icon"
       data-fallback={image ? undefined : ""}
       className={cn(
-        "inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-sm text-muted-foreground dark:bg-foreground dark:data-fallback:bg-transparent",
+        "inline-flex size-4 shrink-0 items-center justify-center overflow-hidden rounded-mark text-muted-foreground dark:bg-foreground dark:data-fallback:bg-transparent",
         className,
       )}
     >
@@ -237,7 +237,7 @@ export function SourceList({
                   rel="noreferrer noopener"
                   title={title}
                   data-slot="source-list-row"
-                  className="group/source-row state-layer -mx-2 flex min-h-7 min-w-0 items-center gap-2 rounded-md px-2 text-sm no-underline"
+                  className="group/source-row state-layer -mx-2 flex min-h-7 min-w-0 items-center gap-2 rounded-item px-2 text-sm no-underline"
                 >
                   <span className="w-4 shrink-0 text-end text-xs text-muted-foreground tabular-nums">
                     {index + 1}

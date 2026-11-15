@@ -28,7 +28,7 @@ const MIN = 60_000;
 
 function Frame({ children }: { children: ReactNode }) {
   return (
-    <div className="not-prose h-[32rem] w-full max-w-sm overflow-hidden rounded-lg border bg-background">
+    <div className="not-prose h-[32rem] w-full max-w-sm overflow-hidden rounded-card border bg-background">
       {children}
     </div>
   );

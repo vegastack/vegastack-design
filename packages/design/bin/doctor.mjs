@@ -311,6 +311,32 @@ export const RETIRED_VOCABULARY = [
     declared: () => "--shadow-overlay",
   },
   {
+    // BRD-12 (ours, operator 2026-11-16): `rounded-chat-card` and `--chat-card-radius` retired into
+    // the `card` role.
+    id: "rounded-chat-card",
+    re: new RegExp(
+      `${B}(?:rounded(?:-[tbserl]{1,2})?-chat-card|--chat-card-radius|--radius-chat-card)${E}`,
+      "g",
+    ),
+    hint: (m) =>
+      m.startsWith("--")
+        ? "var(--corner-card)"
+        : m.replace("chat-card", "card"),
+    declared: () => ["--chat-card-radius", "--radius-chat-card"],
+  },
+  {
+    // BRD-12: a corner is a role, never a size. A ramp step or an arbitrary radius in app code is
+    // off the system the registry now speaks; bare `rounded` is left alone because it is also a word.
+    id: "off-role corner",
+    re: new RegExp(
+      String.raw`(?<![\w-])rounded(?:-(?:t|r|b|l|s|e|tl|tr|br|bl|ss|se|es|ee))?-(?:xs|sm|md|lg|xl|2xl|3xl|4xl|\[(?!inherit\])[^\]\s]+\]|\(--[\w-]+\))(?![\w-])`,
+      "g",
+    ),
+    hint: () =>
+      "the role the element plays: rounded-control (single-line control), -icon (icon-only button), -chip, -inline (token in text), -mark, -item (row with a fill, tooltip), -block, -card, -bubble, -overlay, -tile (square media); row-fill on a table row",
+    declared: () => null,
+  },
+  {
     id: "backdrop-blur-glass",
     re: new RegExp(`${B}backdrop-blur-glass${E}`, "g"),
     hint: () =>

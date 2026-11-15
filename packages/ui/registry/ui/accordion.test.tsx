@@ -176,7 +176,7 @@ test("FRM-4: a disabled section header keeps its pointer events", async () => {
 test("Borders: item and root classes merge rather than replace (Borders)", async () => {
   const screen = await render(
     <Accordion
-      className="max-w-lg rounded-lg border"
+      className="max-w-lg rounded-card border"
       defaultValue={["billing"]}
     >
       <AccordionItem value="billing" className="border-b px-4 last:border-b-0">

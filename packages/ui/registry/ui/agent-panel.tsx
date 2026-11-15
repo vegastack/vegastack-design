@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.88.0 sha256-RjJWh4cCejoAeqHBHlWPg7aRqSiolQ9e/VuMfUiHhac=
+// @vegastack agent-panel@0.88.0 sha256-e7J0z6FZhThEG1+/lkSmu7/xZXAu7yvgTIPAi8UDrD8=
 
 "use client";
 
@@ -579,7 +579,7 @@ export function AgentSlot({
       data-state={state}
       data-empty={agent ? undefined : ""}
       className={cn(
-        "h-6 max-w-full min-w-0 justify-start gap-1.5 rounded-md px-1.5 text-sm font-normal active:not-aria-[haspopup]:translate-y-0",
+        "h-6 max-w-full min-w-0 justify-start gap-1.5 px-1.5 text-sm font-normal active:not-aria-[haspopup]:translate-y-0",
         // Inside a PropertyValue it hangs like a ghost RecordChip: its text starts where plain
         // values do and the row keeps a text row's height.
         "in-data-[slot=property-value]:-my-0.5 in-data-[slot=property-value]:-ms-1.5",
@@ -1697,7 +1697,7 @@ function StateBlock({ p }: { p: ResolvedProps }) {
         // A question or an approval sits on the chat card surface (COL-25): it is what the card
         // is for now. The ⚠ glyph carries the amber; the surface never does.
         (question || state === "approval") &&
-          "rounded-md border border-chat-hairline bg-chat-card p-2",
+          "rounded-card border border-chat-hairline bg-chat-card p-2",
       )}
     >
       <span className="flex h-5 items-center">
@@ -2114,7 +2114,6 @@ function ReplyBox({
           <InputGroupButton
             size="icon-xs"
             variant="default"
-            className="rounded-full"
             aria-label={labels.send}
             disabled={disabled || sending || text.trim() === "" || overLimit}
             onClick={() => void send()}
@@ -2620,7 +2619,7 @@ export function AgentPanel({
             data-state={state}
             data-attention={attention ? "" : undefined}
             className={cn(
-              "flex min-w-0 flex-col rounded-lg border border-border",
+              "flex min-w-0 flex-col rounded-card border border-border",
               className,
             )}
             {...props}
@@ -2638,7 +2637,7 @@ export function AgentPanel({
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "group/agent-trigger h-7 min-w-0 flex-1 justify-start gap-1.5 px-1.5 text-sm",
+                    "group/agent-trigger h-7 min-w-0 flex-1 justify-start gap-1.5 rounded-item px-1.5 text-sm",
                     disclosureTriggerClasses,
                   )}
                 />

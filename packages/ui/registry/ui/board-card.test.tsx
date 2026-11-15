@@ -215,7 +215,7 @@ test("eyebrow, aside, chips, alert and footnote render in their slots; chips rep
   );
   expect(chips.length).toBe(2);
   expect(chips[1]!.tagName).toBe("BUTTON");
-  expect(chips[0]!.className).toContain("rounded-full");
+  expect(chips[0]!.className).toContain("rounded-chip");
   expect(chips[0]!.className).toContain("border");
   expect(chips[0]!.className).not.toMatch(/(^|\s)(bg-(muted|accent)|hover:)/);
   expect(slot("board-card-alert")?.className).toContain(

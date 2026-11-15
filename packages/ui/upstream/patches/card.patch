@@ -1,6 +1,8 @@
 # component: card
-# decisions: API-16, API-22, API-30, BRD-1, DOC-2
+# decisions: API-16, API-22, API-30, BRD-1, DOC-2, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   BRD-1: the card surface draws a real 1px `border border-border` instead of upstream's
 #     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
 #     border survives forced colours and matches `foundations/elevation`; nothing else moves.
@@ -17,7 +19,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/card.tsx b/card.tsx
-index cf02f48..75e4fe8 100644
+index cf02f48..e2dc7f1 100644
 --- a/card.tsx
 +++ b/card.tsx
 @@ -1,22 +1,31 @@
@@ -48,7 +50,7 @@ index cf02f48..75e4fe8 100644
        className={cn(
 -        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground ring-1 ring-foreground/10 [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
 -        className
-+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl bg-card py-(--card-spacing) text-sm text-card-foreground border border-border [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl data-[variant=outline]:bg-transparent",
++        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-card bg-card py-(--card-spacing) text-sm text-card-foreground border border-border [--card-spacing:--spacing(4)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(3)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-card *:[img:last-child]:rounded-b-card data-[variant=outline]:bg-transparent",
 +        className,
        )}
        {...props}
@@ -58,11 +60,13 @@ index cf02f48..75e4fe8 100644
  }
  
  function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -25,24 +34,34 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -24,25 +33,35 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
+     <div
        data-slot="card-header"
        className={cn(
-         "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
+-        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-xl px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
 -        className
++        "group/card-header @container/card-header grid auto-rows-min items-start gap-1 rounded-t-card px-(--card-spacing) has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto] [.border-b]:pb-(--card-spacing)",
 +        className,
        )}
        {...props}
@@ -138,11 +142,13 @@ index cf02f48..75e4fe8 100644
  }
  
  function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -84,11 +103,11 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -83,12 +102,12 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
+     <div
        data-slot="card-footer"
        className={cn(
-         "flex items-center rounded-b-xl border-t bg-muted/50 p-(--card-spacing)",
+-        "flex items-center rounded-b-xl border-t bg-muted/50 p-(--card-spacing)",
 -        className
++        "flex items-center rounded-b-card border-t bg-muted/50 p-(--card-spacing)",
 +        className,
        )}
        {...props}

@@ -443,7 +443,7 @@ export function inputGroupCustomInput(): ReactNode {
           <textarea
             data-slot="input-group-control"
             aria-label="Autoresize textarea"
-            className="flex field-sizing-content min-h-16 w-full resize-none rounded-md bg-transparent px-3 py-2.5 text-base outline-hidden md:text-sm"
+            className="flex field-sizing-content min-h-16 w-full resize-none rounded-none bg-transparent px-3 py-2.5 text-base outline-hidden md:text-sm"
             placeholder="Autoresize textarea…"
           />
           <InputGroupAddon align="block-end">

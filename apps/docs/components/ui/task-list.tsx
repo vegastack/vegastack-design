@@ -1,4 +1,4 @@
-// @vegastack task-list@0.88.0 sha256-W/KVrn2dj1Ap8bdXee7QZxIllCzkS6jKa2yBVTM9rLM=
+// @vegastack task-list@0.88.0 sha256-nK0zSOMd/rOvpjv4uEet35HSAgp8NJYJ7LHAPgxphq8=
 
 "use client";
 
@@ -615,7 +615,7 @@ export function TaskList({
       >
         <div
           ref={foldsRef}
-          className="flex min-w-0 flex-col rounded-lg border border-border bg-card px-2 py-1"
+          className="flex min-w-0 flex-col rounded-card border border-border bg-card px-2 py-1"
         >
           {doneFolded > 0 ? (
             <FoldButton
@@ -865,7 +865,7 @@ export function TaskListProgress({
       data-slot="task-list-progress"
       data-waiting={waiting ? "" : undefined}
       className={cn(
-        "relative h-auto w-full min-w-0 flex-col items-stretch rounded-none border-x-0 border-t-0 border-b-border bg-background px-3 pt-1.5 pb-2 font-normal",
+        "relative h-auto w-full min-w-0 flex-col items-stretch rounded-item bg-background px-3 pt-1.5 pb-2.5 font-normal",
         className,
       )}
       {...props}
@@ -893,11 +893,11 @@ export function TaskListProgress({
       </span>
       <span
         aria-hidden
-        className="absolute inset-x-0 bottom-0 block h-0.5 bg-muted"
+        className="absolute inset-x-3 bottom-1 block h-0.5 overflow-hidden rounded-full bg-muted"
       >
         <span
           data-slot="task-list-progress-track"
-          className="block h-full bg-primary transition-[width] duration-state ease-enter"
+          className="block h-full rounded-full bg-primary transition-[width] duration-state ease-enter"
           style={{ width: `${share}%` }}
         />
       </span>

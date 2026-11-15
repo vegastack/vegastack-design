@@ -1,4 +1,4 @@
-// @vegastack board@0.88.0 sha256-WJZwQN/CThyTXWqYPr9tgpZ6jtT1WKBLVfsk36EpOXY=
+// @vegastack board@0.88.0 sha256-3h/z55E6VDfgpI1Tbd2cdMI/w1hBraaVA/FifqJQvt8=
 
 "use client";
 
@@ -568,7 +568,7 @@ const CARD_MENU_CLASS =
 
 /** The card chrome, shared by a resting card and the lifted one. */
 const cardClasses =
-  "group/board-card relative flex min-w-0 flex-col rounded-lg border border-border bg-card p-3 shadow-xs text-start text-sm text-card-foreground transition-colors select-none [-webkit-touch-callout:none]";
+  "group/board-card relative flex min-w-0 flex-col rounded-block border border-border bg-card p-3 shadow-xs text-start text-sm text-card-foreground transition-colors select-none [-webkit-touch-callout:none]";
 
 /**
  * `Board` — kanban lanes: full-height lanes whose cards scroll inside them, sticky lane headers
@@ -1602,7 +1602,7 @@ export function Board<T>({
                 onClick={() => setCollapsed(column.id, false)}
                 // `relative`: the sr-only child is absolutely positioned and must not resolve against
                 // the page, where its static x would widen the page's scroll area.
-                className="relative h-full min-h-48 w-10 shrink-0 flex-col max-md:snap-start items-center justify-start gap-2 rounded-xl border border-dashed border-border px-1 py-3 state-layer data-drop-over:bg-state-selected"
+                className="relative h-full min-h-48 w-10 shrink-0 flex-col max-md:snap-start items-center justify-start gap-2 rounded-card border border-dashed border-border px-1 py-3 state-layer data-drop-over:bg-state-selected"
               >
                 <PanelLeftOpen
                   aria-hidden="true"
@@ -1713,7 +1713,7 @@ export function Board<T>({
         key="__gap"
         aria-hidden="true"
         data-slot="board-card-placeholder"
-        className="h-(--board-gap-height) shrink-0 rounded-lg border border-dashed border-primary/40 bg-primary/5"
+        className="h-(--board-gap-height) shrink-0 rounded-block border border-dashed border-primary/40 bg-primary/5"
       />
     );
     const cards = laneIds.map((id, index) =>
@@ -1735,7 +1735,7 @@ export function Board<T>({
         data-compact={compact ? "" : undefined}
         className={cn(
           // A subtle top-down fade marks the lane; drop-over swaps it for a solid accent wash.
-          "flex min-h-0 min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl bg-linear-to-b from-muted/50 to-transparent transition-colors data-drop-over:bg-state-selected data-drop-over:bg-none",
+          "flex min-h-0 min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-card bg-linear-to-b from-muted/50 to-transparent transition-colors data-drop-over:bg-state-selected data-drop-over:bg-none",
           "max-md:basis-full max-md:snap-start max-md:snap-always",
           // A compact empty lane is as tall as its header and drop target, even on a fill board.
           fill && !compact ? "h-full" : "self-start",
@@ -1842,7 +1842,7 @@ export function Board<T>({
                 data-slot="board-column-empty"
                 data-compact=""
                 data-dragging={dragging && receivable ? "" : undefined}
-                className="flex h-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-border text-sm text-muted-foreground data-dragging:border-primary/40 data-dragging:text-foreground"
+                className="flex h-12 shrink-0 items-center justify-center rounded-block border border-dashed border-border text-sm text-muted-foreground data-dragging:border-primary/40 data-dragging:text-foreground"
               >
                 {dragging && receivable ? (
                   "Drop here"
@@ -1870,7 +1870,7 @@ export function Board<T>({
               <div
                 data-slot="board-column-empty"
                 data-dragging=""
-                className="flex min-h-24 items-center justify-center rounded-lg border border-dashed border-primary/40 text-sm text-foreground"
+                className="flex min-h-24 items-center justify-center rounded-block border border-dashed border-primary/40 text-sm text-foreground"
               >
                 Drop here
               </div>
@@ -1924,7 +1924,7 @@ export function Board<T>({
               {[0, 1, 2].map((key) => (
                 <div
                   key={key}
-                  className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3"
+                  className="flex flex-col gap-2 rounded-block border border-border bg-card p-3"
                 >
                   {/* The card's bands at their heights: the eyebrow over the status and
                       title, a chip, then the footnote with the assignee at its end. */}
@@ -1937,7 +1937,7 @@ export function Board<T>({
                       <Skeleton className="h-3.5 w-3/4" />
                     </div>
                   </div>
-                  <Skeleton className="h-6 w-16 rounded-4xl" />
+                  <Skeleton className="h-6 w-16 rounded-chip" />
                   <div className="flex h-6 items-center gap-1.5">
                     <Skeleton className="h-3 w-20" />
                     <Skeleton className="ms-auto size-6 rounded-full" />
@@ -2031,7 +2031,7 @@ export function Board<T>({
                   aria-hidden="true"
                   data-slot="board-column-skeleton-lane"
                   className={cn(
-                    "flex min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-xl bg-linear-to-b from-muted/50 to-transparent px-3 pt-3 pb-2",
+                    "flex min-w-0 shrink-0 grow-0 basis-(--board-column-width) flex-col rounded-card bg-linear-to-b from-muted/50 to-transparent px-3 pt-3 pb-2",
                     "max-md:basis-full max-md:snap-start",
                     fill ? "h-full" : "h-48 self-start",
                   )}
@@ -2068,7 +2068,7 @@ export function Board<T>({
                   variant="ghost"
                   size="sm"
                   data-slot="board-hidden-column"
-                  className="justify-start font-normal"
+                  className="justify-start rounded-item font-normal"
                   disabled={!onShowColumn}
                   onClick={() => {
                     // Shown on purpose: it stays on the board even while it is empty.
@@ -2107,7 +2107,7 @@ export function Board<T>({
                   data-drop-over={
                     drag?.over?.container === column.id ? "" : undefined
                   }
-                  className="justify-start font-normal data-drop-over:bg-state-selected"
+                  className="justify-start rounded-item font-normal data-drop-over:bg-state-selected"
                   onClick={() => revealLane(column.id)}
                 >
                   {column.icon}

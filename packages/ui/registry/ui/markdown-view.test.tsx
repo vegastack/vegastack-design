@@ -168,7 +168,7 @@ test("MarkdownView and TextEdit wear the identical prose recipe", async () => {
       "[&_.column-resize-handle]:w-0.5",
       "[&_.column-resize-handle]:bg-primary/50",
       "[&.resize-cursor]:cursor-col-resize",
-      "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm",
+      "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-inline",
       "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
       "[&_.tableWrapper>table]:table-fixed",
       "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:pointer-events-none",

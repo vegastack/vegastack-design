@@ -1,12 +1,14 @@
 # component: kbd
-# decisions: DOC-2, OVL-24
+# decisions: DOC-2, OVL-24, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 #   OVL-24: Kbd keeps its one recipe inside a tooltip — the inverted-tooltip overrides are gone.
 diff --git a/kbd.tsx b/kbd.tsx
-index 2c12278..d40c397 100644
+index 2c12278..5b5d641 100644
 --- a/kbd.tsx
 +++ b/kbd.tsx
 @@ -1,16 +1,16 @@
@@ -20,7 +22,7 @@ index 2c12278..d40c397 100644
        className={cn(
 -        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3",
 -        className
-+        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none [&_svg:not([class*='size-'])]:size-3",
++        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-inline bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none [&_svg:not([class*='size-'])]:size-3",
 +        className,
        )}
        {...props}

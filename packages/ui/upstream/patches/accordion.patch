@@ -1,6 +1,8 @@
 # component: accordion
-# decisions: DOC-1, DOC-2, FOC-1, FOC-6, FRM-4
+# decisions: DOC-1, DOC-2, FOC-1, FOC-6, FRM-4, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3
 #     focus-visible:ring-ring/50 focus-visible:after:border-ring` goes from `AccordionTrigger`.
 #     `base.css` owns the one 2px `:focus-visible` outline and `outline-none` would suppress it.
@@ -11,7 +13,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/accordion.tsx b/accordion.tsx
-index b3c042c..013709e 100644
+index b3c042c..43b77ad 100644
 --- a/accordion.tsx
 +++ b/accordion.tsx
 @@ -1,6 +1,6 @@
@@ -48,7 +50,7 @@ index b3c042c..013709e 100644
          className={cn(
 -          "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-start text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ms-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
 -          className
-+          "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-lg border border-transparent py-2.5 text-start text-sm font-medium transition-all hover:underline aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ms-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
++          "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-item border border-transparent py-2.5 text-start text-sm font-medium transition-all hover:underline aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ms-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
 +          className,
          )}
          {...props}

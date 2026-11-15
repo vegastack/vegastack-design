@@ -1,4 +1,4 @@
-// @vegastack diff-view@0.88.0 sha256-SwOg3vWo9R2qq3S0WytDvirqNgKrcri9Vkl/TCKJ1LI=
+// @vegastack diff-view@0.88.0 sha256-OaQuqftY3w0xxxzUVXKVvDEw2tqcEU6j0Nfa2JwUs2U=
 
 "use client";
 
@@ -86,9 +86,9 @@ function buildBlocks(
 
 const MARK = {
   added:
-    "rounded-xs bg-success/10 text-success-text no-underline dark:bg-success/20",
+    "rounded-mark bg-success/10 text-success-text no-underline dark:bg-success/20",
   removed:
-    "rounded-xs bg-destructive/10 text-destructive-text line-through dark:bg-destructive/20",
+    "rounded-mark bg-destructive/10 text-destructive-text line-through dark:bg-destructive/20",
 } as const;
 
 function Part({ part, block }: { part: DiffPart; block: boolean }) {

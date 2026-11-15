@@ -1,4 +1,4 @@
-// @vegastack suggestion-card@0.88.0 sha256-6YHtUWuzxu9/cBNgQ8heSa3ozRFFwZfoL1o+p1eitlg=
+// @vegastack suggestion-card@0.88.0 sha256-9GcY0sbxwSuWdOyXnsYenlBLAUQZjgDVALmCGowqm7o=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -186,7 +186,7 @@ export function SuggestionCard({
         aria-labelledby={titleId}
         aria-busy={busy || undefined}
         className={cn(
-          "@container/suggestion-card w-full min-w-0 rounded-lg py-1.5",
+          "@container/suggestion-card w-full min-w-0 rounded-item py-1.5",
           className,
         )}
         {...props}
@@ -209,7 +209,7 @@ export function SuggestionCard({
       aria-labelledby={titleId}
       aria-busy={busy || undefined}
       className={cn(
-        "flex min-w-0 flex-col gap-2 rounded-lg border border-border bg-card p-3 text-card-foreground",
+        "flex min-w-0 flex-col gap-2 rounded-card border border-border bg-card p-3 text-card-foreground",
         className,
       )}
       {...props}

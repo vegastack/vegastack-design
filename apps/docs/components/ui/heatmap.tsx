@@ -1,4 +1,4 @@
-// @vegastack heatmap@0.88.0 sha256-iYFS0zJcNuYPSByK7FXITAizezvzx6FCnJuO6sTPMfs=
+// @vegastack heatmap@0.88.0 sha256-sygemLfwlqxDWdMhMZzf61Zobf/Pybz9KggNxM2OAdE=
 
 "use client";
 
@@ -388,7 +388,7 @@ export function Heatmap({
                           if (!current) setActive([r, c]);
                         }}
                         className={cn(
-                          "h-6 min-w-3 rounded-sm",
+                          "h-6 min-w-3 rounded-mark",
                           step < 0 ? ZERO_CLASS : STEP_CLASSES[step],
                         )}
                       />
@@ -417,7 +417,7 @@ export function Heatmap({
             {STEP_CLASSES.map((stepClass) => (
               <span
                 key={stepClass}
-                className={cn("size-3 rounded-sm", stepClass)}
+                className={cn("size-3 rounded-mark", stepClass)}
               />
             ))}
           </span>

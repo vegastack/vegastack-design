@@ -1,4 +1,4 @@
-// @vegastack input-group@0.88.0 sha256-20hpFO71MOo6lQP0wZrOjp8l+9NlXAClEH8n3aKnTfc=
+// @vegastack input-group@0.88.0 sha256-sX5tMegsqsJX3FKC0+WTYgqNh3uGbueJj0OucLuFJqM=
 
 "use client";
 
@@ -17,7 +17,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
       data-field-group=""
       role="group"
       className={cn(
-        "group/input-group relative flex h-8 w-full min-w-0 items-center rounded-lg border border-input transition-[color,background-color,border-color] duration-150 ease-out outline-none hover:border-input-hover has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/50 has-disabled:bg-input/50 has-disabled:opacity-50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto dark:bg-input/30 dark:has-disabled:bg-input/80 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pe-1.5 has-[>[data-align=inline-start]]:[&>input]:ps-1.5",
+        "group/input-group relative flex h-8 w-full min-w-0 items-center rounded-control border border-input transition-[color,background-color,border-color] duration-150 ease-out outline-none hover:border-input-hover has-[input:focus,textarea:focus]:not-has-aria-invalid:border-ring/50 has-disabled:bg-input/50 has-disabled:opacity-50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto has-[>textarea]:rounded-card has-[>[data-align=block-start]]:rounded-card has-[>[data-align=block-end]]:rounded-card dark:bg-input/30 dark:has-disabled:bg-input/80 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pe-1.5 has-[>[data-align=inline-start]]:[&>input]:ps-1.5",
         className,
       )}
       {...props}
@@ -26,7 +26,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 const inputGroupAddonVariants = cva(
-  "flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm font-medium text-muted-foreground select-none group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-[calc(var(--radius)-5px)] [&>svg:not([class*='size-'])]:size-4",
+  "flex h-auto cursor-text items-center justify-center gap-2 py-1.5 text-sm font-medium text-muted-foreground select-none group-data-[disabled=true]/input-group:opacity-50 [&>kbd]:rounded-inline [&>svg:not([class*='size-'])]:size-4",
   {
     variants: {
       align: {
@@ -76,11 +76,10 @@ const inputGroupButtonVariants = cva(
   {
     variants: {
       size: {
-        xs: "h-6 gap-1 rounded-[calc(var(--radius)-3px)] px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
+        xs: "h-6 gap-1 rounded-control px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
         sm: "",
-        "icon-xs":
-          "size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0",
-        "icon-sm": "size-8 p-0 has-[>svg]:p-0",
+        "icon-xs": "size-6 rounded-icon p-0 has-[>svg]:p-0",
+        "icon-sm": "size-7 rounded-icon p-0 has-[>svg]:p-0",
       },
     },
     defaultVariants: {

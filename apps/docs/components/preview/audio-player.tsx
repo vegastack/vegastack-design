@@ -73,7 +73,7 @@ function AudioPlayerMobileDemo(): ReactNode {
         onTranscriptClick={() => setShowTranscript((open) => !open)}
       />
       {showTranscript ? (
-        <div className="rounded-lg border border-border bg-muted p-3 text-xs text-muted-foreground">
+        <div className="rounded-block border border-border bg-muted p-3 text-xs text-muted-foreground">
           “Thanks for joining. Today we are walking through the new release and
           what changed for teams shipping on the platform…”
         </div>
@@ -121,7 +121,7 @@ const MEETING_NOTES = [
 function AudioPlayerDockedDemo(): ReactNode {
   const [open, setOpen] = useState(true);
   return (
-    <div className="flex h-80 w-full max-w-xl flex-col overflow-y-auto rounded-lg border border-border bg-background">
+    <div className="flex h-80 w-full max-w-xl flex-col overflow-y-auto rounded-card border border-border bg-background">
       <div className="flex flex-col gap-3 p-4">
         <div className="flex items-center justify-between gap-2">
           <h3 className="font-heading text-base font-medium">Weekly sync</h3>
@@ -294,7 +294,7 @@ export function audioPlayerSeek(): ReactNode {
 export function audioPlayerFloating(): ReactNode {
   return (
     <Wrapper>
-      <div className="relative flex h-64 w-full flex-col overflow-auto rounded-lg border border-border bg-background">
+      <div className="relative flex h-64 w-full flex-col overflow-auto rounded-card border border-border bg-background">
         <div className="flex-1 p-4 text-sm text-muted-foreground">
           The pill floats 16px above the bottom of this column, centred on it.
         </div>
@@ -341,7 +341,7 @@ export function audioPlayerGlobal(): ReactNode {
   return (
     <Wrapper>
       <AudioPlayerProvider>
-        <div className="relative flex h-64 w-full flex-col overflow-auto rounded-lg border border-border bg-background">
+        <div className="relative flex h-64 w-full flex-col overflow-auto rounded-card border border-border bg-background">
           <div className="flex-1 p-4">
             <GlobalPlayerOpenButton />
           </div>

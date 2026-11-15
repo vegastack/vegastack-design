@@ -1,4 +1,4 @@
-// @vegastack responsive-dialog@0.88.0 sha256-YMjN/z/E0NjG2gPjXa30IvEIzreyvvrCovkno5gpaSo=
+// @vegastack responsive-dialog@0.88.0 sha256-jN/cUJfAFNfUsAJweo4hhokagOqPcAgo5Aiq3WY9eTM=
 
 "use client";
 
@@ -163,7 +163,7 @@ export function ResponsiveDialogContent({
       <SheetContent
         side="bottom"
         data-responsive-dialog=""
-        className={cn("rounded-t-xl", className)}
+        className={cn("rounded-t-overlay", className)}
         {...props}
       >
         <div

@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.88.0 sha256-UqNaIBtKl8z396I++rAYt30AQoQmJZQiZ4fbnkmsClY=
+// @vegastack folder-tree@0.88.0 sha256-piB/4LqpViy1ds3j9E3eqoZi1uYHMyGqxvuhcw2s8lI=
 
 "use client";
 
@@ -1086,7 +1086,7 @@ function FolderTree({
 }
 
 const rowClasses =
-  "group/folder-tree-row relative flex h-(--folder-tree-row-h) min-w-0 items-center gap-0.5 rounded-md ps-[calc(var(--folder-tree-depth,0)*var(--folder-tree-indent))] pe-1 text-foreground state-layer data-active:bg-state-selected data-active:font-medium data-dragging:opacity-50 data-drop-over:bg-primary/10 data-drop-invalid:bg-destructive/10";
+  "group/folder-tree-row relative flex h-(--folder-tree-row-h) min-w-0 items-center gap-0.5 rounded-item ps-[calc(var(--folder-tree-depth,0)*var(--folder-tree-indent))] pe-1 text-foreground state-layer data-active:bg-state-selected data-active:font-medium data-dragging:opacity-50 data-drop-over:bg-primary/10 data-drop-invalid:bg-destructive/10";
 
 const actionsClasses =
   "flex shrink-0 items-center opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 group-data-active/folder-tree-row:opacity-100 pointer-coarse:opacity-100";
@@ -1136,7 +1136,7 @@ function RowControl({
           ? { href, draggable: false }
           : ({ type: "button" } as Record<string, unknown>)),
         className: cn(
-          "flex h-full min-w-0 flex-1 items-center gap-2 rounded-md px-1 text-start",
+          "flex h-full min-w-0 flex-1 items-center gap-2 rounded-item px-1 text-start",
           className,
         ),
       },

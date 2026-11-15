@@ -387,7 +387,7 @@ test("API-23: a wrapped joined group marks each row's first and last item", asyn
     )
     .toEqual([0, 4, 8]);
   expect(items[0]!.className).toContain(
-    "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-lg",
+    "group-data-wrap/toggle-group:data-[spacing=0]:data-row-start:rounded-s-control",
   );
 });
 

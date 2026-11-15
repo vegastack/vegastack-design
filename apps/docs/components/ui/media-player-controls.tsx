@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.88.0 sha256-xD2oit4yLW/xqkYzDEN1UrycEc3XPLQ+bDpk0Q5rclg=
+// @vegastack media-player-controls@0.88.0 sha256-fV84u6xe8O7YqfFQ6cnbLctAf0uyGpQI+t9wj3uruRw=
 
 "use client";
 
@@ -125,7 +125,7 @@ const MEDIA_SUBMENU_RADIO_ITEM_CLASS =
  * are authored once and never overridden per theme, so chrome over video always reads dark-scrim +
  * light-ink.
  *
- * The buttons are plain `Button variant="ghost" size="icon-*"` in a `rounded-full` (D16 — there is
+ * The buttons are plain `Button variant="ghost" size="icon-*"` (round, `rounded-icon`; D16 — there is
  * no `glass` variant). Their REST ink is inherited: upstream's `ghost` sets no colour of its own, so
  * it picks up the container's `text-media-foreground`. Their HOVER and PRESSED steps have to be
  * named here, because upstream's `ghost` hovers to `bg-muted`/`text-foreground` — theme tokens that
@@ -955,7 +955,7 @@ export function MediaPlayerControls({
             aria-label={`${label} settings`}
             size="icon"
             variant="ghost"
-            className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
+            className={MEDIA_ACTION_ICON_CLASS}
           >
             <Settings />
           </Button>
@@ -1072,7 +1072,7 @@ export function MediaPlayerControls({
         size="icon"
         variant="ghost"
         onClick={togglePlayback}
-        className={cn("rounded-full", iconClass)}
+        className={iconClass}
       >
         {loading ? (
           <Spinner
@@ -1106,7 +1106,7 @@ export function MediaPlayerControls({
         size="icon"
         variant="ghost"
         onClick={() => skipBy(-skipSeconds)}
-        className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
+        className={MEDIA_ACTION_ICON_CLASS}
       >
         <RotateCcw />
       </Button>
@@ -1120,7 +1120,7 @@ export function MediaPlayerControls({
         size="icon"
         variant="ghost"
         onClick={() => skipBy(skipSeconds)}
-        className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
+        className={MEDIA_ACTION_ICON_CLASS}
       >
         <RotateCw />
       </Button>
@@ -1137,7 +1137,7 @@ export function MediaPlayerControls({
         size="icon"
         variant="ghost"
         onClick={onTranscriptClick}
-        className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
+        className={MEDIA_ACTION_ICON_CLASS}
       >
         <AudioLines />
       </Button>
@@ -1158,7 +1158,7 @@ export function MediaPlayerControls({
         aria-label={`Change playback speed (currently ${formatPlaybackRate(playbackRate)})`}
         onClick={cyclePlaybackRate}
         className={cn(
-          "shrink-0 justify-center rounded-full font-mono text-xs tabular-nums",
+          "shrink-0 justify-center font-mono text-xs tabular-nums",
           sizeClass,
         )}
       >
@@ -1196,7 +1196,7 @@ export function MediaPlayerControls({
           size="icon"
           variant="ghost"
           onClick={toggleMuted}
-          className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
+          className={MEDIA_ACTION_ICON_CLASS}
         >
           {muted ? <VolumeX /> : <Volume2 />}
         </Button>
@@ -1210,7 +1210,7 @@ export function MediaPlayerControls({
             data-slot="media-player-volume-surface"
             data-variant={variant}
             className={cn(
-              "flex items-center rounded-full",
+              "flex items-center rounded-control",
               isOverlay
                 ? "h-20 bg-media-scrim-strong px-1 py-1 text-media-foreground"
                 : "h-28 border border-border bg-popover px-2 py-3 text-popover-foreground",
@@ -1258,7 +1258,7 @@ export function MediaPlayerControls({
         size="icon"
         variant="ghost"
         onClick={onFullscreenToggle}
-        className={cn("rounded-full", MEDIA_ACTION_ICON_CLASS)}
+        className={MEDIA_ACTION_ICON_CLASS}
       >
         {isFullscreen ? <Minimize /> : <Maximize />}
       </Button>
@@ -1326,7 +1326,7 @@ export function MediaPlayerControls({
         aria-label={`${label} media controls`}
         onKeyDown={handleKeyDown}
         className={cn(
-          "@container/media-controls w-full min-w-0 rounded-lg border p-2",
+          "@container/media-controls w-full min-w-0 rounded-card border p-2",
           // The transport reads one emphasis step below the page. Upstream's `ghost` button
           // sets no rest ink of its own, so naming the container's ink once makes every control
           // subdued at rest, and the variant's own `hover:text-foreground` brightens each one

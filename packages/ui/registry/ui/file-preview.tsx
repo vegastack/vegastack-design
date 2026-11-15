@@ -1,4 +1,4 @@
-// @vegastack file-preview@0.88.0 sha256-rBSgK0VVzfV4kHn6TtSaxf0S2pDAg74DB9nQtO3N5q8=
+// @vegastack file-preview@0.88.0 sha256-6DiH0g4GR8lkHR+JVxAMteR/rXI7YzpYJ7THJCskhTQ=
 
 "use client";
 
@@ -268,7 +268,7 @@ function FilePreviewCard({
           alt={filename}
           decoding="async"
           loading="lazy"
-          className="max-h-64 max-w-full rounded-md border border-chat-hairline object-contain"
+          className="max-h-64 max-w-full rounded-block border border-chat-hairline object-contain"
           onError={() =>
             setLoaded({ state: "failed", reason: "the image didn’t load" })
           }
@@ -287,7 +287,7 @@ function FilePreviewCard({
           role="img"
           aria-label={`${filename}, page 1`}
           className={cn(
-            "w-28 rounded-sm border border-chat-hairline bg-white",
+            "w-28 rounded-block border border-chat-hairline bg-white",
             loaded.state === "loading" && "aspect-3/4",
           )}
         />
@@ -299,9 +299,9 @@ function FilePreviewCard({
       <div data-slot="file-preview-body" className="flex min-w-0 flex-col">
         {placeholder ? (
           <div aria-hidden="true" className="flex flex-col gap-2 py-1">
-            <span className="h-3 w-11/12 rounded-sm bg-muted" />
-            <span className="h-3 w-3/4 rounded-sm bg-muted" />
-            <span className="h-3 w-3/5 rounded-sm bg-muted" />
+            <span className="h-3 w-11/12 rounded-mark bg-muted" />
+            <span className="h-3 w-3/4 rounded-mark bg-muted" />
+            <span className="h-3 w-3/5 rounded-mark bg-muted" />
           </div>
         ) : (
           <div onClick={onOpen} className="relative min-w-0 cursor-pointer">

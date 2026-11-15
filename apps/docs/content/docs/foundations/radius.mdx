@@ -1,40 +1,79 @@
 ---
 title: Radius
-description: One --radius token, the ramp derived from it, and the concentric nesting rule.
+description: The corner roles — one radius per kind of element, from the pill control to the 24px overlay.
 audience: public
 ---
 
-Radius is **one token**, `--radius` (0.625rem / 10px), and Tailwind's ramp is derived from it the
-way shadcn derives it — `sm` 0.6x, `md` 0.8x, `lg` 1x, `xl` 1.4x, `2xl` 1.8x, `3xl` 2.2x, `4xl`
-2.6x. Retune the container shape of the whole system by changing that one value.
+Corners are **roles**, not a ramp. Every element takes the corner of the job it does — a
+single-line control, a row, a block in the content, a card, a dialog — and the role names that
+corner on every platform (web `rounded-*`, mobile `AppRadii`). A control never borrows a card's
+corner, and nothing picks a value because it looks close (BRD-12).
 
 <RadiusScale />
 
-The 12px cap and the `rounded-xl` ban are gone. A card and a dialog are `rounded-xl` (14px), a
-button and an input are `rounded-lg` (10px), a menu row is `rounded-md` (8px) — upstream's own
-choices, and a pasted shadcn snippet keeps the shape it was drawn with.
+| Role    | Value       | Utility           | Used by                                                                                                                                                                                                                                                  |
+| ------- | ----------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| control | pill        | `rounded-control` | Every single-line control: Button at every size, Input, Select, NativeSelect, Combobox trigger, single-line InputGroup, search fields, Toggle, ToggleGroup, the segmented TabsList and its triggers, the single-line composer, single-line floating bars |
+| icon    | circle      | `rounded-icon`    | Every icon-only button (all `icon*` sizes): sidebar row actions, sheet and toast close, nav arrows, send, FAB                                                                                                                                            |
+| chip    | pill        | `rounded-chip`    | Chips, badges, counts, tiny numeric citation markers                                                                                                                                                                                                     |
+| inline  | 6px         | `rounded-inline`  | A token inside running text: mentions, record and file links, template and due tokens, Kbd, inline code                                                                                                                                                  |
+| mark    | 4px         | `rounded-mark`    | Highlights, find matches, diff marks, the checkbox, chart swatches, the grid fill handle                                                                                                                                                                 |
+| item    | 10px        | `rounded-item`    | Every row with a hover, highlighted, selected or focus fill — menu, select, combobox, sidebar, tree, list, settings nav, question options, version list, and table, data-list and data-grid rows — and tooltips                                          |
+| block   | 12px        | `rounded-block`   | Blocks in the reading flow: code, alerts, callouts, embeds, bookmarks, notes, previews, images in content; a card nested in a card (board cards)                                                                                                         |
+| card    | 16px        | `rounded-card`    | Card, chat cards, popovers, hover cards, menus, toasts, floating panels, the app-shell inset, multi-line fields (Textarea, multi-line InputGroup)                                                                                                        |
+| bubble  | 20px        | `rounded-bubble`  | User and chat bubbles, the command palette                                                                                                                                                                                                               |
+| overlay | 24px        | `rounded-overlay` | Dialogs, alert dialogs, drawers, sheets (top corners), the grown multi-line composer, floating desktop windows                                                                                                                                           |
+| tile    | 25% of size | `rounded-tile`    | Square media tiles: icon tiles, thumbnails, logos, team and workspace avatars                                                                                                                                                                            |
 
-## Which role goes where
+Directional forms work the same way: `rounded-t-overlay` for a sheet's top corners,
+`rounded-s-item` / `rounded-e-item` for the ends of a row, `rounded-e-control` for the last segment
+of a pill group. Three structural values stay legal: `rounded-none`, `rounded-full` (a dot, or a
+true circle that is not an icon button — a person's avatar, a status dot, a radio) and
+`rounded-[inherit]`.
 
-- **`rounded-sm`** (6px) — inner indicators and the smallest inset geometry.
-- **`rounded-md`** (8px) — menu rows, compact chips, nested surfaces.
-- **`rounded-lg`** (10px) — buttons, inputs, selects, control groups, popovers, menus.
-- **`rounded-xl`** (14px) — cards, dialogs and other outer containers.
-- **`rounded-full`** — avatars, status dots, badges and genuine pill controls.
+## The rules
 
-## Concentric nesting
+1. **A single line is a pill.** Controls inside a pill are pills or circles.
+2. **A lone icon is a circle.** An icon button with a label is a pill.
+3. **Tokens inside running text stay medium** (`inline`, 6px), so a mention never reads as a
+   button. Highlights and marks are smaller still (`mark`, 4px).
+4. **Rows follow their container.** A row's fill is `item` (10px), inset from the container edge
+   so its corners show — the shape you see when you hover a Select option. Row radius is the
+   container's radius minus its padding: a menu is `card` (16px) with `p-1.5` (6px), so its rows
+   are 10px.
+5. **Bigger surfaces, bigger corners:** `block` 12 → `card` 16 → `bubble` 20 → `overlay` 24.
+6. **Every hover has a shape.** A fill never relies on a parent's `overflow-hidden` to look
+   rounded. Only cells inside a spreadsheet selection rectangle are square.
+7. **Media tiles scale.** A square tile is rounded at a quarter of its size at every size. People
+   are circles; agents keep their hexagon.
+8. **Indicators have pill ends** — progress, sliders, meters, scrollbar thumbs, resize grips, step
+   connectors, underline indicators. Chart swatches stay `mark`.
+9. **Skeletons copy the radius** of what they stand in for.
 
-Closely nested edges must be mathematically concentric. If an outer surface has radius `R` and the
-inset distance is `d`, the inner radius is `max(0, R - d)`. The normal VegaStack pair is a 14px
-outer card with a 10px inset control, or a 10px control with a 6px inner indicator. Do not choose
-two radii independently because they merely “look close.”
+## Table rows
+
+A table row with a hover, pressed, selected or focus fill uses the `row-fill` utility on the
+`<tr>`, not `bg-*` or `state-layer` on the row. A `<tr>` background can't be rounded, so each cell
+paints its slice of the fill behind its content, inset 2px from the hairlines and 4px from the
+table's sides: the first cell carries the start corners and the last cell the end corners. The
+row reads as one `item` shape, exactly like a menu option. Selection follows `aria-selected`,
+`data-state="selected"` or `aria-current`; a component with its own state (a peeked row, a drop
+target) sets `--row-fill-color` instead of painting the row.
 
 ## Overriding shape
 
-Override the named DTCG variables in consumer CSS only when re-theming the whole role. Keep the
-ordering and concentric relationship intact; do not add another global tier.
+Each role is one variable — `--corner-control`, `--corner-icon`, `--corner-chip`,
+`--corner-inline`, `--corner-mark`, `--corner-item`, `--corner-block`, `--corner-card`,
+`--corner-bubble`, `--corner-overlay`, `--corner-tile` — so re-theming a role in your global CSS
+changes every element that plays it. Keep the order (`inline` < `item` < `block` < `card` <
+`bubble` < `overlay`) and the row rule (row = container − padding) intact.
+
+`--radius` (0.625rem) and the derived `rounded-sm` … `rounded-4xl` ramp still exist so pasted
+upstream snippets compile, but VegaStack components never use them: design-lint's
+`no-radius-ramp` rule fails a ramp step, a bare `rounded`, an arbitrary `rounded-[…]` length or
+`--radius` arithmetic in registry source.
 
 <DoDont
-  do="Derive shape from --radius and subtract inset distance for closely nested edges."
-  dont="Pick two nested radii independently because they merely look close."
+  do="Give each element the role of the job it does: rounded-control for a single-line field, rounded-item for a row, rounded-card for a menu."
+  dont="Pick a ramp step (rounded-md, rounded-xl) or an arbitrary length because it looks close."
 />

@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.88.0 sha256-eaoKTF5au9r9f+6IEUmi/Uy735Z46sUFfTuoS1rdf6E=
+// @vegastack activity-feed@0.88.0 sha256-yqdbTKaLBWLB0T6+IHkp3zZg6NylNNG7UV8zj8peWmk=
 
 "use client";
 
@@ -525,7 +525,7 @@ export function ActivityFeedItem({
       data-slot="activity-feed-item"
       data-kind={kind}
       className={cn(
-        "min-w-0 scroll-mt-24 rounded-lg transition-colors data-focused:bg-state-selected",
+        "min-w-0 scroll-mt-24 rounded-item transition-colors data-focused:bg-state-selected",
         // 4px between events; 12px around a thread or a divider (the larger gap wins).
         kind === "event" ? "py-0.5" : "py-1.5 [&+[data-kind=event]]:mt-1",
         className,
@@ -1423,7 +1423,7 @@ export function ActivityJumpToLatest({
           size="sm"
           tabIndex={shown ? 0 : -1}
           aria-hidden={!shown}
-          className="rounded-full shadow-md"
+          className="shadow-md"
           onClick={() => {
             if (!target || !shown) return;
             setEngaged(false);
@@ -1586,7 +1586,7 @@ export function ActivityFeedSkeleton() {
         {event("w-56")}
         {event("w-40")}
       </div>
-      <div className="flex flex-col gap-1 rounded-lg border border-border px-4 py-3">
+      <div className="flex flex-col gap-1 rounded-card border border-border px-4 py-3">
         <div className="flex h-6 items-center gap-2">
           <Skeleton className="size-5 shrink-0 rounded-full" />
           <Skeleton className="h-3.5 w-28" />
@@ -1598,11 +1598,11 @@ export function ActivityFeedSkeleton() {
         </div>
       </div>
       {event("w-48")}
-      <div className="flex flex-col rounded-lg border border-border px-4 pt-3 pb-2">
+      <div className="flex flex-col rounded-card border border-border px-4 pt-3 pb-2">
         <Skeleton className="h-3.5 w-32" />
         <div className="flex justify-end gap-1 pt-5">
-          <Skeleton className="size-6 rounded-full" />
-          <Skeleton className="size-6 rounded-full" />
+          <Skeleton className="size-6 rounded-icon" />
+          <Skeleton className="size-6 rounded-icon" />
         </div>
       </div>
     </div>

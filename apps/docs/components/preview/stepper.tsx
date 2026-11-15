@@ -237,7 +237,7 @@ export function stepperCollapsed(): ReactNode {
         <div className="w-full">
           <Stepper aria-label="Import, wide" steps={stepsFor(1)} showCount />
         </div>
-        <div className="w-full max-w-64 rounded-lg border border-border p-4">
+        <div className="w-full max-w-64 rounded-card border border-border p-4">
           <Stepper aria-label="Import, narrow" steps={stepsFor(1)} showCount />
         </div>
       </div>

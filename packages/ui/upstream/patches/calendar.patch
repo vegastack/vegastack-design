@@ -1,6 +1,8 @@
 # component: calendar
-# decisions: A11Y-2, A11Y-25, DOC-1, DOC-2, FOC-1, FOC-6, TYP-18
+# decisions: A11Y-2, A11Y-25, DOC-1, DOC-2, FOC-1, FOC-6, TYP-18, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   FOC-1, FOC-6: the focused day's `group-data-[focused=true]/day:border-ring`, `:ring-[3px]` and
 #     `:ring-ring/50` glow is removed. The day button is a real `<button>`, so the global
 #     `:focus-visible` outline in `base.css` marks it; the `relative z-10` that lifts the focused
@@ -24,7 +26,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/calendar.tsx b/calendar.tsx
-index ebd9871..defd02b 100644
+index ebd9871..e612c53 100644
 --- a/calendar.tsx
 +++ b/calendar.tsx
 @@ -1,16 +1,20 @@
@@ -54,7 +56,7 @@ index ebd9871..defd02b 100644
  
  function Calendar({
    className,
-@@ -23,9 +27,9 @@ function Calendar({
+@@ -23,18 +27,18 @@ function Calendar({
    components,
    ...props
  }: React.ComponentProps<typeof DayPicker> & {
@@ -66,8 +68,10 @@ index ebd9871..defd02b 100644
  
    return (
      <DayPicker
-@@ -34,7 +38,7 @@ function Calendar({
-         "group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
+       showOutsideDays={showOutsideDays}
+       className={cn(
+-        "group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
++        "group/calendar bg-background p-2 [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
          String.raw`rtl:**:[.rdp-button\_next>svg]:rotate-180`,
          String.raw`rtl:**:[.rdp-button\_previous>svg]:rotate-180`,
 -        className
@@ -113,7 +117,7 @@ index ebd9871..defd02b 100644
          dropdown_root: cn(
 -          "relative rounded-(--cell-radius)",
 -          defaultClassNames.dropdown_root
-+          "relative h-full min-h-6 rounded-(--cell-radius)",
++          "relative h-full min-h-6 rounded-control",
 +          defaultClassNames.dropdown_root,
          ),
          dropdown: cn(
@@ -125,8 +129,9 @@ index ebd9871..defd02b 100644
            "font-medium select-none",
            captionLayout === "label"
              ? "text-sm"
-             : "flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
+-            : "flex items-center gap-1 rounded-(--cell-radius) text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
 -          defaultClassNames.caption_label
++            : "flex items-center gap-1 rounded-control text-sm [&>svg]:size-3.5 [&>svg]:text-muted-foreground",
 +          defaultClassNames.caption_label,
          ),
          month_grid: cn("w-full border-collapse", defaultClassNames.month_grid),
@@ -134,7 +139,7 @@ index ebd9871..defd02b 100644
          weekday: cn(
 -          "flex-1 rounded-(--cell-radius) text-[0.8rem] font-normal text-muted-foreground select-none",
 -          defaultClassNames.weekday
-+          "flex-1 rounded-(--cell-radius) text-xs font-normal text-muted-foreground select-none",
++          "flex-1 text-xs font-normal text-muted-foreground select-none",
 +          defaultClassNames.weekday,
          ),
          week: cn("mt-2 flex w-full", defaultClassNames.week),
@@ -150,28 +155,33 @@ index ebd9871..defd02b 100644
 +          defaultClassNames.week_number,
          ),
          day: cn(
-           "group/day relative aspect-square h-full w-full rounded-(--cell-radius) p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-e-(--cell-radius)",
+-          "group/day relative aspect-square h-full w-full rounded-(--cell-radius) p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-e-(--cell-radius)",
++          "group/day relative aspect-square h-full w-full rounded-icon p-0 text-center select-none [&:last-child[data-selected=true]_button]:rounded-e-icon",
            props.showWeekNumber
-             ? "[&:nth-child(2)[data-selected=true]_button]:rounded-s-(--cell-radius)"
-             : "[&:first-child[data-selected=true]_button]:rounded-s-(--cell-radius)",
+-            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-s-(--cell-radius)"
+-            : "[&:first-child[data-selected=true]_button]:rounded-s-(--cell-radius)",
 -          defaultClassNames.day
++            ? "[&:nth-child(2)[data-selected=true]_button]:rounded-s-icon"
++            : "[&:first-child[data-selected=true]_button]:rounded-s-icon",
 +          defaultClassNames.day,
          ),
          range_start: cn(
-           "relative isolate z-0 rounded-s-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:end-0 after:w-4 after:bg-muted",
+-          "relative isolate z-0 rounded-s-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:end-0 after:w-4 after:bg-muted",
 -          defaultClassNames.range_start
++          "relative isolate z-0 rounded-s-icon bg-muted after:absolute after:inset-y-0 after:end-0 after:w-4 after:bg-muted",
 +          defaultClassNames.range_start,
          ),
          range_middle: cn("rounded-none", defaultClassNames.range_middle),
          range_end: cn(
-           "relative isolate z-0 rounded-e-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:start-0 after:w-4 after:bg-muted",
+-          "relative isolate z-0 rounded-e-(--cell-radius) bg-muted after:absolute after:inset-y-0 after:start-0 after:w-4 after:bg-muted",
 -          defaultClassNames.range_end
++          "relative isolate z-0 rounded-e-icon bg-muted after:absolute after:inset-y-0 after:start-0 after:w-4 after:bg-muted",
 +          defaultClassNames.range_end,
          ),
          today: cn(
 -          "rounded-(--cell-radius) bg-muted text-foreground data-[selected=true]:rounded-none",
 -          defaultClassNames.today
-+          "rounded-(--cell-radius) text-foreground data-[selected=true]:rounded-none not-has-[button]:border not-has-[button]:border-foreground/40 not-has-[button]:font-medium",
++          "rounded-icon text-foreground data-[selected=true]:rounded-none not-has-[button]:border not-has-[button]:border-foreground/40 not-has-[button]:font-medium",
 +          defaultClassNames.today,
          ),
          outside: cn(
@@ -263,7 +273,7 @@ index ebd9871..defd02b 100644
 +      aria-current={modifiers.today ? "date" : undefined}
        className={cn(
 -        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 group-data-[focused=true]/day:border-ring group-data-[focused=true]/day:ring-[3px] group-data-[focused=true]/day:ring-ring/50 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-e-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-s-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
-+        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 data-[range-end=true]:rounded-(--cell-radius) data-[range-end=true]:rounded-e-(--cell-radius) data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-(--cell-radius) data-[range-start=true]:rounded-s-(--cell-radius) data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground group-data-[today=true]/day:font-medium group-[[data-today=true]:not([data-selected=true])]/day:border group-[[data-today=true]:not([data-selected=true])]/day:border-foreground/40 dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
++        "relative isolate z-10 flex aspect-square size-auto w-full min-w-(--cell-size) flex-col gap-1 border-0 leading-none font-normal group-data-[focused=true]/day:relative group-data-[focused=true]/day:z-10 data-[range-end=true]:rounded-icon data-[range-end=true]:rounded-e-icon data-[range-end=true]:bg-primary data-[range-end=true]:text-primary-foreground data-[range-middle=true]:rounded-none data-[range-middle=true]:bg-muted data-[range-middle=true]:text-foreground data-[range-start=true]:rounded-icon data-[range-start=true]:rounded-s-icon data-[range-start=true]:bg-primary data-[range-start=true]:text-primary-foreground data-[selected-single=true]:bg-primary data-[selected-single=true]:text-primary-foreground group-data-[today=true]/day:font-medium group-[[data-today=true]:not([data-selected=true])]/day:border group-[[data-today=true]:not([data-selected=true])]/day:border-foreground/40 dark:hover:text-foreground [&>span]:text-xs [&>span]:opacity-70",
          defaultClassNames.day,
 -        className
 +        className,

@@ -67,7 +67,7 @@ test("placement=title is an outlined, rounded chip", async () => {
   const chip = screen.getByRole("button", { name: "Space: General" });
   await expect.element(chip).toHaveAttribute("data-size", "title");
   await expect.element(chip).toHaveAttribute("data-variant", "outline");
-  expect(chip.element().className).toContain("rounded-full");
+  expect(chip.element().className).toContain("rounded-control");
 });
 
 test("each space is one line: no second line, even when `secondary` is given", async () => {
@@ -129,7 +129,7 @@ test("a read-only title chip keeps the outlined shape without a chevron, and tak
     '[data-slot="space-chip"]',
   )!;
   expect(chip.tagName).toBe("SPAN");
-  expect(chip.className).toContain("rounded-full");
+  expect(chip.className).toContain("rounded-chip");
   expect(chip.className).toContain("border");
   expect(chip.querySelector('[data-slot="space-chip-chevron"]')).toBeNull();
   expect(chip.getAttribute("aria-describedby")).toBe("why");

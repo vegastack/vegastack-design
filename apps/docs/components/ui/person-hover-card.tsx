@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.88.0 sha256-7Hi9X0SvaPTOfSFMa8K6NtTG9vq557fcfwrrDWgqx6M=
+// @vegastack person-hover-card@0.88.0 sha256-jTdV1PyarQD0AWkO9a9bcCUl5tPV7Q74dA/JmEGmkW0=
 
 "use client";
 
@@ -188,7 +188,7 @@ export function PersonHoverCard({
                 // A name in a sentence (a button computes `inline` as `inline-block`): a target in
                 // a block of text, sized by its line (WCAG 2.2 §2.5.8's inline exception). Where
                 // a flex row blockifies it, the host pads it to 24px.
-                "inline min-w-0 cursor-default rounded-sm text-start font-medium text-foreground",
+                "inline min-w-0 cursor-default rounded-inline text-start font-medium text-foreground",
                 className,
               )}
               onClick={press}
@@ -202,10 +202,8 @@ export function PersonHoverCard({
               style={person.kind === "agent" ? agentShapeStyle : undefined}
               className={cn(
                 person.kind === "team"
-                  ? "rounded-md"
-                  : person.kind === "agent"
-                    ? agentShapeTarget
-                    : "rounded-full",
+                  ? "rounded-tile"
+                  : person.kind === "agent" && agentShapeTarget,
                 className,
               )}
               onClick={press}
@@ -288,7 +286,7 @@ export function AvatarStack({
               count > people.length ? ` and ${count - people.length} more` : ""
             }`}
             className={cn(
-              "h-auto rounded-full p-0.5 text-inherit hover:no-underline active:not-aria-[haspopup]:translate-y-0",
+              "h-auto p-0.5 text-inherit hover:no-underline active:not-aria-[haspopup]:translate-y-0",
               className,
             )}
           />
@@ -305,7 +303,7 @@ export function AvatarStack({
                     className={cn(
                       "inline-flex",
                       PERSON_AVATAR_STACK_ITEM,
-                      p.kind === "team" ? "rounded-md" : "rounded-full",
+                      p.kind === "team" ? "rounded-tile" : "rounded-full",
                     )}
                   />
                 }

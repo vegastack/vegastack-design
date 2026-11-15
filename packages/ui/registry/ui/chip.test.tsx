@@ -13,7 +13,7 @@ test("renders a neutral sm chip on the rest fill with the slot markers", async (
   expect(chip.dataset.size).toBe("sm");
   expect(chip.dataset.active).toBeUndefined();
   expect(chip.className).toContain("bg-muted");
-  expect(chip.className).toContain("rounded-full");
+  expect(chip.className).toContain("rounded-chip");
   expect(chip.className).toContain("h-7");
   await expectNoA11yViolations(screen.container);
 });
@@ -107,7 +107,7 @@ test("the remove control is a round ghost icon Button with the shared hover/pres
     .getByRole("button", { name: "Remove API" })
     .element() as HTMLElement;
   expect(remove.dataset.slot).toBe("chip-remove");
-  expect(remove.className).toContain("rounded-full");
+  expect(remove.className).toContain("rounded-icon");
   // The hover wash comes from Button's own `ghost` recipe, never a literal restated here.
   // Since COL-24 that recipe is the shared `state-layer` (hover and press).
   expect(remove.className).toContain("state-layer");

@@ -20,7 +20,7 @@ export function sortMenu(): ReactNode {
   });
   return (
     <Wrapper>
-      <div className="w-72 rounded-lg border border-border bg-popover p-2">
+      <div className="w-72 rounded-card border border-border bg-popover p-2">
         <SortMenu
           fields={FIELDS}
           value={value}

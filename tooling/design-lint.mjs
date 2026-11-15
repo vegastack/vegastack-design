@@ -302,6 +302,27 @@ const isTextEntryFocusBorderFile = (file) => {
   );
 };
 
+const NO_RADIUS_RAMP_MSG =
+  "radius off the role scale (BRD-12): use the role corner — rounded-control (single-line controls), -icon (icon buttons), -chip, -inline (tokens in text), -mark, -item (rows, tooltips), -block, -card, -bubble, -overlay, -tile (square media) — never a ramp step, bare `rounded`, an arbitrary length or a radius variable";
+const RADIUS_ROLES = new Set([
+  "none",
+  "full",
+  "[inherit]",
+  "control",
+  "icon",
+  "chip",
+  "inline",
+  "mark",
+  "item",
+  "block",
+  "card",
+  "bubble",
+  "overlay",
+  "tile",
+]);
+const RADIUS_TOKEN =
+  /^!?rounded(?:-(?:t|r|b|l|s|e|tl|tr|br|bl|ss|se|es|ee))?(?:-(.+?))?!?$/;
+
 const NO_SURFACE_RING_MSG = RULES.find(
   (rule) => rule.id === "no-surface-ring",
 ).msg;
@@ -309,7 +330,7 @@ const NO_SURFACE_RING_MSG = RULES.find(
 const UPSTREAM_IMPORTANT =
   "upstream verbatim (vendor/shadcn/4.21.0) — overrides an equal-specificity declaration of a composed part; byte parity holds it";
 const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
-  ["/ui/command.tsx", { count: 7, rationale: UPSTREAM_IMPORTANT }],
+  ["/ui/command.tsx", { count: 6, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/sidebar.tsx", { count: 3, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/menubar.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/badge.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
@@ -639,6 +660,61 @@ function sourceFileFor(file, src) {
 // Parse actual string/template literal nodes instead of pairing quote characters with a regex.
 // Comments and apostrophes outside literals are therefore structurally incapable of disabling the
 // transition/truncation/motion/uppercase rules for the rest of a source line.
+const INLINE_RADIUS_KEY =
+  /^border(?:(?:Top|Bottom)(?:Left|Right)|(?:Start|End)(?:Start|End))?Radius$|^border(?:-[a-z]+)*-radius$/;
+const ROLE_RADIUS_VALUE =
+  /^var\(--(?:corner|radius)-(?:control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile)\)$/;
+
+/** BRD-12: every style-object radius whose value is a number or a non-role string, with its line. */
+function inlineRadiusLiterals(file, src) {
+  if (!/radius/i.test(src)) return [];
+  const sf = ts.createSourceFile(
+    file,
+    src,
+    ts.ScriptTarget.Latest,
+    true,
+    file.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  );
+  const found = [];
+  const visit = (node) => {
+    if (ts.isPropertyAssignment(node)) {
+      const name = node.name;
+      const keyNode = ts.isComputedPropertyName(name) ? name.expression : name;
+      const key =
+        ts.isIdentifier(keyNode) ||
+        ts.isStringLiteral(keyNode) ||
+        ts.isNoSubstitutionTemplateLiteral(keyNode)
+          ? keyNode.text
+          : null;
+      if (key && INLINE_RADIUS_KEY.test(key)) {
+        let value = node.initializer;
+        while (
+          ts.isParenthesizedExpression(value) ||
+          ts.isAsExpression(value) ||
+          ts.isSatisfiesExpression(value) ||
+          ts.isNonNullExpression(value) ||
+          ts.isTypeAssertionExpression(value)
+        )
+          value = value.expression;
+        const literal =
+          ts.isNumericLiteral(value) ||
+          (ts.isPrefixUnaryExpression(value) &&
+            ts.isNumericLiteral(value.operand)) ||
+          ((ts.isStringLiteral(value) ||
+            ts.isNoSubstitutionTemplateLiteral(value)) &&
+            !ROLE_RADIUS_VALUE.test(value.text.trim()));
+        if (literal)
+          found.push({
+            line: sf.getLineAndCharacterOfPosition(value.getStart(sf)).line + 1,
+          });
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sf);
+  return found;
+}
+
 function staticStringLiterals(file, src) {
   if (!/\.tsx?$/.test(file)) return [];
   const sourceFile = sourceFileFor(file, src);
@@ -1065,6 +1141,19 @@ for (const root of ROOTS) {
     // ── G1-b rules (issue #49 §7) — all literal-scoped, all with a negative fixture in
     // `verify-design-lint-structural.mjs`. Each is a token-vocabulary rule that source review kept
     // finding by hand; a rule nobody can forget is worth more than a review note.
+    // BRD-12 — an inline radius is a radius too. Read from the AST, so `borderRadius: 8`,
+    // `"borderRadius": "6px"` and a value on the next line all count; a role token's value
+    // (`var(--corner-card)`, the email kit's `emailRadius.card`) passes.
+    if (
+      /(^|\/)packages\/ui\/registry\//.test(resolve(file).replace(/\\/g, "/"))
+    ) {
+      for (const { line } of inlineRadiusLiterals(file, src)) {
+        console.log(
+          `${file}:${line} [no-radius-ramp] inline radius off the role scale (BRD-12): a style object's border radius takes a role token (\`var(--corner-card)\`, or the email kit's \`emailRadius.<role>\`), never a literal`,
+        );
+        violations++;
+      }
+    }
     const importantModifiers = [];
     for (const { text: lit, line, template, classPosition } of literals) {
       const report = (id, message) => {
@@ -1157,6 +1246,19 @@ for (const root of ROOTS) {
       const bareRing = bareRingClass(lit, classPosition);
       if (bareRing) {
         report("no-surface-ring", `${NO_SURFACE_RING_MSG} ("${bareRing}")`);
+      }
+
+      // (i) BRD-12 (ours, operator 2026-11-16) — one corner per ROLE. Registry source never takes
+      // a step of the derived ramp (`rounded-sm|md|lg|xl|2xl|3xl|4xl|xs`), bare `rounded`, an
+      // arbitrary length (`rounded-[4px]`, `rounded-[calc(var(--radius)-3px)]`) or a radius
+      // variable (`rounded-(--cell-radius)`): it names the role the element plays —
+      // control, icon, chip, inline, mark, item, block, card, bubble, overlay or tile — with any
+      // side prefix. `none`, `full` (a dot, a true circle) and `[inherit]` stay structural.
+      if (
+        /(^|\/)packages\/ui\/registry\//.test(resolve(file).replace(/\\/g, "/"))
+      ) {
+        const ramp = radiusRampClass(lit, classPosition);
+        if (ramp) report("no-radius-ramp", `${NO_RADIUS_RAMP_MSG} ("${ramp}")`);
       }
 
       // (g) Tailwind's `!` modifier — the class-string half of the `important` rule. Counted per
@@ -1975,6 +2077,45 @@ function bareRingClass(text, classPosition) {
   );
   const beside = tokens.some((token) => token !== bare && /[-:/[]/.test(token));
   return classShaped && beside ? bare : null;
+}
+
+/**
+ * BRD-12's class test: the first `rounded*` utility in a literal whose value is not a role,
+ * or null. A token's utility is what follows its last variant colon outside brackets. Outside a
+ * class position the literal must be class-shaped (every token utility-like, another utility
+ * beside it), so prose such as "rounded corners" never counts.
+ */
+function radiusRampClass(text, classPosition) {
+  const tokens = text.split(/\s+/).filter(Boolean);
+  const offending = tokens.find((token) => {
+    let depth = 0;
+    let cut = -1;
+    for (let i = 0; i < token.length; i++) {
+      const ch = token[i];
+      if (ch === "[" || ch === "(") depth++;
+      else if (ch === "]" || ch === ")") depth--;
+      else if (ch === ":" && depth === 0) cut = i;
+    }
+    const utility = token.slice(cut + 1);
+    // An arbitrary radius property is a radius too: `[border-radius:…]`, `[border-top-left-radius:…]`.
+    if (
+      /^\[border(?:-(?:top|bottom)-(?:left|right)|-(?:start|end)-(?:start|end))?-radius:/.test(
+        utility,
+      )
+    )
+      return true;
+    const match = RADIUS_TOKEN.exec(utility);
+    if (!match) return false;
+    return !RADIUS_ROLES.has(match[1] ?? "");
+  });
+  if (!offending || classPosition) return offending ?? null;
+  const classShaped = tokens.every(
+    (token) => /[-:/[]/.test(token) || BARE_UTILITIES.has(utilityOf(token)),
+  );
+  const beside = tokens.some(
+    (token) => token !== offending && /[-:/[]/.test(token),
+  );
+  return classShaped && beside ? offending : null;
 }
 
 /** A class token with its variants removed: `[&>div]:hover:ring` → `ring`. */

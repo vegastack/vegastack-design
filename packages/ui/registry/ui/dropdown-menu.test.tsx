@@ -380,7 +380,7 @@ test("RTL: the popup mirrors when the document direction is rtl (RTL)", async ()
   expect(getComputedStyle(slot("content")!).direction).toBe("rtl");
   // Every logical class the mirroring depends on is written in logical properties.
   expect(slot("shortcut")!.className).toContain("ms-auto");
-  expect(slot("checkbox-item")!.className).toContain("ps-1.5");
+  expect(slot("checkbox-item")!.className).toContain("ps-2");
 });
 
 test("INT-1: no menu row forces the default cursor", async () => {

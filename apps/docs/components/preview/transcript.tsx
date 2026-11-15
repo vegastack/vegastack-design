@@ -55,7 +55,7 @@ function TranscriptDemo(): ReactNode {
       speakerName={speakerName}
       currentTime={time}
       onSeek={setTime}
-      className="h-80 w-full max-w-lg rounded-lg border border-border"
+      className="h-80 w-full max-w-lg rounded-card border border-border"
     >
       <TranscriptList />
     </Transcript>
@@ -102,7 +102,7 @@ function TranscriptWithAudioDemo(): ReactNode {
           audio.currentTime = seconds;
           void audio.play().catch(() => {});
         }}
-        className="h-72 rounded-lg border border-border"
+        className="h-72 rounded-card border border-border"
       >
         <TranscriptSearch />
         <TranscriptList />
@@ -129,7 +129,7 @@ function TranscriptSearchDemo(): ReactNode {
       query={query}
       onQueryChange={setQuery}
       defaultFollow={false}
-      className="h-80 w-full max-w-lg rounded-lg border border-border"
+      className="h-80 w-full max-w-lg rounded-card border border-border"
     >
       <TranscriptSearch />
       <TranscriptList />
@@ -152,7 +152,7 @@ export function transcriptReadOnly(): ReactNode {
         aria-label="Budget review transcript"
         segments={SEGMENTS.slice(0, 6)}
         speakerName={speakerName}
-        className="h-72 w-full max-w-lg rounded-lg border border-border"
+        className="h-72 w-full max-w-lg rounded-card border border-border"
       >
         <TranscriptList />
       </Transcript>
@@ -167,14 +167,14 @@ export function transcriptStates(): ReactNode {
         aria-label="Transcript, loading"
         segments={[]}
         loading
-        className="h-48 rounded-lg border border-border"
+        className="h-48 rounded-card border border-border"
       >
         <TranscriptList />
       </Transcript>
       <Transcript
         aria-label="Transcript, empty"
         segments={[]}
-        className="h-48 rounded-lg border border-border"
+        className="h-48 rounded-card border border-border"
       >
         <TranscriptList />
       </Transcript>
@@ -195,7 +195,7 @@ function TranscriptSpeakersDemo(): ReactNode {
       defaultFollow={false}
       className="h-80 w-full max-w-lg"
     >
-      <TranscriptSearch className="mb-2 rounded-md border border-border" />
+      <TranscriptSearch className="mb-2 rounded-control border border-border" />
       <TranscriptList />
     </Transcript>
   );

@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.88.0 sha256-f+dy1ScP4oEpa0wKOp2hXzpDxOC7Rh8MdYr791VF4SI=
+// @vegastack filter-row@0.88.0 sha256-+LitZ5g34zWxkQMzvgstBQ8xMTcmZzqqElTVq4e/nCw=
 
 "use client";
 
@@ -586,7 +586,7 @@ function FilterChipText({
  * `FilterChip` — a single removable filter pill: a `label`, an optional `value`
  * after a colon, and a trailing `×` control that fires `onRemove`. The Chip
  * primitive in the filter row's one chip shape — the toolbar's tool height inside a `FilterRow`
- * (28px elsewhere), rounded-md, quiet type — the same shape as a `ListFacet`. An applied filter is a selection, so it carries the
+ * (28px elsewhere), a pill (`rounded-chip`), quiet type — the same shape as a `ListFacet`. An applied filter is a selection, so it carries the
  * tinted fill by default; pass `active={false}` for a plain presence chip.
  * Purely presentational; `FilterRow` renders one per applied filter.
  *
@@ -634,10 +634,10 @@ export function FilterChip({
       active={unset ? false : active}
       onRemove={unset || inRow ? undefined : onRemove}
       removeLabel={computedRemoveLabel}
-      // The filter row's one chip shape: the row's height, rounded-md, quiet type — set or unset.
+      // The filter row's one chip shape: the row's height, a pill (`rounded-chip`), quiet type — set or unset.
       // An unset pinned facet is the same box, dashed and clear: an offer, not a value.
       className={cn(
-        "max-w-xs rounded-md text-sm font-normal [&_[data-slot=chip-remove]]:rounded-sm",
+        "max-w-xs rounded-chip text-sm font-normal [&_[data-slot=chip-remove]]:rounded-icon",
         unset &&
           "border border-dashed border-border bg-transparent text-muted-foreground hover:border-transparent state-layer has-aria-expanded:border-transparent has-aria-expanded:bg-state-selected",
         className,
@@ -664,7 +664,7 @@ export function FilterChip({
         <Popover onOpenChange={(open) => onEditorOpenChange?.(open)}>
           <PopoverTrigger
             data-slot="filter-chip-trigger"
-            className="-my-0.5 -ms-1 inline-flex min-w-0 items-center rounded-sm px-1 py-0.5 text-start state-layer"
+            className="-my-0.5 -ms-1 inline-flex min-w-0 items-center rounded-control px-1 py-0.5 text-start state-layer"
           >
             <FilterChipText label={label} value={value} />
           </PopoverTrigger>
@@ -706,7 +706,7 @@ function FilterClearOption({
         variant="ghost"
         data-slot="filter-clear-option"
         onClick={onSelect}
-        className="h-7 w-full min-w-0 justify-start rounded-md px-1.5 text-sm font-normal text-muted-foreground"
+        className="h-7 w-full min-w-0 justify-start rounded-item px-1.5 text-sm font-normal text-muted-foreground"
       >
         <span className="min-w-0 truncate">{children}</span>
       </Button>
@@ -881,7 +881,7 @@ export type ListFacetProps<
   ListFacetOwnProps<Item>;
 
 /**
- * `ListFacet` — one filter on `SearchableSelect`, as a rounded-md chip at the row's height. Unset,
+ * `ListFacet` — one filter on `SearchableSelect`, as a pill chip (`rounded-chip`) at the row's height. Unset,
  * it is quiet and reads its label ("Status ▾"). Set, the same chip is tinted: "Status: Open", then
  * "Status: 2" from two values (the values on hover and ticked in the popover), still with its ▾ —
  * no ×: the dropdown clears it (untick the values, or its "Clear Status" option under the list).
@@ -1018,11 +1018,11 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
           groupOrder={pinSelected ? [selectedGroupLabel] : undefined}
           // The select's own chevron gives way to the facet's ▾.
           containerClassName="w-fit [&>svg]:hidden"
-          // ONE chip shape for unset and set (rounded-md, the row's height, the same border box
+          // ONE chip shape for unset and set (a pill, the row's height, the same border box
           // and the same 28px trailing reserve); a set chip is tinted, never reshaped.
           className={cn(
             chipHeight,
-            "w-auto max-w-64 rounded-md border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
+            "w-auto max-w-64 rounded-chip border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
             hasValue
               ? "bg-accent text-foreground state-layer aria-expanded:layer-selected dark:bg-accent"
               : "border-dashed bg-transparent text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:aria-expanded:border-transparent",
@@ -1183,7 +1183,7 @@ export function PeopleFacet<Multiple extends boolean | undefined = false>({
                 data-placeholder={hasValue ? undefined : ""}
                 className={cn(
                   chipHeight,
-                  "w-auto max-w-64 justify-start rounded-md border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
+                  "w-auto max-w-64 justify-start rounded-chip border-border bg-clip-border ps-2 pe-7 text-sm font-normal hover:border-border aria-expanded:border-border",
                   hasValue
                     ? "bg-accent text-foreground state-layer aria-expanded:layer-selected dark:bg-accent"
                     : "border-dashed bg-transparent text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground dark:bg-transparent dark:hover:border-transparent dark:aria-expanded:border-transparent",
@@ -1433,7 +1433,7 @@ function DateRangeOption({
       aria-pressed={trailing == null ? selected : undefined}
       data-slot={dataSlot}
       onClick={onSelect}
-      className="h-7 w-full min-w-0 justify-between gap-1.5 rounded-md px-1.5 text-sm font-normal"
+      className="h-7 w-full min-w-0 justify-between gap-1.5 rounded-item px-1.5 text-sm font-normal"
     >
       <span className="min-w-0 truncate">{children}</span>
       {trailing ??
@@ -1444,7 +1444,7 @@ function DateRangeOption({
 
 /**
  * `DateRangeFilter` — THE date filter: every date facet in a `FilterRow` is one, in the same
- * rounded-md chip as `ListFacet`. Unset it reads its label ("Due ▾"); set it is tinted and reads
+ * pill chip as `ListFacet`. Unset it reads its label ("Due ▾"); set it is tinted and reads
  * the preset ("Due: This week") or the dates ("Due: Sep 1–25"), keeping its ▾ (no ×: while set,
  * the presets end with "Clear Due"). Its popover lists the page's presets as the menus' 28px rows — Overdue, Today, This week,
  * Next 7 days, This month, No date, Last 30 days… — and "Custom range", which drills into a
@@ -1566,7 +1566,7 @@ export function DateRangeFilter({
               onFocus={prefetchCalendar}
               className={cn(
                 chipHeight,
-                "max-w-64 justify-start rounded-md border border-border bg-clip-border ps-2 pe-7 text-sm font-normal",
+                "max-w-64 justify-start rounded-chip border border-border bg-clip-border ps-2 pe-7 text-sm font-normal",
                 hasValue
                   ? "bg-accent text-foreground state-layer aria-expanded:layer-selected"
                   : "border-dashed text-muted-foreground hover:border-transparent state-layer hover:text-foreground aria-expanded:border-transparent aria-expanded:bg-state-selected aria-expanded:text-foreground",

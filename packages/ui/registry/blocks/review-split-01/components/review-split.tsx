@@ -1,4 +1,4 @@
-// @vegastack review-split-01@0.88.0 sha256-k30bQPKEk0fPMqKB2qV8Dz3ZBbxiCdCBmWYD3s8kSNQ=
+// @vegastack review-split-01@0.88.0 sha256-7/EgqkTdNf51chgQWKp1ZnXVET89auOdiZYaesLCcrI=
 
 "use client";
 
@@ -253,7 +253,7 @@ export function ReviewSplit({
             currentTime={time}
             onSeek={(seconds) => player.current?.seek(seconds, { play: true })}
             loading={loading}
-            className="h-[60dvh] min-h-0 rounded-lg border border-border @4xl/review:h-auto @4xl/review:flex-1"
+            className="h-[60dvh] min-h-0 rounded-card border border-border @4xl/review:h-auto @4xl/review:flex-1"
           >
             <TranscriptSearch />
             <TranscriptList />

@@ -358,8 +358,9 @@ Upstream's file plus `packages/ui/upstream/patches/chart.patch`. Every hunk:
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header the three-copy model
   needs; no decision of its own.
 
-Nothing else besides those. `ChartTooltipContent`'s `shadow-xl`, `border-border/50` and `rounded-lg` are upstream's
-verbatim (BRD-1, BRD-4 and DOC-10 all resolve as **shadcn**), and the `#ccc` / `#fff` attribute
+Nothing else besides those. `ChartTooltipContent`'s `shadow-xl` and `border-border/50` are upstream's
+verbatim (BRD-1, BRD-4 and DOC-10 all resolve as **shadcn**); its corner is the tooltip role,
+`rounded-item`, and its tooltip and legend swatches are `rounded-mark` (BRD-12). The `#ccc` / `#fff` attribute
 selectors retarget Recharts' own hard-coded defaults — those are Recharts' values being matched in a
 selector, not colours being authored here. The `--chart-1` … `--chart-8` and `--chart-single` palette
 is the token layer's, not this file's.

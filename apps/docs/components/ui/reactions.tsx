@@ -1,4 +1,4 @@
-// @vegastack reactions@0.88.0 sha256-m3hhjXYRTMeLWA/q7a/fa3dnAUS6g8CAR0T19Rpf3D4=
+// @vegastack reactions@0.88.0 sha256-LLhLNJ8d1f0SOxoxCsR+9dJfRaWdODladSmLPZdaiuM=
 
 "use client";
 
@@ -166,7 +166,7 @@ function ReactionPill({
             }`}
             onClick={() => void toggle()}
             className={cn(
-              "rounded-full border-border bg-transparent tabular-nums shadow-none state-layer dark:border-border dark:bg-transparent",
+              "border-border bg-transparent tabular-nums shadow-none state-layer dark:border-border dark:bg-transparent",
               "data-[reacted]:border-primary/25 data-[reacted]:bg-primary/8 data-[reacted]:hover:bg-primary/12 dark:data-[reacted]:border-primary/30 dark:data-[reacted]:bg-primary/12 dark:data-[reacted]:hover:bg-primary/16",
             )}
           />
@@ -232,7 +232,7 @@ export function ReactionAdd({
           aria-label={label}
           title={label}
           data-slot="reaction-add"
-          className={cn(size === "icon-xs" && "rounded-full", className)}
+          className={className}
         >
           <SmilePlus aria-hidden />
         </Button>

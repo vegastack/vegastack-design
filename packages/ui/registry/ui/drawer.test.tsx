@@ -486,7 +486,7 @@ test.each(DIRECTIONS)(
     const classes = content.className.split(" ");
     expect(content.hasAttribute("data-flush")).toBe(false);
     expect(classes).toContain("[--drawer-inset:--spacing(2)]");
-    expect(classes).toContain("rounded-xl");
+    expect(classes).toContain("rounded-overlay");
     expect(classes).toContain("border");
     expect(classes).toContain("[--drawer-bleed-background:transparent]");
     expect(content.className).not.toMatch(
@@ -502,9 +502,9 @@ test("OVL-21: flush restores upstream's edge-to-edge sheet", async () => {
   const classes = content.className.split(" ");
   expect(content.hasAttribute("data-flush")).toBe(true);
   expect(content.className).not.toContain("--drawer-inset:--spacing(2)");
-  expect(classes).not.toContain("rounded-xl");
+  expect(classes).not.toContain("rounded-overlay");
   expect(classes).not.toContain("border");
-  expect(classes).toContain("data-[swipe-direction=right]:rounded-s-xl");
+  expect(classes).toContain("data-[swipe-direction=right]:rounded-s-overlay");
   expect(classes).toContain("data-[swipe-direction=right]:border-s");
 });
 

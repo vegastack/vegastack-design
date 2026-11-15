@@ -165,7 +165,7 @@ for (const theme of ["light", "dark"]) {
     onTestFinished(() => document.documentElement.classList.remove("dark"));
     const fill = resolved("bg-popover", "backgroundColor");
     const ink = resolved("text-popover-foreground", "color");
-    const radius = resolved("rounded-lg", "borderTopLeftRadius");
+    const radius = resolved("rounded-card", "borderTopLeftRadius");
 
     const thread = await render(
       popover(<CommentThread thread={THREAD} active />),

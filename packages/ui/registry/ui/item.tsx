@@ -1,4 +1,4 @@
-// @vegastack item@0.88.0 sha256-9jsPFDc8v+LAG3flO73eq7Pv0Gss6ZaKeTScYj1a2cM=
+// @vegastack item@0.88.0 sha256-kUdvTJS4Wuvaf3cA/fxBc7yMGs45KmLo+G5QsBf8KP8=
 
 "use client";
 
@@ -100,13 +100,13 @@ function ItemSeparator({
 }
 
 const itemVariants = cva(
-  "group/item flex w-full flex-wrap items-center rounded-lg border text-sm transition-colors duration-100 [a]:transition-colors [a]:state-layer group-data-[variant=flush]/item-group:rounded-md",
+  "group/item flex w-full flex-wrap items-center border text-sm transition-colors duration-100 [a]:transition-colors [a]:state-layer group-data-[variant=flush]/item-group:rounded-item",
   {
     variants: {
       variant: {
-        default: "border-transparent",
-        outline: "border-border",
-        muted: "border-transparent bg-muted/50",
+        default: "rounded-item border-transparent",
+        outline: "rounded-block border-border",
+        muted: "rounded-item border-transparent bg-muted/50",
       },
       size: {
         default:
@@ -189,7 +189,7 @@ const itemMediaVariants = cva(
         default: "bg-transparent",
         icon: "[&_svg:not([class*='size-'])]:size-4",
         image:
-          "size-10 overflow-hidden rounded-sm group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover",
+          "size-10 overflow-hidden rounded-tile group-data-[size=sm]/item:size-8 group-data-[size=xs]/item:size-6 [&_img]:size-full [&_img]:object-cover",
       },
     },
     defaultVariants: {

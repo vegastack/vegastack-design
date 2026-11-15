@@ -1,4 +1,4 @@
-// @vegastack run-usage@0.88.0 sha256-/RteoIeAzDbvYWfy/O1A/8JuTCMLYFhlReQpXriwdf4=
+// @vegastack run-usage@0.88.0 sha256-JQVnHT6H/7N+2cOkEIafIWeHFqeT2udfWLcoODs8VsI=
 
 "use client";
 
@@ -447,7 +447,7 @@ function Fallback({
             <Skeleton key={index} className="h-9" />
           ))}
         </div>
-        <Skeleton aria-hidden className="h-16" />
+        <Skeleton aria-hidden className="h-16 rounded-card" />
       </div>
     );
   }
@@ -599,7 +599,7 @@ export function RunUsagePanel({
                   <li
                     key={entry.model}
                     data-slot="run-usage-model"
-                    className="flex min-w-0 flex-col gap-2 rounded-md border border-border p-3"
+                    className="flex min-w-0 flex-col gap-2 rounded-card border border-border p-3"
                   >
                     <div className="flex min-w-0 flex-wrap items-baseline gap-x-2">
                       <span className="min-w-0 truncate text-foreground">

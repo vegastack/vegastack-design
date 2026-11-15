@@ -1,4 +1,4 @@
-// @vegastack template-editor@0.88.0 sha256-NQfi6FBZFr2Ozxocc/TXdzI0ktOZ4SxDdN+44bv5kGQ=
+// @vegastack template-editor@0.88.0 sha256-/FkzjRPpbn5HV5HllqPoofxYhD0AgPDqUv2GhokWqmM=
 
 "use client";
 
@@ -257,7 +257,7 @@ interface TemplateRuntime {
 }
 
 const CHIP_CLASS =
-  "rounded-sm bg-muted px-1 py-px text-foreground box-decoration-clone data-selected:bg-foreground/15 data-invalid:bg-destructive/10 data-invalid:text-destructive-text dark:data-invalid:bg-destructive/20 data-invalid:data-selected:bg-destructive/25";
+  "rounded-inline bg-muted px-1 py-px text-foreground box-decoration-clone data-selected:bg-foreground/15 data-invalid:bg-destructive/10 data-invalid:text-destructive-text dark:data-invalid:bg-destructive/20 data-invalid:data-selected:bg-destructive/25";
 
 function tokenNode(runtime: TemplateRuntime) {
   return Node.create({
@@ -852,7 +852,7 @@ function TemplateEditor({
         editor.commands.focus("end");
       }}
       className={cn(
-        "relative w-full min-w-0 cursor-text rounded-lg border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 data-invalid:border-destructive data-single-line:min-h-8 data-single-line:py-1 md:text-sm dark:bg-input/30 dark:data-disabled:bg-input/80 dark:data-invalid:border-destructive/50",
+        "relative w-full min-w-0 cursor-text rounded-card border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 data-invalid:border-destructive data-single-line:min-h-8 data-single-line:rounded-control data-single-line:py-1 md:text-sm dark:bg-input/30 dark:data-disabled:bg-input/80 dark:data-invalid:border-destructive/50",
         className,
       )}
     >

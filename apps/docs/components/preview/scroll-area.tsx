@@ -24,7 +24,7 @@ const tags = Array.from(
 export function scrollArea(): ReactNode {
   return (
     <Wrapper>
-      <ScrollArea className="h-72 w-48 rounded-md border">
+      <ScrollArea className="h-72 w-48 rounded-card border">
         <div className="p-4">
           <h4 className="mb-4 text-sm leading-none font-medium">Tags</h4>
           {tags.map((tag) => (
@@ -42,7 +42,7 @@ export function scrollArea(): ReactNode {
 export function scrollAreaComposition(): ReactNode {
   return (
     <Wrapper>
-      <ScrollArea className="h-[200px] w-full max-w-[350px] rounded-md border p-4 text-sm">
+      <ScrollArea className="h-[200px] w-full max-w-[350px] rounded-card border p-4 text-sm">
         <p className="mb-2">
           A `ScrollArea` is a viewport plus its scrollbars. The component
           renders the vertical bar and the corner for you; the only part you
@@ -77,7 +77,7 @@ const works = [
 export function scrollAreaHorizontal(): ReactNode {
   return (
     <Wrapper>
-      <ScrollArea className="w-full max-w-96 rounded-md border whitespace-nowrap">
+      <ScrollArea className="w-full max-w-96 rounded-card border whitespace-nowrap">
         <div className="flex w-max space-x-4 p-4">
           {works.map((artwork) => (
             <figure key={artwork.artist} className="shrink-0">
@@ -85,7 +85,7 @@ export function scrollAreaHorizontal(): ReactNode {
                   reach the network when the geometry lane mounts it. */}
               <div
                 aria-hidden="true"
-                className={`aspect-[3/4] w-[150px] overflow-hidden rounded-md ${artwork.tone}`}
+                className={`aspect-[3/4] w-[150px] overflow-hidden rounded-block ${artwork.tone}`}
               />
               <figcaption className="pt-2 text-xs text-muted-foreground">
                 Photo by{" "}
@@ -106,7 +106,7 @@ export function scrollAreaRtl(): ReactNode {
   return (
     <DirectionProvider direction="rtl">
       <Wrapper dir="rtl">
-        <ScrollArea className="h-72 w-48 rounded-md border">
+        <ScrollArea className="h-72 w-48 rounded-card border">
           <div className="p-4">
             <h4 className="mb-4 text-sm leading-none font-medium">العلامات</h4>
             {tags.map((tag) => (
@@ -131,7 +131,7 @@ export function scrollAreaNamedRegion(): ReactNode {
         </h4>
         <ScrollArea
           aria-labelledby="scroll-area-release-tags"
-          className="h-48 rounded-md border"
+          className="h-48 rounded-card border"
         >
           <div className="p-4">
             {tags.map((tag) => (
@@ -165,7 +165,7 @@ export function scrollAreaProgrammatic(): ReactNode {
         <ScrollArea
           aria-label="Release tags"
           viewportRef={viewportRef}
-          className="h-48 rounded-md border"
+          className="h-48 rounded-card border"
         >
           <div className="p-4">
             {tags.map((tag) => (

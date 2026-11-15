@@ -1,4 +1,4 @@
-// @vegastack plan-card@0.88.0 sha256-+If4od6IbB7uz6Ljy1IjmsU+TvOkJ8VGAeJc6VhtTNg=
+// @vegastack plan-card@0.88.0 sha256-jvfx9AdOgUvIFGYKDB/6M2Lszrg9dN+XRhiLr3KQ7q0=
 
 "use client";
 
@@ -787,7 +787,7 @@ export function PlanCard({
       data-risk={plan.risk}
       aria-labelledby={titleId}
       className={cn(
-        "@container/plan-card w-full min-w-0 rounded-xl border border-border bg-card p-4 text-sm text-card-foreground",
+        "@container/plan-card w-full min-w-0 rounded-card border border-border bg-card p-4 text-sm text-card-foreground",
         className,
       )}
       {...props}
@@ -837,7 +837,7 @@ export function PlanCard({
             {plan.revisionNote && plan.version > 1 ? (
               <p
                 data-slot="plan-card-revision"
-                className="flex min-w-0 items-start gap-1.5 rounded-md bg-info/10 px-2.5 py-1.5 text-xs text-info-text dark:bg-info/20"
+                className="flex min-w-0 items-start gap-1.5 rounded-block bg-info/10 px-2.5 py-1.5 text-xs text-info-text dark:bg-info/20"
               >
                 <PencilLine aria-hidden className="mt-px size-3.5 shrink-0" />
                 <span className="min-w-0">{plan.revisionNote}</span>

@@ -1,4 +1,4 @@
-// @vegastack chart@0.88.0 sha256-0wranjWPporqK/qGnMqqFyI5kzGc8N9V3HUPZTkasT4=
+// @vegastack chart@0.88.0 sha256-SByinJOFfu5Cm9KKIPeg16n7JL8FYzcKBVJUeeD/5TU=
 
 "use client";
 
@@ -264,7 +264,7 @@ function ChartTooltipContent({
     <div
       className={cn(
         // API-43: a tooltip never grows past 20rem; a long series name truncates in its cell.
-        "grid max-w-80 min-w-32 items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+        "grid max-w-80 min-w-32 items-start gap-1.5 rounded-item border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
         className,
       )}
     >
@@ -303,7 +303,7 @@ function ChartTooltipContent({
                       !hideIndicator && (
                         <div
                           className={cn(
-                            "shrink-0 rounded-[2px] border-(--color-border) bg-(--color-bg)",
+                            "shrink-0 rounded-mark border-(--color-border) bg-(--color-bg)",
                             {
                               "h-2.5 w-2.5": indicator === "dot",
                               "w-1": indicator === "line",
@@ -403,7 +403,7 @@ function ChartLegendContent({
                 <itemConfig.icon />
               ) : (
                 <div
-                  className="h-2 w-2 shrink-0 rounded-[2px]"
+                  className="h-2 w-2 shrink-0 rounded-mark"
                   style={{
                     backgroundColor: item.color,
                   }}

@@ -38,7 +38,7 @@ export function valueChangeKinds(): ReactNode {
 export function valueChangeNarrow(): ReactNode {
   return (
     <Wrapper>
-      <div className="w-56 rounded-lg border border-border p-3 text-sm">
+      <div className="w-56 rounded-card border border-border p-3 text-sm">
         <ValueChange
           before="Stainless steel, brushed finish"
           after="Anodised aluminium, matte black"

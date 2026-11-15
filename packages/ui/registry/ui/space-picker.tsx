@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.88.0 sha256-DOJa+pYH5cjVfD2CNXFIGgKd31V2QtPyFGKbZ1DtMqQ=
+// @vegastack space-picker@0.88.0 sha256-+YxHTWhZVRU94eZhHSDDK0rbPKcd+U5ZsFaajkhqThQ=
 
 "use client";
 
@@ -70,7 +70,7 @@ export interface SpaceChipProps extends Omit<
   placeholder?: React.ReactNode;
   /**
    * `xs` — 24px, small text and a 16px tile (a card or a dense row). `sm` — 28px, body text and a
-   * 20px tile (a form or a property row). `title` — an outlined, rounded 28px chip for a create
+   * 20px tile (a form or a property row). `title` — an outlined 28px pill for a create
    * dialog's header (the property pills' shape, so it reads as a control rather than a heading).
    * @default "sm"
    */
@@ -151,7 +151,7 @@ export function SpaceChip({
           // `title`: the outlined chip's shape without its ▾ — the same chip a create dialog's
           // header leads with, shown where the record cannot be moved.
           size === "title" &&
-            "h-7 rounded-full border border-border bg-background ps-1.5 pe-2.5 font-medium text-foreground dark:border-input dark:bg-input/30",
+            "h-7 rounded-chip border border-border bg-background ps-1.5 pe-2.5 font-medium text-foreground dark:border-input dark:bg-input/30",
           className,
         )}
       >
@@ -177,9 +177,9 @@ export function SpaceChip({
       data-size={size}
       data-empty={space ? undefined : ""}
       className={cn(
-        "max-w-full min-w-0 justify-start gap-1.5 rounded-md px-1.5 font-normal text-foreground has-data-[icon=inline-end]:pe-1",
+        "max-w-full min-w-0 justify-start gap-1.5 px-1.5 font-normal text-foreground has-data-[icon=inline-end]:pe-1",
         size === "sm" && "text-sm",
-        size === "title" && "rounded-full ps-1.5 pe-2 text-sm font-medium",
+        size === "title" && "ps-1.5 pe-2 text-sm font-medium",
         className,
       )}
       {...props}

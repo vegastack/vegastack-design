@@ -1,5 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
-import { twMerge as tailwindMerge } from "tailwind-merge";
+import { extendTailwindMerge } from "tailwind-merge";
 // TYPE-ONLY. This entry is server-safe by contract (see the @internal note below and
 // tsup.config.ts): it must not touch a React runtime value, because under the
 // `react-server` condition most React hooks are `undefined` and any Server Component
@@ -12,13 +12,28 @@ import {
   proseReading as readingProse,
 } from "./prose";
 
-// Plain `twMerge`. Before the shadcn reset this was `extendTailwindMerge`, teaching tailwind-merge
-// that the deleted role tokens (the h1-h4 tier, the label tier, the code tier, the mono label and
-// the display tier) were FONT SIZES rather than text colours — without it a role plus a colour
-// silently
-// dropped the size. TYP-1 is decided as **shadcn**, so those roles no longer exist and the stock
-// classifier is correct again: there is no custom font-size utility left to teach it about.
-const twMerge = tailwindMerge;
+// BRD-12 (ours, operator 2026-11-16): the corner roles are radius utilities. tailwind-merge only
+// knows the stock radius scale, so without this `cn("rounded-item", "rounded-card")` kept BOTH and
+// the role that sorts later in the stylesheet won regardless of order. Teaching its `radius` theme
+// the role names makes a later role replace an earlier one, like any other conflicting utility.
+// (Before the shadcn reset this was an `extendTailwindMerge` for the deleted font-size role tokens;
+// TYP-1 = shadcn, so there is no custom font size left to teach it.)
+const CORNER_ROLES = [
+  "control",
+  "icon",
+  "chip",
+  "inline",
+  "mark",
+  "item",
+  "block",
+  "card",
+  "bubble",
+  "overlay",
+  "tile",
+] as const;
+const twMerge = extendTailwindMerge({
+  extend: { theme: { radius: [...CORNER_ROLES] } },
+});
 
 /**
  * Merges Tailwind CSS class names with intelligent conflict resolution.

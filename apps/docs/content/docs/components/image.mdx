@@ -55,8 +55,11 @@ proportions (use `square`/`video` instead when you need a fixed, shift-free aspe
 
 ### Rounding
 
-`rounded` controls the corner radius of the frame (and the image clipped inside it): `none` → `sm`
-→ `md` (default) → `lg` → `full`. `full` clips the image to a circle for avatar-style media.
+`rounded` picks the frame's corner role (and the image is clipped inside it): `block` (12px, the
+default) for an image in the reading flow, `tile` (25% of its size) for a square thumbnail or logo,
+`card` (16px) for a card-sized image, `mark` (4px) for a tiny one, `full` for a person's photo and
+`none` for a full-bleed one. `sm`, `md` and `lg` still work as deprecated aliases of `mark`,
+`block` and `card`.
 
 <ComponentPreview name="imageRounded" file="components/preview/image.tsx" />
 

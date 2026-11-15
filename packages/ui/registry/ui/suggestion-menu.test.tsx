@@ -124,7 +124,7 @@ test("rows read exactly like ComboboxItem's, apart from the check-indicator gutt
     .filter((token) => token !== "pe-8")
     .sort();
   const ours = SUGGESTION_MENU_ROW.split(/\s+/)
-    .filter((token) => token !== "pe-1.5")
+    .filter((token) => token !== "pe-2")
     .sort();
   expect(ours).toEqual(combobox);
   // The highlight is ComboboxItem's, the shared hover step (COL-24).

@@ -152,7 +152,7 @@ export function appShellDemo(): ReactNode {
               {STAT_CARDS.map((label) => (
                 <div
                   key={label}
-                  className="rounded-lg border border-border bg-card p-4"
+                  className="rounded-card border border-border bg-card p-4"
                 >
                   <p className="text-xs font-medium text-muted-foreground">
                     {label}
@@ -400,7 +400,7 @@ export function appShellPage(): ReactNode {
             title="Profile"
             description="How your name and photo appear to your team."
           />
-          <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+          <section className="flex flex-col gap-3 rounded-card border bg-card p-4">
             <h2 className="text-sm font-medium">Display name</h2>
             <p className="text-sm text-muted-foreground">
               A prose page holds 720px of content and keeps the same page gutter
@@ -424,7 +424,7 @@ export function appShellSectionMeasure(): ReactNode {
         <AppShellPage>
           <PageHeader title="Product" description="A space's settings tab." />
           <AppShellSection measure="prose">
-            <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+            <section className="flex flex-col gap-3 rounded-card border bg-card p-4">
               <h2 className="text-sm font-medium">Name</h2>
               <p className="text-sm text-muted-foreground">
                 The section caps at 720px and starts where the header starts.
@@ -448,7 +448,7 @@ export function appShellSectionCentered(): ReactNode {
         <AppShellPage>
           <PageHeader title="Product" description="A space's settings tab." />
           <AppShellSection measure="prose" align="center">
-            <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+            <section className="flex flex-col gap-3 rounded-card border bg-card p-4">
               <h2 className="text-sm font-medium">Name</h2>
               <p className="text-sm text-muted-foreground">
                 The section caps at 720px and sits in the middle of the page.
@@ -475,7 +475,7 @@ export function appShellSectionDefault(): ReactNode {
               title="Contracts"
               description="A folder in a full-width frame."
             />
-            <section className="flex flex-col gap-3 rounded-xl border bg-card p-4">
+            <section className="flex flex-col gap-3 rounded-card border bg-card p-4">
               <p className="text-sm text-muted-foreground">
                 The list caps at a default page's content width and sits in the
                 middle.
@@ -523,7 +523,7 @@ export function appShellHeaderActions(): ReactNode {
             style={{ width, maxWidth: "100%" }}
           >
             <AppShellHeader
-              className="rounded-lg border"
+              className="rounded-card border"
               actions={
                 <AppShellHeaderActions
                   actions={HEADER_ACTIONS}

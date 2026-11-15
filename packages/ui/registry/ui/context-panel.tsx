@@ -1,4 +1,4 @@
-// @vegastack context-panel@0.88.0 sha256-ZdEAs+ByFKIhWS45V/5Wp/lhxnAygPgpv/bv3gfbA6M=
+// @vegastack context-panel@0.88.0 sha256-/HyCMmsq9GWJmeM4geeBpYJdoll6mMle4h5jSDsZH7M=
 
 "use client";
 
@@ -215,7 +215,7 @@ export function ContextPanel({
                 <span
                   aria-hidden
                   className={cn(
-                    "size-1.5 rounded-xs",
+                    "size-1.5 rounded-mark",
                     SWATCHES[index % SWATCHES.length],
                   )}
                 />
@@ -232,7 +232,7 @@ export function ContextPanel({
             ))}
             <span
               aria-hidden
-              className="size-1.5 rounded-xs border border-muted-foreground/50"
+              className="size-1.5 rounded-mark border border-muted-foreground/50"
             />
             <dt className="min-w-0 truncate text-muted-foreground">
               {labels?.free ?? "Free"}

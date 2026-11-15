@@ -127,7 +127,7 @@ test("the text addon renders a div by default and carries the muted chrome", asy
   const classes = text.className.split(/\s+/);
   expect(classes).toContain("bg-muted");
   expect(classes).toContain("border");
-  expect(classes).toContain("rounded-lg");
+  expect(classes).toContain("rounded-control");
 });
 
 test("the text addon composes through `render`, keeping its own classes", async () => {
@@ -172,7 +172,7 @@ test("Input: the recipe stretches a direct input child", async () => {
 test("Select: the recipe restores the trailing trigger's inline-end radius", async () => {
   const classes = buttonGroupVariants({});
   expect(classes).toContain(
-    "[data-slot=select-trigger]:last-of-type]:rounded-e-lg",
+    "[data-slot=select-trigger]:last-of-type]:rounded-e-control",
   );
   expect(classes).toContain(
     "[&>[data-slot=select-trigger]:not([class*='w-'])]:w-fit",

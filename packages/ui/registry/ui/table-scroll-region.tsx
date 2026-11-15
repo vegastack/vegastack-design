@@ -1,4 +1,4 @@
-// @vegastack table@0.88.0 sha256-yhcXcuVXjVw7OKs1CcnT3C7gVUOD+Yr+YOTsvjEY1Rk=
+// @vegastack table@0.88.0 sha256-EBrRxA2/NbG4J8UzmfEoM957lFglIOc6g5mw1izRenA=
 
 "use client";
 

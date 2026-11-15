@@ -140,7 +140,7 @@ test("each comment is a card; ⋯ matches the add-reaction button and opens an i
   // The card is the item (its replies are rows inside it).
   const card = document.querySelector('[data-slot="comment-item"]')!;
   expect(card.className).toContain("border-border");
-  expect(card.className).toContain("rounded-lg");
+  expect(card.className).toContain("rounded-card");
   expect(card.className).not.toMatch(/(?:hover|focus[\w-]*):border-/);
   const add = document.querySelector('[data-slot="reaction-add"]')!;
   const more = document.querySelector('[data-slot="comment-actions"]')!;

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { CommentMargin, CommentPopover } from "@/components/ui/comment-margin";
 
 const CARD =
-  "rounded-xl border border-border bg-card p-3 text-sm text-card-foreground";
+  "rounded-card border border-border bg-card p-3 text-sm text-card-foreground";
 
 const ITEMS = [
   { id: "a", top: 0, text: "Is 25 A right for a 7 kW cooker?", lines: 2 },

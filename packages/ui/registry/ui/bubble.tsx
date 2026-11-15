@@ -1,4 +1,4 @@
-// @vegastack bubble@0.88.0 sha256-mjSWEuIlanDqbGnCsfE6DRB7GjKB7EGTpspi6kAPZmk=
+// @vegastack bubble@0.88.0 sha256-jJ88gVGVTVnts9c8wbIOxuZ4fsKThNH87sVXXVJ7M/o=
 
 "use client";
 
@@ -34,7 +34,7 @@ const bubbleVariants = cva(
         outline:
           "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a)]:state-layer [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground",
         ghost:
-          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a)]:state-layer [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground",
+          "border-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a)]:state-layer [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground",
         // A11Y-13: upstream writes `text-destructive` here, which on its own `/10` tint measures
         // 3.987:1 in light — under the AA floor A11Y-1 enforces as a fail-closed gate. The family's
         // `-text` ink is the one A11Y-13 adds for exactly this pair, and it reads 6.966:1 on the
@@ -85,7 +85,7 @@ function BubbleContent({
           // — the 3px halo, plus an `outline-none` that would suppress the one affordance this
           // system has. Both are gone: an interactive bubble takes `base.css`'s single 2px
           // `:focus-visible` outline like every other control. FOC-6 names Bubble by name.
-          "w-fit max-w-full min-w-0 overflow-hidden rounded-xl border border-transparent px-3 py-2 text-sm leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-start [button,a]:transition-colors",
+          "w-fit max-w-full min-w-0 overflow-hidden rounded-bubble border border-transparent px-3 py-2 text-sm leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-start [button,a]:transition-colors",
           className,
         ),
       },
@@ -104,7 +104,7 @@ const bubbleReactionsVariants = cva(
   // `outline-3 outline-card` paints the identical 3px band in the identical colour, outside the
   // border box and following the radius, with no box-shadow — and the chip is a `<div>` that
   // never takes focus, so it cannot collide with `base.css`'s `:focus-visible` outline.
-  "absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-sm outline-3 outline-card has-[button]:p-0",
+  "absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-chip bg-muted px-1.5 py-0.5 text-sm outline-3 outline-card has-[button]:p-0",
   {
     variants: {
       side: {

@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.88.0 sha256-V7D+tHT4iwgVPvvtoHFBLkxFT9SOXSZQoO1gokgQILc=
+// @vegastack data-table-parts@0.88.0 sha256-rdHmj9nitXmCoSiXrev36//oEDSPS8ZYulnAAgSk5+Y=
 
 "use client";
 
@@ -378,10 +378,11 @@ export function mergedValueClass(column: DataTableColumnLayout): string {
  * `text-muted-foreground` stays above 4.5:1 on it (4.87:1 light, 6.84:1 dark),
  * which a darker tint fails in light (a `primary` tint reaches the badge fill
  * at 5% and drops muted text under AA by 8%). The checkbox remains the
- * authoritative selection cue.
+ * authoritative selection cue. The wash is the row's `row-fill` colour (the inset `item` shape its
+ * cells paint), never a fill on the `<tr>`, so it has the same rounded shape as a menu option.
  */
 export const SELECTED_ROW_CLASS =
-  "bg-state-selected hover:not-focus-visible:bg-none";
+  "[--row-fill-color:var(--state-selected)] hover:not-focus-visible:[--row-fill-layer:none]";
 
 /**
  * The ONE list density scale (RS-15), shared by `DataList` and `DataGrid` so a list and a grid
@@ -402,23 +403,25 @@ export const LIST_ROW_HEIGHT_CLASS = {
  * The ONE row-state ladder, shared by `DataList` and `DataGrid` so a list and a grid answer the
  * same way (web app POL-01):
  *
- * - hover — `ROW_HOVER_CLASS`, the `state-layer` hover/press steps (COL-24) and nothing else;
+ * - hover — `ROW_HOVER_CLASS`, the `row-fill` hover/press steps (COL-24) and nothing else, drawn
+ *   as one inset `rounded-item` shape across the row's cells (as a select option's hover);
  * - selected (ticked) — `SELECTED_ROW_CLASS`, the `state-selected` wash, held through hover (the
  *   hover layer stands down on it, so secondary text keeps AA);
  * - open (`activeRowId`) — `PEEK_ACTIVE_ROW_CLASS`, the `state-selected` wash plus the 2px `foreground`
  *   start edge. The edge belongs to the open row (and to keyboard focus or the keyboard cursor,
  *   which point at the row the next Enter opens); the pointer never draws it.
  */
-export const ROW_HOVER_CLASS = "state-layer";
+export const ROW_HOVER_CLASS = "row-fill";
 
 /**
  * The row whose record is open beside the list or grid (a peek, `activeRowId`): it carries
- * `data-peek-active`, the `state-selected` wash (the pointer's hover step stacks on it), and the 2px start edge, painted as the first cell's background layer (a table row
- * can't hold a positioned `::before`). A selected row's own wash (`SELECTED_ROW_CLASS`) is applied
- * after it, so the checkbox's state still reads; the edge stays.
+ * `data-peek-active`, which `row-fill` washes in `state-selected`, and the 2px start edge, painted
+ * as an extra layer of the first cell's `row-fill` shape (a table row can't hold a positioned
+ * `::before`), so the edge sits inside the shape's rounded start. A selected row's own wash
+ * (`SELECTED_ROW_CLASS`) is applied after it, so the checkbox's state still reads; the edge stays.
  */
 export const PEEK_ACTIVE_ROW_CLASS =
-  "data-peek-active:bg-state-selected [&[data-peek-active]>:first-child]:bg-[linear-gradient(var(--color-foreground),var(--color-foreground))] [&[data-peek-active]>:first-child]:bg-no-repeat [&[data-peek-active]>:first-child]:bg-size-[2px_100%] [&[data-peek-active]>:first-child]:bg-left rtl:[&[data-peek-active]>:first-child]:bg-right";
+  "[&[data-peek-active]>:first-child]:before:bg-[image:linear-gradient(var(--color-foreground),var(--color-foreground)),var(--row-fill-layer,none)] [&[data-peek-active]>:first-child]:before:bg-no-repeat [&[data-peek-active]>:first-child]:before:bg-size-[2px_100%,100%_100%] [&[data-peek-active]>:first-child]:before:bg-left rtl:[&[data-peek-active]>:first-child]:before:bg-right";
 
 /** The card whose record is open beside a card grid: the same selected step as a layer over the
  * card's own fill, with no edge. */
@@ -1180,7 +1183,7 @@ export function SkeletonRows({
         >
           {selectable ? (
             <TableCell className="w-0">
-              <Skeleton className="size-3.5 rounded-sm" />
+              <Skeleton className="size-4 rounded-mark" />
             </TableCell>
           ) : null}
           {columns.map((column, index) => {
@@ -1252,7 +1255,7 @@ export function EmptyRow({
     </Empty>
   );
   return (
-    <TableRow data-slot={slot} className="hover:not-focus-visible:bg-none">
+    <TableRow data-slot={slot} data-row-static="">
       {/* `p-2`: a custom empty node never touches the header row above it. */}
       <TableCell colSpan={colSpan} className="min-w-0 p-2">
         {viewportWidth != null ? (
@@ -1834,7 +1837,7 @@ export function SectionRow({ id, colSpan, ...toggle }: SectionRowProps) {
     <TableRow
       data-slot="section-row"
       data-section={id}
-      className="bg-muted state-layer"
+      className="[--row-fill-color:var(--color-muted)]"
     >
       <TableHead scope="rowgroup" colSpan={colSpan} className="h-auto py-1">
         <SectionToggle {...toggle} />
@@ -2295,7 +2298,7 @@ export function GridSummaryCell({
   return (
     <TableCell
       data-slot="grid-summary-cell"
-      className={cn("p-0", className)}
+      className={cn("p-0.5", className)}
       onFocus={(event) => {
         setArmed(true);
         onFocus?.(event);
@@ -2316,7 +2319,7 @@ export function GridSummaryCell({
     >
       <div className="flex min-w-0 items-center gap-2">
         {leading != null ? (
-          <span className="shrink-0 ps-2.5 text-xs text-muted-foreground">
+          <span className="shrink-0 ps-2 text-xs text-muted-foreground">
             {leading}
           </span>
         ) : null}
@@ -2354,9 +2357,9 @@ export function GridSummaryCell({
               }
               data-empty={chosen ? undefined : ""}
               className={cn(
-                // The whole cell is the target and its hover: edge to edge and square, the row's
-                // height, with the state layer's wash and no border (a header's wash, not a chip).
-                "h-9 w-full min-w-0 flex-1 gap-1 rounded-none border-0 ps-2.5 pe-2.5 text-xs text-muted-foreground data-[size=sm]:h-9 data-[size=sm]:rounded-none",
+                // The whole cell is the target: a row-height `item` shape inset 2px from the cell's
+                // edges (the cell's `p-0.5`), with the state layer's wash and no border (not a chip).
+                "h-8 w-full min-w-0 flex-1 gap-1 rounded-item border-0 ps-2 pe-2 text-xs text-muted-foreground data-[size=sm]:h-8 data-[size=sm]:rounded-item",
                 SUMMARY_JUSTIFY,
                 // Unsummarised, on a fine pointer, while the cell is neither hovered, keyboard-focused
                 // nor open: only the Σ shows. Focus handed back to the cell after a pick is not
@@ -2407,9 +2410,9 @@ export function GridSummaryCell({
           <span
             aria-hidden="true"
             data-slot="grid-summary-placeholder"
-            // The trigger's own box (`h-9`, its padding, the Σ at the start), so nothing moves when
-            // the picker mounts on hover.
-            className="flex h-9 min-w-0 flex-1 items-center justify-start gap-1 ps-2.5 pe-2.5 text-xs text-muted-foreground"
+            // The trigger's own box (`h-8` in the cell's 2px inset, its padding, the Σ at the
+            // start), so nothing moves when the picker mounts on hover.
+            className="flex h-8 min-w-0 flex-1 items-center justify-start gap-1 ps-2 pe-2 text-xs text-muted-foreground"
           >
             <Sigma
               data-slot="grid-summary-sigma"

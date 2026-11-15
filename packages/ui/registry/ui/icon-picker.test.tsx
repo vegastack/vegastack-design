@@ -303,7 +303,10 @@ test("a checked swatch carries the selected cell's 1px primary border, not a rin
   const b = getComputedStyle(cell);
   expect(a.borderTopWidth).toBe(b.borderTopWidth);
   expect(a.borderTopColor).toBe(b.borderTopColor);
-  expect(a.borderTopLeftRadius).not.toBe(b.borderTopLeftRadius);
+  // BRD-12: both are icon-only buttons, so both are circles (`rounded-icon`); the swatch's own
+  // round dot sits inside the same round cell shape the grid uses.
+  expect(a.borderTopLeftRadius).toBe(b.borderTopLeftRadius);
+  expect(swatch.className).toContain("rounded-icon");
   const inner = swatch.querySelector<HTMLElement>(
     '[data-slot="icon-picker-swatch"]',
   )!;

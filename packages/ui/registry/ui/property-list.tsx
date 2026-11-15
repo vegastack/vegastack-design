@@ -1,4 +1,4 @@
-// @vegastack property-list@0.88.0 sha256-FojIpQTRKKLJNkG5vyxIEY1fvyByGDehK6iYYCgMTsU=
+// @vegastack property-list@0.88.0 sha256-CRh2ORQ3UA9X/DM91sAcDFP139ZzXyrGbVNhlTvVjyc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -174,8 +174,8 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // and wraps exactly where a read-only value's does, and the hover/focus tint extends just
         // past the text. The field laid over it while editing carries the same padding, so the
         // caret starts on the text and nothing moves entering or leaving edit.
-        "[&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:-mx-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:-my-0.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:max-w-[calc(100%+0.75rem)] [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:rounded-md [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:px-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:py-0.5",
-        "[&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:rounded-md [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:px-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:py-0.5",
+        "[&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:-mx-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:-my-0.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:max-w-[calc(100%+0.75rem)] [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:rounded-item [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:px-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-display]]:py-0.5",
+        "[&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:rounded-item [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:px-1.5 [&>[data-slot=editable-cell][data-variant=inline]_[data-slot=editable-cell-input]]:py-0.5",
         // An EditableCell `select` editor: its 28px trigger hangs 4px above and below the line and
         // its start padding plus border past the column, so the chosen option's text starts where
         // plain values do.

@@ -50,7 +50,7 @@ const resizablePlaygroundConfig: PlaygroundConfig<ResizablePlaygroundKey> = {
       <ResizablePanelGroup
         key={String(state.orientation)}
         orientation={state.orientation as Orientation}
-        className="rounded-lg border"
+        className="rounded-card border"
       >
         <ResizablePanel defaultSize="40%" minSize="20%">
           <div className="flex h-full items-center justify-center p-4 text-sm text-muted-foreground">
@@ -78,7 +78,7 @@ const resizablePlaygroundConfig: PlaygroundConfig<ResizablePlaygroundKey> = {
     // Emit the bounded-height PARENT wrapper — the group's own inline `height: 100%`
     // overrides any `h-*` class placed on the group itself.
     return `<div className="h-48">
-  <ResizablePanelGroup${orientationProp} className="rounded-lg border">
+  <ResizablePanelGroup${orientationProp} className="rounded-card border">
     <ResizablePanel defaultSize="40%" minSize="20%">One</ResizablePanel>
     <ResizableHandle${handleProp} aria-label="Resize panels" />
     <ResizablePanel minSize="20%">Two</ResizablePanel>

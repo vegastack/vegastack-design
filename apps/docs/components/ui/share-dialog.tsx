@@ -1,4 +1,4 @@
-// @vegastack share-dialog@0.88.0 sha256-QW/rGmwrhFccni/F8rJqXH4iKpIsdm6wyBUXb56RjBw=
+// @vegastack share-dialog@0.88.0 sha256-GFISDRFQ2r3sTpj10mhfJuqN6vaQHGFgBvbmb+vqHNU=
 
 "use client";
 
@@ -492,7 +492,7 @@ function IconTile({ children }: { children: React.ReactNode }) {
   return (
     <span
       aria-hidden
-      className="flex size-8 shrink-0 items-center justify-center rounded-md bg-muted text-muted-foreground [&_svg]:size-4"
+      className="flex size-8 shrink-0 items-center justify-center rounded-tile bg-muted text-muted-foreground [&_svg]:size-4"
     >
       {children}
     </span>
@@ -844,7 +844,7 @@ export function ShareDialog({
                   variant="ghost"
                   size="sm"
                   aria-label={labels.generalHeading}
-                  className="-ms-1.5 w-auto max-w-full gap-2 border-0 py-0 ps-1.5 pe-1.5 text-sm state-layer aria-expanded:bg-state-selected data-[size=sm]:h-6 data-[size=sm]:rounded-md [&>svg]:-ms-1 [&>svg]:size-3.5 [&>svg]:opacity-0 [&>svg]:transition-opacity hover:[&>svg]:opacity-100 focus-visible:[&>svg]:opacity-100 aria-expanded:[&>svg]:opacity-100"
+                  className="-ms-1.5 w-auto max-w-full gap-2 border-0 py-0 ps-1.5 pe-1.5 text-sm state-layer aria-expanded:bg-state-selected data-[size=sm]:h-6 [&>svg]:-ms-1 [&>svg]:size-3.5 [&>svg]:opacity-0 [&>svg]:transition-opacity hover:[&>svg]:opacity-100 focus-visible:[&>svg]:opacity-100 aria-expanded:[&>svg]:opacity-100"
                 >
                   <SelectValue />
                 </SelectTrigger>

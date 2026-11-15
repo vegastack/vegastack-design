@@ -1,4 +1,4 @@
-// @vegastack filter-bar-managed@0.88.0 sha256-ldy1PaMOaOEk7Y0b/CNCGkpsufMNgHXnLDL0lF/whqA=
+// @vegastack filter-bar-managed@0.88.0 sha256-nS3cGcbzCjsAX/jo8wpG8YHRu+BXhX1GBC899rwxrnA=
 
 "use client";
 
@@ -966,7 +966,7 @@ export function FilterBuilder<V = unknown>({
         disabled={disabled}
         className={cn(
           "flex min-w-0 flex-col gap-2",
-          depth > 1 && "rounded-md border border-border p-3",
+          depth > 1 && "rounded-block border border-border p-3",
         )}
       >
         <legend className="sr-only">
@@ -1852,7 +1852,7 @@ function FieldSelect({
         aria-label={label}
         data-slot="field-select"
         className={cn(
-          "h-7 w-fit min-w-36 rounded-md px-1.5 text-sm font-normal hover:border-transparent state-layer",
+          "h-7 w-fit min-w-36 px-1.5 text-sm font-normal hover:border-transparent state-layer",
           className,
         )}
       >
@@ -2017,7 +2017,7 @@ export function SortBuilder({
                 size="sm"
                 variant="ghost"
                 aria-label={`${item.label} direction`}
-                className="h-7 w-28 shrink-0 rounded-md px-1.5 text-sm font-normal text-muted-foreground hover:border-transparent state-layer"
+                className="h-7 w-28 shrink-0 px-1.5 text-sm font-normal text-muted-foreground hover:border-transparent state-layer"
               >
                 <SelectValue />
               </SelectTrigger>

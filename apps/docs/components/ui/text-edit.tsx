@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.88.0 sha256-dB6ENeKq3e+3wAYbAG+z2QMK5utpdIEu+59TM+RO64A=
+// @vegastack text-edit@0.88.0 sha256-JSCsUUT1BYxoK3Xsbo1vn52hs7VqgpZ86fdmgrEe078=
 
 "use client";
 
@@ -747,7 +747,7 @@ const editorBaseClassName = cn(
   "[&_.tableWrapper>table>tbody>tr>td]:relative [&_.tableWrapper>table>tbody>tr>th]:relative [&_.column-resize-handle]:pointer-events-none [&_.column-resize-handle]:absolute [&_.column-resize-handle]:-inset-y-px [&_.column-resize-handle]:-end-px [&_.column-resize-handle]:w-0.5 [&_.column-resize-handle]:bg-primary/50 [&.resize-cursor]:cursor-col-resize",
   // A selected atom (a mention, a divider) gets a tint; a selected image keeps its own radius and
   // shows its outline instead (the image node view).
-  "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-sm [&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
+  "[&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:rounded-inline [&_.ProseMirror-selectednode:not([data-slot=text-edit-image-node])]:bg-accent",
   // An empty toggle title or body shows its hint (the Placeholder extension's `is-empty`).
   "[&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:pointer-events-none [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:float-start [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:h-0 [&_[data-slot=toggle-content]>[data-node-view-content-react]>.is-empty]:before:text-muted-foreground/60 [&_[data-slot=toggle-content]>[data-node-view-content-react]>[data-slot=toggle-summary].is-empty]:before:content-[attr(data-placeholder)] [&_[data-slot=toggle-content]>[data-node-view-content-react]>p.is-empty]:before:content-['Empty_toggle._Type_or_press_/_for_commands']",
 );
@@ -773,10 +773,10 @@ const documentSurfaceClassName = cn(
  * starts with a visually hidden "Added:"/"Removed:" so a screen reader hears it.
  */
 const diffClassName = cn(
-  "[&_ins[data-ychange]]:rounded-xs [&_ins[data-ychange]]:bg-success/10 [&_ins[data-ychange]]:text-success-text [&_ins[data-ychange]]:underline [&_ins[data-ychange]]:decoration-success [&_ins[data-ychange]]:underline-offset-2 dark:[&_ins[data-ychange]]:bg-success/20",
-  "[&_del[data-ychange]]:rounded-xs [&_del[data-ychange]]:bg-destructive/10 [&_del[data-ychange]]:text-destructive-text [&_del[data-ychange]]:line-through dark:[&_del[data-ychange]]:bg-destructive/20",
-  "[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:rounded-sm [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/10 [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:text-success-text [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:underline [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:decoration-success [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:underline-offset-2 dark:[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/20",
-  "[&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:rounded-sm [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:bg-destructive/10 [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:text-destructive-text [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:line-through dark:[&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:bg-destructive/20",
+  "[&_ins[data-ychange]]:rounded-mark [&_ins[data-ychange]]:bg-success/10 [&_ins[data-ychange]]:text-success-text [&_ins[data-ychange]]:underline [&_ins[data-ychange]]:decoration-success [&_ins[data-ychange]]:underline-offset-2 dark:[&_ins[data-ychange]]:bg-success/20",
+  "[&_del[data-ychange]]:rounded-mark [&_del[data-ychange]]:bg-destructive/10 [&_del[data-ychange]]:text-destructive-text [&_del[data-ychange]]:line-through dark:[&_del[data-ychange]]:bg-destructive/20",
+  "[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:rounded-mark [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/10 [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:text-success-text [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:underline [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:decoration-success [&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:underline-offset-2 dark:[&_:not(ins)[data-ychange=added]:not(:is([data-ychange]_*))]:bg-success/20",
+  "[&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:rounded-mark [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:bg-destructive/10 [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:text-destructive-text [&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:line-through dark:[&_:not(del)[data-ychange=removed]:not(:is([data-ychange]_*))]:bg-destructive/20",
   "[&_img[data-ychange=added]]:outline-2 [&_img[data-ychange=added]]:outline-offset-2 [&_img[data-ychange=added]]:outline-success [&_img[data-ychange=removed]]:opacity-60 [&_img[data-ychange=removed]]:outline-2 [&_img[data-ychange=removed]]:outline-offset-2 [&_img[data-ychange=removed]]:outline-dashed [&_img[data-ychange=removed]]:outline-destructive",
   "[&_[data-ychange=added]:not(:is([data-ychange]_*))]:before:sr-only [&_[data-ychange=added]:not(:is([data-ychange]_*))]:before:content-['Added:_']",
   "[&_[data-ychange=removed]:not(:is([data-ychange]_*))]:before:sr-only [&_[data-ychange=removed]:not(:is([data-ychange]_*))]:before:content-['Removed:_']",
@@ -792,10 +792,10 @@ function DiffLegend({ baseline }: { baseline?: React.ReactNode }) {
       {baseline !== undefined && baseline !== null ? (
         <span className="min-w-0 wrap-anywhere">Compared with {baseline}</span>
       ) : null}
-      <ins className="rounded-xs bg-success/10 px-1 text-success-text underline decoration-success underline-offset-2 dark:bg-success/20">
+      <ins className="rounded-mark bg-success/10 px-1 text-success-text underline decoration-success underline-offset-2 dark:bg-success/20">
         Added
       </ins>
-      <del className="rounded-xs bg-destructive/10 px-1 text-destructive-text line-through dark:bg-destructive/20">
+      <del className="rounded-mark bg-destructive/10 px-1 text-destructive-text line-through dark:bg-destructive/20">
         Removed
       </del>
     </p>
@@ -808,7 +808,9 @@ function DiffLegend({ baseline }: { baseline?: React.ReactNode }) {
  * text, the actions (Send). The 24px controls sit 4px in from the border on every side — never on
  * the corners — centred on a single line and pinned to the last line as the text grows
  * (`self-end`); the text starts 8px in when nothing leads. One line of text is exactly the 24px row.
- * The text scrolls inside past about ten lines; the footer spans the row under it.
+ * The text scrolls inside past about ten lines; the footer spans the row under it. Its corner is
+ * the multi-line field's `rounded-card` (16): on the 32px single line that is exactly Input's pill,
+ * and as the text grows the box keeps a 16px corner instead of turning into a stadium.
  */
 const COMPOSER_ROOT = "grid min-h-8 items-end gap-x-1 bg-muted/30 p-[3px]";
 const COMPOSER_LEADING =
@@ -2645,7 +2647,7 @@ export function TextEdit(props: TextEditProps) {
         // `boxed`: text entry's border cue (FOC-3) — a subtle darker border that eases in while
         // the editor holds focus, never a fill; an invalid box keeps its destructive border.
         boxed &&
-          "rounded-lg border border-input transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
+          "rounded-card border border-input transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-invalid:border-destructive dark:bg-input/30 dark:data-invalid:border-destructive/50",
         boxed && !composer && "px-2.5 py-2",
         composer && COMPOSER_ROOT,
         composer &&

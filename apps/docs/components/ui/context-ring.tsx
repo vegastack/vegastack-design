@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.88.0 sha256-j5SXHq2SQvjm9nOXzDKzvbvbcU/oXDEbXygBcEFDUCw=
+// @vegastack context-ring@0.88.0 sha256-8eo5boBymXE36PJJWFFgBKmRJP2pZnqI8YXY1optzgg=
 
 "use client";
 
@@ -150,7 +150,7 @@ export function ContextRing({
       data-tone={tone}
       aria-label={name}
       className={cn(
-        "h-8 gap-1.5 rounded-full px-2.5 text-xs font-normal text-muted-foreground tabular-nums hover:text-foreground",
+        "h-8 gap-1.5 px-2.5 text-xs font-normal text-muted-foreground tabular-nums hover:text-foreground",
         className,
       )}
       onClick={(event) => {

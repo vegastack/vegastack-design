@@ -1,4 +1,4 @@
-// @vegastack chat-user-bubble@0.88.0 sha256-tLuT4UCkn5ggxATLXWm2uNQX9q4VwFiRib1XNb/hBJg=
+// @vegastack chat-user-bubble@0.88.0 sha256-xuQ+D+zYR6FWU22oYP3c92MT/QViNRawk5dUxf2A3s4=
 
 "use client";
 
@@ -108,7 +108,7 @@ function UserBubble({
               variant="ghost"
               onClick={() => onOpenFile?.(file)}
               aria-label={`Open ${nameOf(file) ?? "image"}`}
-              className="size-14 overflow-hidden rounded-lg border border-chat-hairline p-0"
+              className="size-14 overflow-hidden rounded-tile border border-chat-hairline p-0"
             >
               <img
                 src={file.url}
@@ -135,7 +135,7 @@ function UserBubble({
       {text.trim() ? (
         <div
           data-slot="user-bubble-content"
-          className="relative max-w-[85%] min-w-0 rounded-2xl bg-muted px-3.5 py-2 text-sm text-foreground max-sm:max-w-[90%]"
+          className="relative max-w-[85%] min-w-0 rounded-bubble bg-muted px-3.5 py-2 text-sm text-foreground max-sm:max-w-[90%]"
         >
           <div className="relative min-w-0">
             <div

@@ -1,4 +1,4 @@
-// @vegastack stepper@0.88.0 sha256-tE6hFTM8w1PDRQKPzx0Dmsmk4zscqnvUdPwF17lrB6k=
+// @vegastack stepper@0.88.0 sha256-Z21oCFKNDBzELcw1Ymyyhu9Zaoqs3i5j/Yqytnb5mqs=
 
 "use client";
 
@@ -175,7 +175,7 @@ const LABEL_CLASS: Record<StepperStepState, string> = {
  * connector offsets below are measured from this padding (`px-2 py-1`) and the node size.
  */
 const STEP_BOX_CLASS =
-  "relative flex h-auto min-h-6 max-w-full min-w-0 justify-start gap-2 rounded-md px-2 py-1 text-start";
+  "relative flex h-auto min-h-6 max-w-full min-w-0 justify-start gap-2 rounded-item px-2 py-1 text-start";
 
 /**
  * Connector geometry per orientation and node size. Horizontal: centred on the node row

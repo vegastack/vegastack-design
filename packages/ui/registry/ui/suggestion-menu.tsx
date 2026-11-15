@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.88.0 sha256-Vvhv6xZpO9yDzN26V1TdFZSU6yrQ7yMFTzNngEg6/jo=
+// @vegastack suggestion-menu@0.88.0 sha256-dd3ZnHkTH37It6R44nsvikBsLHtwzPDM/FWoMXoe9Ks=
 
 "use client";
 
@@ -199,17 +199,17 @@ export interface SuggestionMenuProps extends Omit<
 
 /** The popup surface: the combobox popup's chrome (border, radius, shadow, padding). */
 const SURFACE =
-  "z-50 rounded-lg border border-border bg-popover p-1 text-popover-foreground shadow-md overflow-y-auto overscroll-contain scroll-py-1 no-scrollbar";
+  "z-50 rounded-card border border-border bg-popover p-1.5 text-popover-foreground shadow-md overflow-y-auto overscroll-contain scroll-py-1 no-scrollbar";
 
 /**
- * `ComboboxItem`'s row, verbatim apart from `pe-8` → `pe-1.5`: a suggestion row has no check
+ * `ComboboxItem`'s row, verbatim apart from `pe-8` → `pe-2`: a suggestion row has no check
  * indicator to leave room for. Keyed to `data-highlighted`, as Base UI keys `ComboboxItem`.
  *
  * @example
  * <div role="option" data-highlighted="" className={SUGGESTION_MENU_ROW}>Power</div>
  */
 export const SUGGESTION_MENU_ROW =
-  "relative flex w-full items-center gap-2 rounded-md py-1 pe-1.5 ps-1.5 text-sm outline-hidden select-none data-highlighted:bg-state-hover data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground";
+  "relative flex w-full items-center gap-2 rounded-item py-1 pe-2 ps-2 text-sm outline-hidden select-none data-highlighted:bg-state-hover data-highlighted:text-accent-foreground not-data-[variant=destructive]:data-highlighted:**:[&:not([data-icon-tone],[data-icon-tone]_*)]:text-accent-foreground data-disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-highlighted:**:[svg:not([data-icon-tone])]:text-accent-foreground";
 
 /** `ComboboxLabel`'s group heading. */
 const GROUP_LABEL = "px-2 py-1.5 text-xs text-muted-foreground";
@@ -236,11 +236,11 @@ function SuggestionMenuSkeleton() {
       {[0, 1].map((group) => (
         <div key={group}>
           <div className={GROUP_LABEL}>
-            <Skeleton className="h-4 w-16 rounded-sm" />
+            <Skeleton className="h-4 w-16" />
           </div>
           {SKELETON_ROWS.map(([label, description], at) => (
             <div key={at} className={SUGGESTION_MENU_ROW}>
-              <Skeleton className="size-5 shrink-0 rounded-sm" />
+              <Skeleton className="size-5 shrink-0 rounded-tile" />
               <div className="min-w-0 flex-1">
                 <Skeleton className={cn("h-3.5 max-w-full", label)} />
               </div>
@@ -704,12 +704,12 @@ export function SuggestionMenu({
         <SheetContent
           side="bottom"
           data-slot="suggestion-menu-sheet"
-          className="max-h-[70dvh] gap-0"
+          className="max-h-[70dvh] gap-0 rounded-t-overlay"
         >
           <SheetHeader className="pb-2">
             <SheetTitle>{ariaLabel}</SheetTitle>
           </SheetHeader>
-          <PanelSearch className="mx-4 mb-2 h-11 shrink-0 rounded-lg border px-3">
+          <PanelSearch className="mx-4 mb-2 h-11 shrink-0 rounded-control border px-3">
             <PanelSearchField
               data-slot="suggestion-menu-search"
               aria-label={ariaLabel}

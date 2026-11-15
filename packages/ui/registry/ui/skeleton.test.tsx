@@ -20,7 +20,7 @@ test("renders a div carrying data-slot and the upstream recipe", async () => {
   const screen = await render(<Skeleton />);
   const skeleton = skeletonIn(screen.container);
   expect(skeleton.tagName).toBe("DIV");
-  for (const className of ["animate-pulse", "rounded-md", "bg-muted"]) {
+  for (const className of ["animate-pulse", "rounded-inline", "bg-muted"]) {
     expect(skeleton.className.split(/\s+/)).toContain(className);
   }
 });
@@ -36,7 +36,7 @@ test("the caller's className joins the recipe rather than replacing it (Usage)",
   expect(classes).toContain("w-[100px]");
   // `cn` resolves the radius conflict in the caller's favour — one radius survives.
   expect(classes).toContain("rounded-full");
-  expect(classes).not.toContain("rounded-md");
+  expect(classes).not.toContain("rounded-inline");
 });
 
 test("arbitrary div props are forwarded (Avatar, Card)", async () => {

@@ -1,4 +1,4 @@
-// @vegastack brand-logo@0.88.0 sha256-Mu7eJGvn/2TzYy88FpMz5KnfXWV4aEuSPBe8ywGaryo=
+// @vegastack brand-logo@0.88.0 sha256-0sKojamEP5QftCpngoAtmY3CmloBTIZkBW0Kv/M5dXY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -175,7 +175,7 @@ export function BrandLogo({
       aria-label={label || undefined}
       aria-hidden={label ? undefined : true}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center rounded-sm bg-muted text-foreground",
+        "inline-flex shrink-0 items-center justify-center rounded-tile bg-muted text-foreground",
         size === "sm" ? "size-4" : "size-5",
         className,
       )}

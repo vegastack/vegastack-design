@@ -412,7 +412,7 @@ export function multiStepFormSticky(): ReactNode {
     <Wrapper className="block">
       {/* No bottom padding: the pinned row meets the scroll box's edge, so nothing scrolls
           visibly beneath it. The page surface is the one the row paints. */}
-      <div className="mx-auto h-96 w-full max-w-2xl overflow-y-auto rounded-lg border bg-background px-4 pt-4">
+      <div className="mx-auto h-96 w-full max-w-2xl overflow-y-auto rounded-card border bg-background px-4 pt-4">
         <MultiStepForm steps={steps}>
           <MultiStepFormNav aria-label="Product" />
           {steps.map((step) => (
@@ -768,7 +768,7 @@ function FooterState({
   secondary?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-2 rounded-lg border border-border p-3">
+    <div className="flex flex-col gap-2 rounded-card border border-border p-3">
       <p className="text-xs text-muted-foreground">{caption}</p>
       <MultiStepForm
         steps={FOOTER_STEPS}

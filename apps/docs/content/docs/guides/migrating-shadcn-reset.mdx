@@ -54,7 +54,7 @@ point of the release, not side effects.
 | A warm neutral ramp (OKLCH hue 75)                                          | shadcn's own `neutral` — pure achromatic. Light `background` is white                                                                                                                                                                                                                                                      |
 | A three-rung surface ladder (`surface-1/2/3`) driving every hover and press | `muted` for a well or track, `accent` for a hover; each component writes its own hover and press                                                                                                                                                                                                                           |
 | Every control had a pressed step, enforced by lint                          | A hover with no pressed step is upstream's own behaviour and is fine                                                                                                                                                                                                                                                       |
-| Radius capped at `rounded-lg`; `rounded-xl` banned                          | Radius derives from one `--radius` (0.625rem); a card and a dialog wear `rounded-xl`                                                                                                                                                                                                                                       |
+| Radius capped at `rounded-lg`; `rounded-xl` banned                          | Corner roles (BRD-12): a single-line control is a pill (`rounded-control`), a row `rounded-item`, a card `rounded-card`, a dialog `rounded-overlay`                                                                                                                                                                        |
 | One sanctioned shadow (`--shadow-overlay`), everything else flat            | `shadow-sm` / `shadow-md` / `shadow-lg`, per component, as shadcn uses them                                                                                                                                                                                                                                                |
 | A 14px product type scale bound onto every `text-*` utility                 | Tailwind's stock scale. `text-sm` is 14px, `text-base` is 16px — see section 5                                                                                                                                                                                                                                             |
 | Weight ladder 400/500; `font-semibold` and `font-bold` were lint errors     | Ordinary utilities. `blur-*`, `shadow-*` and `text-4xl` are ordinary too; the ramp owns tracking                                                                                                                                                                                                                           |
@@ -238,7 +238,10 @@ lint rule that policed that distinction is gone, but the distinction is still th
 `--radius-sm`, `--radius-md` and `--radius-lg` are no longer authored tokens, but the utilities still
 work: upstream derives the whole ramp from one `--radius` (0.625rem) at 0.6 / 0.8 / 1 / 1.4 / 1.8 /
 2.2 / 2.6. Their computed values moved, so `rounded-sm` is now 0.375rem and `rounded-xl` is 0.875rem.
-Override `--radius` alone to reshape everything.
+VegaStack components don't use that ramp: every element takes a corner role (`rounded-control`,
+`rounded-item`, `rounded-block`, `rounded-card`, `rounded-overlay` …), each its own `--corner-*`
+variable, and design-lint fails a ramp step in registry source. Move app code to the roles too —
+see [Radius](/docs/foundations/radius).
 
 ### 4.5 Status colour steps
 
@@ -357,10 +360,10 @@ exactly this, and `brand-text` is the same role for the brand accent.
 
 ```tsx
 // Wrong — compiles, renders, fails AA on its own tint
-<div className="rounded-lg bg-destructive/10 p-3 text-destructive">…</div>
+<div className="rounded-block bg-destructive/10 p-3 text-destructive">…</div>
 
 // Right
-<div className="rounded-lg bg-destructive/10 p-3 text-destructive-text">…</div>
+<div className="rounded-block bg-destructive/10 p-3 text-destructive-text">…</div>
 ```
 
 `info` stays rationed to links and informational UI. A status hue means status, not sentiment: a
@@ -434,17 +437,17 @@ survive, because in several cases something real did.
 
 ### 8.1 `IconButton` → `Button` at an icon size
 
-| `IconButton`                                                 | `Button`                                                   |
-| ------------------------------------------------------------ | ---------------------------------------------------------- |
-| `size="xs"`                                                  | `size="icon-xs"` (24px)                                    |
-| `size="sm"`                                                  | `size="icon-sm"` (28px)                                    |
-| `size="md"`                                                  | `size="icon"` (32px, the default)                          |
-| `size="lg"`                                                  | `size="icon-lg"` (36px)                                    |
-| `shape="round"`                                              | `className="rounded-full"`                                 |
-| `shape="square"`                                             | the default — drop it                                      |
-| `iconButtonGeometry(size, shape)`                            | `buttonVariants({ size: "icon-sm" })`, plus `rounded-full` |
-| `tone="…"`                                                   | see section 10.1 — the tone axis is gone                   |
-| everything else (`variant`, `loading`, `disabled`, `render`) | unchanged                                                  |
+| `IconButton`                                                 | `Button`                                                 |
+| ------------------------------------------------------------ | -------------------------------------------------------- |
+| `size="xs"`                                                  | `size="icon-xs"` (24px)                                  |
+| `size="sm"`                                                  | `size="icon-sm"` (28px)                                  |
+| `size="md"`                                                  | `size="icon"` (32px, the default)                        |
+| `size="lg"`                                                  | `size="icon-lg"` (36px)                                  |
+| `shape="round"`                                              | nothing — every icon button is a circle (`rounded-icon`) |
+| `shape="square"`                                             | the default — drop it                                    |
+| `iconButtonGeometry(size, shape)`                            | `buttonVariants({ size: "icon-sm" })` (already a circle) |
+| `tone="…"`                                                   | see section 10.1 — the tone axis is gone                 |
+| everything else (`variant`, `loading`, `disabled`, `render`) | unchanged                                                |
 
 ```tsx
 // Before
@@ -1237,7 +1240,7 @@ export function NotificationSettings({ plan }: { plan: string }) {
   }
 
   return (
-    <section className="rounded-lg bg-surface-1 p-4">
+    <section className="rounded-card bg-surface-1 p-4">
       <header className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h2 className="text-h2">Notifications</h2>
@@ -1363,7 +1366,7 @@ export function NotificationSettings({ plan }: { plan: string }) {
   }
 
   return (
-    <section className="rounded-lg bg-muted p-4">
+    <section className="rounded-card bg-muted p-4">
       <header className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h2 className="font-heading text-base font-medium">Notifications</h2>

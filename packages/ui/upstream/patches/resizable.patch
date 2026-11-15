@@ -1,6 +1,7 @@
 # component: resizable
-# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-6
+# decisions: A11Y-2, DOC-1, DOC-2, FOC-1, FOC-6, BRD-12
 # hunks:
+#   BRD-12: the grip is `rounded-full` (an indicator with pill ends), not `rounded-lg` on a 4px bar (operator 2026-11-16).
 #   FOC-1, FOC-6: `focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-hidden`
 #     goes from `ResizableHandle`. `outline-hidden` is the v3 spelling of 'no outline', so
 #     upstream suppressed the one focus affordance this system has on a control that is
@@ -17,7 +18,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/resizable.tsx b/resizable.tsx
-index c5065e6..dd61b8a 100644
+index c5065e6..4cf2706 100644
 --- a/resizable.tsx
 +++ b/resizable.tsx
 @@ -1,7 +1,7 @@
@@ -50,7 +51,7 @@ index c5065e6..dd61b8a 100644
  }
  
  function ResizableHandle({
-@@ -28,14 +28,14 @@ function ResizableHandle({
+@@ -28,22 +28,22 @@ function ResizableHandle({
    className,
    ...props
  }: ResizablePrimitive.SeparatorProps & {
@@ -68,8 +69,9 @@ index c5065e6..dd61b8a 100644
        )}
        {...props}
      >
-@@ -43,7 +43,7 @@ function ResizableHandle({
-         <div className="z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border" />
+       {withHandle && (
+-        <div className="z-10 flex h-6 w-1 shrink-0 rounded-lg bg-border" />
++        <div className="z-10 flex h-6 w-1 shrink-0 rounded-full bg-border" />
        )}
      </ResizablePrimitive.Separator>
 -  )

@@ -41,8 +41,8 @@ const TAGS = [
 /** The bounding classes per axis — the constraint is what makes the content overflow. */
 function boxClassName(axis: string | boolean): string {
   return axis === "horizontal"
-    ? "w-56 rounded-md border"
-    : "h-40 w-56 rounded-md border";
+    ? "w-56 rounded-card border"
+    : "h-40 w-56 rounded-card border";
 }
 
 function overflowContent(axis: string | boolean): ReactNode {
@@ -52,7 +52,7 @@ function overflowContent(axis: string | boolean): ReactNode {
         {TAGS.map((tag) => (
           <span
             key={tag}
-            className="rounded-md bg-muted px-2 py-1 text-sm whitespace-nowrap"
+            className="rounded-chip bg-muted px-2 py-1 text-sm whitespace-nowrap"
           >
             {tag}
           </span>

@@ -1,4 +1,4 @@
-// @vegastack recent-strip@0.88.0 sha256-QsecsLo8J2ZtjNEwnKiAlE3S6twka99LE8FtQQh8+tk=
+// @vegastack recent-strip@0.88.0 sha256-uz5o1fGaYfeUgBUn9D3a7aIqf3JxWojjSSyp8xYhUDk=
 
 "use client";
 
@@ -116,7 +116,7 @@ const STRIP_KEYS = new Set(["ArrowLeft", "ArrowRight", "Home", "End"]);
  * card's icon tile sits the same 8px from its edge on every side, so the title gets the rest.
  */
 const ITEM_SHAPE =
-  "flex max-w-48 min-w-0 items-center gap-1.5 rounded-full border border-border bg-transparent px-3 @max-md/recent-strip:h-8 @md/recent-strip:w-56 @md/recent-strip:max-w-none @md/recent-strip:gap-2.5 @md/recent-strip:rounded-lg @md/recent-strip:px-2 @md/recent-strip:py-2";
+  "flex max-w-48 min-w-0 items-center gap-1.5 rounded-chip border border-border bg-transparent px-3 @max-md/recent-strip:h-8 @md/recent-strip:w-56 @md/recent-strip:max-w-none @md/recent-strip:gap-2.5 @md/recent-strip:rounded-card @md/recent-strip:px-2 @md/recent-strip:py-2";
 
 /**
  * `RecentStrip` — one row of the records a person opened last, to jump back in: a horizontal strip
@@ -218,7 +218,7 @@ export function RecentStrip({
                 <CollapsibleTrigger
                   data-slot="recent-strip-toggle"
                   id={headingId}
-                  className="-ms-1 inline-flex h-7 min-w-0 items-center gap-1 rounded-md px-1 text-sm font-medium text-muted-foreground transition-colors state-layer hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0"
+                  className="-ms-1 inline-flex h-7 min-w-0 items-center gap-1 rounded-item px-1 text-sm font-medium text-muted-foreground transition-colors state-layer hover:text-foreground [&_svg]:size-4 [&_svg]:shrink-0"
                 >
                   <span className="truncate">{label}</span>
                   <ChevronDown
@@ -348,7 +348,7 @@ function RecentStripList({
                         <span
                           data-slot="recent-strip-icon"
                           aria-hidden="true"
-                          className="flex shrink-0 items-center justify-center text-muted-foreground @md/recent-strip:size-8 @md/recent-strip:rounded-md @md/recent-strip:bg-state-tile [&_svg]:size-4 [&_svg]:shrink-0"
+                          className="flex shrink-0 items-center justify-center text-muted-foreground @md/recent-strip:size-8 @md/recent-strip:rounded-tile @md/recent-strip:bg-state-tile [&_svg]:size-4 [&_svg]:shrink-0"
                         >
                           {item.icon}
                         </span>
@@ -397,7 +397,6 @@ function RecentStripList({
           aria-label={scrollBackLabel}
           disabled={!edges.start}
           onClick={() => scroll(-1)}
-          className="rounded-full"
         >
           <ChevronLeft className="rtl:rotate-180" />
         </Button>
@@ -411,7 +410,6 @@ function RecentStripList({
           aria-label={scrollForwardLabel}
           disabled={!edges.end}
           onClick={() => scroll(1)}
-          className="rounded-full"
         >
           <ChevronRight className="rtl:rotate-180" />
         </Button>
@@ -435,7 +433,7 @@ function RecentStripSkeleton({ count }: { count: number }) {
             "w-28 shrink-0 @md/recent-strip:w-56 @md/recent-strip:py-2",
           )}
         >
-          <Skeleton className="size-4 shrink-0 rounded-full @md/recent-strip:size-8 @md/recent-strip:rounded-md" />
+          <Skeleton className="size-4 shrink-0 rounded-full @md/recent-strip:size-8 @md/recent-strip:rounded-tile" />
           <span className="flex min-w-0 flex-1 flex-col">
             {/* The loaded card's two line boxes (20px and 16px), so nothing moves on arrival. */}
             <span className="flex h-5 items-center">

@@ -1,4 +1,4 @@
-// @vegastack agent-question-form@0.88.0 sha256-xFo5VT9W1IIkQBTeTbKG8d8Jxr8Grm15Sw9He18Ry7U=
+// @vegastack agent-question-form@0.88.0 sha256-UMbwiUjMyiPOKpnq7X8w1yUStkLGzJWGYB+oWf5ugew=
 
 "use client";
 
@@ -368,7 +368,7 @@ function CompactForm({
               loading={chosen && status === "submitting"}
               disabled={locked}
               onClick={() => pick(index)}
-              className="h-auto min-h-11 w-full items-start justify-start gap-2 px-3 py-2 text-start whitespace-normal data-selected:border-primary/40 data-selected:bg-state-selected"
+              className="h-auto min-h-11 w-full rounded-item items-start justify-start gap-2 px-3 py-2 text-start whitespace-normal data-selected:border-primary/40 data-selected:bg-state-selected"
             >
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <OptionHeading
@@ -406,7 +406,7 @@ function CompactForm({
             setOtherOpen(open);
             if (open) requestAnimationFrame(() => otherRef.current?.focus());
           }}
-          className="h-auto min-h-11 w-full justify-start px-3 py-2 text-start whitespace-normal data-selected:border-primary/40 data-selected:bg-state-selected"
+          className="h-auto min-h-11 w-full rounded-item justify-start px-3 py-2 text-start whitespace-normal data-selected:border-primary/40 data-selected:bg-state-selected"
         >
           {labels.other}
         </Button>
@@ -495,12 +495,12 @@ function PreviewPanel({
           tabIndex={0}
           aria-labelledby={id}
           data-slot="agent-question-form-preview-text"
-          className="max-h-80 min-w-0 overflow-auto rounded-lg border border-border bg-muted p-3 font-mono text-xs leading-relaxed whitespace-pre text-foreground"
+          className="max-h-80 min-w-0 overflow-auto rounded-block border border-border bg-muted p-3 font-mono text-xs leading-relaxed whitespace-pre text-foreground"
         >
           {option.preview}
         </pre>
       ) : (
-        <p className="rounded-lg border border-dashed border-border p-3 text-xs text-muted-foreground">
+        <p className="rounded-block border border-dashed border-border p-3 text-xs text-muted-foreground">
           {labels.noPreview}
         </p>
       )}

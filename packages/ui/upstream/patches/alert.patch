@@ -1,6 +1,8 @@
 # component: alert
-# decisions: A11Y-3, A11Y-8, A11Y-13, API-29, COL-12, DOC-2, LAY-15
+# decisions: A11Y-3, A11Y-8, A11Y-13, API-29, COL-12, DOC-2, LAY-15, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   API-29: each status variant gives every non-primary button inside it the family's own hover
 #     and open state (`bg-<family>/10 text-<family>-text`, the svg too), keyed on Button's
 #     `data-variant`; the neutral `bg-muted text-foreground` hover read white in dark mode on a
@@ -35,7 +37,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/alert.tsx b/alert.tsx
-index babd454..6d87f4d 100644
+index babd454..9df94b1 100644
 --- a/alert.tsx
 +++ b/alert.tsx
 @@ -1,36 +1,49 @@
@@ -48,7 +50,7 @@ index babd454..6d87f4d 100644
  
  const alertVariants = cva(
 -  "group/alert relative grid w-full gap-0.5 rounded-lg border px-2.5 py-2 text-start text-sm has-data-[slot=alert-action]:relative has-data-[slot=alert-action]:pe-18 has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current *:[svg:not([class*='size-'])]:size-4",
-+  "group/alert @container/alert relative outline-none grid w-full gap-0.5 rounded-lg border px-3 py-2.5 text-start text-sm has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 @md/alert:has-data-[slot=alert-action]:grid-cols-[1fr_auto] @md/alert:has-data-[slot=alert-action]:gap-x-3 @md/alert:has-[>svg]:has-data-[slot=alert-action]:grid-cols-[auto_1fr_auto] *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:min-h-8 @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:content-center @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:[svg]:translate-y-2 *:[svg:not([class*='size-'])]:size-4",
++  "group/alert @container/alert relative outline-none grid w-full gap-0.5 rounded-block border px-3 py-2.5 text-start text-sm has-[>svg]:grid-cols-[auto_1fr] has-[>svg]:gap-x-2 @md/alert:has-data-[slot=alert-action]:grid-cols-[1fr_auto] @md/alert:has-data-[slot=alert-action]:gap-x-3 @md/alert:has-[>svg]:has-data-[slot=alert-action]:grid-cols-[auto_1fr_auto] *:[svg]:row-span-2 *:[svg]:translate-y-0.5 *:[svg]:text-current @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:min-h-8 @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:data-[slot=alert-description]:content-center @md/alert:has-data-[slot=alert-action]:not-has-data-[slot=alert-title]:*:[svg]:translate-y-2 *:[svg:not([class*='size-'])]:size-4",
    {
      variants: {
        variant: {

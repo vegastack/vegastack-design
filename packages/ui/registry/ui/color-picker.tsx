@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.88.0 sha256-Ph5QWqnWAFfsyKmzi9smKlNwrb4XLgCEFYRPGodqJwk=
+// @vegastack color-picker@0.88.0 sha256-8WhNAoPKUAaTx3l72yPUkbSBPkcqa/8KptB4wB+2AaA=
 
 "use client";
 
@@ -173,8 +173,8 @@ export interface ColorPickerProps {
 }
 
 /**
- * `ColorPicker` — pick a preset color from a popover grid. The trigger is a `rounded-md` control
- * showing the current selection; opening it reveals the palette, and selecting a swatch fires
+ * `ColorPicker` — pick a preset color from a popover grid. The trigger is a round icon control
+ * (`rounded-icon`) showing the current selection; opening it reveals the palette, and selecting a swatch fires
  * `onValueChange` (with the color's `name`) and marks that swatch with a persistent outer-cell border.
  *
  * Controlled-only: pass `value` + `onValueChange`. The displayed colors come from `colors` (defaults
@@ -332,13 +332,14 @@ export function ColorPicker({
               variant="outline"
               size="icon-sm"
               aria-label={ariaLabel}
-              // The trigger is a control, so it keeps Button's own corner; a swatch grid cell is round.
+              // The trigger is an icon control, so it keeps Button's own circle; a swatch grid cell
+              // is round too.
               className={className}
             >
               <span
                 data-slot="color-picker-swatch"
-                // Fill chip echoes the control geometry (`rounded-sm`), not a round dot.
-                className="size-3.5 rounded-sm border border-border bg-clip-padding"
+                // The fill is concentric with the round trigger: a dot.
+                className="size-3.5 rounded-full border border-border bg-clip-padding"
                 // Dynamic user color — the sanctioned inline-style exception (see file header).
                 // Dynamic swatch color, not a design token.
                 style={

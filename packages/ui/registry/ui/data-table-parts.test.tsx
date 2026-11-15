@@ -444,7 +444,7 @@ test("offscreenSortSummary states a sort only once its column has left the heade
 
 test("SELECTED_ROW_CLASS is the selected step, held through hover (COL-24)", () => {
   expect(SELECTED_ROW_CLASS).toBe(
-    "bg-state-selected hover:not-focus-visible:bg-none",
+    "[--row-fill-color:var(--state-selected)] hover:not-focus-visible:[--row-fill-layer:none]",
   );
 });
 
@@ -1068,12 +1068,16 @@ test("GridSummaryCell: the trigger names the function and column, a change repor
   const screen = await render(<Harness value={null} />);
   // Unsummarised in a grid, the picker mounts on first hover or focus (a wide footer stays light).
   expect(screen.container.querySelector('[role="combobox"]')).toBeNull();
-  // Its stand-in is the trigger's height (the row's 36px), so nothing moves when the picker
-  // mounts, and it shows the same Σ.
+  // Its stand-in is the trigger's height (32px, inside the cell's 2px inset: the row's 36px), so
+  // nothing moves when the picker mounts, and it shows the same Σ.
   const stand = screen.container.querySelector(
     '[data-slot="grid-summary-placeholder"]',
   );
-  expect(stand?.className).toContain("h-9");
+  expect(stand?.className).toContain("h-8");
+  expect(
+    screen.container.querySelector('[data-slot="grid-summary-cell"]')
+      ?.className,
+  ).toContain("p-0.5");
   expect(
     stand?.querySelector('[data-slot="grid-summary-sigma"]'),
   ).not.toBeNull();

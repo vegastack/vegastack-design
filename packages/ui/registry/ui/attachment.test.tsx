@@ -733,7 +733,7 @@ test("FOC-1: the trigger keeps its own outline, and follows the card's corner", 
   expect(trigger.className).not.toMatch(/(?:^|\s)outline-hidden(?:\s|$)/);
   expect(trigger.className).toContain("rounded-[inherit]");
   // …and the corner is the other: without `rounded-[inherit]` the outline would cut a rectangle
-  // across a `rounded-xl` card.
+  // across a `rounded-card` card.
   expect(getComputedStyle(trigger).borderTopLeftRadius).toBe(
     getComputedStyle(card).borderTopLeftRadius,
   );

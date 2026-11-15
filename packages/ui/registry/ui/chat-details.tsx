@@ -1,4 +1,4 @@
-// @vegastack chat-details@0.88.0 sha256-ScpbvEUS3E7jQXUidAJ9GovyNnYY7LrZ6hYx/pAiNSs=
+// @vegastack chat-details@0.88.0 sha256-Wga7wdP97MoRGzfU3jWF2ZXOMO2T1RrS0AIjT3D2vog=
 
 "use client";
 
@@ -150,7 +150,7 @@ export interface ChatDetailsRowProps {
 }
 
 const ROW =
-  "flex min-h-8 w-full min-w-0 items-center gap-2 rounded-md px-2 text-start text-sm [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground";
+  "flex min-h-8 w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm [&_svg:not([class*='size-'])]:size-4 [&_svg]:shrink-0 [&_svg]:text-muted-foreground";
 
 /**
  * One row of a details section: icon, name, quiet meta, and an optional control at the end.

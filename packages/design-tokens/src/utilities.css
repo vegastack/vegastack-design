@@ -186,6 +186,116 @@
   background-image: linear-gradient(var(--state-focus), var(--state-focus));
 }
 
+/* BRD-12 (ours, operator 2026-11-16: "table hover bg for rows also should be following these
+   standards like how select dropdown options hover"): a table row draws its hover, pressed,
+   selected and keyboard-focus fills as one `rounded-item` (10px) shape inset 2px from its hairlines
+   and 4px from the table's sides, exactly like a menu option, instead of a square band. A `<tr>`
+   background cannot be rounded, so each cell paints its slice of the fill on a `::before` behind
+   its content: the first cell carries the start corners, the last the end corners. The fill is two
+   inherited custom properties (`--row-fill-color` for selected, `--row-fill-layer` for the hover,
+   pressed and focus layers), so a component with its own state (a peeked row, a drop target) sets
+   `--row-fill-color` instead of painting the row; a row that is not interactive (an empty-state or
+   summary row) carries `data-row-static` and takes no hover or pressed layer. Every selector sits in `:where()`, so a cell's
+   own `sticky` or `absolute` still wins. */
+@utility row-fill {
+  & > :where(td, th) {
+    position: relative;
+    isolation: isolate;
+  }
+  /* Each cell is now a stacking context, painted in tree order, so a later cell would cover a
+     control whose hit area reaches past its own cell (the selection checkbox's `-inset-x-3`
+     `::after`, which spills into the next column). The cell holding such a control is lifted one
+     step, back above its neighbours, as it was when cells were not positioned; a sticky or frozen
+     cell's own z-index still wins. */
+  & > :where(td, th):where(:has([role="checkbox"], [role="radio"])) {
+    z-index: 1;
+  }
+  & > :where(td, th)::before {
+    content: "";
+    position: absolute;
+    inset-block: 2px;
+    inset-inline: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-color: var(--row-fill-color, transparent);
+    background-image: var(--row-fill-layer, none);
+  }
+  & > :where(td, th):first-child::before {
+    inset-inline-start: 4px;
+    border-start-start-radius: var(--radius-item);
+    border-end-start-radius: var(--radius-item);
+  }
+  & > :where(td, th):last-child::before {
+    inset-inline-end: 4px;
+    border-start-end-radius: var(--radius-item);
+    border-end-end-radius: var(--radius-item);
+  }
+  /* A component whose first or last child is not a real column (a windowing spacer, a filler)
+     marks the real end cells and the cells outside the shape. */
+  & > :where([data-row-start])::before {
+    inset-inline-start: 4px;
+    border-start-start-radius: var(--radius-item);
+    border-end-start-radius: var(--radius-item);
+  }
+  & > :where([data-row-end])::before {
+    inset-inline-end: 4px;
+    border-start-end-radius: var(--radius-item);
+    border-end-end-radius: var(--radius-item);
+  }
+  & > :where([data-row-fill-skip])::before {
+    content: none;
+  }
+  @variant hover {
+    &:where(
+      :not(
+        :focus-visible,
+        :disabled,
+        [aria-disabled="true"],
+        [data-disabled],
+        [data-active],
+        [aria-current="page"],
+        [aria-current="true"],
+        [aria-selected="true"],
+        [data-state="selected"],
+        [data-peek-active],
+        [aria-expanded="true"],
+        :has([aria-expanded="true"]),
+        [data-row-static]
+      )
+    ) {
+      --row-fill-layer: linear-gradient(var(--state-hover), var(--state-hover));
+    }
+  }
+  &:where(
+    :active:not(
+      :disabled,
+      [aria-disabled="true"],
+      [data-disabled],
+      [data-row-static]
+    )
+  ) {
+    --row-fill-layer: linear-gradient(
+      var(--state-pressed),
+      var(--state-pressed)
+    );
+  }
+  &:where(
+    [data-state="selected"],
+    [aria-selected="true"],
+    [data-peek-active],
+    [aria-current="page"],
+    [aria-current="true"],
+    :has([aria-expanded="true"])
+  ) {
+    --row-fill-color: var(--state-selected);
+  }
+  /* base.css paints the focus tint on the focused element itself; a row moves it into the shape. */
+  &:where(:focus-visible) {
+    background-image: none;
+    --row-fill-layer: linear-gradient(var(--state-focus), var(--state-focus));
+  }
+}
+
 /* Upstream's one scrollbar utility, which `sidebar` and `command` reach for. */
 @utility no-scrollbar {
   -ms-overflow-style: none;

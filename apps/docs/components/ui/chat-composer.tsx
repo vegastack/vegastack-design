@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.88.0 sha256-tI5IYV8P9sGkXwu82YcNvczzntwiZ3ZbU6uSjyZ3jOk=
+// @vegastack chat-composer@0.88.0 sha256-0HoWpTDH7KumHP8jP1Lh6+bgsRE5UH82qU7/CKCATyA=
 
 "use client";
 
@@ -48,10 +48,10 @@ import {
  *   │ (+) (@)                     Haiku 5.5 Medium ▾  (↑)  │  ChatComposerActions
  *   ╰──────────────────────────────────────────────────────╯
  *
- * One radius: the card is `rounded-3xl` (2.2 × --radius, 22px). Everything inside is concentric
- * with it: the header and the actions row sit 6px in with fully round 32px controls (22 − 1 − 6 ≈
- * 16), the attachments 10px in with `rounded-lg` tiles (22 − 1 − 10 ≈ 10). A `ChatComposerNotice`
- * runs edge to edge on the top edge. Steers wait above the card, a failed send says so under it.
+ * One radius: the card is `rounded-overlay` (24px, the grown composer). Everything inside is
+ * concentric with it: the header and the actions row sit 6px in with pill and circle 32px controls,
+ * the attachments 10px in with `rounded-tile` thumbnails and pill (`rounded-chip`) file chips. A
+ * `ChatComposerNotice` runs edge to edge on the top edge. Steers wait above the card, a failed send says so under it.
  * ----------------------------------------------------------------------------------------------*/
 
 /**
@@ -267,8 +267,8 @@ export interface ChatComposerProps extends Omit<
 }
 
 /**
- * `ChatComposer` — the root: a card (one 22px radius, one hairline that darkens a little while the
- * text has focus) that owns the turn. Enter sends and Shift+Enter breaks the line, except on a
+ * `ChatComposer` — the root: a card (one `rounded-overlay` radius, one hairline that darkens a little
+ * while the text has focus) that owns the turn. Enter sends and Shift+Enter breaks the line, except on a
  * phone, where return breaks the line and Send sends. Send morphs in place — the bolt spinner while
  * the message goes (`state="sending"`), Stop while the agent works (`running`), Stop held while it
  * winds down (`stopping`). Typing carries on meanwhile; with `queues`, Enter sends it as a steer,
@@ -490,7 +490,7 @@ export function ChatComposer({
           className={cn(
             // One radius; the hairline darkens a little while the text has focus (FOC-14's
             // text-entry cue). Nothing on it ever turns red: a failed send says so under it.
-            "relative flex min-w-0 flex-col overflow-hidden rounded-3xl border border-chat-hairline bg-background transition-[border-color] duration-quick ease-standard has-[[contenteditable=true]:focus]:border-ring/50",
+            "relative flex min-w-0 flex-col overflow-hidden rounded-overlay border border-chat-hairline bg-background transition-[border-color] duration-quick ease-standard has-[[contenteditable=true]:focus]:border-ring/50",
             disabled && "bg-muted/40",
           )}
           onMouseDown={(event) => {
@@ -598,7 +598,7 @@ export function ChatComposer({
             <div
               aria-hidden
               data-slot="chat-composer-drop"
-              className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-3xl border-2 border-dashed border-primary bg-background/90 text-sm font-medium text-primary"
+              className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-[inherit] border-2 border-dashed border-primary bg-background/90 text-sm font-medium text-primary"
             >
               {labels?.drop ?? "Drop to add to chat"}
             </div>
@@ -796,7 +796,7 @@ export function ChatComposerHeaderTrigger({
       data-slot="chat-composer-header-trigger"
       disabled={disabled || composer.disabled}
       className={cn(
-        "h-8 min-w-0 flex-1 justify-start gap-1.5 rounded-full ps-2 pe-3 text-sm font-normal",
+        "h-8 min-w-0 flex-1 justify-start gap-1.5 ps-2 pe-3 text-sm font-normal",
         className,
       )}
       {...props}
@@ -902,7 +902,7 @@ function AttachmentItem({
       data-slot="chat-composer-attachment-remove"
       disabled={disabled}
       onClick={() => onRemove(id)}
-      className="size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
+      className="size-6 text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
     >
       <X aria-hidden />
     </Button>
@@ -915,7 +915,7 @@ function AttachmentItem({
         data-kind="image"
         data-state={state}
         title={error ? `${name} — ${error}` : name}
-        className="group/attachment relative size-14 shrink-0 overflow-hidden rounded-lg border border-chat-hairline bg-chat-card"
+        className="group/attachment relative size-14 shrink-0 overflow-hidden rounded-tile border border-chat-hairline bg-chat-card"
       >
         <img
           src={thumbUrl}
@@ -939,7 +939,6 @@ function AttachmentItem({
                 aria-label={retryLabel}
                 disabled={disabled}
                 onClick={() => onRetry(id)}
-                className="rounded-full"
               >
                 <RotateCw aria-hidden />
               </Button>
@@ -966,7 +965,7 @@ function AttachmentItem({
       data-kind="file"
       data-state={state}
       title={error ? `${name} — ${error}` : name}
-      className="flex h-8 max-w-64 shrink-0 items-center gap-1.5 rounded-lg border border-chat-hairline bg-chat-card ps-2 pe-1 text-xs"
+      className="flex h-8 max-w-64 shrink-0 items-center gap-1.5 rounded-chip border border-chat-hairline bg-chat-card ps-2 pe-1 text-xs"
     >
       <span className="inline-flex size-3.5 shrink-0 items-center justify-center text-muted-foreground">
         {uploading ? (
@@ -995,7 +994,7 @@ function AttachmentItem({
           aria-label={retryLabel}
           disabled={disabled}
           onClick={() => onRetry(id)}
-          className="size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
+          className="size-6 text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
         >
           <RotateCw aria-hidden />
         </Button>
@@ -1304,7 +1303,7 @@ export function ChatComposerIconButton({
       data-slot="chat-composer-icon-button"
       disabled={disabled || composer.disabled}
       className={cn(
-        "shrink-0 rounded-full text-muted-foreground hover:text-foreground",
+        "shrink-0 text-muted-foreground hover:text-foreground",
         className,
       )}
       {...props}
@@ -1459,7 +1458,7 @@ function ActionButton({
             disabled={disabled}
             onClick={onClick}
             className={cn(
-              "relative shrink-0 overflow-hidden rounded-full",
+              "relative shrink-0 overflow-hidden",
               // An empty box's Send is a quiet outline, not a faded primary.
               !primary &&
                 "border-chat-hairline text-muted-foreground data-disabled:opacity-100",
@@ -1589,7 +1588,7 @@ function SteerRow({
           aria-label={`${labels?.cancelSteer ?? "Take back"}: ${steer.text}`}
           disabled={disabled}
           onClick={() => onCancel(steer.id)}
-          className="ms-auto size-6 rounded-full text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3.5"
+          className="ms-auto size-6 text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3.5"
         >
           <X aria-hidden />
         </Button>

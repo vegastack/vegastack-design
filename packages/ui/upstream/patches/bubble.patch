@@ -1,6 +1,8 @@
 # component: bubble
-# decisions: A11Y-2, A11Y-13, API-16, DOC-1, DOC-2, FOC-1, FOC-6, COL-24, INT-4
+# decisions: A11Y-2, A11Y-13, API-16, DOC-1, DOC-2, FOC-1, FOC-6, COL-24, INT-4, BRD-12
 # hunks:
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
+#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
 #   FOC-1, FOC-6: `BubbleContent` drops `[button,a]:outline-none`,
 #     `[button,a]:focus-visible:border-ring`, `[button,a]:focus-visible:ring-3` and
 #     `[button,a]:focus-visible:ring-ring/50`. An interactive bubble takes `base.css`'s one 2px
@@ -35,7 +37,7 @@
 #     hover and press instead of an opaque `hover:bg-muted` / `color-mix` fill (operator, Regent,
 #     2026-10-31).
 diff --git a/bubble.tsx b/bubble.tsx
-index 639bba1..9b39934 100644
+index 639bba1..dab8aeb 100644
 --- a/bubble.tsx
 +++ b/bubble.tsx
 @@ -1,8 +1,10 @@
@@ -79,7 +81,7 @@ index 639bba1..9b39934 100644
 +          "*:data-[slot=bubble-content]:border-border *:data-[slot=bubble-content]:bg-background [&>[data-slot=bubble-content]:is(button,a)]:state-layer [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground",
          ghost:
 -          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground dark:[&>[data-slot=bubble-content]:is(button,a):hover]:bg-muted/50",
-+          "border-none *:data-[slot=bubble-content]:rounded-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a)]:state-layer [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground",
++          "border-none *:data-[slot=bubble-content]:bg-transparent *:data-[slot=bubble-content]:p-0 [&>[data-slot=bubble-content]:is(button,a)]:state-layer [&>[data-slot=bubble-content]:is(button,a):hover]:text-foreground",
 +        // A11Y-13: upstream writes `text-destructive` here, which on its own `/10` tint measures
 +        // 3.987:1 in light — under the AA floor A11Y-1 enforces as a fail-closed gate. The family's
 +        // `-text` ink is the one A11Y-13 adds for exactly this pair, and it reads 6.966:1 on the
@@ -129,7 +131,7 @@ index 639bba1..9b39934 100644
 +          // — the 3px halo, plus an `outline-none` that would suppress the one affordance this
 +          // system has. Both are gone: an interactive bubble takes `base.css`'s single 2px
 +          // `:focus-visible` outline like every other control. FOC-6 names Bubble by name.
-+          "w-fit max-w-full min-w-0 overflow-hidden rounded-xl border border-transparent px-3 py-2 text-sm leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-start [button,a]:transition-colors",
++          "w-fit max-w-full min-w-0 overflow-hidden rounded-bubble border border-transparent px-3 py-2 text-sm leading-relaxed wrap-break-word group-data-[align=end]/bubble:self-end [button]:text-start [button,a]:transition-colors",
 +          className,
          ),
        },
@@ -151,7 +153,7 @@ index 639bba1..9b39934 100644
 +  // `outline-3 outline-card` paints the identical 3px band in the identical colour, outside the
 +  // border box and following the radius, with no box-shadow — and the chip is a `<div>` that
 +  // never takes focus, so it cannot collide with `base.css`'s `:focus-visible` outline.
-+  "absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-full bg-muted px-1.5 py-0.5 text-sm outline-3 outline-card has-[button]:p-0",
++  "absolute z-10 flex w-fit shrink-0 items-center justify-center gap-1 rounded-chip bg-muted px-1.5 py-0.5 text-sm outline-3 outline-card has-[button]:p-0",
    {
      variants: {
        side: {

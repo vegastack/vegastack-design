@@ -1,8 +1,8 @@
 #!/usr/bin/env node
-// generate-email-tokens — writes the email kit's colour module from the design tokens.
+// generate-email-tokens — writes the email kit's colour and corner module from the design tokens.
 //
 // Email clients cannot read CSS custom properties or OKLCH, so the `email-kit` block carries its
-// colours as sRGB hex. They are never typed by hand: this script resolves the DTCG sources in
+// colours as sRGB hex and its corners as px (the `corner-*` roles, BRD-12). They are never typed by hand: this script resolves the DTCG sources in
 // `packages/design-tokens/tokens/` (light = semantic.tokens.json, dark = semantic.dark.tokens.json,
 // both referencing primitives.tokens.json), converts OKLCH → sRGB hex, composites translucent
 // tokens over the surface they sit on, and writes
@@ -251,11 +251,45 @@ const outlookCss = (dark) => {
   );
 };
 
+// ── corners (BRD-12) ────────────────────────────────────────────────────────────────────────────
+// The email kit's corner roles, read from `corner-*` in semantic.tokens.json and written as px:
+// email clients read no CSS variables, and some (Outlook.com, older Android mail) reject `rem` in
+// inline styles. The pill roles stay 9999px. Classic Outlook ignores border-radius altogether and
+// draws every corner square, which degrades cleanly (no VML roundrect is used).
+const CORNERS = [
+  "control",
+  "icon",
+  "chip",
+  "inline",
+  "mark",
+  "item",
+  "block",
+  "card",
+  "bubble",
+  "overlay",
+  "tile",
+];
+
+export function buildCorners() {
+  const semantic = read("semantic.tokens.json");
+  const out = {};
+  for (const role of CORNERS) {
+    const token = semantic[`corner-${role}`];
+    if (!token) throw new Error(`unknown corner token corner-${role}`);
+    const { value, unit } = token.$value;
+    if (unit === "px" || unit === "%") out[role] = `${value}${unit}`;
+    else if (unit === "rem") out[role] = `${value * 16}px`;
+    else throw new Error(`corner-${role}: unsupported unit ${unit}`);
+  }
+  return out;
+}
+
 const MOBILE_CSS =
   "@media only screen and (max-width:599px){.vs-gutter{padding-left:16px !important;padding-right:16px !important}.vs-pad{padding-left:20px !important;padding-right:20px !important}.vs-button{display:block !important}}";
 
 export async function render() {
   const palette = buildPalette();
+  const corners = buildCorners();
   const json = (v) =>
     JSON.stringify(v, null, 2).replace(/"([a-zA-Z]+)":/g, "$1:");
   const source = `/**
@@ -263,9 +297,10 @@ export async function render() {
  * Do not edit: change the tokens (or the generator's role map) and run
  * \`node tooling/generate-email-tokens.mjs\`. \`design:verify\` fails when this file is stale.
  *
- * The email kit's colours as sRGB hex — email clients read neither CSS variables nor OKLCH. Pure
- * white and black are nudged one step (#fffffe / #010101) so Gmail's forced dark inversion leaves
- * them alone, and every text/background pair below is AA (4.5:1) in both modes.
+ * The email kit's colours as sRGB hex and its corners as px — email clients read neither CSS
+ * variables nor OKLCH. Pure white and black are nudged one step (#fffffe / #010101) so Gmail's
+ * forced dark inversion leaves them alone, and every text/background pair below is AA (4.5:1) in
+ * both modes.
  */
 
 /** One mode's email palette. */
@@ -292,6 +327,14 @@ export interface EmailPalette {
 
 /** Light and dark palettes, resolved from the design tokens. */
 export const emailColors: { light: EmailPalette; dark: EmailPalette } = ${json(palette)};
+
+/**
+ * The corner roles (BRD-12) as px, from \`corner-*\` in the design tokens. Every \`borderRadius\`
+ * in the kit names one: the button is \`control\` (a pill), the message card \`card\`, a card or
+ * quote nested in it and a code block \`block\`, inline code \`inline\`, a highlight \`mark\`.
+ * Classic Outlook ignores border-radius and draws them square.
+ */
+export const emailRadius = ${json(corners)} as const;
 
 /** The system font stack — web fonts do not load in Gmail or Outlook. */
 export const emailFontFamily =
