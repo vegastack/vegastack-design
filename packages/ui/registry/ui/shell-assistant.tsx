@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.89.1 sha256-CD2sIoNaTYsxMZ2AwAf/+wD5kgw7QU6/OD9FMeVpQT8=
+// @vegastack shell-assistant@0.89.1 sha256-TbD8bkDjoOhpLg056Sceg15kIeWTOMShfH6yHQovCdc=
 
 "use client";
 
@@ -110,6 +110,7 @@ function AssistantPill({
       if (event.target !== seen) {
         seen = event.target;
         anchor = last = y;
+        if (y <= TUCK_FLOOR) setTucked(false);
         return;
       }
       // Measure from where the current run of movement began, so slow scrolling adds up.
