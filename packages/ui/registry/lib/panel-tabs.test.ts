@@ -78,7 +78,7 @@ describe("tab refs and canonical keys (contract §5 #4)", () => {
       "trash:task",
       "trash:assistant:1",
       "comments:task",
-      "assistant",
+      "assistant:",
       "details:trash:1",
       "task:%E0%A4%A",
       "<script>:1",
@@ -734,4 +734,76 @@ test("a focus request dies with its tab, so reopening as a preview doesn't steal
     open("task:a", 3, { preview: true }),
   ]);
   expect(s.focus).toBeNull();
+});
+
+describe("new chats and rekey (coordinator, web contract)", () => {
+  test("a new chat has the key `assistant` and round-trips through the URL and saved state", () => {
+    const fresh: PanelTabRef = { kind: "assistant", chatId: null };
+    expect(panelTabKey(fresh)).toBe("assistant");
+    expect(parsePanelTabKey("assistant")).toEqual(fresh);
+    const s = run([{ type: "open", ref: fresh, now: 1 }, open("task:1", 2)]);
+    const enc = encodePanelParam(s)!;
+    expect(enc.panel).toBe("assistant,task:1");
+    expect(decodePanelParam(enc.panel, enc.tab).tabs[0]!.ref).toEqual(fresh);
+    expect(
+      keys(
+        deserializePanelTabs(JSON.parse(JSON.stringify(serializePanelTabs(s)))),
+      ),
+    ).toEqual(["assistant", "task:1"]);
+  });
+
+  test("rekey renames in place with no back entry, keeping pin, protection and place", () => {
+    let s = run([
+      { type: "open", ref: { kind: "assistant", chatId: null }, now: 1 },
+      { type: "pin", key: "assistant" },
+      { type: "protect", key: "assistant", protected: true },
+      open("task:1", 2),
+      { type: "activate", key: "assistant", now: 3 },
+    ]);
+    s = run(
+      [{ type: "rekey", key: "assistant", ref: ref("assistant:c9"), now: 4 }],
+      s,
+    );
+    expect(keys(s)).toEqual(["assistant:c9", "task:1"]);
+    expect(s.tabs[0]).toMatchObject({
+      pinned: true,
+      protected: true,
+      back: [],
+    });
+    expect(s.activeKey).toBe("assistant:c9");
+  });
+
+  test("rekey onto an open key merges into that tab", () => {
+    const s = run([
+      { type: "open", ref: { kind: "assistant", chatId: null }, now: 1 },
+      { type: "protect", key: "assistant", protected: true },
+      open("assistant:c9", 2),
+      { type: "rekey", key: "assistant", ref: ref("assistant:c9"), now: 3 },
+    ]);
+    expect(keys(s)).toEqual(["assistant:c9"]);
+    expect(s.tabs[0]!.protected).toBe(true);
+    expect(s.activeKey).toBe("assistant:c9");
+  });
+
+  test("restore with keepUnlisted keeps saved tabs past the URL's 10", () => {
+    let s = createPanelTabs();
+    for (let i = 0; i < 12; i++) s = run([open(`task:${i}`, i)], s);
+    expect(s.tabs.length).toBe(PANEL_TAB_CAP);
+    s = run(
+      [
+        { type: "pin", key: "task:11" },
+        {
+          type: "restore",
+          now: 50,
+          ...decodePanelParam("task:2,task:3", "1"),
+          keepUnlisted: true,
+        },
+      ],
+      s,
+    );
+    expect(s.tabs).toHaveLength(PANEL_TAB_CAP);
+    expect(s.activeKey).toBe("task:3");
+    expect(keys(s)[0]).toBe("task:11");
+    expect(s.closed.map((t) => t.key)).not.toContain("task:11");
+  });
 });

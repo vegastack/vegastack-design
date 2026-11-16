@@ -1653,6 +1653,8 @@ export function usePanelTabs({
       navigate: (key: string, ref: PanelTabRef) =>
         dispatch({ type: "navigate", key, ref, now: Date.now() }),
       back: (key: string) => dispatch({ type: "back", key, now: Date.now() }),
+      rekey: (key: string, ref: PanelTabRef) =>
+        dispatch({ type: "rekey", key, ref, now: Date.now() }),
       close: (key: string) => dispatch({ type: "close", key, now: Date.now() }),
       reopen: (key?: string) =>
         dispatch({ type: "reopen", key, now: Date.now() }),
@@ -1660,6 +1662,7 @@ export function usePanelTabs({
       restore: (value: {
         tabs: readonly { ref: PanelTabRef; preview: boolean }[];
         activeKey: string | null;
+        keepUnlisted?: boolean;
       }) => dispatch({ type: "restore", now: Date.now(), ...value }),
       reorder: (key: string, index: number) =>
         dispatch({ type: "reorder", key, index }),

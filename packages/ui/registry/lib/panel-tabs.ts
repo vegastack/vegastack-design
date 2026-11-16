@@ -104,10 +104,10 @@ export interface PanelViewRef {
   readonly at?: string;
 }
 
-/** An assistant chat. */
+/** An assistant chat; `chatId: null` is a new chat that has no id yet (key `assistant`). */
 export interface PanelAssistantRef {
   readonly kind: "assistant";
-  readonly chatId: string;
+  readonly chatId: string | null;
 }
 
 /** What a tab shows. Plain data: it saves, travels in URLs and compares by `panelTabKey`. */
@@ -167,7 +167,7 @@ export function panelTabKey(ref: PanelTabRef): string {
         ref.at !== undefined ? `@${e(ref.at)}` : ""
       }`;
     case "assistant":
-      return `assistant:${e(ref.chatId)}`;
+      return ref.chatId === null ? "assistant" : `assistant:${e(ref.chatId)}`;
   }
 }
 
@@ -187,6 +187,7 @@ export function parsePanelTabKey(key: string): PanelTabRef | null {
     return readRecord(parts[1]!, parts[2]!, "trash");
   }
   if (head === "assistant") {
+    if (parts.length === 1) return { kind: "assistant", chatId: null };
     if (parts.length !== 2) return null;
     const chatId = dec(parts[1]!);
     return chatId === null ? null : { kind: "assistant", chatId };
@@ -269,7 +270,7 @@ function readRef(raw: unknown): PanelTabRef | null {
                 at: r.at,
               }
             : null;
-  } else if (r.kind === "assistant" && validId(r.chatId))
+  } else if (r.kind === "assistant" && (r.chatId === null || validId(r.chatId)))
     ref = { kind: "assistant", chatId: r.chatId };
   return ref;
 }
@@ -358,6 +359,17 @@ export type PanelTabsAction =
   | { type: "activate"; key: string; now: number }
   | { type: "navigate"; key: string; ref: PanelTabRef; now: number }
   | { type: "back"; key: string; now: number }
+  | {
+      /**
+       * Give a tab a new key in place, with no back-stack entry — a new chat that got its id
+       * (`assistant` → `assistant:<id>`). Position, pin, protection, preview and sight stay; if
+       * the new key is already open, the two merge into that tab and it becomes current.
+       */
+      type: "rekey";
+      key: string;
+      ref: PanelTabRef;
+      now: number;
+    }
   | { type: "close"; key: string; now?: number }
   | { type: "closeOthers"; key: string; now?: number }
   | { type: "closeRight"; key: string; now?: number }
@@ -377,6 +389,12 @@ export type PanelTabsAction =
       now: number;
       tabs: readonly { ref: PanelTabRef; preview: boolean }[];
       activeKey: string | null;
+      /**
+       * Keep open tabs the URL doesn't list (after the listed ones, in their order) instead of
+       * moving them to Recently closed — for seeding from saved tabs, since a URL carries at most
+       * 10. Back/Forward leave it off. @default false
+       */
+      keepUnlisted?: boolean;
     };
 
 /** An empty panel. */
@@ -675,6 +693,44 @@ export function panelTabsReducer(
         action.now,
       );
     }
+    case "rekey": {
+      const at = state.tabs.findIndex((t) => t.key === action.key);
+      if (at < 0) return state;
+      const newKey = panelTabKey(action.ref);
+      if (newKey === action.key) return state;
+      const old = state.tabs[at]!;
+      const other = state.tabs.findIndex((t) => t.key === newKey);
+      if (other >= 0) {
+        // Already open under the new key: fold the old tab into it.
+        const into = state.tabs[other]!;
+        const merged: PanelTab = {
+          ...into,
+          pinned: into.pinned || old.pinned,
+          protected: into.protected || old.protected,
+          preview: into.preview && old.preview,
+        };
+        const tabs = state.tabs
+          .map((t, i) => (i === other ? merged : t))
+          .filter((_, i) => i !== at)
+          .map((t) => (t.opener === action.key ? { ...t, opener: newKey } : t));
+        return activate({ ...state, tabs }, newKey, action.now);
+      }
+      return {
+        ...state,
+        activeKey: state.activeKey === action.key ? newKey : state.activeKey,
+        focus:
+          state.focus?.key === action.key
+            ? { ...state.focus, key: newKey }
+            : state.focus,
+        tabs: state.tabs.map((t, i) =>
+          i === at
+            ? { ...t, key: newKey, ref: action.ref }
+            : t.opener === action.key
+              ? { ...t, opener: newKey }
+              : t,
+        ),
+      };
+    }
     case "back": {
       const tab = state.tabs.find((t) => t.key === action.key);
       const prev = tab?.back[tab.back.length - 1];
@@ -847,8 +903,14 @@ export function panelTabsReducer(
           tabs.push(makeTab(p.ref, action.now, seq, { preview: p.preview }));
         }
       }
+      const unlisted = state.tabs.filter((t) => !seenKeys.has(t.key));
+      if (action.keepUnlisted)
+        for (const t of unlisted) {
+          tabs.push(t);
+          seenKeys.add(t.key);
+        }
       tabs.sort((a, b) => Number(b.pinned) - Number(a.pinned));
-      const dropped = state.tabs.filter((t) => !seenKeys.has(t.key));
+      const dropped = action.keepUnlisted ? [] : unlisted;
       const activeKey =
         action.activeKey !== null && seenKeys.has(action.activeKey)
           ? action.activeKey
