@@ -10,8 +10,8 @@ import {
   RAIL_COLLAPSED_QUERY,
 } from "./page-layout";
 
-test("the three widths, and nothing else", () => {
-  expect(PAGE_WIDTHS).toEqual(["prose", "default", "full"]);
+test("the four widths, and nothing else", () => {
+  expect(PAGE_WIDTHS).toEqual(["prose", "form", "default", "full"]);
 });
 
 test("matchRoute reads Next.js route patterns", () => {

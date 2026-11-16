@@ -1,4 +1,4 @@
-// @vegastack shell@0.95.0 sha256-Cjh9kpYjBtD6hB5T8vS12cuE5gniueBJYIWPE7k/yHA=
+// @vegastack shell@0.95.0 sha256-AkWoW/M3Jk/P00mremfxLk2m2uxF4b0wJMCWOkdbgiI=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -26,6 +26,7 @@ import {
   ShellRailIcon,
   ShellSkipLink,
 } from "@/components/ui/shell-client";
+import type { PageWidth } from "@/lib/page-layout";
 import {
   clampColumnWidth,
   clampPanelWidth,
@@ -1408,8 +1409,8 @@ export function ShellMain({
 export const shellGutterClasses =
   "[--page-gutter:--spacing(4)] @min-[40rem]/shell-content:[--page-gutter:--spacing(6)] @min-[64rem]/shell-content:[--page-gutter:--spacing(8)] @min-[120rem]/shell-content:[--page-gutter:--spacing(12)]";
 
-/** A page's width in the shell. */
-export type ShellPageSize = "prose" | "default" | "full" | "form";
+/** A page's width in the shell: the registry's `PageWidth`. */
+export type ShellPageSize = PageWidth;
 
 /** Props accepted by `ShellPage`. */
 export interface ShellPageProps extends React.ComponentProps<"div"> {

@@ -15,11 +15,19 @@
  * `/products/new/[[...step]]`.
  */
 
-/** A page's width. */
-export type PageWidth = "prose" | "default" | "full";
+/**
+ * A page's width: `prose` (720px of reading), `form` (720px, centred, for settings and forms —
+ * `ShellPage` spaces its sections further apart), `default` and `full`.
+ */
+export type PageWidth = "prose" | "form" | "default" | "full";
 
 /** Every page width, widest last. */
-export const PAGE_WIDTHS: readonly PageWidth[] = ["prose", "default", "full"];
+export const PAGE_WIDTHS: readonly PageWidth[] = [
+  "prose",
+  "form",
+  "default",
+  "full",
+];
 
 /** The route map `definePageWidths` returns. */
 export interface PageWidths<Route extends string = string> {

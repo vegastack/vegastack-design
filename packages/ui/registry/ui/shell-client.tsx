@@ -1,4 +1,4 @@
-// @vegastack shell@0.95.0 sha256-cxYtkjOCPXMHcg88gUTJLtU1wMNiOM+QE6zcFX0q55E=
+// @vegastack shell@0.95.0 sha256-Cjh9kpYjBtD6hB5T8vS12cuE5gniueBJYIWPE7k/yHA=
 
 "use client";
 
@@ -880,7 +880,29 @@ export interface ShellRailIconProps {
 export function ShellRailIcon({ icon, animated }: ShellRailIconProps) {
   const [ready, setReady] = React.useState(false);
   const anchor = React.useRef<HTMLSpanElement>(null);
-  const handle = React.useRef<AnimatedIconHandle>(null);
+  const handle = React.useRef<AnimatedIconHandle | null>(null);
+  // A play asked for while the icon was still loading; honoured when it attaches.
+  const pending = React.useRef(false);
+
+  const play = React.useCallback(() => {
+    if (!handle.current) {
+      pending.current = true;
+      return;
+    }
+    handle.current.stopAnimation();
+    handle.current.startAnimation();
+  }, []);
+  const rest = React.useCallback(() => {
+    pending.current = false;
+    handle.current?.stopAnimation();
+  }, []);
+  const attach = React.useCallback((next: AnimatedIconHandle | null) => {
+    handle.current = next;
+    if (next && pending.current) {
+      pending.current = false;
+      next.startAnimation();
+    }
+  }, []);
 
   React.useEffect(() => whenIdle(() => setReady(true)), []);
 
@@ -889,14 +911,13 @@ export function ShellRailIcon({ icon, animated }: ShellRailIconProps) {
       '[data-slot="shell-rail-item"]',
     );
     if (!ready || !item) return;
-    const play = () => handle.current?.startAnimation();
-    const rest = () => handle.current?.stopAnimation();
     const onEnter = (event: PointerEvent) => {
       if (event.pointerType === "mouse") play();
     };
-    // Becoming the current module plays it once.
+    // Becoming the current module plays it once; leaving it rearms it.
     const active = new MutationObserver(() => {
       if (item.hasAttribute("data-active")) play();
+      else rest();
     });
     active.observe(item, {
       attributes: true,
@@ -913,7 +934,7 @@ export function ShellRailIcon({ icon, animated }: ShellRailIconProps) {
       item.removeEventListener("focus", play);
       item.removeEventListener("blur", rest);
     };
-  }, [ready]);
+  }, [ready, play, rest]);
 
   return (
     <span
@@ -922,16 +943,34 @@ export function ShellRailIcon({ icon, animated }: ShellRailIconProps) {
       className="grid size-4.5 place-items-center [&>*]:col-start-1 [&>*]:row-start-1"
     >
       {ready ? (
-        <React.Suspense fallback={icon}>
-          {React.cloneElement(animated, {
-            ref: handle,
-            size: "1.125rem",
-            "aria-hidden": true,
-          } as AnimatedIconOwnProps & { ref: React.Ref<AnimatedIconHandle> })}
-        </React.Suspense>
+        <IconFallback fallback={icon}>
+          <React.Suspense fallback={icon}>
+            {React.cloneElement(animated, {
+              ref: attach,
+              size: "1.125rem",
+              "aria-hidden": true,
+            } as AnimatedIconOwnProps & {
+              ref: React.Ref<AnimatedIconHandle>;
+            })}
+          </React.Suspense>
+        </IconFallback>
       ) : (
         icon
       )}
     </span>
   );
+}
+
+/** Keeps the static icon if the animated one's chunk fails to load: it is only an upgrade. */
+class IconFallback extends React.Component<
+  { fallback: React.ReactNode; children: React.ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  static getDerivedStateFromError() {
+    return { failed: true };
+  }
+  render() {
+    return this.state.failed ? this.props.fallback : this.props.children;
+  }
 }

@@ -1441,7 +1441,11 @@ export function AppShellPage({
     <div
       data-slot="app-shell-page"
       data-size={width}
-      className={cn(appShellPageVariants({ size: width }), className)}
+      className={cn(
+        // `form` is a shell width; here it is `prose`'s 720px.
+        appShellPageVariants({ size: width === "form" ? "prose" : width }),
+        className,
+      )}
       {...props}
     />
   );
