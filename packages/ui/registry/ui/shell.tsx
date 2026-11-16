@@ -1,4 +1,4 @@
-// @vegastack shell@0.90.0 sha256-gcMcexu9gfxw3cInd4u5LRssEaEWQARZP6WEyMhAcRE=
+// @vegastack shell@0.90.0 sha256-u5NevAr6mt0WWVWLU4660+2aG8KDibZYNXvJTyrkcUQ=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -493,10 +493,10 @@ export function Shell({
   const hasColumn = column != null;
   // The person's saved widths; `ShellStateScript` sets the same names on `<html>` for a cached page.
   const vars = {
-    ...(panelWidth
+    ...(panelWidth !== undefined
       ? { "--shell-panel-saved": `${clampPanelWidth(panelWidth)}px` }
       : {}),
-    ...(columnWidth
+    ...(columnWidth !== undefined
       ? { "--shell-column-saved": `${clampColumnWidth(columnWidth)}px` }
       : {}),
   };

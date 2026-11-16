@@ -149,6 +149,7 @@ test.each([
   [1365, 420, 240],
   [1364, 420, 240],
   [1300, 360, 200],
+  [1300, 0, 0],
 ] as const)(
   "at %ipx with a %ipx panel and a %spx column the CSS still matches the resolver",
   async (width, panelWidth, columnWidth) => {

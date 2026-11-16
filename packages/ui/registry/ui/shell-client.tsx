@@ -1,4 +1,4 @@
-// @vegastack shell@0.90.0 sha256-gcMcexu9gfxw3cInd4u5LRssEaEWQARZP6WEyMhAcRE=
+// @vegastack shell@0.90.0 sha256-u5NevAr6mt0WWVWLU4660+2aG8KDibZYNXvJTyrkcUQ=
 
 "use client";
 
@@ -148,7 +148,12 @@ export function ShellController() {
     const columnArea = root.querySelector<HTMLElement>(
       '[data-slot="shell-column-area"]',
     );
+    const content = root.querySelector<HTMLElement>(
+      '[data-slot="shell-content"]',
+    );
     if (!mainArea) return;
+    // Where focus goes when the column it was in goes away: ▤, else the page landmark.
+    const fallback = () => visibleToggle() ?? content ?? root;
 
     let lastPanelCookie = "";
     let restoreFocus: HTMLElement | null = null;
@@ -195,7 +200,6 @@ export function ShellController() {
       if (open) {
         root.dataset.colFloat = "open";
         root.dataset.colFloatSource = source ?? "user";
-        if (layoutTierOf(root.clientWidth) === "phone") setSheet(true);
         if (source === "user") {
           restoreFocus = document.activeElement as HTMLElement | null;
           requestAnimationFrame(() =>
@@ -210,7 +214,7 @@ export function ShellController() {
           const back =
             restoreFocus && restoreFocus.isConnected && visible(restoreFocus)
               ? restoreFocus
-              : (visibleToggle() ?? mainArea);
+              : fallback();
           back.focus({ preventScroll: true });
         }
         restoreFocus = null;
@@ -230,6 +234,10 @@ export function ShellController() {
         setFloat(false);
         return;
       }
+      // The sheet is modal only while it floats on a phone; a breakpoint change re-decides.
+      const modal = floating && tier === "phone";
+      if (modal !== (columnArea?.getAttribute("aria-modal") === "true"))
+        setSheet(modal);
       const column: ShellColumnState = !root.hasAttribute("data-has-column")
         ? "none"
         : floating
@@ -241,7 +249,7 @@ export function ShellController() {
         column !== "over" &&
         columnArea?.contains(document.activeElement)
       )
-        (visibleToggle() ?? mainArea).focus({ preventScroll: true });
+        fallback().focus({ preventScroll: true });
       const panelMode = (style
         .getPropertyValue("--shell-layout-panel")
         .trim() || "closed") as ShellPanelMode;
@@ -455,7 +463,7 @@ export function ShellController() {
     });
     mutations.observe(html, {
       attributes: true,
-      attributeFilter: ["data-shell-col", "style"],
+      attributeFilter: ["data-shell-col", "data-shell-panel", "style"],
     });
     root.addEventListener(COLUMN_EVENT, onColumn);
     window.addEventListener("keydown", onKeyDown);
