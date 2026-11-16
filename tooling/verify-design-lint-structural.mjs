@@ -667,6 +667,9 @@ export function NamedByItsOwnChildren() {
     `<div style={{ backgroundImage: "conic-gradient(var(--color-primary) 40%, transparent 0)" }}>a style value</div>`,
     `<div style={{ color: \`var(--color-warning-text)\` }}>a template</div>`,
     `{/* prefer var(--color-info) */}`,
+    `<div className="bg-(color:--color-card)">the typed shorthand</div>`,
+    `<div style={{ color: "var( --color-muted-foreground)" }}>a spaced read</div>`,
+    `<div style={{ "--color-foreground": "red", color: "var(--color-foreground)" }}>a local assignment is no exemption</div>`,
   ];
   writeFileSync(
     join(colorBridgeDir, "bridge.tsx"),

@@ -258,6 +258,14 @@ that catch bugs nobody can see in review.
     variant and in any side form. Use `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile`;
     `none`, `full` and `[inherit]` stay legal. Upstream pulls arrive with ramp steps, so this rule is
     what makes a re-pull restate its corners.
+30. **`no-color-bridge`** (OVL-13 theme scopes, **new 2026-11-16**) — in registry source, a read of the
+    `@theme inline` colour bridge: `var(--color-<semantic>)` (any spacing, across lines), Tailwind's
+    `bg-(--color-x)` and `bg-(color:--color-x)` shorthands, or such a read as a fallback. The bridge
+    resolves once on `:root`, so inside a `.dark` subtree or a scoped portal it paints the root
+    theme's value. Read the runtime token (`var(--foreground)`) or use a colour utility. The names
+    are the keys of `semantic.tokens.json`; chart series keys (`--color-desktop`) are not the bridge.
+    One named exemption: `ui/chart.tsx`'s `border-(--color-border)`, upstream's local variable
+    assigned on the indicator's own style.
 
 ### Deleted by the reset, and why (do not report these)
 

@@ -62,7 +62,8 @@ test("default palette uses semantic token variables, not raw Tailwind palette va
   const rawPaletteVar =
     /--color-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d/;
   for (const color of DEFAULT_COLORS) {
-    expect(color.color).toMatch(/^var\(--color-[a-z0-9-]+\)$/);
+    // The runtime token, never the `:root`-bound `--color-*` bridge (it ignores a scoped theme).
+    expect(color.color).toMatch(/^var\(--(?!color-)[a-z0-9-]+\)$/);
     expect(color.color).not.toMatch(rawPaletteVar);
   }
 });

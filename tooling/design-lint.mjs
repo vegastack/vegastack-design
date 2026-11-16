@@ -302,13 +302,12 @@ const isTextEntryFocusBorderFile = (file) => {
   );
 };
 
-// COL (OVL-13's theme scopes) — the `@theme inline` bridge (`--color-foreground: var(--foreground)`)
-// is declared once, on `:root`, and a custom property resolves where it is declared: a
+// OVL-13 theme scopes — the `@theme inline` bridge (`--color-foreground: var(--foreground)`) is
+// declared once, on `:root`, and a custom property resolves where it is declared: a
 // `var(--color-foreground)` read inside a `.dark` subtree, a scoped portal or a pinned-theme region
 // is the ROOT theme's value. Registry source reads the runtime token (`var(--foreground)`) or a
 // colour utility instead. The names are the semantic token contract's own keys, so a new token is
-// covered the day it lands; a `--color-*` name the file assigns itself (chart.tsx's
-// `"--color-border": indicatorColor`, a series key) is a local variable, not the bridge.
+// covered the day it lands; chart series keys (`--color-desktop`) are not in it.
 const COLOR_BRIDGE_NAMES = Object.keys(
   JSON.parse(
     readFileSync(
@@ -317,22 +316,33 @@ const COLOR_BRIDGE_NAMES = Object.keys(
     ),
   ),
 ).filter((key) => !key.startsWith("$"));
+// A read is `var(` or Tailwind's `(` / `(color:` shorthand opener, then the name; whitespace
+// (newlines included) may sit between them.
 const COLOR_BRIDGE_READ = new RegExp(
-  `\\(--color-(${COLOR_BRIDGE_NAMES.sort((a, b) => b.length - a.length).join("|")})(?![\\w-])`,
+  `\\((?:\\s*color:)?\\s*--color-(${COLOR_BRIDGE_NAMES.sort((a, b) => b.length - a.length).join("|")})(?![\\w-])`,
   "g",
 );
+// Upstream's own local variable: chart.tsx's tooltip indicator assigns `--color-border` on its own
+// style and reads it as `border-(--color-border)`. Named and counted, never inferred from the file.
+const COLOR_BRIDGE_LOCAL_READS = { "ui/chart.tsx": { border: 1 } };
 const NO_COLOR_BRIDGE_MSG =
   "reads the `@theme inline` colour bridge, which resolves once on `:root` and so paints the light value inside a dark or scoped theme — use the runtime token (`var(--foreground)`) or a colour utility";
-const colorBridgeReads = (src) => {
-  const assigned = new Set(
-    [...src.matchAll(/["'[]?--color-([\w-]+)["']?\s*:/g)].map((m) => m[1]),
-  );
+const colorBridgeReads = (file, src) => {
+  const path = file.replaceAll("\\", "/");
+  const local =
+    Object.entries(COLOR_BRIDGE_LOCAL_READS).find(([tail]) =>
+      path.endsWith(`/registry/${tail}`),
+    )?.[1] ?? {};
+  const seen = {};
   const found = [];
-  src.split("\n").forEach((text, index) => {
-    for (const m of text.matchAll(COLOR_BRIDGE_READ)) {
-      if (!assigned.has(m[1])) found.push({ line: index + 1, name: m[1] });
-    }
-  });
+  for (const m of src.matchAll(COLOR_BRIDGE_READ)) {
+    seen[m[1]] = (seen[m[1]] ?? 0) + 1;
+    if (seen[m[1]] <= (local[m[1]] ?? 0)) continue;
+    found.push({
+      line: src.slice(0, m.index).split("\n").length,
+      name: m[1],
+    });
+  }
   return found;
 };
 
@@ -1191,7 +1201,7 @@ for (const root of ROOTS) {
     if (
       /(^|\/)packages\/ui\/registry\//.test(resolve(file).replace(/\\/g, "/"))
     ) {
-      for (const { line, name } of colorBridgeReads(src)) {
+      for (const { line, name } of colorBridgeReads(file, src)) {
         console.log(
           `${file}:${line} [no-color-bridge] \`--color-${name}\` ${NO_COLOR_BRIDGE_MSG}`,
         );
