@@ -1747,7 +1747,7 @@
       "meta": {
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
-        "version": "0.90.0"
+        "version": "0.99.0"
       }
     },
     {
@@ -1771,7 +1771,7 @@
       "meta": {
         "whenToUse": "A route's or Suspense fallback's loading state for a DataList page (rows, grid cards, the toolbar).",
         "whenNotToUse": "DataList's own `loading` (a list already on screen refetching).",
-        "version": "0.90.0"
+        "version": "0.99.0"
       }
     },
     {
@@ -1989,7 +1989,7 @@
       "meta": {
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
-        "version": "0.90.0"
+        "version": "0.99.0"
       }
     },
     {
@@ -2152,7 +2152,7 @@
       "meta": {
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
-        "version": "0.90.0"
+        "version": "0.99.0"
       }
     },
     {

@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.99.0
+
+### Minor Changes
+
+- [#1010](https://github.com/vegastack/vegastack-design/pull/1010) [`0bd682e`](https://github.com/vegastack/vegastack-design/commit/0bd682e5318fd21aefbc68b9edf4faf9793551e9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `DataListSkeleton`, a DataList and its ListToolbar while they load, in the list's own geometry (table rows or grid cards), importing only `Table` and `Skeleton`, so a route's loading state never loads the list. `DataList` gains `rowOpenGestures`: a ⌘/Ctrl or middle click opens a row through `onRowOpen` with `background: true`, and a double-click calls it with `keep: true` (off by default; `RowOpenDetails` gains the two optional fields).
+
+### Patch Changes
+
+- [#1010](https://github.com/vegastack/vegastack-design/pull/1010) [`0bd682e`](https://github.com/vegastack/vegastack-design/commit/0bd682e5318fd21aefbc68b9edf4faf9793551e9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 The React Compiler now compiles `DataList` (its default `getRowId` and `dragItemsLabel` moved to module level), and `ListToolbar` measures on a size change only, not on every host render.
+
 ## 0.98.1
 
 ### Patch Changes
