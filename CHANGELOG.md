@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.96.1] — November 16, 2026
+
+<!-- assembled from 1 changeset: dea6201a87c2 -->
+
+### 🔧 Changed components
+
+- `CommandLoading`'s search icon pulses with CSS instead of the animated icon, so `command` no longer depends on `icon-search` and an app's palette pulls in no `motion` runtime. The pulse stops under reduced motion.
+  [`b221eb0`](https://github.com/VegaStack/vegastack-design/commit/b221eb0)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.96.0 → 0.96.1.
+
 ## [0.96.0] — November 16, 2026
 
 <!-- assembled from 1 changeset: 9cd282ef2e05 -->

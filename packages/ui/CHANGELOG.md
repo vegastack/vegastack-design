@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.96.1
+
+### Patch Changes
+
+- [#1003](https://github.com/vegastack/vegastack-design/pull/1003) [`b221eb0`](https://github.com/vegastack/vegastack-design/commit/b221eb0f8c7a9276c0d6038b6484e3e5cae5203e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `CommandLoading`'s search icon pulses with CSS instead of the animated icon, so `command` no longer depends on `icon-search` and an app's palette pulls in no `motion` runtime. The pulse stops under reduced motion.
+
 ## 0.96.0
 
 ### Minor Changes

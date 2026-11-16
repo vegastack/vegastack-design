@@ -1642,8 +1642,8 @@
       "meta": {
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
-        "version": "0.90.0",
-        "integrity": "sha256-py+DBrm6hMoQov1WRjijeEcNImps/TAau69QnPoUA88="
+        "version": "0.96.1",
+        "integrity": "sha256-FHZ+mVhrXhnIblHkE1Oe/hI4Ou4jxul4zE6xCPMYsSs="
       }
     },
     {
