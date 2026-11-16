@@ -38,6 +38,11 @@ import {
   <AssistantCard id="assistant-card" open={open} onOpenChange={setOpen}>
     <AssistantCardHeader
       title="William"
+      actions={
+        <ToolGroupItem label="New chat" onClick={newChat}>
+          <SquarePenIcon />
+        </ToolGroupItem>
+      }
       onClose={() => setOpen(false)}
       onMoveToPanel={moveToPanel}
       onOpenFull={openFullChat}
@@ -55,6 +60,10 @@ The pill sits at the bottom-end corner of the page area — the positioned conta
 and never over a side panel. It tucks away while the page scrolls down and comes back on scroll
 up, when the pointer reaches its corner, or when it takes keyboard focus. Opening is yours: the
 pill's `onClick` and the ⌘J shortcut set `open`.
+
+The header's `actions` take the chat's own tools — New chat, Chats — as
+[`ToolGroupItem`](/docs/components/tool-group)s, before Move to panel, Open full chat and Close.
+Omit `onMoveToPanel` or `onOpenFull` to hide those (no Agents module, no full chat).
 
 The card grows out of the same corner, about 380 × 520 and never larger than its container less a
 gutter. It renders nothing until it first opens, so the chat you put in it costs nothing until
