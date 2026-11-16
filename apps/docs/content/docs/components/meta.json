@@ -115,6 +115,7 @@
     "sortable-list",
     "table",
     "data-list",
+    "data-list-skeleton",
     "data-list-pager",
     "cursor-pager",
     "load-more",

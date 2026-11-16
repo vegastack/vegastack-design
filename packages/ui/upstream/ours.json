@@ -1197,6 +1197,12 @@
       "family": "layout",
       "source": "VegaStack shell layout overhaul, P0 lane B — Regent operator batch approval 16-11-2026 \"Shell layout overhaul\" (\"Approve, go dark\")",
       "rationale": "Upstream has no panel host or panel tabs. Shell Panel composes upstream's button, command, context-menu, empty, popover and skeleton; no patch (OVL-27, API-45)."
+    },
+    "data-list-skeleton": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "VegaStack shell layout overhaul, performance lane L22 finding #8 — operator batch approval 16-11-2026 \"Shell layout overhaul\"",
+      "rationale": "Upstream ships no list skeleton. DataList's loading geometry composed from upstream table and skeleton only, so a route's loading state needs none of the list; no patch."
     }
   }
 }

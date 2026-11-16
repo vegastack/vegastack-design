@@ -1959,7 +1959,37 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.90.0",
-        "integrity": "sha256-jVhkHNSGhlyd4+XuVJDKp3Br85+VVOSTyJ8r6Rd9NiE="
+        "integrity": "sha256-WqJghR/LvVQYAhNIoY/w41d3odW5bq6YcGGxjv4Ayu0="
+      }
+    },
+    {
+      "name": "data-list-skeleton",
+      "type": "registry:ui",
+      "title": "Data List Skeleton",
+      "description": "A DataList and its ListToolbar while they load, in the list's own geometry (table rows or grid cards), without loading the list.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/skeleton",
+        "@vegastack/table"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/data-list-skeleton.tsx",
+          "type": "registry:ui",
+          "target": "@ui/data-list-skeleton.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A route's or Suspense fallback's loading state for a DataList page (rows, grid cards, the toolbar).",
+        "whenNotToUse": "DataList's own `loading` (a list already on screen refetching).",
+        "version": "0.90.0",
+        "integrity": "sha256-eHUOoBp1Ozcf1NxgX7JG0ASnVIe4n486J+A0R9Ks0F8="
       }
     },
     {
@@ -2209,7 +2239,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.90.0",
-        "integrity": "sha256-2eSuzq+/mhEJEjOk3cSAiBnmZkoUxWn3xtbFj4PLeiE="
+        "integrity": "sha256-/XG5qMmLFJax6XQeMOVlJupMQBOnFui7MNlRiqpCEms="
       }
     },
     {
@@ -2389,7 +2419,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.90.0",
-        "integrity": "sha256-i8O3V1Q+lw7T0OIAe15n9k2HAlxqRE+3nieFwv8Lnrs="
+        "integrity": "sha256-25jDGEXij6s+JcCEszCbrEdzc6MeQnjizgGzHZDwoNw="
       }
     },
     {

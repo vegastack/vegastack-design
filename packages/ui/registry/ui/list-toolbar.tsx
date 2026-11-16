@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.90.0 sha256-2eSuzq+/mhEJEjOk3cSAiBnmZkoUxWn3xtbFj4PLeiE=
+// @vegastack list-toolbar@0.90.0 sha256-/XG5qMmLFJax6XQeMOVlJupMQBOnFui7MNlRiqpCEms=
 
 "use client";
 
@@ -862,6 +862,12 @@ export function ListToolbar({
   const hasDisplay = display != null;
   const hasLayout = layout != null && layout.options.length > 1;
   const editCount = edit?.length ?? 0;
+  const hasSearch = search != null;
+  const hasSort = sort != null;
+  const hasState = state != null;
+  const hasMore = more != null;
+  /** An open or filled search: the freeze below, as a primitive the measuring effect follows. */
+  const searchHeld = search != null && (searchOpen || search.value !== "");
 
   const measure = React.useCallback(() => {
     const row = rowRef.current;
@@ -874,21 +880,21 @@ export function ListToolbar({
       return cache[slot] ?? fallback;
     };
     const filterWidth = hasFilter ? read("list-toolbar-filter", icon) : 0;
-    const stateWidth = state != null ? read("list-toolbar-state", 96) : 0;
+    const stateWidth = hasState ? read("list-toolbar-state", 96) : 0;
     const editWidth =
       editCount > 0 ? editCount * icon + (editCount - 1) * METRICS.toolGap : 0;
     const need = (lvl: number) => {
       const tools: number[] = [];
       if (hasFilter) tools.push(filterWidth);
-      if (sort != null && !(lvl >= 2 && hasDisplay)) tools.push(icon);
+      if (hasSort && !(lvl >= 2 && hasDisplay)) tools.push(icon);
       if (hasLayout && !(lvl >= 1 && hasDisplay)) tools.push(icon);
       if (hasDisplay) tools.push(icon);
-      if (more != null || (editCount > 0 && lvl >= 4)) tools.push(icon);
+      if (hasMore || (editCount > 0 && lvl >= 4)) tools.push(icon);
       const parts = [
         tools.reduce((sum, w) => sum + w, 0) +
           Math.max(0, tools.length - 1) * METRICS.toolGap,
       ];
-      if (search != null) parts.push(lvl >= 3 ? icon : METRICS.search);
+      if (hasSearch) parts.push(lvl >= 3 ? icon : METRICS.search);
       if (editCount > 0 && lvl < 4) parts.push(editWidth + 1 + METRICS.gap);
       if (stateWidth && lvl < 4) parts.push(stateWidth);
       return (
@@ -913,19 +919,29 @@ export function ListToolbar({
     hasFilter,
     hasLayout,
     icon,
-    more,
-    search,
-    sort,
-    state,
+    hasMore,
+    hasSearch,
+    hasSort,
+    hasState,
   ]);
+  // Re-measured on a size change only (the row, or a measured slot's own width), never on a host
+  // render: a host passes new `search`/`sort`/`state` objects every render, and measuring forces
+  // layout, so a selection change in a long list paid for a toolbar layout pass each time.
   React.useLayoutEffect(() => {
     measure();
     const row = rowRef.current;
     if (!row || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
     observer.observe(row);
+    // The measured slots change width on their own (a filter count, the state's text).
+    for (const slot of row.querySelectorAll<HTMLElement>(
+      '[data-slot="list-toolbar-filter"], [data-slot="list-toolbar-state"]',
+    ))
+      observer.observe(slot);
     return () => observer.disconnect();
-  }, [measure]);
+    // `level`: a step can mount a measured slot, which is then observed too. `searchHeld`: an
+    // open or filled icon search holds the level (`frozen`); letting go re-measures at once.
+  }, [measure, level, searchHeld]);
 
   // Open while focused from the icon, or while it holds a query (a restored search included).
   const searchExpanded =

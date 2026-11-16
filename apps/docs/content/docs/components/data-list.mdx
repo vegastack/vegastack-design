@@ -304,6 +304,11 @@ browser would, and only a plain click (or Enter) is taken over. `activeRowId` ma
 (`data-peek-active`, the accent wash, scrolled into view as it changes), and
 `actionsRef.current.getRowOrder()` returns the row ids in the order they read on screen — sections
 in order, a collapsed section's rows left out — so the peek's ↑/↓ walk the rows as shown.
+With `rowOpenGestures`, a host whose opener keeps tabs takes the gestures too: a ⌘/Ctrl or middle
+click calls `onRowOpen` with `background: true` instead of opening the link in a new browser tab,
+and a double-click calls it again with `keep: true` (a preview tab kept). Shift and Alt clicks stay
+the browser's. This covers list rows and grid cards; board cards keep their own clicks. Off (the
+default), modified clicks belong to the link, as above.
 
 <ComponentPreview
   name="dataListRowOpen"

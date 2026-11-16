@@ -1751,6 +1751,30 @@
       }
     },
     {
+      "name": "data-list-skeleton",
+      "type": "registry:ui",
+      "title": "Data List Skeleton",
+      "description": "A DataList and its ListToolbar while they load, in the list's own geometry (table rows or grid cards), without loading the list.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "registryDependencies": ["@vegastack/skeleton", "@vegastack/table"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/data-list-skeleton.tsx",
+          "type": "registry:ui",
+          "target": "@ui/data-list-skeleton.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A route's or Suspense fallback's loading state for a DataList page (rows, grid cards, the toolbar).",
+        "whenNotToUse": "DataList's own `loading` (a list already on screen refetching).",
+        "version": "0.90.0"
+      }
+    },
+    {
       "name": "data-list-pager",
       "type": "registry:ui",
       "title": "Data List Pager",
