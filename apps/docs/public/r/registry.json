@@ -867,8 +867,8 @@
       "meta": {
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
-        "version": "0.90.0",
-        "integrity": "sha256-Ls1YvYYh06La99Gw4Ezz2l40Zr6SaFFDWDJ35FUnS9I="
+        "version": "0.91.0",
+        "integrity": "sha256-lInFkBVKgLV+RnKadMlW+AJPMFa5dOjDVUcWpgqYyJg="
       }
     },
     {
@@ -24812,8 +24812,8 @@
       ],
       "dependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.17.0",
-        "@vegastack/design-tokens@^0.17.0"
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
@@ -24829,8 +24829,8 @@
       "meta": {
         "whenToUse": "Icon-only tools in a top bar or a card header — Watch, Star, Comments, More.",
         "whenNotToUse": "Text actions (Share, Approve) or attached segmented buttons (ButtonGroup).",
-        "version": "0.89.1",
-        "integrity": "sha256-TEjXzfWgjRwCZK6R6xMIjwqwv9BwGbw8CHCG9pwur/U="
+        "version": "0.91.0",
+        "integrity": "sha256-v8KbIkZYC0KHadwazy5s0RY8UmfZJHkKZFVCYm5EK5c="
       }
     },
     {
@@ -24843,8 +24843,8 @@
       ],
       "dependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.17.0",
-        "@vegastack/design-tokens@^0.17.0"
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
@@ -24861,8 +24861,8 @@
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
         "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
-        "version": "0.89.1",
-        "integrity": "sha256-TbD8bkDjoOhpLg056Sceg15kIeWTOMShfH6yHQovCdc="
+        "version": "0.91.0",
+        "integrity": "sha256-ynVhC/FUCL7yfO+RlXj5EJd3MFrnDzEd7Nw9GD63K9A="
       }
     }
   ]

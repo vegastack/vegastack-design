@@ -52630,8 +52630,8 @@
       "docsSlug": "/docs/components/tool-group",
       "registryDependencies": ["@vegastack/button", "@vegastack/tooltip"],
       "npmDependencies": [
-        "@vegastack/design-tokens@^0.17.0",
-        "@vegastack/design@^0.17.0",
+        "@vegastack/design-tokens@^0.18.0",
+        "@vegastack/design@^0.18.0",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/tool-group.test.tsx"],
@@ -52835,8 +52835,8 @@
         "@vegastack/tool-group"
       ],
       "npmDependencies": [
-        "@vegastack/design-tokens@^0.17.0",
-        "@vegastack/design@^0.17.0",
+        "@vegastack/design-tokens@^0.18.0",
+        "@vegastack/design@^0.18.0",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/shell-assistant.test.tsx"],

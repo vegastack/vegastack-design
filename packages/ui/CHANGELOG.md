@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.91.0
+
+### Minor Changes
+
+- [#999](https://github.com/vegastack/vegastack-design/pull/999) [`f992471`](https://github.com/vegastack/vegastack-design/commit/f992471d4e908b1f80fc55103128a030f63abb21) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Shell parts for the new top bar and the floating assistant. `ToolGroup`, `ToolGroupItem` and `ToolGroupMore` are a run of icon tools — 28px ghost buttons two pixels apart, each named by its tooltip, a count beside its icon instead of a floating badge, and ⋯ (`MoreHorizontal`) as the one More (ICO-9). `AssistantPill` is the `Ask {name}` pill at the page area's bottom-end corner: it tucks away while the page scrolls down and comes back on scroll up, hover or focus. `AssistantCard` is the compact chat it opens from the same corner, with `AssistantCardHeader` (Move to panel, Open full chat, Close), a removable `AssistantCardContext` chip, `AssistantCardBody` and `AssistantCardComposer`; it renders nothing until first opened, keeps a draft once open, closes on Escape and gives focus back (OVL-26). `AvatarGroup` takes `max` and `total`: past `max` it closes the stack with "+N", and an avatar marked `data-here` gets a primary ring (API-44). Existing groups are unchanged.
+
 ## 0.90.0
 
 ### Minor Changes
