@@ -1,4 +1,4 @@
-// @vegastack shell@0.93.0 sha256-7mbrHp0sfRFioD/Od5okHt70ZdTOVx3GapFrdgM2PQA=
+// @vegastack shell@0.93.0 sha256-2ycj/MCHqNrXx9rOwYI0PvGnVghJOk9FlE9/JB4Ox4Q=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -663,6 +663,12 @@ export interface ShellRailItemProps extends Omit<
   label: string;
   /** A count on the icon (99+ past 99); a neutral chip (INT-15). @default undefined */
   badge?: number | string;
+  /**
+   * A dot on the icon for something new to see that has no count — Help's What's new. Pass the
+   * words it means ("new updates"); they are read after the label.
+   * @default undefined
+   */
+  dot?: string;
   /** Whether this is the current module. @default false */
   active?: boolean;
   /** The app's own link or button element (`<Link href="/tasks" />`); its props win. @default undefined */
@@ -685,6 +691,7 @@ export function ShellRailItem({
   icon,
   label,
   badge,
+  dot,
   active = false,
   render,
   href,
@@ -697,7 +704,11 @@ export function ShellRailItem({
     "data-slot": "shell-rail-item",
     "data-active": active ? "" : undefined,
     "aria-current": active ? "page" : undefined,
-    "aria-label": count ? `${label}, ${count}` : undefined,
+    "aria-label": count
+      ? `${label}, ${count}`
+      : dot
+        ? `${label} (${dot})`
+        : undefined,
     className: cn(
       "group/rail-item flex w-16 flex-none flex-col items-center gap-0.5 rounded-item pt-1 pb-1.5 text-xs font-medium text-muted-foreground no-underline outline-none data-active:text-foreground",
       className,
@@ -716,6 +727,11 @@ export function ShellRailItem({
             >
               {count}
             </span>
+          ) : dot ? (
+            <span
+              data-slot="shell-rail-dot"
+              className="absolute -top-0.5 end-0.5 size-2 rounded-chip bg-info shadow-[0_0_0_2px_var(--sidebar)]"
+            />
           ) : null}
         </span>
         <span className="max-w-full truncate">{label}</span>

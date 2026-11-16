@@ -2910,7 +2910,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["shell-rail-badge"]
+              "values": ["shell-rail-badge", "shell-rail-dot"]
             }
           ],
           "cssVariables": []
