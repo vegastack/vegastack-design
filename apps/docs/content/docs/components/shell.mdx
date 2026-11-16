@@ -1,0 +1,190 @@
+---
+title: Shell
+description: The frame every screen sits in — the module rail, the module's column, a 48px top bar, the page and a right panel, laid out in CSS before hydration.
+audience: public
+registry: shell
+status: stable
+since: 0.90.0
+a11y: landmarks, skip link, F6 regions, keyboard resize
+preview: shell
+---
+
+## Install
+
+<InstallSteps name="shell" />
+
+## Usage
+
+```tsx
+import {
+  Shell,
+  ShellColumn,
+  ShellColumnHeader,
+  ShellColumnItem,
+  ShellMain,
+  ShellPage,
+  ShellPanelToggle,
+  ShellRail,
+  ShellRailItem,
+  ShellTitleBarControls,
+  ShellTopBar,
+  ShellTopBarTitle,
+} from "@/components/ui/shell";
+
+<Shell
+  rail={
+    <ShellRail>
+      <ShellRailItem
+        icon={<ListChecks />}
+        label="Tasks"
+        render={<Link href="/tasks" />}
+        active
+      />
+    </ShellRail>
+  }
+  column={
+    <ShellColumn label="Tasks">
+      <ShellColumnHeader title="Tasks" />
+      <ShellColumnItem
+        label="My tasks"
+        render={<Link href="/tasks" />}
+        active
+      />
+    </ShellColumn>
+  }
+  titleBarControls={<ShellTitleBarControls />}
+  panel={<ShellPanel />}
+  panelOpen={tabs.length > 0}
+  pageMin={640}
+>
+  <ShellTopBar>
+    <ShellTopBarTitle>My tasks</ShellTopBarTitle>
+    <ShellPanelToggle pressed={open} onClick={toggle} />
+  </ShellTopBar>
+  <ShellMain>
+    <ShellPage>…</ShellPage>
+  </ShellMain>
+</Shell>;
+```
+
+Put `ShellStateScript` in the root layout's `<head>`, from its own module so public pages carry no
+client code:
+
+```tsx
+import {
+  ShellStateScript,
+  TimeZoneScript,
+} from "@/components/ui/shell-scripts";
+
+<head>
+  <ShellStateScript />
+  <TimeZoneScript />
+</head>;
+```
+
+<ComponentPreview name="shell" file="components/preview/shell.tsx" />
+
+## Anatomy
+
+<Anatomy name="shell" />
+
+## Examples
+
+### The layout rule
+
+One rule places the column and the panel, at every width ([Shell layout](/docs/foundations/shell)):
+
+| Width                   | Rail    | Column                                     | Panel                                    |
+| ----------------------- | ------- | ------------------------------------------ | ---------------------------------------- |
+| Phone (under 640)       | Tab bar | A sheet, from the page title               | Full screen                              |
+| Tablet (640–1024)       | 64px    | Slides over from ▤, an edge swipe or hover | Beside the page if it fits, else over it |
+| Laptop and wide (1024+) | 64px    | 240px in the flow while kept open          | Beside the page; the column folds first  |
+
+The panel docks beside the page while the page keeps its minimum (`pageMin`: a list 640, a
+document 560, a chat 520). When it would not, the column folds by itself; when even that is not
+enough, the panel slides over the page and the column comes back. `resolveShellLayout` in
+`@/lib/shell-layout` gives the same answer without a DOM.
+
+The rule runs in CSS — container queries on the shell, over the data attributes it renders — so
+the server's HTML is already laid out. Nothing measures after hydration.
+
+### The top bar's order
+
+The slots sit in one order whatever order they are written in: title, presence, tools, actions,
+primary, panel toggle. Narrow, button words become icons (`ShellTopBarLabel`), presence leaves, and
+tools marked `data-shell-fold` go to the ⋯ menu.
+
+<ComponentPreview name="shellTopBar" file="components/preview/shell.tsx" />
+
+### The desktop app's title row
+
+In the desktop app, `data-desktop-titlebar="macos"` or `"windows"` on `<html>` turns the first row
+into one draggable title row: on macOS the traffic lights sit in the rail's head and the column's
+head and the top bar clear them; on Windows the rightmost header (the panel's, or else the top
+bar) clears the caption buttons. Controls in the row stay clickable. Pass `history` to
+`ShellTitleBarControls` there for ‹ ›; browsers have their own.
+
+### Phones
+
+The page scrolls the document, so Safari's and Chrome's own bars compact as you scroll. The bottom
+bar sits above the home indicator, steps aside while you scroll down and returns when you scroll
+up, and hides while the keyboard is open or a record is open full screen. Set
+`viewport-fit=cover` and `interactive-widget=resizes-content` in the viewport meta, and a
+`theme-color` that matches the background.
+
+### Floating items
+
+`ShellFloatingArea`, passed as `floating`, stacks the assistant pill, the audio player and upload
+progress at the page's bottom-right. It never covers the panel, lifts over the phone bar and the
+home indicator, and is left out of print. Toasts stay bottom-centre.
+
+## API Reference
+
+<ApiTable path="../../packages/ui/registry/ui/shell.tsx" name="ShellProps" />
+
+### ShellRailItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell.tsx"
+  name="ShellRailItemProps"
+/>
+
+### ShellColumnItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell.tsx"
+  name="ShellColumnItemProps"
+/>
+
+### ShellPage
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell.tsx"
+  name="ShellPageProps"
+/>
+
+## Accessibility
+
+- A skip link is the first stop; it moves focus to the page (`ShellMain`, the document's
+  `<main>`). The rail and the column are named navigation landmarks, the top bar is the page's
+  header, and the title is its `<h1>`, rendered with the page.
+- The current module and view carry `aria-current="page"`; a count is part of the item's name
+  ("Tasks, 17").
+- The column's resize edge is a separator: drag it, or focus it and use the arrow keys.
+- Everything that hovers has a key or button: the column's peek opens from ▤ and ⌘\ too.
+
+| Key                                   | Action                                                 |
+| ------------------------------------- | ------------------------------------------------------ |
+| <kbd>F6</kbd> / <kbd>Shift+F6</kbd>   | Move between the rail, column, top bar, page and panel |
+| <kbd>⌘</kbd> <kbd>\\</kbd>            | Fold or unfold the column (slide it over on a tablet)  |
+| <kbd>Escape</kbd>                     | Put away a column that slid over the page              |
+| <kbd>←</kbd> <kbd>→</kbd> on the edge | Resize the column; Home and End for its ends           |
+
+<StatesTested name="shell" />
+
+## Do / Don't
+
+<DoDont
+  do="Give each route its page minimum and let the shell decide where the panel goes."
+  dont="Measure the window and move the panel yourself, or put page actions inside the page header: they belong in the top bar's slots."
+/>
