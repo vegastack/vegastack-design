@@ -2168,15 +2168,13 @@ test("sticky header and summary row draw their rules in their own cells, once (n
     // A row border stays with the table, not the sticky row: the rules are the cells' own.
     const head = grid.querySelector("thead tr")!;
     expect(head.className).not.toMatch(/(^|\s)border-b(\s|$)/);
-    expect(head.className).toContain(
-      "*:inset-shadow-[0_-1px_0_var(--color-border)]",
-    );
+    expect(head.className).toContain("*:inset-shadow-[0_-1px_0_var(--border)]");
     const foot = grid.querySelector("tfoot")!;
     expect(foot.className).not.toMatch(/(^|\s)border-t(\s|$)/);
     const footRow = foot.querySelector("tr")!;
     expect(footRow.className).toContain("border-0");
     expect(footRow.className).toContain(
-      "*:shadow-[inset_0_1px_0_var(--color-border)]",
+      "*:shadow-[inset_0_1px_0_var(--border)]",
     );
     // A rule above only: nothing under the summary row, framed or not.
     expect(footRow.className).not.toContain("inset_0_-1px_0");
@@ -4160,7 +4158,7 @@ test("POL-01/13: hover is a faint wash, the open row carries the edge, and froze
     "[--row-fill-color:var(--state-selected)]",
   );
   expect(row("d2").className).toContain(
-    "[&[data-peek-active]>:first-child]:before:bg-[image:linear-gradient(var(--color-foreground),var(--color-foreground)),var(--row-fill-layer,none)]",
+    "[&[data-peek-active]>:first-child]:before:bg-[image:linear-gradient(var(--foreground),var(--foreground)),var(--row-fill-layer,none)]",
   );
   expect(row("d1").hasAttribute("data-selected")).toBe(true);
   // The pinned cell repaints no wash of its own: it keeps the row's `row-fill` shape (it is

@@ -302,6 +302,40 @@ const isTextEntryFocusBorderFile = (file) => {
   );
 };
 
+// COL (OVL-13's theme scopes) — the `@theme inline` bridge (`--color-foreground: var(--foreground)`)
+// is declared once, on `:root`, and a custom property resolves where it is declared: a
+// `var(--color-foreground)` read inside a `.dark` subtree, a scoped portal or a pinned-theme region
+// is the ROOT theme's value. Registry source reads the runtime token (`var(--foreground)`) or a
+// colour utility instead. The names are the semantic token contract's own keys, so a new token is
+// covered the day it lands; a `--color-*` name the file assigns itself (chart.tsx's
+// `"--color-border": indicatorColor`, a series key) is a local variable, not the bridge.
+const COLOR_BRIDGE_NAMES = Object.keys(
+  JSON.parse(
+    readFileSync(
+      join(REPO_ROOT, "packages/design-tokens/tokens/semantic.tokens.json"),
+      "utf8",
+    ),
+  ),
+).filter((key) => !key.startsWith("$"));
+const COLOR_BRIDGE_READ = new RegExp(
+  `\\(--color-(${COLOR_BRIDGE_NAMES.sort((a, b) => b.length - a.length).join("|")})(?![\\w-])`,
+  "g",
+);
+const NO_COLOR_BRIDGE_MSG =
+  "reads the `@theme inline` colour bridge, which resolves once on `:root` and so paints the light value inside a dark or scoped theme — use the runtime token (`var(--foreground)`) or a colour utility";
+const colorBridgeReads = (src) => {
+  const assigned = new Set(
+    [...src.matchAll(/["'[]?--color-([\w-]+)["']?\s*:/g)].map((m) => m[1]),
+  );
+  const found = [];
+  src.split("\n").forEach((text, index) => {
+    for (const m of text.matchAll(COLOR_BRIDGE_READ)) {
+      if (!assigned.has(m[1])) found.push({ line: index + 1, name: m[1] });
+    }
+  });
+  return found;
+};
+
 const NO_RADIUS_RAMP_MSG =
   "radius off the role scale (BRD-12): use the role corner — rounded-control (single-line controls), -icon (icon buttons), -chip, -inline (tokens in text), -mark, -item (rows, tooltips), -block, -card, -bubble, -overlay, -tile (square media) — never a ramp step, bare `rounded`, an arbitrary length or a radius variable";
 const RADIUS_ROLES = new Set([
@@ -1150,6 +1184,16 @@ for (const root of ROOTS) {
       for (const { line } of inlineRadiusLiterals(file, src)) {
         console.log(
           `${file}:${line} [no-radius-ramp] inline radius off the role scale (BRD-12): a style object's border radius takes a role token (\`var(--corner-card)\`, or the email kit's \`emailRadius.<role>\`), never a literal`,
+        );
+        violations++;
+      }
+    }
+    if (
+      /(^|\/)packages\/ui\/registry\//.test(resolve(file).replace(/\\/g, "/"))
+    ) {
+      for (const { line, name } of colorBridgeReads(src)) {
+        console.log(
+          `${file}:${line} [no-color-bridge] \`--color-${name}\` ${NO_COLOR_BRIDGE_MSG}`,
         );
         violations++;
       }

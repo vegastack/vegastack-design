@@ -1,4 +1,4 @@
-// @vegastack sidebar@0.89.0 sha256-dPthQ/rCEfwlC8uC7x56C3fi/Pxu5f5/HF9+O8j1Duc=
+// @vegastack sidebar@0.89.0 sha256-gvC/WZHUOyUa/Sp6UkVJGMYGaGdhtCXNbzwzEFvdn+I=
 
 "use client";
 
@@ -466,7 +466,7 @@ function SidebarFooter({ className, ...props }: React.ComponentProps<"div">) {
       className={cn(
         "flex flex-col gap-2 p-2",
         // While items sit under the footer, its top edge casts a soft shadow over them.
-        "transition-shadow duration-fast ease-standard in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:relative in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:z-10 in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:shadow-[0_-6px_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)]",
+        "transition-shadow duration-fast ease-standard in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:relative in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:z-10 in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:shadow-[0_-6px_8px_-6px_color-mix(in_oklab,var(--foreground)_25%,transparent)]",
         className,
       )}
       {...props}

@@ -119,7 +119,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/sidebar.tsx b/sidebar.tsx
-index cbcc413..6ddd686 100644
+index cbcc413..abffd4f 100644
 --- a/sidebar.tsx
 +++ b/sidebar.tsx
 @@ -1,117 +1,224 @@
@@ -631,7 +631,7 @@ index cbcc413..6ddd686 100644
 +      className={cn(
 +        "flex flex-col gap-2 p-2",
 +        // While items sit under the footer, its top edge casts a soft shadow over them.
-+        "transition-shadow duration-fast ease-standard in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:relative in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:z-10 in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:shadow-[0_-6px_8px_-6px_color-mix(in_oklab,var(--color-foreground)_25%,transparent)]",
++        "transition-shadow duration-fast ease-standard in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:relative in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:z-10 in-[[data-sidebar=sidebar]:has([data-slot=sidebar-content-frame][data-more-below])]:shadow-[0_-6px_8px_-6px_color-mix(in_oklab,var(--foreground)_25%,transparent)]",
 +        className,
 +      )}
        {...props}

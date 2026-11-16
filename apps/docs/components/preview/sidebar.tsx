@@ -1077,13 +1077,13 @@ export function sidebarTheming(): ReactNode {
         className="h-full min-h-0"
         style={
           {
-            "--sidebar": "var(--color-foreground)",
-            "--sidebar-foreground": "var(--color-background)",
-            "--sidebar-accent": "var(--color-muted-foreground)",
-            "--sidebar-accent-foreground": "var(--color-background)",
-            "--sidebar-border": "var(--color-muted-foreground)",
-            "--sidebar-primary": "var(--color-background)",
-            "--sidebar-primary-foreground": "var(--color-foreground)",
+            "--sidebar": "var(--foreground)",
+            "--sidebar-foreground": "var(--background)",
+            "--sidebar-accent": "var(--muted-foreground)",
+            "--sidebar-accent-foreground": "var(--background)",
+            "--sidebar-border": "var(--muted-foreground)",
+            "--sidebar-primary": "var(--background)",
+            "--sidebar-primary-foreground": "var(--foreground)",
           } as CSSProperties
         }
       >

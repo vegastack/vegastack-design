@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.89.0 sha256-yRwKZHhawk70IsYLBhkuszVMY5uCxQyaxomfYIhtqds=
+// @vegastack data-grid@0.89.0 sha256-7JEo9WAhp/OzYgnTFPfgECOJaoV1BeD0oWs7twls6oM=
 
 "use client";
 
@@ -1261,7 +1261,7 @@ const ROW_FILL_SLICE_CLASS =
 // hue the neutral hover and selected-row washes never have. (`data-current-cell`, not
 // `data-active-cell`: the tokens' `data-active` custom variant would swallow the latter.)
 const CELL_BASE_CLASS =
-  "p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--color-info)_12%,var(--color-background))] data-fill-target:bg-[color-mix(in_oklab,var(--color-info)_6%,var(--color-background))] group-focus-within/grid:data-current-cell:inset-ring-2 group-focus-within/grid:data-current-cell:inset-ring-info";
+  "p-2 align-middle whitespace-nowrap data-in-range:bg-[color-mix(in_oklab,var(--info)_12%,var(--background))] data-fill-target:bg-[color-mix(in_oklab,var(--info)_6%,var(--background))] group-focus-within/grid:data-current-cell:inset-ring-2 group-focus-within/grid:data-current-cell:inset-ring-info";
 /**
  * The header's and the summary row's rules, drawn inside their own cells (an inset shadow).
  * A row border would not
@@ -1269,13 +1269,12 @@ const CELL_BASE_CLASS =
  * behind while the header or summary row stuck, and opaque sticky cells painted over it. The body's
  * first row has no top border and its last none at the bottom, so each line is drawn once.
  */
-const HEAD_ROW_CLASS = "*:inset-shadow-[0_-1px_0_var(--color-border)]";
+const HEAD_ROW_CLASS = "*:inset-shadow-[0_-1px_0_var(--border)]";
 /**
  * The summary row: a rule above only, nothing below it. Its cells never take the frozen edge's
  * shadow, so the rule uses the plain shadow layer.
  */
-const SUMMARY_ROW_CLASS =
-  "border-0 *:shadow-[inset_0_1px_0_var(--color-border)]";
+const SUMMARY_ROW_CLASS = "border-0 *:shadow-[inset_0_1px_0_var(--border)]";
 
 const HEAD_BASE_CLASS =
   "h-10 px-2 text-start align-middle font-medium whitespace-nowrap text-foreground";

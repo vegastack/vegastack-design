@@ -364,7 +364,7 @@ export function editableCellParity(): ReactNode {
   return (
     <Wrapper className="block">
       <div className="mx-auto flex w-full max-w-md flex-col items-start gap-3 text-sm">
-        <span className="bg-[repeating-linear-gradient(to_bottom,transparent_0_19px,var(--color-border)_19px_20px)]">
+        <span className="bg-[repeating-linear-gradient(to_bottom,transparent_0_19px,var(--border)_19px_20px)]">
           <EditableCell
             ref={measure}
             value="Quarterly business review"

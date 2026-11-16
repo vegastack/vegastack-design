@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.89.0 sha256-Cm1xFHNsEIUYXy4MfeIWpE/rpOTFhWiVJvB4TkKaQ6o=
+// @vegastack chat-composer@0.89.0 sha256-sP5P52hZ58RmcyELuQ705kyXhqw0gFn5frOIOcC7zeA=
 
 "use client";
 
@@ -869,7 +869,7 @@ function ProgressRing({ value }: { value: number }) {
       data-slot="chat-composer-attachment-progress"
       className="block size-3.5 shrink-0 rounded-full [mask-image:radial-gradient(farthest-side,transparent_calc(100%-var(--spacing)*0.5),black_calc(100%-var(--spacing)*0.25))]"
       style={{
-        backgroundImage: `conic-gradient(var(--color-foreground) ${percent}%, var(--color-border) 0)`,
+        backgroundImage: `conic-gradient(var(--foreground) ${percent}%, var(--border) 0)`,
       }}
     />
   );

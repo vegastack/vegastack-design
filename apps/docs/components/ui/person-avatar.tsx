@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.89.0 sha256-VUEY83tpnTMgkr09eHmVhKTeW2zj3/1+pDliutru1UQ=
+// @vegastack person-avatar@0.89.0 sha256-hX03NsxxzoemuNLArSecyHxIwPMiHnE0V1dymSHNqH4=
 
 "use client";
 
@@ -312,7 +312,7 @@ const AGENT_ROOT = cn(
   "after:[mask-image:var(--person-avatar-shape),var(--person-avatar-shape)] after:[mask-size:100%_100%,calc(100%-var(--spacing)*0.5)_calc(100%-var(--spacing)*0.5)] after:[mask-position:center] after:[mask-repeat:no-repeat] after:[mask-composite:exclude]",
   "before:absolute before:-inset-0.5 before:bg-(--person-avatar-halo) before:[mask:var(--person-avatar-shape)_center/100%_100%_no-repeat]",
   // The halo takes the colour of the surface beneath, as `PERSON_AVATAR_STACK_RING` does.
-  "in-data-[slot=avatar-group]:[--person-avatar-halo:var(--color-background)] in-data-[slot=avatar-group]:in-data-[slot=card]:[--person-avatar-halo:var(--color-card)] in-data-[slot=avatar-group]:in-data-[slot=popover-content]:[--person-avatar-halo:var(--color-popover)] in-data-[slot=avatar-group]:in-data-[slot=hover-card-content]:[--person-avatar-halo:var(--color-popover)] in-data-[slot=avatar-group]:in-data-[slot=dialog-content]:[--person-avatar-halo:var(--color-popover)] in-data-[slot=avatar-group]:in-data-[slot=sheet-content]:[--person-avatar-halo:var(--color-popover)]",
+  "in-data-[slot=avatar-group]:[--person-avatar-halo:var(--background)] in-data-[slot=avatar-group]:in-data-[slot=card]:[--person-avatar-halo:var(--card)] in-data-[slot=avatar-group]:in-data-[slot=popover-content]:[--person-avatar-halo:var(--popover)] in-data-[slot=avatar-group]:in-data-[slot=hover-card-content]:[--person-avatar-halo:var(--popover)] in-data-[slot=avatar-group]:in-data-[slot=dialog-content]:[--person-avatar-halo:var(--popover)] in-data-[slot=avatar-group]:in-data-[slot=sheet-content]:[--person-avatar-halo:var(--popover)]",
   "data-[kind=agent]:[[data-slot=avatar-group]_&]:ring-0",
 );
 

@@ -226,7 +226,7 @@ export function drawerStyling(): ReactNode {
           style={
             {
               "--drawer-inset": "0.75rem",
-              "--drawer-bleed-background": "var(--color-muted)",
+              "--drawer-bleed-background": "var(--muted)",
             } as CSSProperties
           }
         >
