@@ -20416,6 +20416,60 @@
         "whenNotToUse": "A link that must always open a new tab inside an unanswered dialog (RecordList's ↗), or a download.",
         "version": "0.61.0"
       }
+    },
+    {
+      "name": "tool-group",
+      "type": "registry:ui",
+      "title": "Tool Group",
+      "description": "A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with ⋯ as the one More.",
+      "categories": ["actions"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.17.0",
+        "@vegastack/design-tokens@^0.17.0"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/tooltip"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/tool-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/tool-group.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Icon-only tools in a top bar or a card header — Watch, Star, Comments, More.",
+        "whenNotToUse": "Text actions (Share, Approve) or attached segmented buttons (ButtonGroup).",
+        "version": "0.89.1"
+      }
+    },
+    {
+      "name": "shell-assistant",
+      "type": "registry:ui",
+      "title": "Shell Assistant",
+      "description": "The floating \"Ask {name}\" pill at the page area's corner and the compact assistant card it opens — header actions, a removable context chip, a scrolling body and a composer slot.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.17.0",
+        "@vegastack/design-tokens@^0.17.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chip",
+        "@vegastack/tool-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/shell-assistant.tsx",
+          "type": "registry:ui",
+          "target": "@ui/shell-assistant.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
+        "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
+        "version": "0.89.1"
+      }
     }
   ]
 }

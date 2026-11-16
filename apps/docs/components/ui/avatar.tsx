@@ -1,4 +1,4 @@
-// @vegastack avatar@0.89.0 sha256-YdlZW5aCZ99r1Jml/3BGgj9fPJ7EpG1K/QgjEqjabd8=
+// @vegastack avatar@0.89.0 sha256-Ahy9PT9Yd1HMc62acwym2hVm8RQh9oc6xUsz9wwAD/c=
 
 "use client";
 
@@ -101,16 +101,51 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
-function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
+function AvatarGroup({
+  className,
+  max,
+  total,
+  moreLabel = (count: number) => `${count} more`,
+  children,
+  ...props
+}: React.ComponentProps<"div"> & {
+  /**
+   * The most avatars to show. Past it, the stack shows the first `max` and closes with an
+   * `AvatarGroupCount` reading "+N" for the rest (API-44). Omit it to render every child.
+   */
+  max?: number;
+  /**
+   * How many people the stack stands for, when that is more than the avatars passed in (a list
+   * the server only counted). Defaults to the number of `Avatar` children.
+   */
+  total?: number;
+  /**
+   * The count chip's accessible text for N hidden people.
+   * @default (count) => `${count} more`
+   */
+  moreLabel?: (count: number) => string;
+}) {
+  const items = React.Children.toArray(children);
+  const limit = max === undefined ? items.length : Math.max(0, Math.floor(max));
+  const shown = items.slice(0, limit);
+  const hidden = Math.max(0, (total ?? items.length) - shown.length);
   return (
     <div
       data-slot="avatar-group"
       className={cn(
-        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
+        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:data-here:ring-primary",
         className,
       )}
       {...props}
-    />
+    >
+      {max === undefined && total === undefined ? children : shown}
+      {(max !== undefined || total !== undefined) && hidden > 0 ? (
+        <AvatarGroupCount data-overflow="">
+          <span aria-hidden>+{hidden}</span>
+          <span className="sr-only">{moreLabel(hidden)}</span>
+        </AvatarGroupCount>
+      ) : null}
+    </div>
   );
 }
 

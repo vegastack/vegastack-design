@@ -445,3 +445,62 @@ test("no a11y violations — every size tier", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("API-44: max shows the first avatars and closes with +N, named for screen readers", async () => {
+  const screen = await render(
+    <AvatarGroup max={2}>
+      <Avatar data-here="">
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarFallback>GH</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarFallback>KJ</AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarFallback>MH</AvatarFallback>
+      </Avatar>
+    </AvatarGroup>,
+  );
+  const group = screen.container.querySelector("[data-slot=avatar-group]")!;
+  expect(group.querySelectorAll("[data-slot=avatar]")).toHaveLength(2);
+  const count = group.querySelector("[data-slot=avatar-group-count]")!;
+  expect(count.textContent).toBe("+22 more");
+  expect(count.querySelector("[aria-hidden]")?.textContent).toBe("+2");
+  // The here ring paints in the primary colour.
+  const here = group.querySelector<HTMLElement>("[data-here]")!;
+  const other = group.querySelectorAll<HTMLElement>("[data-slot=avatar]")[1]!;
+  expect(getComputedStyle(here).getPropertyValue("--tw-ring-color")).not.toBe(
+    getComputedStyle(other).getPropertyValue("--tw-ring-color"),
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("API-44: total counts people not passed in; no max and no total renders every child", async () => {
+  const screen = await render(
+    <>
+      <AvatarGroup max={3} total={7} data-testid="counted">
+        <Avatar>
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+      </AvatarGroup>
+      <AvatarGroup data-testid="plain">
+        <Avatar>
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarFallback>GH</AvatarFallback>
+        </Avatar>
+      </AvatarGroup>
+    </>,
+  );
+  const counted = screen.getByTestId("counted").element();
+  expect(
+    counted.querySelector("[data-slot=avatar-group-count] [aria-hidden]")
+      ?.textContent,
+  ).toBe("+6");
+  const plain = screen.getByTestId("plain").element();
+  expect(plain.querySelectorAll("[data-slot=avatar]")).toHaveLength(2);
+  expect(plain.querySelector("[data-slot=avatar-group-count]")).toBeNull();
+});

@@ -1,0 +1,99 @@
+---
+title: Tool Group
+description: A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with a horizontal ellipsis as the one More.
+audience: public
+registry: tool-group
+status: stable
+since: 0.90.0
+a11y: a labelled group of named buttons, each with a tooltip
+preview: toolGroup
+---
+
+## Install
+
+<InstallSteps name="tool-group" />
+
+## Usage
+
+```tsx
+import {
+  ToolGroup,
+  ToolGroupItem,
+  ToolGroupMore,
+} from "@/components/ui/tool-group";
+
+<ToolGroup aria-label="Page tools">
+  <ToolGroupItem label="Watch" aria-pressed={watching} onClick={toggleWatch}>
+    <BellIcon />
+  </ToolGroupItem>
+  <ToolGroupItem label="Comments" count={9}>
+    <MessageSquareIcon />
+  </ToolGroupItem>
+  <DropdownMenu>
+    <DropdownMenuTrigger render={<ToolGroupMore />} />
+    <DropdownMenuContent align="end">…</DropdownMenuContent>
+  </DropdownMenu>
+</ToolGroup>;
+```
+
+Every tool is a ghost `Button` at `icon-sm` (28px), two pixels from the next, so Watch, Star,
+Comments and More look and space the same on every page. `label` is both the accessible name and
+the tooltip. `ToolGroupMore` is the one "more": the horizontal ⋯ (`MoreHorizontal`), rendered as
+a menu's trigger.
+
+<ComponentPreview name="toolGroup" file="components/preview/tool-group.tsx" />
+
+## Anatomy
+
+<Anatomy name="tool-group" />
+
+## Examples
+
+### In a top bar
+
+The right end of a page's top bar, in its fixed order: who is here (an
+[`AvatarGroup`](/docs/components/avatar) with `max`), the tools, the text actions, then the panel
+toggle. Eight pixels between groups, two inside one.
+
+<ComponentPreview
+  name="toolGroupTopBar"
+  file="components/preview/tool-group.tsx"
+/>
+
+### Counts
+
+`count` sits beside the icon and the tool widens to fit it; past 99 it reads "99+". It is part of
+the tool's name ("Comments, 9"), never a badge floating over the icon.
+
+### Toggles
+
+A tool that turns something on — Watch, Star — takes `aria-pressed`. Its label says what a press
+does next ("Stop watching").
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/tool-group.tsx"
+  name="ToolGroupItemProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/tool-group.tsx"
+  name="ToolGroupMoreProps"
+/>
+
+## Accessibility
+
+- `ToolGroup` is a `group`; name it with `aria-label`. Each tool keeps its own tab stop.
+- Each tool is a native button named by `label`, with its count appended; the tooltip repeats
+  the name for sighted pointer users.
+- A toggling tool reports `aria-pressed`.
+
+<StatesTested name="tool-group" />
+
+## Do / Don't
+
+<DoDont
+  do="Use ToolGroupMore (⋯) for every overflow menu."
+  dont="Use a vertical ellipsis, or float a count badge over an icon."
+/>
