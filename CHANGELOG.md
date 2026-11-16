@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.98.1] — November 16, 2026
+
+<!-- assembled from 1 changeset: 48783c41c5a0 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.18.1`** (was `0.18.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.98.0 → 0.98.1.
+
+### 🐛 Fixed
+
+- Shell: a hairline (`--sidebar-border`) now separates the rail from the column, as it already separates the column from the page. The assistant pill reads a name that already starts with "Ask" (e.g. "Ask Regent") as itself, not "Ask Ask Regent".
+  [`9c73406`](https://github.com/VegaStack/vegastack-design/commit/9c73406)
+
 ## [0.98.0] — November 16, 2026
 
 <!-- assembled from 1 changeset: 669e08e72d2f -->

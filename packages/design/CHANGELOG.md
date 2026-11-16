@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.18.1
+
+### Patch Changes
+
+- [#1009](https://github.com/vegastack/vegastack-design/pull/1009) [`9c73406`](https://github.com/vegastack/vegastack-design/commit/9c73406d2762bd808a771c8ea1aa719835b4a43a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Shell: a hairline (`--sidebar-border`) now separates the rail from the column, as it already separates the column from the page. The assistant pill reads a name that already starts with "Ask" (e.g. "Ask Regent") as itself, not "Ask Ask Regent".
+
 ## 0.18.0
 
 ### Patch Changes
