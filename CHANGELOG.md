@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.97.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: 5dfc7ba2e8d1 -->
+
+### 🧩 New components
+
+- `ShellRailItem` takes `animatedIcon` (L23): the static icon paints first, and the animated one — a DS animated icon wrapped in the new `lazyAnimatedIcon`, so its module and Motion load only after the browser is idle — takes its place at the same size and plays on hover and when the item becomes the current module. Reduced motion keeps it still. Additive. `ShellSection` (a region's own measure: `prose`, `default`, `full`, with `align`), `ShellBleed` (past the gutter to the page's edges) and `shellGutterClasses` (the shell's container-based `--page-gutter`) join the shell, so pages move off `AppShellSection` and `AppShellBleed`. The registry's `PageWidth` (`page-layout`) gains `form` (720px, centred), which `ShellPage` spaces wider and `AppShellPage` renders as `prose`.
+  [`b389df4`](https://github.com/VegaStack/vegastack-design/commit/b389df4)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.96.1 → 0.97.0.
+
 ## [0.96.1] — November 16, 2026
 
 <!-- assembled from 1 changeset: dea6201a87c2 -->
