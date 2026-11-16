@@ -183,7 +183,7 @@ function Demo({
             <Item
               key={key}
               size="sm"
-              className="min-w-0"
+              className="w-full min-w-0"
               render={<button type="button" />}
               data-peek-active={state.activeKey === key || undefined}
               onClick={(e) => {
@@ -195,7 +195,7 @@ function Demo({
               }}
               onDoubleClick={() => tabs.open(RECORDS[key]!.ref)}
             >
-              <ItemContent>
+              <ItemContent className="min-w-0">
                 <ItemTitle className="truncate">{titleOf(key)}</ItemTitle>
               </ItemContent>
             </Item>

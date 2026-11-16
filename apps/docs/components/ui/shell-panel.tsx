@@ -1,4 +1,4 @@
-// @vegastack shell-panel@0.89.1 sha256-EIJ98GLPhtfIWgdShCRGZJ8GFk+bYnfF5WB2xoABIJc=
+// @vegastack shell-panel@0.89.1 sha256-TfLcMmUgj8bYisT+2epP/viw/+pFwiKBrCsjIvocZhM=
 
 "use client";
 
@@ -1000,7 +1000,7 @@ export function ShellPanelTab({
         "data-[drop-edge=start]:before:absolute data-[drop-edge=start]:before:inset-y-1 data-[drop-edge=start]:before:-start-0.5 data-[drop-edge=start]:before:w-0.5 data-[drop-edge=start]:before:bg-info data-[drop-edge=start]:before:content-['']",
         "data-[drop-edge=end]:before:absolute data-[drop-edge=end]:before:inset-y-1 data-[drop-edge=end]:before:-end-0.5 data-[drop-edge=end]:before:w-0.5 data-[drop-edge=end]:before:bg-info data-[drop-edge=end]:before:content-['']",
         // A phone pushes records instead of tabbing them: only the current one shows (R6).
-        "group-data-[panel-mode=full]/shell:not-data-[state=active]:hidden group-data-[panel-mode=full]/shell:max-w-none group-data-[panel-mode=full]/shell:flex-1",
+        "group-data-[panel-mode=full]/shell:not-data-[state=active]:hidden group-data-[panel-mode=full]/shell:max-w-none group-data-[panel-mode=full]/shell:flex-1 group-data-[panel-mode=full]/shell:aria-selected:bg-transparent group-data-[panel-mode=full]/shell:font-semibold",
         className,
       )}
       {...props}
@@ -1017,7 +1017,7 @@ export function ShellPanelTab({
       <span
         data-slot="shell-panel-tab-title"
         className={cn(
-          "min-w-0 flex-1 truncate",
+          "min-w-0 flex-1 truncate text-start",
           preview && "italic",
           pinned && "sr-only",
         )}
@@ -1215,6 +1215,8 @@ export function ShellPanelOverflow({
             size="icon-sm"
             aria-label="All tabs"
             data-slot="shell-panel-overflow"
+            // A phone pushes records instead of tabbing them (R6): no tab list to open.
+            className="group-data-[panel-mode=full]/shell:hidden"
           />
         }
       >
