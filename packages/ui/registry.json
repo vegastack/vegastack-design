@@ -1451,7 +1451,6 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/input-group",
-        "@vegastack/icon-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/use-announcer",
@@ -1467,7 +1466,7 @@
       "meta": {
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
-        "version": "0.90.0"
+        "version": "0.96.1"
       }
     },
     {
@@ -20569,6 +20568,62 @@
         "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
         "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.94.0"
+      }
+    },
+    {
+      "name": "panel-tabs",
+      "type": "registry:lib",
+      "title": "Panel Tabs",
+      "description": "The rules of the shell panel's tabs as one pure reducer — references with canonical keys, a back-stack per tab, insert after the current tab, one preview tab, a soft cap of 10 with Undo, auto-close, Recently closed — plus the saved shape and the ?panel= URL codec.",
+      "categories": ["layout"],
+      "dependencies": [],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/panel-tabs.ts",
+          "type": "registry:lib",
+          "target": "@lib/panel-tabs.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Holding the shell panel's open tabs — dispatch its actions from usePanelTabs, save serializePanelTabs per workspace and sync encodePanelParam with the URL.",
+        "whenNotToUse": "In-page section tabs (Tabs, RouteTabs, ViewTabs) — they have no preview, cap or back-stack.",
+        "version": "0.96.0"
+      }
+    },
+    {
+      "name": "shell-panel",
+      "type": "registry:ui",
+      "title": "Shell Panel",
+      "description": "The shell's one right-hand panel — a 48px head with a tab row (italic preview tabs, pinned icons, change dots, drag or keys to reorder, a right-click menu, ▾ overflow with Recently closed), tab bodies kept alive under Activity, a resizable start edge and the Escape rule.",
+      "categories": ["layout"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/command",
+        "@vegastack/context-menu",
+        "@vegastack/empty",
+        "@vegastack/popover",
+        "@vegastack/skeleton",
+        "@vegastack/use-platform",
+        "@vegastack/panel-tabs",
+        "@vegastack/shell-layout"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/shell-panel.tsx",
+          "type": "registry:ui",
+          "target": "@ui/shell-panel.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Inside Shell's panel slot: every record, record view or assistant chat opened beside the page as a tab.",
+        "whenNotToUse": "A form, a confirmation or a picker (Dialog, AlertDialog, ResponsiveDialog), or a page's own section tabs (Tabs).",
+        "version": "0.96.0"
       }
     }
   ]

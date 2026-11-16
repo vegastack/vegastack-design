@@ -1,0 +1,257 @@
+---
+title: Shell Panel
+description: The shell's one right-hand panel — record tabs with previews, a soft cap and Recently closed; beside the page, over it, or full screen.
+audience: public
+registry: shell-panel
+status: preview
+since: 0.96.0
+a11y: manual-activation tablist, labelled panels, focus return
+preview: shellPanel
+---
+
+## Install
+
+<InstallSteps name="shell-panel" />
+
+## Usage
+
+```tsx
+import {
+  ShellPanel,
+  ShellPanelBody,
+  ShellPanelClose,
+  ShellPanelEmpty,
+  ShellPanelHeader,
+  ShellPanelOverflow,
+  ShellPanelTab,
+  ShellPanelTabs,
+  ShellPanelView,
+  usePanelTabs,
+} from "@/components/ui/shell-panel";
+import { deserializePanelTabs } from "@/lib/panel-tabs";
+
+const tabs = usePanelTabs({
+  initial: () => deserializePanelTabs(saved),
+  autoClose: prefs.tabAutoClose,
+  onEvicted: (key) =>
+    toast(`Closed ${titleOf(key)}`, {
+      action: { label: "Undo", onClick: tabs.undo },
+    }),
+});
+
+<ShellPanel width={width} onWidthChange={setWidth} onRequestClose={closePanel}>
+  <ShellPanelHeader>
+    <ShellPanelTabs
+      value={tabs.state.activeKey}
+      onValueChange={tabs.activate}
+      onClose={tabs.close}
+      onReorder={tabs.reorder}
+      onAction={(key, action) =>
+        tabs.act(key, action) || appAction(key, action)
+      }
+    >
+      {tabs.state.tabs.map((t) => (
+        <ShellPanelTab
+          key={t.key}
+          value={t.key}
+          title={titleOf(t.key)}
+          icon={iconOf(t.ref)}
+          preview={t.preview}
+          pinned={t.pinned}
+          changed={t.changed}
+          href={hrefOf(t.ref)}
+        />
+      ))}
+    </ShellPanelTabs>
+    <ShellPanelOverflow
+      tabs={items}
+      closed={closedItems}
+      value={tabs.state.activeKey}
+      onSelect={tabs.activate}
+      onReopen={tabs.reopen}
+    />
+    <ShellPanelClose onClick={closePanel} />
+  </ShellPanelHeader>
+  {tabs.state.tabs.length === 0 ? (
+    <ShellPanelEmpty recent={closedItems.slice(0, 5)} onReopen={tabs.reopen} />
+  ) : (
+    <ShellPanelBody>
+      {tabs.state.tabs.map((t) => (
+        <ShellPanelView
+          key={t.key}
+          value={t.key}
+          activeValue={tabs.state.activeKey}
+          focusRequest={
+            tabs.state.focus?.key === t.key ? tabs.state.focus.seq : undefined
+          }
+        >
+          <PanelViewFor tabRef={t.ref} />
+        </ShellPanelView>
+      ))}
+    </ShellPanelBody>
+  )}
+</ShellPanel>;
+```
+
+## Scope
+
+The one surface at the window's end edge. `Shell` decides where it sits from the room the page
+needs — beside the page (`dock`), sliding over it (`overlay`) or the whole screen on a phone
+(`full`) — and writes that as `data-panel-mode`; the panel fills the box it is given. Every tab
+shows a plain-data reference: a record (live, or read-only in the trash; an agent run carries its
+agent), a view of a record (Details, Comments, Versions, Files, Activity — optionally at a thread or
+a version) or an assistant chat. The rules live in the pure `panelTabsReducer` from
+`@/lib/panel-tabs`, which also owns the saved shape and the `?panel=` URL codec; `usePanelTabs`
+binds it to React. Forms, confirmations and pickers stay dialogs; a page's own section tabs stay
+`Tabs`.
+
+## Anatomy
+
+<Anatomy name="shell-panel" />
+
+## Examples
+
+### Tabs beside the page
+
+A single click opens a preview tab in italics; the next single click replaces it, so walking a list
+leaves one tab. A double click, an edit, a draft or Keep open makes it a normal tab; ⌘-click opens
+one in the background. A new tab opens right after the current one. Pinned tabs are icons at the
+start. A tab whose record changed shows a dot until it is seen. Hidden tabs stay alive — switch
+back and a half-written comment is still there.
+
+<ComponentPreview name="shellPanel" file="components/preview/shell-panel.tsx" />
+
+### Nothing open
+
+The empty panel says how to open something and offers Recently closed. It never shows the
+assistant.
+
+<ComponentPreview
+  name="shellPanelEmpty"
+  file="components/preview/shell-panel.tsx"
+/>
+
+### Over the page
+
+When the page needs its room, the panel slides over it. Escape closes an open menu first, then the
+panel; a panel beside the page never closes on Escape.
+
+<ComponentPreview
+  name="shellPanelOverlay"
+  file="components/preview/shell-panel.tsx"
+/>
+
+### Keeping tabs tidy
+
+- **Soft cap.** Opening an 11th tab closes the one seen longest ago — never a pinned tab, one with a
+  draft or an upload (`protect`), or the current one. `onEvicted` raises the "Closed … · Undo" toast
+  and `undo()` brings it back. When every tab is protected the cap is exceeded and `onOverCap`
+  fires.
+- **Auto-close.** Tabs unseen for the person's choice — `never`, `12h`, `1d` (the default) or `1w`
+  — close by themselves and go to Recently closed.
+- **Recently closed.** The overflow ▾ lists every open tab with search, then the last closed ones;
+  `reopen()` brings back the newest (⌥⇧T in a browser, ⌘⇧T in the desktop app).
+
+### Links and saved tabs
+
+`encodePanelParam(state)` gives `?panel=task:42,~page:q3&tab=1` (`~` marks the preview; at most 10
+refs, the current tab always among them) and `decodePanelParam` reads a link back, dropping
+anything malformed; feed it to `restore`. `serializePanelTabs` saves
+`{ v: 1, active, tabs: [{ ref, pinned, lastSeenAt }] }` per workspace — previews and dots are not
+saved — and `deserializePanelTabs` loads it, dropping what it can't read.
+
+### Bodies that stream
+
+Each `ShellPanelView` mounts the first time its tab shows and then stays mounted under React's
+`<Activity mode="hidden">`, so scroll, drafts and loaded data survive switching. Its children can be
+lazy or suspend; the fallback is `ShellPanelSkeleton`, shaped like a record header.
+
+### Width
+
+The separator on the start edge resizes the panel between `--shell-panel-width-min` and
+`--shell-panel-width-max` (360–720px) by pointer, touch, or ← → (32px), Home and End. While
+dragging only `--shell-panel-current-width` on the shell moves — nothing re-renders — and
+`onWidthChange` reports the width once, on release.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-panel.tsx"
+  name="ShellPanelProps"
+/>
+
+### ShellPanelTabs
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-panel.tsx"
+  name="ShellPanelTabsProps"
+/>
+
+### ShellPanelTab
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-panel.tsx"
+  name="ShellPanelTabProps"
+/>
+
+### ShellPanelOverflow
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-panel.tsx"
+  name="ShellPanelOverflowProps"
+/>
+
+### ShellPanelView
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-panel.tsx"
+  name="ShellPanelViewProps"
+/>
+
+### ShellPanelEmpty
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-panel.tsx"
+  name="ShellPanelEmptyProps"
+/>
+
+### usePanelTabs
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-panel.tsx"
+  name="UsePanelTabsOptions"
+/>
+
+`ShellPanelHeader`, `ShellPanelBody` and `ShellPanelSkeleton` take a `div`'s props;
+`ShellPanelClose` takes a `Button`'s.
+
+## Accessibility
+
+| Key                    | Does                                                    |
+| ---------------------- | ------------------------------------------------------- |
+| ← / → on a tab         | Move between tabs (Home and End go to the ends)         |
+| Enter / Space          | Open the focused tab (activation is manual)             |
+| Delete / Backspace     | Close the focused tab; focus moves to its neighbour     |
+| ⌥⇧← / ⌥⇧→              | Move the focused tab left or right                      |
+| ⇧F10 / menu key        | Open the tab's menu (also Move left / Move right)       |
+| Esc                    | Close an overlaying or phone panel, after any open menu |
+| ← / → on the separator | Wider / narrower by 32px; Home and End go to the bounds |
+
+- The tab row is a `tablist` of real `button role="tab"` elements with a roving `tabindex`; each
+  `ShellPanelView` is a `tabpanel` labelled by its tab. A preview, pinned or changed tab says so to
+  screen readers.
+- Beside or over the page the panel is non-modal: nothing behind it goes inert. On a phone it is a
+  modal dialog and the rest of the shell is inert.
+- A kept tab opened in the foreground takes focus (`state.focus` → `focusRequest`); a preview or
+  background open never does. Closing returns focus to where the panel was opened from, or the page's main region when
+  that is gone.
+- Dragging has key and menu alternatives; the × is a pointer shortcut for Delete and Close.
+
+<StatesTested name="shell-panel" />
+
+## Do / Don't
+
+<DoDont
+  do="Open every record, record view and side chat as a panel tab through usePanelTabs, and save and link the tabs with the panel-tabs helpers."
+  dont="Add another side sheet, peek or rail for one record kind, or keep tab order and caps in page state."
+/>

@@ -542,6 +542,14 @@ function namedByHost(button, sf) {
 // `resizableNested` exclusion).
 const RAW_INTERACTIVE_EXEMPTIONS = new Map([
   [
+    "registry/ui/shell-panel.tsx",
+    {
+      counts: { button: 1 },
+      rationale:
+        '`ShellPanelTab`, a `role="tab"` in a roving-tabindex tablist (shell contract §5 #31: real buttons as tabs, manual activation) that is also draggable, a context-menu trigger and the host of a pointer-only close glyph — Button would add a pill shape, sizes and a press state that fight the tab\'s own selected fill and drop seam',
+    },
+  ],
+  [
     "registry/ui/comments.tsx",
     {
       counts: { input: 1 },

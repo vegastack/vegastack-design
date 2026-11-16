@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.96.1
+
+### Patch Changes
+
+- [#1003](https://github.com/vegastack/vegastack-design/pull/1003) [`b221eb0`](https://github.com/vegastack/vegastack-design/commit/b221eb0f8c7a9276c0d6038b6484e3e5cae5203e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `CommandLoading`'s search icon pulses with CSS instead of the animated icon, so `command` no longer depends on `icon-search` and an app's palette pulls in no `motion` runtime. The pulse stops under reduced motion.
+
+## 0.96.0
+
+### Minor Changes
+
+- [#1001](https://github.com/vegastack/vegastack-design/pull/1001) [`1bfa3e5`](https://github.com/vegastack/vegastack-design/commit/1bfa3e52f16f9e3053aaefa78348422c94fc8630) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Shell Panel and Panel Tabs, the shell's one right-hand panel (OVL-27, API-45). `ShellPanel` fills the slot `Shell` gives it — beside the page, over it, or full screen and modal on a phone — with a 48px `ShellPanelHeader`, a start-edge separator that resizes it between 360 and 720px without a render per move, and the Escape rule (menus first, then an overlaying panel, never a docked one). `ShellPanelTabs` and `ShellPanelTab` are a manually activated tablist of real buttons: italic preview tabs, pinned icons, change dots, drag or ⌥⇧← → to reorder, a right-click or ⇧F10 menu (`ShellPanelTabMenu`), and `ShellPanelOverflow`, the ▾ with search and Recently closed. `ShellPanelView` keeps each tab's body alive under `<Activity>` behind `ShellPanelSkeleton`; `ShellPanelEmpty` is the empty panel. The new `panel-tabs` lib holds the rules as a pure reducer — tab references with canonical keys and a back-stack per tab, insert after the current tab, one preview tab, a soft cap of 10 with Undo that never closes a pinned or protected tab, auto-close, Recently closed — plus `serializePanelTabs` / `deserializePanelTabs` (`{ v: 1, … }`) and the `?panel=` codec; `usePanelTabs` binds it to React.
+
 ## 0.95.0
 
 ### Minor Changes

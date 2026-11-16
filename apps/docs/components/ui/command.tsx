@@ -1,4 +1,4 @@
-// @vegastack command@0.90.0 sha256-SWn2ugKTd62+W3H4NfjW8/G6PpolkfhWaOp9esT2vx4=
+// @vegastack command@0.96.1 sha256-FHZ+mVhrXhnIblHkE1Oe/hI4Ou4jxul4zE6xCPMYsSs=
 
 "use client";
 
@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { SearchIcon, CheckIcon } from "lucide-react";
-import type { SearchIconHandle } from "@/components/ui/icons/search";
 import { Kbd, KbdGroup } from "@/components/ui/kbd";
 import { usePlatform } from "@/components/ui/use-platform";
 
@@ -345,32 +344,16 @@ function CommandFilters({ className, ...props }: React.ComponentProps<"div">) {
 }
 
 /**
- * The animated glyph and its motion engine load only once a search runs, so the menu's first load
- * carries none of it.
+ * The search glyph, pulsing while the search is running (CSS only: no motion engine, so the menu
+ * and every page that hosts it carry no animation runtime). Still under reduced motion.
  */
-const AnimatedSearchingIcon = React.lazy(() =>
-  import("@/components/ui/icons/search").then(({ SearchIcon: Animated }) => ({
-    default: function AnimatedSearchingIcon() {
-      const ref = React.useRef<SearchIconHandle>(null);
-      React.useEffect(() => {
-        ref.current?.startAnimation();
-        const id = window.setInterval(
-          () => ref.current?.startAnimation(),
-          1200,
-        );
-        return () => window.clearInterval(id);
-      }, []);
-      return <Animated ref={ref} size={16} aria-hidden />;
-    },
-  })),
-);
-
-/** The search glyph, replayed while the search is running; the still glyph until it has loaded. */
 function CommandSearchingIcon() {
   return (
-    <React.Suspense fallback={<SearchIcon size={16} aria-hidden />}>
-      <AnimatedSearchingIcon />
-    </React.Suspense>
+    <SearchIcon
+      size={16}
+      aria-hidden
+      className="shrink-0 motion-safe:animate-pulse"
+    />
   );
 }
 
