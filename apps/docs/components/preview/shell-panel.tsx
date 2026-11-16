@@ -15,7 +15,6 @@ import {
   ShellPanelTabs,
   ShellPanelView,
   usePanelTabs,
-  type ShellPanelMode,
 } from "@/components/ui/shell-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,7 @@ import {
   panelTabsReducer,
   type PanelTabRef,
 } from "@/lib/panel-tabs";
+import type { ShellPanelMode } from "@/lib/shell-layout";
 
 const RECORDS: Record<
   string,

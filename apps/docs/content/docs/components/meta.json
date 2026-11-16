@@ -97,6 +97,7 @@
     "scroll-area",
     "resizable",
     "app-shell",
+    "shell",
     "shell-panel",
     "record-layout",
     "document-layout",

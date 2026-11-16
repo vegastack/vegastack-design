@@ -1,4 +1,4 @@
-// @vegastack shell-panel@0.89.1 sha256-9Np+bunimbsKoELruKS0YvBG0WXm/Eqd84nMrXxY1TU=
+// @vegastack shell-panel@0.89.1 sha256-h2Venj3xkKNQSh0sbe61DH97GlaAR1KWguN1HCX6xJU=
 
 "use client";
 
@@ -50,6 +50,8 @@ import {
   type PanelTabsState,
   type TabAutoClose,
 } from "@/lib/panel-tabs";
+// Where the panel sits — `Shell` writes it on `[data-slot=shell]` as `data-panel-mode`.
+import type { ShellPanelMode } from "@/lib/shell-layout";
 
 /* ------------------------------------------------------------------------------------------------
  * ShellPanel — the shell's one right-hand panel: a tab row in a 48px head and the open record
@@ -57,9 +59,6 @@ import {
  * and writes that on its root as `data-panel-mode`; this file owns what is inside. The tab rules
  * live in `@/lib/panel-tabs` (a pure reducer); these parts render them.
  * ----------------------------------------------------------------------------------------------*/
-
-/** Where the panel sits — set by `Shell` on `[data-slot=shell]` as `data-panel-mode`. */
-export type ShellPanelMode = "closed" | "dock" | "overlay" | "full";
 
 /** What a tab's right-click menu can ask for. */
 export type ShellPanelTabAction =

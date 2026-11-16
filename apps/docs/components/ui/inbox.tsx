@@ -1,4 +1,4 @@
-// @vegastack inbox@0.90.0 sha256-8U8EM9k21j4aPqg7iET5V737vFN+C1NUKn4sVyG1duo=
+// @vegastack inbox@0.92.0 sha256-OPJ8zSfrmTja2FK/DvrO/70ghIUA+995qtNn8PMK2B4=
 
 "use client";
 
@@ -73,10 +73,18 @@ export interface InboxProps extends Omit<
   "title"
 > {
   /**
-   * The heading.
+   * The heading; with `layout="page"` it is visually hidden and still names the list.
    * @default "Inbox"
    */
   title?: React.ReactNode;
+  /**
+   * `panel`: a self-contained panel (a header, and a body that scrolls on its own) for a `Sheet`,
+   * a `Popover` or a docked panel. `page`: the list of an Inbox page — no header (the page's
+   * title and top bar hold the title and actions, a column the filters), and the rows scroll
+   * with the page, so infinite scroll watches the viewport.
+   * @default "panel"
+   */
+  layout?: "panel" | "page";
   /**
    * Header icon buttons before the close button — usually {@link InboxHeaderAction}s
    * ("Mark all read", a settings menu).
@@ -157,6 +165,7 @@ export interface InboxProps extends Omit<
  * end, three skeleton rows stand in while a page loads, a ghost "Try again" follows a failure and
  * "You’re all caught up" ends the list. It fills its container, so put it in
  * a `Sheet`, a `Popover` or a docked panel; on a phone give that container the whole screen.
+ * On an Inbox page use `layout="page"`: no header, and the rows scroll with the page.
  *
  * Triage: give each row a `value`, then J / K (or ↓ / ↑) walk the rows — focus follows, the active
  * row is marked and scrolled into view, and `onActiveChange` reports it so the host's peek can
@@ -168,9 +177,15 @@ export interface InboxProps extends Omit<
  *   activeId={peekId} onActiveChange={setPeekId} onOpen={setPeekId}>
  *   <InboxGroup label="Today">{rows}</InboxGroup>
  * </Inbox>
+ *
+ * @example
+ * <Inbox layout="page" title="Mentions" onLoadMore={loadOlder} hasMore={more} onOpen={open}>
+ *   <InboxGroup label="Today">{rows}</InboxGroup>
+ * </Inbox>
  */
 export function Inbox({
   title = "Inbox",
+  layout = "panel",
   actions,
   onClose,
   closeLabel = "Close inbox",
@@ -190,6 +205,7 @@ export function Inbox({
   ...props
 }: InboxProps) {
   const titleId = React.useId();
+  const page = layout === "page";
   const bodyRef = React.useRef<HTMLDivElement>(null);
   const [ownActiveId, setOwnActiveId] = React.useState<string | null>(null);
   const activeId = activeIdProp !== undefined ? activeIdProp : ownActiveId;
@@ -259,11 +275,12 @@ export function Inbox({
       (entries) => {
         if (entries.some((entry) => entry.isIntersecting)) loadRef.current?.();
       },
-      { root: bodyRef.current, rootMargin: "0px 0px 240px 0px" },
+      // A page's rows scroll with the page: the viewport is the root.
+      { root: page ? null : bodyRef.current, rootMargin: "0px 0px 240px 0px" },
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [armed]);
+  }, [armed, page]);
 
   let end: React.ReactNode = footer;
   if (onLoadMore) {
@@ -296,10 +313,12 @@ export function Inbox({
   return (
     <section
       data-slot="inbox"
+      data-layout={layout}
       aria-labelledby={titleId}
       aria-keyshortcuts="J K"
       className={cn(
-        "flex h-full min-h-0 w-full flex-col bg-background text-foreground",
+        "flex w-full flex-col bg-background text-foreground",
+        !page && "h-full min-h-0",
         className,
       )}
       onKeyDown={(event) => {
@@ -308,27 +327,33 @@ export function Inbox({
       }}
       {...props}
     >
-      <header className="flex shrink-0 flex-col gap-2 px-4 pt-3 pb-2">
-        <div className="flex min-h-8 items-center gap-1">
-          <h2 id={titleId} className="me-auto text-base font-semibold">
-            {title}
-          </h2>
-          {actions}
-          {onClose ? (
-            <InboxHeaderAction
-              label={closeLabel}
-              icon={<X />}
-              onClick={onClose}
-              className="ms-2"
-            />
-          ) : null}
-        </div>
-        {filters}
-      </header>
+      {page ? (
+        <h2 id={titleId} className="sr-only">
+          {title}
+        </h2>
+      ) : (
+        <header className="flex shrink-0 flex-col gap-2 px-4 pt-3 pb-2">
+          <div className="flex min-h-8 items-center gap-1">
+            <h2 id={titleId} className="me-auto text-base font-semibold">
+              {title}
+            </h2>
+            {actions}
+            {onClose ? (
+              <InboxHeaderAction
+                label={closeLabel}
+                icon={<X />}
+                onClick={onClose}
+                className="ms-2"
+              />
+            ) : null}
+          </div>
+          {filters}
+        </header>
+      )}
       <div
         ref={bodyRef}
         data-slot="inbox-body"
-        className="min-h-0 flex-1 overflow-y-auto"
+        className={cn(!page && "min-h-0 flex-1 overflow-y-auto")}
       >
         <InboxContext.Provider value={context}>
           {children}

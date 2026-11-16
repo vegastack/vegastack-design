@@ -1,4 +1,4 @@
-// @vegastack panel-tabs@0.89.1 sha256-dC/XuDmpyILebEyTgimirGS4f3QopIlAXKjxLX884Fk=
+// @vegastack panel-tabs@0.89.1 sha256-NfnWiXqLyB5QL7jU4sNFAGU+ynY2GnxKn6Zj/N/0oZs=
 
 /**
  * panel-tabs — the rules of the shell panel's tabs as one pure reducer, the tab reference and its

@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { parsePanelTabKey, type PanelTabRef } from "../lib/panel-tabs";
+import type { ShellPanelMode } from "../lib/shell-layout";
 import {
   ShellPanel,
   ShellPanelBody,
@@ -15,7 +16,6 @@ import {
   ShellPanelTabs,
   ShellPanelView,
   usePanelTabs,
-  type ShellPanelMode,
 } from "./shell-panel";
 
 const ref = (key: string) => parsePanelTabKey(key) as PanelTabRef;
