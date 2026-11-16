@@ -53848,7 +53848,7 @@
       "title": "Shell Panel",
       "summary": "The shell's one right-hand panel: a 48px head of tabs (preview, pinned, dots, reorder, menu, overflow), bodies kept alive, a resizable edge, the Escape rule.",
       "status": "preview",
-      "since": "0.89.2",
+      "since": "0.96.0",
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/shell-panel.tsx"],
@@ -54169,8 +54169,8 @@
         "@vegastack/shell-layout"
       ],
       "npmDependencies": [
-        "@vegastack/design-tokens@^0.17.0",
-        "@vegastack/design@^0.17.0",
+        "@vegastack/design-tokens@^0.18.0",
+        "@vegastack/design@^0.18.0",
         "lucide-react@^1.47.0"
       ],
       "testFiles": ["packages/ui/registry/ui/shell-panel.test.tsx"],

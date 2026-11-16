@@ -1,4 +1,4 @@
-// @vegastack shell-panel@0.89.1 sha256-h2Venj3xkKNQSh0sbe61DH97GlaAR1KWguN1HCX6xJU=
+// @vegastack shell-panel@0.96.0 sha256-K5AooLLN4CamTLGZK+XoI9xASV9eTA8Ugww4J71eImg=
 
 "use client";
 
