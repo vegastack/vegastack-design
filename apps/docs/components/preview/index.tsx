@@ -245,6 +245,7 @@ export * from "./charts-tooltip";
 export * from "./icon-picker";
 export * from "./icon-glyph";
 export * from "./record-peek";
+export * from "./shell-panel";
 export * from "./record-header";
 export * from "./record-picker";
 export * from "./destination-picker";

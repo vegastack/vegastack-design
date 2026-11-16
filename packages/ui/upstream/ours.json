@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 164,
+    "total": 165,
     "fromExtras": 46
   },
   "items": {
@@ -1191,6 +1191,12 @@
       "family": "chat",
       "source": "VegaStack shell layout overhaul, P0 lane C — Regent operator batch approval 16-11-2026 \"Shell layout overhaul\" (\"Approve, go dark\")",
       "rationale": "Upstream has no floating assistant. Shell Assistant composes upstream's button, our chip and tool-group; no patch (OVL-26)."
+    },
+    "shell-panel": {
+      "disposition": "keep",
+      "family": "layout",
+      "source": "VegaStack shell layout overhaul, P0 lane B — Regent operator batch approval 16-11-2026 \"Shell layout overhaul\" (\"Approve, go dark\")",
+      "rationale": "Upstream has no panel host or panel tabs. Shell Panel composes upstream's button, command, context-menu, empty, popover and skeleton; no patch (OVL-27, API-45)."
     }
   }
 }
