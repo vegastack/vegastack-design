@@ -290,7 +290,7 @@
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.93.0",
-        "integrity": "sha256-7mbrHp0sfRFioD/Od5okHt70ZdTOVx3GapFrdgM2PQA="
+        "integrity": "sha256-2ycj/MCHqNrXx9rOwYI0PvGnVghJOk9FlE9/JB4Ox4Q="
       }
     },
     {
@@ -24752,7 +24752,7 @@
         "whenToUse": "An app's one place to learn the product, at the foot of its sidebar: what changed, the docs, the shortcuts, support and the version.",
         "whenNotToUse": "The account menu (profile, theme, sign out) or a page's own help hint (InfoHint).",
         "version": "0.90.0",
-        "integrity": "sha256-FEMRggOTLEzh3z2vwBzmwJlE7gha2ac04hyC5sy0zOM="
+        "integrity": "sha256-RAnnq7ZGg061xfnaDA5tnkrr7hXq4pX+jV7aLvAVnro="
       }
     },
     {
