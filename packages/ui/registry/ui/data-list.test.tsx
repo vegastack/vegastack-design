@@ -3257,6 +3257,43 @@ test("rowOpenGestures: ⌘-click and middle click open in the background, a doub
   expect(onRowOpen).toHaveBeenCalledTimes(calls + 1);
 });
 
+test("rowOpenGestures on a grid card without an href: middle click in the background, double-click keeps", async () => {
+  const onRowOpen = vi.fn();
+  const screen = await render(
+    <DataList<Row>
+      aria-label="People"
+      view="grid"
+      columns={[{ key: "name", header: "Name" }]}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowLabel={(r) => r.name}
+      onRowOpen={onRowOpen}
+      rowOpenGestures
+    />,
+  );
+  const title = await vi.waitUntil(() =>
+    screen.container.querySelector<HTMLElement>(
+      '[data-slot="data-list-grid-item"] [data-slot="media-card-title"]',
+    ),
+  );
+  title.dispatchEvent(
+    new MouseEvent("auxclick", { bubbles: true, cancelable: true, button: 1 }),
+  );
+  expect(onRowOpen).toHaveBeenCalledTimes(1);
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "a",
+    expect.objectContaining({ index: 0, background: true }),
+  );
+  title.dispatchEvent(
+    new MouseEvent("dblclick", { bubbles: true, cancelable: true }),
+  );
+  expect(onRowOpen).toHaveBeenCalledTimes(2);
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "a",
+    expect.objectContaining({ index: 0, keep: true }),
+  );
+});
+
 test("without rowOpenGestures a double-click opens nothing more and ⌘-click stays the link's", async () => {
   const onRowOpen = vi.fn();
   const screen = await render(

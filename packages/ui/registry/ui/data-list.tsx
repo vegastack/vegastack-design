@@ -1,4 +1,4 @@
-// @vegastack data-list@0.90.0 sha256-r/VPISejlszow4Y7XvI8QsoJZ40GdBGUCtCjeFqU4AA=
+// @vegastack data-list@0.90.0 sha256-Pfw/A+Gf58idOyHb9KbcmyOGUyQzl8oeKMGm+mxavks=
 
 "use client";
 
@@ -1928,17 +1928,25 @@ export function DataList<T>({
     const base = template ?? <AppLink />;
     const own = (base.props as { onClick?: React.MouseEventHandler }).onClick;
     const id = rowIds[index]!;
+    const ownProps = base.props as {
+      onAuxClick?: React.MouseEventHandler;
+      onDoubleClick?: React.MouseEventHandler;
+    };
     const gestures = rowOpenGestures
       ? {
-          // A middle click straight on the link (a forwarded one arrives as a click).
+          // A middle click straight on the link (a forwarded one arrives as a click). The
+          // template's own handler runs first and can veto it.
           onAuxClick: (event: React.MouseEvent<HTMLElement>) => {
+            ownProps.onAuxClick?.(event);
             if (event.defaultPrevented || !opensInBackground(event)) return;
             event.preventDefault();
             onRowOpen(id, { event, index, background: true });
           },
           onDoubleClick: (event: React.MouseEvent<HTMLElement>) => {
+            ownProps.onDoubleClick?.(event);
             // The row's own double-click (a list row) would open it a second time.
             event.stopPropagation();
+            if (event.defaultPrevented) return;
             onRowOpen(id, { event, index, keep: true });
           },
         }
@@ -3037,6 +3045,25 @@ export function DataList<T>({
           if (!href && !isFromInteractiveDescendant(event))
             onRowClick?.(row, index, event);
         }}
+        // `rowOpenGestures` on a card without an href (a linked card's are its link's): the middle
+        // button opens it in the background, a double-click keeps it.
+        onAuxClick={
+          !onBoard && !href && rowOpenGestures && onRowOpen
+            ? (event) => {
+                if (event.button !== 1 || isFromInteractiveDescendant(event))
+                  return;
+                onRowClick?.(row, index, event);
+              }
+            : undefined
+        }
+        onDoubleClick={
+          !onBoard && !href && rowOpenGestures && onRowOpen
+            ? (event) => {
+                if (isFromInteractiveDescendant(event)) return;
+                onRowOpen(id, { event, index, keep: true });
+              }
+            : undefined
+        }
         onKeyDown={(event) => {
           if (
             event.target === event.currentTarget &&

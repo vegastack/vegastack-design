@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.90.0 sha256-DLyLoTPIathViiYVhyk6v2A018WTOuAQas4lqasafS8=
+// @vegastack list-toolbar@0.90.0 sha256-+EBh1wMkvLoSxbZOSP7uVHHcrz1PGhizAVtUGzDLgGw=
 
 "use client";
 
@@ -866,6 +866,8 @@ export function ListToolbar({
   const hasSort = sort != null;
   const hasState = state != null;
   const hasMore = more != null;
+  /** An open or filled search: the freeze below, as a primitive the measuring effect follows. */
+  const searchHeld = search != null && (searchOpen || search.value !== "");
 
   const measure = React.useCallback(() => {
     const row = rowRef.current;
@@ -936,8 +938,9 @@ export function ListToolbar({
     );
     if (stateSlot) observer.observe(stateSlot);
     return () => observer.disconnect();
-    // `level`: a step can mount the state slot, which is then observed too.
-  }, [measure, level]);
+    // `level`: a step can mount the state slot, which is then observed too. `searchHeld`: an
+    // open or filled icon search holds the level (`frozen`); letting go re-measures at once.
+  }, [measure, level, searchHeld]);
 
   // Open while focused from the icon, or while it holds a query (a restored search included).
   const searchExpanded =

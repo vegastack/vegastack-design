@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e481fea52a5da4ceefe377e65d84bf75138b2dc5360a8cd054f89f6ed44dfd8c",
+  "contractSha256": "eca0b3d0be36ed1d7a7c52ac78dad0b731aa16b90210f4365ea2d1e785650407",
   "inventory": {
-    "expected": 834,
-    "actual": 834,
-    "unique": 834
+    "expected": 835,
+    "actual": 835,
+    "unique": 835
   },
   "classes": {
-    "components": 239,
+    "components": 240,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 16,
@@ -163,8 +163,8 @@
       ]
     },
     "Data display": {
-      "expected": 50,
-      "actual": 50,
+      "expected": 51,
+      "actual": 51,
       "members": [
         "activity-feed",
         "add-filter-menu",
@@ -181,6 +181,7 @@
         "data-grid",
         "data-list",
         "data-list-pager",
+        "data-list-skeleton",
         "diff-view",
         "display-menu",
         "entry-list",
@@ -892,7 +893,7 @@
       ]
     }
   },
-  "componentRoutes": 233,
+  "componentRoutes": 234,
   "blockRoutes": 23,
   "modeledExemptions": 3
 }
