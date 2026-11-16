@@ -1336,7 +1336,7 @@
       "meta": {
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -1526,7 +1526,7 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -1682,7 +1682,7 @@
       "meta": {
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -2063,7 +2063,7 @@
       "meta": {
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -2600,7 +2600,7 @@
       "meta": {
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -2753,7 +2753,7 @@
       "meta": {
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -13718,7 +13718,7 @@
       "meta": {
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -14909,7 +14909,7 @@
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -15418,7 +15418,7 @@
       "meta": {
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -15606,7 +15606,7 @@
       "meta": {
         "whenToUse": "Showing when or where activity concentrates across two dimensions — runs by weekday and hour, events by agent and day.",
         "whenNotToUse": "A trend over one dimension (Chart), exact values people compare or sort (Table or DataList), or more than a few hundred cells.",
-        "version": "0.89.0"
+        "version": "0.89.1"
       },
       "registryDependencies": ["@vegastack/tooltip"]
     },
@@ -16308,7 +16308,7 @@
       "meta": {
         "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposerActionsEnd beside the model.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -16977,7 +16977,7 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {
@@ -20174,7 +20174,7 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
-        "version": "0.89.0"
+        "version": "0.89.1"
       }
     },
     {

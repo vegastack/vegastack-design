@@ -1497,8 +1497,8 @@
       "meta": {
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
-        "version": "0.89.0",
-        "integrity": "sha256-YUAemyZ4NlIDPx6l6IfbDM/IoAYx37KZoLPE/7Qm9CA="
+        "version": "0.89.1",
+        "integrity": "sha256-l+879lPVjor0wBpl5H8X7y275HevFGmVV2JaZTUOeso="
       }
     },
     {
@@ -1710,8 +1710,8 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
-        "version": "0.89.0",
-        "integrity": "sha256-7JEo9WAhp/OzYgnTFPfgECOJaoV1BeD0oWs7twls6oM="
+        "version": "0.89.1",
+        "integrity": "sha256-3kdV+8DHORzvruDOm/ABvjoSIAN4qVH7gB5u36p/22A="
       }
     },
     {
@@ -1884,8 +1884,8 @@
       "meta": {
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
-        "version": "0.89.0",
-        "integrity": "sha256-TRPKURKBVI8iZZUG6AY4KlebnmFPm4VUiBGPWkTWrI8="
+        "version": "0.89.1",
+        "integrity": "sha256-jyWjCdtBDMKR/21oFKhhdFaklzZ/KGkbqY0qbF6xf3E="
       }
     },
     {
@@ -2314,8 +2314,8 @@
       "meta": {
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
-        "version": "0.89.0",
-        "integrity": "sha256-sixG7L6FR3rhLzmdR+8EPgfIP0TA72g2cHFTpJEgAmY="
+        "version": "0.89.1",
+        "integrity": "sha256-3/GlkE+hRvlwc8yOTB5VlFhrQUKaojoH6C/N65DU1ro="
       }
     },
     {
@@ -2928,8 +2928,8 @@
       "meta": {
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
-        "version": "0.89.0",
-        "integrity": "sha256-1uxeO09MziHokGzO7ZcokspDD/PAbCMREcnMda+Xdzo="
+        "version": "0.89.1",
+        "integrity": "sha256-yG0sPXLer/kGyjkdArnchqpqQmPjKWAfQ9FG0vhA7ak="
       }
     },
     {
@@ -3100,8 +3100,8 @@
       "meta": {
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
-        "version": "0.89.0",
-        "integrity": "sha256-Fh0Ul4jmdI+RgYNlxuBe9RPZ8sV1T1gaE3QPHVXXtig="
+        "version": "0.89.1",
+        "integrity": "sha256-BmwRBU7tzvgCDMymCmCTOQQtIyJAgd3IY9fqCK58lFw="
       }
     },
     {
@@ -16939,8 +16939,8 @@
       "meta": {
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
-        "version": "0.89.0",
-        "integrity": "sha256-pGYUtSg+ojwtHUpbaZ0d/YFzp8eT062ewR0O2RrHS5M="
+        "version": "0.89.1",
+        "integrity": "sha256-aOPi8Jr8o5gD6w5hVM7eD+b/5eAyy/+78KE5h4E30lA="
       }
     },
     {
@@ -18280,8 +18280,8 @@
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
-        "version": "0.89.0",
-        "integrity": "sha256-hX03NsxxzoemuNLArSecyHxIwPMiHnE0V1dymSHNqH4="
+        "version": "0.89.1",
+        "integrity": "sha256-R7jrMEuncnaNXcWPx/1YufYvPy4YWxozYKgebCsOfBU="
       }
     },
     {
@@ -18859,8 +18859,8 @@
       "meta": {
         "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
         "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
-        "version": "0.89.0",
-        "integrity": "sha256-gvC/WZHUOyUa/Sp6UkVJGMYGaGdhtCXNbzwzEFvdn+I="
+        "version": "0.89.1",
+        "integrity": "sha256-aFO2oPVWocxmC0VqrKoU7Ua6/A2sABFpJTYRbmR80sE="
       }
     },
     {
@@ -19068,8 +19068,8 @@
       "meta": {
         "whenToUse": "Showing when or where activity concentrates across two dimensions — runs by weekday and hour, events by agent and day.",
         "whenNotToUse": "A trend over one dimension (Chart), exact values people compare or sort (Table or DataList), or more than a few hundred cells.",
-        "version": "0.89.0",
-        "integrity": "sha256-mFJv6EGcFawh0nz5tSW597/52NUZc60T1hmHsW3C1Rs="
+        "version": "0.89.1",
+        "integrity": "sha256-NM4gUaCjAmiqOB8Ou9thIlan9K9EoL+00Eg/oS0iiGs="
       },
       "registryDependencies": [
         "@vegastack/tooltip"
@@ -19871,8 +19871,8 @@
       "meta": {
         "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposerActionsEnd beside the model.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
-        "version": "0.89.0",
-        "integrity": "sha256-E1uerE2HdIeOJ0c/EhB6O9UP0xwZeOxpb/sVQKuCn2w="
+        "version": "0.89.1",
+        "integrity": "sha256-pBwwZlHNq7yyd+YPIiVzyjuz52TyJTF0cNMl5kscTzE="
       }
     },
     {
@@ -20619,8 +20619,8 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.89.0",
-        "integrity": "sha256-sP5P52hZ58RmcyELuQ705kyXhqw0gFn5frOIOcC7zeA="
+        "version": "0.89.1",
+        "integrity": "sha256-yReM8BeLwMosZUvL9TQC/HtI8DlTsaOmr27ltrl4NjA="
       }
     },
     {
@@ -24530,8 +24530,8 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
-        "version": "0.89.0",
-        "integrity": "sha256-vpLpYrFoTiPv8pVRDSxuw99GzQJPEUQ8fAWcWe45qIQ="
+        "version": "0.89.1",
+        "integrity": "sha256-XKjE0p7iD+T/Ov37NQ9txXXuVlpVVUCvml4DrXWJWAU="
       }
     },
     {

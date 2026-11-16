@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.89.1] — November 16, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.89.0 → 0.89.1.
+
+### 🐛 Fixed
+
+- Components read the runtime colour tokens inside arbitrary values (`var(--foreground)`, not `var(--color-foreground)`), so they paint the right ink in dark mode and inside scoped themes. The `--color-*` names come from the `@theme inline` bridge, which resolves once on `:root`; the old reads painted the light value inside a `.dark` subtree or a themed portal. Fixed in DataList's and DataTable's keyboard and peek start bar, DataGrid's range fill and header hairlines, Heatmap's ramp, ContextRing, ChatComposer's and UploadPanel's progress rings, InlineChip's inks, PersonAvatar's and AgentPanel's halos, Sidebar's scroll shadow, Drawer's swipe bleed (OVL-13) and ColorPicker's default palette. `design-lint` gains `no-color-bridge`, which rejects a bridge read in registry source.
+  [`568199a`](https://github.com/VegaStack/vegastack-design/commit/568199a)
+
 ## [0.89.0] — November 15, 2026
 
 ### 📦 npm
