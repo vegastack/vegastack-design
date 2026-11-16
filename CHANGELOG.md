@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.90.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: eadf9eaa0e99 -->
+
+### 🧩 New components
+
+- Shell tokens (LAY-22): the sizes of the new app shell's regions as `--shell-*` tokens, so the shell, its panel and its assistant read one source. `--shell-rail-width` 4rem, `--shell-column-width` 15rem (`-min` 12.5rem, `-max` 22.5rem), `--shell-topbar-height` 3rem, `--shell-panel-width` 26.25rem (`-min` 22.5rem, `-max` 45rem), `--shell-bottombar-height` 3.5rem, and the desktop app's title-row insets `--shell-titlebar-mac-inset` 4.875rem and `--shell-titlebar-win-inset` 8.625rem. Additive: nothing existing changes.
+  [`d0aa848`](https://github.com/VegaStack/vegastack-design/commit/d0aa848)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.18.0`** (was `0.17.0`).
+- **`@vegastack/design`** → **`0.18.0`** (was `0.17.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.89.1 → 0.90.0.
+
 ## [0.89.1] — November 16, 2026
 
 <!-- assembled from 1 changeset: 928a777b8c81 -->
