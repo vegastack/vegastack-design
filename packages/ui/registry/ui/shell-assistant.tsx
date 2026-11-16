@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.94.0 sha256-19zT6XZ9AS0F+xtt+xzkA8/yGY+Pb/rFcEmDEFyxNDs=
+// @vegastack shell-assistant@0.94.0 sha256-SE7sFN3IOAC8M85WTYNvQFbmCMtXEd71i6i4zsTyxms=
 
 "use client";
 
@@ -24,7 +24,7 @@ export interface AssistantPillProps extends Omit<
   React.ComponentProps<typeof Button>,
   "variant" | "size" | "children"
 > {
-  /** The assistant's name in this workspace; the pill reads "Ask {name}". */
+  /** The assistant's name in this workspace; the pill reads "Ask {name}", or the name alone when it already starts with "Ask". */
   name: string;
   /**
    * The assistant's mark.
@@ -176,7 +176,7 @@ function AssistantPill({
         >
           {icon ?? <SparklesIcon />}
         </span>
-        <span>Ask {name}</span>
+        <span>{/^ask\b/i.test(name) ? name : `Ask ${name}`}</span>
         {shortcut != null ? (
           <span
             aria-hidden
