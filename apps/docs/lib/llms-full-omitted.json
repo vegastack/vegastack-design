@@ -1,0 +1,4 @@
+{
+  "_note": "Pages left out of /llms-full.txt only (Regent shell layout ruling R11, 16-11-2026: trim, don't raise the 6 MiB cap). Each stays on the site, in llms.txt's page index and as its own .md export.",
+  "routes": ["/docs/changelog", "/docs/guides/migrating-shadcn-reset"]
+}

@@ -9,6 +9,32 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.91.1] — November 16, 2026
+
+<!-- assembled from 1 changeset: 3d1f6fb85612 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.91.0 → 0.91.1.
+
+### 📚 Docs
+
+- `/llms-full.txt` leaves out the changelog and the shadcn-reset migration guide, its two largest pages (about 840 KB together), so the corpus sits well under its 6 MiB cap with room for new component pages. Both stay on the site, in `/llms.txt`'s page index and as their own `.md` exports; `llms.txt` says so.
+  [`6da8f06`](https://github.com/VegaStack/vegastack-design/commit/6da8f06)
+
+## [0.91.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: 7d0580b4594f -->
+
+### 🧩 New components
+
+- Shell parts for the new top bar and the floating assistant. `ToolGroup`, `ToolGroupItem` and `ToolGroupMore` are a run of icon tools — 28px ghost buttons two pixels apart, each named by its tooltip, a count beside its icon instead of a floating badge, and ⋯ (`MoreHorizontal`) as the one More (ICO-9). `AssistantPill` is the `Ask {name}` pill at the page area's bottom-end corner: it tucks away while the page scrolls down and comes back on scroll up, hover or focus. `AssistantCard` is the compact chat it opens from the same corner, with `AssistantCardHeader` (Move to panel, Open full chat, Close), a removable `AssistantCardContext` chip, `AssistantCardBody` and `AssistantCardComposer`; it renders nothing until first opened, keeps a draft once open, closes on Escape and gives focus back (OVL-26). `AvatarGroup` takes `max` and `total`: past `max` it closes the stack with "+N", and an avatar marked `data-here` gets a primary ring (API-44). Existing groups are unchanged.
+  [`f992471`](https://github.com/VegaStack/vegastack-design/commit/f992471)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.90.0 → 0.91.0.
+
 ## [0.90.0] — November 16, 2026
 
 <!-- assembled from 1 changeset: eadf9eaa0e99 -->

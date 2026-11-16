@@ -942,8 +942,8 @@
       "meta": {
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
-        "version": "0.90.0",
-        "integrity": "sha256-U8G8brkr+onsMroNHgqdRQmk3AuQ+6kDDzsUXly3EN8="
+        "version": "0.91.0",
+        "integrity": "sha256-lInFkBVKgLV+RnKadMlW+AJPMFa5dOjDVUcWpgqYyJg="
       }
     },
     {
@@ -17688,7 +17688,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.90.0",
-        "integrity": "sha256-8U8EM9k21j4aPqg7iET5V737vFN+C1NUKn4sVyG1duo="
+        "integrity": "sha256-impJLnyizMLo+QgIYJKSxo8tgE8WOkzZYuD/JOxcvgo="
       }
     },
     {
@@ -24913,6 +24913,69 @@
         "whenNotToUse": "A link that must always open a new tab inside an unanswered dialog (RecordList's ↗), or a download.",
         "version": "0.61.0",
         "integrity": "sha256-eId3dqxt0tj2NPLljx3CWkDPvapIOAPesO8VzgrudWU="
+      }
+    },
+    {
+      "name": "tool-group",
+      "type": "registry:ui",
+      "title": "Tool Group",
+      "description": "A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with ⋯ as the one More.",
+      "categories": [
+        "actions"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/tool-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/tool-group.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Icon-only tools in a top bar or a card header — Watch, Star, Comments, More.",
+        "whenNotToUse": "Text actions (Share, Approve) or attached segmented buttons (ButtonGroup).",
+        "version": "0.91.0",
+        "integrity": "sha256-v8KbIkZYC0KHadwazy5s0RY8UmfZJHkKZFVCYm5EK5c="
+      }
+    },
+    {
+      "name": "shell-assistant",
+      "type": "registry:ui",
+      "title": "Shell Assistant",
+      "description": "The floating \"Ask {name}\" pill at the page area's corner and the compact assistant card it opens — header actions, a removable context chip, a scrolling body and a composer slot.",
+      "categories": [
+        "chat"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chip",
+        "@vegastack/tool-group"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/shell-assistant.tsx",
+          "type": "registry:ui",
+          "target": "@ui/shell-assistant.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
+        "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
+        "version": "0.91.0",
+        "integrity": "sha256-ynVhC/FUCL7yfO+RlXj5EJd3MFrnDzEd7Nw9GD63K9A="
       }
     }
   ]

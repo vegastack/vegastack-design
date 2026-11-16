@@ -1,4 +1,4 @@
-// @vegastack avatar@0.90.0 sha256-U8G8brkr+onsMroNHgqdRQmk3AuQ+6kDDzsUXly3EN8=
+// @vegastack avatar@0.91.0 sha256-lInFkBVKgLV+RnKadMlW+AJPMFa5dOjDVUcWpgqYyJg=
 
 "use client";
 
@@ -101,16 +101,70 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
-function AvatarGroup({ className, ...props }: React.ComponentProps<"div">) {
+/** A group's children with fragments opened, so `max` counts the avatars inside them. */
+function flattenFragments(children: React.ReactNode): React.ReactNode[] {
+  return React.Children.toArray(children).flatMap((child) =>
+    React.isValidElement<{ children?: React.ReactNode }>(child) &&
+    child.type === React.Fragment
+      ? flattenFragments(child.props.children).map((inner) =>
+          React.isValidElement(inner)
+            ? React.cloneElement(inner, {
+                key: JSON.stringify([child.key, inner.key]),
+              })
+            : inner,
+        )
+      : [child],
+  );
+}
+
+function AvatarGroup({
+  className,
+  max,
+  total,
+  moreLabel = (count: number) => `${count} more`,
+  children,
+  ...props
+}: React.ComponentProps<"div"> & {
+  /**
+   * The most avatars to show. Past it, the stack shows the first `max` and closes with an
+   * `AvatarGroupCount` reading "+N" for the rest (API-44). Omit it to render every child.
+   */
+  max?: number;
+  /**
+   * How many people the stack stands for, when that is more than the avatars passed in (a list
+   * the server only counted). Defaults to the number of `Avatar` children.
+   */
+  total?: number;
+  /**
+   * The count chip's accessible text for N hidden people.
+   * @default (count) => `${count} more`
+   */
+  moreLabel?: (count: number) => string;
+}) {
+  const items = flattenFragments(children);
+  const limit = max === undefined ? items.length : Math.max(0, Math.floor(max));
+  const shown = items.slice(0, limit);
+  const hidden = Math.max(0, (total ?? items.length) - shown.length);
   return (
     <div
       data-slot="avatar-group"
       className={cn(
-        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
+        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:data-here:ring-primary",
         className,
       )}
       {...props}
-    />
+    >
+      {max === undefined && total === undefined ? children : shown}
+      {(max !== undefined || total !== undefined) && hidden > 0 ? (
+        <AvatarGroupCount
+          data-overflow=""
+          className="group-has-data-[size=sm]/avatar-group:text-xs"
+        >
+          <span aria-hidden>+{hidden}</span>
+          <span className="sr-only">{moreLabel(hidden)}</span>
+        </AvatarGroupCount>
+      ) : null}
+    </div>
   );
 }
 

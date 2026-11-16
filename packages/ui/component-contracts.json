@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 830,
-    "components": 236,
+    "totalRegistryItems": 832,
+    "components": 238,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 16,
@@ -21,14 +21,14 @@
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
-    "Core controls": 24,
+    "Core controls": 25,
     "Forms/editing": 44,
     "Navigation/layout": 28,
     "Overlays": 24,
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
-    "AI/chat": 45,
+    "AI/chat": 46,
     "Hooks": 19,
     "Block": 16,
     "Animated icons": 467
@@ -58,7 +58,8 @@
       "relative-time",
       "animated-number",
       "toggle",
-      "toggle-group"
+      "toggle-group",
+      "tool-group"
     ],
     "Forms/editing": [
       "auto-save-input",
@@ -284,7 +285,8 @@
       "memory-group",
       "file-preview",
       "source-list",
-      "resource-pill"
+      "resource-pill",
+      "shell-assistant"
     ],
     "Hooks": [
       "use-animation-replay",
@@ -4320,6 +4322,10 @@
         },
         "AvatarGroup": {
           "attributes": [
+            {
+              "name": "data-overflow",
+              "values": [""]
+            },
             {
               "name": "data-slot",
               "values": ["avatar-group"]
@@ -22888,6 +22894,10 @@
       "dataAttributes": {
         "Inbox": {
           "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
             {
               "name": "data-slot",
               "values": ["inbox", "inbox-body"]
@@ -53432,6 +53442,399 @@
             {
               "name": "data-resource-kind",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "tool-group",
+      "registryType": "registry:ui",
+      "title": "Tool Group",
+      "summary": "A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with ⋯ as the one More.",
+      "status": "stable",
+      "since": "0.91.0",
+      "family": "actions",
+      "wave": "Core controls",
+      "sourceFiles": ["packages/ui/registry/ui/tool-group.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ToolGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/tool-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolGroupItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/tool-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolGroupItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/tool-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolGroupMore",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/tool-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolGroupMoreProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/tool-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["default", "pressed", "count", "menu-trigger"],
+          "evidence": "packages/ui/registry/ui/tool-group.tsx + packages/ui/registry/ui/tool-group.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["group-labelled", "button-named-by-label", "tooltip"],
+          "evidence": "packages/ui/registry/ui/tool-group.tsx + packages/ui/registry/ui/tool-group.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "pressed", "count"],
+          "evidence": "packages/ui/registry/ui/tool-group.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The group never shrinks; a count widens its tool rather than overflowing it."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion; the tooltip's is upstream's."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/tool-group",
+      "registryDependencies": ["@vegastack/button", "@vegastack/tooltip"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.18.0",
+        "@vegastack/design@^0.18.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/tool-group.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "tool-group",
+      "dataAttributes": {
+        "ToolGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tool-group"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToolGroupItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tool-group-count", "tool-group-item"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "shell-assistant",
+      "registryType": "registry:ui",
+      "title": "Shell Assistant",
+      "summary": "The floating \"Ask {name}\" pill at the page area's corner and the compact assistant card it opens.",
+      "status": "stable",
+      "since": "0.91.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/shell-assistant.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AssistantCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantCardBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantCardComposer",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantCardContext",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantCardContextProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantCardHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantCardHeaderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantPill",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AssistantPillProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "closed",
+            "open",
+            "tucked",
+            "expanded",
+            "lazy",
+            "context-removable"
+          ],
+          "evidence": "packages/ui/registry/ui/shell-assistant.tsx + packages/ui/registry/ui/shell-assistant.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "dialog-labelled",
+            "escape-closes",
+            "focus-returns",
+            "inert-when-closed"
+          ],
+          "evidence": "packages/ui/registry/ui/shell-assistant.tsx + packages/ui/registry/ui/shell-assistant.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "tucked", "open", "hover"],
+          "evidence": "packages/ui/registry/ui/shell-assistant.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "viewport-positioning-and-collision",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The card caps at its container less 2rem in both axes, so a short or narrow page area never clips it; the name and context truncate."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": [
+          "CSS utility motion-dock-in/motion-dock-out",
+          "CSS transition duration-state/ease-enter",
+          "@starting-style"
+        ],
+        "reducedMotion": {
+          "status": "inherited-global",
+          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
+          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/shell-assistant",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chip",
+        "@vegastack/tool-group"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.18.0",
+        "@vegastack/design@^0.18.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/shell-assistant.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "shell-assistant",
+      "dataAttributes": {
+        "AssistantPill": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "assistant-pill",
+                "assistant-pill-shortcut",
+                "assistant-pill-zone"
+              ]
+            },
+            {
+              "name": "data-tucked",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AssistantCard": {
+          "attributes": [
+            {
+              "name": "data-open",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": ["assistant-card"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AssistantCardHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["assistant-card-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AssistantCardContext": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["assistant-card-context"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AssistantCardBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["assistant-card-body"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AssistantCardComposer": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["assistant-card-composer"]
             }
           ],
           "cssVariables": []

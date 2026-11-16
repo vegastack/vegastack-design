@@ -1126,8 +1126,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 255 rows, 105 resolved as
-**shadcn** (upstream ships unchanged) and 150 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 258 rows, 105 resolved as
+**shadcn** (upstream ships unchanged) and 153 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1670,6 +1670,11 @@ exists — never the brand's own colours. Icon sizes are ordinary utilities (`si
 `size-3.5`, `size-4`) sitting on the control tier that carries them; never pass `size`/`width`/
 `height` to a lucide component. Stroke 1.5–2px, always `currentColor`, so an icon inherits text
 colour and every state. Never inline an ad-hoc `<svg>` as an icon, and never mix icon libraries.
+
+**One "more", one tool cluster** (ICO-9). An overflow menu's trigger is the horizontal ⋯
+(`MoreHorizontal`), never a vertical ellipsis. A run of icon-only tools — Watch, Star, Comments,
+More — is a `ToolGroup`: ghost `icon-sm` (28px) buttons two pixels apart, each named by its tooltip,
+a count beside its icon rather than a badge floating over it.
 
 With text that can wrap, align the icon to the **first line**, not the block midpoint: an
 `items-start` row with a line-height-sized icon wrapper.

@@ -97,6 +97,8 @@ export * from "./priority-icon";
 export * from "./status-icon";
 export * from "./truncated-text";
 export * from "./copy-button";
+export * from "./tool-group";
+export * from "./shell-assistant";
 export * from "./relative-time";
 export * from "./settings-row";
 export * from "./settings-layout";

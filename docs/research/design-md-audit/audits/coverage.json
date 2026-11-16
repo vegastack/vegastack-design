@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "f4e0fb5663c610a13cf2b37cc0652a185d512191c447ac20f03e840f9fed893f",
+  "contractSha256": "924a9b74403647bc0d556b9542127b2f89266d0e9f955c2ad583d7a88d277d56",
   "inventory": {
-    "expected": 830,
-    "actual": 830,
-    "unique": 830
+    "expected": 832,
+    "actual": 832,
+    "unique": 832
   },
   "classes": {
-    "components": 236,
+    "components": 238,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 16,
@@ -17,8 +17,8 @@
   },
   "waves": {
     "Core controls": {
-      "expected": 24,
-      "actual": 24,
+      "expected": 25,
+      "actual": 25,
       "members": [
         "animated-number",
         "avatar",
@@ -43,7 +43,8 @@
         "switch",
         "textarea",
         "toggle",
-        "toggle-group"
+        "toggle-group",
+        "tool-group"
       ]
     },
     "Forms/editing": {
@@ -250,8 +251,8 @@
       ]
     },
     "AI/chat": {
-      "expected": 45,
-      "actual": 45,
+      "expected": 46,
+      "actual": 46,
       "members": [
         "agent-edit-banner",
         "agent-panel",
@@ -291,6 +292,7 @@
         "request-card",
         "resource-pill",
         "run-usage",
+        "shell-assistant",
         "source-list",
         "status-glyph",
         "suggestion-card",
@@ -889,7 +891,7 @@
       ]
     }
   },
-  "componentRoutes": 230,
+  "componentRoutes": 232,
   "blockRoutes": 23,
   "modeledExemptions": 3
 }
