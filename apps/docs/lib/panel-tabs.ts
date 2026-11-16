@@ -1,4 +1,4 @@
-// @vegastack panel-tabs@0.89.1 sha256-NfnWiXqLyB5QL7jU4sNFAGU+ynY2GnxKn6Zj/N/0oZs=
+// @vegastack panel-tabs@0.89.1 sha256-lojeSULSmm2YqXMZ6+jEXwieGoHoM7/nH9jnKQUJums=
 
 /**
  * panel-tabs — the rules of the shell panel's tabs as one pure reducer, the tab reference and its
@@ -712,7 +712,9 @@ export function panelTabsReducer(
         const tabs = state.tabs
           .map((t, i) => (i === other ? merged : t))
           .filter((_, i) => i !== at)
-          .map((t) => (t.opener === action.key ? { ...t, opener: newKey } : t));
+          .map((t) => (t.opener === action.key ? { ...t, opener: newKey } : t))
+          // A pin it inherited moves it into the pinned group (a stable sort keeps the rest).
+          .sort((a, b) => Number(b.pinned) - Number(a.pinned));
         return activate({ ...state, tabs }, newKey, action.now);
       }
       return {
@@ -904,11 +906,15 @@ export function panelTabsReducer(
         }
       }
       const unlisted = state.tabs.filter((t) => !seenKeys.has(t.key));
-      if (action.keepUnlisted)
+      if (action.keepUnlisted) {
+        // One preview at most: the URL's wins; a kept-over preview becomes a normal tab.
+        let hasPreview = tabs.some((t) => t.preview);
         for (const t of unlisted) {
-          tabs.push(t);
+          tabs.push(t.preview && hasPreview ? { ...t, preview: false } : t);
+          if (t.preview) hasPreview = true;
           seenKeys.add(t.key);
         }
+      }
       tabs.sort((a, b) => Number(b.pinned) - Number(a.pinned));
       const dropped = action.keepUnlisted ? [] : unlisted;
       const activeKey =

@@ -807,3 +807,29 @@ describe("new chats and rekey (coordinator, web contract)", () => {
     expect(s.closed.map((t) => t.key)).not.toContain("task:11");
   });
 });
+
+test("rekey merging a pinned tab keeps pinned tabs first; keepUnlisted keeps one preview", () => {
+  let s = run([
+    open("task:1", 1),
+    { type: "pin", key: "task:1" },
+    open("assistant:c9", 2),
+    { type: "open", ref: { kind: "assistant", chatId: null }, now: 3 },
+    { type: "pin", key: "assistant" },
+    { type: "rekey", key: "assistant", ref: ref("assistant:c9"), now: 4 },
+  ]);
+  expect(s.tabs.map((t) => [t.key, t.pinned])).toEqual([
+    ["task:1", true],
+    ["assistant:c9", true],
+  ]);
+  s = run([
+    open("task:1", 1),
+    open("task:2", 2, { preview: true }),
+    {
+      type: "restore",
+      now: 3,
+      ...decodePanelParam("~task:9", "0"),
+      keepUnlisted: true,
+    },
+  ]);
+  expect(s.tabs.filter((t) => t.preview).map((t) => t.key)).toEqual(["task:9"]);
+});
