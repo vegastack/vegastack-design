@@ -1,4 +1,4 @@
-// @vegastack shell-panel@0.89.1 sha256-m8jb7Zu7mVjVkF3C5FKq2dKjUXJtk9zSqgmPEo1lemY=
+// @vegastack shell-panel@0.89.1 sha256-9Np+bunimbsKoELruKS0YvBG0WXm/Eqd84nMrXxY1TU=
 
 "use client";
 
@@ -466,6 +466,7 @@ function ShellPanelResize({
     const handle = event.currentTarget;
     handle.setPointerCapture(event.pointerId);
     const b = readBounds();
+    setBounds(b);
     const shell = shellOf(handle.parentElement);
     const startX = event.clientX;
     const startWidth = current();
@@ -509,6 +510,7 @@ function ShellPanelResize({
     const narrower = flip ? "ArrowLeft" : "ArrowRight";
     const now = width ?? current();
     const b = readBounds();
+    setBounds(b);
     let next: number;
     if (event.key === wider) next = now + RESIZE_STEP;
     else if (event.key === narrower) next = now - RESIZE_STEP;
@@ -538,6 +540,8 @@ function ShellPanelResize({
       data-slot="shell-panel-resize"
       onPointerDown={onPointerDown}
       onKeyDown={onKeyDown}
+      // The page's room changes with the window: the range a screen reader hears is re-read on focus.
+      onFocus={() => setBounds(readBounds())}
       className={cn(
         // A 4px seam on the edge, inside a 24px hit area (WCAG 2.5.8) that stays within the panel.
         "absolute inset-y-0 start-0 z-10 w-6 cursor-col-resize touch-none [-webkit-app-region:no-drag]",

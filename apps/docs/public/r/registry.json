@@ -24923,7 +24923,7 @@
         "whenToUse": "Inside Shell's panel slot: every record, record view or assistant chat opened beside the page as a tab.",
         "whenNotToUse": "A form, a confirmation or a picker (Dialog, AlertDialog, ResponsiveDialog), or a page's own section tabs (Tabs).",
         "version": "0.89.1",
-        "integrity": "sha256-m8jb7Zu7mVjVkF3C5FKq2dKjUXJtk9zSqgmPEo1lemY="
+        "integrity": "sha256-9Np+bunimbsKoELruKS0YvBG0WXm/Eqd84nMrXxY1TU="
       }
     }
   ]
