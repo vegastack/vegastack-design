@@ -1,4 +1,4 @@
-// @vegastack shell-panel@0.89.1 sha256-aYhb3vJb+6+cTh38CvXIJvah5heWIuR25/dttGw3VhE=
+// @vegastack shell-panel@0.89.1 sha256-knM470MEbFYvHLTB1TM690CUVERmRYT26Ti+YOUxduE=
 
 "use client";
 
@@ -91,6 +91,10 @@ const FALLBACK_MIN = 360;
 const FALLBACK_MAX = 720;
 
 /** A popup that owns Escape while it is open (R5: popovers close first). */
+/** What Tab can reach inside the phone panel. */
+const TABBABLE =
+  "a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex='-1']), [contenteditable='true']";
+
 const ESC_OWNERS =
   "[role='menu'], [role='listbox'], [data-slot='popover-content'], [role='alertdialog'], [role='dialog'][aria-modal='true']";
 
@@ -288,7 +292,37 @@ export function ShellPanel({
       if (active && active !== document.body) returnTo.current = active;
       root.focus({ preventScroll: true });
     }
+    // Tab and ⇧Tab wrap inside the panel; anything outside the shell is out of reach too.
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Tab" || event.defaultPrevented) return;
+      const focusables = Array.from(
+        root.querySelectorAll<HTMLElement>(TABBABLE),
+      ).filter(
+        (el) =>
+          !el.closest("[inert], [hidden]") && el.getClientRects().length > 0,
+      );
+      if (focusables.length === 0) {
+        event.preventDefault();
+        root.focus({ preventScroll: true });
+        return;
+      }
+      const first = focusables[0]!;
+      const last = focusables[focusables.length - 1]!;
+      const at = document.activeElement;
+      if (
+        event.shiftKey &&
+        (at === first || at === root || !root.contains(at))
+      ) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && (at === last || !root.contains(at))) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", onKey);
     return () => {
+      document.removeEventListener("keydown", onKey);
       for (const el of made) el.inert = false;
     };
   }, [mode]);
@@ -302,7 +336,10 @@ export function ShellPanel({
       if (event.key !== "Escape" || event.defaultPrevented || event.isComposing)
         return;
       if (!latestClose.current) return;
-      if (document.querySelector(ESC_OWNERS)) return;
+      // Another Escape owner (a menu, a popover, a modal) — not this panel's own phone dialog.
+      const root = rootRef.current;
+      for (const owner of Array.from(document.querySelectorAll(ESC_OWNERS)))
+        if (owner !== root) return;
       // A field keeps its own Escape (a composer clears, an editor leaves a mode).
       if (isEditableTarget(event)) return;
       event.preventDefault();
@@ -396,9 +433,14 @@ function ShellPanelResize({
   const clamp = (n: number, b = bounds) =>
     Math.round(Math.min(b.max, Math.max(b.min, n)));
 
+  // The drag in progress, if any: one idempotent end, run on release, lost capture or unmount.
+  const endDrag = React.useRef<(() => void) | null>(null);
+  React.useEffect(() => () => endDrag.current?.(), []);
+
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
     event.preventDefault();
+    endDrag.current?.();
     const handle = event.currentTarget;
     handle.setPointerCapture(event.pointerId);
     const b = readBounds();
@@ -418,18 +460,25 @@ function ShellPanelResize({
       if (!frame) frame = requestAnimationFrame(write);
     };
     const onUp = () => {
+      if (endDrag.current !== onUp) return;
+      endDrag.current = null;
       handle.removeEventListener("pointermove", onMove);
       handle.removeEventListener("pointerup", onUp);
       handle.removeEventListener("pointercancel", onUp);
+      handle.removeEventListener("lostpointercapture", onUp);
       if (frame) cancelAnimationFrame(frame);
-      write();
+      frame = 0;
       handle.removeAttribute("data-resizing");
+      if (!handle.isConnected) return;
+      write();
       if (next !== startWidth) onWidthChange(next);
     };
+    endDrag.current = onUp;
     handle.setAttribute("data-resizing", "");
     handle.addEventListener("pointermove", onMove);
     handle.addEventListener("pointerup", onUp);
     handle.addEventListener("pointercancel", onUp);
+    handle.addEventListener("lostpointercapture", onUp);
   };
 
   const onKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
@@ -911,13 +960,19 @@ export function ShellPanelTab({
         const { clientX: x, clientY: y } = event;
         if (!r || (x === 0 && y === 0)) return;
         const outside = x < r.left || x > r.right || y < r.top || y > r.bottom;
-        if (outside) ctx.onAction?.(value, "openAsPage");
+        // R4: a new window where the desktop app can open one, else the page.
+        if (outside)
+          ctx.onAction?.(
+            value,
+            ctx.canOpenInNewWindow ? "openInNewWindow" : "openAsPage",
+          );
       }}
       className={cn(
-        "group/tab relative flex h-8 max-w-44 min-w-16 shrink-0 cursor-pointer items-center gap-1.5 rounded-item ps-2.5 pe-1 text-sm text-muted-foreground transition-colors duration-100 outline-none select-none motion-enter-up",
+        "group/tab relative flex h-8 max-w-44 min-w-18 shrink basis-auto cursor-pointer items-center gap-1.5 rounded-item ps-2.5 pe-1 text-sm text-muted-foreground transition-colors duration-100 outline-none select-none motion-enter-up",
         "state-layer hover:text-foreground",
         "aria-selected:bg-state-selected aria-selected:font-medium aria-selected:text-foreground",
-        "data-pinned:max-w-8 data-pinned:min-w-8 data-pinned:justify-center data-pinned:px-0",
+        // Tabs give way before the row scrolls; a pinned tab is a fixed 32px icon.
+        "data-pinned:max-w-8 data-pinned:min-w-8 data-pinned:shrink-0 data-pinned:justify-center data-pinned:px-0",
         // Drop seam: the info-blue line every reorder surface uses.
         "data-[drop-edge=start]:before:absolute data-[drop-edge=start]:before:inset-y-1 data-[drop-edge=start]:before:-start-0.5 data-[drop-edge=start]:before:w-0.5 data-[drop-edge=start]:before:bg-info data-[drop-edge=start]:before:content-['']",
         "data-[drop-edge=end]:before:absolute data-[drop-edge=end]:before:inset-y-1 data-[drop-edge=end]:before:-end-0.5 data-[drop-edge=end]:before:w-0.5 data-[drop-edge=end]:before:bg-info data-[drop-edge=end]:before:content-['']",
@@ -1283,11 +1338,12 @@ export interface ShellPanelViewProps extends React.ComponentPropsWithRef<"div"> 
    */
   fallback?: React.ReactNode;
   /**
-   * Take focus when it shows because a kept tab was opened from outside the panel (not for a
-   * preview opened by a click or J/K in a list, which keeps the list's focus).
-   * @default false
+   * A number that changes each time this view should take focus: pass
+   * `state.focus?.key === value ? state.focus.seq : undefined` from `usePanelTabs`, which sets it
+   * only for a kept tab opened in the foreground. Preview and background opens never move focus.
+   * @default undefined
    */
-  focusOnShow?: boolean;
+  focusRequest?: number;
 }
 
 /**
@@ -1298,7 +1354,7 @@ export interface ShellPanelViewProps extends React.ComponentPropsWithRef<"div"> 
  * meanwhile. Unmount a view by closing its tab.
  *
  * @example
- * <ShellPanelView value={t.key} activeValue={active} focusOnShow={!t.preview}>
+ * <ShellPanelView value={t.key} activeValue={active} focusRequest={state.focus?.key === t.key ? state.focus.seq : undefined}>
  *   <TaskPanelView id={idOf(t.key)} />
  * </ShellPanelView>
  */
@@ -1306,7 +1362,7 @@ export function ShellPanelView({
   value,
   activeValue,
   fallback,
-  focusOnShow = false,
+  focusRequest,
   className,
   children,
   ref,
@@ -1319,11 +1375,11 @@ export function ShellPanelView({
   const { rootRef, idPrefix: prefix } = usePanelContext();
 
   React.useEffect(() => {
-    if (!visible || !focusOnShow) return;
-    const el = innerRef.current;
-    if (el && !rootRef.current?.contains(document.activeElement))
-      el.focus({ preventScroll: true });
-  }, [visible, focusOnShow, rootRef]);
+    if (!visible || focusRequest === undefined) return;
+    innerRef.current?.focus({ preventScroll: true });
+    // Only a new request moves focus — never a re-render or a switch back to this tab.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusRequest]);
 
   if (!mounted) return null;
   const Activity = (
@@ -1568,7 +1624,7 @@ export function usePanelTabs({
       navigate: (key: string, ref: PanelTabRef) =>
         dispatch({ type: "navigate", key, ref, now: Date.now() }),
       back: (key: string) => dispatch({ type: "back", key, now: Date.now() }),
-      close: (key: string) => dispatch({ type: "close", key }),
+      close: (key: string) => dispatch({ type: "close", key, now: Date.now() }),
       reopen: (key?: string) =>
         dispatch({ type: "reopen", key, now: Date.now() }),
       undo: () => dispatch({ type: "undo", now: Date.now() }),
@@ -1586,13 +1642,15 @@ export function usePanelTabs({
           case "keep":
           case "pin":
           case "unpin":
+            dispatch({ type: action, key });
+            return true;
           case "close":
           case "closeOthers":
           case "closeRight":
-            dispatch({ type: action, key });
+            dispatch({ type: action, key, now: Date.now() });
             return true;
           case "closeAll":
-            dispatch({ type: "closeAll" });
+            dispatch({ type: "closeAll", now: Date.now() });
             return true;
           default:
             return false;

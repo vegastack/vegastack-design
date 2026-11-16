@@ -410,10 +410,10 @@ describe("expire (L20)", () => {
       open("a:2", 0),
       open("a:3", 0),
       open("a:4", 0),
-      open("a:5", 30 * HOUR),
       { type: "pin", key: "a:1" },
       { type: "protect", key: "a:2", protected: true },
       { type: "activate", key: "a:3", now: 0 },
+      open("a:5", 30 * HOUR, { background: true }),
     ]);
     s = run(
       [{ type: "expire", now: 48 * HOUR, maxAgeMs: TAB_AUTO_CLOSE_MS["1d"] }],
@@ -459,7 +459,7 @@ describe("saved tabs (#6: { v: 1, active, tabs: [{ ref, pinned, lastSeenAt }] })
       v: 1,
       active: "page:2",
       tabs: [
-        { ref: ref("task:1"), pinned: true, lastSeenAt: 10 },
+        { ref: ref("task:1"), pinned: true, lastSeenAt: 20 },
         { ref: ref("page:2"), pinned: false, lastSeenAt: 40 },
       ],
     });
@@ -604,8 +604,124 @@ describe("URL codec (contract §2, §5 #7)", () => {
     ]);
     expect(d.activeKey).toBe("page:3");
     expect(decodePanelParam("task:1,task:2", "x").activeKey).toBe("task:1");
-    expect(decodePanelParam(`task:${"x".repeat(600)}`, "0").tabs).toEqual([]);
+    expect(decodePanelParam(`task:${"x".repeat(700)}`, "0").tabs).toEqual([]);
     const many = Array.from({ length: 100 }, (_, i) => `task:${i}`).join(",");
     expect(decodePanelParam(many, "0").tabs).toHaveLength(PANEL_TAB_CAP);
+  });
+});
+
+describe("review round 1 regressions", () => {
+  test("a lone surrogate or an over-long id in saved state is dropped, never thrown", () => {
+    const s = deserializePanelTabs({
+      v: 1,
+      active: null,
+      tabs: [
+        {
+          ref: { kind: "record", type: "task", id: "\ud800", scope: "live" },
+          pinned: false,
+          lastSeenAt: 1,
+        },
+        {
+          ref: {
+            kind: "record",
+            type: "task",
+            id: "😀".repeat(100),
+            scope: "live",
+          },
+          pinned: false,
+          lastSeenAt: 1,
+        },
+        {
+          ref: { kind: "record", type: "task", id: "ok", scope: "live" },
+          pinned: false,
+          lastSeenAt: 1,
+        },
+      ],
+    });
+    expect(keys(s)).toEqual(["task:ok"]);
+  });
+
+  test("every id the validator accepts round-trips through the URL", () => {
+    const id = "😀".repeat(50);
+    const s = run([
+      open(panelTabKey({ kind: "record", type: "task", id, scope: "live" }), 1),
+    ]);
+    const enc = encodePanelParam(s)!;
+    expect(decodePanelParam(enc.panel, enc.tab).tabs).toHaveLength(1);
+  });
+
+  test("reopening a closed snapshot never overwrites the live tab", () => {
+    let s = run([
+      open("task:a", 1),
+      { type: "close", key: "task:a" },
+      open("task:b", 2),
+      { type: "navigate", key: "task:b", ref: ref("task:a"), now: 3 },
+    ]);
+    expect(s.closed.map((t) => t.key)).not.toContain("task:a");
+    s = run(
+      [
+        { type: "protect", key: "task:a", protected: true },
+        { type: "reopen", key: "task:a", now: 4 },
+      ],
+      s,
+    );
+    expect(s.tabs.find((t) => t.key === "task:a")!.protected).toBe(true);
+  });
+
+  test("undo never leaves two preview tabs", () => {
+    const s = run([
+      open("task:a", 1, { preview: true }),
+      { type: "close", key: "task:a" },
+      open("task:b", 2, { preview: true }),
+      { type: "undo", now: 3 },
+    ]);
+    expect(s.tabs.filter((t) => t.preview)).toHaveLength(1);
+  });
+
+  test("a tab that becomes current by a close is seen; a tab left behind was seen until then", () => {
+    let s = run([
+      open("task:a", 0),
+      open("task:b", 0),
+      { type: "activate", key: "task:a", now: 0 },
+      { type: "markChanged", key: "task:b" },
+      { type: "close", key: "task:a", now: 5 },
+    ]);
+    expect(s.tabs[0]).toMatchObject({
+      key: "task:b",
+      changed: false,
+      seenAt: 5,
+    });
+    // Viewed for 25 hours, then left: the 1-day expiry counts from leaving, not arriving.
+    s = run([open("task:c", 25 * HOUR)], s);
+    s = run(
+      [{ type: "expire", now: 26 * HOUR, maxAgeMs: TAB_AUTO_CLOSE_MS["1d"] }],
+      s,
+    );
+    expect(keys(s)).toContain("task:b");
+  });
+
+  test("a run ref needs its agent", () => {
+    expect(parsePanelTabKey("run:sess-1")).toBeNull();
+    expect(() =>
+      panelTabKey({ kind: "record", type: "run", id: "s", scope: "live" }),
+    ).toThrow();
+    expect(parsePanelTabKey("run:sess-1@agent-2")).toEqual({
+      kind: "record",
+      type: "run",
+      id: "sess-1",
+      scope: "live",
+      agentId: "agent-2",
+    });
+  });
+
+  test("focus goes to kept foreground opens only", () => {
+    let s = run([open("task:a", 1, { preview: true })]);
+    expect(s.focus).toBeNull();
+    s = run([open("task:a", 2, { background: true })], s);
+    expect(s.focus).toBeNull();
+    s = run([open("task:b", 3, { background: true })], s);
+    expect(s.focus).toBeNull();
+    s = run([open("task:c", 4)], s);
+    expect(s.focus?.key).toBe("task:c");
   });
 });

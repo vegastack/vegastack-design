@@ -208,7 +208,8 @@ test("double-click keeps a preview tab", async () => {
 });
 
 test("on a phone the panel is modal: the rest of the shell is inert, close reads Back", async () => {
-  const screen = await render(<Harness mode="full" />);
+  const close = vi.fn();
+  const screen = await render(<Harness mode="full" onRequestClose={close} />);
   const panel = screen.container.querySelector("[data-slot='shell-panel']")!;
   expect(panel.getAttribute("role")).toBe("dialog");
   expect(panel.getAttribute("aria-modal")).toBe("true");
@@ -217,6 +218,15 @@ test("on a phone the panel is modal: the rest of the shell is inert, close reads
   await expect
     .element(page.getByRole("button", { name: "Back" }))
     .toBeVisible();
+  // Tab stays inside the panel.
+  for (let i = 0; i < 6; i++) {
+    await userEvent.keyboard("{Tab}");
+    expect(panel.contains(document.activeElement)).toBe(true);
+  }
+  // Escape closes the phone panel itself (it is not "another" dialog).
+  (document.activeElement as HTMLElement).blur();
+  await userEvent.keyboard("{Escape}");
+  expect(close).toHaveBeenCalledTimes(1);
   await expectNoA11yViolations(screen.container);
 });
 

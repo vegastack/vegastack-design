@@ -1,4 +1,4 @@
-// @vegastack panel-tabs@0.89.1 sha256-w5biYIfbvZ/uehTVG+MJTmV3Xwze37AUJbuuFWwIQA4=
+// @vegastack panel-tabs@0.89.1 sha256-g1hPD5xYBztaaIUhI0CDTJ8nVz+3XVFbOhwfUuP8gis=
 
 /**
  * panel-tabs — the rules of the shell panel's tabs as one pure reducer, the tab reference and its
@@ -37,8 +37,11 @@ const BACK_LIMIT = 30;
 /** The most tabs the saved state keeps. */
 const SAVED_LIMIT = 50;
 
-/** The longest canonical key the codec accepts. */
-const MAX_KEY_LENGTH = 512;
+/** The longest id, thread, version, agent or chat id, measured percent-escaped. */
+const MAX_ID_ESCAPED = 600;
+
+/** The longest canonical key: a type, three escaped ids and the separators always fit. */
+const MAX_KEY_LENGTH = 2048;
 
 /** The search params the panel lives in: `?panel=…&tab=…` (contract §2). */
 export const PANEL_PARAM = "panel";
@@ -116,11 +119,18 @@ const isView = (s: string): s is PanelViewName =>
   (PANEL_VIEWS as readonly string[]).includes(s);
 const validType = (t: unknown): t is string =>
   typeof t === "string" && TYPE_RE.test(t) && !RESERVED.has(t);
-const validId = (s: unknown): s is string =>
-  typeof s === "string" &&
-  s.length > 0 &&
-  s.length <= 256 &&
-  !/[\u0000-\u001f\u007f]/.test(s);
+/** A non-empty, well-formed id with no control characters that escapes to ≤ 600 characters. */
+function validId(s: unknown): s is string {
+  if (typeof s !== "string" || s.length === 0 || s.length > MAX_ID_ESCAPED)
+    return false;
+  if (/[\u0000-\u001f\u007f]/.test(s)) return false;
+  try {
+    // Throws on a lone surrogate, which no key could carry.
+    return encodeURIComponent(s).length <= MAX_ID_ESCAPED;
+  } catch {
+    return false;
+  }
+}
 
 function dec(s: string): string | null {
   try {
@@ -145,6 +155,8 @@ export function panelTabKey(ref: PanelTabRef): string {
     case "record":
       if (!validType(ref.type))
         throw new Error(`Invalid panel record type "${ref.type}"`);
+      if (ref.type === "run" && ref.agentId === undefined)
+        throw new Error("A run ref needs its agentId");
       return `${ref.scope === "trash" ? "trash:" : ""}${ref.type}:${e(ref.id)}${
         ref.agentId !== undefined ? `@${e(ref.agentId)}` : ""
       }`;
@@ -206,7 +218,8 @@ function readRecord(
   if (extra.length > 0) return null;
   const id = dec(rawId!);
   if (id === null) return null;
-  if (rawAgent === undefined) return { kind: "record", type, id, scope };
+  if (rawAgent === undefined)
+    return type === "run" ? null : { kind: "record", type, id, scope };
   const agentId = dec(rawAgent);
   return agentId === null ? null : { kind: "record", type, id, scope, agentId };
 }
@@ -219,12 +232,14 @@ function readRef(raw: unknown): PanelTabRef | null {
   if (r.kind === "record" && validType(r.type) && validId(r.id))
     ref =
       r.agentId === undefined
-        ? {
-            kind: "record",
-            type: r.type,
-            id: r.id,
-            scope: r.scope === "trash" ? "trash" : "live",
-          }
+        ? r.type === "run"
+          ? null
+          : {
+              kind: "record",
+              type: r.type,
+              id: r.id,
+              scope: r.scope === "trash" ? "trash" : "live",
+            }
         : validId(r.agentId)
           ? {
               kind: "record",
@@ -313,6 +328,11 @@ export interface PanelTabsState {
   readonly undo: PanelTabsUndo | null;
   /** The last cap event, for a toast. */
   readonly event: PanelTabsEvent | null;
+  /**
+   * The last tab opened in the foreground as a kept tab — the one whose body should take focus.
+   * Preview and background opens never set it, so they never move focus (#31).
+   */
+  readonly focus: { readonly key: string; readonly seq: number } | null;
   /** The sight counter behind `seenSeq`. */
   readonly seq: number;
 }
@@ -338,10 +358,10 @@ export type PanelTabsAction =
   | { type: "activate"; key: string; now: number }
   | { type: "navigate"; key: string; ref: PanelTabRef; now: number }
   | { type: "back"; key: string; now: number }
-  | { type: "close"; key: string }
-  | { type: "closeOthers"; key: string }
-  | { type: "closeRight"; key: string }
-  | { type: "closeAll" }
+  | { type: "close"; key: string; now?: number }
+  | { type: "closeOthers"; key: string; now?: number }
+  | { type: "closeRight"; key: string; now?: number }
+  | { type: "closeAll"; now?: number }
   | { type: "keep"; key: string }
   | { type: "pin"; key: string }
   | { type: "unpin"; key: string }
@@ -367,6 +387,7 @@ export function createPanelTabs(): PanelTabsState {
     closed: [],
     undo: null,
     event: null,
+    focus: null,
     seq: 0,
   };
 }
@@ -443,6 +464,7 @@ function closeWhere(
   state: PanelTabsState,
   gone: (tab: PanelTab, index: number) => boolean,
   reason: PanelTabsUndo["reason"],
+  now?: number,
 ): PanelTabsState {
   const entries: { tab: PanelTab; index: number }[] = [];
   const kept: PanelTab[] = [];
@@ -463,11 +485,21 @@ function closeWhere(
     activeKey = (right ?? left)?.key ?? null;
   }
   const keys = new Set(entries.map((e) => e.tab.key));
+  // A tab that becomes current because its neighbour closed is now seen.
+  const arriving = activeKey !== state.activeKey ? activeKey : null;
+  const seq = arriving !== null ? state.seq + 1 : state.seq;
   return {
     ...state,
-    tabs: kept.map((t) =>
-      t.opener !== null && keys.has(t.opener) ? { ...t, opener: null } : t,
-    ),
+    seq,
+    tabs: kept.map((t) => {
+      const u =
+        t.opener !== null && keys.has(t.opener) ? { ...t, opener: null } : t;
+      return u.key === arriving
+        ? now === undefined
+          ? { ...u, changed: false, seenSeq: seq }
+          : see(u, now, seq)
+        : u;
+    }),
     activeKey,
     closed: rememberClosed(
       state.closed,
@@ -511,11 +543,21 @@ function mapTab(
   return { ...state, tabs };
 }
 
+/** Make `key` current: it is seen now, and the tab it replaces was seen until now. */
 function activate(state: PanelTabsState, key: string, now: number) {
   const seq = state.seq + 1;
-  const next = mapTab(state, key, (t) => see(t, now, seq));
+  let next = state;
+  if (state.activeKey !== null && state.activeKey !== key)
+    next = mapTab(next, state.activeKey, (t) => ({ ...t, seenAt: now }));
+  next = mapTab(next, key, (t) => see(t, now, seq));
   return { ...next, activeKey: key, seq };
 }
+
+/** Ask for focus on `key`'s body (a kept tab opened in the foreground). */
+const withFocus = (state: PanelTabsState, key: string): PanelTabsState => ({
+  ...state,
+  focus: { key, seq: state.seq },
+});
 
 function open(
   state: PanelTabsState,
@@ -530,9 +572,13 @@ function open(
     const next = mapTab(state, key, (t) =>
       asPreview || !t.preview ? t : { ...t, preview: false },
     );
-    return background ? next : activate(next, key, now);
+    if (background) return next;
+    const active = activate(next, key, now);
+    return asPreview ? active : withFocus(active, key);
   }
   const seq = state.seq + 1;
+  if (!background && state.activeKey !== null)
+    state = mapTab(state, state.activeKey, (t) => ({ ...t, seenAt: now }));
   const tab = makeTab(ref, now, seq, {
     preview: asPreview,
     opener: background && state.activeKey !== null ? state.activeKey : null,
@@ -543,7 +589,7 @@ function open(
   if (previewAt >= 0) tabs[previewAt] = tab;
   else
     tabs.splice(insertIndex(state.tabs, state.activeKey, background), 0, tab);
-  return applyCap(
+  const capped = applyCap(
     {
       ...state,
       tabs,
@@ -554,6 +600,7 @@ function open(
     },
     key,
   );
+  return background || asPreview ? capped : withFocus(capped, key);
 }
 
 /** Move the tab at `key` to show `ref`, keeping its place; `push` adds the old ref to its stack. */
@@ -570,13 +617,19 @@ function retarget(
     ...state,
     seq,
     activeKey: newKey,
-    tabs: state.tabs.map((t) =>
-      t.key === key
-        ? { ...see(t, now, seq), key: newKey, ref, back, preview: false }
-        : t.opener === key
-          ? { ...t, opener: newKey }
-          : t,
-    ),
+    // The record is open again, so it is no longer "recently closed".
+    closed: state.closed.filter((t) => t.key !== newKey),
+    tabs: state.tabs
+      .map((t) =>
+        t.key === state.activeKey && t.key !== key ? { ...t, seenAt: now } : t,
+      )
+      .map((t) =>
+        t.key === key
+          ? { ...see(t, now, seq), key: newKey, ref, back, preview: false }
+          : t.opener === key
+            ? { ...t, opener: newKey }
+            : t,
+      ),
   };
 }
 
@@ -630,21 +683,32 @@ export function panelTabsReducer(
       return retarget(state, tab.key, prev, tab.back.slice(0, -1), action.now);
     }
     case "close":
-      return closeWhere(state, (t) => t.key === action.key, "close");
+      return closeWhere(
+        state,
+        (t) => t.key === action.key,
+        "close",
+        action.now,
+      );
     case "closeOthers":
       if (!state.tabs.some((t) => t.key === action.key)) return state;
       return closeWhere(
         state,
         (t) => t.key !== action.key && !t.pinned,
         "bulk",
+        action.now,
       );
     case "closeRight": {
       const at = state.tabs.findIndex((t) => t.key === action.key);
       if (at < 0) return state;
-      return closeWhere(state, (t, i) => i > at && !t.pinned, "bulk");
+      return closeWhere(
+        state,
+        (t, i) => i > at && !t.pinned,
+        "bulk",
+        action.now,
+      );
     }
     case "closeAll":
-      return closeWhere(state, (t) => !t.pinned, "bulk");
+      return closeWhere(state, (t) => !t.pinned, "bulk", action.now);
     case "keep":
       return mapTab(state, action.key, (t) =>
         t.preview ? { ...t, preview: false } : t,
@@ -683,6 +747,13 @@ export function panelTabsReducer(
           ? state.closed[0]
           : state.closed.find((t) => t.key === action.key);
       if (!tab) return state;
+      const closed = state.closed.filter((t) => t !== tab);
+      // Already open again (navigated to): go there; the live tab wins over the snapshot.
+      if (state.tabs.some((t) => t.key === tab.key))
+        return withFocus(
+          activate({ ...state, closed }, tab.key, action.now),
+          tab.key,
+        );
       const next = open(state, tab.ref, action.now, false, false);
       // The tab's own back-stack, and a draft it still holds, come back with it.
       return mapTab(next, tab.key, (t) => ({
@@ -696,10 +767,13 @@ export function panelTabsReducer(
       if (!undo) return state;
       const tabs = state.tabs.slice();
       const restored = new Set<string>();
-      for (const { tab, index } of [...undo.entries].sort(
-        (a, b) => a.index - b.index,
-      )) {
+      for (const entry of [...undo.entries].sort((a, b) => a.index - b.index)) {
+        let tab = entry.tab;
+        const index = entry.index;
         if (tabs.some((t) => t.key === tab.key)) continue;
+        // One preview at most: a preview coming back beside another one returns kept.
+        if (tab.preview && tabs.some((t) => t.preview))
+          tab = { ...tab, preview: false };
         const pins = pinnedCount(tabs);
         const at = tab.pinned
           ? Math.min(index, pins)
@@ -851,7 +925,12 @@ export function deserializePanelTabs(raw: unknown): PanelTabsState {
     const e = entry as Record<string, unknown>;
     const ref = readRef(e.ref);
     if (!ref) continue;
-    const key = panelTabKey(ref);
+    let key: string;
+    try {
+      key = panelTabKey(ref);
+    } catch {
+      continue;
+    }
     if (seen.has(key)) continue;
     seen.add(key);
     const at =

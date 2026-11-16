@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { FileText, MessageSquare, SquareCheck, Video } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import {
@@ -101,6 +101,23 @@ function Demo({
   start?: { key: string; preview?: boolean; pinned?: boolean }[];
 }) {
   const [width, setWidth] = useState(420);
+  // Stand-in for Shell's own layout rule, so the preview behaves at every width: the whole
+  // screen below the phone tier, over the page while the page would drop under 520px, else beside.
+  const frameRef = useRef<HTMLDivElement | null>(null);
+  const [room, setRoom] = useState<number | null>(null);
+  useLayoutEffect(() => {
+    const el = frameRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setRoom(e!.contentRect.width));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const autoMode: ShellPanelMode =
+    room === null || room >= 520 + width
+      ? "dock"
+      : room < 640
+        ? "full"
+        : "overlay";
   const [open, setOpen] = useState(true);
   const [note, setNote] = useState<string | null>(null);
   const tabs = usePanelTabs({
@@ -121,7 +138,7 @@ function Demo({
       setNote("Every tab has a draft — close one you're done with."),
   });
   const { state } = tabs;
-  const shown = open ? mode : "closed";
+  const shown = open ? (mode === "dock" ? autoMode : mode) : "closed";
   const items = state.tabs.map((t) => ({
     value: t.key,
     title: titleOf(t.key),
@@ -135,6 +152,7 @@ function Demo({
   }));
   return (
     <div
+      ref={frameRef}
       data-slot="shell"
       data-panel-mode={shown}
       className="group/shell relative flex h-[30rem] w-full overflow-hidden rounded-card border border-border bg-background"
@@ -142,7 +160,7 @@ function Demo({
     >
       <main
         data-slot="shell-content"
-        className="flex min-w-0 flex-1 flex-col gap-3 overflow-y-auto p-4"
+        className="flex min-w-0 flex-1 flex-col gap-3 overflow-x-hidden overflow-y-auto p-4"
       >
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">My tasks</span>
@@ -162,6 +180,7 @@ function Demo({
             <Item
               key={key}
               size="sm"
+              className="min-w-0"
               render={<button type="button" />}
               data-peek-active={state.activeKey === key || undefined}
               onClick={(e) => {
@@ -270,7 +289,9 @@ function Demo({
                   key={t.key}
                   value={t.key}
                   activeValue={state.activeKey}
-                  focusOnShow={!t.preview}
+                  focusRequest={
+                    state.focus?.key === t.key ? state.focus.seq : undefined
+                  }
                 >
                   <div className="flex flex-col gap-3 px-4 pt-4 pb-6">
                     <h2 className="text-lg font-semibold">{titleOf(t.key)}</h2>
@@ -306,6 +327,10 @@ function Demo({
                       </Button>
                     ) : null}
                     <Textarea
+                      // A draft keeps the tab and guards it from the cap and auto-close.
+                      onInput={(e) =>
+                        tabs.protect(t.key, e.currentTarget.value.trim() !== "")
+                      }
                       aria-label="Comment"
                       placeholder="Write a comment — it stays here when you switch tabs"
                     />

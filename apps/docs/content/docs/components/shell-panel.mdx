@@ -5,7 +5,7 @@ audience: public
 registry: shell-panel
 status: preview
 since: 0.89.2
-a11y: tablist with manual activation, labelled tab panels, keyboard resize and reorder, focus return
+a11y: manual-activation tablist, labelled panels, focus return
 preview: shellPanel
 ---
 
@@ -81,7 +81,9 @@ const tabs = usePanelTabs({
           key={t.key}
           value={t.key}
           activeValue={tabs.state.activeKey}
-          focusOnShow={!t.preview}
+          focusRequest={
+            tabs.state.focus?.key === t.key ? tabs.state.focus.seq : undefined
+          }
         >
           <PanelViewFor tabRef={t.ref} />
         </ShellPanelView>
@@ -240,8 +242,8 @@ dragging only `--shell-panel-current-width` on the shell moves — nothing re-re
   screen readers.
 - Beside or over the page the panel is non-modal: nothing behind it goes inert. On a phone it is a
   modal dialog and the rest of the shell is inert.
-- A kept tab opened from outside takes focus (`focusOnShow`); a preview or background open never
-  does. Closing returns focus to where the panel was opened from, or the page's main region when
+- A kept tab opened in the foreground takes focus (`state.focus` → `focusRequest`); a preview or
+  background open never does. Closing returns focus to where the panel was opened from, or the page's main region when
   that is gone.
 - Dragging has key and menu alternatives; the × is a pointer shortcut for Delete and Close.
 
