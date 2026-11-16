@@ -10132,7 +10132,7 @@
       "title": "Data List Skeleton",
       "summary": "A DataList and its ListToolbar while they load, in the list's own geometry, without loading the list.",
       "status": "stable",
-      "since": "0.97.0",
+      "since": "0.99.0",
       "family": "data",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/data-list-skeleton.tsx"],
