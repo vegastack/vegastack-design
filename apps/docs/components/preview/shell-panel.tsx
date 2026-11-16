@@ -1,5 +1,6 @@
 "use client";
 
+import type * as React from "react";
 import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { FileText, MessageSquare, SquareCheck, Video } from "lucide-react";
 import { Wrapper } from "./wrapper";
@@ -156,7 +157,9 @@ function Demo({
       data-slot="shell"
       data-panel-mode={shown}
       className="group/shell relative flex h-[30rem] w-full overflow-hidden rounded-card border border-border bg-background"
-      style={{ ["--shell-panel-current-width" as string]: `${width}px` }}
+      style={
+        { "--shell-panel-current-width": `${width}px` } as React.CSSProperties
+      }
     >
       <main
         data-slot="shell-content"

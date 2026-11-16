@@ -725,3 +725,13 @@ describe("review round 1 regressions", () => {
     expect(s.focus?.key).toBe("task:c");
   });
 });
+
+test("a focus request dies with its tab, so reopening as a preview doesn't steal focus", () => {
+  const s = run([
+    open("task:a", 1),
+    { type: "close", key: "task:a" },
+    open("task:b", 2, { background: true }),
+    open("task:a", 3, { preview: true }),
+  ]);
+  expect(s.focus).toBeNull();
+});

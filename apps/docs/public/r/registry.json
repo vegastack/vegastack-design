@@ -24823,7 +24823,7 @@
         "whenToUse": "Holding the shell panel's open tabs — dispatch its actions from usePanelTabs, save serializePanelTabs per workspace and sync encodePanelParam with the URL.",
         "whenNotToUse": "In-page section tabs (Tabs, RouteTabs, ViewTabs) — they have no preview, cap or back-stack.",
         "version": "0.89.1",
-        "integrity": "sha256-g1hPD5xYBztaaIUhI0CDTJ8nVz+3XVFbOhwfUuP8gis="
+        "integrity": "sha256-dC/XuDmpyILebEyTgimirGS4f3QopIlAXKjxLX884Fk="
       }
     },
     {
@@ -24860,7 +24860,7 @@
         "whenToUse": "Inside Shell's panel slot: every record, record view or assistant chat opened beside the page as a tab.",
         "whenNotToUse": "A form, a confirmation or a picker (Dialog, AlertDialog, ResponsiveDialog), or a page's own section tabs (Tabs).",
         "version": "0.89.1",
-        "integrity": "sha256-knM470MEbFYvHLTB1TM690CUVERmRYT26Ti+YOUxduE="
+        "integrity": "sha256-DPkKwXudEuQO9oY8z+T1dnT51YCXK1rpm3N+PamjMh4="
       }
     }
   ]

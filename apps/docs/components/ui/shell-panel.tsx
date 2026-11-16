@@ -1,4 +1,4 @@
-// @vegastack shell-panel@0.89.1 sha256-knM470MEbFYvHLTB1TM690CUVERmRYT26Ti+YOUxduE=
+// @vegastack shell-panel@0.89.1 sha256-DPkKwXudEuQO9oY8z+T1dnT51YCXK1rpm3N+PamjMh4=
 
 "use client";
 
@@ -299,7 +299,9 @@ export function ShellPanel({
         root.querySelectorAll<HTMLElement>(TABBABLE),
       ).filter(
         (el) =>
-          !el.closest("[inert], [hidden]") && el.getClientRects().length > 0,
+          el.tabIndex >= 0 &&
+          !el.closest("[inert], [hidden]") &&
+          el.getClientRects().length > 0,
       );
       if (focusables.length === 0) {
         event.preventDefault();
@@ -309,6 +311,9 @@ export function ShellPanel({
       const first = focusables[0]!;
       const last = focusables[focusables.length - 1]!;
       const at = document.activeElement;
+      // A popover, menu or dialog portaled above the panel keeps its own Tab order.
+      const owner = at instanceof Element ? at.closest(ESC_OWNERS) : null;
+      if (owner && owner !== root) return;
       if (
         event.shiftKey &&
         (at === first || at === root || !root.contains(at))

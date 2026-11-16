@@ -1,4 +1,4 @@
-// @vegastack panel-tabs@0.89.1 sha256-g1hPD5xYBztaaIUhI0CDTJ8nVz+3XVFbOhwfUuP8gis=
+// @vegastack panel-tabs@0.89.1 sha256-dC/XuDmpyILebEyTgimirGS4f3QopIlAXKjxLX884Fk=
 
 /**
  * panel-tabs — the rules of the shell panel's tabs as one pure reducer, the tab reference and its
@@ -506,6 +506,8 @@ function closeWhere(
       entries.map((e) => e.tab),
     ),
     undo: { reason, entries, activeKey: state.activeKey },
+    // A focus request for a closed tab must not replay if the record opens again.
+    focus: state.focus && keys.has(state.focus.key) ? null : state.focus,
   };
 }
 
