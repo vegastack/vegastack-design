@@ -64,7 +64,8 @@ import {
   phone give that container the whole screen. With `onOpen`, rows open in the host's peek beside it
   and the Inbox stays open.
 - On an Inbox **page** pass `layout="page"`: the header is left out (the page's title and top bar
-  hold the title and actions, the shell's column the filters), `title` names the list, and the rows
+  hold the title and actions, the shell's column the filters), `title` stays as a visually hidden
+  heading that names the list, and the rows
   scroll with the page, so infinite scroll watches the viewport.
 - **Don't use it** for transient confirmations (Toast), a record's history (Activity Feed), or a bare
   unread count in the chrome (NotificationBell).

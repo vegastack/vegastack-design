@@ -73,7 +73,7 @@ export interface InboxProps extends Omit<
   "title"
 > {
   /**
-   * The heading; with `layout="page"` it names the list (`aria-label`) and is not drawn.
+   * The heading; with `layout="page"` it is visually hidden and still names the list.
    * @default "Inbox"
    */
   title?: React.ReactNode;
@@ -314,8 +314,7 @@ export function Inbox({
     <section
       data-slot="inbox"
       data-layout={layout}
-      aria-labelledby={page ? undefined : titleId}
-      aria-label={page && typeof title === "string" ? title : undefined}
+      aria-labelledby={titleId}
       aria-keyshortcuts="J K"
       className={cn(
         "flex w-full flex-col bg-background text-foreground",
@@ -328,7 +327,11 @@ export function Inbox({
       }}
       {...props}
     >
-      {page ? null : (
+      {page ? (
+        <h2 id={titleId} className="sr-only">
+          {title}
+        </h2>
+      ) : (
         <header className="flex shrink-0 flex-col gap-2 px-4 pt-3 pb-2">
           <div className="flex min-h-8 items-center gap-1">
             <h2 id={titleId} className="me-auto text-base font-semibold">
