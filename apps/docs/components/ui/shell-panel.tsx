@@ -1,4 +1,4 @@
-// @vegastack shell-panel@0.89.1 sha256-DPkKwXudEuQO9oY8z+T1dnT51YCXK1rpm3N+PamjMh4=
+// @vegastack shell-panel@0.89.1 sha256-EIJ98GLPhtfIWgdShCRGZJ8GFk+bYnfF5WB2xoABIJc=
 
 "use client";
 
@@ -422,7 +422,24 @@ function ShellPanelResize({
       cs.getPropertyValue("--shell-panel-width-max"),
       FALLBACK_MAX,
     );
-    return { min, max: Math.max(min, max) };
+    let cap = Math.max(min, max);
+    // Docked beside the page, the page keeps its minimum (contract §5 #2): the panel may grow
+    // only by the room the page has above `data-page-min` (less its 1px hairline).
+    const area = shell
+      .querySelector("[data-slot='shell-main-area']")
+      ?.getBoundingClientRect().width;
+    const pageMin = Number(shell.getAttribute("data-page-min"));
+    const panelNow =
+      handleRef.current?.parentElement?.getBoundingClientRect().width;
+    if (
+      shell.getAttribute("data-panel-mode") === "dock" &&
+      area !== undefined &&
+      Number.isFinite(pageMin) &&
+      pageMin > 0 &&
+      panelNow !== undefined
+    )
+      cap = Math.max(min, Math.min(cap, panelNow + area - 1 - pageMin));
+    return { min, max: cap };
   }, [bounds]);
 
   React.useEffect(() => {
@@ -491,15 +508,16 @@ function ShellPanelResize({
     const wider = flip ? "ArrowRight" : "ArrowLeft";
     const narrower = flip ? "ArrowLeft" : "ArrowRight";
     const now = width ?? current();
+    const b = readBounds();
     let next: number;
     if (event.key === wider) next = now + RESIZE_STEP;
     else if (event.key === narrower) next = now - RESIZE_STEP;
-    else if (event.key === "Home") next = bounds.min;
-    else if (event.key === "End") next = bounds.max;
+    else if (event.key === "Home") next = b.min;
+    else if (event.key === "End") next = b.max;
     else return;
     event.preventDefault();
     event.stopPropagation();
-    next = clamp(next);
+    next = clamp(next, b);
     shellOf(event.currentTarget.parentElement)?.style.setProperty(
       "--shell-panel-current-width",
       `${next}px`,
