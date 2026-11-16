@@ -1,4 +1,4 @@
-// @vegastack shell@0.90.0 sha256-u5NevAr6mt0WWVWLU4660+2aG8KDibZYNXvJTyrkcUQ=
+// @vegastack shell@0.90.0 sha256-BZcWFlnitfJDA6AcEyftYt3e5p+0DWPFfYtAh6obdB4=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -402,18 +402,20 @@ export interface ShellProps extends Omit<
   /**
    * The rail's head, on the 48px title row above the rail — the workspace's mark. In the desktop
    * app on macOS the traffic lights take that cell, so the mark moves to the top of the rail.
+   * @default undefined
    */
   railHeader?: React.ReactNode;
-  /** The current module's column: a `ShellColumn`, or `null` for a screen without one (Home). */
+  /** The current module's column: a `ShellColumn`, or `null` for a screen without one (Home). @default undefined */
   column?: React.ReactNode;
-  /** The column's head row, beside the title-bar controls — the workspace switcher. */
+  /** The column's head row, beside the title-bar controls — the workspace switcher. @default undefined */
   columnHead?: React.ReactNode;
   /**
    * `ShellTitleBarControls`. The shell places it: in the column's head row while the column is
    * open, otherwise at the start of the top bar.
+   * @default undefined
    */
   titleBarControls?: React.ReactNode;
-  /** The panel host (`ShellPanel`). The shell positions it; the panel only fills its box. */
+  /** The panel host (`ShellPanel`). The shell positions it; the panel only fills its box. @default undefined */
   panel?: React.ReactNode;
   /**
    * Whether the panel is open. `auto` follows the device's saved state (`ShellStateScript`'s
@@ -435,9 +437,9 @@ export interface ShellProps extends Omit<
   defaultColumnOpen?: boolean;
   /** The page's minimum width while the panel docks beside it: list 640, document 560, chat 520. @default 640 */
   pageMin?: ShellPageMin;
-  /** The phone bottom tab bar: a `ShellBottomBar`. */
+  /** The phone bottom tab bar: a `ShellBottomBar`. @default undefined */
   bottomBar?: React.ReactNode;
-  /** Floating items at the page's bottom-right: a `ShellFloatingArea`. */
+  /** Floating items at the page's bottom-right: a `ShellFloatingArea`. @default undefined */
   floating?: React.ReactNode;
   /**
    * What the shell fills: the window (`viewport`; the page scrolls the document on phones so the
@@ -659,11 +661,11 @@ export interface ShellRailItemProps extends Omit<
   icon: React.ReactNode;
   /** The short label under the icon. */
   label: string;
-  /** A count on the icon (99+ past 99); a neutral chip (INT-15). */
+  /** A count on the icon (99+ past 99); a neutral chip (INT-15). @default undefined */
   badge?: number | string;
-  /** Whether this is the current module. */
+  /** Whether this is the current module. @default false */
   active?: boolean;
-  /** The app's own link or button element (`<Link href="/tasks" />`); its props win. */
+  /** The app's own link or button element (`<Link href="/tasks" />`); its props win. @default undefined */
   render?: React.ReactElement;
 }
 
@@ -730,7 +732,7 @@ export interface ShellRailMoreProps {
   label?: string;
   /** The icon. @default a horizontal ellipsis */
   icon?: React.ReactNode;
-  /** Whether the current module lives in this menu. */
+  /** Whether the current module lives in this menu. @default false */
   active?: boolean;
 }
 
@@ -829,7 +831,7 @@ export interface ShellColumnHeaderProps extends Omit<
 > {
   /** The module's name. */
   title: React.ReactNode;
-  /** Its actions: "+ New" and the like, as `icon-sm` buttons. */
+  /** Its actions: "+ New" and the like, as `icon-sm` buttons. @default undefined */
   actions?: React.ReactNode;
 }
 
@@ -902,9 +904,9 @@ export function ShellColumnSearch({
 
 /** Props accepted by `ShellColumnSection`. */
 export interface ShellColumnSectionProps extends React.ComponentProps<"section"> {
-  /** The section's label, above its items. */
+  /** The section's label, above its items. @default undefined */
   label?: React.ReactNode;
-  /** An action beside the label (a + button). */
+  /** An action beside the label (a + button). @default undefined */
   action?: React.ReactNode;
 }
 
@@ -951,21 +953,21 @@ export interface ShellColumnItemProps extends Omit<
 > {
   /** The item's name. */
   label: React.ReactNode;
-  /** Its icon, 16px. */
+  /** Its icon, 16px. @default undefined */
   icon?: React.ReactNode;
-  /** A count at the end, muted and tabular. */
+  /** A count at the end, muted and tabular. @default undefined */
   count?: number | string;
-  /** Whether this is the current view. */
+  /** Whether this is the current view. @default false */
   active?: boolean;
   /** How deep it sits in a tree; each level indents by the chevron (26px). @default 0 */
   depth?: number;
-  /** An action shown on hover in the count's place (a ⋯ menu). */
+  /** An action shown on hover in the count's place (a ⋯ menu). @default undefined */
   action?: React.ReactNode;
-  /** Child items: the item becomes a branch that opens and closes. */
+  /** Child items: the item becomes a branch that opens and closes. @default undefined */
   children?: React.ReactNode;
   /** Whether a branch starts open. @default false, or true when `active` */
   defaultOpen?: boolean;
-  /** The app's own link or button element; its props win. */
+  /** The app's own link or button element; its props win. @default undefined */
   render?: React.ReactElement;
 }
 
@@ -1129,7 +1131,7 @@ export function ShellTopBar({ className, ...props }: ShellTopBarProps) {
 
 /** Props accepted by `ShellTopBarTitle`. */
 export interface ShellTopBarTitleProps extends React.ComponentProps<"div"> {
-  /** The breadcrumb before the title: links to the parents, separated for you. */
+  /** The breadcrumb before the title: links to the parents, separated for you. @default undefined */
   parents?: React.ReactNode;
 }
 
@@ -1181,7 +1183,7 @@ export function ShellTopBarTitle({
 
 /** Props accepted by the top bar's slot parts. */
 export interface ShellTopBarSlotProps extends React.ComponentProps<"div"> {
-  /** Width to hold in rem while the slot's content streams in, so the bar never shifts. */
+  /** Width to hold in rem while the slot's content streams in, so the bar never shifts. @default undefined */
   reserve?: number;
 }
 
@@ -1433,12 +1435,15 @@ export interface ShellBottomBarItemProps extends Omit<
   React.ComponentProps<"a">,
   "children"
 > {
+  /** The tab's icon, 20px. */
   icon: React.ReactNode;
+  /** The short label under the icon. */
   label: string;
-  /** A count on the icon (99+ past 99). */
+  /** A count on the icon (99+ past 99). @default undefined */
   badge?: number | string;
+  /** Whether this is the current tab. @default false */
   active?: boolean;
-  /** The app's own link or button element; its props win. */
+  /** The app's own link or button element; its props win. @default undefined */
   render?: React.ReactElement;
 }
 

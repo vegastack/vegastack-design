@@ -290,7 +290,7 @@
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.90.0",
-        "integrity": "sha256-u5NevAr6mt0WWVWLU4660+2aG8KDibZYNXvJTyrkcUQ="
+        "integrity": "sha256-BZcWFlnitfJDA6AcEyftYt3e5p+0DWPFfYtAh6obdB4="
       }
     },
     {
@@ -21334,7 +21334,7 @@
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout and feed its rail, column and panel from your routes.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.90.0",
-        "integrity": "sha256-RomGczmFiHLkc60R3AWtPCobbAoG62racD0UbuZtf3g="
+        "integrity": "sha256-0PCW9uMD7wcD+6PFMQaRhqe9Ftv+dj7wSNDuEbAht3U="
       }
     },
     {

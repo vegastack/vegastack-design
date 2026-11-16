@@ -1,4 +1,4 @@
-// @vegastack shell@0.90.0 sha256-u5NevAr6mt0WWVWLU4660+2aG8KDibZYNXvJTyrkcUQ=
+// @vegastack shell@0.90.0 sha256-BZcWFlnitfJDA6AcEyftYt3e5p+0DWPFfYtAh6obdB4=
 
 "use client";
 
@@ -134,6 +134,9 @@ function visible(el: Element): boolean {
 
 /**
  * The shell's behaviour, mounted by `Shell` itself. It renders nothing visible.
+ *
+ * @example
+ * <ShellController /> // rendered by Shell itself
  */
 export function ShellController() {
   const ref = React.useRef<HTMLSpanElement>(null);
@@ -501,6 +504,9 @@ export function ShellController() {
  * The column's resize edge: drag it, or focus it and use ←/→ (Home/End for the ends);
  * double-click resets it. It keeps the page at its minimum width, and the width lives in the
  * `vs_shell_col` cookie, per device.
+ *
+ * @example
+ * <ShellColumnResize /> // rendered by Shell inside the column
  */
 export function ShellColumnResize() {
   const ref = React.useRef<HTMLDivElement>(null);
@@ -619,7 +625,12 @@ export function ShellColumnResize() {
   );
 }
 
-/** The skip link: the first stop for a keyboard, it moves focus to the page (`ShellMain`). */
+/**
+ * The skip link: the first stop for a keyboard, it moves focus to the page (`ShellMain`).
+ *
+ * @example
+ * <ShellSkipLink /> // rendered by Shell itself
+ */
 export function ShellSkipLink() {
   return (
     <a
@@ -649,7 +660,7 @@ export interface ShellHistory {
 
 /** Props accepted by `ShellTitleBarControls`. */
 export interface ShellTitleBarControlsProps extends React.ComponentProps<"div"> {
-  /** ‹ › beside ▤ — pass it only in the desktop app. */
+  /** ‹ › beside ▤ — pass it only in the desktop app. @default undefined */
   history?: ShellHistory;
 }
 

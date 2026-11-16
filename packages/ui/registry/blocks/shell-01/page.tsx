@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.90.0 sha256-RomGczmFiHLkc60R3AWtPCobbAoG62racD0UbuZtf3g=
+// @vegastack shell-01@0.90.0 sha256-0PCW9uMD7wcD+6PFMQaRhqe9Ftv+dj7wSNDuEbAht3U=
 
 "use client";
 
@@ -77,6 +77,9 @@ function StatusIcon({ status }: { status: Task["status"] }) {
  * `shell-01` — the shell reference: the module rail, the Tasks column, the top bar in its fixed
  * order, a task list, and a record opening in the panel beside it. Click a task: it opens on the
  * right, and the column folds by itself when the page would get narrower than a list may.
+ *
+ * @example
+ * <Shell01Page fill="parent" />
  */
 export default function Shell01Page({
   fill = "viewport",
