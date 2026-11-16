@@ -1,0 +1,54 @@
+---
+title: Notification Dot
+description: The one unread dot — an 8px solid circle for unread rows, inbox items and nav items.
+audience: public
+registry: notification-dot
+status: stable
+since: 0.97.0
+a11y: decorative; the marked row names its unread state
+preview: notificationDot
+---
+
+## Install
+
+<InstallSteps name="notification-dot" />
+
+## Usage
+
+```tsx
+import { NotificationDot } from "@/components/ui/notification-dot";
+
+<ItemTitle>
+  Design review <span className="sr-only">, unread</span>
+  <NotificationDot />
+</ItemTitle>;
+```
+
+`NotificationDot` marks something unread: a row in a list, an inbox item, a nav or rail item. Its
+default `intent` is the solid info blue, for "unread"; `intent="destructive"` is for something that
+needs attention. A count belongs in a [`Badge`](/docs/components/badge), not a dot.
+
+## Anatomy
+
+<Anatomy name="notification-dot" />
+
+## Examples
+
+<ComponentPreview
+  name="notificationDot"
+  file="components/preview/notification-dot.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/notification-dot.tsx"
+  name="NotificationDotProps"
+/>
+
+## Accessibility
+
+- The dot is `aria-hidden`: the row or control it marks says "unread" in its own accessible name.
+- It is solid, never a tint, so it meets the 3:1 non-text contrast floor at 8px.
+
+<StatesTested name="notification-dot" />

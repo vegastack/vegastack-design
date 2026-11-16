@@ -14229,36 +14229,30 @@
       ],
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
-        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
+        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread count (a Badge on the rail item).",
         "version": "0.92.0"
       }
     },
     {
-      "name": "notification-bell",
+      "name": "notification-dot",
       "type": "registry:ui",
-      "title": "Notification Bell",
-      "description": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
+      "title": "Notification Dot",
+      "description": "The one unread dot: an 8px solid circle, decorative, for unread rows, inbox items and nav items.",
       "categories": ["media"],
       "dependencies": [
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.18.0",
         "@vegastack/design-tokens@^0.18.0"
       ],
-      "registryDependencies": [
-        "@vegastack/badge",
-        "@vegastack/button",
-        "@vegastack/use-animation-replay"
-      ],
       "files": [
         {
-          "path": "packages/ui/registry/ui/notification-bell.tsx",
+          "path": "packages/ui/registry/ui/notification-dot.tsx",
           "type": "registry:ui",
-          "target": "@ui/notification-bell.tsx"
+          "target": "@ui/notification-dot.tsx"
         }
       ],
       "meta": {
-        "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler. Its NotificationDot is the one unread marker for rows, inbox items and nav items.",
-        "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
+        "whenToUse": "Marking something unread — a row in a list, an inbox item, a nav or rail item. The row says \"unread\" in its own accessible name.",
+        "whenNotToUse": "A count (use Badge) or a status (use StatusIcon).",
         "version": "0.90.0"
       }
     },
@@ -14292,7 +14286,7 @@
       "name": "page-header",
       "type": "registry:ui",
       "title": "Page Header",
-      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
+      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and a secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -14313,7 +14307,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
+        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.90.0"
       }
@@ -16889,27 +16883,6 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.90.0"
-      }
-    },
-    {
-      "name": "use-animation-replay",
-      "type": "registry:hook",
-      "title": "useAnimationReplay / useShakeOnInvalid",
-      "description": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element — preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
-      "categories": ["hook", "motion"],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/use-animation-replay.ts",
-          "type": "registry:hook",
-          "target": "@ui/use-animation-replay.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Replaying a motion-* utility on a user action (error shake, retry pop, etc.), especially on an element that might be focused (form controls) where a key-remount would steal focus.",
-        "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
-        "version": "0.89.0"
       }
     },
     {
@@ -19546,14 +19519,12 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/inbox",
-        "@vegastack/notification-bell",
         "@vegastack/page-header",
         "@vegastack/sheet",
-        "@vegastack/sidebar",
+        "@vegastack/shell",
         "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
@@ -20019,7 +19990,7 @@
       ],
       "registryDependencies": [
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
+        "@vegastack/notification-dot",
         "@vegastack/sidebar"
       ],
       "files": [
@@ -20079,7 +20050,7 @@
       "registryDependencies": [
         "@vegastack/command",
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
+        "@vegastack/notification-dot",
         "@vegastack/toggle",
         "@vegastack/toggle-group"
       ],

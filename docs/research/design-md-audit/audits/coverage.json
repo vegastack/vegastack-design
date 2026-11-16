@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b70ee0bc1731507a954f9fff938f617a9c78331e7b3fbe2c54f87e30d2ab74b5",
+  "contractSha256": "71a033556633044dfc60086203d59029f03c31ca965a37dd9bfa8e224535eef3",
   "inventory": {
-    "expected": 821,
-    "actual": 821,
-    "unique": 821
+    "expected": 820,
+    "actual": 820,
+    "unique": 820
   },
   "classes": {
     "components": 228,
     "animatedIcons": 467,
-    "hooks": 18,
+    "hooks": 17,
     "blocks": 16,
     "chartBlocks": 68,
     "libs": 24
@@ -29,7 +29,7 @@
         "input",
         "kbd",
         "label",
-        "notification-bell",
+        "notification-dot",
         "priority-icon",
         "progress",
         "radio-group",
@@ -293,10 +293,9 @@
       ]
     },
     "Hooks": {
-      "expected": 18,
-      "actual": 18,
+      "expected": 17,
+      "actual": 17,
       "members": [
-        "use-animation-replay",
         "use-announcer",
         "use-async-search",
         "use-drag-reorder",

@@ -1,5 +1,5 @@
 /**
- * `notifications-01.test.tsx` — the block's browser contract: the rail row and the bell carry the
+ * `notifications-01.test.tsx` — the block's browser contract: the rail and phone-bar items carry the
  * unread count in their names; the sheet's rows are links; "Mark all read" is announced once (and
  * there is no Unread toggle); the For you and Updates tabs split the rows; focus returns to the trigger on close; the error and loading
  * states render; axe-clean. Compiled contrast is in `test/contrast.browser.test.tsx`.
@@ -7,33 +7,17 @@
 
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { beforeEach, expect, test, vi } from "vitest";
+import { expect, test } from "vitest";
 
 import { expectNoA11yViolations } from "../../../test/a11y";
 import { InboxSheet } from "./components/inbox-sheet";
 import { NOTIFICATIONS } from "./components/sample-notifications";
 import Notifications01 from "./page";
 
-// Desktop, so the rail mounts in place (see app-shell-01.test.tsx).
-beforeEach(() => {
-  vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    addListener: () => {},
-    removeListener: () => {},
-    dispatchEvent: () => false,
-  }));
-});
-
 test("the triggers carry the count, rows are links, and mark-all announces once", async () => {
   const screen = await render(<Notifications01 />);
-  await expect
-    .element(screen.getByRole("button", { name: "Inbox, 3 unread" }))
-    .toBeInTheDocument();
-  const row = screen.getByRole("button", { name: "Inbox 3 unread" });
+  // The rail item and the phone bar's item both open the Inbox; the rail's comes first.
+  const row = screen.getByRole("button", { name: "Inbox, 3" }).first();
   const rowElement = row.element();
   await row.click();
   const sheet = screen.getByRole("dialog", { name: "Inbox" });

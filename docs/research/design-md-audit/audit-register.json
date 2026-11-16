@@ -2,12 +2,12 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "b70ee0bc1731507a954f9fff938f617a9c78331e7b3fbe2c54f87e30d2ab74b5",
+  "contractSha256": "71a033556633044dfc60086203d59029f03c31ca965a37dd9bfa8e224535eef3",
   "expectedCounts": {
-    "totalRegistryItems": 821,
+    "totalRegistryItems": 820,
     "components": 228,
     "animatedIcons": 467,
-    "hooks": 18,
+    "hooks": 17,
     "blocks": 16,
     "libs": 24,
     "chartBlocks": 68
@@ -978,14 +978,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "notification-bell",
+      "name": "notification-dot",
       "inventoryClass": "component",
       "wave": "Core controls",
       "family": "media",
       "sourceFiles": [
-        "packages/ui/registry/ui/notification-bell.tsx"
+        "packages/ui/registry/ui/notification-dot.tsx"
       ],
-      "docsSlug": "/docs/components/notification-bell",
+      "docsSlug": "/docs/components/notification-dot",
       "contractStatus": "reconciled"
     },
     {
@@ -7670,17 +7670,6 @@
         "packages/ui/registry/ui/icons/zap-off.tsx"
       ],
       "docsSlug": "/docs/foundations/icons",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "use-animation-replay",
-      "inventoryClass": "hook",
-      "wave": "Hooks",
-      "family": "hook",
-      "sourceFiles": [
-        "packages/ui/registry/ui/use-animation-replay.ts"
-      ],
-      "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
     },
     {

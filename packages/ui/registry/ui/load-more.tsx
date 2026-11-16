@@ -1,4 +1,4 @@
-// @vegastack load-more@0.90.0 sha256-EV+GckWFy9FyvGmNCxIGt3eLCxMl6lLEUY5szkffp4o=
+// @vegastack load-more@0.90.0 sha256-pihdzZ8aleFr/S1ZmIU5DBPqPqL7heRqGnpzTHOSnN0=
 
 "use client";
 
@@ -60,12 +60,6 @@ export interface LoadMoreState {
 
 /** Props accepted by `LoadMore`. */
 export interface LoadMoreProps extends LoadMoreState {
-  /**
-   * Formerly the "Load more" button's label. Paging is automatic now and nothing shows it.
-   * @deprecated No button renders; the prop is ignored.
-   * @default undefined
-   */
-  label?: string;
   /**
    * The button's label after an `error`.
    * @default "Try again"

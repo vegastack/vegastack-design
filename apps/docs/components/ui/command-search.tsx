@@ -1,4 +1,4 @@
-// @vegastack command-search@0.90.0 sha256-gSqlZum/Ith9KTlESkvJwbJBz+jsZ8hnGK7VQrhCrjo=
+// @vegastack command-search@0.90.0 sha256-pnNJd8sNaBAHtnwtZGb6KxxQxDMBgFkMR0uAOGUeYAE=
 
 "use client";
 
@@ -23,7 +23,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { NotificationDot } from "@/components/ui/notification-bell";
+import { NotificationDot } from "@/components/ui/notification-dot";
 import { toggleVariants } from "@/components/ui/toggle";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 

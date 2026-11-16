@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.90.0 sha256-Kp+WE2r6iCAkX8gnRi7xQA7haAS7yTFyxKIKAS2IQXQ=
+// @vegastack activity-feed@0.90.0 sha256-RuJ0DThK3yrwmHH0hF0cw/1wPFDBxgSdpb7DznrL3uA=
 
 "use client";
 
@@ -679,11 +679,6 @@ export interface ActivityEventProps {
   /** Who did it; `null` for the system. A `badge` on the person ("Inactive") follows the name. */
   actor: Person | null;
   /**
-   * @deprecated Give the actor `kind: "agent"` (and `for`) instead; kept for one release. The
-   * actor is an agent: read as if `actor.kind` were `"agent"`. @default false
-   */
-  agent?: boolean;
-  /**
    * The 20px node before the text — an `ActivityKindIcon`, a `StatusIcon`, a `PriorityIcon`.
    * `"avatar"` draws the actor's avatar (an assignee change, say). @default a muted dot
    */
@@ -711,15 +706,14 @@ export interface ActivityEventProps {
 export function ActivityEvent({
   id,
   actor,
-  agent: agentFlag = false,
   icon,
   children,
   date,
   now,
   className,
 }: ActivityEventProps) {
-  // An agent is its actor's `kind`; the `agent` flag is the deprecated spelling of the same.
-  const agent = agentFlag || actor?.kind === "agent";
+  // An agent is its actor's `kind`.
+  const agent = actor?.kind === "agent";
   const who: Person | null =
     agent && actor ? { ...actor, kind: "agent" } : actor;
   return (
@@ -903,7 +897,6 @@ export function ActivityEventGroup({
       combined.length >= Math.max(2, summarizeAt);
     const shared = {
       actor: first.actor,
-      agent: first.agent,
       date: latest.date,
       now: latest.now ?? first.now,
     };

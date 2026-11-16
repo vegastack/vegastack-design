@@ -1,4 +1,4 @@
-// @vegastack board@0.90.0 sha256-pfmvUGGMi4KRZC8Wq2pYtps2y1UDjtvV/5NF9hBtclY=
+// @vegastack board@0.90.0 sha256-9ixhONVOz61Lq1WZgOL4so7jrGN5InUr7FSm2H/Ydiw=
 
 "use client";
 
@@ -182,12 +182,6 @@ export interface BoardColumn<T> {
    * @default false
    */
   defaultCollapsed?: boolean;
-  /**
-   * Alias of `defaultCollapsed`, kept for existing boards.
-   * @deprecated Use `defaultCollapsed`.
-   * @default false
-   */
-  collapsed?: boolean;
   /**
    * Keyset paging for this lane. The lane loads its next batch as its foot scrolls into view and
    * shows skeleton cards while it loads; a failed batch shows its error with Try again.
@@ -686,7 +680,7 @@ export function Board<T>({
 
   // ---- collapse -------------------------------------------------------------------------------
   const declaredCollapsed = (column: BoardColumn<T>) =>
-    column.defaultCollapsed ?? column.collapsed ?? false;
+    column.defaultCollapsed ?? false;
   const [ownCollapsed, setOwnCollapsed] = React.useState<readonly string[]>(
     () => columns.filter(declaredCollapsed).map((column) => column.id),
   );

@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 821,
+    "totalRegistryItems": 820,
     "components": 228,
     "animatedIcons": 467,
-    "hooks": 18,
+    "hooks": 17,
     "blocks": 16,
     "libs": 24,
     "chartBlocks": 68
@@ -29,7 +29,7 @@
     "Content/marketing": 14,
     "Shared internals": 6,
     "AI/chat": 46,
-    "Hooks": 18,
+    "Hooks": 17,
     "Block": 16,
     "Animated icons": 467
   },
@@ -38,7 +38,7 @@
       "button",
       "button-group",
       "copy-button",
-      "notification-bell",
+      "notification-dot",
       "badge",
       "avatar",
       "label",
@@ -279,7 +279,6 @@
       "shell-assistant"
     ],
     "Hooks": [
-      "use-animation-replay",
       "use-announcer",
       "use-async-search",
       "use-inline-edit",
@@ -380,8 +379,7 @@
           "data-grid",
           "dropdown-menu",
           "context-menu",
-          "menubar",
-          "notification-bell"
+          "menubar"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
@@ -2658,13 +2656,13 @@
       "docsSlug": "/docs/components/shell",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/dropdown-menu",
-        "@vegastack/page-layout",
         "@vegastack/collapsible",
+        "@vegastack/date-time",
+        "@vegastack/dropdown-menu",
         "@vegastack/input-group",
-        "@vegastack/use-platform",
+        "@vegastack/page-layout",
         "@vegastack/shell-layout",
-        "@vegastack/date-time"
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.18.0",
@@ -4611,6 +4609,7 @@
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
+        "@vegastack/link-provider",
         "@vegastack/load-more",
         "@vegastack/skeleton",
         "@vegastack/toast",
@@ -4619,8 +4618,7 @@
         "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
         "@vegastack/use-media-query",
-        "@vegastack/use-mobile",
-        "@vegastack/link-provider"
+        "@vegastack/use-mobile"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -4905,9 +4903,9 @@
         "@vegastack/checkbox",
         "@vegastack/date-time",
         "@vegastack/hover-card",
+        "@vegastack/link-provider",
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
-        "@vegastack/link-provider",
         "@vegastack/relative-time"
       ],
       "npmDependencies": [
@@ -5323,9 +5321,9 @@
         "@vegastack/breadcrumb",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/use-drag-reorder",
+        "@vegastack/link-provider",
         "@vegastack/truncated-text",
-        "@vegastack/link-provider"
+        "@vegastack/use-drag-reorder"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -7209,9 +7207,9 @@
       "engines": [],
       "docsSlug": "/docs/components/code-block",
       "registryDependencies": [
-        "@vegastack/copy-button",
+        "@vegastack/block-toolbar",
         "@vegastack/code-highlight",
-        "@vegastack/block-toolbar"
+        "@vegastack/copy-button"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -8933,15 +8931,6 @@
           }
         },
         {
-          "name": "DataGridLoadMore",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-grid.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "DataGridLoadMoreProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/data-grid.tsx",
@@ -9123,13 +9112,17 @@
       ],
       "docsSlug": "/docs/components/data-grid",
       "registryDependencies": [
+        "@vegastack/action-bar",
         "@vegastack/auto-save-input",
         "@vegastack/button",
+        "@vegastack/checkbox",
         "@vegastack/context-menu",
         "@vegastack/cursor-pager",
         "@vegastack/data-table-parts",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
+        "@vegastack/empty",
+        "@vegastack/floating-cell-editor",
         "@vegastack/grid-clipboard",
         "@vegastack/load-more",
         "@vegastack/skeleton",
@@ -9137,11 +9130,7 @@
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
         "@vegastack/use-drag-reorder",
-        "@vegastack/use-grid-selection",
-        "@vegastack/checkbox",
-        "@vegastack/empty",
-        "@vegastack/action-bar",
-        "@vegastack/floating-cell-editor"
+        "@vegastack/use-grid-selection"
       ],
       "npmDependencies": [
         "@tanstack/react-table@^9.2.4",
@@ -9608,23 +9597,23 @@
       "engines": [],
       "docsSlug": "/docs/components/data-list",
       "registryDependencies": [
-        "@vegastack/data-table-parts",
-        "@vegastack/load-more",
-        "@vegastack/table",
-        "@vegastack/truncated-text",
-        "@vegastack/button",
-        "@vegastack/empty",
-        "@vegastack/board",
-        "@vegastack/media-card",
-        "@vegastack/board-card",
-        "@vegastack/skeleton",
-        "@vegastack/thumbnail",
-        "@vegastack/use-drag-reorder",
-        "@vegastack/checkbox",
         "@vegastack/action-bar",
-        "@vegastack/list-toolbar",
+        "@vegastack/board",
+        "@vegastack/board-card",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/data-table-parts",
         "@vegastack/display-menu",
-        "@vegastack/link-provider"
+        "@vegastack/empty",
+        "@vegastack/link-provider",
+        "@vegastack/list-toolbar",
+        "@vegastack/load-more",
+        "@vegastack/media-card",
+        "@vegastack/skeleton",
+        "@vegastack/table",
+        "@vegastack/thumbnail",
+        "@vegastack/truncated-text",
+        "@vegastack/use-drag-reorder"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -10911,13 +10900,13 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
+        "@vegastack/page-layout",
         "@vegastack/popover",
         "@vegastack/search-input",
         "@vegastack/sheet",
         "@vegastack/suggestion-menu",
         "@vegastack/tooltip",
-        "@vegastack/use-media-query",
-        "@vegastack/page-layout"
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -11286,10 +11275,10 @@
         "@vegastack/page-layout",
         "@vegastack/people-picker",
         "@vegastack/popover",
+        "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/toast",
-        "@vegastack/use-media-query",
-        "@vegastack/relative-time"
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -11517,10 +11506,10 @@
       "docsSlug": "/docs/components/add-filter-menu",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/field",
         "@vegastack/input-group",
         "@vegastack/list-toolbar",
-        "@vegastack/spinner",
-        "@vegastack/field"
+        "@vegastack/spinner"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -12558,17 +12547,17 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/action-bar",
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/disclosure-trigger",
         "@vegastack/dropdown-menu",
         "@vegastack/empty",
         "@vegastack/panel-search",
         "@vegastack/select",
         "@vegastack/skeleton",
         "@vegastack/table",
-        "@vegastack/tooltip",
-        "@vegastack/action-bar",
-        "@vegastack/disclosure-trigger"
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -12955,12 +12944,12 @@
       ],
       "docsSlug": "/docs/components/date-picker",
       "registryDependencies": [
-        "@vegastack/date-time",
-        "@vegastack/calendar",
-        "@vegastack/popover",
         "@vegastack/button",
-        "@vegastack/relative-time",
+        "@vegastack/calendar",
+        "@vegastack/date-time",
         "@vegastack/input",
+        "@vegastack/popover",
+        "@vegastack/relative-time",
         "@vegastack/toggle-group"
       ],
       "npmDependencies": [
@@ -13379,9 +13368,9 @@
       "engines": [],
       "docsSlug": "/docs/components/recurrence-picker",
       "registryDependencies": [
-        "@vegastack/date-time",
         "@vegastack/badge",
         "@vegastack/date-picker",
+        "@vegastack/date-time",
         "@vegastack/label",
         "@vegastack/number-field",
         "@vegastack/radio-group",
@@ -15147,14 +15136,14 @@
         "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/date-picker",
+        "@vegastack/date-time",
+        "@vegastack/relative-time",
         "@vegastack/select",
         "@vegastack/spinner",
         "@vegastack/toast",
         "@vegastack/use-announcer",
         "@vegastack/use-inline-edit",
-        "@vegastack/use-overflow",
-        "@vegastack/date-time",
-        "@vegastack/relative-time"
+        "@vegastack/use-overflow"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -15554,12 +15543,12 @@
         "@vegastack/text-edit",
         "@vegastack/text-edit-grammar",
         "@vegastack/textarea",
+        "@vegastack/thumbnail",
         "@vegastack/toast",
         "@vegastack/tooltip",
         "@vegastack/truncated-text",
         "@vegastack/use-announcer",
-        "@vegastack/use-async-search",
-        "@vegastack/thumbnail"
+        "@vegastack/use-async-search"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -19394,12 +19383,12 @@
       "engines": [],
       "docsSlug": "/docs/components/inline-chip",
       "registryDependencies": [
-        "@vegastack/file-kind",
-        "@vegastack/hover-card",
-        "@vegastack/person-avatar",
         "@vegastack/avatar",
         "@vegastack/badge",
-        "@vegastack/link-provider"
+        "@vegastack/file-kind",
+        "@vegastack/hover-card",
+        "@vegastack/link-provider",
+        "@vegastack/person-avatar"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -20090,22 +20079,22 @@
       ],
       "docsSlug": "/docs/components/markdown-view",
       "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/block-view",
+        "@vegastack/button",
         "@vegastack/checkbox",
         "@vegastack/code-block",
+        "@vegastack/embed-providers",
         "@vegastack/inline-chip",
-        "@vegastack/button",
+        "@vegastack/link-provider",
         "@vegastack/popover",
-        "@vegastack/alert",
+        "@vegastack/resource-pill",
+        "@vegastack/skeleton",
+        "@vegastack/task-inline",
+        "@vegastack/text-anchor",
         "@vegastack/text-edit-grammar",
         "@vegastack/toast",
-        "@vegastack/use-announcer",
-        "@vegastack/text-anchor",
-        "@vegastack/embed-providers",
-        "@vegastack/block-view",
-        "@vegastack/task-inline",
-        "@vegastack/skeleton",
-        "@vegastack/link-provider",
-        "@vegastack/resource-pill"
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
         "marked@^17.0.1",
@@ -21633,24 +21622,6 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
-        },
-        {
-          "name": "TranscriptSpeakersProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/transcript.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TranscriptSpeakers",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/transcript.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "TranscriptSpeakers does not forward a stable public ref; its root node is incidental."
-          }
         }
       ],
       "variants": {
@@ -21724,16 +21695,16 @@
       "engines": [],
       "docsSlug": "/docs/components/transcript",
       "registryDependencies": [
-        "@vegastack/message-scroller",
-        "@vegastack/item",
         "@vegastack/button",
-        "@vegastack/panel-search",
-        "@vegastack/use-announcer",
-        "@vegastack/skeleton",
-        "@vegastack/media-player-controls",
-        "@vegastack/use-media-query",
+        "@vegastack/editable-cell",
         "@vegastack/input",
-        "@vegastack/editable-cell"
+        "@vegastack/item",
+        "@vegastack/media-player-controls",
+        "@vegastack/message-scroller",
+        "@vegastack/panel-search",
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -21778,15 +21749,6 @@
             {
               "name": "data-slot",
               "values": ["transcript-search"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "TranscriptSpeakers": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["transcript-speakers"]
             }
           ],
           "cssVariables": []
@@ -22606,38 +22568,20 @@
       }
     },
     {
-      "name": "notification-bell",
+      "name": "notification-dot",
       "registryType": "registry:ui",
-      "title": "Notification Bell",
-      "summary": "A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.",
+      "title": "Notification Dot",
+      "summary": "The one unread dot: an 8px solid circle, decorative, for unread rows, inbox items and nav items.",
       "status": "stable",
-      "since": "0.1.0",
+      "since": "0.97.0",
       "family": "media",
       "wave": "Core controls",
-      "sourceFiles": ["packages/ui/registry/ui/notification-bell.tsx"],
+      "sourceFiles": ["packages/ui/registry/ui/notification-dot.tsx"],
       "publicSymbols": [
-        {
-          "name": "NotificationBell",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/notification-bell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by NotificationBell in packages/ui/registry/ui/notification-bell.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "NotificationBellProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/notification-bell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
         {
           "name": "NotificationDot",
           "kind": "component",
-          "source": "packages/ui/registry/ui/notification-bell.tsx",
+          "source": "packages/ui/registry/ui/notification-dot.tsx",
           "ref": {
             "status": "observed",
             "target": "span",
@@ -22647,7 +22591,7 @@
         {
           "name": "NotificationDotProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/notification-bell.tsx",
+          "source": "packages/ui/registry/ui/notification-dot.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -22660,7 +22604,7 @@
           {
             "name": "intent",
             "values": ["default", "destructive"],
-            "evidence": "packages/ui/registry/ui/notification-bell.tsx: NotificationDotProps intent union (API-17) (default | destructive); default is bg-primary, destructive is bg-destructive"
+            "evidence": "packages/ui/registry/ui/notification-dot.tsx: NotificationDotProps intent union (API-17) (default | destructive); default is bg-info, destructive is bg-destructive"
           }
         ]
       },
@@ -22672,23 +22616,18 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "error", "dot", "count-label"],
-          "evidence": "Observed from branches, state attributes, and inline source contract. DS-56: dot mode renders the shared NotificationDot; countLabel words the count in the accessible name."
+          "values": ["default"],
+          "evidence": "A static decorative span; no interactive state."
         },
         "accessibility": {
           "status": "observed",
-          "values": ["labeled"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "values": ["decorative"],
+          "evidence": "aria-hidden; the marked row carries the unread wording."
         },
         "visual": {
           "status": "observed",
-          "values": [
-            "default",
-            "error",
-            "dot-intent-default",
-            "dot-intent-destructive"
-          ],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
+          "values": ["intent-default", "intent-destructive"],
+          "evidence": "Observed from the intent fill branch."
         }
       },
       "responsive": {
@@ -22697,27 +22636,21 @@
         "rationale": "No component-owned responsive risk observed; consumer layout can still constrain it."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["CSS utility motion-pop-in", "tokenized CSS transition"],
+        "status": "none-observed",
+        "mechanisms": [],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "not-applicable",
+          "rationale": "The dot does not animate."
         }
       },
       "engines": [],
-      "docsSlug": "/docs/components/notification-bell",
-      "registryDependencies": [
-        "@vegastack/badge",
-        "@vegastack/button",
-        "@vegastack/use-animation-replay"
-      ],
+      "docsSlug": "/docs/components/notification-dot",
+      "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.18.0",
         "@vegastack/design-tokens@^0.18.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/notification-bell.test.tsx"],
+      "testFiles": ["packages/ui/registry/ui/notification-dot.test.tsx"],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -22726,26 +22659,13 @@
         "preview": "required",
         "vrt": "required"
       },
-      "previewModule": "notification-bell",
+      "previewModule": "notification-dot",
       "dataAttributes": {
         "NotificationDot": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["notification-dot"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "NotificationBell": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["notification-bell", "notification-bell-badge"]
-            },
-            {
-              "name": "data-unread",
-              "values": [""]
             }
           ],
           "cssVariables": []
@@ -22875,22 +22795,13 @@
       "name": "page-header",
       "registryType": "registry:ui",
       "title": "Page Header",
-      "summary": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
+      "summary": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and a secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/page-header.tsx"],
       "publicSymbols": [
-        {
-          "name": "FavoriteStar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/page-header.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by FavoriteStar in packages/ui/registry/ui/page-header.tsx; incidental internal nodes are not part of its API."
-          }
-        },
         {
           "name": "PageHeader",
           "kind": "component",
@@ -22899,15 +22810,6 @@
             "status": "observed",
             "target": "header",
             "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/page-header.tsx."
-          }
-        },
-        {
-          "name": "PageHeaderFavorite",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/page-header.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -22982,8 +22884,8 @@
       "docsSlug": "/docs/components/page-header",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/truncated-text",
-        "@vegastack/link-provider"
+        "@vegastack/link-provider",
+        "@vegastack/truncated-text"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -23002,19 +22904,6 @@
       },
       "previewModule": "page-header",
       "dataAttributes": {
-        "FavoriteStar": {
-          "attributes": [
-            {
-              "name": "data-active",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["page-header-favorite"]
-            }
-          ],
-          "cssVariables": []
-        },
         "PageHeader": {
           "attributes": [
             {
@@ -25441,7 +25330,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/search-input",
-      "registryDependencies": ["@vegastack/input-group", "@vegastack/button"],
+      "registryDependencies": ["@vegastack/button", "@vegastack/input-group"],
       "npmDependencies": [
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.18.0",
@@ -27732,8 +27621,8 @@
       "engines": [],
       "docsSlug": "/docs/components/stat",
       "registryDependencies": [
-        "@vegastack/skeleton",
-        "@vegastack/link-provider"
+        "@vegastack/link-provider",
+        "@vegastack/skeleton"
       ],
       "npmDependencies": [
         "class-variance-authority@^0.7.1",
@@ -28853,8 +28742,8 @@
         "@vegastack/alert-dialog",
         "@vegastack/button",
         "@vegastack/stepper",
-        "@vegastack/use-mobile",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/use-mobile"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -30565,48 +30454,48 @@
       ],
       "docsSlug": "/docs/components/text-edit",
       "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/avatar",
+        "@vegastack/block-toolbar",
+        "@vegastack/block-view",
         "@vegastack/button",
         "@vegastack/checkbox",
+        "@vegastack/chip",
         "@vegastack/code-block",
+        "@vegastack/code-highlight",
         "@vegastack/command",
         "@vegastack/copy-button",
         "@vegastack/drag-item",
         "@vegastack/dropdown-menu",
+        "@vegastack/dropzone",
+        "@vegastack/embed-providers",
+        "@vegastack/emoji-data",
+        "@vegastack/empty",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
         "@vegastack/inline-chip",
         "@vegastack/input",
+        "@vegastack/kbd",
+        "@vegastack/link-provider",
         "@vegastack/markdown-view",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
+        "@vegastack/separator",
+        "@vegastack/sheet",
+        "@vegastack/suggestion-menu",
+        "@vegastack/tabs",
+        "@vegastack/task-inline",
         "@vegastack/text-anchor",
         "@vegastack/text-anchor-doc",
+        "@vegastack/text-edit-grammar",
+        "@vegastack/text-edit-markdown",
+        "@vegastack/text-edit-schema",
+        "@vegastack/toast",
         "@vegastack/toggle",
         "@vegastack/tooltip",
-        "@vegastack/use-file-drop",
-        "@vegastack/code-highlight",
-        "@vegastack/alert",
-        "@vegastack/dropzone",
-        "@vegastack/empty",
-        "@vegastack/tabs",
-        "@vegastack/toast",
-        "@vegastack/suggestion-menu",
-        "@vegastack/text-edit-grammar",
-        "@vegastack/text-edit-schema",
-        "@vegastack/text-edit-markdown",
-        "@vegastack/avatar",
-        "@vegastack/embed-providers",
-        "@vegastack/sheet",
-        "@vegastack/separator",
         "@vegastack/use-announcer",
-        "@vegastack/emoji-data",
-        "@vegastack/block-view",
-        "@vegastack/person-avatar",
-        "@vegastack/task-inline",
-        "@vegastack/block-toolbar",
-        "@vegastack/use-platform",
-        "@vegastack/chip",
-        "@vegastack/kbd",
-        "@vegastack/link-provider"
+        "@vegastack/use-file-drop",
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -32461,9 +32350,9 @@
       "docsSlug": "/docs/components/context-ring",
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/context-panel",
         "@vegastack/popover",
-        "@vegastack/use-announcer",
-        "@vegastack/context-panel"
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -33092,8 +32981,8 @@
         "@vegastack/chat-subagents",
         "@vegastack/chat-task-list",
         "@vegastack/chat-work-log",
-        "@vegastack/markdown-view",
-        "@vegastack/file-kind"
+        "@vegastack/file-kind",
+        "@vegastack/markdown-view"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -35003,8 +34892,8 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/collapsible",
-        "@vegastack/disclosure-trigger",
         "@vegastack/date-time",
+        "@vegastack/disclosure-trigger",
         "@vegastack/spinner",
         "@vegastack/use-announcer"
       ],
@@ -35754,10 +35643,10 @@
       "docsSlug": "/docs/components/chat-composer",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/text-edit",
-        "@vegastack/tooltip",
         "@vegastack/chat-menu",
-        "@vegastack/text-spinner"
+        "@vegastack/text-edit",
+        "@vegastack/text-spinner",
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -36700,17 +36589,17 @@
       "engines": [],
       "docsSlug": "/docs/components/message-parts",
       "registryDependencies": [
+        "@vegastack/bubble",
         "@vegastack/button",
         "@vegastack/collapsible",
+        "@vegastack/date-time",
         "@vegastack/disclosure-trigger",
+        "@vegastack/relative-time",
         "@vegastack/separator",
+        "@vegastack/source-list",
         "@vegastack/spinner",
         "@vegastack/status-line",
-        "@vegastack/tool-call-chip",
-        "@vegastack/bubble",
-        "@vegastack/date-time",
-        "@vegastack/relative-time",
-        "@vegastack/source-list"
+        "@vegastack/tool-call-chip"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -37801,12 +37690,12 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
-        "@vegastack/skeleton",
-        "@vegastack/use-announcer",
-        "@vegastack/use-media-query",
+        "@vegastack/button",
         "@vegastack/panel-search",
         "@vegastack/sheet",
-        "@vegastack/button"
+        "@vegastack/skeleton",
+        "@vegastack/use-announcer",
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.18.0",
@@ -38024,12 +37913,12 @@
       "engines": [],
       "docsSlug": "/docs/guides/components",
       "registryDependencies": [
+        "@vegastack/block-toolbar",
         "@vegastack/button",
         "@vegastack/code-block",
         "@vegastack/dialog",
         "@vegastack/dropdown-menu",
-        "@vegastack/toast",
-        "@vegastack/block-toolbar"
+        "@vegastack/toast"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -39517,9 +39406,9 @@
       "registryDependencies": [
         "@vegastack/badge",
         "@vegastack/button",
+        "@vegastack/link-provider",
         "@vegastack/person-avatar",
-        "@vegastack/popover",
-        "@vegastack/link-provider"
+        "@vegastack/popover"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -41525,11 +41414,11 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/input-group",
-        "@vegastack/skeleton",
         "@vegastack/item",
-        "@vegastack/use-overflow",
         "@vegastack/sheet",
-        "@vegastack/tabs"
+        "@vegastack/skeleton",
+        "@vegastack/tabs",
+        "@vegastack/use-overflow"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -42374,6 +42263,7 @@
         "@vegastack/button",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
+        "@vegastack/field",
         "@vegastack/file-viewer",
         "@vegastack/load-more",
         "@vegastack/markdown-view",
@@ -42386,8 +42276,7 @@
         "@vegastack/spinner",
         "@vegastack/text-edit",
         "@vegastack/tooltip",
-        "@vegastack/use-media-query",
-        "@vegastack/field"
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.18.0",
@@ -44475,12 +44364,12 @@
         "@vegastack/button",
         "@vegastack/card",
         "@vegastack/collapsible",
+        "@vegastack/disclosure-trigger",
         "@vegastack/item",
         "@vegastack/person-avatar",
         "@vegastack/searchable-select",
         "@vegastack/skeleton",
-        "@vegastack/tooltip",
-        "@vegastack/disclosure-trigger"
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.18.0",
@@ -46107,6 +45996,8 @@
         "@vegastack/checkbox",
         "@vegastack/collapsible",
         "@vegastack/copy-button",
+        "@vegastack/disclosure-trigger",
+        "@vegastack/field",
         "@vegastack/icon-glyph",
         "@vegastack/input-group",
         "@vegastack/member-list",
@@ -46120,9 +46011,7 @@
         "@vegastack/switch",
         "@vegastack/tabs",
         "@vegastack/textarea",
-        "@vegastack/tooltip",
-        "@vegastack/disclosure-trigger",
-        "@vegastack/field"
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -47684,9 +47573,9 @@
         "@vegastack/direction",
         "@vegastack/drawer",
         "@vegastack/kbd",
+        "@vegastack/link-provider",
         "@vegastack/tooltip",
-        "@vegastack/use-platform",
-        "@vegastack/link-provider"
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -48200,11 +48089,15 @@
       "engines": [],
       "docsSlug": "/docs/components/agent-panel",
       "registryDependencies": [
+        "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/collapsible",
+        "@vegastack/disclosure-trigger",
         "@vegastack/dropdown-menu",
+        "@vegastack/field",
         "@vegastack/hover-card",
         "@vegastack/input-group",
+        "@vegastack/link-provider",
         "@vegastack/person-avatar",
         "@vegastack/record-aside",
         "@vegastack/record-chip",
@@ -48212,12 +48105,8 @@
         "@vegastack/spinner",
         "@vegastack/textarea",
         "@vegastack/tooltip",
-        "@vegastack/use-announcer",
-        "@vegastack/disclosure-trigger",
-        "@vegastack/field",
-        "@vegastack/badge",
         "@vegastack/truncated-text",
-        "@vegastack/link-provider"
+        "@vegastack/use-announcer"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -48690,19 +48579,19 @@
       "engines": [],
       "docsSlug": "/docs/components/delegate-popover",
       "registryDependencies": [
+        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/empty",
         "@vegastack/label",
+        "@vegastack/link-provider",
         "@vegastack/people-picker",
+        "@vegastack/person-avatar",
         "@vegastack/popover",
         "@vegastack/select",
         "@vegastack/separator",
         "@vegastack/skeleton",
         "@vegastack/spinner",
-        "@vegastack/textarea",
-        "@vegastack/avatar",
-        "@vegastack/person-avatar",
-        "@vegastack/link-provider"
+        "@vegastack/textarea"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -48851,7 +48740,7 @@
       "docsSlug": "/docs/components/help-menu",
       "registryDependencies": [
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
+        "@vegastack/notification-dot",
         "@vegastack/sidebar"
       ],
       "npmDependencies": [
@@ -49039,11 +48928,11 @@
       "engines": [],
       "docsSlug": "/docs/components/route-tabs",
       "registryDependencies": [
-        "@vegastack/tabs",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/use-overflow-fold",
-        "@vegastack/link-provider"
+        "@vegastack/link-provider",
+        "@vegastack/tabs",
+        "@vegastack/use-overflow-fold"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -49293,7 +49182,7 @@
       "registryDependencies": [
         "@vegastack/command",
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
+        "@vegastack/notification-dot",
         "@vegastack/toggle",
         "@vegastack/toggle-group"
       ],
@@ -50193,10 +50082,10 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/collapsible",
+        "@vegastack/link-provider",
         "@vegastack/skeleton",
         "@vegastack/use-list-nav",
-        "@vegastack/use-media-query",
-        "@vegastack/link-provider"
+        "@vegastack/use-media-query"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -51768,10 +51657,10 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/chat-card",
+        "@vegastack/file-kind",
         "@vegastack/file-viewer",
         "@vegastack/markdown-view",
-        "@vegastack/use-overflow",
-        "@vegastack/file-kind"
+        "@vegastack/use-overflow"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -52821,11 +52710,11 @@
         "@vegastack/command",
         "@vegastack/context-menu",
         "@vegastack/empty",
-        "@vegastack/popover",
-        "@vegastack/skeleton",
-        "@vegastack/use-platform",
         "@vegastack/panel-tabs",
-        "@vegastack/shell-layout"
+        "@vegastack/popover",
+        "@vegastack/shell-layout",
+        "@vegastack/skeleton",
+        "@vegastack/use-platform"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -55550,132 +55439,6 @@
   },
   "hooks": [
     {
-      "name": "use-animation-replay",
-      "registryType": "registry:hook",
-      "title": "useAnimationReplay / useShakeOnInvalid",
-      "summary": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element — preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
-      "family": "hook",
-      "wave": "Hooks",
-      "sourceFiles": ["packages/ui/registry/ui/use-animation-replay.ts"],
-      "publicSymbols": [
-        {
-          "name": "ShakeSignal",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "useAnimationReplay",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "UseAnimationReplayResult",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "useShakeOnInvalid",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "UseShakeOnInvalidOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "UseShakeOnInvalidResult",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "active", "error", "invalid"],
-          "evidence": "Observed in hook implementation and inline contract."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render an accessibility tree."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "Pure behavior hook does not own responsive layout."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "CSS utility motion-pop-in",
-          "CSS utility motion-enter-up",
-          "CSS utility motion-shake",
-          "CSS utility motion-check-draw",
-          "tokenized CSS transition",
-          "replay hook",
-          "requestAnimationFrame"
-        ],
-        "reducedMotion": {
-          "status": "consumer-policy",
-          "rationale": "Hook replays a supplied class; consumer/utility owns reduced motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/guides/components",
-      "registryDependencies": [],
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/ui/use-animation-replay.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
       "name": "use-modal-inert",
       "registryType": "registry:hook",
       "title": "useModalInert",
@@ -57841,9 +57604,9 @@
       "engines": [],
       "docsSlug": "/docs/blocks/shell-01",
       "registryDependencies": [
+        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/avatar",
         "@vegastack/shell"
       ],
       "npmDependencies": [
@@ -57940,9 +57703,9 @@
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/data-table-parts",
-        "@vegastack/page-header",
         "@vegastack/filter-row",
-        "@vegastack/list-toolbar"
+        "@vegastack/list-toolbar",
+        "@vegastack/page-header"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -58471,11 +58234,11 @@
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/empty",
+        "@vegastack/filter-row",
+        "@vegastack/list-toolbar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/tabs",
-        "@vegastack/filter-row",
-        "@vegastack/list-toolbar"
+        "@vegastack/tabs"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -58641,11 +58404,11 @@
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
         "@vegastack/folder-tree",
+        "@vegastack/list-toolbar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
         "@vegastack/resizable",
-        "@vegastack/sheet",
-        "@vegastack/list-toolbar"
+        "@vegastack/sheet"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -58915,14 +58678,12 @@
       "engines": [],
       "docsSlug": "/docs/blocks/notifications-01",
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/inbox",
-        "@vegastack/notification-bell",
         "@vegastack/page-header",
         "@vegastack/sheet",
-        "@vegastack/sidebar",
+        "@vegastack/shell",
         "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
@@ -59170,17 +58931,17 @@
       "engines": [],
       "docsSlug": "/docs/blocks/settings-01",
       "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/app-shell",
+        "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/field",
         "@vegastack/input",
         "@vegastack/native-select",
+        "@vegastack/page-header",
         "@vegastack/settings-row",
         "@vegastack/switch",
-        "@vegastack/textarea",
-        "@vegastack/alert-dialog",
-        "@vegastack/app-shell",
-        "@vegastack/page-header",
-        "@vegastack/auto-save-input"
+        "@vegastack/textarea"
       ],
       "npmDependencies": ["@vegastack/design-tokens@^0.18.0"],
       "testFiles": [
@@ -60025,7 +59786,7 @@
     },
     {
       "id": "pure-hooks-do-not-render",
-      "appliesTo": ["use-mobile", "use-animation-replay"],
+      "appliesTo": ["use-mobile"],
       "exemptFrom": [
         "component-docs-navigation",
         "preview-module",
@@ -60033,7 +59794,7 @@
         "visual-states",
         "rendered-a11y-states"
       ],
-      "rationale": "Pure hooks have source and browser tests but no independently rendered component surface; use-animation-replay is additionally exercised by affected dependents and the optional manual all-engine audit."
+      "rationale": "Pure hooks have source and browser tests but no independently rendered component surface."
     },
     {
       "id": "chart-blocks-share-a-gallery",

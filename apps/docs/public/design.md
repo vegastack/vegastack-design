@@ -1322,8 +1322,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
   `motion-reduce:` restatement of it is a violation (MOT-5). Keyed-presence utilities
-  `motion-pop-in` / `motion-enter-up` / `motion-shake` / `motion-flash` plus `useAnimationReplay`
-  (MOT-6); docked-presence `motion-dock-in` / `motion-dock-out`, 150ms in on `emphasized` and 100ms
+  `motion-pop-in` / `motion-enter-up` / `motion-shake` / `motion-flash` (MOT-6); docked-presence `motion-dock-in` / `motion-dock-out`, 150ms in on `emphasized` and 100ms
   out on `exit`, no scale, an exit never slower than its enter (MOT-7). Excluded by design and not to
   be added speculatively: avatar hover-lift, card tilt, FAB morph (MOT-13). The chat motion set
   (MOT-14) is the one cadence for agent UI — `instant` 100, `quick` 160/120, `state` 220/160,

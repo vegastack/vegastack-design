@@ -111,7 +111,7 @@ export * from "./audio-player";
 export * from "./media-player-controls";
 export * from "./video-player";
 export * from "./inbox";
-export * from "./notification-bell";
+export * from "./notification-dot";
 export * from "./markdown-view";
 export * from "./inline-chip";
 export * from "./cited-list";

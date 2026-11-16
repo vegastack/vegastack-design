@@ -373,7 +373,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.90.0",
-        "integrity": "sha256-sWd+vE/0d6pkLg7tp+2UBd/drGT04TTquIKr43l7BfY="
+        "integrity": "sha256-mduHtKhlpStQI2QM6YYWrVMHZwgfChIUphJJ8+NLalQ="
       }
     },
     {
@@ -409,7 +409,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
         "version": "0.90.0",
-        "integrity": "sha256-Kp+WE2r6iCAkX8gnRi7xQA7haAS7yTFyxKIKAS2IQXQ="
+        "integrity": "sha256-RuJ0DThK3yrwmHH0hF0cw/1wPFDBxgSdpb7DznrL3uA="
       }
     },
     {
@@ -966,7 +966,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.90.0",
-        "integrity": "sha256-pfmvUGGMi4KRZC8Wq2pYtps2y1UDjtvV/5NF9hBtclY="
+        "integrity": "sha256-9ixhONVOz61Lq1WZgOL4so7jrGN5InUr7FSm2H/Ydiw="
       }
     },
     {
@@ -1669,7 +1669,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.90.0",
-        "integrity": "sha256-LeDgB9Ime5o94d1OHLsVYLZxdtCHRGT0fOHIxwXUb/I="
+        "integrity": "sha256-D3Ouoq4Ju+pJKwrLsJqFBJds0LXGja22L9T1Oblz/OE="
       }
     },
     {
@@ -1937,7 +1937,7 @@
         "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
         "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
         "version": "0.90.0",
-        "integrity": "sha256-EV+GckWFy9FyvGmNCxIGt3eLCxMl6lLEUY5szkffp4o="
+        "integrity": "sha256-pihdzZ8aleFr/S1ZmIU5DBPqPqL7heRqGnpzTHOSnN0="
       }
     },
     {
@@ -2134,7 +2134,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.90.0",
-        "integrity": "sha256-/9SSl6jybHN4RpzMQRErnNQMIkMPrSZLijWOfSQXqrw="
+        "integrity": "sha256-ptCbrauXm9sRnsLpHb+QI3QFWXXc+AT+bKEtlQFHUfk="
       }
     },
     {
@@ -17108,7 +17108,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
         "version": "0.90.0",
-        "integrity": "sha256-uy2aA+NecCeiZO/v68p2L6DxuHe3B0d2CHcmZCpScGQ="
+        "integrity": "sha256-w2qii+53BMH1Oll46n1aYqtEem9tvn+AcsV2RE0q4dM="
       }
     },
     {
@@ -17359,7 +17359,7 @@
         "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
         "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
         "version": "0.90.0",
-        "integrity": "sha256-FAuqZmPRnttSxH44m7HNNvetf+0QzFyK0dHJ6uNQPjw="
+        "integrity": "sha256-CudIsWbQPOfVQUkQL0YfcqRkPzJNCwRfcbs6yXAnb9Y="
       }
     },
     {
@@ -17507,41 +17507,35 @@
       ],
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
-        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
+        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread count (a Badge on the rail item).",
         "version": "0.92.0",
-        "integrity": "sha256-OPJ8zSfrmTja2FK/DvrO/70ghIUA+995qtNn8PMK2B4="
+        "integrity": "sha256-7TwlZjv1Vk/xerOMjBqmu6kIYkzjUuRIAsavppJovNE="
       }
     },
     {
-      "name": "notification-bell",
+      "name": "notification-dot",
       "type": "registry:ui",
-      "title": "Notification Bell",
-      "description": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
+      "title": "Notification Dot",
+      "description": "The one unread dot: an 8px solid circle, decorative, for unread rows, inbox items and nav items.",
       "categories": [
         "media"
       ],
       "dependencies": [
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.18.0",
         "@vegastack/design-tokens@^0.18.0"
       ],
-      "registryDependencies": [
-        "@vegastack/badge",
-        "@vegastack/button",
-        "@vegastack/use-animation-replay"
-      ],
       "files": [
         {
-          "path": "packages/ui/registry/ui/notification-bell.tsx",
+          "path": "packages/ui/registry/ui/notification-dot.tsx",
           "type": "registry:ui",
-          "target": "@ui/notification-bell.tsx"
+          "target": "@ui/notification-dot.tsx"
         }
       ],
       "meta": {
-        "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler. Its NotificationDot is the one unread marker for rows, inbox items and nav items.",
-        "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
+        "whenToUse": "Marking something unread — a row in a list, an inbox item, a nav or rail item. The row says \"unread\" in its own accessible name.",
+        "whenNotToUse": "A count (use Badge) or a status (use StatusIcon).",
         "version": "0.90.0",
-        "integrity": "sha256-5Bi+PykDbbvnHJLWmUW2bdq2wkWO3xqqa/ydD6IBixA="
+        "integrity": "sha256-z3/su4nMtK4TPDUHGmLTXtsXfSauNm9DZ4fQ2+HztqY="
       }
     },
     {
@@ -17579,7 +17573,7 @@
       "name": "page-header",
       "type": "registry:ui",
       "title": "Page Header",
-      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
+      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and a secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "categories": [
         "navigation"
       ],
@@ -17602,10 +17596,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
+        "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.90.0",
-        "integrity": "sha256-fzP+B2JI7ClWWVMgMMmKQKA4qeGgDHZ4JKoLbD/mHGI="
+        "integrity": "sha256-9hgPQ8EBQ+GLbeDpqXFxMOdvtHYYCiRes2IZQfUbpvI="
       }
     },
     {
@@ -18022,7 +18016,7 @@
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.90.0",
-        "integrity": "sha256-xOtkRiFGcHTRYHSg18IwqxBAH6JsN1FWqQWxbkeIT7E="
+        "integrity": "sha256-myEeM5QHRzQUDcSoB9sbBIlaXHPhRBc0rYjGzaD/RrI="
       }
     },
     {
@@ -18275,7 +18269,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.90.0",
-        "integrity": "sha256-ppvsY/7A+Vu8yX/5NUaxYK9sN6Mie7UDo7gSKeMSV/0="
+        "integrity": "sha256-5F4Ps5AyMzfU3xZXLmmqQNb83KpMBbBSChHirR9A4+g="
       }
     },
     {
@@ -18751,7 +18745,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.90.0",
-        "integrity": "sha256-UKMq40083vSxcXvDxI0AqadVjhre85GIx/iketW5GTQ="
+        "integrity": "sha256-+Yy4jwBjEFI44vZkME7xDHRrxETLEN5/7HmP10jUsvo="
       }
     },
     {
@@ -20516,31 +20510,6 @@
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.90.0",
         "integrity": "sha256-mCt0NYw4YwjnhvNsQyU1R036HHts1a2IPzeDlbmqkAM="
-      }
-    },
-    {
-      "name": "use-animation-replay",
-      "type": "registry:hook",
-      "title": "useAnimationReplay / useShakeOnInvalid",
-      "description": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element — preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
-      "categories": [
-        "hook",
-        "motion"
-      ],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/use-animation-replay.ts",
-          "type": "registry:hook",
-          "target": "@ui/use-animation-replay.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Replaying a motion-* utility on a user action (error shake, retry pop, etc.), especially on an element that might be focused (form controls) where a key-remount would steal focus.",
-        "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
-        "version": "0.89.0",
-        "integrity": "sha256-XgLbeZXA3/PYxnb0vzxIfEre13trhSyQIQHncP0d21c="
       }
     },
     {
@@ -23821,14 +23790,12 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/inbox",
-        "@vegastack/notification-bell",
         "@vegastack/page-header",
         "@vegastack/sheet",
-        "@vegastack/sidebar",
+        "@vegastack/shell",
         "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
@@ -23853,7 +23820,7 @@
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
         "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
         "version": "0.90.0",
-        "integrity": "sha256-jzB/Quu4YACCw4jciyz0WDGKgplxory/t9gUwoBKJ3w="
+        "integrity": "sha256-PHOWFY26h9fCUbZsOXCn9Qy7ARA+N3mPOZoERH+yBpg="
       }
     },
     {
@@ -24070,7 +24037,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.90.0",
-        "integrity": "sha256-qAGTnUWmNSYDhkqNs1IfTnRyhBOKNXZNa9TosZ3SNcs="
+        "integrity": "sha256-MStJinr2Dfdx3+Rg8Vp+Qc3sxL14HYA1MkxlYr4CTJI="
       }
     },
     {
@@ -24345,7 +24312,7 @@
       ],
       "registryDependencies": [
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
+        "@vegastack/notification-dot",
         "@vegastack/sidebar"
       ],
       "files": [
@@ -24359,7 +24326,7 @@
         "whenToUse": "An app's one place to learn the product, at the foot of its sidebar: what changed, the docs, the shortcuts, support and the version.",
         "whenNotToUse": "The account menu (profile, theme, sign out) or a page's own help hint (InfoHint).",
         "version": "0.95.0",
-        "integrity": "sha256-NmOyB8Ug/woDBBTG3O1AH87tGyubzGZiZI2QHHl1Oo4="
+        "integrity": "sha256-bMVRipL0RmbX4aWvqYjzUIzre4cRtSmQuMhuAJecPCE="
       }
     },
     {
@@ -24413,7 +24380,7 @@
       "registryDependencies": [
         "@vegastack/command",
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
+        "@vegastack/notification-dot",
         "@vegastack/toggle",
         "@vegastack/toggle-group"
       ],
@@ -24428,7 +24395,7 @@
         "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
         "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (ListToolbar's search).",
         "version": "0.90.0",
-        "integrity": "sha256-gSqlZum/Ith9KTlESkvJwbJBz+jsZ8hnGK7VQrhCrjo="
+        "integrity": "sha256-pnNJd8sNaBAHtnwtZGb6KxxQxDMBgFkMR0uAOGUeYAE="
       }
     },
     {

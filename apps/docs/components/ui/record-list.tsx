@@ -1,4 +1,4 @@
-// @vegastack record-list@0.90.0 sha256-FAuqZmPRnttSxH44m7HNNvetf+0QzFyK0dHJ6uNQPjw=
+// @vegastack record-list@0.90.0 sha256-CudIsWbQPOfVQUkQL0YfcqRkPzJNCwRfcbs6yXAnb9Y=
 
 import * as React from "react";
 import { ExternalLink } from "lucide-react";
@@ -204,12 +204,6 @@ export interface RecordListMoreProps extends React.ComponentPropsWithRef<"div"> 
    * @default false
    */
   loading?: boolean;
-  /**
-   * Formerly the "Show more" button's label. The next batch loads on scroll now.
-   * @deprecated No button renders; the prop is ignored.
-   * @default undefined
-   */
-  label?: string;
 }
 
 /**
@@ -224,7 +218,6 @@ export function RecordListMore({
   remaining,
   onShowMore,
   loading = false,
-  label: _label,
   className,
   ...props
 }: RecordListMoreProps) {

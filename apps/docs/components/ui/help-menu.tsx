@@ -1,4 +1,4 @@
-// @vegastack help-menu@0.95.0 sha256-NmOyB8Ug/woDBBTG3O1AH87tGyubzGZiZI2QHHl1Oo4=
+// @vegastack help-menu@0.95.0 sha256-bMVRipL0RmbX4aWvqYjzUIzre4cRtSmQuMhuAJecPCE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -20,7 +20,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { NotificationDot } from "@/components/ui/notification-bell";
+import { NotificationDot } from "@/components/ui/notification-dot";
 import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
 
 /* ---
