@@ -1,4 +1,4 @@
-// @vegastack shell@0.95.0 sha256-cxYtkjOCPXMHcg88gUTJLtU1wMNiOM+QE6zcFX0q55E=
+// @vegastack shell@0.98.0 sha256-vxjXk0bXrN5vY5ESLDQB0n9eRcSvQyDx+V1vCKzs7lE=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -22,9 +22,12 @@ import {
 } from "@/components/ui/input-group";
 import {
   ShellColumnResize,
+  ShellColumnSwitch,
   ShellController,
+  ShellRailIcon,
   ShellSkipLink,
 } from "@/components/ui/shell-client";
+import type { PageWidth } from "@/lib/page-layout";
 import {
   clampColumnWidth,
   clampPanelWidth,
@@ -34,11 +37,14 @@ import {
 
 export {
   ShellBottomBar,
+  ShellColumnSwitch,
   ShellTitleBarControls,
+  lazyAnimatedIcon,
   toggleShellColumn,
   useShellLayout,
   type ShellBottomBarProps,
   type ShellColumnState,
+  type ShellColumnSwitchProps,
   type ShellHistory,
   type ShellLayoutState,
   type ShellTitleBarControlsProps,
@@ -254,6 +260,11 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
   ${S}[data-fill="parent"] [data-slot="shell-main-area"] { height: 100%; }
   ${S}[data-fill="parent"] [data-slot="shell-content"] { overflow-y: auto; }
   ${S}[data-has-bottombar] [data-slot="shell-content"] { padding-bottom: calc(var(--shell-bottombar-height) + env(safe-area-inset-bottom)); }
+  /* The column has no ▤ here: the page title opens it as a sheet (L13). */
+  ${S}[data-has-column] [data-slot="shell-column-switch"] { display: grid; }
+  [data-slot="shell-topbar-heading"] > h1 { font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: 600; }
+  /* The column as a sheet takes fingers, not a pointer: rows grow to a 44px target. */
+  [data-slot="shell-column-area"] [data-slot="shell-column-item"] { height: 2.75rem; }
   ${S}:not([data-fill="parent"]) [data-slot="shell-floating-area"] {
     position: fixed;
     inset-inline-end: max(1rem, env(safe-area-inset-right));
@@ -659,6 +670,13 @@ export interface ShellRailItemProps extends Omit<
 > {
   /** The module's icon, 18px. */
   icon: React.ReactNode;
+  /**
+   * The same icon, animated (L23): an element of a `lazyAnimatedIcon`. The static `icon` paints
+   * first; this loads once the browser is idle and plays on hover and when the item becomes the
+   * current module.
+   * @default undefined
+   */
+  animatedIcon?: React.ReactElement;
   /** The short label under the icon. */
   label: string;
   /** A count on the icon (99+ past 99); a neutral chip (INT-15). @default undefined */
@@ -689,6 +707,7 @@ function badgeText(badge: number | string | undefined): string | undefined {
  */
 export function ShellRailItem({
   icon,
+  animatedIcon,
   label,
   badge,
   dot,
@@ -719,7 +738,11 @@ export function ShellRailItem({
           aria-hidden="true"
           className="relative grid h-7 w-9 place-items-center rounded-item transition-colors duration-instant group-hover/rail-item:bg-state-hover group-hover/rail-item:text-foreground group-focus-visible/rail-item:bg-state-hover group-data-active/rail-item:bg-state-selected [&_svg:not([class*='size-'])]:size-4.5"
         >
-          {icon}
+          {animatedIcon ? (
+            <ShellRailIcon icon={icon} animated={animatedIcon} />
+          ) : (
+            icon
+          )}
           {count ? (
             <span
               data-slot="shell-rail-badge"
@@ -1149,17 +1172,24 @@ export function ShellTopBar({ className, ...props }: ShellTopBarProps) {
 export interface ShellTopBarTitleProps extends React.ComponentProps<"div"> {
   /** The breadcrumb before the title: links to the parents, separated for you. @default undefined */
   parents?: React.ReactNode;
+  /**
+   * On a phone with a column, the title opens the column as a sheet; this names that button
+   * (e.g. "Switch Tasks view"). @default 'Switch view'
+   */
+  switchLabel?: string;
 }
 
 /**
  * `ShellTopBarTitle` — the page's title, its `<h1>`, rendered on the server with the page (never
- * portalled), after the breadcrumb of its parents.
+ * portalled), after the breadcrumb of its parents. On a phone with a column, a tap on the title
+ * opens the column as a sheet (`ShellColumnSwitch`, L13).
  *
  * @example
  * <ShellTopBarTitle parents={<><a href="/library">Library</a><a href="/library/f">Pricing</a></>}>Q3 review</ShellTopBarTitle>
  */
 export function ShellTopBarTitle({
   parents,
+  switchLabel,
   className,
   children,
   ...props
@@ -1192,7 +1222,13 @@ export function ShellTopBarTitle({
           </ol>
         </nav>
       ) : null}
-      <h1 className="min-w-0 truncate text-sm font-medium">{children}</h1>
+      <div
+        data-slot="shell-topbar-heading"
+        className="relative flex min-w-0 items-center gap-0.5"
+      >
+        <h1 className="min-w-0 truncate text-sm font-medium">{children}</h1>
+        <ShellColumnSwitch label={switchLabel} />
+      </div>
     </div>
   );
 }
@@ -1386,8 +1422,16 @@ export function ShellMain({
   );
 }
 
-/** A page's width in the shell. */
-export type ShellPageSize = "prose" | "default" | "full" | "form";
+/**
+ * The page gutter in the shell — one CSS variable, `--page-gutter`, set by `ShellPage` from the
+ * page's own width (`ShellMain` is the container): 16px, 24px from a 640px page, 32px from 1024px,
+ * 48px from 1920px. Put it on a part that pads with the gutter outside a `ShellPage`.
+ */
+export const shellGutterClasses =
+  "[--page-gutter:--spacing(4)] @min-[40rem]/shell-content:[--page-gutter:--spacing(6)] @min-[64rem]/shell-content:[--page-gutter:--spacing(8)] @min-[120rem]/shell-content:[--page-gutter:--spacing(12)]";
+
+/** A page's width in the shell: the registry's `PageWidth`. */
+export type ShellPageSize = PageWidth;
 
 /** Props accepted by `ShellPage`. */
 export interface ShellPageProps extends React.ComponentProps<"div"> {
@@ -1417,11 +1461,98 @@ export function ShellPage({
       data-slot="shell-page"
       data-size={size}
       className={cn(
-        "mx-auto flex w-full min-w-0 flex-1 flex-col gap-6 p-(--page-gutter) [--page-gutter:--spacing(4)] @min-[40rem]/shell-content:[--page-gutter:--spacing(6)] @min-[64rem]/shell-content:[--page-gutter:--spacing(8)]",
+        "mx-auto flex w-full min-w-0 flex-1 flex-col gap-6 p-(--page-gutter)",
+        shellGutterClasses,
         size === "prose" && "max-w-[calc(45rem+2*var(--page-gutter))]",
         size === "form" && "max-w-[calc(45rem+2*var(--page-gutter))] gap-8",
         size === "default" && "max-w-[calc(75rem+2*var(--page-gutter))]",
         size === "full" && "min-h-0",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `ShellSection`. */
+export interface ShellSectionProps extends React.ComponentProps<"section"> {
+  /**
+   * The section's measure inside the page: `prose` 720px, `default` the content width of a
+   * `default` page (1200px), `full` the page's whole width. A `full` page can hold a list at
+   * `default`, a document and a grid at full width.
+   * @default 'full'
+   */
+  measure?: "prose" | "default" | "full";
+  /**
+   * Where a narrower measure sits: `start` under the title's edge or `center`. Ignored at `full`.
+   * @default 'center' for `default`, 'start' for `prose`
+   */
+  align?: "start" | "center";
+}
+
+/**
+ * `ShellSection` — one region of a `ShellPage` with its own measure, so width follows the
+ * content, not the route.
+ *
+ * @example
+ * <ShellPage size="full">
+ *   <ShellSection measure="default"><DataList … /></ShellSection>
+ * </ShellPage>
+ */
+export function ShellSection({
+  measure = "full",
+  align,
+  className,
+  ...props
+}: ShellSectionProps) {
+  const placed = align ?? (measure === "default" ? "center" : "start");
+  return (
+    <section
+      data-slot="shell-section"
+      data-measure={measure}
+      data-align={placed}
+      className={cn(
+        "flex w-full min-w-0 flex-col gap-6",
+        measure === "prose" && "max-w-[45rem]",
+        measure === "default" && "max-w-[75rem]",
+        measure !== "full" && placed === "center" && "mx-auto",
+        className,
+      )}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `ShellBleed`. */
+export interface ShellBleedProps extends React.ComponentProps<"div"> {
+  /**
+   * Whether the content reaches the page's edges. Off, it keeps the gutter.
+   * @default true
+   */
+  active?: boolean;
+}
+
+/**
+ * `ShellBleed` — a region of a `ShellPage` that reaches its side and bottom edges past the
+ * gutter: a grid or canvas whose scroll bars should rest at the page's edge.
+ *
+ * @example
+ * <ShellPage size="full">
+ *   <ShellBleed><DataGrid fill … /></ShellBleed>
+ * </ShellPage>
+ */
+export function ShellBleed({
+  active = true,
+  className,
+  ...props
+}: ShellBleedProps) {
+  return (
+    <div
+      data-slot="shell-bleed"
+      data-active={active ? "true" : "false"}
+      className={cn(
+        "flex min-h-0 min-w-0 flex-col",
+        active && "-mx-(--page-gutter) -mb-(--page-gutter)",
         className,
       )}
       {...props}

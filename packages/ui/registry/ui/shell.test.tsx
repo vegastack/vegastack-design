@@ -262,3 +262,95 @@ test("a screen without a column has no column region", async () => {
   expect(shell().dataset.column).toBe("none");
   expect(document.querySelector('[data-slot="shell-column-area"]')).toBeNull();
 });
+
+test("an animated rail icon paints static first, then swaps in at the same size once idle", async () => {
+  const { lazyAnimatedIcon } = await import("./shell-client");
+  const HomeIconLazy = lazyAnimatedIcon(() =>
+    import("./icons/home").then((m) => m.HomeIcon),
+  );
+  await render(
+    <nav aria-label="Modules">
+      <ShellRailItem
+        icon={<Home data-testid="static" />}
+        animatedIcon={<HomeIconLazy />}
+        label="Home"
+        href="#home"
+      />
+    </nav>,
+  );
+  const box = () =>
+    document
+      .querySelector('[data-slot="shell-rail-icon"]')!
+      .getBoundingClientRect();
+  const before = box();
+  expect(document.querySelector('[data-testid="static"]')).not.toBeNull();
+  await expect
+    .poll(() => document.querySelector('[data-testid="static"]'), {
+      timeout: 4000,
+    })
+    .toBeNull();
+  const after = box();
+  expect([after.width, after.height]).toEqual([before.width, before.height]);
+  expect(
+    document
+      .querySelector('[data-slot="shell-rail-icon"] svg')
+      ?.getAttribute("width"),
+  ).toBe("1.125rem");
+});
+
+test("a section keeps its measure and a bleed reaches past the page gutter", async () => {
+  const { ShellBleed, ShellSection } = await import("./shell");
+  await render(
+    <div style={{ width: 1440, height: 600 }}>
+      <Shell fill="parent" rail={<ShellRail />}>
+        <ShellMain>
+          <ShellPage size="full">
+            <ShellSection measure="default" data-testid="section">
+              List
+            </ShellSection>
+            <ShellBleed data-testid="bleed">Grid</ShellBleed>
+          </ShellPage>
+        </ShellMain>
+      </Shell>
+    </div>,
+  );
+  const page = document
+    .querySelector('[data-slot="shell-page"]')!
+    .getBoundingClientRect();
+  const section = document
+    .querySelector('[data-testid="section"]')!
+    .getBoundingClientRect();
+  const bleed = document
+    .querySelector('[data-testid="bleed"]')!
+    .getBoundingClientRect();
+  expect(section.width).toBe(1200);
+  expect(Math.round(bleed.width)).toBe(Math.round(page.width));
+});
+
+const columnSwitch = () =>
+  document.querySelector<HTMLElement>('[data-slot="shell-column-switch"]')!;
+
+test("on a phone the title opens the column as a sheet", async () => {
+  await render(<Frame width={390} />);
+  await settled();
+  expect(getComputedStyle(columnSwitch()).display).not.toBe("none");
+  expect(document.querySelector("h1")?.textContent).toBe("My tasks");
+  await userEvent.click(columnSwitch());
+  await expect.poll(() => shell().dataset.column).toBe("over");
+  expect(columnSwitch().getAttribute("aria-expanded")).toBe("true");
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => shell().dataset.column).toBe("none");
+});
+
+test.each([
+  [390, false],
+  [820, true],
+  [1440, true],
+] as const)(
+  "at %ipx (column %s) the title has no switch",
+  async (width, column) => {
+    await render(<Frame width={width} column={column} />);
+    await settled();
+    expect(getComputedStyle(columnSwitch()).display).toBe("none");
+  },
+);

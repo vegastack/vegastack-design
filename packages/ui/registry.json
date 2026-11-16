@@ -190,7 +190,7 @@
       "meta": {
         "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
         "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
-        "version": "0.90.0"
+        "version": "0.97.0"
       }
     },
     {
@@ -256,7 +256,7 @@
       "meta": {
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.95.0"
+        "version": "0.98.0"
       }
     },
     {
@@ -2622,7 +2622,7 @@
       "meta": {
         "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's AppShellPage, its loading skeleton and a route test.",
         "whenNotToUse": "A page outside AppShell (sign-in, a marketing page) — it owns its own layout.",
-        "version": "0.26.4"
+        "version": "0.97.0"
       }
     },
     {
