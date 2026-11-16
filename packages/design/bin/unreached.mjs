@@ -68,8 +68,13 @@ export function mdxEsm(src) {
   let fence = null;
   let inEsm = false;
   let depth = 0;
-  const braces = (line) =>
-    (line.match(/[{(]/g)?.length ?? 0) - (line.match(/[})]/g)?.length ?? 0);
+  // Count brackets in code only: comments and strings are masked first.
+  const braces = (line) => {
+    const code = maskNonUsage(line, { blankStrings: true });
+    return (
+      (code.match(/[{(]/g)?.length ?? 0) - (code.match(/[})]/g)?.length ?? 0)
+    );
+  };
   for (const line of src.split("\n")) {
     const marker = /^\s{0,3}(`{3,}|~{3,})/.exec(line);
     if (fence) {
@@ -151,9 +156,13 @@ export function specifiersOf(file, src, ts = null) {
     }
     ts.forEachChild(node, visit);
   };
-  const kind = /\.[cm]?jsx?$/.test(file)
-    ? ts.ScriptKind.JSX
-    : ts.ScriptKind.TSX;
+  const kind = /\.(?:tsx|mdx)$/.test(file)
+    ? ts.ScriptKind.TSX
+    : /\.[cm]?ts$/.test(file)
+      ? ts.ScriptKind.TS
+      : /\.jsx$/.test(file)
+        ? ts.ScriptKind.JSX
+        : ts.ScriptKind.JS;
   visit(ts.createSourceFile(file, code, ts.ScriptTarget.Latest, false, kind));
   return out.filter(Boolean);
 }
@@ -226,8 +235,8 @@ function compilerResolver(ts, root) {
   const host = ts.createCompilerHost(options);
   // The effective `paths` (inherited ones included), for the `.mdx` targets the compiler skips.
   const pathsBase = resolve(
-    options.pathsBasePath ??
-      options.baseUrl ??
+    options.baseUrl ??
+      options.pathsBasePath ??
       (configPath ? dirname(configPath) : root),
   );
   const effective = Object.entries(options.paths ?? {}).flatMap(

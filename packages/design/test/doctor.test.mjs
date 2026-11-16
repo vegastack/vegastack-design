@@ -856,11 +856,11 @@ test("owned-files lists installed index targets and header-carrying files, nothi
     const root = project({
       "tsconfig.base.json": JSON.stringify({
         compilerOptions: {
-          baseUrl: ".",
+          baseUrl: "./src",
           moduleResolution: "bundler",
           paths: {
-            "@/*": ["./src/*"],
-            "@/components/ui/*": ["./missing/*", "./vendor-ui/*"],
+            "@/*": ["./*"],
+            "@/components/ui/*": ["./missing/*", "../vendor-ui/*"],
           },
         },
       }),
@@ -873,6 +873,9 @@ test("owned-files lists installed index targets and header-carrying files, nothi
         String.raw`const pattern = /require\('@\/components\/ui\/card'\)/;`,
       ].join("\n"),
       "src/app/page.test.tsx": `vi.mock("@/content/intro.mdx");`,
+      // A `.ts` file is parsed as TS: a generic arrow does not hide the import after it.
+      "src/app/helpers.ts": `const id = <T>(x: T) => x;\nimport "@/lib/format";`,
+      "src/lib/format.ts": "export {}",
       "src/components/ui/button.tsx": "export {}",
       "vendor-ui/button.tsx": "export {}",
       "vendor-ui/card.tsx": "export {}",
@@ -881,7 +884,7 @@ test("owned-files lists installed index targets and header-carrying files, nothi
       "src/lib/utils.ts": "export {}",
       "src/content/intro.mdx": "# Intro",
       "content/guide.mdx": [
-        "import {",
+        "import { // the tabs }",
         "",
         "  Tabs,",
         `} from "@/components/ui/tabs";`,
@@ -894,6 +897,7 @@ test("owned-files lists installed index targets and header-carrying files, nothi
     const owned = [
       "src/components/ui/button.tsx",
       "src/content/intro.mdx",
+      "src/lib/format.ts",
       "src/lib/utils.ts",
       "vendor-ui/button.tsx",
       "vendor-ui/card.tsx",
