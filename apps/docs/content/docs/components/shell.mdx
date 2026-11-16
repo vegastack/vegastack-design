@@ -132,6 +132,49 @@ up, and hides while the keyboard is open or a record is open full screen. Set
 `viewport-fit=cover` and `interactive-widget=resizes-content` in the viewport meta, and a
 `theme-color` that matches the background.
 
+### Sections, bleeds and the gutter
+
+`ShellPage` sets `--page-gutter` from the page's own width (`shellGutterClasses`: 16, 24 from
+640px, 32 from 1024px, 48 from 1920px). Inside it, `ShellSection` gives one region its own
+measure (`prose` 720, `default` 1200, `full`), so a `full` page can hold a list at `default`
+beside a full-width grid; `ShellBleed` lets a grid or canvas reach the page's edges past the
+gutter.
+
+```tsx
+<ShellPage size="full">
+  <ShellSection measure="default">
+    <DataList … />
+  </ShellSection>
+  <ShellBleed>
+    <DataGrid fill … />
+  </ShellBleed>
+</ShellPage>
+```
+
+### Animated rail icons
+
+A rail item can carry the same icon animated (L23). The static `icon` paints with the page; the
+animated one — a DS animated icon wrapped in `lazyAnimatedIcon`, so its module and Motion are not in
+the first bundle — loads once the browser is idle, takes the static icon's place at the same 18px,
+and plays when the item is hovered or becomes the current module. With reduced motion it stays
+still.
+
+```tsx
+"use client";
+import { lazyAnimatedIcon } from "@/components/ui/shell";
+export const HomeIconLazy = lazyAnimatedIcon(() =>
+  import("@/components/ui/icons/home").then((m) => m.HomeIcon),
+);
+
+// in the rail (a server component is fine):
+<ShellRailItem
+  icon={<Home />}
+  animatedIcon={<HomeIconLazy />}
+  label="Home"
+  href="/"
+/>;
+```
+
 ### Floating items
 
 `ShellFloatingArea`, passed as `floating`, stacks the assistant pill, the audio player and upload
