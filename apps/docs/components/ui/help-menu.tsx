@@ -1,6 +1,7 @@
-// @vegastack help-menu@0.90.0 sha256-FEMRggOTLEzh3z2vwBzmwJlE7gha2ac04hyC5sy0zOM=
+// @vegastack help-menu@0.95.0 sha256-NmOyB8Ug/woDBBTG3O1AH87tGyubzGZiZI2QHHl1Oo4=
 
 import * as React from "react";
+import { cn } from "@vegastack/design";
 import {
   BookOpen,
   CircleHelp,
@@ -103,6 +104,14 @@ export interface HelpMenuProps {
    */
   shortcutsHint?: React.ReactNode;
   /**
+   * Your own trigger in place of the sidebar row — a `ShellRailItem` in the shell's rail
+   * (`<ShellRailItem icon={<CircleHelp />} label="Help" dot={unread ? "new updates" : undefined} />`).
+   * It is rendered through the menu trigger, so it owns its icon, label and dot; the menu is the
+   * same. Omitted, the trigger is the sidebar row.
+   * @default undefined
+   */
+  trigger?: React.ReactElement;
+  /**
    * Where the menu opens beside the trigger.
    * @default "top"
    */
@@ -186,13 +195,16 @@ export function HelpMenu({
   shortcutsHint = "?",
   side = "top",
   align = "start",
+  trigger,
   children,
   className,
 }: HelpMenuProps) {
   const unread = whatsNewUnread && links.whatsNew !== undefined;
-  return (
-    <SidebarMenuItem data-slot="help-menu" className={className}>
-      <DropdownMenu>
+  const menu = (
+    <DropdownMenu>
+      {trigger ? (
+        <DropdownMenuTrigger render={trigger} data-slot="help-menu-trigger" />
+      ) : (
         <DropdownMenuTrigger
           render={
             <SidebarMenuButton
@@ -214,59 +226,70 @@ export function HelpMenu({
             </>
           ) : null}
         </DropdownMenuTrigger>
-        <DropdownMenuContent
-          data-slot="help-menu-content"
-          side={side}
-          align={align}
-          className="min-w-56"
-        >
-          <DropdownMenuGroup>
-            {ORDER.map((key) => {
-              const link = links[key];
-              if (!link) return null;
-              const Icon = ICONS[key];
-              const text = link.label ?? DEFAULT_LABELS[key];
-              return (
-                <DropdownMenuItem
-                  key={key}
-                  data-slot="help-menu-item"
-                  data-entry={key}
-                  render={linkElement(linkRender, link)}
-                  onClick={link.onSelect}
-                >
-                  <Icon aria-hidden />
-                  <span>{text}</span>
-                  {key === "whatsNew" && unread ? (
-                    <>
-                      <NotificationDot className="ms-auto" />
-                      <span className="sr-only"> ({unreadLabel})</span>
-                    </>
-                  ) : null}
-                  {key === "shortcuts" && shortcutsHint ? (
-                    <DropdownMenuShortcut aria-hidden>
-                      {shortcutsHint}
-                    </DropdownMenuShortcut>
-                  ) : null}
-                </DropdownMenuItem>
-              );
-            })}
-            {children}
-          </DropdownMenuGroup>
-          {version !== undefined && version !== null ? (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuLabel
-                  data-slot="help-menu-version"
-                  className="font-normal tabular-nums"
-                >
-                  {version}
-                </DropdownMenuLabel>
-              </DropdownMenuGroup>
-            </>
-          ) : null}
-        </DropdownMenuContent>
-      </DropdownMenu>
+      )}
+      <DropdownMenuContent
+        data-slot="help-menu-content"
+        side={side}
+        align={align}
+        className="min-w-56"
+      >
+        <DropdownMenuGroup>
+          {ORDER.map((key) => {
+            const link = links[key];
+            if (!link) return null;
+            const Icon = ICONS[key];
+            const text = link.label ?? DEFAULT_LABELS[key];
+            return (
+              <DropdownMenuItem
+                key={key}
+                data-slot="help-menu-item"
+                data-entry={key}
+                render={linkElement(linkRender, link)}
+                onClick={link.onSelect}
+              >
+                <Icon aria-hidden />
+                <span>{text}</span>
+                {key === "whatsNew" && unread ? (
+                  <>
+                    <NotificationDot className="ms-auto" />
+                    <span className="sr-only"> ({unreadLabel})</span>
+                  </>
+                ) : null}
+                {key === "shortcuts" && shortcutsHint ? (
+                  <DropdownMenuShortcut aria-hidden>
+                    {shortcutsHint}
+                  </DropdownMenuShortcut>
+                ) : null}
+              </DropdownMenuItem>
+            );
+          })}
+          {children}
+        </DropdownMenuGroup>
+        {version !== undefined && version !== null ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel
+                data-slot="help-menu-version"
+                className="font-normal tabular-nums"
+              >
+                {version}
+              </DropdownMenuLabel>
+            </DropdownMenuGroup>
+          </>
+        ) : null}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+  if (trigger)
+    return (
+      <div data-slot="help-menu" className={cn("contents", className)}>
+        {menu}
+      </div>
+    );
+  return (
+    <SidebarMenuItem data-slot="help-menu" className={className}>
+      {menu}
     </SidebarMenuItem>
   );
 }

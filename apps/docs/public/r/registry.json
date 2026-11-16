@@ -289,8 +289,8 @@
       "meta": {
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.93.0",
-        "integrity": "sha256-7mbrHp0sfRFioD/Od5okHt70ZdTOVx3GapFrdgM2PQA="
+        "version": "0.95.0",
+        "integrity": "sha256-cxYtkjOCPXMHcg88gUTJLtU1wMNiOM+QE6zcFX0q55E="
       }
     },
     {
@@ -24750,8 +24750,8 @@
       "meta": {
         "whenToUse": "An app's one place to learn the product, at the foot of its sidebar: what changed, the docs, the shortcuts, support and the version.",
         "whenNotToUse": "The account menu (profile, theme, sign out) or a page's own help hint (InfoHint).",
-        "version": "0.90.0",
-        "integrity": "sha256-FEMRggOTLEzh3z2vwBzmwJlE7gha2ac04hyC5sy0zOM="
+        "version": "0.95.0",
+        "integrity": "sha256-NmOyB8Ug/woDBBTG3O1AH87tGyubzGZiZI2QHHl1Oo4="
       }
     },
     {
@@ -24973,8 +24973,8 @@
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
         "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
-        "version": "0.91.0",
-        "integrity": "sha256-ynVhC/FUCL7yfO+RlXj5EJd3MFrnDzEd7Nw9GD63K9A="
+        "version": "0.94.0",
+        "integrity": "sha256-19zT6XZ9AS0F+xtt+xzkA8/yGY+Pb/rFcEmDEFyxNDs="
       }
     }
   ]

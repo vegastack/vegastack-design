@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.91.0 sha256-ynVhC/FUCL7yfO+RlXj5EJd3MFrnDzEd7Nw9GD63K9A=
+// @vegastack shell-assistant@0.94.0 sha256-19zT6XZ9AS0F+xtt+xzkA8/yGY+Pb/rFcEmDEFyxNDs=
 
 "use client";
 
@@ -386,6 +386,12 @@ export interface AssistantCardHeaderProps extends Omit<
   openFullLabel?: string;
   /** @default "Close" */
   closeLabel?: string;
+  /**
+   * The chat's own tools — New chat, Chats — as `ToolGroupItem`s, placed before Move to panel,
+   * Open full chat and Close.
+   * @default undefined
+   */
+  actions?: React.ReactNode;
 }
 
 /**
@@ -394,7 +400,13 @@ export interface AssistantCardHeaderProps extends Omit<
  *
  * @example
  * ```tsx
- * <AssistantCardHeader title="William" onClose={close} onMoveToPanel={toPanel} onOpenFull={toFull} />
+ * <AssistantCardHeader
+ *   title="William"
+ *   actions={<ToolGroupItem label="New chat" onClick={newChat}><SquarePenIcon /></ToolGroupItem>}
+ *   onClose={close}
+ *   onMoveToPanel={toPanel}
+ *   onOpenFull={toFull}
+ * />
  * ```
  */
 function AssistantCardHeader({
@@ -406,6 +418,7 @@ function AssistantCardHeader({
   moveToPanelLabel = "Move to panel",
   openFullLabel = "Open full chat",
   closeLabel = "Close",
+  actions,
   className,
   ...props
 }: AssistantCardHeaderProps) {
@@ -432,6 +445,7 @@ function AssistantCardHeader({
         {title}
       </h2>
       <ToolGroup aria-label="Chat actions">
+        {actions}
         {onMoveToPanel ? (
           <ToolGroupItem label={moveToPanelLabel} onClick={onMoveToPanel}>
             <PanelRightIcon />

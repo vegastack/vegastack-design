@@ -11,6 +11,7 @@ import {
   AssistantCardHeader,
   AssistantPill,
 } from "./shell-assistant";
+import { ToolGroupItem } from "./tool-group";
 
 function Host({
   onBody,
@@ -47,6 +48,11 @@ function Host({
       <AssistantCard open={open} onOpenChange={setOpen}>
         <AssistantCardHeader
           title="William"
+          actions={
+            <ToolGroupItem label="New chat" onClick={() => setMoved(0)}>
+              <span />
+            </ToolGroupItem>
+          }
           onClose={() => setOpen(false)}
           onMoveToPanel={() => setMoved((n) => n + 1)}
         />
@@ -108,6 +114,13 @@ test("a closed card keeps its draft; Close, Move to panel and removing the conte
   await box.fill("draft");
   await screen.getByRole("button", { name: "Move to panel" }).click();
   await expect.element(screen.getByTestId("moved")).toHaveTextContent("1");
+  // The chat's own tools come first in the header's group.
+  const tools = screen.container.querySelectorAll(
+    "[data-slot=assistant-card-header] [data-slot=tool-group-item]",
+  );
+  expect(tools[0]?.getAttribute("aria-label")).toBe("New chat");
+  await screen.getByRole("button", { name: "New chat" }).click();
+  await expect.element(screen.getByTestId("moved")).toHaveTextContent("0");
   await screen.getByRole("button", { name: "Remove context" }).click();
   expect(screen.container.textContent).not.toContain("Talking about");
   await screen.getByRole("button", { name: "Close" }).click();
