@@ -139,7 +139,14 @@ function Demo({
       setNote("Every tab has a draft — close one you're done with."),
   });
   const { state } = tabs;
-  const shown = open ? (mode === "dock" ? autoMode : mode) : "closed";
+  // A phone always gets the whole screen, whichever mode the example shows.
+  const shown = !open
+    ? "closed"
+    : room !== null && room < 640
+      ? "full"
+      : mode === "dock"
+        ? autoMode
+        : mode;
   const items = state.tabs.map((t) => ({
     value: t.key,
     title: titleOf(t.key),
@@ -184,16 +191,24 @@ function Demo({
               key={key}
               size="sm"
               className="w-full min-w-0"
-              render={<button type="button" />}
+              // Over the page, the rows sit under the panel: there they are text, not controls.
+              render={
+                shown === "overlay" ? undefined : <button type="button" />
+              }
               data-peek-active={state.activeKey === key || undefined}
               onClick={(e) => {
+                if (shown === "overlay") return;
                 setOpen(true);
                 tabs.open(RECORDS[key]!.ref, {
                   preview: !(e.metaKey || e.ctrlKey),
                   background: e.metaKey || e.ctrlKey,
                 });
               }}
-              onDoubleClick={() => tabs.open(RECORDS[key]!.ref)}
+              onDoubleClick={
+                shown === "overlay"
+                  ? undefined
+                  : () => tabs.open(RECORDS[key]!.ref)
+              }
             >
               <ItemContent className="min-w-0">
                 <ItemTitle className="truncate">{titleOf(key)}</ItemTitle>

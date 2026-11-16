@@ -1,4 +1,4 @@
-// @vegastack shell-panel@0.89.1 sha256-TfLcMmUgj8bYisT+2epP/viw/+pFwiKBrCsjIvocZhM=
+// @vegastack shell-panel@0.89.1 sha256-m8jb7Zu7mVjVkF3C5FKq2dKjUXJtk9zSqgmPEo1lemY=
 
 "use client";
 
@@ -539,9 +539,9 @@ function ShellPanelResize({
       onPointerDown={onPointerDown}
       onKeyDown={onKeyDown}
       className={cn(
-        // A 4px visible seam on a 12px hit area (WCAG 2.5.8 pairs it with the keyboard path).
-        "absolute inset-y-0 -start-1.5 z-10 w-3 cursor-col-resize touch-none [-webkit-app-region:no-drag]",
-        "after:absolute after:inset-y-0 after:start-1 after:w-1 after:rounded-full after:transition-colors after:content-['']",
+        // A 4px seam on the edge, inside a 24px hit area (WCAG 2.5.8) that stays within the panel.
+        "absolute inset-y-0 start-0 z-10 w-6 cursor-col-resize touch-none [-webkit-app-region:no-drag]",
+        "after:absolute after:inset-y-0 after:start-0 after:w-1 after:rounded-full after:transition-colors after:content-['']",
         "hover:after:bg-border focus-visible:after:bg-border data-resizing:after:bg-border",
       )}
     />
