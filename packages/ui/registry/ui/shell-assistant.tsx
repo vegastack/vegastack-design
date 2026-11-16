@@ -24,7 +24,7 @@ export interface AssistantPillProps extends Omit<
   React.ComponentProps<typeof Button>,
   "variant" | "size" | "children"
 > {
-  /** The assistant's name in this workspace; the pill reads "Ask {name}". */
+  /** The assistant's name in this workspace; the pill reads "Ask {name}", or the name alone when it already starts with "Ask". */
   name: string;
   /**
    * The assistant's mark.
@@ -176,7 +176,7 @@ function AssistantPill({
         >
           {icon ?? <SparklesIcon />}
         </span>
-        <span>Ask {name}</span>
+        <span>{/^ask\b/i.test(name) ? name : `Ask ${name}`}</span>
         {shortcut != null ? (
           <span
             aria-hidden
