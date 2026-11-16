@@ -1,5 +1,23 @@
 # @vegastack/ui
 
+## 0.91.0
+
+### Minor Changes
+
+- [#999](https://github.com/vegastack/vegastack-design/pull/999) [`f992471`](https://github.com/vegastack/vegastack-design/commit/f992471d4e908b1f80fc55103128a030f63abb21) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Shell parts for the new top bar and the floating assistant. `ToolGroup`, `ToolGroupItem` and `ToolGroupMore` are a run of icon tools — 28px ghost buttons two pixels apart, each named by its tooltip, a count beside its icon instead of a floating badge, and ⋯ (`MoreHorizontal`) as the one More (ICO-9). `AssistantPill` is the `Ask {name}` pill at the page area's bottom-end corner: it tucks away while the page scrolls down and comes back on scroll up, hover or focus. `AssistantCard` is the compact chat it opens from the same corner, with `AssistantCardHeader` (Move to panel, Open full chat, Close), a removable `AssistantCardContext` chip, `AssistantCardBody` and `AssistantCardComposer`; it renders nothing until first opened, keeps a draft once open, closes on Escape and gives focus back (OVL-26). `AvatarGroup` takes `max` and `total`: past `max` it closes the stack with "+N", and an avatar marked `data-here` gets a primary ring (API-44). Existing groups are unchanged.
+
+## 0.90.0
+
+### Minor Changes
+
+- [#997](https://github.com/vegastack/vegastack-design/pull/997) [`d0aa848`](https://github.com/vegastack/vegastack-design/commit/d0aa848581647c614c5ab3a85d2b5170d6a56496) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Shell tokens (LAY-22): the sizes of the new app shell's regions as `--shell-*` tokens, so the shell, its panel and its assistant read one source. `--shell-rail-width` 4rem, `--shell-column-width` 15rem (`-min` 12.5rem, `-max` 22.5rem), `--shell-topbar-height` 3rem, `--shell-panel-width` 26.25rem (`-min` 22.5rem, `-max` 45rem), `--shell-bottombar-height` 3.5rem, and the desktop app's title-row insets `--shell-titlebar-mac-inset` 4.875rem and `--shell-titlebar-win-inset` 8.625rem. Additive: nothing existing changes.
+
+### Patch Changes
+
+- Updated dependencies [[`d0aa848`](https://github.com/vegastack/vegastack-design/commit/d0aa848581647c614c5ab3a85d2b5170d6a56496)]:
+  - @vegastack/design-tokens@0.18.0
+  - @vegastack/design@0.18.0
+
 ## 0.89.1
 
 ### Patch Changes

@@ -9,6 +9,34 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.91.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: 7d0580b4594f -->
+
+### 🧩 New components
+
+- Shell parts for the new top bar and the floating assistant. `ToolGroup`, `ToolGroupItem` and `ToolGroupMore` are a run of icon tools — 28px ghost buttons two pixels apart, each named by its tooltip, a count beside its icon instead of a floating badge, and ⋯ (`MoreHorizontal`) as the one More (ICO-9). `AssistantPill` is the `Ask {name}` pill at the page area's bottom-end corner: it tucks away while the page scrolls down and comes back on scroll up, hover or focus. `AssistantCard` is the compact chat it opens from the same corner, with `AssistantCardHeader` (Move to panel, Open full chat, Close), a removable `AssistantCardContext` chip, `AssistantCardBody` and `AssistantCardComposer`; it renders nothing until first opened, keeps a draft once open, closes on Escape and gives focus back (OVL-26). `AvatarGroup` takes `max` and `total`: past `max` it closes the stack with "+N", and an avatar marked `data-here` gets a primary ring (API-44). Existing groups are unchanged.
+  [`f992471`](https://github.com/VegaStack/vegastack-design/commit/f992471)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.90.0 → 0.91.0.
+
+## [0.90.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: eadf9eaa0e99 -->
+
+### 🧩 New components
+
+- Shell tokens (LAY-22): the sizes of the new app shell's regions as `--shell-*` tokens, so the shell, its panel and its assistant read one source. `--shell-rail-width` 4rem, `--shell-column-width` 15rem (`-min` 12.5rem, `-max` 22.5rem), `--shell-topbar-height` 3rem, `--shell-panel-width` 26.25rem (`-min` 22.5rem, `-max` 45rem), `--shell-bottombar-height` 3.5rem, and the desktop app's title-row insets `--shell-titlebar-mac-inset` 4.875rem and `--shell-titlebar-win-inset` 8.625rem. Additive: nothing existing changes.
+  [`d0aa848`](https://github.com/VegaStack/vegastack-design/commit/d0aa848)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.18.0`** (was `0.17.0`).
+- **`@vegastack/design`** → **`0.18.0`** (was `0.17.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.89.1 → 0.90.0.
+
 ## [0.89.1] — November 16, 2026
 
 <!-- assembled from 1 changeset: 928a777b8c81 -->

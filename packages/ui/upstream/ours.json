@@ -1164,6 +1164,18 @@
       "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors — operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no connector resource reference. Resource Pill, an InlineChip with the connector kinds' icons and words; no patch."
     },
+    "tool-group": {
+      "disposition": "keep",
+      "family": "actions",
+      "source": "VegaStack shell layout overhaul, P0 lane C — Regent operator batch approval 16-11-2026 \"Shell layout overhaul\" (\"Approve, go dark\")",
+      "rationale": "Upstream has no icon-tool cluster; ButtonGroup attaches segmented buttons. Tool Group composes upstream's button (icon-sm, ghost) and tooltip; no patch (ICO-9)."
+    },
+    "shell-assistant": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack shell layout overhaul, P0 lane C — Regent operator batch approval 16-11-2026 \"Shell layout overhaul\" (\"Approve, go dark\")",
+      "rationale": "Upstream has no floating assistant. Shell Assistant composes upstream's button, our chip and tool-group; no patch (OVL-26)."
+    },
     "shell-panel": {
       "disposition": "keep",
       "family": "layout",

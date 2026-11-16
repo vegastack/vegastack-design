@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "54f6ab5b37abbf391c4cefe69262a40d37d41ca9068a6432731dbd632303b1fe",
+  "contractSha256": "89dc768edbac9a29753f88f0cbd87ce3dc569a39b69e68554523d40298a098c6",
   "expectedCounts": {
-    "totalRegistryItems": 829,
-    "components": 236,
+    "totalRegistryItems": 831,
+    "components": 238,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
@@ -2609,6 +2609,28 @@
         "packages/ui/registry/ui/resource-pill.tsx"
       ],
       "docsSlug": "/docs/components/resource-pill",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "tool-group",
+      "inventoryClass": "component",
+      "wave": "Core controls",
+      "family": "actions",
+      "sourceFiles": [
+        "packages/ui/registry/ui/tool-group.tsx"
+      ],
+      "docsSlug": "/docs/components/tool-group",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shell-assistant",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/shell-assistant.tsx"
+      ],
+      "docsSlug": "/docs/components/shell-assistant",
       "contractStatus": "reconciled"
     },
     {
