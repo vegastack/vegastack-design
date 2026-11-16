@@ -290,6 +290,13 @@ file carrying the `// @vegastack <name>@<version>` header — one path per line,
 lists header-carrying files only. Generate the list rather than typing it, so the
 three never disagree.
 
+**Catch the copies nothing uses.** Skipping registry files in your unused-code scan also hides a
+copy no screen imports any more, and every pull keeps refreshing it.
+`vegastack-design owned-files --unreached` walks the imports your own files make (relative paths
+and the root `tsconfig.json` `paths`, comments ignored, `.mdx` pages' `import` lines included)
+through the registry files they land on, prints each owned file it never reaches, and exits 1 when
+there is one — so it can run as a check. Delete the copy (or stop pulling the item) to clear it.
+
 ## Complete file inventory after this guide
 
 | File                  | Origin                                                                                                     | Yours to edit?                                       |

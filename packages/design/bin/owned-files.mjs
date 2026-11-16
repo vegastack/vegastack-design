@@ -29,6 +29,7 @@ import {
   PROVENANCE_RE,
   terminalText,
 } from "./check-updates.mjs";
+import { unreachedFiles } from "./unreached.mjs";
 
 const USAGE = `vegastack-design owned-files — list the registry-owned files installed in this project
 
@@ -45,12 +46,16 @@ finds most copies; --offline reports header-carrying files only.
 Options:
   --dir <path>      Project root holding components.json (default: the current directory)
   --json            Print { files: string[], items: { name, type, version, files[] }[] }
+  --unreached       List only the owned files nothing in the project imports, and exit 1 when
+                    there are any — a copy every pull refreshes although no screen uses it
+                    (imports are followed through relative paths and tsconfig.json paths)
   --offline         Do not read the registry index; report header-carrying files only
   --index <file>    Read the registry index from a local registry.json instead of fetching it
   --registry <url>  Override the registry URL template (…/{name}.json)
   -h, --help        Show this help
 
-Read-only. Exit codes: 0 = listed · 2 = bad usage, no components.json, or no readable index`;
+Read-only. Exit codes: 0 = listed (with --unreached: none unreached) · 1 = unreached copies
+(--unreached) · 2 = bad usage, no components.json, or no readable index`;
 
 const SKIP_DIRS = new Set([
   "node_modules",
@@ -70,6 +75,7 @@ function parseArgs(argv) {
   const opts = {
     dir: ".",
     json: false,
+    unreached: false,
     offline: false,
     index: null,
     registry: null,
@@ -79,6 +85,7 @@ function parseArgs(argv) {
     const a = argv[i];
     if (a === "-h" || a === "--help") opts.help = true;
     else if (a === "--json") opts.json = true;
+    else if (a === "--unreached") opts.unreached = true;
     else if (a === "--offline") opts.offline = true;
     else if (a === "--dir" || a === "--index" || a === "--registry") {
       const value = argv[i + 1];
@@ -321,6 +328,16 @@ export async function main(argv = []) {
   }
 
   const result = ownedFiles(root, componentsJson, index);
+  if (opts.unreached) {
+    const unreached = unreachedFiles(root, result.files);
+    if (opts.json) console.log(JSON.stringify({ source, unreached }, null, 2));
+    else for (const file of unreached) console.log(file);
+    if (unreached.length > 0)
+      console.error(
+        `✗ ${unreached.length} registry-owned file(s) nothing in this project imports — delete the copy, or the item, before the next pull`,
+      );
+    return unreached.length > 0 ? 1 : 0;
+  }
   if (opts.json) {
     console.log(JSON.stringify({ source, ...result }, null, 2));
     return 0;

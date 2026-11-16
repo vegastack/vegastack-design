@@ -809,6 +809,48 @@ test("owned-files lists installed index targets and header-carrying files, nothi
   }
 }
 
+{
+  const { unreachedFiles } = await import(join(PKG, "bin/unreached.mjs"));
+  test("owned-files --unreached: a copy reached only through a comment or another unreached copy is reported", () => {
+    const root = project({
+      "tsconfig.json": `{
+        // comments and "**/*.ts" globs must not break the paths
+        "compilerOptions": { "baseUrl": ".", "paths": { "@/*": ["./src/*"], } },
+        "include": ["**/*.ts", "**/*.tsx"],
+      }`,
+      "src/app/page.tsx": [
+        `import { Button } from "@/components/ui/button";`,
+        `/* import { Card } from "@/components/ui/card"; */`,
+        `const Lazy = () => import("../components/ui/dialog");`,
+      ].join("\n"),
+      "src/components/ui/button.tsx": `import { cn } from "@/lib/utils";\nimport "./spinner";`,
+      "src/components/ui/spinner.tsx": "export {}",
+      "src/components/ui/dialog.tsx": "export {}",
+      "src/components/ui/card.tsx": `import { Sheet } from "./sheet";`,
+      "src/components/ui/sheet.tsx": "export {}",
+      "src/lib/utils.ts": "export {}",
+      "content/guide.mdx": `import { Tabs } from "@/components/ui/tabs";\n\n\`import { Kbd } from "@/components/ui/kbd"\``,
+      "src/components/ui/tabs.tsx": "export {}",
+      "src/components/ui/kbd.tsx": "export {}",
+    });
+    const owned = [
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/dialog.tsx",
+      "src/components/ui/kbd.tsx",
+      "src/components/ui/sheet.tsx",
+      "src/components/ui/spinner.tsx",
+      "src/components/ui/tabs.tsx",
+      "src/lib/utils.ts",
+    ];
+    assert.deepEqual(unreachedFiles(root, owned), [
+      "src/components/ui/card.tsx",
+      "src/components/ui/kbd.tsx",
+      "src/components/ui/sheet.tsx",
+    ]);
+  });
+}
+
 test("strings, JSX text, generics and nested attributes never confuse the tag scan (review round 1)", () => {
   const root = project({
     ...UI,
