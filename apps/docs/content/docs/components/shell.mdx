@@ -84,9 +84,15 @@ import {
 
 <ComponentPreview name="shell" file="components/preview/shell.tsx" />
 
-## The layout rule
+## Anatomy
 
-One rule places the column and the panel, at every width ([Shell](/docs/foundations/shell)):
+<Anatomy name="shell" />
+
+## Examples
+
+### The layout rule
+
+One rule places the column and the panel, at every width ([Shell layout](/docs/foundations/shell)):
 
 | Width                   | Rail    | Column                                     | Panel                                    |
 | ----------------------- | ------- | ------------------------------------------ | ---------------------------------------- |
@@ -101,8 +107,6 @@ enough, the panel slides over the page and the column comes back. `resolveShellL
 
 The rule runs in CSS — container queries on the shell, over the data attributes it renders — so
 the server's HTML is already laid out. Nothing measures after hydration.
-
-## Examples
 
 ### The top bar's order
 
