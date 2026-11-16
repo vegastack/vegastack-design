@@ -1,4 +1,4 @@
-// @vegastack shell@0.90.0 sha256-BZcWFlnitfJDA6AcEyftYt3e5p+0DWPFfYtAh6obdB4=
+// @vegastack shell@0.90.0 sha256-LqoWWoakPdvlo7SmvDcvImjrdf1m7lHbq2flfoxSrDk=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -1164,7 +1164,7 @@ export function ShellTopBarTitle({
             {crumbs.map((crumb, i) => (
               <li
                 key={i}
-                className="flex flex-none items-center gap-1 text-muted-foreground @max-lg/shell-topbar:not-last:hidden [&_a]:no-underline [&_a]:hover:text-foreground"
+                className="flex flex-none items-center gap-1 text-muted-foreground @max-lg/shell-topbar:not-last:hidden [&_a]:inline-flex [&_a]:min-h-6 [&_a]:items-center [&_a]:no-underline [&_a]:hover:text-foreground"
               >
                 {crumb}
                 <ChevronRight
