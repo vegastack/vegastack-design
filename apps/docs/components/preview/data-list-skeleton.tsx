@@ -1,3 +1,5 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/data-list-skeleton` (dogfoods the registry).

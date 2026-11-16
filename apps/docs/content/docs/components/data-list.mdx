@@ -307,7 +307,8 @@ in order, a collapsed section's rows left out — so the peek's ↑/↓ walk the
 With `rowOpenGestures`, a host whose opener keeps tabs takes the gestures too: a ⌘/Ctrl or middle
 click calls `onRowOpen` with `background: true` instead of opening the link in a new browser tab,
 and a double-click calls it again with `keep: true` (a preview tab kept). Shift and Alt clicks stay
-the browser's. Off (the default), modified clicks belong to the link, as above.
+the browser's. This covers list rows and grid cards; board cards keep their own clicks. Off (the
+default), modified clicks belong to the link, as above.
 
 <ComponentPreview
   name="dataListRowOpen"

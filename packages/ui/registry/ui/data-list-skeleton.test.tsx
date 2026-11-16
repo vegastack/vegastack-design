@@ -1,5 +1,6 @@
 import { expect, test } from "vitest";
 import { render } from "vitest-browser-react";
+import { expectNoA11yViolations } from "../../test/a11y";
 import { DataListSkeleton } from "./data-list-skeleton";
 
 test("list view: hidden, a header and one row per `rows`, selection column and toolbar when asked", async () => {
@@ -18,6 +19,7 @@ test("list view: hidden, a header and one row per `rows`, selection column and t
   )!;
   // The search and the two tools.
   expect(toolbar.querySelectorAll('[data-slot="skeleton"]')).toHaveLength(3);
+  await expectNoA11yViolations(screen.container);
 });
 
 test("grid view: one card per `rows`, no table", async () => {
@@ -26,4 +28,5 @@ test("grid view: one card per `rows`, no table", async () => {
     screen.container.querySelectorAll('[data-slot="data-list-skeleton-card"]'),
   ).toHaveLength(3);
   expect(screen.container.querySelector("table")).toBeNull();
+  await expectNoA11yViolations(screen.container);
 });

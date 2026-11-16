@@ -1,4 +1,4 @@
-// @vegastack data-list@0.90.0 sha256-Pfw/A+Gf58idOyHb9KbcmyOGUyQzl8oeKMGm+mxavks=
+// @vegastack data-list@0.90.0 sha256-WqJghR/LvVQYAhNIoY/w41d3odW5bq6YcGGxjv4Ayu0=
 
 "use client";
 
@@ -562,9 +562,9 @@ export interface DataListProps<T> extends Omit<
    */
   onRowOpen?: (rowId: string, details: RowOpenDetails) => void;
   /**
-   * With `onRowOpen`: a ⌘/Ctrl or middle click on a row or card opens it through `onRowOpen` with
-   * `background: true` (instead of the link's own new tab), and a double-click calls it again with
-   * `keep: true` — for a host whose opener keeps tabs (a preview tab a double-click keeps). Shift
+   * With `onRowOpen`: a ⌘/Ctrl or middle click on a list row or grid card (board cards keep their
+   * own clicks) opens it through `onRowOpen` with `background: true` (instead of the link's own
+   * new tab), and a double-click calls it again with `keep: true` — for a host whose opener keeps tabs (a preview tab a double-click keeps). Shift
    * and Alt clicks stay the link's own. Off: modified clicks belong to the link, as before.
    * @default false
    */
@@ -2268,6 +2268,14 @@ export function DataList<T>({
                 type="button"
                 data-slot="data-list-row-action"
                 onClick={(event) => onRowClick?.(row, index, event)}
+                // The row's own middle-click handler skips a control in it, this button included.
+                onAuxClick={
+                  rowOpenGestures
+                    ? (event) => {
+                        if (event.button === 1) onRowClick?.(row, index, event);
+                      }
+                    : undefined
+                }
                 className="-mx-1 -my-0.5 inline-flex max-w-full appearance-none items-center rounded-inline bg-transparent px-1 py-0.5 text-start text-inherit [tr:not([data-selected])_&]:focus-visible:bg-none"
               >
                 {content}

@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.90.0 sha256-+EBh1wMkvLoSxbZOSP7uVHHcrz1PGhizAVtUGzDLgGw=
+// @vegastack list-toolbar@0.90.0 sha256-/XG5qMmLFJax6XQeMOVlJupMQBOnFui7MNlRiqpCEms=
 
 "use client";
 
@@ -924,7 +924,7 @@ export function ListToolbar({
     hasSort,
     hasState,
   ]);
-  // Re-measured on a size change only (the row, or the state slot's own text), never on a host
+  // Re-measured on a size change only (the row, or a measured slot's own width), never on a host
   // render: a host passes new `search`/`sort`/`state` objects every render, and measuring forces
   // layout, so a selection change in a long list paid for a toolbar layout pass each time.
   React.useLayoutEffect(() => {
@@ -933,12 +933,13 @@ export function ListToolbar({
     if (!row || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(measure);
     observer.observe(row);
-    const stateSlot = row.querySelector<HTMLElement>(
-      '[data-slot="list-toolbar-state"]',
-    );
-    if (stateSlot) observer.observe(stateSlot);
+    // The measured slots change width on their own (a filter count, the state's text).
+    for (const slot of row.querySelectorAll<HTMLElement>(
+      '[data-slot="list-toolbar-filter"], [data-slot="list-toolbar-state"]',
+    ))
+      observer.observe(slot);
     return () => observer.disconnect();
-    // `level`: a step can mount the state slot, which is then observed too. `searchHeld`: an
+    // `level`: a step can mount a measured slot, which is then observed too. `searchHeld`: an
     // open or filled icon search holds the level (`frozen`); letting go re-measures at once.
   }, [measure, level, searchHeld]);
 
