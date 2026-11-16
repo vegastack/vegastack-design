@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.91.1
+
+### Patch Changes
+
+- [#1002](https://github.com/vegastack/vegastack-design/pull/1002) [`6da8f06`](https://github.com/vegastack/vegastack-design/commit/6da8f06c50bc5e62f7023e4f4e728bd07d35d8dd) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 `/llms-full.txt` leaves out the changelog and the shadcn-reset migration guide, its two largest pages (about 840 KB together), so the corpus sits well under its 6 MiB cap with room for new component pages. Both stay on the site, in `/llms.txt`'s page index and as their own `.md` exports; `llms.txt` says so.
+
 ## 0.91.0
 
 ### Minor Changes
