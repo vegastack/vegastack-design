@@ -3201,6 +3201,82 @@ test("onRowOpen without an href: the whole row and its first-cell button open it
   );
 });
 
+test("rowOpenGestures: ⌘-click and middle click open in the background, a double-click keeps", async () => {
+  const onRowOpen = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `#person-${r.id}`}
+      onRowOpen={onRowOpen}
+      rowOpenGestures
+    />,
+  );
+  const followed: boolean[] = [];
+  const record = (e: MouseEvent) => {
+    if (!(e.target instanceof HTMLAnchorElement)) return;
+    followed.push(!e.defaultPrevented);
+    e.preventDefault();
+  };
+  document.addEventListener("click", record);
+  onTestFinished(() => document.removeEventListener("click", record));
+  const cell = (name: string) => screen.getByRole("cell", { name }).element();
+  cell("Manager").dispatchEvent(
+    new MouseEvent("click", { bubbles: true, cancelable: true, metaKey: true }),
+  );
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "c",
+    expect.objectContaining({ index: 2, background: true }),
+  );
+  expect(followed).toEqual([false]);
+  cell("Designer").dispatchEvent(
+    new MouseEvent("auxclick", { bubbles: true, cancelable: true, button: 1 }),
+  );
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "b",
+    expect.objectContaining({ background: true }),
+  );
+  // Shift stays the browser's (a new window): never the opener.
+  const calls = onRowOpen.mock.calls.length;
+  cell("Engineer").dispatchEvent(
+    new MouseEvent("click", {
+      bubbles: true,
+      cancelable: true,
+      shiftKey: true,
+    }),
+  );
+  expect(onRowOpen).toHaveBeenCalledTimes(calls);
+  cell("Engineer").dispatchEvent(
+    new MouseEvent("dblclick", { bubbles: true, cancelable: true }),
+  );
+  expect(onRowOpen).toHaveBeenLastCalledWith(
+    "a",
+    expect.objectContaining({ index: 0, keep: true }),
+  );
+  expect(onRowOpen).toHaveBeenCalledTimes(calls + 1);
+});
+
+test("without rowOpenGestures a double-click opens nothing more and ⌘-click stays the link's", async () => {
+  const onRowOpen = vi.fn();
+  const screen = await render(
+    <DataList
+      columns={columns}
+      data={data}
+      getRowId={(r) => r.id}
+      getRowHref={(r) => `#person-${r.id}`}
+      onRowOpen={onRowOpen}
+    />,
+  );
+  screen
+    .getByRole("cell", { name: "Engineer" })
+    .element()
+    .dispatchEvent(
+      new MouseEvent("dblclick", { bubbles: true, cancelable: true }),
+    );
+  expect(onRowOpen).not.toHaveBeenCalled();
+});
+
 test("getRowParentId nests a row under its parent, in the parent's section, and folds it", async () => {
   interface Task {
     id: string;

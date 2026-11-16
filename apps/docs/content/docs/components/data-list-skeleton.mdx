@@ -1,0 +1,77 @@
+---
+title: Data List Skeleton
+description: "A DataList and its toolbar while they load, in the list's own geometry, without loading the list."
+audience: public
+registry: data-list-skeleton
+status: stable
+since: 0.97.0
+a11y: hidden from assistive technology; the loading region around it carries the status
+preview: dataListSkeleton
+---
+
+## Install
+
+<InstallSteps name="data-list-skeleton" />
+
+## Usage
+
+```tsx
+import { DataListSkeleton } from "@/components/ui/data-list-skeleton";
+
+// app/(app)/tasks/loading.tsx
+export default function Loading() {
+  return (
+    <DataListSkeleton
+      columns={columns}
+      rows={6}
+      selectable
+      toolbar={{ tools: 3 }}
+    />
+  );
+}
+```
+
+A route's loading page or a Suspense fallback for a `DataList` page. It draws the `ListToolbar`
+row (a search and its tool buttons, 32px), then the table's header and 40px rows — the first
+column fills, the others drop under `md` as the list merges them — or, with `view="grid"`, the
+grid's `MediaCard lg` cards in the grid's own columns. It imports only `Table` and `Skeleton`, so
+the page's loading state never pulls in the list, its toolbar or its menus.
+
+<ComponentPreview
+  name="dataListSkeleton"
+  file="components/preview/data-list-skeleton.tsx"
+/>
+
+## Examples
+
+### Grid
+
+<ComponentPreview
+  name="dataListSkeletonGrid"
+  file="components/preview/data-list-skeleton.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-list-skeleton.tsx"
+  name="DataListSkeletonProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/data-list-skeleton.tsx"
+  name="DataListSkeletonColumn"
+/>
+
+## Accessibility
+
+- The skeleton is `aria-hidden`: name the loading region around it (the route's own status).
+
+<StatesTested name="data-list-skeleton" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the list's own columns (minWidth, align) and the view the reader left, so nothing moves when it loads."
+  dont="Use it for a list already on screen that refetches — that is DataList's own loading state."
+/>

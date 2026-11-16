@@ -1,4 +1,4 @@
-// @vegastack data-list@0.90.0 sha256-jVhkHNSGhlyd4+XuVJDKp3Br85+VVOSTyJ8r6Rd9NiE=
+// @vegastack data-list@0.90.0 sha256-r/VPISejlszow4Y7XvI8QsoJZ40GdBGUCtCjeFqU4AA=
 
 "use client";
 
@@ -561,6 +561,14 @@ export interface DataListProps<T> extends Omit<
    * @default undefined
    */
   onRowOpen?: (rowId: string, details: RowOpenDetails) => void;
+  /**
+   * With `onRowOpen`: a ⌘/Ctrl or middle click on a row or card opens it through `onRowOpen` with
+   * `background: true` (instead of the link's own new tab), and a double-click calls it again with
+   * `keep: true` — for a host whose opener keeps tabs (a preview tab a double-click keeps). Shift
+   * and Alt clicks stay the link's own. Off: modified clicks belong to the link, as before.
+   * @default false
+   */
+  rowOpenGestures?: boolean;
   /**
    * The row whose record is open beside the list (a peek): it carries `data-peek-active`, takes
    * the accent wash (list rows, grid cards and board cards alike) and scrolls into view
@@ -1309,6 +1317,26 @@ const INTERACTIVE_SELECTOR =
  * also firing `onRowClick`. Robust at the root — works for any interactive
  * descendant, not just the selection checkbox.
  */
+/**
+ * A ⌘/Ctrl click or a middle click without Shift or Alt: `rowOpenGestures`' background open
+ * (Shift and Alt stay the browser's: a new window, a download).
+ */
+function opensInBackground(event: React.SyntheticEvent | null): boolean {
+  if (!event || !("button" in event)) return false;
+  const e = event as React.MouseEvent;
+  if (e.shiftKey || e.altKey) return false;
+  return e.button === 1 || (e.button === 0 && (e.metaKey || e.ctrlKey));
+}
+
+/** A double-click on a control in a row (its checkbox, ⋯ menu): not the row's own. */
+function isFromRowControl(event: React.MouseEvent<HTMLElement>): boolean {
+  const target = event.target as HTMLElement | null;
+  const control = target?.closest(INTERACTIVE_SELECTOR);
+  if (!control || control.contains(event.currentTarget)) return false;
+  const slot = control.getAttribute("data-slot");
+  return slot !== "data-list-row-link" && slot !== "data-list-row-action";
+}
+
 function isFromInteractiveDescendant(
   event: React.MouseEvent<HTMLElement>,
 ): boolean {
@@ -1357,6 +1385,18 @@ function RowLink({
 
 /** A section's count as a screen reader hears it, by default (`sectionCountLabel`). */
 const rowCount = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
+
+/*
+ * `DataList`'s default `getRowId` and `dragItemsLabel`, kept at module level: an arrow function as
+ * a destructuring default makes the React Compiler skip the whole component (BuildHIR
+ * `lowerReorderableExpression`), so every parent render re-rendered every row.
+ */
+function indexRowId(_row: unknown, index: number): string {
+  return String(index);
+}
+function itemsLabel(count: number): string {
+  return count === 1 ? "1 item" : `${count} items`;
+}
 
 /**
  * `DataList<T>` — a generic, typed data table with row selection, sortable
@@ -1462,7 +1502,7 @@ const rowCount = (n: number) => `${n} ${n === 1 ? "row" : "rows"}`;
 export function DataList<T>({
   columns,
   data: rawData,
-  getRowId = (_row, index) => String(index),
+  getRowId = indexRowId,
   selectable = false,
   selectedIds,
   onSelectionChange,
@@ -1481,7 +1521,7 @@ export function DataList<T>({
   onFilesOverRow,
   dragScope,
   canMoveItem,
-  dragItemsLabel = (count) => (count === 1 ? "1 item" : `${count} items`),
+  dragItemsLabel = itemsLabel,
   sort,
   onSortChange,
   loading = false,
@@ -1490,6 +1530,7 @@ export function DataList<T>({
   emptyState,
   onRowClick: onRowClickProp,
   onRowOpen,
+  rowOpenGestures = false,
   activeRowId,
   actionsRef,
   getRowHref,
@@ -1861,11 +1902,18 @@ export function DataList<T>({
             index: number,
             event: React.SyntheticEvent | null = null,
           ) => {
-            if (onRowOpen) onRowOpen(rowIds[index]!, { event, index });
+            if (onRowOpen)
+              onRowOpen(rowIds[index]!, {
+                event,
+                index,
+                ...(rowOpenGestures && opensInBackground(event)
+                  ? { background: true }
+                  : {}),
+              });
             else onRowClickProp!(row, index);
           }
         : undefined,
-    [onRowOpen, onRowClickProp, rowIds],
+    [onRowOpen, onRowClickProp, rowIds, rowOpenGestures],
   );
   /**
    * A row link that opens the peek: a plain click (or Enter) is taken over by `onRowOpen`; a
@@ -1879,11 +1927,33 @@ export function DataList<T>({
     if (!onRowOpen) return template;
     const base = template ?? <AppLink />;
     const own = (base.props as { onClick?: React.MouseEventHandler }).onClick;
+    const id = rowIds[index]!;
+    const gestures = rowOpenGestures
+      ? {
+          // A middle click straight on the link (a forwarded one arrives as a click).
+          onAuxClick: (event: React.MouseEvent<HTMLElement>) => {
+            if (event.defaultPrevented || !opensInBackground(event)) return;
+            event.preventDefault();
+            onRowOpen(id, { event, index, background: true });
+          },
+          onDoubleClick: (event: React.MouseEvent<HTMLElement>) => {
+            // The row's own double-click (a list row) would open it a second time.
+            event.stopPropagation();
+            onRowOpen(id, { event, index, keep: true });
+          },
+        }
+      : {};
     return React.cloneElement(base, {
+      ...gestures,
       onClick: (event: React.MouseEvent<HTMLElement>) => {
         own?.(event);
+        if (event.defaultPrevented) return;
+        if (rowOpenGestures && opensInBackground(event)) {
+          event.preventDefault();
+          onRowOpen(id, { event, index, background: true });
+          return;
+        }
         if (
-          event.defaultPrevented ||
           event.button !== 0 ||
           event.metaKey ||
           event.ctrlKey ||
@@ -1892,7 +1962,7 @@ export function DataList<T>({
         )
           return;
         event.preventDefault();
-        onRowOpen(rowIds[index]!, { event, index });
+        onRowOpen(id, { event, index });
       },
     } as object);
   };
@@ -2047,10 +2117,14 @@ export function DataList<T>({
       href === undefined &&
       visibleColumns[0]?.interactive !== true;
     const {
-      highlighted = highlightedIds?.has(id) ?? false,
+      highlighted: highlightedProp,
       className: rowClassName,
       ...rowAttributes
     } = rowProps?.(row, index) ?? {};
+    const highlighted =
+      highlightedProp === undefined
+        ? (highlightedIds?.has(id) ?? false)
+        : highlightedProp;
     const drag = dragProps(id, row);
     return (
       <TableRow
@@ -2066,9 +2140,17 @@ export function DataList<T>({
         data-peek-active={activeRowId === id ? "" : undefined}
         onClick={clickable ? (e) => handleRowClick(e, row, index) : undefined}
         onAuxClick={
-          href !== undefined
+          href !== undefined || (rowOpenGestures && clickable)
             ? (e) => {
                 if (e.button === 1) handleRowClick(e, row, index);
+              }
+            : undefined
+        }
+        onDoubleClick={
+          rowOpenGestures && onRowOpen
+            ? (e) => {
+                if (isFromRowControl(e)) return;
+                onRowOpen(id, { event: e, index, keep: true });
               }
             : undefined
         }
