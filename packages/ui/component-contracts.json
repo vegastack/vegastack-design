@@ -2791,6 +2791,24 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ShellColumnSwitch",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnSwitchProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -3068,7 +3086,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["shell-topbar-title"]
+              "values": ["shell-topbar-heading", "shell-topbar-title"]
             }
           ],
           "cssVariables": []
@@ -3192,6 +3210,15 @@
             {
               "name": "data-slot",
               "values": ["shell-titlebar-controls", "shell-titlebar-toggle"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellColumnSwitch": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-column-switch"]
             }
           ],
           "cssVariables": []

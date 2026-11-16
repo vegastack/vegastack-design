@@ -1,4 +1,4 @@
-// @vegastack shell@0.97.0 sha256-ThQRT7ESI7pMt7UqYMqfTko1SZll0jgfzEj+MwkRLAA=
+// @vegastack shell@0.97.0 sha256-mmV7lnA+n0thZ0SYDypvO6Fn0buT+dQfmAHzD8+3qYk=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/input-group";
 import {
   ShellColumnResize,
+  ShellColumnSwitch,
   ShellController,
   ShellRailIcon,
   ShellSkipLink,
@@ -36,12 +37,14 @@ import {
 
 export {
   ShellBottomBar,
+  ShellColumnSwitch,
   ShellTitleBarControls,
   lazyAnimatedIcon,
   toggleShellColumn,
   useShellLayout,
   type ShellBottomBarProps,
   type ShellColumnState,
+  type ShellColumnSwitchProps,
   type ShellHistory,
   type ShellLayoutState,
   type ShellTitleBarControlsProps,
@@ -257,6 +260,11 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
   ${S}[data-fill="parent"] [data-slot="shell-main-area"] { height: 100%; }
   ${S}[data-fill="parent"] [data-slot="shell-content"] { overflow-y: auto; }
   ${S}[data-has-bottombar] [data-slot="shell-content"] { padding-bottom: calc(var(--shell-bottombar-height) + env(safe-area-inset-bottom)); }
+  /* The column has no ▤ here: the page title opens it as a sheet (L13). */
+  ${S}[data-has-column] [data-slot="shell-column-switch"] { display: grid; }
+  [data-slot="shell-topbar-heading"] > h1 { font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: 600; }
+  /* The column as a sheet takes fingers, not a pointer: rows grow to a 44px target. */
+  [data-slot="shell-column-area"] [data-slot="shell-column-item"] { height: 2.75rem; }
   ${S}:not([data-fill="parent"]) [data-slot="shell-floating-area"] {
     position: fixed;
     inset-inline-end: max(1rem, env(safe-area-inset-right));
@@ -1164,17 +1172,24 @@ export function ShellTopBar({ className, ...props }: ShellTopBarProps) {
 export interface ShellTopBarTitleProps extends React.ComponentProps<"div"> {
   /** The breadcrumb before the title: links to the parents, separated for you. @default undefined */
   parents?: React.ReactNode;
+  /**
+   * On a phone with a column, the title opens the column as a sheet; this names that button
+   * (e.g. "Switch Tasks view"). @default 'Switch view'
+   */
+  switchLabel?: string;
 }
 
 /**
  * `ShellTopBarTitle` — the page's title, its `<h1>`, rendered on the server with the page (never
- * portalled), after the breadcrumb of its parents.
+ * portalled), after the breadcrumb of its parents. On a phone with a column, a tap on the title
+ * opens the column as a sheet (`ShellColumnSwitch`, L13).
  *
  * @example
  * <ShellTopBarTitle parents={<><a href="/library">Library</a><a href="/library/f">Pricing</a></>}>Q3 review</ShellTopBarTitle>
  */
 export function ShellTopBarTitle({
   parents,
+  switchLabel,
   className,
   children,
   ...props
@@ -1207,7 +1222,13 @@ export function ShellTopBarTitle({
           </ol>
         </nav>
       ) : null}
-      <h1 className="min-w-0 truncate text-sm font-medium">{children}</h1>
+      <div
+        data-slot="shell-topbar-heading"
+        className="relative flex min-w-0 items-center gap-0.5"
+      >
+        <h1 className="min-w-0 truncate text-sm font-medium">{children}</h1>
+        <ShellColumnSwitch label={switchLabel} />
+      </div>
     </div>
   );
 }

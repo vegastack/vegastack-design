@@ -1,10 +1,15 @@
-// @vegastack shell@0.97.0 sha256-ThQRT7ESI7pMt7UqYMqfTko1SZll0jgfzEj+MwkRLAA=
+// @vegastack shell@0.97.0 sha256-mmV7lnA+n0thZ0SYDypvO6Fn0buT+dQfmAHzD8+3qYk=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import { ChevronLeft, ChevronRight, PanelLeft } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  PanelLeft,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isEditableTarget } from "@/components/ui/use-platform";
 import type {
@@ -28,8 +33,8 @@ is here only adds behaviour on top of a layout that is already right:
 - `ShellController` mirrors the CSS outcome into `data-tier`, `data-column` and `data-panel-mode`
   on the shell for scripts (`useShellLayout`), keeps the cookies, and owns ⌘\, F6, Escape, the
   hover-peek of a folded column and the tablet slide-over (L14).
-- `ShellColumnResize`, `ShellSkipLink`, `ShellTitleBarControls` and `ShellBottomBar` are the
-  interactive leaves.
+- `ShellColumnResize`, `ShellSkipLink`, `ShellTitleBarControls`, `ShellColumnSwitch` and
+  `ShellBottomBar` are the interactive leaves.
 
 Nothing here re-renders React per pointer move: drags and scrolls write attributes and CSS
 variables on the shell element directly.
@@ -418,7 +423,12 @@ export function ShellController() {
       if (root.dataset.colFloat !== "open") return;
       const target = event.target as Element;
       if (columnArea?.contains(target)) return;
-      if (target.closest('[data-slot="shell-titlebar-toggle"]')) return;
+      if (
+        target.closest(
+          '[data-slot="shell-titlebar-toggle"], [data-slot="shell-column-switch"]',
+        )
+      )
+        return;
       setFloat(false);
     };
     const onClick = (event: MouseEvent) => {
@@ -721,6 +731,70 @@ export function ShellTitleBarControls({
         </>
       ) : null}
     </div>
+  );
+}
+
+/** Props accepted by `ShellColumnSwitch`. */
+export interface ShellColumnSwitchProps extends Omit<
+  React.ComponentProps<typeof Button>,
+  "children" | "variant" | "size" | "ref"
+> {
+  /** What the button does, read out after the page's heading. @default 'Switch view' */
+  label?: string;
+}
+
+/**
+ * `ShellColumnSwitch` — on a phone, the page title opens the module's column as a sheet (L13):
+ * the ▤ of wider screens has no room there. `ShellTopBarTitle` renders it after its `<h1>`, and
+ * the shell shows it only on a phone with a column; its hit area covers the heading, so a tap
+ * anywhere on the title opens the sheet. Picking something in the sheet closes it.
+ *
+ * @example
+ * <ShellTopBarTitle switchLabel="Switch Tasks view">My tasks</ShellTopBarTitle>
+ */
+export function ShellColumnSwitch({
+  label = "Switch view",
+  className,
+  onClick,
+  ...props
+}: ShellColumnSwitchProps) {
+  const ref = React.useRef<HTMLButtonElement>(null);
+  const [open, setOpen] = React.useState(false);
+  React.useEffect(() => {
+    const root = shellOf(ref.current);
+    if (!root) return;
+    const read = () => setOpen(root.dataset.colFloat === "open");
+    read();
+    const mutations = new MutationObserver(read);
+    mutations.observe(root, {
+      attributes: true,
+      attributeFilter: ["data-col-float"],
+    });
+    return () => mutations.disconnect();
+  }, []);
+  return (
+    <Button
+      ref={ref}
+      data-slot="shell-column-switch"
+      variant="ghost"
+      size="icon-xs"
+      aria-label={label}
+      aria-haspopup="dialog"
+      aria-expanded={open}
+      // `static`: the hit area (`after`) spans the heading, so a tap on the title opens the sheet.
+      className={cn(
+        "static hidden text-muted-foreground after:absolute after:inset-x-0 after:-inset-y-2.5 after:content-[''] pointer-coarse:after:inset-x-0 pointer-coarse:after:-inset-y-2.5 [&_svg]:transition-transform [&_svg]:duration-quick aria-expanded:[&_svg]:rotate-180",
+        className,
+      )}
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented)
+          toggleShellColumn(event.currentTarget, "toggle");
+      }}
+      {...props}
+    >
+      <ChevronDown aria-hidden="true" />
+    </Button>
   );
 }
 

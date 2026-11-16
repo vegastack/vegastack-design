@@ -326,3 +326,31 @@ test("a section keeps its measure and a bleed reaches past the page gutter", asy
   expect(section.width).toBe(1200);
   expect(Math.round(bleed.width)).toBe(Math.round(page.width));
 });
+
+const columnSwitch = () =>
+  document.querySelector<HTMLElement>('[data-slot="shell-column-switch"]')!;
+
+test("on a phone the title opens the column as a sheet", async () => {
+  await render(<Frame width={390} />);
+  await settled();
+  expect(getComputedStyle(columnSwitch()).display).not.toBe("none");
+  expect(document.querySelector("h1")?.textContent).toBe("My tasks");
+  await userEvent.click(columnSwitch());
+  await expect.poll(() => shell().dataset.column).toBe("over");
+  expect(columnSwitch().getAttribute("aria-expanded")).toBe("true");
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => shell().dataset.column).toBe("none");
+});
+
+test.each([
+  [390, false],
+  [820, true],
+  [1440, true],
+] as const)(
+  "at %ipx (column %s) the title has no switch",
+  async (width, column) => {
+    await render(<Frame width={width} column={column} />);
+    await settled();
+    expect(getComputedStyle(columnSwitch()).display).toBe("none");
+  },
+);
