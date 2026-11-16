@@ -400,3 +400,19 @@ test("J / K work inside a sheet that holds the Inbox; a linkless row that opens 
   expect(document.activeElement).toBe(third.element());
   await expect.element(third).toHaveAttribute("tabindex", "0");
 });
+
+test("a page Inbox has no header, is named by its title and pages from the viewport", async () => {
+  const onLoadMore = vi.fn();
+  const screen = await render(
+    <Inbox layout="page" title="Mentions" onLoadMore={onLoadMore} hasMore>
+      <InboxGroup label="Today">
+        <InboxItem title="Asha mentioned you" href="/tasks/1" />
+      </InboxGroup>
+    </Inbox>,
+  );
+  await expect
+    .element(screen.getByRole("region", { name: "Mentions" }))
+    .toBeInTheDocument();
+  expect(screen.container.querySelector("header")).toBeNull();
+  await vi.waitFor(() => expect(onLoadMore).toHaveBeenCalled());
+});

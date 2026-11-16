@@ -21980,6 +21980,10 @@
         "Inbox": {
           "attributes": [
             {
+              "name": "data-layout",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["inbox", "inbox-body"]
             }
