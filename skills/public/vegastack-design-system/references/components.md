@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**235 components**, plus 467 animated-icon items, 19 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `geo-data`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 827 registry items in total.
+**237 components**, plus 467 animated-icon items, 19 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`app-shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `geo-data`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 829 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -16,6 +16,7 @@ starts with `icon-` is a component and never an icon.
 - **`copy-button`** — Copy a value to the clipboard with transient check feedback — a ghost icon button that swaps Copy → Check and fires onCopied.
 - **`toggle`** — A two-state button that can be pressed on or off, with a loading state (API-5).
 - **`toggle-group`** — Toggle buttons sharing one selection — single or multiple, horizontal or vertical.
+- **`tool-group`** — A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with ⋯ as the one More.
 
 ## Form
 
@@ -257,6 +258,7 @@ starts with `icon-` is a component and never an icon.
 - **`request-card`** — One card for every question an agent asks before it acts — Allow once · Always allow (one step wider from its menu) · Decline (with a note, or Never allow this) — its settled line in the same words on every channel, and What I've allowed with uses and Revoke.
 - **`resource-pill`** — The person's own thing in an answer — its type icon and real title as an inline chip — never a numbered source.
 - **`run-usage`** — What one agent run used: a chip under the answer (steps, context, cache, optional money), a panel by model with cache per step and Subagents, and a table with one row per model call.
+- **`shell-assistant`** — The floating "Ask {name}" pill at the page area's corner and the compact assistant card it opens.
 - **`source-list`** — The web pages an answer cites: a quiet Sources fold of one-line numbered rows, the citation card and the MarkdownView wiring.
 - **`status-glyph`** — One glyph per state in agent UI: ✓ done in the blue accent, ◌ not started, ◐ running (still), ⊘ skipped, ✗ failed, ⚠ needs you.
 - **`suggestion-card`** — An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.

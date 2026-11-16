@@ -77,7 +77,10 @@ stack reads as separate faces.
 
 ### Avatar Group Count
 
-Use `AvatarGroupCount` to close the stack with a count. It tracks the group's avatar size.
+Use `AvatarGroupCount` to close the stack with a count. It tracks the group's avatar size. Or pass
+`max` to `AvatarGroup` and it does this for you: it shows the first `max` avatars and closes with
+"+N" for the rest (`total` when the list is longer than the avatars you pass). An avatar carrying
+`data-here` — the people in the record now — takes a primary ring.
 
 <ComponentPreview
   name="avatarAvatarGroupCount"
@@ -170,3 +173,7 @@ Upstream's file plus `packages/ui/upstream/patches/avatar.patch`. Every hunk:
 - **API-32** — `AvatarFallback` takes an optional `hue` (the ten `--tag-*` hues, exported as
   `AvatarHue`) painting `bg-tag-{hue}-subtle text-tag-{hue}-text` and writing `data-hue`; with no hue
   it keeps upstream's muted fallback.
+- **API-44** — `AvatarGroup` takes `max`, `total` and `moreLabel`: past `max` it shows the first
+  `max` avatars and closes with an `AvatarGroupCount` reading "+N", named "N more" for screen
+  readers; an avatar carrying `data-here` takes a primary ring. Without `max` or `total` the group
+  is upstream's.

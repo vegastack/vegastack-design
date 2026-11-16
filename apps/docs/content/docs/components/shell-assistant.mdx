@@ -1,0 +1,134 @@
+---
+title: Shell Assistant
+description: The floating "Ask {name}" pill at the page area's corner and the compact assistant card it opens.
+audience: public
+registry: shell-assistant
+status: stable
+since: 0.91.0
+a11y: a non-modal labelled dialog; Escape closes and focus returns
+preview: shellAssistant
+---
+
+## Install
+
+<InstallSteps name="shell-assistant" />
+
+## Usage
+
+```tsx
+import {
+  AssistantCard,
+  AssistantCardBody,
+  AssistantCardComposer,
+  AssistantCardContext,
+  AssistantCardHeader,
+  AssistantPill,
+} from "@/components/ui/shell-assistant";
+
+<main ref={mainRef} className="relative">
+  …
+  <AssistantPill
+    name="William"
+    expanded={open}
+    aria-controls="assistant-card"
+    aria-keyshortcuts="Meta+J"
+    scrollTarget={mainRef}
+    onClick={() => setOpen(true)}
+  />
+  <AssistantCard id="assistant-card" open={open} onOpenChange={setOpen}>
+    <AssistantCardHeader
+      title="William"
+      onClose={() => setOpen(false)}
+      onMoveToPanel={moveToPanel}
+      onOpenFull={openFullChat}
+    />
+    <AssistantCardContext onRemove={clearContext}>
+      #3 Review Q3 pricing
+    </AssistantCardContext>
+    <AssistantCardBody>{messages}</AssistantCardBody>
+    <AssistantCardComposer>{composer}</AssistantCardComposer>
+  </AssistantCard>
+</main>;
+```
+
+The pill sits at the bottom-end corner of the page area — the positioned container you put it in —
+and never over a side panel. It tucks away while the page scrolls down and comes back on scroll
+up, when the pointer reaches its corner, or when it takes keyboard focus. Opening is yours: the
+pill's `onClick` and the ⌘J shortcut set `open`.
+
+The card grows out of the same corner, about 380 × 520 and never larger than its container less a
+gutter. It renders nothing until it first opens, so the chat you put in it costs nothing until
+asked for; after that it stays mounted while closed, so a draft survives. Both parts are
+presentational: the host fetches and sends.
+
+<ComponentPreview
+  name="shellAssistant"
+  file="components/preview/shell-assistant.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="shell-assistant" />
+
+## Examples
+
+### Without a context
+
+Remove the chip and the chat is about nothing in particular. Omit `onRemove` for a context the
+person can't drop.
+
+<ComponentPreview
+  name="shellAssistantNoContext"
+  file="components/preview/shell-assistant.tsx"
+/>
+
+### On a phone
+
+There is no pill on a phone: the tab bar holds the bottom edge. Put `AssistantCardHeader`,
+`AssistantCardContext`, `AssistantCardBody` and `AssistantCardComposer` in a
+[`Drawer`](/docs/components/drawer) opened from a ✦ button in the record's top bar.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-assistant.tsx"
+  name="AssistantPillProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-assistant.tsx"
+  name="AssistantCardProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-assistant.tsx"
+  name="AssistantCardHeaderProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/shell-assistant.tsx"
+  name="AssistantCardContextProps"
+/>
+
+## Accessibility
+
+| Key            | Does                                                                 |
+| -------------- | -------------------------------------------------------------------- |
+| <kbd>⌘J</kbd>  | The host's shortcut opens the card; set `aria-keyshortcuts`.         |
+| <kbd>Esc</kbd> | Closes the card from anywhere inside it, unless a menu took it.      |
+| <kbd>Tab</kbd> | Moves through the header's tools, the context chip and the composer. |
+
+- The pill is a button named `Ask {name}`; it reports `aria-expanded` and steps aside (inert)
+  while the card is open.
+- The card is a non-modal `dialog` labelled by the assistant's name. Opening it moves focus to its
+  first text field; closing it returns focus to what opened it. While closed it is inert.
+- Motion is the system's own and follows reduced motion.
+
+<StatesTested name="shell-assistant" />
+
+## Do / Don't
+
+<DoDont
+  do="Put the pill in the page area's container, beside the panel."
+  dont="Float it over the panel, or show it on the full chat page and Settings."
+/>
