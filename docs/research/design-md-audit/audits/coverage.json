@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "651ca73844d06a14d0d95b19deb9a1e9ed088ed0d471b9ab2a3d27121b9cbacf",
+  "contractSha256": "e03df7ba8b26e129798ea42932e9f10f5951c575b17d1aa2707421eb41023825",
   "inventory": {
-    "expected": 829,
-    "actual": 829,
-    "unique": 829
+    "expected": 832,
+    "actual": 832,
+    "unique": 832
   },
   "classes": {
-    "components": 237,
+    "components": 238,
     "animatedIcons": 467,
     "hooks": 19,
-    "blocks": 15,
+    "blocks": 16,
     "chartBlocks": 68,
-    "libs": 23
+    "libs": 24
   },
   "waves": {
     "Core controls": {
@@ -98,8 +98,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 27,
-      "actual": 27,
+      "expected": 28,
+      "actual": 28,
       "members": [
         "accordion",
         "app-shell",
@@ -123,6 +123,7 @@
         "route-tabs",
         "scroll-area",
         "settings-layout",
+        "shell",
         "sidebar",
         "sidebar-menu-flyout",
         "stepper",
@@ -327,8 +328,8 @@
       ]
     },
     "Block": {
-      "expected": 15,
-      "actual": 83,
+      "expected": 16,
+      "actual": 84,
       "members": [
         "app-shell-01",
         "board-01",
@@ -412,6 +413,7 @@
         "settings-01",
         "settings-02",
         "share-01",
+        "shell-01",
         "status-pages-01"
       ]
     },
@@ -889,7 +891,7 @@
       ]
     }
   },
-  "componentRoutes": 231,
-  "blockRoutes": 22,
+  "componentRoutes": 232,
+  "blockRoutes": 23,
   "modeledExemptions": 3
 }

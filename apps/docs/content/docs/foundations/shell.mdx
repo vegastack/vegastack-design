@@ -1,0 +1,80 @@
+---
+title: Shell layout
+description: Five regions with one owner each, one set of sizes, and one rule for where the column and the panel go at every width.
+audience: public
+---
+
+Every screen of the app sits in one frame, [`Shell`](/docs/components/shell). It has **five
+regions**, each owned by one part, and **one rule** decides where they go at every width (LAY-22).
+
+```
+┌────┬───────────────┬────────────────────────────────────────┬────────────────┐
+│ R  │ C             │ T  top bar (48)                        │ P  panel       │
+│ a  │ o             ├────────────────────────────────────────┤  (tabs)        │
+│ i  │ l             │                                        │                │
+│ l  │ u             │  W  the page                           │                │
+│    │ m             │                                        │                │
+│ 64 │ n  240        │  prose 720 · default 1200 · full       │  420 (360–720) │
+└────┴───────────────┴────────────────────────────────────────┴────────────────┘
+```
+
+## The regions
+
+| Region    | Part                              | Size                                       | Holds                                                                  |
+| --------- | --------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
+| Rail      | `ShellRail`                       | 64px                                       | New, Search, the modules (icon and a short label), More, Help, you     |
+| Column    | `ShellColumn`                     | 240px, 200–360, folds to 0                 | The current module's own navigation: views, folders, spaces, chats     |
+| Top bar   | `ShellTopBar`                     | 48px                                       | Title, presence, tools, actions, primary, panel toggle — in that order |
+| Page      | `ShellMain` › `ShellPage`         | prose 720 · default 1200 · full · form 720 | The page                                                               |
+| Panel     | the panel host, placed by `Shell` | 420px, 360–720                             | Records and views as tabs                                              |
+| Phone bar | `ShellBottomBar`                  | 56px + the home indicator                  | Home, Agents, Tasks, Inbox, More                                       |
+
+Every size is a token, never a literal: `--shell-rail-width`, `--shell-column-width` (`-min`,
+`-max`), `--shell-topbar-height`, `--shell-panel-width` (`-min`, `-max`),
+`--shell-bottombar-height`, and the desktop title row's `--shell-titlebar-mac-inset` and
+`--shell-titlebar-win-inset`. The top bar's height is the height of every title row: the column's
+head, the panel's head and the desktop app's window row.
+
+## Where the column and the panel go
+
+The tiers are the design system's own: phone under 40rem, tablet under 64rem, laptop under 90rem,
+then wide — read on the shell's width with container queries, so a resized desktop window, iPad
+split view and browser zoom all behave the same.
+
+- **Phone.** No rail: the bottom bar. The column is a sheet from the page's title. The panel is
+  full screen.
+- **Tablet.** The rail shows. The column never takes room: it slides over the page from ▤, an
+  edge swipe, or a hover on the current module, and goes away once you pick something.
+- **Laptop and wide.** The column sits in the flow while the person keeps it open (⌘\).
+
+With the panel open, it docks **beside** the page while the page keeps its minimum — a list 640,
+a document 560, a chat 520. If not, the **column folds first**; if that is still not enough, the
+panel **slides over** the page and the column comes back. When the room returns, so does the
+column. Resizing the column stops where the page would get narrower than its minimum.
+
+| Window | Page       | Panel                 |
+| ------ | ---------- | --------------------- |
+| 1440   | list (640) | Beside, column shown  |
+| 1280   | list (640) | Beside, column folded |
+| 1024   | list (640) | Over the page         |
+| 1280   | chat (520) | Beside, column shown  |
+| 390    | any        | Full screen           |
+
+## State before the first paint
+
+The shell lays itself out in CSS from data attributes, so the server's HTML is already right.
+`ShellStateScript`, in `<head>`, reads the person's column and panel cookies (`open:240`) before
+the first paint and marks `<html>`; a missing or stale cookie falls back to the defaults with the
+panel closed. Nothing moves when the page hydrates.
+
+## Motion
+
+The shell reuses the motion tokens: the column folds in `duration-state` on `ease-emphasized`;
+the panel opens in `duration-layout` on `ease-standard`, and the page makes room as it does;
+closing uses `duration-state-exit` on `ease-exit`. With reduced motion, all of it is instant.
+
+## Layers
+
+The floating area (the assistant pill, the audio player, upload progress) is `z-10`, a column
+sliding over the page and an overlaying panel sit above the page, menus and dialogs are `z-50`,
+toasts `z-60` at the bottom centre.

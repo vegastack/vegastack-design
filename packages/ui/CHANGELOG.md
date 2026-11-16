@@ -1,5 +1,23 @@
 # @vegastack/ui
 
+## 0.93.0
+
+### Minor Changes
+
+- [#998](https://github.com/vegastack/vegastack-design/pull/998) [`7ff61b5`](https://github.com/vegastack/vegastack-design/commit/7ff61b5b7948b687ab33bc64ece8eb2d90c75049) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `Shell` (LAY-22 to LAY-25): the frame every screen sits in — a 64px module rail with labels and counts, the module's resizable column, a 48px top bar whose slots keep one order (title as the page's `<h1>`, presence, tools, actions, primary, panel toggle), the page (`ShellPage` `prose`, `default`, `full`, `form`), a slot for the panel host, `ShellFloatingArea` for floating items and `ShellBottomBar` for phones. It lays itself out in CSS before hydration: container queries over the shell's own data attributes place the column and the panel — beside the page while it keeps its minimum width, else the column folds, else the panel slides over. ⌘\ folds the column, F6 cycles the regions, a tablet slides the column over the page, a folded column peeks on hover, and the desktop app's first row is one draggable title row. `ShellStateScript` and `TimeZoneScript` come from `shell-scripts`, with no client imports, for the root layout. New lib `shell-layout` (`resolveShellLayout`, sizes, cookies) and block `shell-01`. Additive: `AppShell` and `Sidebar` are unchanged.
+
+## 0.92.0
+
+### Minor Changes
+
+- [#1000](https://github.com/vegastack/vegastack-design/pull/1000) [`2d6d230`](https://github.com/vegastack/vegastack-design/commit/2d6d23037601661eb2e6db2a72b1e223dd2c213c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Inbox: `layout="page"` for an Inbox page — no visible header (its title stays as a visually hidden heading that names it), rows scroll with the page and infinite scroll watches the viewport.
+
+## 0.91.1
+
+### Patch Changes
+
+- [#1002](https://github.com/vegastack/vegastack-design/pull/1002) [`6da8f06`](https://github.com/vegastack/vegastack-design/commit/6da8f06c50bc5e62f7023e4f4e728bd07d35d8dd) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 `/llms-full.txt` leaves out the changelog and the shadcn-reset migration guide, its two largest pages (about 840 KB together), so the corpus sits well under its 6 MiB cap with room for new component pages. Both stay on the site, in `/llms.txt`'s page index and as their own `.md` exports; `llms.txt` says so.
+
 ## 0.91.0
 
 ### Minor Changes

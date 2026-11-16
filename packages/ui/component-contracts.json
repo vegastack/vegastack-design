@@ -12,25 +12,25 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 829,
-    "components": 237,
+    "totalRegistryItems": 832,
+    "components": 238,
     "animatedIcons": 467,
     "hooks": 19,
-    "blocks": 15,
-    "libs": 23,
+    "blocks": 16,
+    "libs": 24,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 25,
     "Forms/editing": 44,
-    "Navigation/layout": 27,
+    "Navigation/layout": 28,
     "Overlays": 24,
     "Data display": 50,
     "Content/marketing": 15,
     "Shared internals": 6,
     "AI/chat": 46,
     "Hooks": 19,
-    "Block": 15,
+    "Block": 16,
     "Animated icons": 467
   },
   "expectedWaveMembers": {
@@ -117,6 +117,7 @@
       "sidebar",
       "navigation-menu",
       "app-shell",
+      "shell",
       "resizable",
       "scroll-area",
       "stepper",
@@ -323,7 +324,8 @@
       "settings-02",
       "status-pages-01",
       "email-kit",
-      "share-01"
+      "share-01",
+      "shell-01"
     ],
     "Animated icons": "packages/ui/animated-icon-sources.json"
   },
@@ -2201,6 +2203,919 @@
                 "app-shell-skeleton-nav-row",
                 "app-shell-skeleton-stats"
               ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "shell",
+      "registryType": "registry:ui",
+      "title": "Shell",
+      "summary": "The frame every screen sits in — a 64px labelled module rail, the module's resizable column, a 48px top bar with fixed slots, the page, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over.",
+      "status": "stable",
+      "since": "0.90.0",
+      "family": "layout",
+      "wave": "Navigation/layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/shell.tsx",
+        "packages/ui/registry/ui/shell-client.tsx",
+        "packages/ui/registry/ui/shell-scripts.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "Shell",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellBottomBar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellBottomBarItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellBottomBarItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellBottomBarProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumn",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnHeaderProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnResize",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnSearch",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnSearchProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnSectionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnTree",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellController",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellFloatingArea",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellHistory",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellLayoutState",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellMain",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellMainProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellPage",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellPageProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellPageSize",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellPanelToggle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellPanelToggleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRail",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRailFooter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRailItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRailItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRailMore",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRailMoreProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRailProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellSkipLink",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellStateScript",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTitleBarControls",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTitleBarControlsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarActions",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarLabel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarLead",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarPresence",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarPrimary",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarSlotProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarTitleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarTools",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TimeZoneScript",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "toggleShellColumn",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useShellLayout",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "panelOpen",
+            "values": ["false", "true", "off"]
+          },
+          {
+            "name": "fill",
+            "values": ["viewport", "parent"]
+          },
+          {
+            "name": "pageMin",
+            "values": ["520", "560", "640"]
+          },
+          {
+            "name": "ShellPage.size",
+            "values": ["prose", "default", "full", "form"]
+          }
+        ],
+        "rationale": "The panel's state, what the shell fills, the page minimum the layout rule keeps, and the page width."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Region sizes are the --shell-* tokens (LAY-22)."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "column-shown",
+            "column-folded",
+            "column-auto-folded",
+            "column-over",
+            "panel-closed",
+            "panel-dock",
+            "panel-overlay",
+            "panel-full",
+            "bottom-bar-hidden",
+            "desktop-titlebar-macos",
+            "desktop-titlebar-windows",
+            "print"
+          ],
+          "evidence": "packages/ui/registry/ui/shell.tsx + packages/ui/registry/ui/shell.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "landmarks",
+            "skip-link",
+            "f6-regions",
+            "keyboard-shortcuts",
+            "resize-separator",
+            "aria-current",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/shell.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": [
+            "wide",
+            "laptop",
+            "tablet",
+            "phone",
+            "light",
+            "dark",
+            "rtl"
+          ],
+          "evidence": "packages/ui/registry/ui/shell.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink",
+          "safe-area-insets"
+        ],
+        "rationale": "Container queries on the shell decide the tier and the layout rule; the phone bar and floating area respect safe areas; labels truncate."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "tokenized CSS transition (column fold, panel slide, slide-over)",
+          "keyed CSS animation (page making room)"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The shell's stylesheet zeroes its transitions and animation under prefers-reduced-motion, and the global reset (MOT-5) applies too."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/shell",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/page-layout",
+        "@vegastack/collapsible",
+        "@vegastack/input-group",
+        "@vegastack/use-platform",
+        "@vegastack/shell-layout",
+        "@vegastack/date-time"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.18.0",
+        "lucide-react@^1.47.0",
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/shell.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "shell",
+      "dataAttributes": {
+        "Shell": {
+          "attributes": [
+            {
+              "name": "data-col",
+              "values": ["closed", "open"]
+            },
+            {
+              "name": "data-fill",
+              "values": []
+            },
+            {
+              "name": "data-has-bottombar",
+              "values": [""]
+            },
+            {
+              "name": "data-has-column",
+              "values": [""]
+            },
+            {
+              "name": "data-page-min",
+              "values": []
+            },
+            {
+              "name": "data-panel",
+              "values": ["closed", "open"]
+            },
+            {
+              "name": "data-shell-region",
+              "values": ["column", "panel"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "shell",
+                "shell-column-area",
+                "shell-column-head",
+                "shell-fit",
+                "shell-main-area",
+                "shell-panel-shadow",
+                "shell-panel-slot",
+                "shell-rail-area",
+                "shell-rail-head",
+                "shell-rail-header-below",
+                "shell-room",
+                "shell-scrim",
+                "shell-topbar-lead"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellRail": {
+          "attributes": [
+            {
+              "name": "data-shell-region",
+              "values": ["rail"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["shell-rail"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellRailItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-rail-badge"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellRailFooter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-rail-footer"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellColumn": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-column"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellColumnHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-column-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellColumnSearch": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-column-search"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellColumnSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-column-section"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellColumnItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-column-row"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellColumnTree": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-column-tree"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellTopBar": {
+          "attributes": [
+            {
+              "name": "data-shell-region",
+              "values": ["topbar"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["shell-topbar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellTopBarTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-topbar-title"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellTopBarLabel": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-topbar-label"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellPanelToggle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-panel-toggle"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellMain": {
+          "attributes": [
+            {
+              "name": "data-print-root",
+              "values": [""]
+            },
+            {
+              "name": "data-shell-region",
+              "values": ["main"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["shell-content"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellPage": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["shell-page"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellFloatingArea": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-floating-area"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellController": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-controller"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellColumnResize": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-resize"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellSkipLink": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-skip"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellTitleBarControls": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-titlebar-controls", "shell-titlebar-toggle"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellBottomBar": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-bottombar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellStateScript": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-state-script"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "TimeZoneScript": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["time-zone-script"]
             }
           ],
           "cssVariables": []
@@ -21978,6 +22893,10 @@
       "dataAttributes": {
         "Inbox": {
           "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            },
             {
               "name": "data-slot",
               "values": ["inbox", "inbox-body"]
@@ -57790,6 +58709,109 @@
       "previewModule": "app-shell-01"
     },
     {
+      "name": "shell-01",
+      "registryType": "registry:block",
+      "title": "Shell 01",
+      "summary": "The shell reference — the module rail, the Tasks column, the top bar in its fixed order, a task list, and a record opening in the panel beside it.",
+      "family": "starter-block",
+      "wave": "Block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/shell-01/page.tsx",
+        "packages/ui/registry/blocks/shell-01/components/tasks.ts"
+      ],
+      "publicSymbols": [
+        {
+          "name": "Shell01Page",
+          "kind": "component",
+          "source": "packages/ui/registry/blocks/shell-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "Task",
+          "kind": "interface",
+          "source": "packages/ui/registry/blocks/shell-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TASKS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/blocks/shell-01/page.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
+      },
+      "states": {
+        "behavior": {
+          "status": "observed",
+          "values": ["default", "search-open"],
+          "evidence": "Observed from the block's own branches and the state its parts carry."
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["semantic-html", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx + packages/ui/registry/blocks/app-shell-01/app-shell-01.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "hover", "focus"],
+          "evidence": "Observed from the token classes the composition carries."
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
+        "rationale": "A block is a whole page: it is laid out across breakpoints and captured at 1440x900 and 390x844 in the batch's review artifact."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["the composed components' own transitions"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/blocks/shell-01",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/avatar",
+        "@vegastack/shell"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "testFiles": ["packages/ui/registry/blocks/shell-01/shell-01.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "shell-01"
+    },
+    {
       "name": "board-01",
       "registryType": "registry:block",
       "title": "Board 01",
@@ -61990,6 +63012,196 @@
       },
       "npmDependencies": [],
       "testFiles": ["packages/ui/registry/lib/page-layout.test.ts"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "shared-guide-only",
+        "navigation": "exempt",
+        "preview": "exempt",
+        "vrt": "exempt"
+      }
+    },
+    {
+      "name": "shell-layout",
+      "registryType": "registry:lib",
+      "title": "Shell Layout",
+      "summary": "The shell's layout rule as one pure function — resolveShellLayout — plus the shell's sizes, page minimums, cookies and width clamps.",
+      "family": "lib",
+      "wave": "Libs",
+      "sourceFiles": ["packages/ui/registry/lib/shell-layout.ts"],
+      "publicSymbols": [
+        {
+          "name": "clampColumnWidth",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "clampPanelWidth",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "parseShellCookie",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "resolveShellLayout",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SHELL_COOKIE_MAX_AGE",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SHELL_COOKIES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SHELL_PAGE_MIN",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "SHELL_SIZES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "shellCookie",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellCookieValue",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellLayout",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellLayoutInput",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellPageMin",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellPanelMode",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/shell-layout.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data module renders nothing and has no variant surface."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "A data module renders nothing and has no size scale."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism observed."
+        }
+      },
+      "engines": [],
+      "registryDependencies": ["@vegastack/page-layout"],
+      "docsSlug": "/docs/components/shell",
+      "states": {
+        "behavior": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "Pure functions over widths and cookie strings: no DOM and no state."
+        },
+        "accessibility": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — AppShellPage renders the page container."
+        },
+        "visual": {
+          "status": "not-applicable",
+          "values": ["not-applicable"],
+          "evidence": "No DOM — the widths are AppShellPage's classes."
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "No DOM of its own; consumers own layout."
+      },
+      "npmDependencies": [],
+      "testFiles": ["packages/ui/registry/lib/shell-layout.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",

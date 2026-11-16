@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 159,
+    "total": 164,
     "fromExtras": 46
   },
   "items": {
@@ -1163,6 +1163,22 @@
       "family": "chat",
       "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors — operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no connector resource reference. Resource Pill, an InlineChip with the connector kinds' icons and words; no patch."
+    },
+    "shell": {
+      "disposition": "keep",
+      "family": "layout",
+      "source": "Regent shell layout overhaul P0 (decisions L1–L22, contract `04-contract.md` §2 and §5) — operator batch approval 16-11-2026 \"Approve, go dark\"",
+      "rationale": "Upstream ships no app frame beyond its Sidebar. One frame of five regions — the module rail, the module column, the top bar with fixed slots, the page and a panel slot — plus the phone bottom bar, laid out by container queries over data attributes before hydration (LAY-22), composing upstream button, collapsible, dropdown-menu and input-group; no patch."
+    },
+    "shell-client": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of shell (its client islands — the controller for ⌘\\, F6, hover-peek, slide-over and cookies, the column resize edge, the skip link, the title-bar controls and the phone bar) apart so Shell stays server-safe. Regent shell layout overhaul P0 (decisions L1–L22, contract `04-contract.md` §2 and §5) — operator batch approval 16-11-2026 \"Approve, go dark\""
+    },
+    "shell-scripts": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of shell (the before-paint ShellStateScript and TimeZoneScript, with no client imports, so a root layout can render them without pulling any client graph into public pages). Regent shell layout overhaul P0 (decisions L1–L22, contract `04-contract.md` §2 and §5) — operator batch approval 16-11-2026 \"Approve, go dark\""
     },
     "tool-group": {
       "disposition": "keep",

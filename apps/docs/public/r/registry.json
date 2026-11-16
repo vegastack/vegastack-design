@@ -219,6 +219,81 @@
       }
     },
     {
+      "name": "shell-layout",
+      "type": "registry:lib",
+      "title": "Shell Layout",
+      "description": "The shell's layout rule as one pure function — resolveShellLayout decides, for a width, whether the column takes room and whether the panel docks beside the page, folds the column, slides over the page or goes full screen — plus the shell's sizes, page minimums, cookies and width clamps.",
+      "categories": [
+        "layout"
+      ],
+      "dependencies": [],
+      "registryDependencies": [
+        "@vegastack/page-layout"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/lib/shell-layout.ts",
+          "type": "registry:lib",
+          "target": "@lib/shell-layout.ts"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Code that must know where the shell puts the column and panel without a DOM — a server deciding how a record opens, a test, a docs table — or the shell's sizes and cookie format.",
+        "whenNotToUse": "Laying the shell out: Shell does that in CSS before hydration; read the live outcome with useShellLayout.",
+        "version": "0.93.0",
+        "integrity": "sha256-dloEsU93NBbd49/rA0117wUJwXDYfenLW1FICsWrWh4="
+      }
+    },
+    {
+      "name": "shell",
+      "type": "registry:ui",
+      "title": "Shell",
+      "description": "The frame every screen sits in — a 64px labelled module rail, the module's resizable column, a 48px top bar with fixed slots, the page, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over; with the desktop app's one title row, the cookie state script and the floating area.",
+      "categories": [
+        "layout",
+        "navigation"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/dropdown-menu",
+        "@vegastack/input-group",
+        "@vegastack/use-platform",
+        "@vegastack/page-layout",
+        "@vegastack/shell-layout",
+        "@vegastack/date-time"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/shell.tsx",
+          "type": "registry:ui",
+          "target": "@ui/shell.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/shell-client.tsx",
+          "type": "registry:ui",
+          "target": "@ui/shell-client.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/shell-scripts.tsx",
+          "type": "registry:ui",
+          "target": "@ui/shell-scripts.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
+        "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
+        "version": "0.93.0",
+        "integrity": "sha256-7mbrHp0sfRFioD/Od5okHt70ZdTOVx3GapFrdgM2PQA="
+      }
+    },
+    {
       "name": "document-layout",
       "type": "registry:ui",
       "title": "Document Layout",
@@ -17611,8 +17686,8 @@
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
-        "version": "0.90.0",
-        "integrity": "sha256-8U8EM9k21j4aPqg7iET5V737vFN+C1NUKn4sVyG1duo="
+        "version": "0.92.0",
+        "integrity": "sha256-OPJ8zSfrmTja2FK/DvrO/70ghIUA+995qtNn8PMK2B4="
       }
     },
     {
@@ -21221,6 +21296,44 @@
         "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
         "version": "0.90.0",
         "integrity": "sha256-gSAp6+LOaCN3ZddxgBvU6Q8jihkxbeas+STlHtphStg="
+      }
+    },
+    {
+      "name": "shell-01",
+      "type": "registry:block",
+      "title": "Shell 01",
+      "description": "The shell reference — the module rail with counts and More, the Tasks column with views and a spaces tree, the top bar in its fixed order, a task list, and a task opening in the panel beside it; the phone bottom bar below 640px.",
+      "categories": [
+        "layout",
+        "navigation"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design-tokens@^0.18.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/shell"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/blocks/shell-01/components/tasks.ts",
+          "type": "registry:component",
+          "target": "app/shell-01/components/tasks.ts"
+        },
+        {
+          "path": "packages/ui/registry/blocks/shell-01/page.tsx",
+          "type": "registry:page",
+          "target": "app/shell-01/page.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout and feed its rail, column and panel from your routes.",
+        "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
+        "version": "0.93.0",
+        "integrity": "sha256-g/9smq1499wnWnqdwr/iN/GaKqvGuGOFC1OXWjv0JVw="
       }
     },
     {
