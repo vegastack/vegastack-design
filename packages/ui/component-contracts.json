@@ -2719,6 +2719,78 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "lazyAnimatedIcon",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellBleed",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellBleedProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "shellGutterClasses",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRailIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellRailIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellSectionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -3049,6 +3121,36 @@
           ],
           "cssVariables": []
         },
+        "ShellSection": {
+          "attributes": [
+            {
+              "name": "data-align",
+              "values": []
+            },
+            {
+              "name": "data-measure",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["shell-section"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellBleed": {
+          "attributes": [
+            {
+              "name": "data-active",
+              "values": ["false", "true"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["shell-bleed"]
+            }
+          ],
+          "cssVariables": []
+        },
         "ShellFloatingArea": {
           "attributes": [
             {
@@ -3099,6 +3201,15 @@
             {
               "name": "data-slot",
               "values": ["shell-bottombar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ShellRailIcon": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["shell-rail-icon"]
             }
           ],
           "cssVariables": []

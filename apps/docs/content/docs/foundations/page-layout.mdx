@@ -4,20 +4,21 @@ description: Three page widths, one gutter scale, and one route map — how wide
 audience: public
 ---
 
-Every page in an `AppShell` is one `AppShellPage`, and it has **one of three widths**. The header,
+Every page in an `AppShell` is one `AppShellPage`, and it has **one of four widths**. The header,
 the page and the record rail share **one gutter**, so their edges line up. Which width a route
 gets is declared **once**, in a route map the page, its loading skeleton and a test all read.
 Nothing else decides a page's width or gutter.
 
 <PageLayoutSpecimen />
 
-## The three widths
+## The four widths
 
-| `size`    | Width                          | Use it for                                                          |
-| --------- | ------------------------------ | ------------------------------------------------------------------- |
-| `prose`   | 720px of content, centred      | Forms, settings, a create or edit flow, a profile                   |
-| `default` | Up to 1280px, centred          | Lists, dashboards, record pages with a rail, a home page            |
-| `full`    | Edge to edge, fills the height | Boards, canvases, chat — a surface that uses the whole content area |
+| `size`    | Width                          | Use it for                                                                                                |
+| --------- | ------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| `prose`   | 720px of content, centred      | Forms, settings, a create or edit flow, a profile                                                         |
+| `form`    | 720px of content, centred      | Settings and forms in the shell (`ShellPage` spaces sections wider); `AppShellPage` renders it as `prose` |
+| `default` | Up to 1280px, centred          | Lists, dashboards, record pages with a rail, a home page                                                  |
+| `full`    | Edge to edge, fills the height | Boards, canvases, chat — a surface that uses the whole content area                                       |
 
 `default` is the default. `narrow` is `prose`'s old name: it still renders `prose` (and reports
 `data-size="prose"`), `vegastack-design doctor` warns on it, and it goes in the next minor.

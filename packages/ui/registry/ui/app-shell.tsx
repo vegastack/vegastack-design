@@ -1,4 +1,4 @@
-// @vegastack app-shell@0.90.0 sha256-vy63qHBK5nM3w7bfti2gtMnVu2M4usQ50hCnx3NrlFM=
+// @vegastack app-shell@0.90.0 sha256-mQq/VtN7yO7bG6i2Zz+JyTFNNrs6TkY6Gn3D2p9/D+s=
 
 "use client";
 
@@ -1441,7 +1441,11 @@ export function AppShellPage({
     <div
       data-slot="app-shell-page"
       data-size={width}
-      className={cn(appShellPageVariants({ size: width }), className)}
+      className={cn(
+        // `form` is a shell width; here it is `prose`'s 720px.
+        appShellPageVariants({ size: width === "form" ? "prose" : width }),
+        className,
+      )}
       {...props}
     />
   );
