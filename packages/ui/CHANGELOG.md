@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.98.0
+
+### Minor Changes
+
+- [#1007](https://github.com/vegastack/vegastack-design/pull/1007) [`8b85ce1`](https://github.com/vegastack/vegastack-design/commit/8b85ce193501b0774bf67d2cd0ca670413c520cb) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `Shell` on phones (L13): the page title opens the module's column as a sheet. `ShellTopBarTitle` renders the new `ShellColumnSwitch` after its `<h1>` (named by `switchLabel`), shown only on a phone with a column; its hit area spans the heading and it reports `aria-expanded`. On phones the title reads at 16px semibold and the column sheet's rows grow to 44px targets.
+
 ## 0.97.0
 
 ### Minor Changes

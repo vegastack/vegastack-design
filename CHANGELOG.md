@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.98.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: 669e08e72d2f -->
+
+### 🧩 New components
+
+- `Shell` on phones (L13): the page title opens the module's column as a sheet. `ShellTopBarTitle` renders the new `ShellColumnSwitch` after its `<h1>` (named by `switchLabel`), shown only on a phone with a column; its hit area spans the heading and it reports `aria-expanded`. On phones the title reads at 16px semibold and the column sheet's rows grow to 44px targets.
+  [`8b85ce1`](https://github.com/VegaStack/vegastack-design/commit/8b85ce1)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.97.0 → 0.98.0.
+
 ## [0.97.0] — November 16, 2026
 
 <!-- assembled from 1 changeset: 5dfc7ba2e8d1 -->
