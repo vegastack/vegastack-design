@@ -21895,7 +21895,7 @@
       "title": "Notification Dot",
       "summary": "The one unread dot: an 8px solid circle, decorative, for unread rows, inbox items and nav items.",
       "status": "stable",
-      "since": "0.97.0",
+      "since": "0.98.0",
       "family": "media",
       "wave": "Core controls",
       "sourceFiles": ["packages/ui/registry/ui/notification-dot.tsx"],
