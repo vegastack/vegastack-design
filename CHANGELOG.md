@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.92.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: 1d29276633ba -->
+
+### 🔧 Changed components
+
+- Inbox: `layout="page"` for an Inbox page — no visible header (its title stays as a visually hidden heading that names it), rows scroll with the page and infinite scroll watches the viewport.
+  [`2d6d230`](https://github.com/VegaStack/vegastack-design/commit/2d6d230)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.91.1 → 0.92.0.
+
 ## [0.91.1] — November 16, 2026
 
 <!-- assembled from 1 changeset: 3d1f6fb85612 -->
