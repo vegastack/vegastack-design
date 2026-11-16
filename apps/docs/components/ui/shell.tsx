@@ -1,4 +1,4 @@
-// @vegastack shell@0.90.0 sha256-7YgLnqn4cqnaLZh4tCrLKvI32BaP9YLBC8k+X1izOiQ=
+// @vegastack shell@0.90.0 sha256-gcMcexu9gfxw3cInd4u5LRssEaEWQARZP6WEyMhAcRE=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -25,7 +25,12 @@ import {
   ShellController,
   ShellSkipLink,
 } from "@/components/ui/shell-client";
-import { SHELL_PAGE_MIN, type ShellPageMin } from "@/lib/shell-layout";
+import {
+  clampColumnWidth,
+  clampPanelWidth,
+  SHELL_PAGE_MIN,
+  type ShellPageMin,
+} from "@/lib/shell-layout";
 
 export {
   ShellBottomBar,
@@ -64,10 +69,12 @@ handle, the skip link, the title-bar controls and the phone bottom bar.
 
 const S = '[data-slot="shell"]';
 const COL_OPEN = `:is(:root[data-shell-col="open"] ${S}, :root:not([data-shell-col]) ${S}[data-col="open"])[data-has-column]`;
-const PANEL_OPEN = `${S}[data-panel="open"]`;
+// Open when the app says so, or — with `panelOpen="auto"` — when the device's cookie says so
+// (`ShellStateScript`), so a cached page reserves the panel's room before it hydrates.
+const PANEL_OPEN = `:is(${S}[data-panel="open"], :root[data-shell-panel="open"] ${S}[data-panel="auto"])`;
 // A floating column (slide-over or hover-peek) beats the auto-fold that hid it: the attribute is
 // repeated to outrank that rule's selector, which no plain selector here can reach.
-const FLOAT = `${S}${'[data-col-float="open"]'.repeat(6)}`;
+const FLOAT = `${S}${'[data-col-float="open"]'.repeat(12)}`;
 const RAIL = "var(--shell-rail-width)";
 const NO_DRAG =
   ':where(button, a, input, textarea, select, [role="button"], [role="tab"], [role="separator"], [contenteditable="true"])';
@@ -77,23 +84,22 @@ function pageMinRules(min: ShellPageMin): string {
   // The page's 1px hairline counts against it (SHELL_SIZES.divider).
   const fit = `${(min + 1) / 16}rem`;
   const room = `${(min + 1) / 16 + 4}rem`;
-  const below = (rem: string) => `${parseFloat(rem) - 0.01}rem`;
   const at = `${PANEL_OPEN}[data-page-min="${min}"]`;
   return `
-@container shell (min-width: 64rem) {
-  @container shell-fit (max-width: ${below(fit)}) {
-    @container shell-room (min-width: ${room}) {
-      ${COL_OPEN}[data-panel="open"][data-page-min="${min}"] [data-slot="shell-column-area"] { visibility: hidden; opacity: 0; }
-      ${COL_OPEN}[data-panel="open"][data-page-min="${min}"] [data-slot="shell-main-area"] { margin-inline-start: calc(-1 * var(--shell-col-room)); --shell-layout-column: folded; }
-      ${COL_OPEN}[data-panel="open"][data-page-min="${min}"] [data-slot="shell-topbar-lead"] { display: flex; }
+@container shell (width >= 64rem) {
+  @container shell-fit (width < ${fit}) {
+    @container shell-room (width >= ${room}) {
+      ${COL_OPEN}${PANEL_OPEN}[data-page-min="${min}"] [data-slot="shell-column-area"] { visibility: hidden; opacity: 0; }
+      ${COL_OPEN}${PANEL_OPEN}[data-page-min="${min}"] [data-slot="shell-main-area"] { margin-inline-start: calc(-1 * var(--shell-col-room)); --shell-layout-column: folded; }
+      ${COL_OPEN}${PANEL_OPEN}[data-page-min="${min}"] [data-slot="shell-topbar-lead"] { display: flex; }
     }
   }
 }
-@container shell (min-width: 40rem) {
-  @container shell-room (max-width: ${below(room)}) {
-    ${at} [data-slot="shell-main-area"] { margin-inline-end: calc(-1 * var(--shell-panel-room)); --shell-layout-panel: overlay; }
+@container shell (width >= 40rem) {
+  @container shell-room (width < ${room}) {
+    ${at} [data-slot="shell-main-area"] { margin-inline-end: calc(-1 * var(--shell-room-cut)); --shell-layout-panel: overlay; }
     ${at} [data-slot="shell-panel-shadow"] { opacity: 1; }
-    ${at} [data-slot="shell-main-area"] { --shell-floating-end: calc(var(--shell-panel-room) + 1rem); }
+    ${at} [data-slot="shell-main-area"] { --shell-floating-end: calc(var(--shell-room-cut) + 1rem); }
   }
 }`;
 }
@@ -104,6 +110,13 @@ function pageMinRules(min: ShellPageMin): string {
  * data attributes that Tailwind's variants would spell as hundred-character class names.
  */
 const SHELL_CSS = `
+@property --shell-room-cut {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+/* Screen only: printing gets the page alone, with none of the frame's geometry (below). */
+@media screen {
 ${S} {
   container: shell / inline-size;
   position: relative;
@@ -122,7 +135,9 @@ ${S}[data-fill="parent"] { height: 100%; }
   min-height: 100dvh;
   --shell-col-room: 0px;
   --shell-panel-room: 0px;
-  width: calc(100% - var(--shell-panel-room));
+  /* The open panel's room, never more than leaves the rail: a 720px panel on a 640px tablet. */
+  --shell-room-cut: min(var(--shell-panel-room), calc(100cqw - ${RAIL}));
+  width: calc(100% - var(--shell-room-cut));
 }
 ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100%; }
 [data-slot="shell-rail-area"] { display: none; }
@@ -203,7 +218,7 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
   inset-block: 0;
   inset-inline-start: 100%;
   z-index: 25;
-  width: var(--shell-panel-room);
+  width: var(--shell-room-cut);
   pointer-events: none;
   opacity: 0;
   box-shadow: -0.5rem 0 2rem -0.25rem oklch(0 0 0 / 0.16), -0.0625rem 0 0.125rem oklch(0 0 0 / 0.06);
@@ -234,7 +249,7 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
 
 /* Phone (under 40rem): no rail, no column in the flow, the page scrolls the document so the
    browser's own toolbars can compact, the bar sits at the bottom, the panel is full screen. */
-@container shell (max-width: 39.99rem) {
+@container shell (width < 40rem) {
   [data-slot="shell-topbar"] { position: sticky; top: 0; z-index: 10; background: var(--background); }
   ${S}[data-fill="parent"] [data-slot="shell-main-area"] { height: 100%; }
   ${S}[data-fill="parent"] [data-slot="shell-content"] { overflow-y: auto; }
@@ -258,7 +273,6 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
     padding-bottom: env(safe-area-inset-bottom);
   }
   ${S}[data-fill="parent"] [data-slot="shell-panel-slot"] { position: absolute; }
-  ${FLOAT} [data-slot="shell-main-area"] { --shell-layout-column: over; }
   [data-slot="shell-column-area"] {
     position: fixed;
     inset: auto 0 0 0;
@@ -291,7 +305,7 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
 }
 
 /* Tablet and up: the frame fills its height, the rail shows, the panel takes room. */
-@container shell (min-width: 40rem) {
+@container shell (width >= 40rem) {
   [data-slot="shell-room"] { height: 100dvh; min-height: 0; }
   ${S}[data-fill="parent"] > [data-slot="shell-room"] { height: 100%; }
   [data-slot="shell-rail-area"] {
@@ -319,15 +333,14 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
     box-shadow: 0.5rem 0 2rem -0.25rem oklch(0 0 0 / 0.16), 0.0625rem 0 0.125rem oklch(0 0 0 / 0.06);
     transition: opacity var(--duration-quick) var(--motion-ease-standard), visibility 0s;
   }
-  ${FLOAT}[data-has-column] [data-slot="shell-main-area"] { --shell-layout-column: over; }
   [data-slot="shell-bottombar"] { display: none; }
 }
-@container shell (min-width: 40rem) and (max-width: 63.99rem) {
+@container shell (40rem <= width < 64rem) {
   ${S}[data-has-column] [data-slot="shell-main-area"] { --shell-layout-column: folded; }
 }
 
 /* Laptop and up: the column takes room while the person keeps it open. */
-@container shell (min-width: 64rem) {
+@container shell (width >= 64rem) {
   ${S}[data-has-column] [data-slot="shell-room"] { --shell-col-room: var(--shell-column-current-width); }
   ${S}[data-has-column] [data-slot="shell-main-area"] { margin-inline-start: calc(-1 * var(--shell-col-room)); --shell-layout-column: folded; }
   ${COL_OPEN} [data-slot="shell-column-area"] {
@@ -343,7 +356,7 @@ ${pageMinRules(SHELL_PAGE_MIN.document)}
 ${pageMinRules(SHELL_PAGE_MIN.chat)}
 
 /* The page makes room for a panel that opens beside it (the controller marks the moment). */
-@keyframes vs-shell-make-room { from { margin-inline-end: calc(-1 * var(--shell-panel-room)); } }
+@keyframes vs-shell-make-room { from { margin-inline-end: calc(-1 * var(--shell-room-cut)); } }
 ${S}[data-panel-anim="open"] [data-slot="shell-main-area"] { animation: vs-shell-make-room var(--duration-layout) var(--motion-ease-standard); }
 [dir="rtl"] [data-slot="shell-panel-slot"] { translate: -100% 0; }
 [dir="rtl"] ${PANEL_OPEN} [data-slot="shell-panel-slot"] { translate: none; }
@@ -356,15 +369,20 @@ ${S}[data-panel-anim="open"] [data-slot="shell-main-area"] { animation: vs-shell
 :root[data-desktop-titlebar="macos"] [data-slot="shell-topbar-lead"] {
   padding-inline-start: calc(var(--shell-titlebar-mac-inset) - ${RAIL});
 }
-:root[data-desktop-titlebar="windows"] ${S}:not([data-panel="open"]) [data-slot="shell-topbar"],
+:root[data-desktop-titlebar="windows"] ${S}:not(${PANEL_OPEN}) [data-slot="shell-topbar"],
 :root[data-desktop-titlebar="windows"] ${PANEL_OPEN} [data-slot="shell-panel-head"] {
   padding-inline-end: calc(var(--shell-titlebar-win-inset) + 0.5rem);
+}
+/* A panel with no head of its own yet (loading) keeps its first row clear of the caption buttons. */
+:root[data-desktop-titlebar="windows"] ${PANEL_OPEN} [data-slot="shell-panel-slot"]:not(:has([data-slot="shell-panel-head"])) {
+  padding-top: var(--shell-topbar-height);
 }
 :root[data-desktop-titlebar] :is([data-slot="shell-rail-head"], [data-slot="shell-column-head"], [data-slot="shell-topbar-lead"], [data-slot="shell-topbar"], [data-slot="shell-panel-head"]) { -webkit-app-region: drag; }
 :root[data-desktop-titlebar] :is([data-slot="shell-rail-head"], [data-slot="shell-column-head"], [data-slot="shell-topbar-lead"], [data-slot="shell-topbar"], [data-slot="shell-panel-head"]) ${NO_DRAG} { -webkit-app-region: no-drag; }
 
 @media (prefers-reduced-motion: reduce) {
   ${S} *, ${S} { transition-duration: 0s; animation: none; }
+}
 }
 @media print {
   ${S} :is([data-slot="shell-rail-area"], [data-slot="shell-column-area"], [data-slot="shell-panel-slot"], [data-slot="shell-panel-shadow"], [data-slot="shell-topbar-lead"], [data-slot="shell-topbar"], [data-slot="shell-floating-area"], [data-slot="shell-bottombar"], [data-slot="shell-scrim"], [data-slot="shell-skip"]) { display: none; }
@@ -398,11 +416,13 @@ export interface ShellProps extends Omit<
   /** The panel host (`ShellPanel`). The shell positions it; the panel only fills its box. */
   panel?: React.ReactNode;
   /**
-   * Whether the panel is open. `off` hides it on screens that have none (Settings, setup); an
-   * open panel there would still take room.
-   * @default 'closed'
+   * Whether the panel is open. `auto` follows the device's saved state (`ShellStateScript`'s
+   * mark) until the app knows better — pass it when no `?panel=` decides, so a cached page
+   * reserves the panel's room before its tabs hydrate. `off` removes it on screens that have none
+   * (Settings, setup).
+   * @default false
    */
-  panelOpen?: boolean | "off";
+  panelOpen?: boolean | "auto" | "off";
   /** The panel's width in pixels (the person's saved width). @default 420 */
   panelWidth?: number;
   /** The column's width in pixels (the person's saved width). @default 240 */
@@ -473,14 +493,24 @@ export function Shell({
   const hasColumn = column != null;
   // The person's saved widths; `ShellStateScript` sets the same names on `<html>` for a cached page.
   const vars = {
-    ...(panelWidth ? { "--shell-panel-saved": `${panelWidth}px` } : {}),
-    ...(columnWidth ? { "--shell-column-saved": `${columnWidth}px` } : {}),
+    ...(panelWidth
+      ? { "--shell-panel-saved": `${clampPanelWidth(panelWidth)}px` }
+      : {}),
+    ...(columnWidth
+      ? { "--shell-column-saved": `${clampColumnWidth(columnWidth)}px` }
+      : {}),
   };
   return (
     <div
       data-slot="shell"
       data-col={defaultColumnOpen ? "open" : "closed"}
-      data-panel={panelOpen === "off" ? "off" : panelOpen ? "open" : "closed"}
+      data-panel={
+        panelOpen === "off" || panelOpen === "auto"
+          ? panelOpen
+          : panelOpen
+            ? "open"
+            : "closed"
+      }
       data-page-min={pageMin}
       data-fill={fill}
       data-has-column={hasColumn ? "" : undefined}

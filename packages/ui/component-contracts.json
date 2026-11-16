@@ -2864,7 +2864,7 @@
             },
             {
               "name": "data-panel",
-              "values": ["closed", "off", "open"]
+              "values": ["closed", "open"]
             },
             {
               "name": "data-shell-region",

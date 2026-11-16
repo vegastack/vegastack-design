@@ -36,9 +36,13 @@ function Frame({
   panelOpen = false,
   pageMin = 640,
   column = true,
+  panelWidth,
+  columnWidth,
 }: {
   width: number;
-  panelOpen?: boolean;
+  panelWidth?: number;
+  columnWidth?: number;
+  panelOpen?: boolean | "auto";
   pageMin?: ShellPageMin;
   column?: boolean;
 }) {
@@ -48,6 +52,8 @@ function Frame({
         fill="parent"
         pageMin={pageMin}
         panelOpen={panelOpen}
+        panelWidth={panelWidth}
+        columnWidth={columnWidth}
         titleBarControls={<ShellTitleBarControls />}
         rail={
           <ShellRail>
@@ -79,7 +85,7 @@ function Frame({
       >
         <ShellTopBar>
           <ShellTopBarTitle>My tasks</ShellTopBarTitle>
-          <ShellPanelToggle pressed={panelOpen} />
+          <ShellPanelToggle pressed={panelOpen === true} />
         </ShellTopBar>
         <ShellMain>
           <ShellPage>Page</ShellPage>
@@ -135,6 +141,48 @@ test.each([
     }
   },
 );
+
+test.each([
+  // width, panel width, column width — the resolver's clamps and exact thresholds
+  [640, 720, undefined],
+  [1485, 420, 400],
+  [1365, 420, 240],
+  [1364, 420, 240],
+  [1300, 360, 200],
+] as const)(
+  "at %ipx with a %ipx panel and a %spx column the CSS still matches the resolver",
+  async (width, panelWidth, columnWidth) => {
+    await render(
+      <Frame
+        width={width}
+        panelOpen
+        panelWidth={panelWidth}
+        columnWidth={columnWidth}
+      />,
+    );
+    await settled();
+    const expected = resolveShellLayout({
+      width,
+      columnOpen: true,
+      panelOpen: true,
+      panelWidth,
+      columnWidth,
+    });
+    const root = shell();
+    expect(root.dataset.panelMode).toBe(expected.panelMode);
+    const main = root.querySelector('[data-slot="shell-content"]')!;
+    expect(Math.round(main.getBoundingClientRect().width)).toBe(
+      expected.pageWidth,
+    );
+  },
+);
+
+test("panelOpen auto follows the device's saved panel before the app decides", async () => {
+  document.documentElement.setAttribute("data-shell-panel", "open");
+  await render(<Frame width={1440} panelOpen="auto" />);
+  await settled();
+  expect(shell().dataset.panelMode).toBe("dock");
+});
 
 test("landmarks: the rail and column are named navigation, the page is main, the title is h1", async () => {
   const screen = await render(<Frame width={1440} />);

@@ -1,4 +1,4 @@
-// @vegastack shell@0.90.0 sha256-7YgLnqn4cqnaLZh4tCrLKvI32BaP9YLBC8k+X1izOiQ=
+// @vegastack shell@0.90.0 sha256-gcMcexu9gfxw3cInd4u5LRssEaEWQARZP6WEyMhAcRE=
 
 "use client";
 
@@ -150,17 +150,52 @@ export function ShellController() {
     );
     if (!mainArea) return;
 
-    let lastPanel = root.dataset.panel;
     let lastPanelCookie = "";
     let restoreFocus: HTMLElement | null = null;
     let peekTimer = 0;
     let animTimer = 0;
+
+    const railArea = root.querySelector<HTMLElement>(
+      '[data-slot="shell-rail-area"]',
+    );
+    // On a phone the column is a sheet: everything behind it is inert while it is up.
+    const behindSheet = () =>
+      [
+        mainArea,
+        railArea,
+        root.querySelector<HTMLElement>('[data-slot="shell-panel-slot"]'),
+        root.querySelector<HTMLElement>('[data-slot="shell-bottombar"]'),
+      ].filter((el): el is HTMLElement => el !== null);
+    const setSheet = (modal: boolean) => {
+      for (const el of behindSheet()) el.toggleAttribute("inert", modal);
+      if (!columnArea) return;
+      if (modal) {
+        columnArea.setAttribute("role", "dialog");
+        columnArea.setAttribute("aria-modal", "true");
+        const label = columnArea
+          .querySelector('[data-slot="shell-column"]')
+          ?.getAttribute("aria-label");
+        if (label) columnArea.setAttribute("aria-label", label);
+      } else {
+        columnArea.removeAttribute("role");
+        columnArea.removeAttribute("aria-modal");
+        columnArea.removeAttribute("aria-label");
+      }
+    };
+
+    const visibleToggle = () =>
+      Array.from(
+        root.querySelectorAll<HTMLElement>(
+          '[data-slot="shell-titlebar-toggle"]',
+        ),
+      ).find(visible);
 
     const setFloat = (open: boolean, source?: "peek" | "user") => {
       if (open === (root.dataset.colFloat === "open")) return;
       if (open) {
         root.dataset.colFloat = "open";
         root.dataset.colFloatSource = source ?? "user";
+        if (layoutTierOf(root.clientWidth) === "phone") setSheet(true);
         if (source === "user") {
           restoreFocus = document.activeElement as HTMLElement | null;
           requestAnimationFrame(() =>
@@ -170,27 +205,46 @@ export function ShellController() {
       } else {
         delete root.dataset.colFloat;
         delete root.dataset.colFloatSource;
-        if (restoreFocus && columnArea?.contains(document.activeElement)) {
-          restoreFocus.focus({ preventScroll: true });
+        setSheet(false);
+        if (columnArea?.contains(document.activeElement)) {
+          const back =
+            restoreFocus && restoreFocus.isConnected && visible(restoreFocus)
+              ? restoreFocus
+              : (visibleToggle() ?? mainArea);
+          back.focus({ preventScroll: true });
         }
         restoreFocus = null;
       }
       sync();
     };
 
+    let lastPanelOpen: boolean | undefined;
     const sync = () => {
       const style = getComputedStyle(mainArea);
       const tier = layoutTierOf(root.clientWidth);
-      let column = (style.getPropertyValue("--shell-layout-column").trim() ||
+      // What the flow says, independent of a column floating over the page.
+      const flow = (style.getPropertyValue("--shell-layout-column").trim() ||
         "none") as ShellColumnState;
-      if (!root.hasAttribute("data-has-column")) column = "none";
-      else if (root.dataset.colFloat === "open" && column !== "shown")
-        column = "over";
+      const floating = root.dataset.colFloat === "open";
+      if (floating && flow === "shown") {
+        setFloat(false);
+        return;
+      }
+      const column: ShellColumnState = !root.hasAttribute("data-has-column")
+        ? "none"
+        : floating
+          ? "over"
+          : flow;
+      // A column the layout just folded must not keep focus out of sight.
+      if (
+        column !== "shown" &&
+        column !== "over" &&
+        columnArea?.contains(document.activeElement)
+      )
+        (visibleToggle() ?? mainArea).focus({ preventScroll: true });
       const panelMode = (style
         .getPropertyValue("--shell-layout-panel")
         .trim() || "closed") as ShellPanelMode;
-      if (column === "shown" && root.dataset.colFloat === "open")
-        setFloat(false);
 
       const changed =
         root.dataset.tier !== tier ||
@@ -200,33 +254,31 @@ export function ShellController() {
       root.dataset.column = column;
       root.dataset.panelMode = panelMode;
 
-      const panel = root.dataset.panel;
-      if (panel !== lastPanel) {
-        if (
-          panel === "open" &&
-          lastPanel === "closed" &&
-          panelMode === "dock"
-        ) {
-          root.dataset.panelAnim = "open";
-          window.clearTimeout(animTimer);
-          animTimer = window.setTimeout(
-            () => delete root.dataset.panelAnim,
-            400,
-          );
-        }
-        lastPanel = panel;
+      const panelOpen = panelMode !== "closed";
+      if (lastPanelOpen === false && panelOpen && panelMode === "dock") {
+        root.dataset.panelAnim = "open";
+        window.clearTimeout(animTimer);
+        animTimer = window.setTimeout(() => delete root.dataset.panelAnim, 400);
       }
-      if (panel === "open" || panel === "closed") {
+      lastPanelOpen = panelOpen;
+      if (root.dataset.panel !== "off") {
         const width = cssPx(
           getComputedStyle(root).getPropertyValue(
             "--shell-panel-current-width",
           ),
           SHELL_SIZES.panel,
         );
-        const value = `${panel}:${Math.round(width)}`;
+        const value = `${panelOpen}:${Math.round(width)}`;
         if (value !== lastPanelCookie) {
-          if (lastPanelCookie)
-            writeCookie(SHELL_COOKIES.panel, panel === "open", width);
+          // The first reading is what the page painted with; only a change is the person's.
+          if (lastPanelCookie) {
+            writeCookie(SHELL_COOKIES.panel, panelOpen, width);
+            if (html.hasAttribute("data-shell-panel"))
+              html.setAttribute(
+                "data-shell-panel",
+                panelOpen ? "open" : "closed",
+              );
+          }
           lastPanelCookie = value;
         }
       }
@@ -263,6 +315,8 @@ export function ShellController() {
       }
       const next = action === "toggle" ? column !== "shown" : action === "open";
       setPref(next);
+      // Kept open but folded at once for the panel: slide it over, so one press shows it.
+      if (next && root.dataset.column !== "shown") setFloat(true, "user");
     };
 
     const regions = () =>
@@ -277,7 +331,10 @@ export function ShellController() {
         if (!list.length) return;
         const at = list.findIndex((r) => r.contains(document.activeElement));
         const step = event.shiftKey ? -1 : 1;
-        const next = list[(at + step + list.length) % list.length];
+        const next =
+          at === -1
+            ? list[event.shiftKey ? list.length - 1 : 0]
+            : list[(at + step + list.length) % list.length];
         event.preventDefault();
         next?.focus({ preventScroll: true });
         return;
@@ -323,14 +380,21 @@ export function ShellController() {
       const item = target.closest('[data-slot="shell-rail-item"][data-active]');
       window.clearTimeout(peekTimer);
       if (!item || root.dataset.column !== "folded") return;
-      peekTimer = window.setTimeout(
-        () => setFloat(true, "peek"),
-        PEEK_DELAY_MS,
-      );
+      peekTimer = window.setTimeout(() => {
+        // Still resting there, and still folded, when the delay ends.
+        if (item.matches(":hover") && root.dataset.column === "folded")
+          setFloat(true, "peek");
+      }, PEEK_DELAY_MS);
     };
-    const onPointerLeave = () => {
+    const onPointerLeave = (event?: PointerEvent) => {
+      const to = event?.relatedTarget as Element | null | undefined;
+      if (to?.closest?.('[data-slot="shell-rail-item"][data-active]')) return;
       window.clearTimeout(peekTimer);
       if (root.dataset.colFloatSource === "peek") setFloat(false);
+    };
+    const onRailLeave = (event: PointerEvent) => {
+      if (columnArea?.contains(event.relatedTarget as Node | null)) return;
+      onPointerLeave(event);
     };
 
     // Outside a floating column, a press closes it; picking something inside it closes it too.
@@ -397,6 +461,7 @@ export function ShellController() {
     window.addEventListener("keydown", onKeyDown);
     root.addEventListener("pointerover", onPointerOver);
     columnArea?.addEventListener("pointerleave", onPointerLeave);
+    railArea?.addEventListener("pointerleave", onRailLeave);
     document.addEventListener("pointerdown", onPointerDown, true);
     root.addEventListener("click", onClick);
     root.addEventListener("touchstart", onTouchStart, { passive: true });
@@ -410,6 +475,8 @@ export function ShellController() {
       window.removeEventListener("keydown", onKeyDown);
       root.removeEventListener("pointerover", onPointerOver);
       columnArea?.removeEventListener("pointerleave", onPointerLeave);
+      railArea?.removeEventListener("pointerleave", onRailLeave);
+      setSheet(false);
       document.removeEventListener("pointerdown", onPointerDown, true);
       root.removeEventListener("click", onClick);
       root.removeEventListener("touchstart", onTouchStart);
@@ -429,14 +496,19 @@ export function ShellController() {
  */
 export function ShellColumnResize() {
   const ref = React.useRef<HTMLDivElement>(null);
+  // What a screen reader hears; set when a resize settles, never per pointer move.
+  const [value, setValue] = React.useState<{ now: number; max: number }>({
+    now: SHELL_SIZES.column,
+    max: SHELL_SIZES.columnMax,
+  });
 
   const apply = (width: number, persist: boolean) => {
     const handle = ref.current;
     const root = handle?.closest<HTMLElement>('[data-slot="shell"]');
     if (!handle || !root) return;
     root.style.setProperty("--shell-column-current-width", `${width}px`);
-    handle.setAttribute("aria-valuenow", String(width));
     if (persist) {
+      setValue({ now: width, max: limits().max });
       const open =
         (document.documentElement.getAttribute("data-shell-col") ??
           root.dataset.col) === "open";
@@ -458,13 +530,21 @@ export function ShellColumnResize() {
       SHELL_SIZES.column,
     );
     const pageMin = Number(root?.dataset.pageMin ?? 640);
-    const page = main?.getBoundingClientRect().width ?? Infinity;
+    // The page area's width less its hairline is the page (SHELL_SIZES.divider).
+    const page =
+      (main?.getBoundingClientRect().width ?? Infinity) - SHELL_SIZES.divider;
     const max = Math.max(
       SHELL_SIZES.columnMin,
       Math.min(SHELL_SIZES.columnMax, Math.round(now + page - pageMin)),
     );
     return { now: Math.round(now), max };
   };
+
+  React.useEffect(() => {
+    setValue(limits());
+    // `limits` reads the DOM; it has no React inputs.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
@@ -518,11 +598,14 @@ export function ShellColumnResize() {
       aria-orientation="vertical"
       aria-label="Resize the column"
       aria-valuemin={SHELL_SIZES.columnMin}
-      aria-valuemax={SHELL_SIZES.columnMax}
-      aria-valuenow={SHELL_SIZES.column}
+      aria-valuemax={value.max}
+      aria-valuenow={value.now}
       onPointerDown={onPointerDown}
       onKeyDown={onKeyDown}
-      onDoubleClick={() => apply(SHELL_SIZES.column, true)}
+      onFocus={() => setValue(limits())}
+      onDoubleClick={() =>
+        apply(Math.min(limits().max, SHELL_SIZES.column), true)
+      }
       className="absolute inset-y-0 -end-1 z-10 w-2 cursor-col-resize touch-none outline-none after:absolute after:inset-y-0 after:start-1/2 after:w-px after:bg-transparent after:transition-colors after:duration-instant hover:after:bg-border focus-visible:after:bg-ring @max-[40rem]/shell:hidden"
     />
   );
@@ -654,7 +737,7 @@ export function ShellBottomBar({
     let scrolledAway = false;
     let keyboard = false;
     const paint = () => {
-      const panel = root.dataset.panel === "open";
+      const panel = root.dataset.panelMode === "full";
       bar.toggleAttribute("data-hidden", scrolledAway || keyboard || panel);
     };
     const onScroll = (event: Event) => {
@@ -667,26 +750,47 @@ export function ShellBottomBar({
       lastY = y;
       paint();
     };
+    // The keyboard is up when text entry has focus and the visible height has dropped well below
+    // the tallest it has been at this width. Comparing with innerHeight alone misses
+    // `interactive-widget=resizes-content`, where both shrink together.
     const viewport = window.visualViewport;
+    let tallest = 0;
+    let atWidth = 0;
     const onViewport = () => {
-      if (!viewport) return;
-      keyboard = window.innerHeight - viewport.height > 150;
+      const height = viewport?.height ?? window.innerHeight;
+      const width = viewport?.width ?? window.innerWidth;
+      if (Math.abs(width - atWidth) > 1) {
+        atWidth = width;
+        tallest = height;
+      }
+      const typing =
+        document.activeElement instanceof HTMLElement &&
+        (document.activeElement.matches("input, textarea, select") ||
+          document.activeElement.isContentEditable);
+      if (!typing) tallest = Math.max(tallest, height);
+      keyboard = typing && tallest - height > 150;
       paint();
     };
     const mutations = new MutationObserver(paint);
     mutations.observe(root, {
       attributes: true,
-      attributeFilter: ["data-panel"],
+      attributeFilter: ["data-panel-mode"],
     });
     window.addEventListener("scroll", onScroll, { passive: true });
     content?.addEventListener("scroll", onScroll, { passive: true });
     viewport?.addEventListener("resize", onViewport);
-    paint();
+    window.addEventListener("resize", onViewport);
+    document.addEventListener("focusin", onViewport);
+    document.addEventListener("focusout", onViewport);
+    onViewport();
     return () => {
       mutations.disconnect();
       window.removeEventListener("scroll", onScroll);
       content?.removeEventListener("scroll", onScroll);
       viewport?.removeEventListener("resize", onViewport);
+      window.removeEventListener("resize", onViewport);
+      document.removeEventListener("focusin", onViewport);
+      document.removeEventListener("focusout", onViewport);
     };
   }, []);
 
