@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.95.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: 3029c1efad36 -->
+
+### 🧩 New components
+
+- `ShellRailItem` takes `dot` — a dot on the icon for something new with no count, its meaning read after the label — and `HelpMenu` takes `trigger`, your own element in place of the sidebar row (a `ShellRailItem` in the shell's rail). Without `trigger`, `HelpMenu` is unchanged.
+  [`17e6402`](https://github.com/VegaStack/vegastack-design/commit/17e6402)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.94.0 → 0.95.0.
+
 ## [0.94.0] — November 16, 2026
 
 <!-- assembled from 1 changeset: 56dfb598f20d -->

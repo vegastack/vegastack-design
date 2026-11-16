@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.95.0
+
+### Minor Changes
+
+- [#1005](https://github.com/vegastack/vegastack-design/pull/1005) [`17e6402`](https://github.com/vegastack/vegastack-design/commit/17e64029f7bed0e70634a48babac0607ac09801e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `ShellRailItem` takes `dot` — a dot on the icon for something new with no count, its meaning read after the label — and `HelpMenu` takes `trigger`, your own element in place of the sidebar row (a `ShellRailItem` in the shell's rail). Without `trigger`, `HelpMenu` is unchanged.
+
 ## 0.94.0
 
 ### Minor Changes
