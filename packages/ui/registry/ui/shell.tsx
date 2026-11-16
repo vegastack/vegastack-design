@@ -326,6 +326,7 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
     width: ${RAIL};
     background: var(--sidebar);
     color: var(--sidebar-foreground);
+    border-inline-end: 1px solid var(--sidebar-border);
     contain: layout paint;
   }
   [data-slot="shell-main-area"] {
