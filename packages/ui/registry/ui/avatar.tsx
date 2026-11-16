@@ -1,4 +1,4 @@
-// @vegastack avatar@0.90.0 sha256-Ywar7DC8SVO3CQrNAPzAoiI+7ArYxwv95L+WJzSRQTQ=
+// @vegastack avatar@0.90.0 sha256-Ls1YvYYh06La99Gw4Ezz2l40Zr6SaFFDWDJ35FUnS9I=
 
 "use client";
 
@@ -108,7 +108,9 @@ function flattenFragments(children: React.ReactNode): React.ReactNode[] {
     child.type === React.Fragment
       ? flattenFragments(child.props.children).map((inner) =>
           React.isValidElement(inner)
-            ? React.cloneElement(inner, { key: `${child.key}/${inner.key}` })
+            ? React.cloneElement(inner, {
+                key: JSON.stringify([child.key, inner.key]),
+              })
             : inner,
         )
       : [child],

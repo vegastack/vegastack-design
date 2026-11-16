@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.89.1 sha256-yU/i/8LiPiAb8My+pXInqw0+htIJ0M+X0x1IKjfvqt4=
+// @vegastack shell-assistant@0.89.1 sha256-CD2sIoNaTYsxMZ2AwAf/+wD5kgw7QU6/OD9FMeVpQT8=
 
 "use client";
 
@@ -100,9 +100,18 @@ function AssistantPill({
       : window.scrollY;
     let anchor = start;
     let last = start;
+    let seen: EventTarget | null = scrollTarget
+      ? (scrollTarget.current ?? null)
+      : document;
     const onScroll = (event: Event) => {
       const y = readFrom(event.target);
       if (y === null) return;
+      // A scroller attached (or swapped) after mount starts its own history.
+      if (event.target !== seen) {
+        seen = event.target;
+        anchor = last = y;
+        return;
+      }
       // Measure from where the current run of movement began, so slow scrolling adds up.
       if (Math.sign(y - last) !== Math.sign(last - anchor) && last !== anchor)
         anchor = last;
@@ -272,24 +281,24 @@ function AssistantCard({
     const card = cardRef.current;
     if (!card || wasOpen.current === open) return;
     wasOpen.current = open;
+    const tryFocus = (node: HTMLElement | null | undefined) => {
+      if (!node?.isConnected) return false;
+      node.focus({ preventScroll: true });
+      return document.activeElement === node;
+    };
+    const opener = () =>
+      id
+        ? document.querySelector<HTMLElement>(
+            `[aria-controls~="${CSS.escape(id)}"]`,
+          )
+        : null;
     if (open) {
-      returnTo.current =
-        lastOutside.current ??
-        (id
-          ? document.querySelector<HTMLElement>(
-              `[aria-controls~="${CSS.escape(id)}"]`,
-            )
-          : null);
+      returnTo.current = lastOutside.current;
       // Something inside already took focus (an autofocusing composer): leave it there.
       if (card.contains(document.activeElement)) return;
-      const tryFocus = (node: HTMLElement | null | undefined) => {
-        if (!node) return false;
-        node.focus({ preventScroll: true });
-        return document.activeElement === node;
-      };
       if (tryFocus(initialFocus?.current)) return;
       const fields = card.querySelectorAll<HTMLElement>(
-        'textarea:not(:disabled), input:not(:disabled):is(:not([type]), [type=text], [type=search]), [contenteditable="true"], [contenteditable=""]',
+        'textarea:not(:disabled), input:not(:disabled):is(:not([type]), [type=text], [type=search], [type=email], [type=url], [type=tel], [type=password]), [contenteditable="true"], [contenteditable=""]',
       );
       for (const field of fields) {
         if (field.checkVisibility?.() === false) continue;
@@ -300,7 +309,9 @@ function AssistantCard({
     }
     const active = document.activeElement;
     if (active && active !== document.body && !card.contains(active)) return;
-    (finalFocus?.current ?? returnTo.current)?.focus({ preventScroll: true });
+    // The first of these that can still take focus: a removed opener falls through.
+    if (!tryFocus(finalFocus?.current) && !tryFocus(returnTo.current))
+      tryFocus(opener());
   }, [open, initialFocus, finalFocus, id]);
 
   if (!opened) return null;

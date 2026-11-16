@@ -868,7 +868,7 @@
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
         "version": "0.90.0",
-        "integrity": "sha256-Ywar7DC8SVO3CQrNAPzAoiI+7ArYxwv95L+WJzSRQTQ="
+        "integrity": "sha256-Ls1YvYYh06La99Gw4Ezz2l40Zr6SaFFDWDJ35FUnS9I="
       }
     },
     {
@@ -24862,7 +24862,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
         "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.89.1",
-        "integrity": "sha256-yU/i/8LiPiAb8My+pXInqw0+htIJ0M+X0x1IKjfvqt4="
+        "integrity": "sha256-CD2sIoNaTYsxMZ2AwAf/+wD5kgw7QU6/OD9FMeVpQT8="
       }
     }
   ]

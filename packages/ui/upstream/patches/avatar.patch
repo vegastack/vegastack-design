@@ -15,7 +15,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/avatar.tsx b/avatar.tsx
-index 1eda9f0..368aed1 100644
+index 1eda9f0..1bb2507 100644
 --- a/avatar.tsx
 +++ b/avatar.tsx
 @@ -1,15 +1,15 @@
@@ -117,7 +117,7 @@ index 1eda9f0..368aed1 100644
  }
  
  function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
-@@ -62,24 +92,76 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
+@@ -62,24 +92,78 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
          "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
          "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
          "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
@@ -137,7 +137,9 @@ index 1eda9f0..368aed1 100644
 +    child.type === React.Fragment
 +      ? flattenFragments(child.props.children).map((inner) =>
 +          React.isValidElement(inner)
-+            ? React.cloneElement(inner, { key: `${child.key}/${inner.key}` })
++            ? React.cloneElement(inner, {
++                key: JSON.stringify([child.key, inner.key]),
++              })
 +            : inner,
 +        )
 +      : [child],
@@ -201,7 +203,7 @@ index 1eda9f0..368aed1 100644
  }
  
  function AvatarGroupCount({
-@@ -91,11 +173,11 @@ function AvatarGroupCount({
+@@ -91,11 +175,11 @@ function AvatarGroupCount({
        data-slot="avatar-group-count"
        className={cn(
          "relative flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm text-muted-foreground ring-2 ring-background group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3",
@@ -215,7 +217,7 @@ index 1eda9f0..368aed1 100644
  }
  
  export {
-@@ -105,4 +187,5 @@ export {
+@@ -105,4 +189,5 @@ export {
    AvatarGroup,
    AvatarGroupCount,
    AvatarBadge,
