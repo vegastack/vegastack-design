@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.94.0
+
+### Minor Changes
+
+- [#1004](https://github.com/vegastack/vegastack-design/pull/1004) [`b28d952`](https://github.com/vegastack/vegastack-design/commit/b28d952526d986e9ed8f661524249ea8b2854abf) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AssistantCardHeader` takes `actions`: the chat's own tools (New chat, Chats) as `ToolGroupItem`s, placed before Move to panel, Open full chat and Close.
+
+## 0.93.0
+
+### Minor Changes
+
+- [#998](https://github.com/vegastack/vegastack-design/pull/998) [`7ff61b5`](https://github.com/vegastack/vegastack-design/commit/7ff61b5b7948b687ab33bc64ece8eb2d90c75049) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 `Shell` (LAY-22 to LAY-25): the frame every screen sits in — a 64px module rail with labels and counts, the module's resizable column, a 48px top bar whose slots keep one order (title as the page's `<h1>`, presence, tools, actions, primary, panel toggle), the page (`ShellPage` `prose`, `default`, `full`, `form`), a slot for the panel host, `ShellFloatingArea` for floating items and `ShellBottomBar` for phones. It lays itself out in CSS before hydration: container queries over the shell's own data attributes place the column and the panel — beside the page while it keeps its minimum width, else the column folds, else the panel slides over. ⌘\ folds the column, F6 cycles the regions, a tablet slides the column over the page, a folded column peeks on hover, and the desktop app's first row is one draggable title row. `ShellStateScript` and `TimeZoneScript` come from `shell-scripts`, with no client imports, for the root layout. New lib `shell-layout` (`resolveShellLayout`, sizes, cookies) and block `shell-01`. Additive: `AppShell` and `Sidebar` are unchanged.
+
 ## 0.92.0
 
 ### Minor Changes

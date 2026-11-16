@@ -201,3 +201,28 @@ test("in the collapsed rail it stays a named icon trigger; the dot moves onto th
   ).toBe(true);
   await expectNoA11yViolations(screen.container);
 });
+
+test("a trigger of your own replaces the sidebar row and opens the same menu", async () => {
+  const { ShellRailItem } = await import("./shell");
+  const { CircleHelp } = await import("lucide-react");
+  const screen = await render(
+    <nav aria-label="Modules">
+      <HelpMenu
+        links={{ whatsNew: { href: "#new" }, docs: { href: "#docs" } }}
+        whatsNewUnread
+        trigger={
+          <ShellRailItem icon={<CircleHelp />} label="Help" dot="new updates" />
+        }
+      />
+    </nav>,
+  );
+  const trigger = screen.getByRole("button", { name: "Help (new updates)" });
+  await expect.element(trigger).toBeInTheDocument();
+  expect(document.querySelector('[data-slot="sidebar-menu-item"]')).toBeNull();
+  expect(document.querySelector('[data-slot="shell-rail-dot"]')).not.toBeNull();
+  await trigger.click();
+  await expect
+    .element(screen.getByRole("menuitem", { name: /What's new/ }))
+    .toBeInTheDocument();
+  await expectNoA11yViolations(document.body);
+});

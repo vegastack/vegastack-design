@@ -73,6 +73,28 @@ moves onto the icon's corner.
 
 <ComponentPreview name="helpMenuRail" file="components/preview/help-menu.tsx" />
 
+### In the shell's rail
+
+In a [`Shell`](/docs/components/shell) the footer's items are rail items, so pass your own
+`trigger`: a `ShellRailItem` whose `dot` says what the dot means. The menu is the same.
+
+```tsx
+<ShellRailFooter>
+  <HelpMenu
+    links={links}
+    whatsNewUnread={unread}
+    side="right"
+    trigger={
+      <ShellRailItem
+        icon={<CircleHelp />}
+        label="Help"
+        dot={unread ? "new updates" : undefined}
+      />
+    }
+  />
+</ShellRailFooter>
+```
+
 ## API Reference
 
 ### HelpMenu

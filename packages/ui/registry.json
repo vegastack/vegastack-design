@@ -211,7 +211,7 @@
       "meta": {
         "whenToUse": "Code that must know where the shell puts the column and panel without a DOM — a server deciding how a record opens, a test, a docs table — or the shell's sizes and cookie format.",
         "whenNotToUse": "Laying the shell out: Shell does that in CSS before hydration; read the live outcome with useShellLayout.",
-        "version": "0.90.0"
+        "version": "0.93.0"
       }
     },
     {
@@ -223,7 +223,7 @@
       "dependencies": [
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
-        "@vegastack/design@^0.17.0",
+        "@vegastack/design@^0.18.0",
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
@@ -256,7 +256,7 @@
       "meta": {
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.90.0"
+        "version": "0.93.0"
       }
     },
     {
@@ -17591,7 +17591,7 @@
       "meta": {
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout and feed its rail, column and panel from your routes.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
-        "version": "0.90.0"
+        "version": "0.93.0"
       }
     },
     {
@@ -20568,7 +20568,7 @@
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
         "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
-        "version": "0.91.0"
+        "version": "0.94.0"
       }
     },
     {
