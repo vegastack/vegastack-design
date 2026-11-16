@@ -901,5 +901,93 @@
       "unit": "%"
     },
     "$description": "BRD-12 (ours, operator 2026-11-16, corner system): a square media tile — icon tiles, thumbnails, logos, team and workspace avatars — is rounded at a quarter of its size at every size. Read it as `rounded-tile`."
+  },
+  "shell-rail-width": {
+    "$type": "dimension",
+    "$value": {
+      "value": 4,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 64px: the module rail, icon with a short label under it (L1, L2). Read it as `w-(--shell-rail-width)`."
+  },
+  "shell-column-width": {
+    "$type": "dimension",
+    "$value": {
+      "value": 15,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 240px: the module column's default width (L1); resizable between `--shell-column-width-min` and `--shell-column-width-max`, folds to 0."
+  },
+  "shell-column-width-min": {
+    "$type": "dimension",
+    "$value": {
+      "value": 12.5,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 200px: the narrowest a person can drag the module column."
+  },
+  "shell-column-width-max": {
+    "$type": "dimension",
+    "$value": {
+      "value": 22.5,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the widest a person can drag the module column."
+  },
+  "shell-topbar-height": {
+    "$type": "dimension",
+    "$value": {
+      "value": 3,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 48px: one row height for the top bar, the column title row, the panel head and the desktop title row (L9, L10)."
+  },
+  "shell-panel-width": {
+    "$type": "dimension",
+    "$value": {
+      "value": 26.25,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
+  },
+  "shell-panel-width-min": {
+    "$type": "dimension",
+    "$value": {
+      "value": 22.5,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
+  },
+  "shell-panel-width-max": {
+    "$type": "dimension",
+    "$value": {
+      "value": 45,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
+  },
+  "shell-bottombar-height": {
+    "$type": "dimension",
+    "$value": {
+      "value": 3.5,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 56px: the phone bottom tab bar, plus `env(safe-area-inset-bottom)` (L13)."
+  },
+  "shell-titlebar-mac-inset": {
+    "$type": "dimension",
+    "$value": {
+      "value": 4.875,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 78px: the macOS traffic-light zone measured from the window's left edge, for the desktop app's one title row (L10)."
+  },
+  "shell-titlebar-win-inset": {
+    "$type": "dimension",
+    "$value": {
+      "value": 8.625,
+      "unit": "rem"
+    },
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 138px: the Windows caption buttons' zone at the window's right edge, for the desktop app's one title row (L10)."
   }
 }

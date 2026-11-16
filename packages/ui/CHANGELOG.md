@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.90.0
+
+### Minor Changes
+
+- [#997](https://github.com/vegastack/vegastack-design/pull/997) [`d0aa848`](https://github.com/vegastack/vegastack-design/commit/d0aa848581647c614c5ab3a85d2b5170d6a56496) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Shell tokens (LAY-22): the sizes of the new app shell's regions as `--shell-*` tokens, so the shell, its panel and its assistant read one source. `--shell-rail-width` 4rem, `--shell-column-width` 15rem (`-min` 12.5rem, `-max` 22.5rem), `--shell-topbar-height` 3rem, `--shell-panel-width` 26.25rem (`-min` 22.5rem, `-max` 45rem), `--shell-bottombar-height` 3.5rem, and the desktop app's title-row insets `--shell-titlebar-mac-inset` 4.875rem and `--shell-titlebar-win-inset` 8.625rem. Additive: nothing existing changes.
+
+### Patch Changes
+
+- Updated dependencies [[`d0aa848`](https://github.com/vegastack/vegastack-design/commit/d0aa848581647c614c5ab3a85d2b5170d6a56496)]:
+  - @vegastack/design-tokens@0.18.0
+  - @vegastack/design@0.18.0
+
 ## 0.89.1
 
 ### Patch Changes
