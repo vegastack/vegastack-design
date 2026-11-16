@@ -1,4 +1,4 @@
-// @vegastack file-kind@0.90.0 sha256-5OVTCT8vOWox1ur2ZHej3wK3ItMA7lMFx8ZnwMIJz+c=
+// @vegastack file-kind@0.90.0 sha256-lsLHnDvyRz00sJ202wDlYYqYZp1nDX9zeoCUb24ohuY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -32,7 +32,7 @@ import {
 `file-kind` is the one place a file surface asks "what is this file and how big is it": a byte
 count as a person reads it, the kind of a file from its MIME type (the extension when the type is
 missing or generic), and the icon, tint and label for that kind. Attachment rows, the FileViewer's
-file card, the UploadPanel, the UploadDialog, the AvatarPicker and FolderTree all read these, so
+file card, the UploadPanel, the AvatarPicker and FolderTree all read these, so
 "1.5 KB" and a spreadsheet's icon look the same everywhere.
 
 One table (`KINDS`) owns every kind's extensions, icon, tint and label; the MIME rules sit beside

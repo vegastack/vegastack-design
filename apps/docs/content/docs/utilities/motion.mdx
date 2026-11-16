@@ -1,6 +1,6 @@
 ---
 title: Motion helpers
-description: Staggered content reveals, View Transitions for in-page state changes, and the optimistic action with an Undo toast.
+description: Staggered content reveals and View Transitions for in-page state changes.
 audience: public
 preview: motionStagger
 ---
@@ -48,26 +48,5 @@ React's `<ViewTransition>` for navigations, and this helper for in-page state.
 
 <ComponentPreview
   name="viewTransition"
-  file="components/preview/utilities.tsx"
-/>
-
-## Optimistic action with Undo
-
-`npx shadcn add @vegastack/use-optimistic-action`. `run(input)` applies the change at once and
-shows a toast with **Undo**; the commit runs only when the window closes (5 s by default). Undo
-reverts and the server is never called. A failed commit reverts and offers Retry. Pending commits
-flush on `pagehide` and unmount. Needs a mounted `Toaster`.
-
-```tsx
-const archive = useOptimisticAction({
-  apply: (task) => remove(task),
-  revert: (task) => restore(task),
-  commit: (task) => api.archive(task.id),
-  message: (task) => `Archived “${task.title}”`,
-});
-```
-
-<ComponentPreview
-  name="optimisticUndo"
   file="components/preview/utilities.tsx"
 />

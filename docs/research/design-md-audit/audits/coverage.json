@@ -1,26 +1,25 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "0b005a821bb25667d7cb2670ce74b5b590d16b52093050e5fa853afb66b7e2b3",
+  "contractSha256": "b70ee0bc1731507a954f9fff938f617a9c78331e7b3fbe2c54f87e30d2ab74b5",
   "inventory": {
-    "expected": 834,
-    "actual": 834,
-    "unique": 834
+    "expected": 821,
+    "actual": 821,
+    "unique": 821
   },
   "classes": {
-    "components": 239,
+    "components": 228,
     "animatedIcons": 467,
-    "hooks": 19,
+    "hooks": 18,
     "blocks": 16,
     "chartBlocks": 68,
-    "libs": 25
+    "libs": 24
   },
   "waves": {
     "Core controls": {
-      "expected": 25,
-      "actual": 25,
+      "expected": 24,
+      "actual": 24,
       "members": [
-        "animated-number",
         "avatar",
         "badge",
         "button",
@@ -48,8 +47,8 @@
       ]
     },
     "Forms/editing": {
-      "expected": 44,
-      "actual": 44,
+      "expected": 39,
+      "actual": 39,
       "members": [
         "auto-save-input",
         "avatar-picker",
@@ -59,7 +58,6 @@
         "choice-card",
         "color-picker",
         "combobox",
-        "country-select",
         "date-picker",
         "destination-picker",
         "dropzone",
@@ -67,10 +65,8 @@
         "field",
         "field-cell",
         "field-grid",
-        "field-type-link-step",
         "field-type-picker",
         "filter-bar-managed",
-        "formula-input",
         "input-group",
         "input-otp",
         "native-select",
@@ -81,7 +77,6 @@
         "record-chip",
         "record-picker",
         "recurrence-picker",
-        "region-select",
         "search-input",
         "searchable-select",
         "select",
@@ -93,7 +88,6 @@
         "template-editor",
         "text-edit",
         "time-field",
-        "upload-dialog",
         "upload-panel"
       ]
     },
@@ -133,10 +127,9 @@
       ]
     },
     "Overlays": {
-      "expected": 24,
-      "actual": 24,
+      "expected": 23,
+      "actual": 23,
       "members": [
-        "access-chip",
         "action-bar",
         "alert-dialog",
         "command-search",
@@ -163,8 +156,8 @@
       ]
     },
     "Data display": {
-      "expected": 50,
-      "actual": 50,
+      "expected": 47,
+      "actual": 47,
       "members": [
         "activity-feed",
         "add-filter-menu",
@@ -191,7 +184,6 @@
         "icon-glyph",
         "inbox",
         "kpi-card",
-        "level-meter",
         "list-toolbar",
         "load-more",
         "media-card",
@@ -201,7 +193,6 @@
         "person-hover-card",
         "property-list",
         "qr-code",
-        "rating-bars",
         "reactions",
         "recent-strip",
         "record-aside",
@@ -211,7 +202,6 @@
         "stat",
         "table",
         "thumbnail",
-        "timeline",
         "value-change",
         "version-compare",
         "version-list",
@@ -219,11 +209,10 @@
       ]
     },
     "Content/marketing": {
-      "expected": 15,
-      "actual": 15,
+      "expected": 14,
+      "actual": 14,
       "members": [
         "alert",
-        "announcement-banner",
         "audio-player",
         "code-block",
         "empty",
@@ -304,8 +293,8 @@
       ]
     },
     "Hooks": {
-      "expected": 19,
-      "actual": 19,
+      "expected": 18,
+      "actual": 18,
       "members": [
         "use-animation-replay",
         "use-announcer",
@@ -318,7 +307,6 @@
         "use-media-query",
         "use-mobile",
         "use-modal-inert",
-        "use-optimistic-action",
         "use-overflow",
         "use-overflow-fold",
         "use-platform",
@@ -892,7 +880,7 @@
       ]
     }
   },
-  "componentRoutes": 233,
+  "componentRoutes": 222,
   "blockRoutes": 23,
   "modeledExemptions": 3
 }

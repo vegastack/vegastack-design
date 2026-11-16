@@ -36,9 +36,8 @@ controlled by the **item itself**, not by an id: pass the selected item as `valu
 `onValueChange` hands you back an item (or `null` when the clear control is used). Give it
 `isItemEqualToValue` when the value is not the same object reference as the entry in `items`.
 
-Use it instead of restating the recipe: [CountrySelect](/docs/components/country-select) and
-[RegionSelect](/docs/components/region-select) are both thin wrappers over it, and a third data-fed
-picker should be too.
+Use it instead of restating the recipe: a data-fed picker (countries, regions, time zones) is a
+thin wrapper over it.
 
 Reach for a plain [Select](/docs/components/select) when the option set is short and fixed, and for
 [Combobox](/docs/components/combobox) directly when you need free text, suggestions, or

@@ -1231,8 +1231,9 @@ FRM-4 · FRM-15`
 - **A11Y-6** — a scroll viewport is a tab stop only while it can actually scroll; a named viewport is
   `role="region"`. Base UI's `ScrollArea.Viewport` implements this itself, so the row is a no-hunk
   with a test. **It is not implemented for tables**: upstream's `Table` wraps itself in a plain
-  container, `table-scroll-region.tsx` is the orphaned implementation, and the gap is pinned by
-  `data-list.test.tsx` rather than hidden. Open, and recorded on the `ours.json` entry.
+  container, and the gap is pinned by `data-list.test.tsx` rather than hidden. The orphaned
+  `table-scroll-region.tsx` that nothing imported was deleted in the shell clean-up (2026-11-16); a
+  rebuild that closes the gap measures the way `terminal-body.tsx` does.
 - **A11Y-7** — a role that requires a parent is licensed by a **context**, never by a default.
   `Item` takes `listitem` only inside `ItemGroup`; cmdk's empty palette takes its roles the same way.
   An `Item` that renders a link or a button inside `ItemGroup` moves `listitem` to a wrapper
@@ -1492,8 +1493,7 @@ line when its file is next touched, never in a drive-by rename.
 
 **Known deviations in components we own**, each fixed when its file is next touched: `md` on
 `Stat`, `StatusIcon` and `Chip` (add `default`, keep `md` as an alias); `SettingsSection`'s `titleAs`
-and `TruncatedText`'s `as` (→ `render`); `dismissable` on `AnnouncementBanner` (→ `dismissible`);
-`ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip` and `Exit` parts,
+and `TruncatedText`'s `as` (→ `render`); `ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip` and `Exit` parts,
 which export no `…Props` type; `AppShellPage`'s `size` (`prose · default · full`, a page width off
 the size ladder); `DataList`'s "Loading rows" status (→ "Loading rows…");
 `PanelSearch`'s look differing from `SearchableSelect`'s in-popup search; and per-component
@@ -1657,8 +1657,8 @@ the alpha/opacity role rules and the z-band rules among them. The complete rule-
 
 **The marketing layer is gone, not deprecated.** Ten components, the `MarketingSurface` theme scope
 and its `.vs-marketing` selectors, the marketing tokens and every marketing lint rule were deleted on
-2026-09-18. `announcement-banner`, `terminal` and `code-block` were explicitly kept and moved to
-Feedback and Content. The portal half of the theme scope stays — OVL-13 depends on it.
+2026-09-18. `terminal` and `code-block` were explicitly kept and moved to Feedback and Content
+(`announcement-banner` too, until the shell clean-up deleted it unused on 2026-11-16). The portal half of the theme scope stays — OVL-13 depends on it.
 
 ## Iconography
 
@@ -1713,7 +1713,7 @@ with `app-shell-01`. Two narrower types exist: `registry:hook` for a pure hook, 
 Rules that survive the reset, because they are ours and not upstream's:
 
 - **A keeper that wraps an upstream component imports it**, never a copy of it. `date-picker` mounts
-  upstream's `calendar`; `number-field`, `chip-input` and `region-select` are upstream's `input-group`;
+  upstream's `calendar`; `number-field` and `chip-input` are upstream's `input-group`;
   `settings-row` is upstream's `Card`; `tool-call-chip` is upstream's `Badge`; `app-shell` is
   upstream's `sidebar` primitives plus the landmarks LAY-12 asks for. A re-derived box is drift with a
   different spelling.
@@ -1727,8 +1727,7 @@ Rules that survive the reset, because they are ours and not upstream's:
   than stretched.
 - **A shared internal is not a catalogue entry.** `data-table-parts` and `panel-search` are installed
   as dependencies of the components that need them and documented where those components are
-  documented (`coverage.navigation: "exempt"` + `docs: "shared-guide-only"`), the way `geo-data` and
-  `drag-item` are. The contract gate asserts the whole shape, so the exemption cannot be
+  documented (`coverage.navigation: "exempt"` + `docs: "shared-guide-only"`), the way `drag-item` is. The contract gate asserts the whole shape, so the exemption cannot be
   half-declared.
 
 ## Voice & content

@@ -124,65 +124,6 @@
       }
     },
     {
-      "name": "animated-number",
-      "type": "registry:ui",
-      "title": "Animated Number",
-      "description": "A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
-      "categories": [
-        "data-display"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/use-media-query"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/animated-number.tsx",
-          "type": "registry:ui",
-          "target": "@ui/animated-number.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A numeric stat/metric that updates over time and should visually count/tween to its new value — dashboard KPIs, live prices, counters.",
-        "whenNotToUse": "A static number that never changes after render — just render it directly; the tween machinery adds nothing.",
-        "version": "0.90.0",
-        "integrity": "sha256-jWviLjqgEka3iI30SJqa/guWmfiFdy9M3mLjSUwlAM0="
-      }
-    },
-    {
-      "name": "announcement-banner",
-      "type": "registry:ui",
-      "title": "Announcement Banner",
-      "description": "A dismissible one-line announcement — full-width inverse band or inline hairline card.",
-      "categories": [
-        "marketing"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/announcement-banner.tsx",
-          "type": "registry:ui",
-          "target": "@ui/announcement-banner.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
-        "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
-        "version": "0.90.0",
-        "integrity": "sha256-MCR0eB+L537gBN6/bz9R1nEgiqvUBjB+9wYiCDFTA/Q="
-      }
-    },
-    {
       "name": "app-shell",
       "type": "registry:ui",
       "title": "App Shell",
@@ -721,33 +662,6 @@
         "whenNotToUse": "A brand in its own colours or a wordmark (BrandIcon with a thesvg module); a person or workspace (Avatar); a functional icon (lucide).",
         "version": "0.90.0",
         "integrity": "sha256-8nROSVMEqVMf7H5pql6EO+launP9qtw//Fh1VtXt3L8="
-      }
-    },
-    {
-      "name": "rating-bars",
-      "type": "registry:ui",
-      "title": "Rating Bars",
-      "description": "A short qualitative rating — a label, a row of lit and unlit segments and the word that says what it means — read as one meter. Server-safe.",
-      "categories": [
-        "display"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/rating-bars.tsx",
-          "type": "registry:ui",
-          "target": "@ui/rating-bars.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Rating something on a small fixed scale with a word that says what it means — a model's speed, cost and quality in a picker's details, stacked so the rows compare down the column.",
-        "whenNotToUse": "A live or continuous value (Progress, LevelMeter); a user's own star rating input; an exact number or a price (show the figure).",
-        "version": "0.90.0",
-        "integrity": "sha256-24UxS7C1PUNhb8YjqkfBjt4uIgG3H0YiayvgMHYe0Cg="
       }
     },
     {
@@ -1706,36 +1620,6 @@
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.90.0",
         "integrity": "sha256-WT55IxPHgW6TMztEBvYrhUxcphl4H4UtGrUIeyf9pTE="
-      }
-    },
-    {
-      "name": "country-select",
-      "type": "registry:ui",
-      "title": "Country Select",
-      "description": "A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/searchable-select",
-        "@vegastack/geo-data"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/country-select.tsx",
-          "type": "registry:ui",
-          "target": "@ui/country-select.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Collecting a country in an address/billing form — store the ISO code.",
-        "whenNotToUse": "A small fixed option set (Select) or multi-select.",
-        "version": "0.90.0",
-        "integrity": "sha256-yS9FRU++fC+5aq2STUOSeinQpvApWdcGeWo/ymKVams="
       }
     },
     {
@@ -2851,7 +2735,7 @@
         "whenToUse": "Any file surface that shows a size, picks an icon for a file, or branches on what kind of file it holds.",
         "whenNotToUse": "Previewing a file (FileViewer) or acquiring one (use-file-drop).",
         "version": "0.90.0",
-        "integrity": "sha256-5OVTCT8vOWox1ur2ZHej3wK3ItMA7lMFx8ZnwMIJz+c="
+        "integrity": "sha256-lsLHnDvyRz00sJ202wDlYYqYZp1nDX9zeoCUb24ohuY="
       }
     },
     {
@@ -3103,44 +2987,6 @@
       }
     },
     {
-      "name": "upload-dialog",
-      "type": "registry:ui",
-      "title": "Upload Dialog",
-      "description": "The \"Add files\" modal: a drop zone and the staged files (thumbnail or icon, name, size, remove), then an optional per-file details view the host renders, and Add. It stages files only; the host uploads them.",
-      "categories": [
-        "forms"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/attachment",
-        "@vegastack/button",
-        "@vegastack/dialog",
-        "@vegastack/dropzone",
-        "@vegastack/empty",
-        "@vegastack/field",
-        "@vegastack/file-kind",
-        "@vegastack/image",
-        "@vegastack/use-file-drop"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/upload-dialog.tsx",
-          "type": "registry:ui",
-          "target": "@ui/upload-dialog.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Adding files to a record from a button — drop or browse, review the files, set each one's name or category, then Add and let the page's upload queue carry on.",
-        "whenNotToUse": "An always-visible drop surface (Dropzone), a single profile photo (AvatarPicker), or showing upload progress (Attachment tiles on the page).",
-        "version": "0.90.0",
-        "integrity": "sha256-79tySzlvejWsjPL3rDyWyYHAX4tFjkyvWxTz8xQ5K30="
-      }
-    },
-    {
       "name": "upload-panel",
       "type": "registry:ui",
       "title": "Upload Panel",
@@ -3334,7 +3180,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.90.0",
-        "integrity": "sha256-dsRwxwxBvokNSxM2MrRTwqftjDCb0cAwmuAv5PJWxTU="
+        "integrity": "sha256-f9OYHNF/ASWi2KCGQNPL7q/GILInZBU+36rmUDr1ZxY="
       }
     },
     {
@@ -3499,30 +3345,6 @@
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.90.0",
         "integrity": "sha256-IlnkALRI9IvZROuLtlvVLea/7oEPCZvCI59pNL8w2ho="
-      }
-    },
-    {
-      "name": "geo-data",
-      "type": "registry:lib",
-      "title": "Geo Data",
-      "description": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/lib/geo-data.ts",
-          "type": "registry:lib",
-          "target": "@lib/geo-data.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Any surface that needs the country or subdivision lists — the two selects, a shipping-rate table, a billing-address validator.",
-        "whenNotToUse": "A curated subset (pass your own array to the select) or data that has to come from a server.",
-        "version": "0.26.4",
-        "integrity": "sha256-/uVRZXboI8KykhoHVv57fDifBftdN6mZ6ghd0xiftm4="
       }
     },
     {
@@ -18106,37 +17928,6 @@
       }
     },
     {
-      "name": "field-type-link-step",
-      "type": "registry:ui",
-      "title": "Field Type Link Step",
-      "description": "The \"Links to\" step of FieldTypePicker — grouped kinds of record, each with one line on what a link to it does, and a table choice for a kind that lives in a table (Rows).",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/command",
-        "@vegastack/field-type-picker"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/field-type-link-step.tsx",
-          "type": "registry:ui",
-          "target": "@ui/field-type-link-step.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A link field's second step in FieldTypePicker's renderStep: which kind of record it points at, and for rows which table.",
-        "whenNotToUse": "Picking a record itself (RecordPicker), or a field type (FieldTypePicker).",
-        "version": "0.90.0",
-        "integrity": "sha256-VgwACvQiAE/sBjQF6iYpEdz6uMp+WWx2zOEX5C2qF/U="
-      }
-    },
-    {
       "name": "permission-menu",
       "type": "registry:ui",
       "title": "Permission Menu",
@@ -18232,39 +18023,6 @@
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.90.0",
         "integrity": "sha256-xOtkRiFGcHTRYHSg18IwqxBAH6JsN1FWqQWxbkeIT7E="
-      }
-    },
-    {
-      "name": "access-chip",
-      "type": "registry:ui",
-      "title": "Access Chip",
-      "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
-      "categories": [
-        "overlay"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/icon-glyph",
-        "@vegastack/space-picker",
-        "@vegastack/tooltip"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/access-chip.tsx",
-          "type": "registry:ui",
-          "target": "@ui/access-chip.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A record header that shows who can open the record and opens Share.",
-        "whenNotToUse": "Changing access inline (PermissionMenu) or listing people (AvatarStack).",
-        "version": "0.90.0",
-        "integrity": "sha256-AgcdmDgRXsCP0Hie8Qi8CjAJuFnom3/H5/KfA4arwiE="
       }
     },
     {
@@ -18490,38 +18248,6 @@
       }
     },
     {
-      "name": "region-select",
-      "type": "registry:ui",
-      "title": "Region Select",
-      "description": "A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/geo-data",
-        "@vegastack/input-group",
-        "@vegastack/searchable-select"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/region-select.tsx",
-          "type": "registry:ui",
-          "target": "@ui/region-select.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A state/province as part of an address form, dependent on the selected country.",
-        "whenNotToUse": "A small country-independent option set (Select) or multi-select.",
-        "version": "0.90.0",
-        "integrity": "sha256-6DjKD6KsFe88d10+xCqdfAwKhcyEk3S2AyMMFvr9gIY="
-      }
-    },
-    {
       "name": "relative-time",
       "type": "registry:ui",
       "title": "Dates & Times",
@@ -18643,7 +18369,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.90.0",
-        "integrity": "sha256-VKRnRzr+sIjVK/Hbe842h0IiaiZED0DM65sqoYoTM8M="
+        "integrity": "sha256-JjTvaUqFoA1EaDxNBzd4n2lGgZSR+gG0nLvD9Ea+ugU="
       }
     },
     {
@@ -19313,26 +19039,18 @@
         "@vegastack/design@^0.18.0",
         "@vegastack/design-tokens@^0.18.0"
       ],
-      "registryDependencies": [
-        "@vegastack/use-overflow"
-      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/table.tsx",
           "type": "registry:ui",
           "target": "@ui/table.tsx"
-        },
-        {
-          "path": "packages/ui/registry/ui/table-scroll-region.tsx",
-          "type": "registry:ui",
-          "target": "@ui/table-scroll-region.tsx"
         }
       ],
       "meta": {
         "whenToUse": "Display tabular data with header/body/footer rows — lists, comparisons, summaries.",
         "whenNotToUse": "Page layout or non-tabular content — use a grid/flex layout.",
         "version": "0.90.0",
-        "integrity": "sha256-YFTBKqpobDaG8Qt6bH3WSVfJcuuf8Xgja6Esy48Zq9Q="
+        "integrity": "sha256-OvHK4fieyaFg/H6aRr1kJk//P7H9IkTlWa46PaE9ZW8="
       }
     },
     {
@@ -19433,7 +19151,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.90.0",
-        "integrity": "sha256-HCv7xhJJQZl5Z1qEJUT636y8UAPcXxrJblrhSaaNlh8="
+        "integrity": "sha256-3rknd5vAfys3Co3BEed/rMuUR5PchwOq70a2xey94xA="
       }
     },
     {
@@ -19469,35 +19187,6 @@
         "whenNotToUse": "Formatted rich text (TextEdit), plain text with no placeholders (Textarea), or a single-line value (Input).",
         "version": "0.90.0",
         "integrity": "sha256-8FNiTQktnEYnFK3UcEx9voCpcWqt+r6blgvVqoRVuU0="
-      }
-    },
-    {
-      "name": "formula-input",
-      "type": "registry:ui",
-      "title": "Formula Input",
-      "description": "A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/template-editor"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/formula-input.tsx",
-          "type": "registry:ui",
-          "target": "@ui/formula-input.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A calculated field's formula — field chips, numbers and + − × ÷ on one line, with the host's first-row result and error under it.",
-        "whenNotToUse": "Free text with placeholders (TemplateEditor), or a plain number (Input).",
-        "version": "0.90.0",
-        "integrity": "sha256-UuWQgRYedgbhj0C7RaQuFLTbGRNCAhrTSQeZsOM9eSc="
       }
     },
     {
@@ -19613,35 +19302,6 @@
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.90.0",
         "integrity": "sha256-ffcq5gFjw1Ty/tUMh1pa3wK43zzAdw0lVNO830aMl7A="
-      }
-    },
-    {
-      "name": "timeline",
-      "type": "registry:ui",
-      "title": "Timeline",
-      "description": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
-      "categories": [
-        "data-display"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/marker"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/timeline.tsx",
-          "type": "registry:ui",
-          "target": "@ui/timeline.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
-        "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
-        "version": "0.90.0",
-        "integrity": "sha256-gO9ww71+jyiWb3jIuKG8tMt/5fFTtjlR4Mt3rK9pXu4="
       }
     },
     {
@@ -24475,58 +24135,6 @@
         "whenNotToUse": "A component's own enter/exit (use Base UI's lifecycle styles or the motion-* utilities), or anything that must animate in every browser.",
         "version": "0.26.4",
         "integrity": "sha256-4bKlEviOWzR9pQFU7f1QnFphZjvPsRRBph/BznLG1sI="
-      }
-    },
-    {
-      "name": "use-optimistic-action",
-      "type": "registry:hook",
-      "title": "useOptimisticAction",
-      "description": "Apply a reversible action at once, offer Undo in a toast, and commit only when the Undo window closes; a failed commit reverts and offers Retry.",
-      "categories": [
-        "hook"
-      ],
-      "dependencies": [],
-      "registryDependencies": [
-        "@vegastack/toast"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/use-optimistic-action.ts",
-          "type": "registry:hook",
-          "target": "@ui/use-optimistic-action.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Reversible actions that should feel instant — archive, delete to trash, move, mark done — with an Undo toast.",
-        "whenNotToUse": "Irreversible or slow-to-confirm actions (ask first with AlertDialog), or edits that save in place (EditableCell has its own optimistic layer).",
-        "version": "0.26.4",
-        "integrity": "sha256-XpyabHyG8s7Lqd/ltAAFTIwGwECpcZxhTSGDnfvnQ6M="
-      }
-    },
-    {
-      "name": "level-meter",
-      "type": "registry:ui",
-      "title": "Level Meter",
-      "description": "A segmented live input-level meter for a recording — Web Audio RMS from a MediaStream, or a level you drive — with warning and clipping zones.",
-      "categories": [
-        "media"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.18.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/level-meter.tsx",
-          "type": "registry:ui",
-          "target": "@ui/level-meter.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Show that a microphone is being heard while recording or before a call starts.",
-        "whenNotToUse": "Playback progress or a seek bar (AudioPlayer), or a static measurement (Progress or Meter).",
-        "version": "0.90.0",
-        "integrity": "sha256-2EW33ZivooD6S7FKcgGegNhrHExKDxEx6mL08T4GkFc="
       }
     },
     {

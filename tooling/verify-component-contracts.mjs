@@ -816,7 +816,7 @@ const components = contracts.components ?? [];
 
 /**
  * A SHARED-GUIDE-ONLY component: a real `registry:ui` item that other components install as a
- * dependency, with no consumer-facing page of its own — the way `geo-data` and `drag-item` are
+ * dependency, with no consumer-facing page of its own — the way `drag-item` is
  * handled, but for a `.tsx` that ships React parts. `data-table-parts` is the first (MK,
  * 2026-09-18): `data-grid` and `data-list` both import it, so it cannot be retired without
  * duplicating it, and it is not something a consumer picks off a list.

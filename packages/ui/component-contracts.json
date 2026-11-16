@@ -12,24 +12,24 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 834,
-    "components": 239,
+    "totalRegistryItems": 821,
+    "components": 228,
     "animatedIcons": 467,
-    "hooks": 19,
+    "hooks": 18,
     "blocks": 16,
-    "libs": 25,
+    "libs": 24,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
-    "Core controls": 25,
-    "Forms/editing": 44,
+    "Core controls": 24,
+    "Forms/editing": 39,
     "Navigation/layout": 29,
-    "Overlays": 24,
-    "Data display": 50,
-    "Content/marketing": 15,
+    "Overlays": 23,
+    "Data display": 47,
+    "Content/marketing": 14,
     "Shared internals": 6,
     "AI/chat": 46,
-    "Hooks": 19,
+    "Hooks": 18,
     "Block": 16,
     "Animated icons": 467
   },
@@ -56,7 +56,6 @@
       "status-icon",
       "kbd",
       "relative-time",
-      "animated-number",
       "toggle",
       "toggle-group",
       "tool-group"
@@ -70,7 +69,6 @@
       "choice-card",
       "color-picker",
       "combobox",
-      "country-select",
       "date-picker",
       "dropzone",
       "editable-cell",
@@ -85,7 +83,6 @@
       "password-input",
       "people-picker",
       "record-chip",
-      "region-select",
       "search-input",
       "searchable-select",
       "select",
@@ -96,13 +93,10 @@
       "task-inline",
       "template-editor",
       "text-edit",
-      "upload-dialog",
       "upload-panel",
-      "formula-input",
       "record-picker",
       "destination-picker",
       "field-type-picker",
-      "field-type-link-step",
       "option-list-editor",
       "time-field",
       "recurrence-picker"
@@ -139,7 +133,6 @@
       "tabs"
     ],
     "Overlays": [
-      "access-chip",
       "action-bar",
       "alert-dialog",
       "context-menu",
@@ -195,12 +188,9 @@
       "heatmap",
       "table",
       "thumbnail",
-      "timeline",
       "version-list",
       "view-tabs",
       "icon-glyph",
-      "level-meter",
-      "rating-bars",
       "mermaid-block",
       "qr-code",
       "brand-logo",
@@ -218,7 +208,6 @@
     ],
     "Content/marketing": [
       "alert",
-      "announcement-banner",
       "audio-player",
       "code-block",
       "empty",
@@ -304,7 +293,6 @@
       "use-platform",
       "use-tabs-swipe",
       "use-view-transition",
-      "use-optimistic-action",
       "use-record-peek-row",
       "use-overflow-fold",
       "use-grid-selection",
@@ -1318,226 +1306,6 @@
             {
               "name": "data-slot",
               "values": ["alert-dialog-cancel"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "animated-number",
-      "registryType": "registry:ui",
-      "title": "Animated Number",
-      "summary": "A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "data-display",
-      "wave": "Core controls",
-      "sourceFiles": ["packages/ui/registry/ui/animated-number.tsx"],
-      "publicSymbols": [
-        {
-          "name": "AnimatedNumber",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/animated-number.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AnimatedNumberProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/animated-number.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "empty"],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["live", "status-announcement", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "empty"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink", "overflow-and-scroll"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "CSS utility motion-ease-standard",
-          "CSS utility motion-duration",
-          "CSS utility motion-token",
-          "tokenized CSS transition",
-          "requestAnimationFrame"
-        ],
-        "reducedMotion": {
-          "status": "observed-or-documented",
-          "rationale": "Source explicitly implements or documents reduced motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/animated-number",
-      "registryDependencies": ["@vegastack/use-media-query"],
-      "npmDependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/animated-number.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "animated-number",
-      "dataAttributes": {
-        "AnimatedNumber": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "animated-number",
-                "animated-number-live",
-                "animated-number-value"
-              ]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "announcement-banner",
-      "registryType": "registry:ui",
-      "title": "Announcement Banner",
-      "summary": "A dismissible one-line announcement — the full-width inverse page-top band (in-content notices use Alert variant=strip).",
-      "status": "stable",
-      "since": "0.3.0",
-      "family": "marketing",
-      "wave": "Content/marketing",
-      "sourceFiles": ["packages/ui/registry/ui/announcement-banner.tsx"],
-      "publicSymbols": [
-        {
-          "name": "AnnouncementBanner",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/announcement-banner.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AnnouncementBannerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/announcement-banner.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Single-purpose page-top inverse band; the former inline variant folded into Alert variant=strip."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "open"],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["labeled", "status-announcement", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": ["tokenized CSS transition"],
-        "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/announcement-banner",
-      "registryDependencies": ["@vegastack/button"],
-      "npmDependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/announcement-banner.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "announcement-banner",
-      "dataAttributes": {
-        "AnnouncementBanner": {
-          "attributes": [
-            {
-              "name": "data-live",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "announcement-banner",
-                "announcement-banner-action",
-                "announcement-banner-dismiss"
-              ]
             }
           ],
           "cssVariables": []
@@ -9064,109 +8832,6 @@
       }
     },
     {
-      "name": "country-select",
-      "registryType": "registry:ui",
-      "title": "Country Select",
-      "summary": "A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "form",
-      "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/country-select.tsx"],
-      "publicSymbols": [
-        {
-          "name": "CountrySelect",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/country-select.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "SearchableSelect trigger",
-            "rationale": "Source forwards the ref to the composed SearchableSelect's trigger button."
-          }
-        },
-        {
-          "name": "CountrySelectProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/country-select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "disabled", "selected"],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["disabled", "labeled"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/country-select",
-      "registryDependencies": [
-        "@vegastack/searchable-select",
-        "@vegastack/geo-data"
-      ],
-      "npmDependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/country-select.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "country-select",
-      "dataAttributes": {
-        "CountrySelect": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["country-select"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "data-grid",
       "registryType": "registry:ui",
       "title": "Data Grid",
@@ -15023,152 +14688,6 @@
             {
               "name": "data-slot",
               "values": ["dropzone"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "upload-dialog",
-      "registryType": "registry:ui",
-      "title": "Upload Dialog",
-      "summary": "The \"Add files\" modal: a drop zone and the staged files (thumbnail or icon, name, size, remove), then an optional per-file details view the host renders, and Add. It stages files only; the host uploads them.",
-      "status": "stable",
-      "since": "0.23.62",
-      "family": "forms",
-      "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/upload-dialog.tsx"],
-      "publicSymbols": [
-        {
-          "name": "UploadDialog",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/upload-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A controlled modal composition; it renders into a portal and takes no ref."
-          }
-        },
-        {
-          "name": "UploadDialogProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/upload-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "UploadDialogFile",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/upload-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "UploadDialogFileRow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/upload-dialog.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Spread onto the Attachment root div."
-          }
-        },
-        {
-          "name": "UploadDialogFileRowProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/upload-dialog.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No visual variant axis; the details view appears only when renderDetails is passed."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "One size: the dialog's lg width."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": ["empty", "staged", "refused", "details", "submit"],
-          "evidence": "packages/ui/registry/ui/upload-dialog.tsx + packages/ui/registry/ui/upload-dialog.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["labeled", "semantic-html", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/ui/upload-dialog.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "staged", "details"],
-          "evidence": "packages/ui/registry/ui/upload-dialog.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "File names truncate on their line; the footer stacks on a phone like every dialog."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism; the dialog's own lifecycle applies."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/upload-dialog",
-      "registryDependencies": [
-        "@vegastack/attachment",
-        "@vegastack/button",
-        "@vegastack/dialog",
-        "@vegastack/dropzone",
-        "@vegastack/empty",
-        "@vegastack/field",
-        "@vegastack/file-kind",
-        "@vegastack/image",
-        "@vegastack/use-file-drop"
-      ],
-      "npmDependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/upload-dialog.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "upload-dialog",
-      "dataAttributes": {
-        "UploadDialog": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "upload-dialog",
-                "upload-dialog-details",
-                "upload-dialog-files"
-              ]
-            },
-            {
-              "name": "data-stage",
-              "values": []
             }
           ],
           "cssVariables": []
@@ -25095,122 +24614,6 @@
       }
     },
     {
-      "name": "region-select",
-      "registryType": "registry:ui",
-      "title": "Region Select",
-      "summary": "A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "form",
-      "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/region-select.tsx"],
-      "publicSymbols": [
-        {
-          "name": "RegionSelect",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/region-select.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "SearchableSelect wrapper / fallback div",
-            "rationale": "Source forwards the ref to the component's root element in both the combobox and free-text branches."
-          }
-        },
-        {
-          "name": "RegionSelectProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/region-select.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "default",
-            "disabled",
-            "empty",
-            "filtering",
-            "open",
-            "selected"
-          ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["disabled", "labeled"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "empty"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/region-select",
-      "registryDependencies": [
-        "@vegastack/geo-data",
-        "@vegastack/input-group",
-        "@vegastack/searchable-select"
-      ],
-      "npmDependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/region-select.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "region-select",
-      "dataAttributes": {
-        "RegionSelect": {
-          "attributes": [
-            {
-              "name": "data-fallback",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["region-select"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "relative-time",
       "registryType": "registry:ui",
       "title": "Dates & Times",
@@ -29715,10 +29118,7 @@
       "since": "0.1.0",
       "family": "data-display",
       "wave": "Data display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/table-scroll-region.tsx",
-        "packages/ui/registry/ui/table.tsx"
-      ],
+      "sourceFiles": ["packages/ui/registry/ui/table.tsx"],
       "publicSymbols": [
         {
           "name": "Table",
@@ -29799,26 +29199,6 @@
             "target": "element",
             "rationale": "Upstream forwards the ref to its own render target."
           }
-        },
-        {
-          "name": "TableScrollRegion",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/table-scroll-region.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Forwards its ref to the scroll viewport it renders."
-          }
-        },
-        {
-          "name": "TableScrollRegionProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/table-scroll-region.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "target": "none",
-            "rationale": "Type alias."
-          }
         }
       ],
       "variants": {
@@ -29867,7 +29247,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/table",
-      "registryDependencies": ["@vegastack/use-overflow"],
+      "registryDependencies": [],
       "npmDependencies": [
         "@vegastack/design@^0.18.0",
         "@vegastack/design-tokens@^0.18.0"
@@ -29883,19 +29263,6 @@
       },
       "previewModule": "table",
       "dataAttributes": {
-        "TableScrollRegion": {
-          "attributes": [
-            {
-              "name": "data-scrollable",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["table-container"]
-            }
-          ],
-          "cssVariables": []
-        },
         "Table": {
           "attributes": [
             {
@@ -31445,168 +30812,6 @@
             {
               "name": "data-variant",
               "values": ["default"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "timeline",
-      "registryType": "registry:ui",
-      "title": "Timeline",
-      "summary": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
-      "status": "stable",
-      "since": "0.4.0",
-      "family": "data-display",
-      "wave": "Data display",
-      "sourceFiles": ["packages/ui/registry/ui/timeline.tsx"],
-      "publicSymbols": [
-        {
-          "name": "Timeline",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/timeline.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "ol",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TimelineItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/timeline.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "li",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TimelineItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/timeline.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TimelineProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/timeline.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TimelineSeparator",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/timeline.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "li",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "TimelineSeparatorProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/timeline.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default"],
-          "evidence": "Purely structural: rail node + connector per entry, connector hidden on the last entry via group-last."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["semantic-html", "labeled"],
-          "evidence": "Labelled ol/li; the rail column is aria-hidden decorative geometry; separators are real list items rendered through Marker's separator variant."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default"],
-          "evidence": "border tokens for node dot and connector hairline; content gutter via spacing scale."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink", "overflow-and-scroll"],
-        "rationale": "min-w-0 rows with Item owning truncation; long lists skip offscreen rendering via content-visibility + contain-intrinsic-size."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/timeline",
-      "registryDependencies": ["@vegastack/marker"],
-      "npmDependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/timeline.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "timeline",
-      "dataAttributes": {
-        "Timeline": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["timeline"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "TimelineItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "timeline-connector",
-                "timeline-content",
-                "timeline-item",
-                "timeline-node",
-                "timeline-rail"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "TimelineSeparator": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["timeline-separator"]
             }
           ],
           "cssVariables": []
@@ -44360,125 +43565,6 @@
       }
     },
     {
-      "name": "rating-bars",
-      "registryType": "registry:ui",
-      "title": "Rating Bars",
-      "summary": "A short qualitative rating: a label, max segments of which value are lit (primary on the muted track) and a word after them; one role=meter named by label with aria-valuetext set to the word. Server-safe, no motion.",
-      "status": "stable",
-      "since": "0.62.1",
-      "family": "display",
-      "wave": "Data display",
-      "sourceFiles": ["packages/ui/registry/ui/rating-bars.tsx"],
-      "publicSymbols": [
-        {
-          "name": "RatingBars",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/rating-bars.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Spread onto the root meter div."
-          }
-        },
-        {
-          "name": "RatingBarsProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/rating-bars.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "One look: lit segments on the primary fill, unlit on the muted track."
-      },
-      "sizes": {
-        "status": "covered",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["sm", "default"]
-          }
-        ],
-        "rationale": "default draws h-2 w-3 segments, sm h-1.5 w-2.5."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": ["lit", "unlit", "null", "clamped"],
-          "evidence": "packages/ui/registry/ui/rating-bars.tsx + packages/ui/registry/ui/rating-bars.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["meter", "valuetext", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/ui/rating-bars.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "sm"],
-          "evidence": "packages/ui/registry/ui/rating-bars.tsx"
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "A fixed 4rem label column, fixed segments and a flexible word column that truncates."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/rating-bars",
-      "registryDependencies": [],
-      "npmDependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/rating-bars.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "rating-bars",
-      "dataAttributes": {
-        "RatingBars": {
-          "attributes": [
-            {
-              "name": "data-lit",
-              "values": []
-            },
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "rating-bars",
-                "rating-bars-label",
-                "rating-bars-segment",
-                "rating-bars-segments",
-                "rating-bars-value"
-              ]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "version-list",
       "registryType": "registry:ui",
       "title": "Version List",
@@ -47299,147 +46385,6 @@
       }
     },
     {
-      "name": "access-chip",
-      "registryType": "registry:ui",
-      "title": "Access Chip",
-      "summary": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
-      "status": "stable",
-      "since": "0.23.116",
-      "family": "overlay",
-      "wave": "Overlays",
-      "sourceFiles": ["packages/ui/registry/ui/access-chip.tsx"],
-      "publicSymbols": [
-        {
-          "name": "AccessChip",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/access-chip.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A composition; it forwards no ref of its own."
-          }
-        },
-        {
-          "name": "AccessChipProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/access-chip.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AccessChipAccess",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/access-chip.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "access",
-            "values": ["space", "invited", "personal", "hidden"]
-          },
-          {
-            "name": "iconOnly",
-            "values": ["false", "true"]
-          }
-        ],
-        "rationale": "One glyph per reach, with or without its name."
-      },
-      "sizes": {
-        "status": "not-applicable",
-        "dimensions": [],
-        "rationale": "No size axis of its own."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "default",
-            "published",
-            "icon-only",
-            "tooltip",
-            "hidden-space"
-          ],
-          "evidence": "packages/ui/registry/ui/access-chip.tsx + packages/ui/registry/ui/access-chip.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["labeled", "keyboard", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/ui/access-chip.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "focus"],
-          "evidence": "packages/ui/registry/ui/access-chip.tsx"
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "A shrink-wrapped control."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion; overlays carry their own transitions."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/access-chip",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/icon-glyph",
-        "@vegastack/space-picker",
-        "@vegastack/tooltip"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.18.0",
-        "@vegastack/design@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/access-chip.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "access-chip",
-      "dataAttributes": {
-        "AccessChip": {
-          "attributes": [
-            {
-              "name": "data-access",
-              "values": []
-            },
-            {
-              "name": "data-published",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "access-chip",
-                "access-chip-icon",
-                "access-chip-published"
-              ]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "info-hint",
       "registryType": "registry:ui",
       "title": "Info Hint",
@@ -48082,115 +47027,6 @@
                 "icon-picker-swatch",
                 "icon-picker-tabs"
               ]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "level-meter",
-      "registryType": "registry:ui",
-      "title": "Level Meter",
-      "summary": "A segmented live input-level meter for a recording — Web Audio RMS from a MediaStream, or a level you drive — with warning and clipping zones.",
-      "status": "stable",
-      "since": "0.25.0",
-      "family": "media",
-      "wave": "Data display",
-      "sourceFiles": ["packages/ui/registry/ui/level-meter.tsx"],
-      "publicSymbols": [
-        {
-          "name": "LevelMeter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/level-meter.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "LevelMeterProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/level-meter.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "active", "inactive"],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["meter", "semantic-html"],
-          "evidence": "Observed from semantic elements and ARIA."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "ok", "hot", "clip"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Segments flex to fill the width they are given."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": ["requestAnimationFrame"],
-        "reducedMotion": {
-          "status": "observed-or-documented",
-          "rationale": "The level is information, not decoration, so it keeps updating; there are no transitions."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/level-meter",
-      "registryDependencies": [],
-      "npmDependencies": ["@vegastack/design@^0.18.0"],
-      "testFiles": ["packages/ui/registry/ui/level-meter.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "level-meter",
-      "dataAttributes": {
-        "LevelMeter": {
-          "attributes": [
-            {
-              "name": "data-on",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["level-meter", "level-meter-segment"]
-            },
-            {
-              "name": "data-state",
-              "values": ["active", "inactive"]
-            },
-            {
-              "name": "data-zone",
-              "values": []
             }
           ],
           "cssVariables": []
@@ -50732,137 +49568,6 @@
       }
     },
     {
-      "name": "formula-input",
-      "registryType": "registry:ui",
-      "title": "Formula Input",
-      "summary": "A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.",
-      "status": "stable",
-      "since": "0.25.89",
-      "family": "rich-text",
-      "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/formula-input.tsx"],
-      "publicSymbols": [
-        {
-          "name": "FormulaInput",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/formula-input.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "FormulaInputProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/formula-input.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FormulaInputField",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/formula-input.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable",
-        "dimensions": [],
-        "rationale": "One look; the status line shows the preview or the error."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "TemplateEditor's single-line height."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "default",
-            "empty",
-            "menu-open",
-            "preview",
-            "error",
-            "disabled"
-          ],
-          "evidence": "packages/ui/registry/ui/formula-input.tsx + packages/ui/registry/ui/formula-input.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "labeled",
-            "described",
-            "invalid",
-            "keyboard",
-            "browser-accessibility-test"
-          ],
-          "evidence": "packages/ui/registry/ui/formula-input.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "empty", "preview", "error", "invalid-token"],
-          "evidence": "packages/ui/registry/ui/formula-input.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "One line that wraps on screen like an Input; the status line wraps under it."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/formula-input",
-      "registryDependencies": ["@vegastack/template-editor"],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.18.0",
-        "@vegastack/design@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/formula-input.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "formula-input",
-      "dataAttributes": {
-        "FormulaInput": {
-          "attributes": [
-            {
-              "name": "data-invalid",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "formula-input",
-                "formula-input-error",
-                "formula-input-preview",
-                "formula-input-status"
-              ]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "record-picker",
       "registryType": "registry:ui",
       "title": "Record Picker",
@@ -51365,162 +50070,6 @@
             {
               "name": "data-step",
               "values": []
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "field-type-link-step",
-      "registryType": "registry:ui",
-      "title": "Field Type Link Step",
-      "summary": "The \"Links to\" step of FieldTypePicker — grouped kinds of record, each with one line on what a link to it does, and a table choice for a kind that lives in a table (Rows).",
-      "status": "stable",
-      "since": "0.25.90",
-      "family": "forms",
-      "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/field-type-link-step.tsx"],
-      "publicSymbols": [
-        {
-          "name": "FieldTypeLinkStep",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "FieldTypeLinkStepProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldLinkKind",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldLinkTable",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldLinkChoice",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field-type-link-step.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "view",
-            "values": ["kinds", "tables"]
-          }
-        ],
-        "rationale": "The kinds list, or the table choice for a kind marked table."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Command rows."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "default",
-            "searching",
-            "empty",
-            "disabled-kind",
-            "current",
-            "tables",
-            "tables-loading"
-          ],
-          "evidence": "packages/ui/registry/ui/field-type-link-step.tsx + packages/ui/registry/ui/field-type-link-step.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["labeled", "keyboard", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/ui/field-type-link-step.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "highlighted", "disabled", "current"],
-          "evidence": "packages/ui/registry/ui/field-type-link-step.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Names and explanations truncate to one line each in the popover's width."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/field-type-link-step",
-      "registryDependencies": [
-        "@vegastack/command",
-        "@vegastack/field-type-picker"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.18.0",
-        "@vegastack/design@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/field-type-link-step.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "field-type-link-step",
-      "dataAttributes": {
-        "FieldTypeLinkStep": {
-          "attributes": [
-            {
-              "name": "data-checked",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "field-type-link-step",
-                "field-type-link-step-kind",
-                "field-type-link-step-table"
-              ]
-            },
-            {
-              "name": "data-view",
-              "values": ["kinds", "tables"]
             }
           ],
           "cssVariables": []
@@ -58909,98 +57458,6 @@
       }
     },
     {
-      "name": "use-optimistic-action",
-      "registryType": "registry:hook",
-      "title": "useOptimisticAction",
-      "summary": "Apply a reversible action at once, offer Undo in a toast, and commit only when the Undo window closes; a failed commit reverts and offers Retry.",
-      "family": "hook",
-      "wave": "Hooks",
-      "sourceFiles": ["packages/ui/registry/ui/use-optimistic-action.ts"],
-      "publicSymbols": [
-        {
-          "name": "useOptimisticAction",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/use-optimistic-action.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "UseOptimisticActionOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-optimistic-action.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "UseOptimisticActionResult",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-optimistic-action.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["applied", "undone", "committed", "failed"],
-          "evidence": "run applies and schedules commit after undoWindowMs; undo reverts and cancels the commit; a rejected commit reverts and raises an error toast with Retry; pending commits flush on pagehide and unmount."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render an accessibility tree."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No layout of its own; it raises toasts."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No motion of its own; the toast owns its motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/guides/components",
-      "registryDependencies": ["@vegastack/toast"],
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/ui/use-optimistic-action.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt",
-        "crossBrowserSmoke": "not-selected-intentional-subset"
-      }
-    },
-    {
       "name": "use-record-peek-row",
       "registryType": "registry:hook",
       "title": "useRecordPeekRow",
@@ -62766,124 +61223,6 @@
         "packages/ui/registry/lib/file-kind.test.ts",
         "packages/ui/registry/ui/file-viewer.test.tsx"
       ],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
-      "name": "geo-data",
-      "registryType": "registry:lib",
-      "title": "Geo Data",
-      "summary": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/geo-data.ts"],
-      "publicSymbols": [
-        {
-          "name": "Country",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "Region",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "COUNTRIES",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "REGIONS",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "getCountryByCode",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "getRegions",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/geo-data.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data/recipe module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/guides/components",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Frozen data plus two pure lookups; no state machine."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — the consuming select owns every ARIA contract."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM and no classes."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/geo-data.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",

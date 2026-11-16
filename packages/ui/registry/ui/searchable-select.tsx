@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.90.0 sha256-VKRnRzr+sIjVK/Hbe842h0IiaiZED0DM65sqoYoTM8M=
+// @vegastack searchable-select@0.90.0 sha256-JjTvaUqFoA1EaDxNBzd4n2lGgZSR+gG0nLvD9Ea+ugU=
 
 "use client";
 
@@ -42,13 +42,12 @@ function warnOnce(message: string) {
 /* ------------------------------------------------------------------------------------------------
  * SearchableSelect — the ONE "Select-shaped Combobox" preset: a full-width trigger that reads like
  * a `Select`, a panel-search field inside the popup, a check on the selected row, and an optional
- * clear control. `CountrySelect` and `RegionSelect` are thin, data-fed wrappers over it (audit
- * B8-02); a third data-fed picker composes it rather than restating the recipe a third time.
+ * clear control. A data-fed picker (audit B8-02) composes it rather than restating the recipe.
  *
  * Three structural decisions worth knowing before changing anything here:
  *
  * 1. **Selection goes through Base UI's `value`/`onValueChange` and nothing else.** The previous
- *    RegionSelect computed a toggle inside each item's `onClick` and left the root's
+ *    region picker computed a toggle inside each item's `onClick` and left the root's
  *    `onValueChange` unwired, so keyboard Enter (which the ROOT handles) and a pointer click
  *    followed two different code paths. One path, or the two silently diverge.
  * 2. **The trigger is composed from `@base-ui/react/combobox`'s own `Combobox.Trigger`**, not our
@@ -395,7 +394,7 @@ export interface SearchableSelectProps<
   /**
    * Ref forwarded to the wrapping `<div>`. The wrapper exists because the clear control cannot
    * live inside the trigger button, so a wrapper component whose own public ref is its root
-   * (`RegionSelect`) forwards it here rather than adding a second nesting level.
+   * forwards it here rather than adding a second nesting level.
    * @default undefined
    */
   rootRef?: React.Ref<HTMLDivElement>;

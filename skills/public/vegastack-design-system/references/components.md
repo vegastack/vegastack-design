@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**239 components**, plus 467 animated-icon items, 19 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-optimistic-action`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 16 starter blocks (`app-shell-01`, `shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 25 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `geo-data`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`, `panel-tabs`) — 834 registry items in total.
+**228 components**, plus 467 animated-icon items, 18 hooks (`use-animation-replay`, `use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 16 starter blocks (`app-shell-01`, `shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 24 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`, `panel-tabs`) — 821 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -28,7 +28,6 @@ starts with `icon-` is a component and never an icon.
 - **`choice-card`** — A radio option drawn as a card — icon, title, description and the radio — in a group that is two across from @sm and stacked below. A thin wrapper over the Field choice-card pattern.
 - **`color-picker`** — A swatch-triggered popover presenting a grid of preset colors — pick one, fire onValueChange, mark the selection.
 - **`combobox`** — A filterable listbox behind a text input — grouped items, an announced empty state and a chips mode.
-- **`country-select`** — A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`date-picker`** — Pick a single date, a date and a time, or a date range from a calendar popover — token-styled, keyboard-navigable, with optional quick presets.
 - **`dropzone`** — File acquisition surface — drop, click-to-browse, and paste — as a thin shell over use-file-drop; the surface is the named focusable control over a hidden picker-bridge input; data-dragging/data-drag-invalid styling flags.
 - **`editable-cell`** — Inline-editable value whose edit mode looks like view — same box, inherited type, no border — with optimistic saves, a delayed spinner, rollback plus a Retry toast on failure, required, multiline, table-cell and heading variants, and a typed text/select/custom editor registry.
@@ -48,7 +47,6 @@ starts with `icon-` is a component and never an icon.
 - **`radio-group`** — Mutually-exclusive options with arrow-key navigation and a 24px invisible hit area (A11Y-2).
 - **`record-chip`** — A pill that shows the record something belongs to and picks another: icon, name and a chevron as a picker trigger, plus an arrow link to the record.
 - **`recurrence-picker`** — The body of a repeat popover: presets, a custom editor (every n days, weeks, months or years; weekdays; month day; ends; time) and the host's preview of the next dates. Never computes a date.
-- **`region-select`** — A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.
 - **`search-input`** — A token-safe search field with a consistent clear action and controlled or uncontrolled native input semantics.
 - **`searchable-select`** — The Select-shaped Combobox preset: a full-width trigger, an in-panel search field, a tick on the selected row (matched by key, so async options tick too), a standard person option (name plus muted email, both searched) and an optional clear control. Single or multiple, controlled through value/onValueChange.
 - **`select`** — A dropdown for one value — trigger, grouped scrollable popup and item-aligned positioning.
@@ -77,7 +75,6 @@ starts with `icon-` is a component and never an icon.
 - **`mermaid-block`** — A mermaid diagram drawn in the browser with the engine loaded lazily and its configuration pinned (strict security, SVG labels, dagre), in token colours for light and dark, keeping the last diagram that worked on an error — plus renderMermaid, useMermaidSvg and the ready blockViews entry for TextEdit and MarkdownView.
 - **`meta-line`** — An icon + text meta line under a record title: wrapping facts such as type, date and time, duration and owner, in the muted ink.
 - **`qr-code`** — A QR code for a value, drawn as one crisp SVG path — dark modules on a light rounded tile in both themes, with the standard quiet zone — encoded during render (server or client) by uqr; an empty or unencodable value draws the empty tile.
-- **`rating-bars`** — A short qualitative rating: a label, max segments of which value are lit (primary on the muted track) and a word after them; one role=meter named by label with aria-valuetext set to the word. Server-safe, no motion.
 - **`reactions`** — Slack-style emoji reactions: pills with counts that toggle, a hover card naming who reacted, and an add-reaction button with quick reactions.
 - **`record-header`** — One head for every record, on its page and in a peek.
 - **`stat`** — A labelled value block — muted label over a value, honest faint empty state, optional delta line. Two scales.
@@ -89,7 +86,6 @@ starts with `icon-` is a component and never an icon.
 ## Data display
 
 - **`accordion`** — A vertically stacked set of interactive headings that each reveal a section of content — one open at a time, or several.
-- **`animated-number`** — A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.
 - **`avatar`** — A circular user or entity image with a fallback, a badge, and an overlapping group.
 - **`badge`** — A compact label or status chip — upstream's six variants plus our four status tones (COL-12).
 - **`card`** — A content surface with composable header, content, footer and action parts.
@@ -106,7 +102,6 @@ starts with `icon-` is a component and never an icon.
 - **`relative-time`** — One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.
 - **`status-icon`** — A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — each a hand-drawn 16-unit glyph in a semantic color.
 - **`table`** — A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.
-- **`timeline`** — Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.
 - **`truncated-text`** — Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.
 
 ## Data
@@ -138,7 +133,6 @@ starts with `icon-` is a component and never an icon.
 
 ## Overlay
 
-- **`access-chip`** — How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.
 - **`alert-dialog`** — A modal that interrupts for a decision — an optional media slot, two sizes and an action/cancel footer.
 - **`command-search`** — The search palette's frame, results first — one row of scope chips with a More menu (and Include archived), results up to min(60dvh, 520px), an in-flight state that dims stale results under an input progress bar, Recent · Create · Places start sections, and a preview pane from 1280px.
 - **`context-menu`** — The same menu vocabulary opened by right-click, positioned at the pointer.
@@ -215,14 +209,12 @@ starts with `icon-` is a component and never an icon.
 - **`file-viewer`** — A full-screen dark overlay for stored files — images with a blur-up, zoom and pan; PDFs rendered page by page with a lazily loaded pdf.js over range requests; video and audio in the system players; the first megabyte of text, CSV (a table) and Markdown; Excel workbooks (sheet tabs, the first 500 rows) and Word documents, read by lazily loaded SheetJS and mammoth; app-parsed previews through loadPreview; a file card with a thumbnail and Download for everything else — paged with arrows, side buttons or a swipe — as a full-screen overlay or in place as a file's page, with Share/Watch/menu header slots and a Details · Comments · Activity rail (a bottom sheet on a phone).
 - **`image`** — A presentational framed image with aspect-ratio, rounding, a loading skeleton, and an error fallback.
 - **`inbox`** — The notification Inbox: frame with header actions, For you · Updates · Archived tabs, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage with an active row driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.
-- **`level-meter`** — A segmented live input-level meter for a recording — Web Audio RMS from a MediaStream, or a level you drive — with warning and clipping zones.
 - **`media-player-controls`** — The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.
 - **`notification-bell`** — A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.
 - **`video-player`** — A framed video player with the same grouped custom transport controls as Audio Player — a poster, no autoplay, a "can't play" card with Download, and onSourceExpired to renew an expired signed URL.
 
 ## Rich text
 
-- **`formula-input`** — A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.
 - **`template-editor`** — A plain-paragraph editor for text with placeholders: typing @ or {{ opens a searchable list of tokens, the one picked becomes an atomic inline chip, and the value is plain text with {{id}} tokens; optional single-line mode and as-you-type replacements for formulas.
 - **`text-edit`** — A Tiptap-based, markdown-first rich-text editor with no toolbar and no fill — caret-only as a document, or boxed with a subtle focus border: a slash menu for blocks, a bubble menu for marks and block types, GFM tables with a menu and drag grips, block drag handles, callouts and toggles, @ mentions, image and file uploads, a heading outline, comment highlights, portaled menus, and one onCommit path.
 
@@ -280,15 +272,12 @@ starts with `icon-` is a component and never an icon.
 
 ## Marketing
 
-- **`announcement-banner`** — A dismissible one-line announcement — the full-width inverse page-top band (in-content notices use Alert variant=strip).
 - **`terminal`** — A dark mono command block with a phosphor prompt glyph and a composed copy button.
 
 ## forms
 
 - **`avatar-picker`** — A person's avatar that opens a dialog to upload, change or remove their photo — the file is staged in a 128px drop circle and saved only on Update.
 - **`destination-picker`** — Choose where something goes — spaces, their folders, recents, search, refusals with a reason.
-- **`field-type-link-step`** — The "Links to" step of FieldTypePicker — grouped kinds of record, each with one line on what a link to it does, and a table choice for a kind that lives in a table (Rows).
 - **`field-type-picker`** — A searchable, grouped list of field types with icons, and an optional second step.
 - **`record-picker`** — Pick records of the kinds the app passes in — search, kind filter, recents, folder browsing, refused rows — in a popover or a dialog.
-- **`upload-dialog`** — The "Add files" modal: a drop zone and the staged files (thumbnail or icon, name, size, remove), then an optional per-file details view the host renders, and Add. It stages files only; the host uploads them.
 - **`upload-panel`** — The uploads card pinned bottom-end: a header naming the batch with time left, file and folder rows with progress rings, failures with Retry, interrupted rows with Choose file and destination links, a done card that dismisses itself, a confirm before cancelling, and a bottom sheet on phones. Controlled; the host engine uploads.
