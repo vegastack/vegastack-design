@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "12dfa86ded886b3701eb944aa27473242db31e1949a124eabe52d99d12e00103",
+  "contractSha256": "54f6ab5b37abbf391c4cefe69262a40d37d41ca9068a6432731dbd632303b1fe",
   "expectedCounts": {
-    "totalRegistryItems": 827,
-    "components": 235,
+    "totalRegistryItems": 829,
+    "components": 236,
     "animatedIcons": 467,
     "hooks": 19,
     "blocks": 15,
-    "libs": 23,
+    "libs": 24,
     "chartBlocks": 68
   },
   "records": [
@@ -2609,6 +2609,17 @@
         "packages/ui/registry/ui/resource-pill.tsx"
       ],
       "docsSlug": "/docs/components/resource-pill",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shell-panel",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/shell-panel.tsx"
+      ],
+      "docsSlug": "/docs/components/shell-panel",
       "contractStatus": "reconciled"
     },
     {
@@ -9148,6 +9159,17 @@
         "packages/ui/registry/lib/upload-progress.ts"
       ],
       "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "panel-tabs",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/panel-tabs.ts"
+      ],
+      "docsSlug": "/docs/components/shell-panel",
       "contractStatus": "reconciled"
     }
   ]
