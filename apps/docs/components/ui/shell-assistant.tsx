@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.89.1 sha256-AapI5erMXa2jRsTM37LZApowuVfnVI3mXHtdihCjvs4=
+// @vegastack shell-assistant@0.89.1 sha256-yU/i/8LiPiAb8My+pXInqw0+htIJ0M+X0x1IKjfvqt4=
 
 "use client";
 
@@ -9,7 +9,7 @@ import {
   SparklesIcon,
   XIcon,
 } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { ToolGroup, ToolGroupItem } from "@/components/ui/tool-group";
@@ -78,26 +78,56 @@ function AssistantPill({
   expanded = false,
   className,
   onFocus,
+  onBlur,
   ...props
 }: AssistantPillProps) {
   const [tucked, setTucked] = React.useState(false);
+  const [focused, setFocused] = React.useState(false);
 
   React.useEffect(() => {
-    const target: HTMLElement | Window = scrollTarget?.current ?? window;
-    const read = () =>
-      target instanceof Window ? target.scrollY : target.scrollTop;
-    let last = read();
-    const onScroll = () => {
-      const y = read();
-      if (y > last + TUCK_SLOP && y > TUCK_FLOOR) setTucked(true);
-      else if (y < last - TUCK_SLOP || y <= TUCK_FLOOR) setTucked(false);
-      last = y;
+    // Scroll events don't bubble, but they reach the document in its capture phase, so the pill
+    // follows whichever element `scrollTarget` points at now, even one attached after mount.
+    const readFrom = (node: EventTarget | null) => {
+      if (scrollTarget) {
+        return node === scrollTarget.current && node instanceof HTMLElement
+          ? node.scrollTop
+          : null;
+      }
+      return node === document ? window.scrollY : null;
     };
-    target.addEventListener("scroll", onScroll, { passive: true });
-    return () => target.removeEventListener("scroll", onScroll);
+    const start = scrollTarget
+      ? (scrollTarget.current?.scrollTop ?? 0)
+      : window.scrollY;
+    let anchor = start;
+    let last = start;
+    const onScroll = (event: Event) => {
+      const y = readFrom(event.target);
+      if (y === null) return;
+      // Measure from where the current run of movement began, so slow scrolling adds up.
+      if (Math.sign(y - last) !== Math.sign(last - anchor) && last !== anchor)
+        anchor = last;
+      last = y;
+      if (y <= TUCK_FLOOR) {
+        setTucked(false);
+        anchor = y;
+      } else if (y - anchor > TUCK_SLOP) {
+        setTucked(true);
+        anchor = y;
+      } else if (anchor - y > TUCK_SLOP) {
+        setTucked(false);
+        anchor = y;
+      }
+    };
+    document.addEventListener("scroll", onScroll, {
+      capture: true,
+      passive: true,
+    });
+    return () =>
+      document.removeEventListener("scroll", onScroll, { capture: true });
   }, [scrollTarget]);
 
-  const shown = !tucked && !expanded;
+  // A pill that holds keyboard focus never hides under it.
+  const shown = (!tucked || focused) && !expanded;
   return (
     <div
       data-slot="assistant-pill-zone"
@@ -119,8 +149,13 @@ function AssistantPill({
         aria-expanded={expanded}
         inert={expanded}
         onFocus={(event) => {
+          setFocused(true);
           setTucked(false);
           onFocus?.(event);
+        }}
+        onBlur={(event) => {
+          setFocused(false);
+          onBlur?.(event);
         }}
         className="gap-2 ps-3 pe-3.5 shadow-md data-[active=false]:translate-y-2.5 data-[active=false]:motion-dock-out data-[active=true]:translate-y-0 data-[active=true]:motion-dock-in"
         {...props}
@@ -197,11 +232,36 @@ function AssistantCard({
   className,
   onKeyDown,
   children,
+  ref,
+  id,
   ...props
 }: AssistantCardProps) {
   const titleId = React.useId();
   const cardRef = React.useRef<HTMLElement | null>(null);
   const returnTo = React.useRef<HTMLElement | null>(null);
+  const lastOutside = React.useRef<HTMLElement | null>(null);
+  const setRef = React.useMemo(
+    () => mergeRefs<HTMLElement>(cardRef, ref),
+    [ref],
+  );
+
+  // What had focus outside the card most recently: the opener, recorded before anything inside
+  // the card (an autofocusing composer) can take focus on the first open.
+  React.useEffect(() => {
+    const note = (node: EventTarget | null) => {
+      if (
+        node instanceof HTMLElement &&
+        node !== document.body &&
+        // Not the card's own fields: an autofocusing one fires before the card's ref is set.
+        !node.closest('[data-slot="assistant-card"]')
+      )
+        lastOutside.current = node;
+    };
+    note(document.activeElement);
+    const onFocusIn = (event: FocusEvent) => note(event.target);
+    document.addEventListener("focusin", onFocusIn);
+    return () => document.removeEventListener("focusin", onFocusIn);
+  }, []);
   // Nothing renders until the card first opens, so the chat it holds costs nothing until asked
   // for (L22); once opened it stays mounted while closed, so a draft survives.
   const [opened, setOpened] = React.useState(open);
@@ -213,30 +273,42 @@ function AssistantCard({
     if (!card || wasOpen.current === open) return;
     wasOpen.current = open;
     if (open) {
-      const active = document.activeElement;
       returnTo.current =
-        active instanceof HTMLElement && !card.contains(active) ? active : null;
-      const target =
-        initialFocus?.current ??
-        card.querySelector<HTMLElement>(
-          "textarea, input:not([type=hidden]), [contenteditable=true]",
-        ) ??
-        card;
-      target.focus({ preventScroll: true });
+        lastOutside.current ??
+        (id
+          ? document.querySelector<HTMLElement>(
+              `[aria-controls~="${CSS.escape(id)}"]`,
+            )
+          : null);
+      // Something inside already took focus (an autofocusing composer): leave it there.
+      if (card.contains(document.activeElement)) return;
+      const tryFocus = (node: HTMLElement | null | undefined) => {
+        if (!node) return false;
+        node.focus({ preventScroll: true });
+        return document.activeElement === node;
+      };
+      if (tryFocus(initialFocus?.current)) return;
+      const fields = card.querySelectorAll<HTMLElement>(
+        'textarea:not(:disabled), input:not(:disabled):is(:not([type]), [type=text], [type=search]), [contenteditable="true"], [contenteditable=""]',
+      );
+      for (const field of fields) {
+        if (field.checkVisibility?.() === false) continue;
+        if (tryFocus(field)) return;
+      }
+      card.focus({ preventScroll: true });
       return;
     }
     const active = document.activeElement;
     if (active && active !== document.body && !card.contains(active)) return;
     (finalFocus?.current ?? returnTo.current)?.focus({ preventScroll: true });
-  }, [open, initialFocus, finalFocus]);
+  }, [open, initialFocus, finalFocus, id]);
 
   if (!opened) return null;
   return (
     <AssistantCardTitle.Provider value={{ titleId }}>
       <section
-        ref={(node) => {
-          cardRef.current = node;
-        }}
+        ref={setRef}
+        id={id}
         role="dialog"
         aria-modal={false}
         aria-labelledby={titleId}
@@ -257,7 +329,7 @@ function AssistantCard({
           onOpenChange(false);
         }}
         className={cn(
-          "absolute end-4 bottom-4 z-10 flex h-130 print:hidden max-h-[calc(100%-2rem)] w-95 max-w-[calc(100%-2rem)] origin-bottom-right flex-col overflow-hidden rounded-overlay border border-border bg-popover text-popover-foreground shadow-lg outline-none rtl:origin-bottom-left",
+          "absolute end-4 bottom-4 z-10 flex h-130 print:hidden max-h-[calc(100%-2rem)] w-95 max-w-[calc(100%-2rem)] origin-bottom-right flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-overlay border border-border bg-popover text-popover-foreground shadow-lg outline-none rtl:origin-bottom-left",
           "transition-[scale,translate,opacity,visibility]",
           open
             ? "visible translate-y-0 scale-100 opacity-100 duration-state ease-enter starting:translate-y-2 starting:scale-95 starting:opacity-0"
@@ -442,7 +514,8 @@ function AssistantCardBody({
     <div
       data-slot="assistant-card-body"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 py-2 text-sm",
+        // Below its minimum the card scrolls as a whole, so a short page area never clips the composer.
+        "flex min-h-24 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 py-2 text-sm",
         className,
       )}
       {...props}

@@ -868,7 +868,7 @@
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
         "version": "0.89.0",
-        "integrity": "sha256-Ahy9PT9Yd1HMc62acwym2hVm8RQh9oc6xUsz9wwAD/c="
+        "integrity": "sha256-O1Syj9msTb/zkEKuEdZPihxBVgQ89ffp8+ZVdIMczpQ="
       }
     },
     {
@@ -24830,7 +24830,7 @@
         "whenToUse": "Icon-only tools in a top bar or a card header — Watch, Star, Comments, More.",
         "whenNotToUse": "Text actions (Share, Approve) or attached segmented buttons (ButtonGroup).",
         "version": "0.89.1",
-        "integrity": "sha256-shYKQVot496XFafrffC84uj8dRf3x/nMfl0LcWJdUG0="
+        "integrity": "sha256-TEjXzfWgjRwCZK6R6xMIjwqwv9BwGbw8CHCG9pwur/U="
       }
     },
     {
@@ -24862,7 +24862,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
         "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.89.1",
-        "integrity": "sha256-AapI5erMXa2jRsTM37LZApowuVfnVI3mXHtdihCjvs4="
+        "integrity": "sha256-yU/i/8LiPiAb8My+pXInqw0+htIJ0M+X0x1IKjfvqt4="
       }
     }
   ]

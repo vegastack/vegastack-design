@@ -70,7 +70,7 @@ export function toolGroupTopBar(): React.ReactNode {
   return (
     <Wrapper className="justify-end bg-background">
       <div className="flex h-12 w-full items-center justify-end gap-2 border-b border-border px-3">
-        <AvatarGroup max={3} total={5} className="-space-x-1.5">
+        <AvatarGroup max={3} total={5} className="-space-x-1 max-sm:hidden">
           <Avatar size="sm" data-here="">
             <AvatarFallback hue="orange">MA</AvatarFallback>
           </Avatar>

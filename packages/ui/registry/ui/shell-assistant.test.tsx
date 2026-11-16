@@ -34,7 +34,9 @@ function Host({
         data-testid="scroller"
         style={{ height: 640, overflowY: "auto" }}
       >
-        <div style={{ height: 3000 }}>Page</div>
+        <div style={{ height: 3000 }}>
+          <span data-testid="corner">Page</span>
+        </div>
       </div>
       <AssistantPill
         name="William"
@@ -118,8 +120,12 @@ test("a closed card keeps its draft; Close, Move to panel and removing the conte
 
 test("the pill tucks while the page scrolls down and returns on scroll up and on focus", async () => {
   const screen = await render(<Host withContext={false} />);
-  const scroller = screen.getByTestId("scroller").element() as HTMLElement;
+  const scroller = screen.container.querySelector<HTMLElement>(
+    "[data-testid=scroller]",
+  )!;
   const pill = pillOf(screen.container);
+  // The pointer may rest where an earlier test's pill was; hovering the corner brings it back.
+  await userEvent.hover(screen.getByTestId("corner"));
   const settle = () => new Promise((r) => requestAnimationFrame(() => r(null)));
   scroller.scrollTop = 200;
   scroller.dispatchEvent(new Event("scroll"));
@@ -135,4 +141,72 @@ test("the pill tucks while the page scrolls down and returns on scroll up and on
   await expect.element(pill).toHaveAttribute("data-active", "false");
   pill.focus();
   await expect.element(pill).toHaveAttribute("data-active", "true");
+});
+
+test("a focused pill stays visible while the page scrolls under it", async () => {
+  const screen = await render(<Host withContext={false} />);
+  const scroller = screen.container.querySelector<HTMLElement>(
+    "[data-testid=scroller]",
+  )!;
+  const pill = pillOf(screen.container);
+  pill.focus();
+  scroller.scrollTop = 400;
+  scroller.dispatchEvent(new Event("scroll"));
+  await new Promise((r) => requestAnimationFrame(() => r(null)));
+  await expect.element(pill).toHaveAttribute("data-active", "true");
+});
+
+test("slow scrolling adds up and still tucks the pill", async () => {
+  const screen = await render(<Host withContext={false} />);
+  const scroller = screen.container.querySelector<HTMLElement>(
+    "[data-testid=scroller]",
+  )!;
+  const pill = pillOf(screen.container);
+  await userEvent.hover(screen.getByTestId("corner"));
+  const scrollTo = (y: number) => {
+    scroller.scrollTop = y;
+    scroller.dispatchEvent(new Event("scroll"));
+  };
+  scrollTo(200);
+  scrollTo(150);
+  await expect.element(pill).toHaveAttribute("data-active", "true");
+  // One pixel at a time: each step is under the slop, the run is not.
+  for (let y = 151; y <= 155; y++) scrollTo(y);
+  await expect.element(pill).toHaveAttribute("data-active", "false");
+});
+
+test("an autofocusing composer keeps focus, and closing still returns to the opener; a caller's ref is honoured", async () => {
+  function Auto() {
+    const [open, setOpen] = React.useState(false);
+    const cardRef = React.useRef<HTMLElement | null>(null);
+    return (
+      <div style={{ position: "relative", width: 600, height: 600 }}>
+        <AssistantPill
+          name="William"
+          expanded={open}
+          onClick={() => setOpen(true)}
+        />
+        <AssistantCard ref={cardRef} open={open} onOpenChange={setOpen}>
+          <AssistantCardHeader title="William" onClose={() => setOpen(false)} />
+          <AssistantCardComposer>
+            {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
+            <input aria-label="Draft" autoFocus />
+          </AssistantCardComposer>
+        </AssistantCard>
+        <output data-testid="ref">{cardRef.current ? "set" : "unset"}</output>
+      </div>
+    );
+  }
+  const screen = await render(<Auto />);
+  const pill = screen.getByRole("button", { name: "Ask William" });
+  await pill.click();
+  await expect
+    .element(screen.getByRole("textbox", { name: "Draft" }))
+    .toHaveFocus();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(pill).toHaveFocus();
+  const card = screen.container.querySelector<HTMLElement>(
+    "[data-slot=assistant-card]",
+  )!;
+  expect(card.hasAttribute("inert")).toBe(true);
 });

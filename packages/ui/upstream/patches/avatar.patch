@@ -9,12 +9,12 @@
 #                 `data-hue`; no hue keeps upstream's muted fallback (API-32).
 #   group max: `AvatarGroup` takes optional `max`, `total` and `moreLabel`; past `max` it shows the
 #              first `max` avatars and closes with an `AvatarGroupCount` reading "+N" (the rest,
-#              named "N more" for screen readers); an avatar marked `data-here` takes a primary
-#              ring. Without `max` or `total` the group renders its children as upstream (API-44).
+#              named "N more" for screen readers, `text-xs` beside `sm` avatars); an avatar marked
+#              `data-here` takes a primary ring. Without `max` or `total` the group renders its children as upstream (API-44).
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/avatar.tsx b/avatar.tsx
-index 1eda9f0..9462639 100644
+index 1eda9f0..f13dc55 100644
 --- a/avatar.tsx
 +++ b/avatar.tsx
 @@ -1,15 +1,15 @@
@@ -116,7 +116,7 @@ index 1eda9f0..9462639 100644
  }
  
  function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
-@@ -62,24 +92,59 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
+@@ -62,24 +92,62 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
          "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
          "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
          "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
@@ -173,7 +173,10 @@ index 1eda9f0..9462639 100644
 +    >
 +      {max === undefined && total === undefined ? children : shown}
 +      {(max !== undefined || total !== undefined) && hidden > 0 ? (
-+        <AvatarGroupCount data-overflow="">
++        <AvatarGroupCount
++          data-overflow=""
++          className="group-has-data-[size=sm]/avatar-group:text-xs"
++        >
 +          <span aria-hidden>+{hidden}</span>
 +          <span className="sr-only">{moreLabel(hidden)}</span>
 +        </AvatarGroupCount>
@@ -183,7 +186,7 @@ index 1eda9f0..9462639 100644
  }
  
  function AvatarGroupCount({
-@@ -91,11 +156,11 @@ function AvatarGroupCount({
+@@ -91,11 +159,11 @@ function AvatarGroupCount({
        data-slot="avatar-group-count"
        className={cn(
          "relative flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-sm text-muted-foreground ring-2 ring-background group-has-data-[size=lg]/avatar-group:size-10 group-has-data-[size=sm]/avatar-group:size-6 [&>svg]:size-4 group-has-data-[size=lg]/avatar-group:[&>svg]:size-5 group-has-data-[size=sm]/avatar-group:[&>svg]:size-3",
@@ -197,7 +200,7 @@ index 1eda9f0..9462639 100644
  }
  
  export {
-@@ -105,4 +170,5 @@ export {
+@@ -105,4 +173,5 @@ export {
    AvatarGroup,
    AvatarGroupCount,
    AvatarBadge,

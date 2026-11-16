@@ -1,4 +1,4 @@
-// @vegastack avatar@0.89.0 sha256-Ahy9PT9Yd1HMc62acwym2hVm8RQh9oc6xUsz9wwAD/c=
+// @vegastack avatar@0.89.0 sha256-O1Syj9msTb/zkEKuEdZPihxBVgQ89ffp8+ZVdIMczpQ=
 
 "use client";
 
@@ -101,6 +101,20 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
   );
 }
 
+/** A group's children with fragments opened, so `max` counts the avatars inside them. */
+function flattenFragments(children: React.ReactNode): React.ReactNode[] {
+  return React.Children.toArray(children).flatMap((child) =>
+    React.isValidElement<{ children?: React.ReactNode }>(child) &&
+    child.type === React.Fragment
+      ? flattenFragments(child.props.children).map((inner) =>
+          React.isValidElement(inner)
+            ? React.cloneElement(inner, { key: `${child.key}/${inner.key}` })
+            : inner,
+        )
+      : [child],
+  );
+}
+
 function AvatarGroup({
   className,
   max,
@@ -125,7 +139,7 @@ function AvatarGroup({
    */
   moreLabel?: (count: number) => string;
 }) {
-  const items = React.Children.toArray(children);
+  const items = flattenFragments(children);
   const limit = max === undefined ? items.length : Math.max(0, Math.floor(max));
   const shown = items.slice(0, limit);
   const hidden = Math.max(0, (total ?? items.length) - shown.length);
@@ -140,7 +154,10 @@ function AvatarGroup({
     >
       {max === undefined && total === undefined ? children : shown}
       {(max !== undefined || total !== undefined) && hidden > 0 ? (
-        <AvatarGroupCount data-overflow="">
+        <AvatarGroupCount
+          data-overflow=""
+          className="group-has-data-[size=sm]/avatar-group:text-xs"
+        >
           <span aria-hidden>+{hidden}</span>
           <span className="sr-only">{moreLabel(hidden)}</span>
         </AvatarGroupCount>

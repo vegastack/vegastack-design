@@ -1,4 +1,4 @@
-// @vegastack tool-group@0.89.1 sha256-shYKQVot496XFafrffC84uj8dRf3x/nMfl0LcWJdUG0=
+// @vegastack tool-group@0.89.1 sha256-TEjXzfWgjRwCZK6R6xMIjwqwv9BwGbw8CHCG9pwur/U=
 
 "use client";
 
@@ -95,7 +95,7 @@ function ToolGroupItem({
             data-slot="tool-group-item"
             aria-label={shown ? `${label}, ${shown}` : label}
             className={cn(
-              "aria-pressed:text-foreground aria-pressed:**:[svg]:text-foreground",
+              "aria-pressed:bg-state-selected aria-pressed:text-foreground aria-pressed:**:[svg:not([data-icon-tone])]:text-foreground",
               shown && "gap-1 px-1.5 [&_svg:not([class*='size-'])]:size-4",
               className,
             )}

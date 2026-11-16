@@ -504,3 +504,27 @@ test("API-44: total counts people not passed in; no max and no total renders eve
   expect(plain.querySelectorAll("[data-slot=avatar]")).toHaveLength(2);
   expect(plain.querySelector("[data-slot=avatar-group-count]")).toBeNull();
 });
+
+test("API-44: max counts avatars inside fragments", async () => {
+  const screen = await render(
+    <AvatarGroup max={2}>
+      <>
+        <Avatar>
+          <AvatarFallback>AL</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarFallback>GH</AvatarFallback>
+        </Avatar>
+      </>
+      <Avatar>
+        <AvatarFallback>KJ</AvatarFallback>
+      </Avatar>
+    </AvatarGroup>,
+  );
+  const group = screen.container.querySelector("[data-slot=avatar-group]")!;
+  expect(group.querySelectorAll("[data-slot=avatar]")).toHaveLength(2);
+  expect(
+    group.querySelector("[data-slot=avatar-group-count] [aria-hidden]")
+      ?.textContent,
+  ).toBe("+1");
+});
