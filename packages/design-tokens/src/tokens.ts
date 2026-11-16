@@ -130,7 +130,18 @@ export const tokens = {
     "corner-card": "1rem",
     "corner-bubble": "1.25rem",
     "corner-overlay": "1.5rem",
-    "corner-tile": "25%"
+    "corner-tile": "25%",
+    "shell-rail-width": "4rem",
+    "shell-column-width": "15rem",
+    "shell-column-width-min": "12.5rem",
+    "shell-column-width-max": "22.5rem",
+    "shell-topbar-height": "3rem",
+    "shell-panel-width": "26.25rem",
+    "shell-panel-width-min": "22.5rem",
+    "shell-panel-width-max": "45rem",
+    "shell-bottombar-height": "3.5rem",
+    "shell-titlebar-mac-inset": "4.875rem",
+    "shell-titlebar-win-inset": "8.625rem"
   },
   "dark": {
     "background": "oklch(0.145 0 0)",
@@ -262,7 +273,18 @@ export const tokens = {
     "corner-card": "1rem",
     "corner-bubble": "1.25rem",
     "corner-overlay": "1.5rem",
-    "corner-tile": "25%"
+    "corner-tile": "25%",
+    "shell-rail-width": "4rem",
+    "shell-column-width": "15rem",
+    "shell-column-width-min": "12.5rem",
+    "shell-column-width-max": "22.5rem",
+    "shell-topbar-height": "3rem",
+    "shell-panel-width": "26.25rem",
+    "shell-panel-width-min": "22.5rem",
+    "shell-panel-width-max": "45rem",
+    "shell-bottombar-height": "3.5rem",
+    "shell-titlebar-mac-inset": "4.875rem",
+    "shell-titlebar-win-inset": "8.625rem"
   }
 } as const;
 export type Theme = keyof typeof tokens;

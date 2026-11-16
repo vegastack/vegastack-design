@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 33313
-      sha256: "8f42908d8c43416faed056a79bb54a5d40a5d7a1bda430103cf943ea60e0a684"
+      bytes: 36554
+      sha256: "f11984d8286afb3245685e82680e7aee606f5ad0c2dca141f8885d2af28aa83d"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13441
@@ -331,6 +331,50 @@ themes:
     secondary-foreground:
       type: "color"
       value: "oklch(0.205 0 0)"
+    shell-bottombar-height:
+      type: "dimension"
+      value: "3.5rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 56px: the phone bottom tab bar, plus `env(safe-area-inset-bottom)` (L13)."
+    shell-column-width:
+      type: "dimension"
+      value: "15rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 240px: the module column's default width (L1); resizable between `--shell-column-width-min` and `--shell-column-width-max`, folds to 0."
+    shell-column-width-max:
+      type: "dimension"
+      value: "22.5rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the widest a person can drag the module column."
+    shell-column-width-min:
+      type: "dimension"
+      value: "12.5rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 200px: the narrowest a person can drag the module column."
+    shell-panel-width:
+      type: "dimension"
+      value: "26.25rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
+    shell-panel-width-max:
+      type: "dimension"
+      value: "45rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
+    shell-panel-width-min:
+      type: "dimension"
+      value: "22.5rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
+    shell-rail-width:
+      type: "dimension"
+      value: "4rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 64px: the module rail, icon with a short label under it (L1, L2). Read it as `w-(--shell-rail-width)`."
+    shell-titlebar-mac-inset:
+      type: "dimension"
+      value: "4.875rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 78px: the macOS traffic-light zone measured from the window's left edge, for the desktop app's one title row (L10)."
+    shell-titlebar-win-inset:
+      type: "dimension"
+      value: "8.625rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 138px: the Windows caption buttons' zone at the window's right edge, for the desktop app's one title row (L10)."
+    shell-topbar-height:
+      type: "dimension"
+      value: "3rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 48px: one row height for the top bar, the column title row, the panel head and the desktop title row (L9, L10)."
     sidebar:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -767,6 +811,50 @@ themes:
     secondary-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
+    shell-bottombar-height:
+      type: "dimension"
+      value: "3.5rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 56px: the phone bottom tab bar, plus `env(safe-area-inset-bottom)` (L13)."
+    shell-column-width:
+      type: "dimension"
+      value: "15rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 240px: the module column's default width (L1); resizable between `--shell-column-width-min` and `--shell-column-width-max`, folds to 0."
+    shell-column-width-max:
+      type: "dimension"
+      value: "22.5rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the widest a person can drag the module column."
+    shell-column-width-min:
+      type: "dimension"
+      value: "12.5rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 200px: the narrowest a person can drag the module column."
+    shell-panel-width:
+      type: "dimension"
+      value: "26.25rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
+    shell-panel-width-max:
+      type: "dimension"
+      value: "45rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
+    shell-panel-width-min:
+      type: "dimension"
+      value: "22.5rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
+    shell-rail-width:
+      type: "dimension"
+      value: "4rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 64px: the module rail, icon with a short label under it (L1, L2). Read it as `w-(--shell-rail-width)`."
+    shell-titlebar-mac-inset:
+      type: "dimension"
+      value: "4.875rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 78px: the macOS traffic-light zone measured from the window's left edge, for the desktop app's one title row (L10)."
+    shell-titlebar-win-inset:
+      type: "dimension"
+      value: "8.625rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 138px: the Windows caption buttons' zone at the window's right edge, for the desktop app's one title row (L10)."
+    shell-topbar-height:
+      type: "dimension"
+      value: "3rem"
+      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 48px: one row height for the top bar, the column title row, the panel head and the desktop title row (L9, L10)."
     sidebar:
       type: "color"
       value: "oklch(0.205 0 0)"
@@ -1038,8 +1126,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 253 rows, 105 resolved as
-**shadcn** (upstream ships unchanged) and 148 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 254 rows, 105 resolved as
+**shadcn** (upstream ships unchanged) and 149 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1227,7 +1315,7 @@ token — that is COL-20 being enforced, not broken.
 ### 5. Our own recipes and behaviours
 
 `MOT-5 · MOT-6 · MOT-7 · MOT-13 · MOT-14 · TYP-13 · TYP-20 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
-LAY-15 · LAY-16 · LAY-18 · LAY-19 · LAY-21 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
+LAY-15 · LAY-16 · LAY-18 · LAY-19 · LAY-21 · LAY-22 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
 OVL-16 · OVL-17 · OVL-18 · OVL-20 · OVL-21 · OVL-25 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
 API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
@@ -1294,7 +1382,10 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   operator 03-11-2026): `scroll-fade-y` fades only the edge with more, the footer casts a soft top shadow
   while items sit under it, a fine pointer's hover adds a ⌃/⌄ page button on that side and a thin
   scrollbar; nothing shows when the list fits, in the icon rail, and the phone drawer keeps only the fades
-  and the shadow.
+  and the shadow. The app shell's regions — a 64px labelled rail, a 240px module column, a 48px top bar every title
+  row shares, the page, a 420px right panel and a 56px phone bar — take their sizes from the `--shell-*`
+  tokens, and one rule places the panel: beside the page while the page keeps its minimum width, else the
+  column folds first, else the panel slides over the page, full screen on phones (LAY-22).
 - **Forms** (FRM-9…FRM-13, API-26) — `Field` wires its control through Base UI Field (API-26): the label, the
   description and error ids, and `aria-invalid` from the Field's `data-invalid`, on every control
   including the composite ones (Select, Combobox, RadioGroup, NumberField, DatePicker, TextEdit). Pass
