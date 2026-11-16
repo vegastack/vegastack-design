@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.94.0
+
+### Minor Changes
+
+- [#1004](https://github.com/vegastack/vegastack-design/pull/1004) [`b28d952`](https://github.com/vegastack/vegastack-design/commit/b28d952526d986e9ed8f661524249ea8b2854abf) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `AssistantCardHeader` takes `actions`: the chat's own tools (New chat, Chats) as `ToolGroupItem`s, placed before Move to panel, Open full chat and Close.
+
 ## 0.93.0
 
 ### Minor Changes

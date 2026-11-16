@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.94.0] — November 16, 2026
+
+<!-- assembled from 1 changeset: 56dfb598f20d -->
+
+### 🔧 Changed components
+
+- `AssistantCardHeader` takes `actions`: the chat's own tools (New chat, Chats) as `ToolGroupItem`s, placed before Move to panel, Open full chat and Close.
+  [`b28d952`](https://github.com/VegaStack/vegastack-design/commit/b28d952)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.93.0 → 0.94.0.
+
 ## [0.93.0] — November 16, 2026
 
 <!-- assembled from 1 changeset: 2204ad8db6ac -->

@@ -24974,8 +24974,8 @@
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
         "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
-        "version": "0.91.0",
-        "integrity": "sha256-62HFuKfWqLNNVIpt2gXygeEfuQGytXijeV2tuXqZ+oQ="
+        "version": "0.94.0",
+        "integrity": "sha256-19zT6XZ9AS0F+xtt+xzkA8/yGY+Pb/rFcEmDEFyxNDs="
       }
     }
   ]
