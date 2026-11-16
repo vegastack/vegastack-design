@@ -328,7 +328,7 @@ const COLOR_BRIDGE_LOCAL_READS = { "ui/chart.tsx": { border: 1 } };
 const NO_COLOR_BRIDGE_MSG =
   "reads the `@theme inline` colour bridge, which resolves once on `:root` and so paints the light value inside a dark or scoped theme — use the runtime token (`var(--foreground)`) or a colour utility";
 const colorBridgeReads = (file, src) => {
-  const path = file.replaceAll("\\", "/");
+  const path = resolve(file).replaceAll("\\", "/");
   const local =
     Object.entries(COLOR_BRIDGE_LOCAL_READS).find(([tail]) =>
       path.endsWith(`/registry/${tail}`),
