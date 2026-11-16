@@ -120,7 +120,6 @@ const validId = (s: unknown): s is string =>
   typeof s === "string" &&
   s.length > 0 &&
   s.length <= 256 &&
-  // eslint-disable-next-line no-control-regex
   !/[\u0000-\u001f\u007f]/.test(s);
 
 function dec(s: string): string | null {

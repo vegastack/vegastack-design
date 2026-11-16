@@ -1,4 +1,4 @@
-// @vegastack panel-tabs@0.89.1 sha256-yLUirLNlCKbou8vVDuG3QKhQnAfkAdCHTzIhv6XABec=
+// @vegastack panel-tabs@0.89.1 sha256-w5biYIfbvZ/uehTVG+MJTmV3Xwze37AUJbuuFWwIQA4=
 
 /**
  * panel-tabs — the rules of the shell panel's tabs as one pure reducer, the tab reference and its
@@ -120,7 +120,6 @@ const validId = (s: unknown): s is string =>
   typeof s === "string" &&
   s.length > 0 &&
   s.length <= 256 &&
-  // eslint-disable-next-line no-control-regex
   !/[\u0000-\u001f\u007f]/.test(s);
 
 function dec(s: string): string | null {
