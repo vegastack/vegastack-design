@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.92.0
+
+### Minor Changes
+
+- [#1000](https://github.com/vegastack/vegastack-design/pull/1000) [`2d6d230`](https://github.com/vegastack/vegastack-design/commit/2d6d23037601661eb2e6db2a72b1e223dd2c213c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Inbox: `layout="page"` for an Inbox page — no visible header (its title stays as a visually hidden heading that names it), rows scroll with the page and infinite scroll watches the viewport.
+
 ## 0.91.1
 
 ### Patch Changes
