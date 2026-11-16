@@ -41,6 +41,13 @@ shadcn's `neutral` base, verbatim except for the two rows the register marks **o
 | `outline-ring`                                                                   | the focus ring — near-black light, near-white dark (**FOC-2**) |
 | `bg-sidebar` and its `-foreground`/`-accent`/`-border`/`-ring`/`-primary` family | the sidebar rail                                               |
 
+**Inside an arbitrary value, read the runtime token, never the bridge.** Write
+`var(--foreground)`, `var(--border)`, `var(--chart-single)` — not `var(--color-foreground)`. The
+`--color-*` names come from the `@theme inline` bridge, which is declared once on `:root` and
+resolves there, so inside a `.dark` subtree or a scoped portal (OVL-13) it paints the root theme's
+value. `design-lint` `no-color-bridge` rejects it in registry source; a `--color-*` the file assigns
+itself (a chart series key, chart.tsx's `--color-bg`) is a local variable and passes.
+
 `muted`, `accent` and `secondary` carry the SAME value in this base. They are all kept anyway,
 because a consumer retuning one of them must not silently retune the other two — name the one whose
 role you mean.

@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.89.0 sha256-O/DK9xecnc7BUWzUgeypz7bWZict9hVE36AFXYI6Xv4=
+// @vegastack data-table-parts@0.89.0 sha256-sixG7L6FR3rhLzmdR+8EPgfIP0TA72g2cHFTpJEgAmY=
 
 "use client";
 
@@ -421,7 +421,7 @@ export const ROW_HOVER_CLASS = "row-fill";
  * (`SELECTED_ROW_CLASS`) is applied after it, so the checkbox's state still reads; the edge stays.
  */
 export const PEEK_ACTIVE_ROW_CLASS =
-  "[&[data-peek-active]>:first-child]:before:bg-[image:linear-gradient(var(--color-foreground),var(--color-foreground)),var(--row-fill-layer,none)] [&[data-peek-active]>:first-child]:before:bg-no-repeat [&[data-peek-active]>:first-child]:before:bg-size-[2px_100%,100%_100%] [&[data-peek-active]>:first-child]:before:bg-left rtl:[&[data-peek-active]>:first-child]:before:bg-right";
+  "[&[data-peek-active]>:first-child]:before:bg-[image:linear-gradient(var(--foreground),var(--foreground)),var(--row-fill-layer,none)] [&[data-peek-active]>:first-child]:before:bg-no-repeat [&[data-peek-active]>:first-child]:before:bg-size-[2px_100%,100%_100%] [&[data-peek-active]>:first-child]:before:bg-left rtl:[&[data-peek-active]>:first-child]:before:bg-right";
 
 /** The card whose record is open beside a card grid: the same selected step as a layer over the
  * card's own fill, with no edge. */
@@ -1837,7 +1837,7 @@ export function SectionRow({ id, colSpan, ...toggle }: SectionRowProps) {
     <TableRow
       data-slot="section-row"
       data-section={id}
-      className="[--row-fill-color:var(--color-muted)]"
+      className="[--row-fill-color:var(--muted)]"
     >
       <TableHead scope="rowgroup" colSpan={colSpan} className="h-auto py-1">
         <SectionToggle {...toggle} />

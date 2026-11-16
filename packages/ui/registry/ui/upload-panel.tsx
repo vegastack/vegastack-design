@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.89.0 sha256-rJ8rBOTCIHtAz97UBaXJErj8PuV/mRTt7KcYQyeaPbM=
+// @vegastack upload-panel@0.89.0 sha256-Fh0Ul4jmdI+RgYNlxuBe9RPZ8sV1T1gaE3QPHVXXtig=
 
 "use client";
 
@@ -322,7 +322,7 @@ function UploadRing({ value, label }: { value: number; label: string }) {
       data-slot="upload-ring"
       className="block size-5 rounded-full [mask-image:radial-gradient(farthest-side,transparent_calc(100%-var(--spacing)*0.75),black_calc(100%-var(--spacing)*0.5))]"
       style={{
-        backgroundImage: `conic-gradient(var(--color-primary) ${value}%, var(--color-muted) 0)`,
+        backgroundImage: `conic-gradient(var(--primary) ${value}%, var(--muted) 0)`,
       }}
     />
   );

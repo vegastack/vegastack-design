@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.89.0 sha256-H0aQdeELaRtY/fkXbrIfrd/TrMoiJifF/GyAhT5Sy9Y=
+// @vegastack context-ring@0.89.0 sha256-E1uerE2HdIeOJ0c/EhB6O9UP0xwZeOxpb/sVQKuCn2w=
 
 "use client";
 
@@ -68,9 +68,9 @@ export function contextRingTone(share: number): ContextRingTone {
 }
 
 const ARC: Record<ContextRingTone, string> = {
-  default: "var(--color-foreground)",
-  high: "var(--color-primary)",
-  full: "var(--color-warning-text)",
+  default: "var(--foreground)",
+  high: "var(--primary)",
+  full: "var(--warning-text)",
 };
 
 /** Hover and focus wait this long before the panel opens, so passing over it does nothing. */
@@ -173,7 +173,7 @@ export function ContextRing({
         data-slot="context-ring-ring"
         className="block size-2.5 shrink-0 rounded-full [mask-image:radial-gradient(farthest-side,transparent_calc(100%-var(--spacing)*0.5),black_calc(100%-var(--spacing)*0.5))]"
         style={{
-          backgroundImage: `conic-gradient(${ARC[tone]} ${percent}%, var(--color-border) 0)`,
+          backgroundImage: `conic-gradient(${ARC[tone]} ${percent}%, var(--border) 0)`,
         }}
       />
       <span

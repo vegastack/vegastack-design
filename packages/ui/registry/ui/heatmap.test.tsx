@@ -87,7 +87,7 @@ test("non-zero values bucket into five steps by quintile; zero is the muted well
   for (const [i, pct] of HEATMAP_STEPS.entries()) {
     const el = document.querySelector(`[data-step="${i + 1}"]`) as HTMLElement;
     expect(el.className).toContain(
-      `bg-[color-mix(in_oklab,var(--color-chart-single)_${pct}%,var(--color-card))]`,
+      `bg-[color-mix(in_oklab,var(--chart-single)_${pct}%,var(--card))]`,
     );
   }
 });

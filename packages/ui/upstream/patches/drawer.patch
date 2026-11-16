@@ -7,7 +7,9 @@
 #     is `bg-black/20`, `dark:bg-black/50`, with upstream's `supports-backdrop-filter:backdrop-blur-xs`
 #     removed, so the page behind a modal stays legible and still and dark mode no longer smears.
 #   OVL-13: `DrawerPortal` reads `useInternalThemeScope()` and wraps its children in a
-#     `display: contents` element carrying that class.
+#     `display: contents` element carrying that class. The swipe-overshoot bleed falls back to the
+#     runtime `var(--popover)`, not upstream's `var(--color-popover)`: the `@theme inline` bridge
+#     resolves once on `:root`, so inside a scoped theme it would paint the root theme's surface.
 #   A11Y-9: `DrawerContent` mirrors Base UI's `data-base-ui-inert` markers onto native `inert`
 #     through `useModalInert`. No new context: upstream's own `DrawerContext` already carries
 #     `modal` into `DrawerContent`, so the hook is gated on the value that is already there —
@@ -22,7 +24,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/drawer.tsx b/drawer.tsx
-index 42d7186..fb56b6c 100644
+index 42d7186..6bd6289 100644
 --- a/drawer.tsx
 +++ b/drawer.tsx
 @@ -1,42 +1,47 @@
@@ -170,7 +172,7 @@ index 42d7186..fb56b6c 100644
  
    return (
      <DrawerPortal data-slot="drawer-portal">
-@@ -116,12 +133,18 @@ function DrawerContent({
+@@ -116,16 +133,22 @@ function DrawerContent({
          className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto"
        >
          <DrawerPrimitive.Popup
@@ -190,6 +192,11 @@ index 42d7186..fb56b6c 100644
              // Nested.
              "data-nested-drawer-open:overflow-hidden data-nested-drawer-open:brightness-95",
              // Bleed.
+-            "after:pointer-events-none after:absolute after:bg-(--drawer-bleed-background,var(--color-popover)) data-[swipe-axis=x]:after:inset-y-0 data-[swipe-axis=x]:after:w-(--bleed) data-[swipe-axis=y]:after:inset-x-0 data-[swipe-axis=y]:after:h-(--bleed) data-[swipe-direction=down]:after:top-full data-[swipe-direction=left]:after:end-full data-[swipe-direction=right]:after:start-full data-[swipe-direction=up]:after:bottom-full",
++            "after:pointer-events-none after:absolute after:bg-(--drawer-bleed-background,var(--popover)) data-[swipe-axis=x]:after:inset-y-0 data-[swipe-axis=x]:after:w-(--bleed) data-[swipe-axis=y]:after:inset-x-0 data-[swipe-axis=y]:after:h-(--bleed) data-[swipe-direction=down]:after:top-full data-[swipe-direction=left]:after:end-full data-[swipe-direction=right]:after:start-full data-[swipe-direction=up]:after:bottom-full",
+             // Sizing.
+             "[--drawer-content-height:var(--drawer-height,auto)] data-[swipe-axis=x]:[--drawer-content-width:75%] data-[swipe-axis=y]:[--drawer-content-max-height:calc(100dvh-6rem)] data-[swipe-axis=y]:data-snap-points:[--drawer-content-height:100dvh] data-[swipe-axis=x]:sm:[--drawer-content-width:24rem]",
+             // Stack.
 @@ -144,7 +167,7 @@ function DrawerContent({
              "data-[swipe-direction=left]:start-0 data-[swipe-direction=left]:origin-start data-[swipe-direction=left]:[--closed-transform:translate3d(calc(-100%-var(--drawer-inset,0px)-2px),0,0)] data-[swipe-direction=left]:[--translate-x:calc(var(--drawer-swipe-movement-x)+var(--stack-peek-offset)+(var(--stack-shrink)*100%))]",
              // Direction: right.

@@ -1,4 +1,4 @@
-// @vegastack heatmap@0.89.0 sha256-xJSbVPiExJ6uS3HFB4Mnzkmngy9g60spEuJ/NArdIo8=
+// @vegastack heatmap@0.89.0 sha256-mFJv6EGcFawh0nz5tSW597/52NUZc60T1hmHsW3C1Rs=
 
 "use client";
 
@@ -32,11 +32,11 @@ export const HEATMAP_STEPS = [45, 59, 73, 86, 100] as const;
 
 // Literal class strings, one per step, so Tailwind's scanner generates every one of them.
 const STEP_CLASSES = [
-  "bg-[color-mix(in_oklab,var(--color-chart-single)_45%,var(--color-card))]",
-  "bg-[color-mix(in_oklab,var(--color-chart-single)_59%,var(--color-card))]",
-  "bg-[color-mix(in_oklab,var(--color-chart-single)_73%,var(--color-card))]",
-  "bg-[color-mix(in_oklab,var(--color-chart-single)_86%,var(--color-card))]",
-  "bg-[color-mix(in_oklab,var(--color-chart-single)_100%,var(--color-card))]",
+  "bg-[color-mix(in_oklab,var(--chart-single)_45%,var(--card))]",
+  "bg-[color-mix(in_oklab,var(--chart-single)_59%,var(--card))]",
+  "bg-[color-mix(in_oklab,var(--chart-single)_73%,var(--card))]",
+  "bg-[color-mix(in_oklab,var(--chart-single)_86%,var(--card))]",
+  "bg-[color-mix(in_oklab,var(--chart-single)_100%,var(--card))]",
 ] as const;
 
 const ZERO_CLASS = "bg-muted";

@@ -34,6 +34,7 @@ const loaderMarkDir = groupDir("loader-mark");
 const importantDir = groupDir("important");
 const surfaceRingDir = groupDir("surface-ring");
 const radiusDir = groupDir("radius");
+const colorBridgeDir = groupDir("color-bridge");
 const validDir = groupDir("valid");
 const textEntryBorderDir = groupDir("text-entry-border");
 for (const dir of [
@@ -47,6 +48,7 @@ for (const dir of [
   importantDir,
   surfaceRingDir,
   radiusDir,
+  colorBridgeDir,
   validDir,
 ]) {
   mkdirSync(dir, { recursive: true });
@@ -647,6 +649,53 @@ export function NamedByItsOwnChildren() {
       `design-lint no-radius-ramp: accepted specimen line(s) ${radiusMissed.join(", ") || "none"}, ` +
         `rejected the prose line(s) ${radiusExtra.join(", ") || "none"} — BRD-12 names a role corner`,
       radius.output,
+    );
+  }
+
+  // ── no-color-bridge (OVL-13 theme scopes) ───────────────────────────────────────────────────
+  // The `@theme inline` bridge resolves once on `:root`, so a `--color-<semantic>` read paints the
+  // root theme inside a `.dark` subtree or a scoped portal. Every spelling of a read is rejected —
+  // `var()`, Tailwind's `(--x)` shorthand, a fallback, a style value, a template, a comment that
+  // would be copied as advice; the runtime token, a chart series key and a `--color-*` the file
+  // assigns itself are not the bridge and pass.
+  const colorBridgeForms = [
+    `<div className="before:bg-[image:linear-gradient(var(--color-foreground),transparent)]">an arbitrary image</div>`,
+    `<div className="[--ink:var(--color-tag-blue-text)]">an arbitrary property</div>`,
+    `<div className="bg-(--color-popover)">the shorthand</div>`,
+    `<div className="bg-(--bleed,var(--color-popover))">a fallback</div>`,
+    `<div className="shadow-[0_1px_0_color-mix(in_oklab,var(--color-border)_25%,transparent)]">a colour mix</div>`,
+    `<div style={{ backgroundImage: "conic-gradient(var(--color-primary) 40%, transparent 0)" }}>a style value</div>`,
+    `<div style={{ color: \`var(--color-warning-text)\` }}>a template</div>`,
+    `{/* prefer var(--color-info) */}`,
+    `<div className="bg-(color:--color-card)">the typed shorthand</div>`,
+    `<div style={{ color: "var( --color-muted-foreground)" }}>a spaced read</div>`,
+    `<div style={{ "--color-foreground": "red", color: "var(--color-foreground)" }}>a local assignment is no exemption</div>`,
+  ];
+  writeFileSync(
+    join(colorBridgeDir, "bridge.tsx"),
+    `export function Inks() {\n  return <>\n${colorBridgeForms.map((form) => `    ${form}`).join("\n")}\n    <div className="bg-(--color-bg) fill-(--color-desktop) [--ink:var(--foreground)] text-foreground" style={{ "--color-bg": "red", color: "var(--warning-text)", fill: "var(--color-mobile)" } as React.CSSProperties}>runtime tokens, series keys and a local --color-bg pass</div>\n  </>;\n}\n`,
+  );
+  const bridge = run(colorBridgeDir);
+  const bridgeReported = new Set(
+    [...bridge.output.matchAll(/bridge\.tsx:(\d+) \[no-color-bridge\]/g)].map(
+      (m) => Number(m[1]),
+    ),
+  );
+  const bridgeMissed = colorBridgeForms
+    .map((_, index) => index + 3)
+    .filter((line) => !bridgeReported.has(line));
+  const bridgeExtra = [...bridgeReported].filter(
+    (line) => line > colorBridgeForms.length + 2,
+  );
+  if (
+    bridge.status === 0 ||
+    bridgeMissed.length > 0 ||
+    bridgeExtra.length > 0
+  ) {
+    fail(
+      `design-lint no-color-bridge: accepted specimen line(s) ${bridgeMissed.join(", ") || "none"}, ` +
+        `rejected the runtime-token line(s) ${bridgeExtra.join(", ") || "none"} — read the runtime token, not the :root bridge`,
+      bridge.output,
     );
   }
 

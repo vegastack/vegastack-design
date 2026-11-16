@@ -1,4 +1,4 @@
-// @vegastack data-list@0.89.0 sha256-GU4XIwq+Lzg8jb6FQi8uHiAflh48vTDs3yOFqTs3beY=
+// @vegastack data-list@0.89.0 sha256-TRPKURKBVI8iZZUG6AY4KlebnmFPm4VUiBGPWkTWrI8=
 
 "use client";
 
@@ -1212,7 +1212,7 @@ const DROP_EDGE_ROW_CLASS =
  * outline (FOC-13).
  */
 const FOCUS_ROW_CLASS =
-  "has-[:focus-visible]:[--row-fill-layer:linear-gradient(var(--state-focus),var(--state-focus))] [&:has(:focus-visible)>:first-child]:before:bg-[image:linear-gradient(var(--color-foreground),var(--color-foreground)),var(--row-fill-layer,none)] [&:has(:focus-visible)>:first-child]:before:bg-no-repeat [&:has(:focus-visible)>:first-child]:before:bg-size-[2px_100%,100%_100%] [&:has(:focus-visible)>:first-child]:before:bg-left rtl:[&:has(:focus-visible)>:first-child]:before:bg-right";
+  "has-[:focus-visible]:[--row-fill-layer:linear-gradient(var(--state-focus),var(--state-focus))] [&:has(:focus-visible)>:first-child]:before:bg-[image:linear-gradient(var(--foreground),var(--foreground)),var(--row-fill-layer,none)] [&:has(:focus-visible)>:first-child]:before:bg-no-repeat [&:has(:focus-visible)>:first-child]:before:bg-size-[2px_100%,100%_100%] [&:has(:focus-visible)>:first-child]:before:bg-left rtl:[&:has(:focus-visible)>:first-child]:before:bg-right";
 
 /**
  * The keyboard cursor's row (`keyboardNavigation` / `cursorId`): the same cue as keyboard focus,
@@ -1223,7 +1223,7 @@ const FOCUS_ROW_CLASS =
  * row, whose edge this is too (`PEEK_ACTIVE_ROW_CLASS`).
  */
 const CURSOR_ROW_CLASS =
-  "data-[cursor=key]:[--row-fill-layer:linear-gradient(var(--state-focus),var(--state-focus))] [&[data-cursor=key]>:first-child]:before:bg-[image:linear-gradient(var(--color-foreground),var(--color-foreground)),var(--row-fill-layer,none)] [&[data-cursor=key]>:first-child]:before:bg-no-repeat [&[data-cursor=key]>:first-child]:before:bg-size-[2px_100%,100%_100%] [&[data-cursor=key]>:first-child]:before:bg-left rtl:[&[data-cursor=key]>:first-child]:before:bg-right";
+  "data-[cursor=key]:[--row-fill-layer:linear-gradient(var(--state-focus),var(--state-focus))] [&[data-cursor=key]>:first-child]:before:bg-[image:linear-gradient(var(--foreground),var(--foreground)),var(--row-fill-layer,none)] [&[data-cursor=key]>:first-child]:before:bg-no-repeat [&[data-cursor=key]>:first-child]:before:bg-size-[2px_100%,100%_100%] [&[data-cursor=key]>:first-child]:before:bg-left rtl:[&[data-cursor=key]>:first-child]:before:bg-right";
 
 /** Lists with `keyboardNavigation` on, in mount order: only the last one answers the keys. */
 const keyboardLists: object[] = [];
@@ -2089,7 +2089,7 @@ export function DataList<T>({
           // Drag into: the carried rows dim, and a target washes in the primary tint (in the
           // destructive tint when it refuses the drop) — `FolderTree`'s own drop vocabulary.
           drag &&
-            "data-dragging:opacity-50 data-drop-invalid:[--row-fill-color:color-mix(in_oklab,var(--color-destructive)_10%,transparent)] data-drop-over:[--row-fill-color:color-mix(in_oklab,var(--color-primary)_10%,transparent)]",
+            "data-dragging:opacity-50 data-drop-invalid:[--row-fill-color:color-mix(in_oklab,var(--destructive)_10%,transparent)] data-drop-over:[--row-fill-color:color-mix(in_oklab,var(--primary)_10%,transparent)]",
           // Reorder: the seam is a 2px line in the drop-indicator blue across the row's top or
           // bottom edge, painted by every cell (a table row can't hold a positioned `::before`).
           drag && reorderable && DROP_EDGE_ROW_CLASS,

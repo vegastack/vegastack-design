@@ -51,9 +51,9 @@ export function colorPickerStates(): ReactNode {
  * 3-wide grid (`columns={3}` drives the dynamic `--swatch-cols` grid template).
  */
 const TAG_COLORS: ColorOption[] = [
-  { name: "info", label: "Info", color: "var(--color-info)" },
-  { name: "accent", label: "Accent", color: "var(--color-accent)" },
-  { name: "danger", label: "Danger", color: "var(--color-destructive)" },
+  { name: "info", label: "Info", color: "var(--info)" },
+  { name: "accent", label: "Accent", color: "var(--accent)" },
+  { name: "danger", label: "Danger", color: "var(--destructive)" },
 ];
 
 export function colorPickerCustomPalette(): ReactNode {

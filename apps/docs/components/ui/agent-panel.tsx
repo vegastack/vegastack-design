@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.89.0 sha256-aTMZB4w6TocM4avpdSrpO5l+9WRV2Du6HF9KigmTopA=
+// @vegastack agent-panel@0.89.0 sha256-vpLpYrFoTiPv8pVRDSxuw99GzQJPEUQ8fAWcWe45qIQ=
 
 "use client";
 
@@ -449,7 +449,7 @@ export function AgentStateRing({
         // rings a hexagon.
         "has-data-[kind=agent]:ring-0",
         tone === "warning" &&
-          "**:data-[kind=agent]:[--person-avatar-halo:var(--color-warning)]",
+          "**:data-[kind=agent]:[--person-avatar-halo:var(--warning)]",
         className,
       )}
       {...props}

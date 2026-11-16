@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.89.0 sha256-3VDhwY7f/8w+TDnFvmIti8YiEZa7UWNzTwmvseNB3Ig=
+// @vegastack inline-chip@0.89.0 sha256-pGYUtSg+ojwtHUpbaZ0d/YFzp8eT062ewR0O2RrHS5M=
 
 "use client";
 
@@ -219,8 +219,8 @@ function kindNoun(kind: InlineChipKind, resolver: InlineChipResolver | null) {
  * references reads as text rather than a legend. A restricted chip is muted whatever its kind.
  */
 const PERSON_TONE =
-  "bg-tag-blue-subtle [--inline-chip-ink:var(--color-tag-blue-text)]";
-const RECORD_TONE = "bg-muted [--inline-chip-ink:var(--color-foreground)]";
+  "bg-tag-blue-subtle [--inline-chip-ink:var(--tag-blue-text)]";
+const RECORD_TONE = "bg-muted [--inline-chip-ink:var(--foreground)]";
 const toneOf = (kind: InlineChipKind) =>
   kind === "user" ? PERSON_TONE : RECORD_TONE;
 
@@ -235,7 +235,7 @@ const toneOf = (kind: InlineChipKind) =>
  * anything.
  */
 const CHIP =
-  "relative inline-block max-w-full overflow-x-clip text-ellipsis -my-px whitespace-nowrap rounded-inline px-1 py-px font-medium no-underline transition-colors before:absolute before:inset-x-0 before:-inset-y-px before:content-[''] data-restricted:bg-muted data-restricted:[--inline-chip-ink:var(--color-muted-foreground)] data-interactive:cursor-pointer data-interactive:hover:underline data-interactive:hover:decoration-(--inline-chip-ink)/40 data-interactive:hover:underline-offset-2";
+  "relative inline-block max-w-full overflow-x-clip text-ellipsis -my-px whitespace-nowrap rounded-inline px-1 py-px font-medium no-underline transition-colors before:absolute before:inset-x-0 before:-inset-y-px before:content-[''] data-restricted:bg-muted data-restricted:[--inline-chip-ink:var(--muted-foreground)] data-interactive:cursor-pointer data-interactive:hover:underline data-interactive:hover:decoration-(--inline-chip-ink)/40 data-interactive:hover:underline-offset-2";
 
 /** The leading glyph: 1em, a hair below the baseline's centre like any inline icon, muted. */
 const ICON =

@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.89.0 sha256-UKILYOXp34p+lSRnlEHmFTMQBPXvu7nBVxuwkuxxTqM=
+// @vegastack color-picker@0.89.0 sha256-YUAemyZ4NlIDPx6l6IfbDM/IoAYx37KZoLPE/7Qm9CA=
 
 "use client";
 
@@ -20,7 +20,7 @@ import { useListNav } from "@/components/ui/use-list-nav";
  *
  * The palette is data: each `ColorOption` carries a `name` (the stable value the picker emits and
  * matches selection against) plus a CSS color `value`. The default palette keeps familiar hue names
- * while using only VegaStack semantic CSS variables (`var(--color-info)`, `var(--color-success)`,
+ * while using only VegaStack semantic CSS variables (`var(--info)`, `var(--success)`,
  * chart tokens, etc.).
  *
  * INLINE-STYLE EXCEPTION (the one allowed case): a swatch's background is a *dynamic, user-supplied
@@ -49,7 +49,7 @@ export interface ColorOption {
   label: string;
   /**
    * Any CSS color the swatch renders as its background. Prefer semantic design-token variables
-   * (`var(--color-info)`, `var(--color-chart-2)`, …). Consumer-provided arbitrary colors are
+   * (`var(--info)`, `var(--chart-2)`, …). Consumer-provided arbitrary colors are
    * allowed only as dynamic user data, so the value is applied via inline `style` (the sanctioned
    * exception — see the file header).
    */
@@ -61,23 +61,23 @@ export interface ColorOption {
  * VegaStack token (status, neutral, or chart series) so the registry component does not ship
  * raw Tailwind palette variables.
  *
- * `yellow` maps to `--color-chart-7` (hue ~104 — the one token that is genuinely yellow in BOTH
+ * `yellow` maps to `--chart-7` (hue ~104 — the one token that is genuinely yellow in BOTH
  * themes). There is no second yellow-family token, so the palette carries a single yellow/olive
  * entry rather than a near-duplicate `lime` swatch.
  */
 export const DEFAULT_COLORS: readonly ColorOption[] = [
-  { name: "gray", label: "Gray", color: "var(--color-primary)" },
-  { name: "red", label: "Red", color: "var(--color-destructive)" },
-  { name: "orange", label: "Orange", color: "var(--color-chart-4)" },
-  { name: "amber", label: "Amber", color: "var(--color-warning)" },
-  { name: "yellow", label: "Yellow", color: "var(--color-chart-7)" },
-  { name: "green", label: "Green", color: "var(--color-success)" },
-  { name: "teal", label: "Teal", color: "var(--color-chart-2)" },
-  { name: "sky", label: "Sky", color: "var(--color-info)" },
-  { name: "blue", label: "Blue", color: "var(--color-chart-8)" },
-  { name: "indigo", label: "Indigo", color: "var(--color-chart-3)" },
-  { name: "pink", label: "Pink", color: "var(--color-chart-5)" },
-  { name: "rose", label: "Rose", color: "var(--color-chart-6)" },
+  { name: "gray", label: "Gray", color: "var(--primary)" },
+  { name: "red", label: "Red", color: "var(--destructive)" },
+  { name: "orange", label: "Orange", color: "var(--chart-4)" },
+  { name: "amber", label: "Amber", color: "var(--warning)" },
+  { name: "yellow", label: "Yellow", color: "var(--chart-7)" },
+  { name: "green", label: "Green", color: "var(--success)" },
+  { name: "teal", label: "Teal", color: "var(--chart-2)" },
+  { name: "sky", label: "Sky", color: "var(--info)" },
+  { name: "blue", label: "Blue", color: "var(--chart-8)" },
+  { name: "indigo", label: "Indigo", color: "var(--chart-3)" },
+  { name: "pink", label: "Pink", color: "var(--chart-5)" },
+  { name: "rose", label: "Rose", color: "var(--chart-6)" },
 ] as const;
 
 /**

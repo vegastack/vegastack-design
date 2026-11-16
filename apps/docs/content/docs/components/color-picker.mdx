@@ -40,9 +40,9 @@ status, neutral, and chart tokens — rather than raw Tailwind palette variables
 import { ColorPicker, type ColorOption } from "@/components/ui/color-picker";
 
 const palette: ColorOption[] = [
-  { name: "info", label: "Info", color: "var(--color-info)" },
-  { name: "accent", label: "Accent", color: "var(--color-accent)" },
-  { name: "danger", label: "Danger", color: "var(--color-destructive)" },
+  { name: "info", label: "Info", color: "var(--info)" },
+  { name: "accent", label: "Accent", color: "var(--accent)" },
+  { name: "danger", label: "Danger", color: "var(--destructive)" },
 ];
 
 <ColorPicker
@@ -62,8 +62,8 @@ Each `ColorOption` is `{ name, label, color }`:
 
 - `name` — the stable value the picker emits and matches selection against.
 - `label` — the swatch's accessible name (`aria-label`) and tooltip.
-- `color` — a CSS color value. Prefer semantic variables like `var(--color-info)` or
-  `var(--color-chart-2)`. Arbitrary CSS colors are reserved for dynamic user-authored palette data;
+- `color` — a CSS color value. Prefer semantic variables like `var(--info)` or
+  `var(--chart-2)`. Arbitrary CSS colors are reserved for dynamic user-authored palette data;
   this is the one place the design system renders a dynamic swatch fill via inline
   `style={{ backgroundColor }}`. Every other style (sizing, borders, focus, spacing) uses semantic tokens.
 
@@ -73,20 +73,20 @@ When you omit `colors`, the picker renders the exported `DEFAULT_COLORS` palette
 each mapped to a VegaStack semantic token (status, neutral, or chart series) so the registry
 component never ships raw Tailwind palette variables:
 
-| `name`   | `label` | `color` token              |
-| -------- | ------- | -------------------------- |
-| `gray`   | Gray    | `var(--color-primary)`     |
-| `red`    | Red     | `var(--color-destructive)` |
-| `orange` | Orange  | `var(--color-chart-4)`     |
-| `amber`  | Amber   | `var(--color-warning)`     |
-| `yellow` | Yellow  | `var(--color-chart-7)`     |
-| `green`  | Green   | `var(--color-success)`     |
-| `teal`   | Teal    | `var(--color-chart-2)`     |
-| `sky`    | Sky     | `var(--color-info)`        |
-| `blue`   | Blue    | `var(--color-chart-8)`     |
-| `indigo` | Indigo  | `var(--color-chart-3)`     |
-| `pink`   | Pink    | `var(--color-chart-5)`     |
-| `rose`   | Rose    | `var(--color-chart-6)`     |
+| `name`   | `label` | `color` token        |
+| -------- | ------- | -------------------- |
+| `gray`   | Gray    | `var(--primary)`     |
+| `red`    | Red     | `var(--destructive)` |
+| `orange` | Orange  | `var(--chart-4)`     |
+| `amber`  | Amber   | `var(--warning)`     |
+| `yellow` | Yellow  | `var(--chart-7)`     |
+| `green`  | Green   | `var(--success)`     |
+| `teal`   | Teal    | `var(--chart-2)`     |
+| `sky`    | Sky     | `var(--info)`        |
+| `blue`   | Blue    | `var(--chart-8)`     |
+| `indigo` | Indigo  | `var(--chart-3)`     |
+| `pink`   | Pink    | `var(--chart-5)`     |
+| `rose`   | Rose    | `var(--chart-6)`     |
 
 ### States
 

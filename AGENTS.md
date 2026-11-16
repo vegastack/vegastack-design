@@ -61,7 +61,9 @@ Claude subagent review instead; never skip the review.
 ## Build rules (one line each; detail and rationale in `docs/decisions.md` § Build rules)
 
 - Colour: semantic tokens; status colour has two inks: `<family>-foreground` on the solid fill,
-  `<family>-text` on page and tint (A11Y-13). `contrast-check.mjs` gates it.
+  `<family>-text` on page and tint (A11Y-13). `contrast-check.mjs` gates it. An arbitrary value reads
+  the runtime token (`var(--foreground)`), never the `:root`-bound bridge `var(--color-foreground)`
+  (`design-lint` `no-color-bridge`).
 - Focus: no focus rings anywhere (FOC-13); a background tint is the cue; a border never changes colour on
   focus except text entry, which darkens to `border-ring/50` (FOC-14).
 - Corners are a role, never a size: `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile`

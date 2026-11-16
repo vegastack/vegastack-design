@@ -302,6 +302,50 @@ const isTextEntryFocusBorderFile = (file) => {
   );
 };
 
+// OVL-13 theme scopes — the `@theme inline` bridge (`--color-foreground: var(--foreground)`) is
+// declared once, on `:root`, and a custom property resolves where it is declared: a
+// `var(--color-foreground)` read inside a `.dark` subtree, a scoped portal or a pinned-theme region
+// is the ROOT theme's value. Registry source reads the runtime token (`var(--foreground)`) or a
+// colour utility instead. The names are the semantic token contract's own keys, so a new token is
+// covered the day it lands; chart series keys (`--color-desktop`) are not in it.
+const COLOR_BRIDGE_NAMES = Object.keys(
+  JSON.parse(
+    readFileSync(
+      join(REPO_ROOT, "packages/design-tokens/tokens/semantic.tokens.json"),
+      "utf8",
+    ),
+  ),
+).filter((key) => !key.startsWith("$"));
+// A read is `var(` or Tailwind's `(` / `(color:` shorthand opener, then the name; whitespace
+// (newlines included) may sit between them.
+const COLOR_BRIDGE_READ = new RegExp(
+  `\\((?:\\s*color:)?\\s*--color-(${COLOR_BRIDGE_NAMES.sort((a, b) => b.length - a.length).join("|")})(?![\\w-])`,
+  "g",
+);
+// Upstream's own local variable: chart.tsx's tooltip indicator assigns `--color-border` on its own
+// style and reads it as `border-(--color-border)`. Named and counted, never inferred from the file.
+const COLOR_BRIDGE_LOCAL_READS = { "ui/chart.tsx": { border: 1 } };
+const NO_COLOR_BRIDGE_MSG =
+  "reads the `@theme inline` colour bridge, which resolves once on `:root` and so paints the light value inside a dark or scoped theme — use the runtime token (`var(--foreground)`) or a colour utility";
+const colorBridgeReads = (file, src) => {
+  const path = resolve(file).replaceAll("\\", "/");
+  const local =
+    Object.entries(COLOR_BRIDGE_LOCAL_READS).find(([tail]) =>
+      path.endsWith(`/registry/${tail}`),
+    )?.[1] ?? {};
+  const seen = {};
+  const found = [];
+  for (const m of src.matchAll(COLOR_BRIDGE_READ)) {
+    seen[m[1]] = (seen[m[1]] ?? 0) + 1;
+    if (seen[m[1]] <= (local[m[1]] ?? 0)) continue;
+    found.push({
+      line: src.slice(0, m.index).split("\n").length,
+      name: m[1],
+    });
+  }
+  return found;
+};
+
 const NO_RADIUS_RAMP_MSG =
   "radius off the role scale (BRD-12): use the role corner — rounded-control (single-line controls), -icon (icon buttons), -chip, -inline (tokens in text), -mark, -item (rows, tooltips), -block, -card, -bubble, -overlay, -tile (square media) — never a ramp step, bare `rounded`, an arbitrary length or a radius variable";
 const RADIUS_ROLES = new Set([
@@ -1150,6 +1194,16 @@ for (const root of ROOTS) {
       for (const { line } of inlineRadiusLiterals(file, src)) {
         console.log(
           `${file}:${line} [no-radius-ramp] inline radius off the role scale (BRD-12): a style object's border radius takes a role token (\`var(--corner-card)\`, or the email kit's \`emailRadius.<role>\`), never a literal`,
+        );
+        violations++;
+      }
+    }
+    if (
+      /(^|\/)packages\/ui\/registry\//.test(resolve(file).replace(/\\/g, "/"))
+    ) {
+      for (const { line, name } of colorBridgeReads(file, src)) {
+        console.log(
+          `${file}:${line} [no-color-bridge] \`--color-${name}\` ${NO_COLOR_BRIDGE_MSG}`,
         );
         violations++;
       }
