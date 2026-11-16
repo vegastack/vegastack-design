@@ -843,10 +843,58 @@ test("owned-files lists installed index targets and header-carrying files, nothi
       "src/components/ui/tabs.tsx",
       "src/lib/utils.ts",
     ];
-    assert.deepEqual(unreachedFiles(root, owned), [
+    assert.deepEqual(unreachedFiles(root, owned, { ts: null }), [
       "src/components/ui/card.tsx",
       "src/components/ui/kbd.tsx",
       "src/components/ui/sheet.tsx",
+    ]);
+  });
+
+  const { createRequire } = await import("node:module");
+  const ts = createRequire(join(PKG, "package.json"))("typescript");
+  test("owned-files --unreached resolves as the compiler does: extends, longest alias, .js → .ts, MDX blocks, strings", () => {
+    const root = project({
+      "tsconfig.base.json": JSON.stringify({
+        compilerOptions: {
+          baseUrl: ".",
+          moduleResolution: "bundler",
+          paths: {
+            "@/*": ["./src/*"],
+            "@/components/ui/*": ["./missing/*", "./src/components/ui/*"],
+          },
+        },
+      }),
+      "tsconfig.json": `{ "extends": "./tsconfig.base.json" }`,
+      "src/app/page.tsx": [
+        `import { Button } from "@/components/ui/button";`,
+        `import { cn } from "../lib/utils.js";`,
+        "const snippet = `require('@/components/ui/card')`;",
+      ].join("\n"),
+      "src/components/ui/button.tsx": "export {}",
+      "src/components/ui/card.tsx": "export {}",
+      "src/components/ui/tabs.tsx": "export {}",
+      "src/components/ui/kbd.tsx": "export {}",
+      "src/lib/utils.ts": "export {}",
+      "content/guide.mdx": [
+        "import {",
+        "  Tabs,",
+        `} from "@/components/ui/tabs";`,
+        "",
+        "```tsx",
+        `import { Kbd } from "@/components/ui/kbd";`,
+        "```",
+      ].join("\n"),
+    });
+    const owned = [
+      "src/components/ui/button.tsx",
+      "src/components/ui/card.tsx",
+      "src/components/ui/kbd.tsx",
+      "src/components/ui/tabs.tsx",
+      "src/lib/utils.ts",
+    ];
+    assert.deepEqual(unreachedFiles(root, owned, { ts }), [
+      "src/components/ui/card.tsx",
+      "src/components/ui/kbd.tsx",
     ]);
   });
 }

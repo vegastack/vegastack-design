@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.90.0 sha256-6wqS4W5c/m5UP/jBrgdfH1W32sQ1t+iw5sNObu+yGrg=
+// @vegastack upload-panel@0.90.0 sha256-GGzJ0eQexzOyZitp8dPIr6ymCP3VVRj800tiKRJ4hM0=
 
 "use client";
 
@@ -53,6 +53,8 @@ a compact bar that opens the list in a bottom sheet.
 
 While it is on screen it publishes `--upload-panel-inset` on the document root, so the Toast stack
 rises above it rather than covering it.
+In a `Shell`, render it inside `ShellFloatingArea`: it then sits in the shell's floating stack,
+clear of the panel and the phone bar, instead of the window's corner.
 
 Deliberately NOT done here: uploading, measuring speed (`createRateEstimator` in
 `upload-progress` does that for the host), drag and drop (`use-file-drop`), or list
@@ -1134,6 +1136,9 @@ export function UploadPanel({
         className={cn(
           "fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))] z-50 flex flex-col overflow-hidden rounded-card bg-popover text-popover-foreground border border-border shadow-lg motion-enter-up",
           mobile ? "start-4" : "w-90 max-w-[calc(100vw-var(--spacing)*8)]",
+          // In the shell's floating stack it takes its place in the stack — clear of the panel and
+          // the phone bar — instead of pinning itself to the window's corner.
+          "[[data-slot=shell-floating-area]>&]:static [[data-slot=shell-floating-area]>&]:w-90 [[data-slot=shell-floating-area]>&]:max-w-[calc(100vw-var(--spacing)*8)]",
           className,
         )}
         {...props}
