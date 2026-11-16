@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ArrowUpIcon, CircleDotIcon } from "lucide-react";
+import { ArrowUpIcon, CircleDotIcon, SquarePenIcon } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/shell-assistant` (dogfoods the registry) → auto-scanned.
 import {
@@ -13,6 +13,7 @@ import {
   AssistantPill,
 } from "@/components/ui/shell-assistant";
 import { Button } from "@/components/ui/button";
+import { ToolGroupItem } from "@/components/ui/tool-group";
 import { Textarea } from "@/components/ui/textarea";
 
 function Page({ withContext = true }: { withContext?: boolean }) {
@@ -50,6 +51,11 @@ function Page({ withContext = true }: { withContext?: boolean }) {
       >
         <AssistantCardHeader
           title="William"
+          actions={
+            <ToolGroupItem label="New chat" onClick={() => setAbout(false)}>
+              <SquarePenIcon />
+            </ToolGroupItem>
+          }
           onClose={() => setOpen(false)}
           onMoveToPanel={() => setOpen(false)}
           onOpenFull={() => setOpen(false)}
