@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.94.0 sha256-19zT6XZ9AS0F+xtt+xzkA8/yGY+Pb/rFcEmDEFyxNDs=
+// @vegastack shell-assistant@0.94.0 sha256-SE7sFN3IOAC8M85WTYNvQFbmCMtXEd71i6i4zsTyxms=
 
 "use client";
 
