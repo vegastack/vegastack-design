@@ -2824,10 +2824,10 @@
         "@vegastack/date-time"
       ],
       "npmDependencies": [
-        "@vegastack/design-tokens@^0.17.0",
         "@vegastack/design@^0.17.0",
         "lucide-react@^1.47.0",
-        "@base-ui/react@^1.6.0"
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "testFiles": ["packages/ui/registry/ui/shell.test.tsx"],
       "coverage": {
@@ -58396,7 +58396,7 @@
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design-tokens@^0.17.0"
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "testFiles": ["packages/ui/registry/blocks/shell-01/shell-01.test.tsx"],
       "coverage": {

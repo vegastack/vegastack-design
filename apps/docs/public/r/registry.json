@@ -257,7 +257,7 @@
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.17.0",
-        "@vegastack/design-tokens@^0.17.0"
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
@@ -290,7 +290,7 @@
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.90.0",
-        "integrity": "sha256-3m4FHeSehtNC99H3Vs+9dLtJY2mozkYL8TK3Pak2kU0="
+        "integrity": "sha256-7YgLnqn4cqnaLZh4tCrLKvI32BaP9YLBC8k+X1izOiQ="
       }
     },
     {
@@ -21310,7 +21310,7 @@
       ],
       "dependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design-tokens@^0.17.0"
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
         "@vegastack/avatar",
@@ -21334,7 +21334,7 @@
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout and feed its rail, column and panel from your routes.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.90.0",
-        "integrity": "sha256-vNrLDEvdZOUQsgb9WpVWQ1b30BCW9guu6eCLn5BBTI8="
+        "integrity": "sha256-RomGczmFiHLkc60R3AWtPCobbAoG62racD0UbuZtf3g="
       }
     },
     {

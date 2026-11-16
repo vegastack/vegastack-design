@@ -1,4 +1,4 @@
-// @vegastack shell@0.90.0 sha256-3m4FHeSehtNC99H3Vs+9dLtJY2mozkYL8TK3Pak2kU0=
+// @vegastack shell@0.90.0 sha256-7YgLnqn4cqnaLZh4tCrLKvI32BaP9YLBC8k+X1izOiQ=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -612,7 +612,7 @@ export function ShellRail({
       tabIndex={-1}
       aria-label={label}
       className={cn(
-        "flex min-h-0 flex-1 flex-col items-center gap-0.5 overflow-y-auto pt-0.5 pb-2.5 outline-none [scrollbar-width:none]",
+        "scroll-fade-y flex min-h-0 flex-1 flex-col items-center gap-0.5 overflow-y-auto pt-0.5 pb-2.5 outline-none [scrollbar-width:none]",
         className,
       )}
       {...props}
@@ -1137,7 +1137,7 @@ export function ShellTopBarTitle({
                 {crumb}
                 <ChevronRight
                   aria-hidden="true"
-                  className="size-3.5 text-muted-foreground/70"
+                  className="size-3.5 text-muted-foreground/70 rtl:-scale-x-100"
                 />
               </li>
             ))}

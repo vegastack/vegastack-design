@@ -224,7 +224,7 @@
         "@base-ui/react@^1.6.0",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.17.0",
-        "@vegastack/design-tokens@^0.17.0"
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
         "@vegastack/button",
@@ -17568,7 +17568,7 @@
       "categories": ["layout", "navigation"],
       "dependencies": [
         "lucide-react@^1.47.0",
-        "@vegastack/design-tokens@^0.17.0"
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
         "@vegastack/avatar",
