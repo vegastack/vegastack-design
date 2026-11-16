@@ -43,7 +43,6 @@ import {
 } from "../registry/ui/attachment";
 import Login01Page from "../registry/blocks/login-01/page";
 import { LoginForm } from "../registry/blocks/login-01/components/login-form";
-import AppShell01Page from "../registry/blocks/app-shell-01/page";
 import Board01Page from "../registry/blocks/board-01/page";
 import Settings01Page from "../registry/blocks/settings-01/page";
 import Settings02Page from "../registry/blocks/settings-02/page";
@@ -1190,29 +1189,8 @@ for (const theme of ["light", "dark"] as const) {
     }
   });
 
-  test(`app-shell-01 and board-01 pass WCAG AA — ${theme} theme`, async () => {
-    // Desktop, so the rail mounts in place instead of as a closed sheet (see app-shell-01.test.tsx).
-    const spy = vi
-      .spyOn(window, "matchMedia")
-      .mockImplementation((query: string) => ({
-        matches: false,
-        media: query,
-        onchange: null,
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        addListener: () => {},
-        removeListener: () => {},
-        dispatchEvent: () => false,
-      }));
+  test(`board-01 passes WCAG AA — ${theme} theme`, async () => {
     const failures: string[] = [];
-    const shell = await render(themed(theme, 1280, <AppShell01Page />));
-    await expect
-      .element(shell.getByRole("heading", { level: 1, name: "Overview" }))
-      .toBeInTheDocument();
-    for (const v of await contrastViolations(shell.container))
-      failures.push(`app-shell-01: ${v}`);
-    await shell.unmount();
-
     const board = await render(themed(theme, 1280, <Board01Page />));
     for (const v of await contrastViolations(board.container))
       failures.push(`board-01: ${v}`);
@@ -1223,7 +1201,6 @@ for (const theme of ["light", "dark"] as const) {
     await expect.element(board.getByText("No matches")).toBeInTheDocument();
     for (const v of await contrastViolations(board.container))
       failures.push(`board-01 no matches: ${v}`);
-    spy.mockRestore();
     expect(failures, `block color-contrast failures (${theme})`).toEqual([]);
   });
 }

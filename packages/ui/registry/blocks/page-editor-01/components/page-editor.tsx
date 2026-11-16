@@ -1,4 +1,4 @@
-// @vegastack page-editor-01@0.90.0 sha256-9JLRaBOEraV8dsN+N70RRme9MvndGVpDM1Vq6l1YBm0=
+// @vegastack page-editor-01@0.90.0 sha256-usu0P58ZOPsvv/E7Ca9Vt92iU0n2LT/JdH/ywY8LMPI=
 
 "use client";
 
@@ -168,7 +168,7 @@ function initialVersions(now: number): VersionItem[] {
  * only — wire each callback to your own data.
  *
  * @example
- * <AppShellPage size="full"><PageEditor /></AppShellPage>
+ * <ShellPage size="full"><PageEditor /></ShellPage>
  */
 export function PageEditor() {
   const [now] = React.useState(() => Date.now());

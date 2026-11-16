@@ -18,13 +18,13 @@
 // renders as body text. The Regent consumer carried 338 such classes past every other check
 // (2026-09-23), which is why this is a failing check and not a guide section.
 //
-// And it holds pages to the one page layout: an `AppShellPage` picks its width with `size`
-// (`prose` · `default` · `full`) and pads with the shared page gutter, so a `max-w-*`, `mx-*`,
+// And it holds pages to the one page layout: a `ShellPage` picks its width with `size`
+// (`prose` · `default` · `full` · `form`) and pads with the shared page gutter, so a `max-w-*`, `mx-*`,
 // `w-*` or padding class on one is a page choosing its own width or gutter, and fails.
 //
 // And it warns where code works around a DS part instead of using it — a Tailwind `!` on a ui part,
 // a width class on a popover or menu popup, a hand-written `<header>` inside overlay content, an
-// `AppShellPage size` that disagrees with the route map. Those four warn by default and fail under
+// `ShellPage size` that disagrees with the route map. Those four warn by default and fail under
 // `--strict`, so a consumer can take the release, fix what they report, and then turn the gate on.
 //
 // Read-only: it never writes, installs, or edits. Exit 0 = all good, 1 = a real problem,
@@ -60,11 +60,11 @@ Also scans the project's own source (not node_modules, build output, or the comp
 \`ui\` alias directory) and reports each finding as file:line:
 
   retired vocabulary      a utility, token or component the shadcn reset retired      (fails)
-  page layout             an AppShellPage class that sets the page's width or gutter  (fails)
+  page layout             a ShellPage class that sets the page's width or gutter   (fails)
   important on DS parts   a Tailwind \`!\` modifier in the className of a ui part       (warns)
   popup width             w-*/min-w-*/max-w-* on a popover, menu or select popup       (warns)
   overlay header          a hand-written <header> inside Sheet/Drawer/Dialog content   (warns)
-  page width vs route map an AppShellPage size in an App Router page or layout that
+  page width vs route map a ShellPage size in an App Router page or layout that
                           disagrees with the definePageWidths route map               (warns)
 
 Options:
@@ -655,20 +655,18 @@ export function scanRetiredVocabulary(
 // ---- page layout -----------------------------------------------------------------------------
 
 /**
- * A class on an `AppShellPage` that picks the page's width or gutter — which `size` and the page
+ * A class on a `ShellPage` that picks the page's width or gutter — which `size` and the page
  * gutter own. `pb-*` stays legal: room at the bottom for a docked save bar is not a gutter.
  */
 const PAGE_OVERRIDE =
   /(?<![\w-])(?:[\w@\[\]()/.:-]*:)?(?:max-w|min-w|w|mx|ms|me|px|ps|pe|p|py|pt)-[^\s"'`]+/g;
 
 /**
- * Every `AppShellPage` in the project's own source that sets its own width or gutter (a failure)
- * or still says `size="narrow"` (a warning — `prose` is its name now).
- */
+ * Every `ShellPage` in the project's own source that sets its own width or gutter (a failure)
+ *  */
 export function scanPageLayout(root, { skipDirs = [] } = {}) {
   const skip = new Set(skipDirs.map((d) => resolve(d)));
   const findings = [];
-  const deprecated = [];
   const walk = (dir) => {
     let entries;
     try {
@@ -685,9 +683,9 @@ export function scanPageLayout(root, { skipDirs = [] } = {}) {
       }
       if (!e.isFile() || !/\.[jt]sx$/.test(e.name)) continue;
       const src = readIfExists(full);
-      if (src == null || !src.includes("<AppShellPage")) continue;
+      if (src == null || !src.includes("<ShellPage")) continue;
       const file = relative(root, full).split(sep).join("/");
-      for (const tag of src.matchAll(/<AppShellPage\b(?:[^>{]|\{[^}]*\})*>/g)) {
+      for (const tag of src.matchAll(/<ShellPage\b(?:[^>{]|\{[^}]*\})*>/g)) {
         const line = src.slice(0, tag.index).split("\n").length;
         const cls = /\bclassName=(?:"([^"]*)"|\{([\s\S]*?)\}(?=\s|\/?>))/.exec(
           tag[0],
@@ -695,13 +693,11 @@ export function scanPageLayout(root, { skipDirs = [] } = {}) {
         const text = cls ? (cls[1] ?? cls[2] ?? "") : "";
         for (const m of text.matchAll(PAGE_OVERRIDE))
           findings.push({ file, line, match: m[0] });
-        if (/\bsize=(?:"narrow"|\{\s*["']narrow["']\s*\})/.test(tag[0]))
-          deprecated.push({ file, line, match: 'size="narrow"' });
       }
     }
   };
   walk(root);
-  return { findings, deprecated };
+  return { findings };
 }
 
 // ---- composition: DS parts used as designed --------------------------------------------------
@@ -718,7 +714,7 @@ export function scanPageLayout(root, { skipDirs = [] } = {}) {
 // child component's header is not seen); a JSX attribute string ending in a backslash
 // (`title="C:\"`) or spanning lines can desynchronise that tag's scan; route-map rows count only as
 // string literals; a regex literal holding a brace inside a JSX attribute expression can end that
-// expression early; and an `AppShellPage` outside an App Router page or layout file, or with a
+// expression early; and a `ShellPage` outside an App Router page or layout file, or with a
 // `size={…}` expression, is counted rather than compared.
 
 /** Popover and menu popups whose width the part owns: `PopoverContent size`, or the longest item. */
@@ -1144,7 +1140,7 @@ export function widthsForRoute(map, route, pages = []) {
   return [...seen.values()];
 }
 
-const ROUTE_ROW = /(["'])(\/[^"'\s]*)\1\s*:\s*(["'])(prose|default|full)\3/g;
+const ROUTE_ROW = /(["'])(\/[^"'\s]*)\1\s*:\s*(["'])(prose|form|default|full)\3/g;
 
 /**
  * Route-map rows a source declares: the `"/route": "prose" | "default" | "full"` rows of the
@@ -1246,7 +1242,7 @@ export function checkIconLocals(src) {
 /**
  * The four composition rules over the project's own source (the ui alias dirs, node_modules and
  * build output skipped): `!` on a DS part, a width class on a popover or menu popup, a hand-written
- * `<header>` inside an overlay panel, and an `AppShellPage size` that disagrees with the route map.
+ * `<header>` inside an overlay panel, and a `ShellPage size` that disagrees with the route map.
  */
 export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
   const skip = new Set(skipDirs.map((d) => resolve(d)));
@@ -1422,7 +1418,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
           hint: OVERLAY_HEADERS[inside],
         });
       }
-      const isPage = part === "AppShellPage" || tag.name === "AppShellPage";
+      const isPage = part === "ShellPage" || tag.name === "ShellPage";
       if (!part && !isPage) continue;
       const attrs = tagAttributes(tag, scan);
       if (isPage) {
@@ -1454,7 +1450,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     }
   }
 
-  // AppShellPage size vs the route map: route files only, literal (or absent) sizes only.
+  // ShellPage size vs the route map: route files only, literal (or absent) sizes only.
   const mismatches = [...conflicts];
   let compared = 0;
   let dynamic = 0;
@@ -1470,7 +1466,7 @@ export function scanComposition(root, { skipDirs = [], uiAlias = null } = {}) {
     }
     if (map.size === 0) continue;
     compared += 1;
-    const size = page.size === "narrow" ? "prose" : page.size;
+    const size = page.size;
     // A page answers for its own route; a layout for every page in its folder and below (a route
     // group's layout wraps only its group), or its own route when it wraps none.
     const layoutDir = /(?:^|\/)layout\.[jt]sx?$/.test(page.file)
@@ -1743,27 +1739,18 @@ export function main(argv = []) {
     });
   }
 
-  // ---- 8. every page takes its width from AppShellPage's size ------------------------------
+  // ---- 8. every page takes its width from ShellPage's size ------------------------------
   const layout = scanPageLayout(root, { skipDirs });
   if (layout.findings.length > 0) {
     results.push({
       level: "fail",
       name: "page layout",
-      detail: `${layout.findings.length} class(es) on AppShellPage set the page's own width or gutter`,
-      fix: "delete them — pick the width with size (prose · default · full) from the route map; the gutter is --page-gutter (https://design.vegastack.com/docs/foundations/page-layout)",
+      detail: `${layout.findings.length} class(es) on ShellPage set the page's own width or gutter`,
+      fix: "delete them — pick the width with size (prose · default · full · form) from the route map; the gutter is --page-gutter (https://design.vegastack.com/docs/foundations/page-layout)",
       findings: layout.findings.map((f) => `${f.file}:${f.line}  ${f.match}`),
     });
   } else {
-    ok("page layout", "no AppShellPage sets its own width or gutter");
-  }
-  if (layout.deprecated.length > 0) {
-    results.push({
-      level: "warn",
-      name: "page width names",
-      detail: `${layout.deprecated.length} AppShellPage(s) still say size="narrow"`,
-      fix: 'rename to size="prose" — narrow is removed in the next minor',
-      findings: layout.deprecated.map((f) => `${f.file}:${f.line}  ${f.match}`),
-    });
+    ok("page layout", "no ShellPage sets its own width or gutter");
   }
 
   // ---- 9–12. DS parts used as designed ------------------------------------------------------
@@ -1804,7 +1791,7 @@ export function main(argv = []) {
     "overlay header",
     composition.headers,
     "hand-written <header>(s) inside Sheet, Drawer or Dialog content",
-    "use the overlay's own header part (SheetHeader · DrawerHeader · DialogHeader · AlertDialogHeader), or RecordPeek for a record panel",
+    "use the overlay's own header part (SheetHeader · DrawerHeader · DialogHeader · AlertDialogHeader), or ShellPanel for a record panel",
     "no overlay content hand-writes a <header> (same-file nesting only)",
   );
   // A green check is a failure whatever --strict says (COL-25): the rule is the operator's, and a
@@ -1827,7 +1814,7 @@ export function main(argv = []) {
     rm.dynamic ? `, ${rm.dynamic} dynamic size={…} skipped` : ""
   }${
     rm.outside
-      ? `, ${rm.outside} AppShellPage(s) outside page/layout files not checked (this rule reads route files only)`
+      ? `, ${rm.outside} ShellPage(s) outside page/layout files not checked (this rule reads route files only)`
       : ""
   }`;
   if (rm.rows === 0) {
@@ -1841,7 +1828,7 @@ export function main(argv = []) {
     compositionCheck(
       "page width vs route map",
       rm.mismatches,
-      `AppShellPage size(s) disagree with the route map (${rm.rows} row(s) in ${rm.files.join(", ")}; ${coverage})`,
+      `ShellPage size(s) disagree with the route map (${rm.rows} row(s) in ${rm.files.join(", ")}; ${coverage})`,
       "set size to the map's width, or change the map's row — a page and its skeleton read the same map (https://design.vegastack.com/docs/foundations/page-layout)",
       `${rm.rows} route-map row(s) in ${rm.files.join(", ")}; ${coverage}`,
     );

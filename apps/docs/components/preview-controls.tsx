@@ -72,10 +72,7 @@ function usePreviewControls() {
  * chrome degrades to its unconstrained layout.
  *
  * Because the frame toggle constrains a CONTAINER, not the viewport, a viewport-driven component
- * (e.g. `Sidebar`'s `useIsMobile` media query) cannot see it, and since Batch 5 of the shadcn reset
- * no component takes a breakpoint override to force the branch — upstream's `SidebarProvider` reads
- * one fixed 768px query. So a demo that wants to show the mobile rail asks the reader to narrow the
- * BROWSER; this hook is for chrome that can genuinely follow a container width.
+ * cannot see it; this hook is for chrome that can genuinely follow a container width.
  */
 export function usePreviewFrameWidth(): FrameWidth {
   return React.useContext(PreviewControlsContext)?.width ?? "full";
@@ -87,8 +84,7 @@ export function usePreviewFrameWidth(): FrameWidth {
  *
  * Honest limitation: this is a CONTAINER, not a viewport — media-query (`@media`) breakpoints
  * never fire from a narrowed container, only `@container` queries do. Demos built on this
- * design system's container-query shell layouts — `AppShellContent`
- * (`@container/app-shell-content`) and `SettingsRow` (`@container/settings-row`) — visibly
+ * design system's container-query layouts — `Shell` (`@container/shell`) and `SettingsRow` (`@container/settings-row`) — visibly
  * respond to this toggle. Everything else keeps its normal viewport-driven layout regardless of
  * the selected preset; previewing a viewport-media-query breakpoint still requires resizing the
  * real browser window.

@@ -195,18 +195,6 @@ import type {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import type {
-  Sidebar,
-  SidebarContent,
-  SidebarMenuAction,
-  SidebarMenuButton,
-  SidebarMenuSkeleton,
-  SidebarMenuSubButton,
-  SidebarProvider,
-  SidebarRail,
-  SidebarStateScript,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import type {
   Attachment,
   AttachmentAction,
   AttachmentActions,
@@ -475,27 +463,6 @@ export type CarouselPreviousProps = React.ComponentProps<
   typeof CarouselPrevious
 >;
 export type CarouselNextProps = React.ComponentProps<typeof CarouselNext>;
-
-export type SidebarProviderProps = React.ComponentProps<typeof SidebarProvider>;
-export type SidebarProps = React.ComponentProps<typeof Sidebar>;
-export type SidebarMenuButtonProps = React.ComponentProps<
-  typeof SidebarMenuButton
->;
-export type SidebarMenuActionProps = React.ComponentProps<
-  typeof SidebarMenuAction
->;
-export type SidebarMenuSubButtonProps = React.ComponentProps<
-  typeof SidebarMenuSubButton
->;
-export type SidebarMenuSkeletonProps = React.ComponentProps<
-  typeof SidebarMenuSkeleton
->;
-export type SidebarTriggerProps = React.ComponentProps<typeof SidebarTrigger>;
-export type SidebarRailProps = React.ComponentProps<typeof SidebarRail>;
-export type SidebarContentProps = React.ComponentProps<typeof SidebarContent>;
-export type SidebarStateScriptProps = React.ComponentProps<
-  typeof SidebarStateScript
->;
 
 export type AttachmentProps = React.ComponentProps<typeof Attachment>;
 export type AttachmentMediaProps = React.ComponentProps<typeof AttachmentMedia>;

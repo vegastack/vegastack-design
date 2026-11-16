@@ -1175,7 +1175,7 @@ likely to creep back on a future pull, so it has a machine check:
 `design-lint`'s **`no-focus-ring-glow`** rejects `ring-3`, `ring-[3px]`, `ring-ring/NN`,
 `focus:`/`focus-visible:ring-*`, `focus-visible:outline-*`, `aria-invalid:ring-*` and a focus-variant
 `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`, so no ring creeps back.
-A **resting** `0 0 0 1px` hairline — upstream's outline `SidebarMenuButton` draws one — is not a
+A **resting** `0 0 0 1px` hairline — a border technique — is not a
 glow and is accepted; the structural self-test observes both halves.
 
 ### 2. Cursor and touch
@@ -1212,8 +1212,8 @@ FRM-4 · FRM-15`
   fail-closed gate (`tooling/contrast-check.mjs`, with its own `--self-test`).
 - **A11Y-2** — target size ≥24px through an **invisible** hit area, verified with a real
   `elementFromPoint` probe rather than `getComputedStyle`. Measured per case, at every width:
-  upstream grows `SidebarMenuAction` with `after:-inset-2` and then switches it off again at `md`,
-  which a 320px-only sweep cannot see.
+  an upstream part that grows its hit area at one width and switches it off at another is only
+  caught by a sweep at every width.
 - **A11Y-24** (MK, 2026-10-14) — on a touch pointer every `Button` size answers a tap 44×44: a
   `pointer-coarse:` `::after` hit area, inset per size from the padding box, so nothing moves
   visually. It never grows into an interactive neighbour — beside a sibling control that side stays
@@ -1266,12 +1266,8 @@ FRM-4 · FRM-15`
   does not — Base UI's Slider keeps the real `<input type=range>` visually hidden, so `role="slider"`
   is anonymous in every composition; Combobox's toggle, clear and chip-remove are icon-only buttons —
   the patch supplies it.
-- **A11Y-17** — a sidebar count is part of its control's name: `SidebarMenuButton` takes
-  `badge`/`badgeLabel`, the name reads "{label} {badgeLabel}" through a comma-free `sr-only` suffix
-  (in the collapsed tooltip too), and the visual `SidebarMenuBadge` is `aria-hidden`. The A11Y-5
-  separator is not used here, because accname would read "{label} , {badgeLabel}".
-- **A11Y-18** — an active nav link carries `aria-current="page"`: `SidebarMenuButton` sets it when
-  `isActive` and it renders a link; a button never gets it.
+- **A11Y-17**, **A11Y-18** — superseded with `sidebar` (2026-11-16): a rail item's count is part of
+  its name and the current module carries `aria-current="page"` (`ShellRailItem`, LAY-22).
 - **A11Y-19** — Checkbox's mixed state has its own glyph: a minus replaces the check.
 - **A11Y-20** — `orientation` reaches the Base UI root on Tabs and ToggleGroup, so
   `aria-orientation` and the arrow keys follow a vertical list.
@@ -1364,14 +1360,10 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   to the bot. In a stack or an `AgentStateRing`, a hexagon's gap and ring follow the hexagon.
 - **Layout** (LAY-9…LAY-16) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
-  edge-pinned surfaces, `dvh` over `vh`, `svh` only for the sidebar; truncation is `min-w-0` on the
-  flex child with `truncate` on an inner span, never both on one element; `AppShell` owns the landmark
-  trio, the skip link and the content container. **The `<nav>` landmark lives inside the rail**:
-  upstream's `Sidebar` is divs by design and renders two different trees, so there is no single
-  element a role can ride through both. The collapsed state survives a static first paint:
-  `SidebarStateScript` in `<head>` reads the cookie, marks `<html>` with `data-sidebar-state` and
-  gives the desktop panel its collapsed `data-state` before hydration, and `useSidebarCookieOpen`
-  reads and writes the cookie for a controlled provider (LAY-13). A line tab list scrolls inside
+  edge-pinned surfaces, `dvh` over `vh`; truncation is `min-w-0` on the flex child with `truncate`
+  on an inner span, never both on one element; `Shell` owns the landmarks, the skip link and the
+  content container, and `ShellStateScript` sets the column and panel state before the first paint
+  (LAY-22). A line tab list scrolls inside
   itself, with edge fades and the active trigger kept in view — `TabsList overflow="scroll"`, the
   default for `variant="line"` (LAY-14). `AlertAction` takes its own top-aligned grid column and
   drops below the text under `@md`, so it never overlaps the title (LAY-15). Skeleton widths cycle by
@@ -1493,14 +1485,13 @@ line when its file is next touched, never in a drive-by rename.
 **Known deviations in components we own**, each fixed when its file is next touched: `md` on
 `Stat`, `StatusIcon` and `Chip` (add `default`, keep `md` as an alias); `SettingsSection`'s `titleAs`
 and `TruncatedText`'s `as` (→ `render`); `ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip` and `Exit` parts,
-which export no `…Props` type; `AppShellPage`'s `size` (`prose · default · full`, a page width off
-the size ladder); `DataList`'s "Loading rows" status (→ "Loading rows…");
+which export no `…Props` type; `DataList`'s "Loading rows" status (→ "Loading rows…");
 `PanelSearch`'s look differing from `SearchableSelect`'s in-popup search; and per-component
 async-write status (→ one shared shape).
 
 **Differences in upstream components** do not follow this table — each would need its own decision
 row, so they are listed only so nobody copies them into a component we own: `md` on
-`SidebarMenuSubButton`, a physical `side` on `Sheet` and `Sidebar`, three option-row recipes across
+a physical `side` on `Sheet`, three option-row recipes across
 `Select`, `Combobox` and `Command`, and `ComboboxChip` rendering Base UI's own chip rather than
 `Chip`.
 
@@ -1694,8 +1685,8 @@ on screen.
 **A component is reusable, prop-configured, imported in several places and tracked for updates**
 (`registry:ui`). **A block is a screen or section someone copies once and then owns** (`registry:block`)
 — sample data inline, no primitive invented inside it, never updated after install. When a thing is
-both, it ships as both: `board` is a component and `board-01` is a block, exactly as `app-shell` pairs
-with `app-shell-01`. Two narrower types exist: `registry:hook` for a pure hook, and
+both, it ships as both: `board` is a component and `board-01` is a block, exactly as `shell` pairs
+with `shell-01`. Two narrower types exist: `registry:hook` for a pure hook, and
 `registry:lib` for a module with no React in it at all.
 
 **Where a new thing goes — the decision tree.** Ask in order and stop at the first yes:
@@ -1713,8 +1704,7 @@ Rules that survive the reset, because they are ours and not upstream's:
 
 - **A keeper that wraps an upstream component imports it**, never a copy of it. `date-picker` mounts
   upstream's `calendar`; `number-field` and `chip-input` are upstream's `input-group`;
-  `settings-row` is upstream's `Card`; `tool-call-chip` is upstream's `Badge`; `app-shell` is
-  upstream's `sidebar` primitives plus the landmarks LAY-12 asks for. A re-derived box is drift with a
+  `settings-row` is upstream's `Card`; `tool-call-chip` is upstream's `Badge`. A re-derived box is drift with a
   different spelling.
 - **A form control never owns its width.** Every one is `w-full`; the parent decides. A fixed `w-56`
   reads fine on the page it was tuned for and overflows at 320px.

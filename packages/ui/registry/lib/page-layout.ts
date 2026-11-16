@@ -1,13 +1,13 @@
-// @vegastack page-layout@0.97.0 sha256-aE6WYPdLWuIfDGfWQZOyZ8su2MwXuj+j5awvZDIQPwA=
+// @vegastack page-layout@0.97.0 sha256-Pwt7wcSs+42ozJZZu3tUsphvz0mjJ0vdh7yASzys+kA=
 
 /**
- * The page-layout contract — how wide each route's page is, declared once. `AppShellPage` takes a
+ * The page-layout contract — how wide each route's page is, declared once. `ShellPage` takes a
  * `size`; this module is where an app keeps the route → size map, so a page and its loading
  * skeleton read the same answer and cannot drift. Plain functions with no React in them: server
  * pages, client skeletons and tests all import it.
  *
  * - `prose` — 720px of content, centred: forms, settings, a create or edit flow.
- * - `default` — 1280px, centred: lists, dashboards, record pages with a rail.
+ * - `default` — 1280px, centred: lists, dashboards, record pages.
  * - `full` — edge to edge, fills the height: boards, canvases, chat.
  *
  * Route keys are the app's route patterns in Next.js spelling — `[id]` one segment, `[...rest]`
@@ -45,7 +45,7 @@ export interface PageWidths<Route extends string = string> {
  * The layout tiers — one width vocabulary for every surface, in rem, each tier's lower bound:
  * `phone` below 40rem, `tablet` 40–64rem, `laptop` 64–90rem, `wide` from 90rem. The same set is
  * `--container-*` / `--breakpoint-*` (`tablet`, `laptop`, `wide`) in
- * `@vegastack/design-tokens/utilities.css`, so `@max-tablet/app-shell-content:` and `max-tablet:`
+ * `@vegastack/design-tokens/utilities.css`, so `@max-tablet/shell-content:` and `max-tablet:`
  * name it in classes. A surface reads it by its OWN width (a container query) unless it is pinned
  * to the viewport (an overlay): `DocumentLayout`'s tiers, a grid turning into cards, a sheet or a
  * peek going full-screen below `tablet`.
@@ -88,29 +88,6 @@ export function layoutTierQuery(from?: LayoutTier, to?: LayoutTier): string {
     parts.push(`(min-width: ${LAYOUT_TIERS[from]}rem)`);
   if (to) parts.push(`(max-width: ${LAYOUT_TIERS[to] - 0.01}rem)`);
   return parts.join(" and ") || "all";
-}
-
-/**
- * Where the app sidebar rests as an icon rail rather than open: from the sidebar's own off-canvas
- * breakpoint (48rem, upstream's 768px) up to the `laptop` tier. Pass it to `SidebarStateScript
- * collapsedWhen` so a rail nobody has opened or closed starts collapsed there; `AppShell` collapses
- * an open rail when the window narrows into it and reopens it when the window widens again.
- */
-export const RAIL_COLLAPSED_QUERY = `(min-width: 48rem) and (max-width: ${LAYOUT_TIERS.laptop - 0.01}rem)`;
-
-/**
- * The page gutter by viewport width, in px: 16 below 640px, 24 from 640px, 32 from 1024px, 48
- * from 1920px. `AppShell` sets it as `--page-gutter`; this is the same scale for scripts.
- *
- * @example
- * pageGutterOf(390) // 16
- * pageGutterOf(2560) // 48
- */
-export function pageGutterOf(viewportPx: number): number {
-  if (viewportPx >= 1920) return 48;
-  if (viewportPx >= 1024) return 32;
-  if (viewportPx >= 640) return 24;
-  return 16;
 }
 
 type Segment =
@@ -186,8 +163,8 @@ function bySpecificity(a: string, b: string): number {
  *   "/tasks/[taskId]": "default",
  *   "/ask": "full",
  * });
- * <AppShellPage size="prose">…</AppShellPage> // on /settings/profile — a test compares it to the map
- * <AppShellPage size={pageWidths.widthOfPath(usePathname())}>…</AppShellPage> // a route skeleton
+ * <ShellPage size="prose">…</ShellPage> // on /settings/profile — a test compares it to the map
+ * <ShellPage size={pageWidths.widthOfPath(usePathname())}>…</ShellPage> // a route skeleton
  */
 export function definePageWidths<const Route extends string>(
   routes: Record<Route, PageWidth>,

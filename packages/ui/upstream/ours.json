@@ -1,8 +1,8 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 151,
-    "fromExtras": 40
+    "total": 147,
+    "fromExtras": 39
   },
   "items": {
     "action-bar": {
@@ -39,11 +39,6 @@
       "family": "chat",
       "source": "Regent agents platform, lane AQ (agent question forms) — operator approval 2026-11-05 (go-dark, \"rsume from them on finishing all phases development till the end continuing in godark mode\")",
       "rationale": "Upstream ships no agent question batch. A composition of our questionnaire (upstream's engine) with upstream badge, button and textarea: a compact pick-and-send form for one question, and a stepped form with own words, notes, previews and a review for the rest; no patch."
-    },
-    "app-shell": {
-      "disposition": "keep+block",
-      "family": "layout",
-      "source": "extras.md"
     },
     "audio-player": {
       "disposition": "keep",
@@ -460,7 +455,7 @@
       "disposition": "keep",
       "family": "navigation",
       "source": "Regent product-cohesion W1-DS3 item 9 (UXS-03, one Help menu), approved by the operator 2026-10-27",
-      "rationale": "Upstream ships no help menu. Composes upstream dropdown-menu and sidebar (SidebarMenuItem, SidebarMenuButton) with our NotificationDot unchanged; carries no patch."
+      "rationale": "Upstream ships no help menu. Composes upstream dropdown-menu, triggered by the caller's ShellRailItem, with our NotificationDot unchanged; carries no patch."
     },
     "icon-glyph": {
       "disposition": "keep",
@@ -725,12 +720,6 @@
       "source": "Operator brief 2026-09-27 (accessory sheet + impact review) — approved by MK 2026-09-27",
       "rationale": "Upstream ships no affected-records list. Confirmation dialogs (a family or accessory save or delete) need numbered rows that keep counting across Show more, a record-type icon and a new-tab link per record; it composes our Button and carries no patch."
     },
-    "record-peek": {
-      "disposition": "keep",
-      "family": "overlay",
-      "source": "Regent product-cohesion mandate W1-DS2 (D1, one side peek), MK 2026-10-26",
-      "rationale": "Upstream ships no such component; a composition of the system's own parts with no patch."
-    },
     "record-picker": {
       "disposition": "keep",
       "family": "forms",
@@ -838,12 +827,6 @@
       "disposition": "keep",
       "family": "overlay",
       "source": "extras.md"
-    },
-    "sidebar-menu-flyout": {
-      "disposition": "keep",
-      "family": "navigation",
-      "source": "Regent product-cohesion W1-DS3 item 17 (UXS-01: the tablet rail reaches Spaces), approved by the operator 2026-10-27 (MK blanket approval D19)",
-      "rationale": "Upstream ships no rail flyout. A row of our own composing upstream sidebar (SidebarMenuItem, SidebarMenuButton) and dropdown-menu unchanged; carries no patch."
     },
     "sort-menu": {
       "disposition": "keep",
@@ -1069,11 +1052,6 @@
       "rationale": "Upstream ships no fold hook. A measured fold-when-it-does-not-fit decision shared by Tabs (LAY-14 menu), RouteTabs, ViewTabs and ListToolbar."
     },
     "use-platform": {
-      "disposition": "keep",
-      "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
-    },
-    "use-record-peek-row": {
       "disposition": "keep",
       "family": "hook",
       "source": "registry:hook — not a component, so extras.md does not list it"

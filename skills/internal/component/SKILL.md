@@ -259,7 +259,7 @@ decision tree in [references/conventions.md](references/conventions.md).
 - **Container queries, not viewport breakpoints**, whenever responsive behavior should follow the
   component's actual container — a settings row in a narrow sidebar card should stack even on a wide
   viewport. Name your own container (`@container/my-component`) and write `@sm/my-component:flex-row`
-  (see `settings-row.tsx`, `app-shell.tsx`, `field.tsx`). Reach for a `ResizeObserver` variant only
+  (see `settings-row.tsx`, `shell.tsx`, `field.tsx`). Reach for a `ResizeObserver` variant only
   if a container query genuinely cannot express it.
 - **CSS first, `useIsMobile` last.** The ladder is: a container query (follows the component's own
   width) → a viewport breakpoint (follows the page) → `useMediaQuery`/`useIsMobile` from
@@ -282,7 +282,7 @@ decision tree in [references/conventions.md](references/conventions.md).
   `sheet.tsx`). Zero cost where the env var is 0.
 - **`dvh` not `vh`** for viewport-relative heights that must survive mobile browser chrome
   show/hide. `svh` is the deliberate exception for a shell that should collapse to the SMALLEST
-  viewport (Sidebar).
+  viewport.
 - **Viewport clamps for popups** — menus/comboboxes/selects cap width at
   `max-w-[var(--available-width)]` (a Base UI runtime var) so they never overflow a narrow viewport.
 
@@ -360,15 +360,13 @@ When the change moves doctrine or instructions, the same PR updates `design.md`,
 2026-09-18). A block is a copy-once PAGE with no prop surface, so: its source is
 `packages/ui/registry/blocks/<name>/page.tsx` plus `components/*.tsx`, and those parts import each
 other RELATIVELY (`./components/<x>`) — never `@/components/<x>`, which upstream uses and which
-would make fifteen blocks fight over one flat `components/app-sidebar.tsx` on install. Its test
+would make fifteen blocks fight over one flat `components/<x>.tsx` on install. Its test
 asserts that the composition mounts, shows its own content and is axe-clean; the behaviour of each
 part belongs to that part's suite. Its page lives under `apps/docs/content/docs/blocks/` and is NOT
 under the docs canon. Its contract record goes in `contracts.blocks`, and a block whose source is
 upstream's (it is named in `vendor/shadcn/4.21.0/manifest.json`) is exempt from
 `verify-public-api-docs` for the same reason a migrated component is — adding JSDoc to upstream's
-file would be a hunk with no decision ID behind it. A block that mounts a `Sidebar` needs the
-desktop `matchMedia` mock in its suite, or the rail mounts as a closed Sheet and nothing is in the
-DOM.
+file would be a hunk with no decision ID behind it.
 
 For component `<name>` (PascalCase `<Name>`), in dependency order:
 

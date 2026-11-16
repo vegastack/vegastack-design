@@ -1,4 +1,4 @@
-// @vegastack page-header@0.90.0 sha256-9hgPQ8EBQ+GLbeDpqXFxMOdvtHYYCiRes2IZQfUbpvI=
+// @vegastack page-header@0.90.0 sha256-rBjEU4Bx6oXDbRq7h0XbQAQyyvUMU7AKfkGO5tzB7A8=
 
 "use client";
 
@@ -98,8 +98,8 @@ export interface PageHeaderProps extends Omit<
    */
   secondaryMenu?: React.ReactNode;
   /**
-   * The page's scope tabs, on their own row 24px under the title (12px above the page below in an
-   * `AppShellPage`: the `ListToolbar` tabs rhythm) — a default (pill) `Tabs`
+   * The page's scope tabs, on their own row 24px under the title (12px above the page below in a
+   * `ShellPage`: the `ListToolbar` tabs rhythm) — a default (pill) `Tabs`
    * such as "My tasks | Created by me | Team" that switches whose records a list page shows.
    * Tabs that change content in place belong here, above the list's toolbar, not inside it.
    * How the records are laid out ("List | Board") is not a tab: it is the `ListToolbar`'s Layout
@@ -200,10 +200,10 @@ export function PageHeader({
       data-slot="page-header"
       className={cn(
         "flex flex-col gap-2",
-        // Directly in an AppShellPage or a SettingsLayoutContent (both 24px columns) with the tabs
+        // Directly in a ShellPage or a SettingsLayoutContent (both 24px columns) with the tabs
         // last, the page below sits 12px under the tabs (the 24px gap less 12px) — the
         // ListToolbar tabs rhythm. Anywhere else, spacing is the host's and nothing overlaps.
-        "[[data-slot=app-shell-page]>&]:has-[>[data-slot=page-header-tabs]:last-child]:-mb-3",
+        "[[data-slot=shell-page]>&]:has-[>[data-slot=page-header-tabs]:last-child]:-mb-3",
         "[[data-slot=settings-layout-content]>&]:has-[>[data-slot=page-header-tabs]:last-child]:-mb-3",
         className,
       )}

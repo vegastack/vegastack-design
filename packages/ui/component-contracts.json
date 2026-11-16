@@ -12,25 +12,25 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 820,
-    "components": 228,
+    "totalRegistryItems": 814,
+    "components": 224,
     "animatedIcons": 467,
-    "hooks": 17,
-    "blocks": 16,
+    "hooks": 16,
+    "blocks": 15,
     "libs": 24,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 39,
-    "Navigation/layout": 29,
-    "Overlays": 23,
+    "Navigation/layout": 26,
+    "Overlays": 22,
     "Data display": 47,
     "Content/marketing": 14,
     "Shared internals": 6,
     "AI/chat": 46,
-    "Hooks": 17,
-    "Block": 16,
+    "Hooks": 16,
+    "Block": 15,
     "Animated icons": 467
   },
   "expectedWaveMembers": {
@@ -103,7 +103,6 @@
     ],
     "Navigation/layout": [
       "accordion",
-      "app-shell",
       "aspect-ratio",
       "board",
       "breadcrumb",
@@ -126,8 +125,6 @@
       "settings-layout",
       "shell",
       "shell-panel",
-      "sidebar",
-      "sidebar-menu-flyout",
       "stepper",
       "table-of-contents",
       "tabs"
@@ -153,7 +150,6 @@
       "tooltip",
       "icon-picker",
       "info-hint",
-      "record-peek",
       "command-search",
       "dropdown-menu-form"
     ],
@@ -292,14 +288,12 @@
       "use-platform",
       "use-tabs-swipe",
       "use-view-transition",
-      "use-record-peek-row",
       "use-overflow-fold",
       "use-grid-selection",
       "use-stick-to-bottom"
     ],
     "Block": [
       "board-01",
-      "app-shell-01",
       "issue-detail-01",
       "page-editor-01",
       "command-search-01",
@@ -327,7 +321,6 @@
       "popoverAlign",
       "dataGridNarrow",
       "textEditStates",
-      "appShellMobile",
       "toastTypes"
     ],
     "geometryUnswept": {
@@ -473,11 +466,6 @@
           "button",
           "table-of-contents"
         ],
-        "globalInputGroups": ["tokens", "shared-runtime"]
-      },
-      {
-        "file": "packages/ui/test/app-shell-header-tools.browser.test.tsx",
-        "owners": ["app-shell", "auto-save-input", "sidebar"],
         "globalInputGroups": ["tokens", "shared-runtime"]
       }
     ]
@@ -1304,672 +1292,6 @@
             {
               "name": "data-slot",
               "values": ["alert-dialog-cancel"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "app-shell",
-      "registryType": "registry:ui",
-      "title": "App Shell",
-      "summary": "The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "layout",
-      "wave": "Navigation/layout",
-      "sourceFiles": ["packages/ui/registry/ui/app-shell.tsx"],
-      "publicSymbols": [
-        {
-          "name": "AppShell",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "SidebarProvider",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellBleed",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellBleedProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "main",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellContentProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "header",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellHeaderAction",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellHeaderActions",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellHeaderActionsProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellHeaderProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellHeaderShow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellHeaderShowProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellHeaderSlot",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "span",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellHeaderSlotProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellPage",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellPageProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "appShellPageVariants",
-          "kind": "variant-builder",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Not a rendering component; accepts no runtime ref."
-          }
-        },
-        {
-          "name": "AppShellProgress",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellProgressProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellSection",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by AppShellSection in packages/ui/registry/ui/app-shell.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "AppShellSectionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellSidebar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Sidebar",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellSidebarProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellSkeleton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/app-shell.tsx."
-          }
-        },
-        {
-          "name": "AppShellSkeletonProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "pageGutterClasses",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
-          }
-        },
-        {
-          "name": "AppShellFold",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders its children or nothing; there is no element of its own to take a ref."
-          }
-        },
-        {
-          "name": "AppShellFoldProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellHeaderMobileAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "button",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "AppShellHeaderMobileActionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellAside",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Merged with the panel's own ref on the root div."
-          }
-        },
-        {
-          "name": "AppShellAsideProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AppShellAsideHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Props, including ref, spread onto the div."
-          }
-        },
-        {
-          "name": "AppShellAsideStateScript",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "An inline script; it renders no element a ref would reach."
-          }
-        },
-        {
-          "name": "useAppShellAsideCookie",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/app-shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A hook returns state, not an element."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "variant",
-            "values": ["floating", "inset", "sidebar"],
-            "evidence": "packages/ui/registry/ui/app-shell.tsx: prop union"
-          }
-        ]
-      },
-      "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "size",
-            "values": ["narrow", "default", "full"],
-            "evidence": "packages/ui/registry/ui/app-shell.tsx: AppShellPage size prop (DS-19)"
-          }
-        ]
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "default",
-            "loading",
-            "open",
-            "mobile-actions",
-            "phone-fold",
-            "rail-separators"
-          ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["busy", "focus-visible", "labeled", "semantic-html"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "focus", "loading"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "text-truncation-and-flex-shrink",
-          "overflow-and-scroll",
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision",
-          "mobile-or-touch-mode",
-          "grid-wrapping"
-        ],
-        "rationale": "Source-signaled responsive, overflow, truncation, positioning, mobile, or grid risks."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/app-shell",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/dropdown-menu",
-        "@vegastack/page-layout",
-        "@vegastack/sidebar",
-        "@vegastack/skeleton",
-        "@vegastack/use-media-query"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.18.0",
-        "@vegastack/design@^0.18.0",
-        "class-variance-authority@^0.7.1",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": [
-        "packages/ui/registry/ui/app-shell-aside.test.tsx",
-        "packages/ui/registry/ui/app-shell.test.tsx"
-      ],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "app-shell",
-      "dataAttributes": {
-        "AppShell": {
-          "attributes": [
-            {
-              "name": "data-rail-folded",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["app-shell", "app-shell-skip-link"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellSidebar": {
-          "attributes": [
-            {
-              "name": "data-rail-separators",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["app-shell-sidebar"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellHeader": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "app-shell-header",
-                "app-shell-header-actions",
-                "app-shell-header-middle",
-                "app-shell-header-mobile-actions"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellHeaderMobileAction": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "app-shell-header-mobile-action",
-                "app-shell-header-mobile-action-count",
-                "app-shell-header-mobile-action-dot"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellHeaderSlot": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["app-shell-header-slot"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellHeaderShow": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["app-shell-header-show"]
-            },
-            {
-              "name": "data-when",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellHeaderActions": {
-          "attributes": [
-            {
-              "name": "data-action",
-              "values": []
-            },
-            {
-              "name": "data-compact",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "app-shell-header-actions-group",
-                "app-shell-header-actions-menu"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellProgress": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["app-shell-progress"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellContent": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["app-shell-content"]
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellAsideStateScript": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["app-shell-aside-state-script"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellAside": {
-          "attributes": [
-            {
-              "name": "data-keyboard",
-              "values": [""]
-            },
-            {
-              "name": "data-mode",
-              "values": ["phone"]
-            },
-            {
-              "name": "data-resizing",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "app-shell-aside",
-                "app-shell-aside-panel",
-                "app-shell-aside-resize"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": ["closed", "open"]
-            }
-          ],
-          "cssVariables": ["--app-shell-aside-width"]
-        },
-        "AppShellAsideHeader": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["app-shell-aside-header"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellPage": {
-          "attributes": [
-            {
-              "name": "data-size",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["app-shell-page"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellBleed": {
-          "attributes": [
-            {
-              "name": "data-active",
-              "values": ["false", "true"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["app-shell-bleed"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellSection": {
-          "attributes": [
-            {
-              "name": "data-align",
-              "values": []
-            },
-            {
-              "name": "data-measure",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["app-shell-section"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AppShellSkeleton": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "app-shell-skeleton",
-                "app-shell-skeleton-nav-row",
-                "app-shell-skeleton-stats"
-              ]
             }
           ],
           "cssVariables": []
@@ -26605,10 +25927,6 @@
         "SheetContent": {
           "attributes": [
             {
-              "name": "data-beside",
-              "values": []
-            },
-            {
               "name": "data-side",
               "values": []
             },
@@ -37982,692 +37300,6 @@
       }
     },
     {
-      "name": "sidebar",
-      "registryType": "registry:ui",
-      "title": "Sidebar",
-      "summary": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "navigation",
-      "wave": "Navigation/layout",
-      "sourceFiles": ["packages/ui/registry/ui/sidebar.tsx"],
-      "publicSymbols": [
-        {
-          "name": "Sidebar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarFooter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupLabel",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarInput",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarInset",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenu",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuBadge",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuButton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSkeleton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSub",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSubButton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSubItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarProvider",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarRail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarSeparator",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarStateScript",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders an inline head script with no consumer-facing element to reference."
-          }
-        },
-        {
-          "name": "SidebarTrigger",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "useSidebar",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "useSidebarCookieOpen",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "side",
-            "values": ["left", "right"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "variant",
-            "values": ["sidebar", "floating", "inset"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "collapsible",
-            "values": ["offcanvas", "icon", "none"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "menuButtonVariant",
-            "values": ["default", "outline"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
-          }
-        ]
-      },
-      "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "menuButtonSize",
-            "values": ["default", "sm", "lg"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
-          },
-          {
-            "name": "menuSubButtonSize",
-            "values": ["sm", "md"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          }
-        ]
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "default",
-            "expanded",
-            "collapsed",
-            "open",
-            "active",
-            "disabled",
-            "loading",
-            "mobile"
-          ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "native-or-base-ui-semantics",
-            "browser-accessibility-test",
-            "keyboard-navigation",
-            "labeled",
-            "focus-visible"
-          ],
-          "evidence": "packages/ui/registry/ui/sidebar.tsx + packages/ui/registry/ui/sidebar.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "active", "disabled", "loading"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "mobile-or-touch-mode",
-          "overflow-and-scroll",
-          "text-truncation-and-flex-shrink"
-        ],
-        "rationale": "Upstream's own layout: a fixed desktop panel above the md breakpoint and a Sheet below it, with a scrolling content region and truncating rows."
-      },
-      "motion": {
-        "status": "observed",
-        "mechanisms": ["tokenized CSS transition"],
-        "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5).",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/sidebar",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/input",
-        "@vegastack/page-layout",
-        "@vegastack/separator",
-        "@vegastack/sheet",
-        "@vegastack/skeleton",
-        "@vegastack/tooltip",
-        "@vegastack/use-mobile",
-        "@vegastack/use-platform"
-      ],
-      "npmDependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/sidebar.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "sidebar",
-      "dataAttributes": {
-        "SidebarStateScript": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-state-script"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarProvider": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-wrapper"]
-            }
-          ],
-          "cssVariables": ["--sidebar-width", "--sidebar-width-icon"]
-        },
-        "Sidebar": {
-          "attributes": [
-            {
-              "name": "data-collapsible",
-              "values": [""]
-            },
-            {
-              "name": "data-mobile",
-              "values": ["true"]
-            },
-            {
-              "name": "data-side",
-              "values": []
-            },
-            {
-              "name": "data-sidebar",
-              "values": ["sidebar"]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "sidebar",
-                "sidebar-container",
-                "sidebar-gap",
-                "sidebar-inner"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": []
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": ["--sidebar-width"]
-        },
-        "SidebarTrigger": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["trigger"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarRail": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["rail"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-rail"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarInset": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-inset"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarInput": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["input"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-input"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarHeader": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["header"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-header"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarFooter": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["footer"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-footer"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarSeparator": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["separator"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-separator"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarContent": {
-          "attributes": [
-            {
-              "name": "data-direction",
-              "values": ["down", "up"]
-            },
-            {
-              "name": "data-more-above",
-              "values": [""]
-            },
-            {
-              "name": "data-more-below",
-              "values": [""]
-            },
-            {
-              "name": "data-sidebar",
-              "values": ["content"]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "sidebar-content",
-                "sidebar-content-frame",
-                "sidebar-content-scroll"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarGroup": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["group"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarGroupContent": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["group-content"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-group-content"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenu": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuItem": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-item"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-item"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuButton": {
-          "attributes": [
-            {
-              "name": "data-badge-size",
-              "values": ["default", "dot", "lg", "pill"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-badge-rail"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuBadge": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-badge"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-badge"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuSkeleton": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": [
-                "menu-skeleton",
-                "menu-skeleton-icon",
-                "menu-skeleton-text"
-              ]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-skeleton"]
-            }
-          ],
-          "cssVariables": ["--skeleton-width"]
-        },
-        "SidebarMenuSub": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-sub"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-sub"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuSubItem": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-sub-item"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-sub-item"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "meta-line",
       "registryType": "registry:ui",
       "title": "Meta Line",
@@ -40210,7 +38842,7 @@
       "name": "record-layout",
       "registryType": "registry:ui",
       "title": "Record Layout",
-      "summary": "A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.",
+      "summary": "A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.",
       "status": "stable",
       "since": "0.23.15",
       "family": "layout",
@@ -40238,25 +38870,6 @@
           }
         },
         {
-          "name": "RecordLayoutRail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "aside",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout.tsx."
-          }
-        },
-        {
-          "name": "RecordDetailsSheet",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "RecordDetailsSheet takes no ref; it renders a Sheet and its trigger."
-          }
-        },
-        {
           "name": "RecordLayoutProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/record-layout.tsx",
@@ -40268,24 +38881,6 @@
         {
           "name": "RecordLayoutMainProps",
           "kind": "type",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RecordLayoutRailProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RecordDetailsSheetProps",
-          "kind": "interface",
           "source": "packages/ui/registry/ui/record-layout.tsx",
           "ref": {
             "status": "not-applicable",
@@ -40366,15 +38961,6 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
-        },
-        {
-          "name": "useRecordLayoutWide",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A hook; returns a callback ref."
-          }
         }
       ],
       "variants": {
@@ -40390,12 +38976,12 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["rail", "details-sheet"],
+          "values": ["default"],
           "evidence": "packages/ui/registry/ui/record-layout.tsx + packages/ui/registry/ui/record-layout.test.tsx"
         },
         "accessibility": {
           "status": "covered",
-          "values": ["labeled", "browser-accessibility-test"],
+          "values": ["browser-accessibility-test"],
           "evidence": "packages/ui/registry/ui/record-layout.test.tsx"
         },
         "visual": {
@@ -40405,9 +38991,9 @@
         }
       },
       "responsive": {
-        "status": "modeled",
-        "risks": ["responsive-or-container-layout"],
-        "rationale": "The rail shows from lg up; below it the Details sheet takes its place."
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "One column at every width; the details open in the shell panel."
       },
       "motion": {
         "status": "not-applicable",
@@ -40419,15 +39005,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/record-layout",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/sheet",
-        "@vegastack/skeleton"
-      ],
+      "registryDependencies": ["@vegastack/skeleton"],
       "npmDependencies": [
         "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "testFiles": ["packages/ui/registry/ui/record-layout.test.tsx"],
       "coverage": {
@@ -40445,10 +39026,6 @@
             {
               "name": "data-slot",
               "values": ["record-layout"]
-            },
-            {
-              "name": "data-stack",
-              "values": [""]
             }
           ],
           "cssVariables": []
@@ -40458,15 +39035,6 @@
             {
               "name": "data-slot",
               "values": ["record-layout-main"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "RecordLayoutRail": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["record-layout-rail"]
             }
           ],
           "cssVariables": []
@@ -40528,7 +39096,6 @@
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": [
-        "packages/ui/registry/ui/document-layout-aside.tsx",
         "packages/ui/registry/ui/document-layout-meta.tsx",
         "packages/ui/registry/ui/document-layout-sections.tsx",
         "packages/ui/registry/ui/document-layout-tools.tsx",
@@ -41327,34 +39894,6 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
-        },
-        {
-          "name": "DocumentLayoutAside",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "aside",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-aside.tsx."
-          }
-        },
-        {
-          "name": "DocumentLayoutAsideProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DocumentLayoutAsideTab",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
         }
       ],
       "variants": {
@@ -41377,10 +39916,7 @@
             "tier-xl",
             "tier-2xl",
             "wide",
-            "loading",
-            "aside-discussion",
-            "aside-outline",
-            "aside-sheet"
+            "loading"
           ],
           "evidence": "packages/ui/registry/ui/document-layout.tsx + packages/ui/registry/ui/document-layout.test.tsx + packages/ui/test/document-geometry.browser.test.tsx"
         },
@@ -41415,9 +39951,7 @@
         "@vegastack/button",
         "@vegastack/input-group",
         "@vegastack/item",
-        "@vegastack/sheet",
         "@vegastack/skeleton",
-        "@vegastack/tabs",
         "@vegastack/use-overflow"
       ],
       "npmDependencies": [
@@ -41437,31 +39971,6 @@
       },
       "previewModule": "document-layout",
       "dataAttributes": {
-        "DocumentLayoutAside": {
-          "attributes": [
-            {
-              "name": "data-kind",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "document-layout-aside",
-                "document-layout-aside-body",
-                "document-layout-aside-close",
-                "document-layout-aside-count",
-                "document-layout-aside-header",
-                "document-layout-aside-panel",
-                "document-layout-aside-panel-frame",
-                "document-layout-aside-sheet",
-                "document-layout-aside-tab-count",
-                "document-layout-aside-tablist",
-                "document-layout-aside-tabs"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
         "DocumentLayoutMeta": {
           "attributes": [
             {
@@ -41861,10 +40370,6 @@
         },
         "DocumentLayout": {
           "attributes": [
-            {
-              "name": "data-aside",
-              "values": []
-            },
             {
               "name": "data-margin",
               "values": [""]
@@ -47468,161 +45973,6 @@
       }
     },
     {
-      "name": "record-peek",
-      "registryType": "registry:ui",
-      "title": "Record Peek",
-      "summary": "A record opened beside its list: non-modal, resizable, ↑/↓ J/K walk, ⌘↵ full page.",
-      "status": "preview",
-      "since": "0.25.88",
-      "family": "overlay",
-      "wave": "Overlays",
-      "sourceFiles": ["packages/ui/registry/ui/record-peek.tsx"],
-      "publicSymbols": [
-        {
-          "name": "RecordPeek",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/record-peek.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-peek.tsx."
-          }
-        },
-        {
-          "name": "RecordPeekBody",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/record-peek.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-peek.tsx."
-          }
-        },
-        {
-          "name": "RecordPeekBodyProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/record-peek.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RecordPeekPosition",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/record-peek.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RecordPeekProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/record-peek.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No local variant scale."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["closed", "open", "first", "last", "resizing", "phone"],
-          "evidence": "Observed from the component's prop branches."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["labeled"],
-          "evidence": "Observed from semantic elements, ARIA, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "with-icon"],
-          "evidence": "Observed from token classes and data attributes."
-        }
-      },
-      "responsive": {
-        "status": "observed",
-        "risks": [],
-        "rationale": "Full-screen below the tablet tier (40rem); resizable between minWidth and maxShare of the window above it."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/record-peek",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/direction",
-        "@vegastack/drawer",
-        "@vegastack/kbd",
-        "@vegastack/link-provider",
-        "@vegastack/tooltip",
-        "@vegastack/use-platform"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.18.0",
-        "@vegastack/design@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/record-peek.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "record-peek",
-      "dataAttributes": {
-        "RecordPeek": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "record-peek",
-                "record-peek-actions",
-                "record-peek-close",
-                "record-peek-header",
-                "record-peek-next",
-                "record-peek-position",
-                "record-peek-previous",
-                "record-peek-resize"
-              ]
-            }
-          ],
-          "cssVariables": ["--record-peek-max", "--record-peek-width"]
-        },
-        "RecordPeekBody": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["record-peek-body"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "record-header",
       "registryType": "registry:ui",
       "title": "Record Header",
@@ -48740,8 +47090,7 @@
       "docsSlug": "/docs/components/help-menu",
       "registryDependencies": [
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-dot",
-        "@vegastack/sidebar"
+        "@vegastack/notification-dot"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.18.0",
@@ -48770,7 +47119,6 @@
               "values": [
                 "help-menu",
                 "help-menu-content",
-                "help-menu-dot",
                 "help-menu-item",
                 "help-menu-trigger",
                 "help-menu-version"
@@ -50122,134 +48470,6 @@
             {
               "name": "data-state",
               "values": ["closed", "open"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "sidebar-menu-flyout",
-      "registryType": "registry:ui",
-      "title": "Sidebar Menu Flyout",
-      "summary": "A sidebar row whose entries open in a menu beside it on hover or press — nested lists such as Spaces in the collapsed icon rail, with the row's count kept in sight.",
-      "status": "stable",
-      "since": "0.25.90",
-      "family": "navigation",
-      "wave": "Navigation/layout",
-      "sourceFiles": ["packages/ui/registry/ui/sidebar-menu-flyout.tsx"],
-      "publicSymbols": [
-        {
-          "name": "SidebarMenuFlyout",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar-menu-flyout.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "li",
-            "rationale": "Source forwards the ref to this JSX/Base UI render target."
-          }
-        },
-        {
-          "name": "SidebarMenuFlyoutProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/sidebar-menu-flyout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No variant dimension; the row and the menu carry their own."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "The sidebar row's size; the menu is DropdownMenu's."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "default",
-            "open",
-            "hover-open",
-            "keyboard-open",
-            "rail-only",
-            "badge",
-            "phone-drawer"
-          ],
-          "evidence": "packages/ui/registry/ui/sidebar-menu-flyout.tsx + packages/ui/registry/ui/sidebar-menu-flyout.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "menu-semantics",
-            "labeled",
-            "focus-return",
-            "browser-accessibility-test"
-          ],
-          "evidence": "packages/ui/registry/ui/sidebar-menu-flyout.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "open", "active", "collapsed"],
-          "evidence": "packages/ui/registry/ui/sidebar-menu-flyout.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Beside the row in the rail, under it in the phone drawer; the menu is a positioned popup clamped to the viewport."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion; the composed menu owns its enter and exit."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/sidebar-menu-flyout",
-      "registryDependencies": [
-        "@vegastack/dropdown-menu",
-        "@vegastack/sidebar"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.18.0",
-        "@vegastack/design@^0.18.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/sidebar-menu-flyout.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "sidebar-menu-flyout",
-      "dataAttributes": {
-        "SidebarMenuFlyout": {
-          "attributes": [
-            {
-              "name": "data-rail-only",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "sidebar-menu-flyout",
-                "sidebar-menu-flyout-content",
-                "sidebar-menu-flyout-label",
-                "sidebar-menu-flyout-trigger"
-              ]
             }
           ],
           "cssVariables": []
@@ -57221,88 +55441,6 @@
       }
     },
     {
-      "name": "use-record-peek-row",
-      "registryType": "registry:hook",
-      "title": "useRecordPeekRow",
-      "summary": "Marks and scrolls the row a RecordPeek has open.",
-      "family": "hook",
-      "wave": "Hooks",
-      "sourceFiles": ["packages/ui/registry/ui/use-record-peek-row.ts"],
-      "publicSymbols": [
-        {
-          "name": "RecordPeekRowProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-record-peek-row.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "useRecordPeekRow",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/use-record-peek-row.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["active", "inactive"],
-          "evidence": "Marks the open row with data-peek-active and scrolls it into view (block: nearest) when it becomes the open one."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Sets a data attribute only; the list owns its row semantics."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/guides/components",
-      "registryDependencies": [],
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/ui/use-record-peek-row.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
       "name": "use-stick-to-bottom",
       "registryType": "registry:hook",
       "title": "useStickToBottom",
@@ -57415,113 +55553,6 @@
   ],
   "blocks": [
     {
-      "name": "app-shell-01",
-      "registryType": "registry:block",
-      "title": "App Shell 01",
-      "summary": "The application shell reference — AppShell's landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and a page of linked stat tiles.",
-      "family": "starter-block",
-      "wave": "Block",
-      "sourceFiles": [
-        "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx",
-        "packages/ui/registry/blocks/app-shell-01/page.tsx"
-      ],
-      "publicSymbols": [
-        {
-          "name": "AppSidebar",
-          "kind": "component",
-          "source": "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A block part is a composition, not an API: AppSidebar forwards no ref of its own, and its internals are not part of any published surface."
-          }
-        },
-        {
-          "name": "Page",
-          "kind": "component",
-          "source": "packages/ui/registry/blocks/app-shell-01/page.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A block part is a composition, not an API: Page forwards no ref of its own, and its internals are not part of any published surface."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A block is a copy-once composition with no prop surface of its own; every variant it shows belongs to a component it composes."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Sizing is the page layout's, and the composed components own their own scales."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "search-open"],
-          "evidence": "Observed from the block's own branches and the state its parts carry."
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["semantic-html", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx + packages/ui/registry/blocks/app-shell-01/app-shell-01.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "focus"],
-          "evidence": "Observed from the token classes the composition carries."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["responsive-or-container-layout", "mobile-or-touch-mode"],
-        "rationale": "A block is a whole page: it is laid out across breakpoints and captured at 1440x900 and 390x844 in the batch's review artifact."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": ["the composed components' own transitions"],
-        "reducedMotion": {
-          "status": "covered",
-          "rationale": "The global reduced-motion reset in base.css neutralises every transition the composition inherits (MOT-5); the block adds none of its own."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/blocks/app-shell-01",
-      "registryDependencies": [
-        "@vegastack/app-shell",
-        "@vegastack/breadcrumb",
-        "@vegastack/button",
-        "@vegastack/card",
-        "@vegastack/collapsible",
-        "@vegastack/command",
-        "@vegastack/dropdown-menu",
-        "@vegastack/item",
-        "@vegastack/kbd",
-        "@vegastack/page-header",
-        "@vegastack/person-avatar",
-        "@vegastack/provider",
-        "@vegastack/sidebar",
-        "@vegastack/stat",
-        "@vegastack/use-platform"
-      ],
-      "npmDependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "testFiles": [
-        "packages/ui/registry/blocks/app-shell-01/app-shell-01.test.tsx"
-      ],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "app-shell-01"
-    },
-    {
       "name": "shell-01",
       "registryType": "registry:block",
       "title": "Shell 01",
@@ -57580,7 +55611,7 @@
         "accessibility": {
           "status": "covered",
           "values": ["semantic-html", "browser-accessibility-test"],
-          "evidence": "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx + packages/ui/registry/blocks/app-shell-01/app-shell-01.test.tsx"
+          "evidence": "packages/ui/registry/blocks/shell-01/page.tsx + packages/ui/registry/blocks/shell-01/shell-01.test.tsx"
         },
         "visual": {
           "status": "observed",
@@ -57698,14 +55729,14 @@
       "engines": [],
       "docsSlug": "/docs/blocks/board-01",
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/board-card",
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/data-table-parts",
         "@vegastack/filter-row",
         "@vegastack/list-toolbar",
-        "@vegastack/page-header"
+        "@vegastack/page-header",
+        "@vegastack/shell"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -57796,7 +55827,6 @@
       "engines": [],
       "docsSlug": "/docs/blocks/issue-detail-01",
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/comments",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
@@ -57808,6 +55838,7 @@
         "@vegastack/record-layout",
         "@vegastack/relative-time",
         "@vegastack/separator",
+        "@vegastack/shell",
         "@vegastack/status-icon",
         "@vegastack/text-edit"
       ],
@@ -57902,7 +55933,6 @@
       "engines": [],
       "docsSlug": "/docs/blocks/page-editor-01",
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/avatar",
         "@vegastack/breadcrumb",
         "@vegastack/button",
@@ -57912,6 +55942,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/person-avatar",
         "@vegastack/sheet",
+        "@vegastack/shell",
         "@vegastack/table-of-contents",
         "@vegastack/text-edit",
         "@vegastack/use-media-query",
@@ -58073,13 +56104,13 @@
       "engines": [],
       "docsSlug": "/docs/blocks/command-search-01",
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/button",
         "@vegastack/command",
         "@vegastack/command-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
+        "@vegastack/shell",
         "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
@@ -58229,7 +56260,6 @@
       "engines": [],
       "docsSlug": "/docs/blocks/list-page-01",
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/data-list",
@@ -58238,6 +56268,7 @@
         "@vegastack/list-toolbar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
+        "@vegastack/shell",
         "@vegastack/tabs"
       ],
       "npmDependencies": [
@@ -58842,12 +56873,12 @@
       "engines": [],
       "docsSlug": "/docs/blocks/review-split-01",
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/audio-player",
         "@vegastack/checkbox",
         "@vegastack/data-table-parts",
         "@vegastack/field",
         "@vegastack/page-header",
+        "@vegastack/shell",
         "@vegastack/skeleton",
         "@vegastack/tabs",
         "@vegastack/transcript"
@@ -58932,7 +56963,6 @@
       "docsSlug": "/docs/blocks/settings-01",
       "registryDependencies": [
         "@vegastack/alert-dialog",
-        "@vegastack/app-shell",
         "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/field",
@@ -58940,6 +56970,7 @@
         "@vegastack/native-select",
         "@vegastack/page-header",
         "@vegastack/settings-row",
+        "@vegastack/shell",
         "@vegastack/switch",
         "@vegastack/textarea"
       ],
@@ -59019,11 +57050,11 @@
       "engines": [],
       "docsSlug": "/docs/blocks/settings-02",
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/badge",
         "@vegastack/item",
         "@vegastack/page-header",
-        "@vegastack/settings-row"
+        "@vegastack/settings-row",
+        "@vegastack/shell"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -61555,7 +59586,7 @@
       "name": "page-layout",
       "registryType": "registry:lib",
       "title": "Page Layout",
-      "summary": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
+      "summary": "The page-width contract — the prose/default/full vocabulary ShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/page-layout.ts"],
@@ -61624,15 +59655,6 @@
           }
         },
         {
-          "name": "pageGutterOf",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "PageWidth",
           "kind": "type",
           "source": "packages/ui/registry/lib/page-layout.ts",
@@ -61648,15 +59670,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RAIL_COLLAPSED_QUERY",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
           }
         }
       ],
@@ -61690,12 +59703,12 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — AppShellPage renders the page container."
+          "evidence": "No DOM — ShellPage renders the page container."
         },
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — the widths are AppShellPage's classes."
+          "evidence": "No DOM — the widths are ShellPage's classes."
         }
       },
       "responsive": {
@@ -61880,12 +59893,12 @@
         "accessibility": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — AppShellPage renders the page container."
+          "evidence": "No DOM — ShellPage renders the page container."
         },
         "visual": {
           "status": "not-applicable",
           "values": ["not-applicable"],
-          "evidence": "No DOM — the widths are AppShellPage's classes."
+          "evidence": "No DOM — the widths are ShellPage's classes."
         }
       },
       "responsive": {

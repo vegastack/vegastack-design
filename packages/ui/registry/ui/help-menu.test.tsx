@@ -1,48 +1,18 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { beforeEach, expect, test, vi } from "vitest";
+import { expect, test, vi } from "vitest";
+import { CircleHelp } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { HelpMenu } from "./help-menu";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarMenu,
-  SidebarProvider,
-} from "./sidebar";
+import { ShellRailItem } from "./shell";
 
-/** Report a desktop viewport so the rail mounts in the page, not as a closed Sheet. */
-beforeEach(() => {
-  vi.spyOn(window, "matchMedia").mockImplementation((query: string) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    addListener: () => {},
-    removeListener: () => {},
-    dispatchEvent: () => false,
-  }));
-});
-
-function Shell({
-  open = true,
-  children,
-}: {
-  open?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <SidebarProvider defaultOpen={open}>
-      <Sidebar collapsible="icon">
-        <SidebarContent />
-        <SidebarFooter>
-          <SidebarMenu>{children}</SidebarMenu>
-        </SidebarFooter>
-      </Sidebar>
-    </SidebarProvider>
-  );
+function Rail({ children }: { children: React.ReactNode }) {
+  return <nav aria-label="Modules">{children}</nav>;
 }
+
+const helpTrigger = (dot?: string) => (
+  <ShellRailItem icon={<CircleHelp />} label="Help" dot={dot} />
+);
 
 const LINKS = {
   whatsNew: { href: "/docs/whats-new" },
@@ -61,16 +31,15 @@ async function openMenu() {
     .not.toBeNull();
 }
 
-test("renders a sidebar item whose trigger is named Help and opens a menu", async () => {
+test("the rail trigger is named Help and opens the menu in order", async () => {
   const screen = await render(
-    <Shell>
-      <HelpMenu links={LINKS} version="v1.8.21" />
-    </Shell>,
+    <Rail>
+      <HelpMenu trigger={helpTrigger()} links={LINKS} version="v1.8.21" />
+    </Rail>,
   );
   await expect
     .element(screen.getByRole("button", { name: "Help" }))
     .toBeInTheDocument();
-  expect(document.querySelector('[data-slot="help-menu"]')?.tagName).toBe("LI");
   await expectNoA11yViolations(screen.container);
   await openMenu();
   const items = Array.from(
@@ -99,9 +68,13 @@ test("link entries render through linkRender with their href; external opens a n
     return <a data-router="" {...props} />;
   }
   await render(
-    <Shell>
-      <HelpMenu links={LINKS} linkRender={<RouterLink />} />
-    </Shell>,
+    <Rail>
+      <HelpMenu
+        trigger={helpTrigger()}
+        links={LINKS}
+        linkRender={<RouterLink />}
+      />
+    </Rail>,
   );
   await openMenu();
   const docs = document.querySelector<HTMLAnchorElement>(
@@ -124,9 +97,9 @@ test("link entries render through linkRender with their href; external opens a n
 test("an action entry runs onSelect", async () => {
   const onSelect = vi.fn();
   await render(
-    <Shell>
-      <HelpMenu links={{ shortcuts: { onSelect } }} />
-    </Shell>,
+    <Rail>
+      <HelpMenu trigger={helpTrigger()} links={{ shortcuts: { onSelect } }} />
+    </Rail>,
   );
   await openMenu();
   document.querySelector<HTMLElement>('[data-entry="shortcuts"]')!.click();
@@ -135,18 +108,17 @@ test("an action entry runs onSelect", async () => {
 
 test("omitted entries are not shown; labels and the shortcut hint are overridable", async () => {
   await render(
-    <Shell>
+    <Rail>
       <HelpMenu
-        label="Aide"
+        trigger={helpTrigger()}
         shortcutsHint="⇧/"
         links={{
           docs: { href: "/docs", label: "Documentation" },
           shortcuts: { onSelect: () => {}, label: "Raccourcis" },
         }}
       />
-    </Shell>,
+    </Rail>,
   );
-  expect(trigger().textContent).toBe("Aide");
   await openMenu();
   const items = Array.from(
     document.querySelectorAll<HTMLElement>('[data-slot="help-menu-item"]'),
@@ -155,16 +127,16 @@ test("omitted entries are not shown; labels and the shortcut hint are overridabl
   expect(document.querySelector('[data-slot="help-menu-version"]')).toBeNull();
 });
 
-test("whatsNewUnread marks the trigger and What's new with a dot and says so", async () => {
-  const screen = await render(
-    <Shell>
-      <HelpMenu links={LINKS} whatsNewUnread />
-    </Shell>,
+test("whatsNewUnread marks What's new with a dot and says so", async () => {
+  await render(
+    <Rail>
+      <HelpMenu
+        trigger={helpTrigger("new updates")}
+        links={LINKS}
+        whatsNewUnread
+      />
+    </Rail>,
   );
-  await expect
-    .element(screen.getByRole("button", { name: "Help (new updates)" }))
-    .toBeInTheDocument();
-  expect(trigger().querySelector('[data-slot="help-menu-dot"]')).not.toBeNull();
   await openMenu();
   const whatsNew = document.querySelector<HTMLElement>(
     '[data-entry="whatsNew"]',
@@ -173,56 +145,5 @@ test("whatsNewUnread marks the trigger and What's new with a dot and says so", a
   expect(
     whatsNew.querySelector('[data-slot="notification-dot"]'),
   ).not.toBeNull();
-  await expectNoA11yViolations(document.body);
-});
-
-test("no dot without a What's new entry, even when unread", async () => {
-  await render(
-    <Shell>
-      <HelpMenu links={{ docs: { href: "/docs" } }} whatsNewUnread />
-    </Shell>,
-  );
-  expect(trigger().querySelector('[data-slot="help-menu-dot"]')).toBeNull();
-});
-
-test("in the collapsed rail it stays a named icon trigger; the dot moves onto the icon", async () => {
-  const screen = await render(
-    <Shell open={false}>
-      <HelpMenu links={LINKS} whatsNewUnread />
-    </Shell>,
-  );
-  await expect
-    .element(screen.getByRole("button", { name: "Help (new updates)" }))
-    .toBeInTheDocument();
-  expect(
-    trigger()
-      .querySelector('[data-slot="help-menu-dot"]')
-      ?.className.includes("group-data-[collapsible=icon]:absolute"),
-  ).toBe(true);
-  await expectNoA11yViolations(screen.container);
-});
-
-test("a trigger of your own replaces the sidebar row and opens the same menu", async () => {
-  const { ShellRailItem } = await import("./shell");
-  const { CircleHelp } = await import("lucide-react");
-  const screen = await render(
-    <nav aria-label="Modules">
-      <HelpMenu
-        links={{ whatsNew: { href: "#new" }, docs: { href: "#docs" } }}
-        whatsNewUnread
-        trigger={
-          <ShellRailItem icon={<CircleHelp />} label="Help" dot="new updates" />
-        }
-      />
-    </nav>,
-  );
-  const trigger = screen.getByRole("button", { name: "Help (new updates)" });
-  await expect.element(trigger).toBeInTheDocument();
-  expect(document.querySelector('[data-slot="sidebar-menu-item"]')).toBeNull();
-  expect(document.querySelector('[data-slot="shell-rail-dot"]')).not.toBeNull();
-  await trigger.click();
-  await expect
-    .element(screen.getByRole("menuitem", { name: /What's new/ }))
-    .toBeInTheDocument();
   await expectNoA11yViolations(document.body);
 });

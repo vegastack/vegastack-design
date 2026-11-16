@@ -1,11 +1,11 @@
 ---
 title: Record Layout
-description: A record page's main column beside a sticky right rail of cards, with a Details sheet in its place on small screens.
+description: A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.
 audience: public
 registry: record-layout
 status: stable
 since: 0.23.15
-a11y: complementary landmark, dialog on small screens
+a11y: no landmark of its own
 preview: recordLayout
 ---
 
@@ -16,43 +16,20 @@ preview: recordLayout
 ## Usage
 
 ```tsx
-import {
-  RecordDetailsSheet,
-  RecordLayout,
-  RecordLayoutMain,
-  RecordLayoutRail,
-} from "@/components/ui/record-layout";
+import { RecordLayout, RecordLayoutMain } from "@/components/ui/record-layout";
 
 <RecordLayout>
   <RecordLayoutMain>
-    <PageHeader
-      title="Weekly sync"
-      actions={<RecordDetailsSheet>{facts}</RecordDetailsSheet>}
-    />
+    <PageHeader title="Weekly sync" />
     <Tabs>…</Tabs>
   </RecordLayoutMain>
-  <RecordLayoutRail aria-label="Details">
-    <Card size="sm">…</Card>
-  </RecordLayoutRail>
 </RecordLayout>;
 ```
 
-`RecordLayout` is a record page's frame: the main column (title, status line, tabs) and, from `lg`
-up, a 320px right rail of cards — a [`PropertyList`](/docs/components/property-list) of the
-record's facts first, related work below. The rail sticks `--record-rail-gap` (default
-`--page-gutter`, the page's own gutter — 32px outside an `AppShellPage`) below the top of the scroll container — the gap it has at
-rest, so it never slides up against the header — and scrolls on its own when it is taller than the
-viewport; set `--record-rail-offset` (default `--spacing(14)`, the `AppShellHeader`) to the height
-of the chrome above the scroll container. Below `lg` the rail is hidden, and `RecordDetailsSheet` — a ghost ⓘ icon button beside the
-title — opens the same facts in a Sheet from the right, full width on a phone. Anything else from
-the rail moves into the main column, usually as a tab.
-
-The switch is CSS, so the layout is server-safe. When a rail card holds state that must exist only
-once (a selection, pending writes), mount it in one place with `useRecordLayoutWide()`: its `rail`
-and `sheet` flags are both `true` until the layout is measured — the server render and the first
-paint then already have the final layout, rail included, because the CSS shows only the right one —
-and exactly one is `true` afterwards. Never gate the rail on `wide` alone: it is `false` until
-measured, so the rail would pop in after hydration.
+`RecordLayout` is a record page's frame: one main column with the title, the status line and the
+tabs, at every width. A record's facts and related work are not a rail inside the page: they open
+in the shell's panel beside it, as a Details tab ([`ShellPanel`](/docs/components/shell-panel)), so the page
+never splits into two columns that fight for room with the panel.
 
 <ComponentPreview
   name="recordLayout"
@@ -65,54 +42,9 @@ measured, so the rail would pop in after hydration.
 
 ## Examples
 
-### Actions in a tab on small screens
-
-A rail card that holds state — suggestions being selected, writes waiting on Undo — mounts once:
-in the rail from `lg` up, else as the last tab of the main column.
-
-```tsx
-const { ref, rail, sheet } = useRecordLayoutWide();
-const actions = <MeetingActions … />;
-
-<RecordLayout ref={ref}>
-  <RecordLayoutMain>
-    <Tabs>
-      <TabsList>
-        <TabsTrigger value="summary">Summary</TabsTrigger>
-        {/* Hidden by CSS while both are mounted (before the first measure). */}
-        {sheet && (
-          <TabsTrigger value="actions" className="@min-[64rem]/record-layout:hidden">
-            Actions
-          </TabsTrigger>
-        )}
-      </TabsList>
-      {/* Measured narrow only: until then the card is in the (CSS-hidden) rail, never twice. */}
-      {!rail && <TabsContent value="actions">{actions}</TabsContent>}
-    </Tabs>
-  </RecordLayoutMain>
-  {rail && <RecordLayoutRail aria-label="Details and actions">{actions}</RecordLayoutRail>}
-</RecordLayout>;
-```
-
-### Details under the preview
-
-With `stack`, the rail never hides: below a 64rem layout width it flows under the main column,
-full width, in ordinary flow — not sticky and with no scroller of its own — so the page keeps one
-scroller and needs no `RecordDetailsSheet`. From 64rem it is the usual sticky rail beside the main
-column. A file page uses it to keep its details in view under the preview.
-
-```tsx
-<RecordLayout stack>
-  <RecordLayoutMain>{preview}</RecordLayoutMain>
-  <RecordLayoutRail aria-label="Details">
-    <PropertyList>…</PropertyList>
-  </RecordLayoutRail>
-</RecordLayout>
-```
-
 ### Tabs, counts and loading
 
-`RecordTabsRow` puts the `TabsList` and the tab's icon actions (`RecordTabsActions`: Copy, Edit) on one row at the main column's width. The rail follows the layout's own width (a container query at 1024px), not the viewport; `useRecordLayoutWide()` gives the same answer to script (`wide`, and the `rail`/`sheet` mount flags), for mounting rail content once. `RecordLayoutPanels` holds the main column's `TabsContent` panels under the tab row (spread
+`RecordTabsRow` puts the `TabsList` and the tab's icon actions (`RecordTabsActions`: Copy, Edit) on one row at the main column's width. `RecordLayoutPanels` holds the main column's `TabsContent` panels under the tab row (spread
 `useTabsSwipe()` onto it), `RecordTabCount` puts a muted count in a `TabsTrigger`, and
 `RecordLayoutMainSkeleton` stands in for the main column while the record loads.
 
@@ -140,30 +72,18 @@ column. A file page uses it to keep its details in view under the preview.
   name="RecordLayoutProps"
 />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/record-layout.tsx"
-  name="RecordDetailsSheetProps"
-/>
-
-`RecordLayout` takes `stack` and its element's native props; `RecordLayoutMain` and
-`RecordLayoutRail` take their element's native props.
+`RecordLayout` and `RecordLayoutMain` take their element's native props.
 
 ## Accessibility
 
-- The rail is an `aside` (a complementary landmark): name it with `aria-label`.
-- The ⓘ trigger is named by `title` ("Details"); the sheet is a modal dialog titled the same, and
-  focus returns to the trigger when it closes.
-
-| Key                                 | Action                 |
-| ----------------------------------- | ---------------------- |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the Details sheet |
-| <kbd>Esc</kbd>                      | Close the sheet        |
+- The layout adds no landmark of its own: the page's `main` region holds it, and the record's title
+  is its heading.
 
 <StatesTested name="record-layout" />
 
 ## Do / Don't
 
 <DoDont
-  do="Put the record's facts first in the rail and the same facts in the Details sheet."
-  dont="Use the rail for navigation or page actions — those belong in the sidebar and the top bar."
+  do="Open a record's facts in the shell panel's Details tab."
+  dont="Put a second column of cards inside the page — it competes with the panel for room."
 />

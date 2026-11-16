@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "71a033556633044dfc60086203d59029f03c31ca965a37dd9bfa8e224535eef3",
+  "contractSha256": "c0671d86c7bb0d969e3cbf4e27ef4ffdadfd82543dbce6b2e0469aeb38484e74",
   "inventory": {
-    "expected": 820,
-    "actual": 820,
-    "unique": 820
+    "expected": 814,
+    "actual": 814,
+    "unique": 814
   },
   "classes": {
-    "components": 228,
+    "components": 224,
     "animatedIcons": 467,
-    "hooks": 17,
-    "blocks": 16,
+    "hooks": 16,
+    "blocks": 15,
     "chartBlocks": 68,
     "libs": 24
   },
@@ -92,11 +92,10 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 29,
-      "actual": 29,
+      "expected": 26,
+      "actual": 26,
       "members": [
         "accordion",
-        "app-shell",
         "aspect-ratio",
         "board",
         "breadcrumb",
@@ -119,16 +118,14 @@
         "settings-layout",
         "shell",
         "shell-panel",
-        "sidebar",
-        "sidebar-menu-flyout",
         "stepper",
         "table-of-contents",
         "tabs"
       ]
     },
     "Overlays": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 22,
+      "actual": 22,
       "members": [
         "action-bar",
         "alert-dialog",
@@ -146,7 +143,6 @@
         "permission-menu",
         "popover",
         "provider",
-        "record-peek",
         "responsive-dialog",
         "share-dialog",
         "sheet",
@@ -293,8 +289,8 @@
       ]
     },
     "Hooks": {
-      "expected": 17,
-      "actual": 17,
+      "expected": 16,
+      "actual": 16,
       "members": [
         "use-announcer",
         "use-async-search",
@@ -309,17 +305,15 @@
         "use-overflow",
         "use-overflow-fold",
         "use-platform",
-        "use-record-peek-row",
         "use-stick-to-bottom",
         "use-tabs-swipe",
         "use-view-transition"
       ]
     },
     "Block": {
-      "expected": 16,
-      "actual": 84,
+      "expected": 15,
+      "actual": 83,
       "members": [
-        "app-shell-01",
         "board-01",
         "chart-area-axes",
         "chart-area-default",
@@ -879,7 +873,7 @@
       ]
     }
   },
-  "componentRoutes": 222,
-  "blockRoutes": 23,
+  "componentRoutes": 218,
+  "blockRoutes": 22,
   "modeledExemptions": 3
 }

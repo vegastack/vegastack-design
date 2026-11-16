@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.90.0 sha256-NzwOu9SUczsYi+DXM/t26Sigx/frRVEcd1PCG75O+ko=
+// @vegastack audio-player@0.90.0 sha256-bsqZs1onbA5K6LMZY3PPP856OjIsOVA6yDOONkqTu68=
 
 "use client";
 
@@ -335,8 +335,7 @@ export interface AudioPlayerProps extends Omit<
    * seek slider (its keyboard and pointer semantics are preserved beneath the
    * bars). `floating` sits at the bottom of its flex column (`mt-auto`) and
    * centres on the main column: set `--audio-player-inset-end` on an ancestor to
-   * the width an end rail takes (inside AppShell a RecordLayout rail sets 22rem
-   * for you). It is a one-line pill — transport, seek, speed, volume, close; `title` is not shown — centred in
+   * the width an end rail takes. It is a one-line pill — transport, seek, speed, volume, close; `title` is not shown — centred in
    * its container and sticky 16px above the bottom of its scroll column; below
    * the `sm` breakpoint it spans the full width on the bottom edge. A floating
    * player is a `region` named by `label`.
@@ -847,9 +846,7 @@ export function AudioPlayer({
         ],
         isFloating && [
           // Always at the bottom of its flex column (`mt-auto`), centred on the main
-          // column: `--audio-player-inset-end` narrows and shifts it clear of an end
-          // rail. Inside AppShell it is set for a RecordLayout rail automatically.
-          "@5xl/app-shell-content:[:has([data-slot=record-layout-rail])_&]:[--audio-player-inset-end:22rem]",
+          // column: `--audio-player-inset-end` narrows and shifts it clear of an end rail.
           "w-[calc(100%-2rem-var(--audio-player-inset-end,0px))] -translate-x-[calc(var(--audio-player-inset-end,0px)/2)] rtl:translate-x-[calc(var(--audio-player-inset-end,0px)/2)]",
           "sticky bottom-4 z-20 mx-auto mt-auto max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-control border border-border bg-popover p-1.5 text-popover-foreground shadow-md",
           // Phone: full width on the bottom edge, clear of the safe-area inset.

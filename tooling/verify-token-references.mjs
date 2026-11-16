@@ -103,39 +103,26 @@ const RUNTIME_VARIABLES = new Set([
   "--nested-drawers",
   // react-remove-scroll-bar, injected as a runtime <style> during scroll lock.
   "--removed-body-scroll-bar-size",
-  // `SidebarProvider` writes these three onto its wrapper element as an inline style, so every
-  // descendant — including a BLOCK's own sidebar parts, which is what surfaced this in Batch 8 —
-  // reads a variable that genuinely exists at runtime and can exist nowhere in the token contract
-  // (the widths are the provider's constants, not theme values).
-  "--sidebar-width",
-  "--sidebar-width-icon",
-  "--sidebar-width-mobile",
   // `DocumentLayoutDecisionBar` (Regent O-7, API-36) measures itself and writes its height (plus
   // an 8px gap) onto its `DocumentLayout` as an inline style, removing it on unmount; the layout's
   // phone floating buttons and the bar's own dock spacer read it with a 0px fallback. A measured
   // runtime value, not a theme value, so it can live nowhere in the token contract.
   "--document-layout-dock",
-  // `DocumentLayout` declares its sticky offset and the aside's height offset on its root
-  // (`[--document-layout-sticky-top:…]`, `[--document-layout-aside-offset:…]`); its
-  // `DocumentLayoutAside` part, in its own client file, reads both inside that root. Layout
-  // geometry the layout owns, not theme values.
+  // `DocumentLayout` declares its sticky offset on its root (`[--document-layout-sticky-top:…]`);
+  // its contents rail reads it inside that root. Layout geometry the layout owns, not a theme value.
   "--document-layout-sticky-top",
-  "--document-layout-aside-offset",
   // Its decision bar's sticky offset likewise (`[--document-layout-bar-top:0px]` on the root; a
   // host whose scroll container runs under a fixed top bar sets that bar's height on the layout),
   // read by `DocumentLayoutDecisionBar` in `document-layout-tools`.
   "--document-layout-bar-top",
-  // The page gutter: `AppShell` declares it on its root (and `AppShellHeader`/`AppShellPage` on
-  // themselves) from `pageGutterClasses`, and `RecordLayoutRail` — a descendant of the page —
-  // reads it with its own fallback to stick one gutter below the header. Viewport-responsive, so
-  // it is a shell variable rather than a theme token.
+  // The page gutter: `ShellPage` declares it on itself, by the content region's width, and the
+  // parts inside the page read it. Container-responsive, so it is a shell variable rather than a
+  // theme token.
   "--page-gutter",
-  // The bottom dock inset: `GlobalAudioPlayer` writes it onto the `AppShell` root (inline style,
+  // The bottom dock inset: `GlobalAudioPlayer` writes it onto the `Shell` root (inline style,
   // the measured pill height plus 8px) while it is open, and `ActionBar` and a selecting
   // `DataList` read it with a `0px` fallback to stack above the player.
   "--dock-inset-bottom",
-  // `AppShellAside` sets it on the shell while open; `UploadPanel` reads it to stay clear.
-  "--app-shell-aside-inset",
   // The upload panel inset: `UploadPanel` writes it onto the document root (inline style, the
   // room the panel takes above the toast stack's own 16px) while it is on screen, and the Toast
   // viewport's bottom positions read it with a `0px` fallback to rise above the panel.

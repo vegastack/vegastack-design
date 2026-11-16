@@ -69,7 +69,7 @@ Settings is a place people browse sideways, so it has one frame: the section nav
 column that sticks below the page's top edge, and every page in ONE column of up to 960px beside
 it. A page says what it is with `SettingsLayoutContent kind`: `form` caps it at 720px, `list`
 fills the column — and both start at the same x, so moving between Profile and Members never moves
-the left edge. Put it inside an `AppShellPage` at its default width (1280px), which holds both
+the left edge. Put it inside a `ShellPage` at its default width (1280px), which holds both
 panes; the layout owns its own geometry inside whatever width it gets.
 
 ## Scope

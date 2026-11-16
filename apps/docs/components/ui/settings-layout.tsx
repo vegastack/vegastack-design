@@ -1,4 +1,4 @@
-// @vegastack settings-layout@0.90.0 sha256-Kyh5n+Nc1rLrRZruspBIFAjAuJE4H7f+ZCP1cz213VU=
+// @vegastack settings-layout@0.90.0 sha256-3DGr6+3Qwrnh5e/XlIt9xaiyCQpDXij3M+pBtC43yPY=
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";
@@ -261,7 +261,7 @@ export interface SettingsLayoutProps extends React.ComponentProps<"div"> {
  * page's top edge while the page scrolls, and the page (`children`, usually one
  * `SettingsLayoutContent`) in one column of up to 960px beside it. Below 42rem of its own width
  * it shows one pane at a time — see `view`. It owns its geometry inside whatever page width the
- * app gives it (an `AppShellPage` at the default 1280px measure fits both panes).
+ * app gives it (a `ShellPage` at the default 1280px measure fits both panes).
  *
  * Server-safe — no hooks, no `'use client'`.
  *

@@ -112,39 +112,6 @@
       }
     },
     {
-      "name": "app-shell",
-      "type": "registry:ui",
-      "title": "App Shell",
-      "description": "The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
-      "categories": ["layout"],
-      "dependencies": [
-        "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/dropdown-menu",
-        "@vegastack/page-layout",
-        "@vegastack/sidebar",
-        "@vegastack/skeleton",
-        "@vegastack/use-media-query"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/app-shell.tsx",
-          "type": "registry:ui",
-          "target": "@ui/app-shell.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
-        "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
-        "version": "0.97.0"
-      }
-    },
-    {
       "name": "shell-layout",
       "type": "registry:lib",
       "title": "Shell Layout",
@@ -226,11 +193,9 @@
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/input-group",
-        "@vegastack/skeleton",
         "@vegastack/item",
-        "@vegastack/use-overflow",
-        "@vegastack/sheet",
-        "@vegastack/tabs"
+        "@vegastack/skeleton",
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -257,16 +222,11 @@
           "path": "packages/ui/registry/ui/document-layout-sections.tsx",
           "type": "registry:ui",
           "target": "@ui/document-layout-sections.tsx"
-        },
-        {
-          "path": "packages/ui/registry/ui/document-layout-aside.tsx",
-          "type": "registry:ui",
-          "target": "@ui/document-layout-aside.tsx"
         }
       ],
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
-        "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
+        "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"prose\"), or a list.",
         "version": "0.90.0"
       }
     },
@@ -274,18 +234,13 @@
       "name": "record-layout",
       "type": "registry:ui",
       "title": "Record Layout",
-      "description": "A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.",
+      "description": "A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.",
       "categories": ["layout"],
       "dependencies": [
         "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
+        "@vegastack/design-tokens@^0.18.0"
       ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/sheet",
-        "@vegastack/skeleton"
-      ],
+      "registryDependencies": ["@vegastack/skeleton"],
       "files": [
         {
           "path": "packages/ui/registry/ui/record-layout.tsx",
@@ -294,8 +249,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "A record's page (a meeting, a customer, a deal): the main column with a sticky rail of property and related-work cards on wide screens, and an ⓘ Details sheet on small ones.",
-        "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use AppShellPage alone.",
+        "whenToUse": "A record's page (a meeting, a customer, a deal): one main column with the title, status and tabs; the record's facts open in the shell panel's Details tab.",
+        "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use ShellPage alone.",
         "version": "0.90.0"
       }
     },
@@ -2484,7 +2439,7 @@
       "name": "page-layout",
       "type": "registry:lib",
       "title": "Page Layout",
-      "description": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
+      "description": "The page-width contract — the prose/default/full vocabulary ShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
       "categories": ["layout"],
       "dependencies": [],
       "registryDependencies": [],
@@ -2496,8 +2451,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's AppShellPage, its loading skeleton and a route test.",
-        "whenNotToUse": "A page outside AppShell (sign-in, a marketing page) — it owns its own layout.",
+        "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's ShellPage, its loading skeleton and a route test.",
+        "whenNotToUse": "A page outside the Shell (sign-in, a marketing page) — it owns its own layout.",
         "version": "0.97.0"
       }
     },
@@ -2565,39 +2520,6 @@
       "meta": {
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "record-peek",
-      "type": "registry:ui",
-      "title": "Record Peek",
-      "description": "A record opened beside its list — a non-modal, resizable side panel whose header walks the list (↑/↓, J/K, n of N), opens the full page (⌘↵) and closes with focus back on the row; full-screen below the tablet tier.",
-      "categories": ["overlay"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/direction",
-        "@vegastack/drawer",
-        "@vegastack/kbd",
-        "@vegastack/tooltip",
-        "@vegastack/use-platform",
-        "@vegastack/link-provider"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/record-peek.tsx",
-          "type": "registry:ui",
-          "target": "@ui/record-peek.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Opening any record from a list — a task, a table row, a meeting, a customer — beside the list, with keyboard walking and a way to the full page.",
-        "whenNotToUse": "A document or file that opens as its own page or viewer, or a form that needs the page to wait (Dialog, Sheet).",
         "version": "0.90.0"
       }
     },
@@ -14816,7 +14738,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "The top of every record page and every RecordPeek body: task, meeting, row, page, customer, project.",
+        "whenToUse": "The top of every record page and every panel tab of a record: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
         "version": "0.90.0"
       }
@@ -15135,7 +15057,7 @@
       ],
       "meta": {
         "whenToUse": "An app's Settings area — many settings pages browsed sideways, each starting at the same x with one width rule.",
-        "whenNotToUse": "One settings form on its own page (AppShellPage size=\"prose\"), or a record's tabs (Tabs).",
+        "whenNotToUse": "One settings form on its own page (ShellPage size=\"prose\"), or a record's tabs (Tabs).",
         "version": "0.90.0"
       }
     },
@@ -15197,43 +15119,6 @@
       "meta": {
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (Kbd in a Tooltip, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "sidebar",
-      "type": "registry:ui",
-      "title": "Sidebar",
-      "description": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.",
-      "categories": ["navigation"],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/input",
-        "@vegastack/page-layout",
-        "@vegastack/separator",
-        "@vegastack/sheet",
-        "@vegastack/skeleton",
-        "@vegastack/tooltip",
-        "@vegastack/use-mobile",
-        "@vegastack/use-platform"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/sidebar.tsx",
-          "type": "registry:ui",
-          "target": "@ui/sidebar.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
-        "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.90.0"
       }
     },
@@ -16318,7 +16203,7 @@
       ],
       "meta": {
         "whenToUse": "Loading a chat thread; returning a scrolled-up reader to the latest message.",
-        "whenNotToUse": "Page-level loading (AppShellProgress, Spinner).",
+        "whenNotToUse": "Page-level loading (Spinner).",
         "version": "0.90.0"
       }
     },
@@ -17015,27 +16900,6 @@
       }
     },
     {
-      "name": "use-record-peek-row",
-      "type": "registry:hook",
-      "title": "useRecordPeekRow",
-      "description": "The open-row contract between a list and RecordPeek — data-peek-active on the open row, scrolled into view as the peek walks.",
-      "categories": ["hook"],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/use-record-peek-row.ts",
-          "type": "registry:hook",
-          "target": "@ui/use-record-peek-row.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A hand-rolled list whose rows open in RecordPeek.",
-        "whenNotToUse": "DataList, DataGrid and Board, which take activeRowId and mark the row themselves.",
-        "version": "0.27.0"
-      }
-    },
-    {
       "name": "use-grid-selection",
       "type": "registry:hook",
       "title": "useGridSelection",
@@ -17191,51 +17055,6 @@
       }
     },
     {
-      "name": "app-shell-01",
-      "type": "registry:block",
-      "title": "App Shell 01",
-      "description": "The application shell reference — AppShell's landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and a page of linked stat tiles.",
-      "categories": ["dashboard", "layout"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/app-shell",
-        "@vegastack/breadcrumb",
-        "@vegastack/button",
-        "@vegastack/card",
-        "@vegastack/collapsible",
-        "@vegastack/command",
-        "@vegastack/dropdown-menu",
-        "@vegastack/item",
-        "@vegastack/kbd",
-        "@vegastack/page-header",
-        "@vegastack/person-avatar",
-        "@vegastack/provider",
-        "@vegastack/sidebar",
-        "@vegastack/stat",
-        "@vegastack/use-platform"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx",
-          "type": "registry:component",
-          "target": "app/app-shell-01/components/app-sidebar.tsx"
-        },
-        {
-          "path": "packages/ui/registry/blocks/app-shell-01/page.tsx",
-          "type": "registry:page",
-          "target": "app/app-shell-01/page.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Starting an application whose every route sits inside one shell and sidebar — copy it once, then hoist AppShell into a layout.",
-        "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
-        "version": "0.90.0"
-      }
-    },
-    {
       "name": "shell-01",
       "type": "registry:block",
       "title": "Shell 01",
@@ -17280,14 +17099,14 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/board-card",
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/data-table-parts",
-        "@vegastack/page-header",
         "@vegastack/filter-row",
-        "@vegastack/list-toolbar"
+        "@vegastack/list-toolbar",
+        "@vegastack/page-header",
+        "@vegastack/shell"
       ],
       "files": [
         {
@@ -17318,7 +17137,6 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/comments",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
@@ -17330,6 +17148,7 @@
         "@vegastack/record-layout",
         "@vegastack/relative-time",
         "@vegastack/separator",
+        "@vegastack/shell",
         "@vegastack/status-icon",
         "@vegastack/text-edit"
       ],
@@ -17362,7 +17181,6 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/avatar",
         "@vegastack/breadcrumb",
         "@vegastack/button",
@@ -17372,6 +17190,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/person-avatar",
         "@vegastack/sheet",
+        "@vegastack/shell",
         "@vegastack/table-of-contents",
         "@vegastack/text-edit",
         "@vegastack/use-media-query",
@@ -19208,17 +19027,17 @@
       "categories": ["settings", "forms"],
       "dependencies": ["@vegastack/design-tokens@^0.18.0"],
       "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/field",
         "@vegastack/input",
         "@vegastack/native-select",
-        "@vegastack/settings-row",
-        "@vegastack/switch",
-        "@vegastack/textarea",
-        "@vegastack/alert-dialog",
-        "@vegastack/app-shell",
         "@vegastack/page-header",
-        "@vegastack/auto-save-input"
+        "@vegastack/settings-row",
+        "@vegastack/shell",
+        "@vegastack/switch",
+        "@vegastack/textarea"
       ],
       "files": [
         {
@@ -19244,11 +19063,11 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/badge",
         "@vegastack/item",
         "@vegastack/page-header",
-        "@vegastack/settings-row"
+        "@vegastack/settings-row",
+        "@vegastack/shell"
       ],
       "files": [
         {
@@ -19379,12 +19198,12 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/audio-player",
         "@vegastack/checkbox",
         "@vegastack/data-table-parts",
         "@vegastack/field",
         "@vegastack/page-header",
+        "@vegastack/shell",
         "@vegastack/skeleton",
         "@vegastack/tabs",
         "@vegastack/transcript"
@@ -19408,7 +19227,7 @@
       ],
       "meta": {
         "whenToUse": "A detail page that reviews a record against a long companion pane, such as a meeting with its transcript — copy it once and wire your record.",
-        "whenNotToUse": "A plain detail page with one column — compose AppShellPage and PageHeader directly.",
+        "whenNotToUse": "A plain detail page with one column — compose ShellPage and PageHeader directly.",
         "version": "0.90.0"
       }
     },
@@ -19423,16 +19242,16 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/empty",
+        "@vegastack/filter-row",
+        "@vegastack/list-toolbar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/tabs",
-        "@vegastack/filter-row",
-        "@vegastack/list-toolbar"
+        "@vegastack/shell",
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -19563,13 +19382,13 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/button",
         "@vegastack/command",
         "@vegastack/command-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
+        "@vegastack/shell",
         "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
@@ -19990,8 +19809,7 @@
       ],
       "registryDependencies": [
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-dot",
-        "@vegastack/sidebar"
+        "@vegastack/notification-dot"
       ],
       "files": [
         {
@@ -20097,33 +19915,6 @@
       "meta": {
         "whenToUse": "A Recent row above a list (the Library home) or Home's Jump back in: up to six records to return to, one tap away, without pushing the main list down.",
         "whenNotToUse": "The main list of records (DataList), a grid of every item (DataList view=\"grid\"), or a record's own links (RecordChip).",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "sidebar-menu-flyout",
-      "type": "registry:ui",
-      "title": "Sidebar Menu Flyout",
-      "description": "A sidebar row whose entries open in a menu beside it on hover or press — nested lists such as Spaces in the collapsed icon rail, with the row's count kept in sight.",
-      "categories": ["navigation"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/dropdown-menu",
-        "@vegastack/sidebar"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/sidebar-menu-flyout.tsx",
-          "type": "registry:ui",
-          "target": "@ui/sidebar-menu-flyout.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A nested list in the collapsed icon rail (Spaces and + New space), where an inline group has no room; railOnly keeps the expanded sidebar's own group.",
-        "whenNotToUse": "A row that goes somewhere on its own (SidebarMenuButton), a submenu inside the expanded sidebar (SidebarMenuSub), or the profile or workspace menu (DropdownMenu with a SidebarMenuButton trigger).",
         "version": "0.90.0"
       }
     },

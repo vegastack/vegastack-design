@@ -220,24 +220,23 @@ Three non-negotiables, all silent failures if skipped:
 ## 7. A real page in one command — the app shell block
 
 ```bash
-pnpm dlx shadcn@4.21.0 add @vegastack/app-shell-01
+pnpm dlx shadcn@4.21.0 add @vegastack/shell-01
 ```
 
 This is a `registry:block`: it copies a complete signed-in page
-(`app/app-shell-01/page.tsx` + its `components/app-sidebar.tsx`) plus its full
-component dependency graph (AppShell, Sidebar, Breadcrumb, Card, Button, hooks, …)
-in one shot. Unlike components, a block is a **starter you own from day one** —
-edit the page freely; it is not update-tracked. (A common first adaptation is
-moving the shell into a shared `app/(app)/layout.tsx` so child routes keep the
-sidebar.)
+(`app/shell-01/page.tsx` + its `components/tasks.ts`) plus its full component
+dependency graph (Shell, Avatar, Button, hooks, …) in one shot. Unlike components, a
+block is a **starter you own from day one** — edit the page freely; it is not
+update-tracked. (A common first adaptation is moving the shell into a shared
+`app/(app)/layout.tsx` so child routes keep the rail.)
 
 ```bash
 pnpm dev
-# open http://localhost:3000/app-shell-01
+# open http://localhost:3000/shell-01
 ```
 
-**Proof:** a sidebar-navigated page with a breadcrumb header and stat cards — all
-themed, all dark-mode-ready.
+**Proof:** a rail-navigated task list with its column, top bar and a task opening in
+the panel — all themed, all dark-mode-ready.
 
 ## 8. Add individual components as you build
 
@@ -300,7 +299,7 @@ three never disagree.
 | `components.json`     | you (step 4)                                                                                               | yes                                                  |
 | `.env.local`          | you (step 5)                                                                                               | yes — never commit                                   |
 | `components/ui/*.tsx` | copied by `shadcn add`                                                                                     | yes — you own them; updates are pulled, never pushed |
-| `app/app-shell-01/*`  | the `app-shell-01` block                                                                                   | yes — a starter, not update-tracked                  |
+| `app/shell-01/*`      | the `shell-01` block                                                                                       | yes — a starter, not update-tracked                  |
 | `lib/utils.ts`        | optional — create it as `export { cn } from '@vegastack/design';` if any copied file imports `@/lib/utils` | yes                                                  |
 
 Anything unclear or broken on this path → [Troubleshooting](/docs/guides/troubleshooting).

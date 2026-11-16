@@ -6,8 +6,6 @@ import {
   layoutTierQuery,
   matchRoute,
   PAGE_WIDTHS,
-  pageGutterOf,
-  RAIL_COLLAPSED_QUERY,
 } from "./page-layout";
 
 test("the four widths, and nothing else", () => {
@@ -97,7 +95,7 @@ test("DocumentLayout's tiers start at the layout tiers", () => {
   expect(documentLayoutSource).not.toContain("@min-[60rem]/document-layout:");
 });
 
-test("layoutTierOf, layoutTierQuery, pageGutterOf", () => {
+test("layoutTierOf, layoutTierQuery", () => {
   expect(
     [390, 640, 768, 1023, 1024, 1439, 1440, 2560].map((w) => layoutTierOf(w)),
   ).toEqual([
@@ -115,10 +113,4 @@ test("layoutTierOf, layoutTierQuery, pageGutterOf", () => {
   );
   expect(layoutTierQuery(undefined, "tablet")).toBe("(max-width: 39.99rem)");
   expect(layoutTierQuery("phone")).toBe("all");
-  expect(RAIL_COLLAPSED_QUERY).toBe(
-    "(min-width: 48rem) and (max-width: 63.99rem)",
-  );
-  expect([390, 640, 1024, 1919, 1920].map(pageGutterOf)).toEqual([
-    16, 24, 32, 32, 48,
-  ]);
 });

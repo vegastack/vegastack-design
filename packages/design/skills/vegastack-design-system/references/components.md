@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**228 components**, plus 467 animated-icon items, 17 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-record-peek-row`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 16 starter blocks (`app-shell-01`, `shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 24 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`, `panel-tabs`) — 820 registry items in total.
+**224 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 24 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`, `panel-tabs`) — 814 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -147,7 +147,6 @@ starts with `icon-` is a component and never an icon.
 - **`permission-menu`** — An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.
 - **`picker-panel`** — A searchable, selectable item in an internal picker panel.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
-- **`record-peek`** — A record opened beside its list: non-modal, resizable, ↑/↓ J/K walk, ⌘↵ full page.
 - **`responsive-dialog`** — One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.
 - **`share-dialog`** — Share one item — invite people and teams with one access level, people with access and why, the item's space access, and a view-only public link behind a Publish switch; a Dialog on wide screens, a bottom Sheet on phones.
 - **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).
@@ -169,8 +168,6 @@ starts with `icon-` is a component and never an icon.
 - **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and a secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
 - **`route-tabs`** — Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.
-- **`sidebar`** — A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.
-- **`sidebar-menu-flyout`** — A sidebar row whose entries open in a menu beside it on hover or press — nested lists such as Spaces in the collapsed icon rail, with the row's count kept in sight.
 - **`stepper`** — A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.
 - **`table-of-contents`** — The “On this page” outline of a long document — links to its headings with the one the reader has reached marked by a scroll spy; an always-labelled list, a rail of ticks that opens on hover or focus, or a left Sheet from a trigger on narrow screens. Exports useActiveHeading for custom outlines.
 - **`tabs`** — Layered content sections — default (segmented) or line variants, compact size, optional leading icons and counts, horizontal or vertical, full keyboard navigation. Toolbar switches use default Tabs for scope (My tasks | Team tasks); a list's List/Board/Grid switch is ListToolbar's Layout tool. The one component that keeps a focus ring.
@@ -188,12 +185,11 @@ starts with `icon-` is a component and never an icon.
 
 ## Layout
 
-- **`app-shell`** — The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.
 - **`aspect-ratio`** — Constrains its children to a given width-to-height ratio.
 - **`board`** — Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse button left of the ⋯ menu, a subtle top-down fade on each lane, + Add after the last card (the empty lane's action when it has none), Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card ⋯ menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.
 - **`direction`** — Base UI's DirectionProvider and useDirection — the text-direction context components read.
 - **`document-layout`** — A page read as a document — the title area and its meta lines, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.
-- **`record-layout`** — A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.
+- **`record-layout`** — A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.
 - **`resizable`** — Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.
 - **`scroll-area`** — Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.
 - **`separator`** — A thin rule dividing content — horizontal or vertical, built on Base UI.

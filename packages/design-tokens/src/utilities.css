@@ -102,7 +102,7 @@
  *   laptop  64–90rem
  *   wide    ≥ 90rem
  *
- * As container sizes (`@max-tablet/app-shell-content:`, `@laptop/document-layout:`) for a surface
+ * As container sizes (`@max-tablet/shell-content:`, `@laptop/document-layout:`) for a surface
  * that follows its own box, and as breakpoints (`max-tablet:`, `laptop:`) for one pinned to the
  * viewport (an overlay). `page-layout`'s `LAYOUT_TIERS` is the same set for scripts; a test holds
  * the two equal. Registry components spell the values literally (`@min-[40rem]/…`), so a copied
@@ -933,8 +933,8 @@
  *
  * A load that finishes within the delay (--reveal-delay, 150ms) never flashes a
  * skeleton; a slower one fades its skeleton in with motion-enter-up. Pair it with
- * AppShellProgress, which shows at once, so the delay never reads as a blank
- * page. Reduced motion collapses it to the end state: shown at once.
+ * a progress cue that shows at once, so the delay never reads as a blank page.
+ * Reduced motion collapses it to the end state: shown at once.
  * ------------------------------------------------------------------------- */
 @utility motion-reveal {
   animation: vs-enter-up var(--duration-fast) var(--motion-ease-standard)

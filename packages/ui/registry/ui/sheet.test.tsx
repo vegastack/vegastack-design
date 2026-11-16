@@ -483,28 +483,6 @@ test("OVL-22: below the tablet tier a side sheet drops its side border and pads 
   }
 });
 
-test("API-29 + OVL-22: a sheet beside the rail docks from the tablet tier and fills a phone", async () => {
-  const screen = await render(
-    <Sheet defaultOpen>
-      <SheetContent side="left" beside="sidebar">
-        <SheetHeader>
-          <SheetTitle>Beside</SheetTitle>
-        </SheetHeader>
-      </SheetContent>
-    </Sheet>,
-  );
-  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
-  const panel = bySlot("sheet-content")!;
-  expect(panel.style.getPropertyValue("--sheet-beside")).toBe(
-    "var(--sidebar-width, 16rem)",
-  );
-  expect(panel.className.split(/\s+/)).toContain(
-    "data-beside:sm:start-(--sheet-beside)",
-  );
-  // No inline inset: below the tablet tier nothing holds the panel off the start edge.
-  expect(panel.style.insetInlineStart).toBe("");
-});
-
 test("API-21: SheetBody scrolls between a fixed header and footer", async () => {
   const screen = await render(<LongSubject />);
   await screen.getByRole("button", { name: "Open sheet" }).click();

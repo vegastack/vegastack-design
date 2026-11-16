@@ -1,12 +1,12 @@
-// @vegastack issue-detail-01@0.90.0 sha256-wi+SzL+xc8cPeIPTBG75Q5HLSJAUH5OYwMMShVSl1aQ=
+// @vegastack issue-detail-01@0.90.0 sha256-O3XGYrvi8uQpBiHk6QTPOB8vur8SfVd+zur9mCFF2G0=
 
 import { IssueDetail } from "./components/issue-detail";
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 
 /**
  * `issue-detail-01` — an issue's page (Linear style): the status circle beside a large title that
- * edits in place, a Notion-style description, a separator, then the comments; the Properties card
- * in a sticky right rail, and an ⓘ Details sheet in its place on small screens.
+ * edits in place, its properties, a Notion-style description, a separator, then the comments — one
+ * column, the same body a shell panel tab shows.
  *
  * Server-safe: the interactive half is the client leaf it imports.
  *
@@ -16,8 +16,8 @@ import { AppShellPage } from "@/components/ui/app-shell";
  */
 export default function Page() {
   return (
-    <AppShellPage size="full">
+    <ShellPage size="full">
       <IssueDetail />
-    </AppShellPage>
+    </ShellPage>
   );
 }

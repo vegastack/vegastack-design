@@ -1,4 +1,4 @@
-// @vegastack sheet@0.90.0 sha256-l5rh62SvEJ3ORDCbibBW7UzINlEvWzMMGjvjVf/3zpk=
+// @vegastack sheet@0.90.0 sha256-dq3aOKb2UGbazj1Oo+6cCPoa1QfRV3bruIzqldUrOog=
 
 "use client";
 
@@ -76,8 +76,6 @@ function SheetContent({
   size = "default",
   closeLabel = "Close",
   showOverlay = true,
-  beside,
-  style,
   ...props
 }: SheetPrimitive.Popup.Props & {
   side?: "top" | "right" | "bottom" | "left";
@@ -86,11 +84,6 @@ function SheetContent({
   closeLabel?: string;
   /** `false` drops the dimmed backdrop — for a non-modal panel docked beside the page. */
   showOverlay?: boolean;
-  /**
-   * Dock a `side="left"` sheet beside the app's sidebar rail instead of over it: `"sidebar"` starts
-   * it at `--sidebar-width`, `"sidebar-icon"` at the collapsed `--sidebar-width-icon`.
-   */
-  beside?: "sidebar" | "sidebar-icon";
 }) {
   const modal = React.useContext(SheetModalContext);
   const popupRef = useModalInert<HTMLDivElement>({
@@ -108,24 +101,12 @@ function SheetContent({
       {showOverlay ? <SheetOverlay /> : null}
       <SheetPrimitive.Popup
         ref={mergedRef}
-        data-beside={beside}
-        style={
-          beside
-            ? ({
-                "--sheet-beside":
-                  beside === "sidebar"
-                    ? "var(--sidebar-width, 16rem)"
-                    : "var(--sidebar-width-icon, 3rem)",
-                ...(typeof style === "object" ? style : null),
-              } as React.CSSProperties)
-            : style
-        }
         initialFocus={() => initialFocusTarget(nodeRef.current)}
         data-slot="sheet-content"
         data-side={side}
         data-size={size}
         className={cn(
-          "fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm wrap-break-word text-popover-foreground shadow-lg outline-none transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:max-h-[85dvh] data-[side=bottom]:pb-[env(safe-area-inset-bottom)] data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-full data-[side=left]:sm:w-3/4 data-[side=left]:border-e data-[side=left]:data-ending-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-ending-style:-translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-starting-style:-translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:sm:w-3/4 data-[side=right]:border-s data-[side=right]:data-ending-style:translate-x-[2.5rem] rtl:data-[side=right]:data-ending-style:-translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] rtl:data-[side=right]:data-starting-style:-translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:max-h-[85dvh] data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-[side=left]:data-[size=sm]:sm:max-w-xs data-[side=right]:data-[size=sm]:sm:max-w-xs data-[side=left]:data-[size=lg]:sm:max-w-2xl data-[side=right]:data-[size=lg]:sm:max-w-2xl data-[side=left]:data-[size=xl]:sm:max-w-5xl data-[side=right]:data-[size=xl]:sm:max-w-5xl data-[side=left]:max-sm:border-e-0 data-[side=right]:max-sm:border-s-0 data-[side=left]:max-sm:py-[env(safe-area-inset-top)_env(safe-area-inset-bottom)] data-[side=right]:max-sm:py-[env(safe-area-inset-top)_env(safe-area-inset-bottom)] data-beside:sm:start-(--sheet-beside)",
+          "fixed z-50 flex flex-col gap-4 bg-popover bg-clip-padding text-sm wrap-break-word text-popover-foreground shadow-lg outline-none transition duration-200 ease-in-out data-ending-style:opacity-0 data-starting-style:opacity-0 data-[side=bottom]:inset-x-0 data-[side=bottom]:bottom-0 data-[side=bottom]:h-auto data-[side=bottom]:max-h-[85dvh] data-[side=bottom]:pb-[env(safe-area-inset-bottom)] data-[side=bottom]:border-t data-[side=bottom]:data-ending-style:translate-y-[2.5rem] data-[side=bottom]:data-starting-style:translate-y-[2.5rem] data-[side=left]:inset-y-0 data-[side=left]:left-0 data-[side=left]:h-full data-[side=left]:w-full data-[side=left]:sm:w-3/4 data-[side=left]:border-e data-[side=left]:data-ending-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-ending-style:-translate-x-[-2.5rem] data-[side=left]:data-starting-style:translate-x-[-2.5rem] rtl:data-[side=left]:data-starting-style:-translate-x-[-2.5rem] data-[side=right]:inset-y-0 data-[side=right]:right-0 data-[side=right]:h-full data-[side=right]:w-full data-[side=right]:sm:w-3/4 data-[side=right]:border-s data-[side=right]:data-ending-style:translate-x-[2.5rem] rtl:data-[side=right]:data-ending-style:-translate-x-[2.5rem] data-[side=right]:data-starting-style:translate-x-[2.5rem] rtl:data-[side=right]:data-starting-style:-translate-x-[2.5rem] data-[side=top]:inset-x-0 data-[side=top]:top-0 data-[side=top]:h-auto data-[side=top]:max-h-[85dvh] data-[side=top]:border-b data-[side=top]:data-ending-style:translate-y-[-2.5rem] data-[side=top]:data-starting-style:translate-y-[-2.5rem] data-[side=left]:sm:max-w-sm data-[side=right]:sm:max-w-sm data-[side=left]:data-[size=sm]:sm:max-w-xs data-[side=right]:data-[size=sm]:sm:max-w-xs data-[side=left]:data-[size=lg]:sm:max-w-2xl data-[side=right]:data-[size=lg]:sm:max-w-2xl data-[side=left]:data-[size=xl]:sm:max-w-5xl data-[side=right]:data-[size=xl]:sm:max-w-5xl data-[side=left]:max-sm:border-e-0 data-[side=right]:max-sm:border-s-0 data-[side=left]:max-sm:py-[env(safe-area-inset-top)_env(safe-area-inset-bottom)] data-[side=right]:max-sm:py-[env(safe-area-inset-top)_env(safe-area-inset-bottom)]",
           // LAY-17: the corner × sits over the header's end; a header with no `SheetAction` (which
           // clears it already) keeps clear of it, so a long title wraps before the ×.
           showCloseButton &&
