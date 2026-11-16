@@ -1,0 +1,215 @@
+import { render } from "vitest-browser-react";
+import { afterEach, expect, test } from "vitest";
+import { userEvent } from "vitest/browser";
+import { Home, ListChecks } from "lucide-react";
+import { expectNoA11yViolations } from "../../test/a11y";
+import { resolveShellLayout, type ShellPageMin } from "../lib/shell-layout";
+import {
+  Shell,
+  ShellColumn,
+  ShellColumnItem,
+  ShellColumnSection,
+  ShellMain,
+  ShellPage,
+  ShellPanelToggle,
+  ShellRail,
+  ShellRailItem,
+  ShellTopBar,
+  ShellTopBarTitle,
+  ShellTitleBarControls,
+} from "./shell";
+import { ShellStateScript } from "./shell-scripts";
+import "../../test/geometry.css";
+
+afterEach(() => {
+  const html = document.documentElement;
+  html.removeAttribute("data-shell-col");
+  html.removeAttribute("data-shell-panel");
+  html.removeAttribute("data-desktop-titlebar");
+  html.style.removeProperty("--shell-column-saved");
+  document.cookie = "vs_shell_col=; max-age=0; path=/";
+  document.cookie = "vs_shell_panel=; max-age=0; path=/";
+});
+
+function Frame({
+  width,
+  panelOpen = false,
+  pageMin = 640,
+  column = true,
+}: {
+  width: number;
+  panelOpen?: boolean;
+  pageMin?: ShellPageMin;
+  column?: boolean;
+}) {
+  return (
+    <div style={{ width, height: 600 }}>
+      <Shell
+        fill="parent"
+        pageMin={pageMin}
+        panelOpen={panelOpen}
+        titleBarControls={<ShellTitleBarControls />}
+        rail={
+          <ShellRail>
+            <ShellRailItem icon={<Home />} label="Home" href="#home" />
+            <ShellRailItem
+              icon={<ListChecks />}
+              label="Tasks"
+              href="#tasks"
+              badge={120}
+              active
+            />
+          </ShellRail>
+        }
+        column={
+          column ? (
+            <ShellColumn label="Tasks">
+              <ShellColumnSection label="Views">
+                <ShellColumnItem
+                  label="My tasks"
+                  count={3}
+                  href="#mine"
+                  active
+                />
+              </ShellColumnSection>
+            </ShellColumn>
+          ) : null
+        }
+        panel={<div data-slot="shell-panel-head">Record</div>}
+      >
+        <ShellTopBar>
+          <ShellTopBarTitle>My tasks</ShellTopBarTitle>
+          <ShellPanelToggle pressed={panelOpen} />
+        </ShellTopBar>
+        <ShellMain>
+          <ShellPage>Page</ShellPage>
+        </ShellMain>
+      </Shell>
+    </div>
+  );
+}
+
+const shell = () => document.querySelector<HTMLElement>('[data-slot="shell"]')!;
+const settled = () =>
+  expect.poll(() => shell().dataset.tier, { timeout: 2000 }).toBeTruthy();
+
+test.each([
+  [390, true, 640],
+  [820, true, 640],
+  [1024, true, 640],
+  [1024, false, 640],
+  [1280, true, 640],
+  [1280, true, 520],
+  [1100, true, 560],
+  [1440, true, 640],
+  [1440, false, 640],
+  [1920, true, 640],
+] as const)(
+  "at %ipx (panel open %s, page %i) the CSS lays out what resolveShellLayout says",
+  async (width, panelOpen, pageMin) => {
+    await render(
+      <Frame width={width} panelOpen={panelOpen} pageMin={pageMin} />,
+    );
+    await settled();
+    const expected = resolveShellLayout({
+      width,
+      pageMin,
+      columnOpen: true,
+      panelOpen,
+    });
+    const root = shell();
+    expect(root.dataset.tier).toBe(expected.tier);
+    expect(root.dataset.panelMode).toBe(expected.panelMode);
+    const column =
+      expected.tier === "phone"
+        ? "none"
+        : expected.columnShown
+          ? "shown"
+          : "folded";
+    expect(root.dataset.column).toBe(column);
+    if (expected.panelMode !== "full") {
+      const main = root.querySelector('[data-slot="shell-content"]')!;
+      expect(Math.round(main.getBoundingClientRect().width)).toBe(
+        expected.pageWidth,
+      );
+    }
+  },
+);
+
+test("landmarks: the rail and column are named navigation, the page is main, the title is h1", async () => {
+  const screen = await render(<Frame width={1440} />);
+  await settled();
+  expect(document.querySelector('nav[aria-label="Modules"]')).not.toBeNull();
+  expect(document.querySelector('nav[aria-label="Tasks"]')).not.toBeNull();
+  expect(document.querySelector("main")).not.toBeNull();
+  expect(document.querySelector("h1")?.textContent).toBe("My tasks");
+  const tasks = document.querySelector(
+    '[data-slot="shell-rail-item"][data-active]',
+  )!;
+  expect(tasks.getAttribute("aria-current")).toBe("page");
+  expect(tasks.getAttribute("aria-label")).toBe("Tasks, 99+");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("⌘\\ folds and unfolds the column and keeps the choice in the cookie", async () => {
+  await render(<Frame width={1440} />);
+  await settled();
+  expect(shell().dataset.column).toBe("shown");
+  await userEvent.keyboard("{Meta>}\\{/Meta}");
+  await expect.poll(() => shell().dataset.column).toBe("folded");
+  expect(document.documentElement.dataset.shellCol).toBe("closed");
+  expect(document.cookie).toMatch(/vs_shell_col=closed:240/);
+  await userEvent.keyboard("{Meta>}\\{/Meta}");
+  await expect.poll(() => shell().dataset.column).toBe("shown");
+});
+
+test("on a tablet ▤ slides the column over the page, and Escape puts it away", async () => {
+  await render(<Frame width={820} />);
+  await settled();
+  expect(shell().dataset.column).toBe("folded");
+  const toggle = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-slot="shell-titlebar-toggle"]',
+    ),
+  ].find((b) => b.checkVisibility())!;
+  toggle.click();
+  await expect.poll(() => shell().dataset.column).toBe("over");
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => shell().dataset.column).toBe("folded");
+});
+
+test("F6 moves between the rail, the column, the top bar and the page", async () => {
+  await render(<Frame width={1440} />);
+  await settled();
+  const regions: string[] = [];
+  for (let i = 0; i < 4; i++) {
+    await userEvent.keyboard("{F6}");
+    regions.push(
+      (document.activeElement as HTMLElement).dataset.shellRegion ?? "",
+    );
+  }
+  expect(regions).toEqual(["rail", "column", "topbar", "main"]);
+});
+
+test("the state script's mark wins over the server's column default", async () => {
+  document.cookie = "vs_shell_col=closed:300; path=/";
+  const script = document.createElement("script");
+  const { container } = await render(<ShellStateScript />);
+  script.textContent = container.querySelector("script")!.textContent;
+  document.head.append(script);
+  script.remove();
+  expect(document.documentElement.dataset.shellCol).toBe("closed");
+  expect(
+    document.documentElement.style.getPropertyValue("--shell-column-saved"),
+  ).toBe("300px");
+  await render(<Frame width={1440} />);
+  await settled();
+  expect(shell().dataset.column).toBe("folded");
+});
+
+test("a screen without a column has no column region", async () => {
+  await render(<Frame width={1440} column={false} />);
+  await settled();
+  expect(shell().dataset.column).toBe("none");
+  expect(document.querySelector('[data-slot="shell-column-area"]')).toBeNull();
+});

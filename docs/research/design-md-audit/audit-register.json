@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "869bfe5832e05c5d083c21e9968fa1c114ffca8435366e5bf53c79a8ac0c25be",
+  "contractSha256": "b4ab52ef69c0d2833b3384c5a38843996b68ee2b2ddffa58d66c087b860d956e",
   "expectedCounts": {
-    "totalRegistryItems": 827,
-    "components": 235,
+    "totalRegistryItems": 830,
+    "components": 236,
     "animatedIcons": 467,
     "hooks": 19,
-    "blocks": 15,
-    "libs": 23,
+    "blocks": 16,
+    "libs": 24,
     "chartBlocks": 68
   },
   "records": [
@@ -88,6 +88,19 @@
         "packages/ui/registry/ui/app-shell.tsx"
       ],
       "docsSlug": "/docs/components/app-shell",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shell",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/shell.tsx",
+        "packages/ui/registry/ui/shell-client.tsx",
+        "packages/ui/registry/ui/shell-scripts.tsx"
+      ],
+      "docsSlug": "/docs/components/shell",
       "contractStatus": "reconciled"
     },
     {
@@ -7970,6 +7983,18 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "shell-01",
+      "inventoryClass": "block",
+      "wave": "Block",
+      "family": "starter-block",
+      "sourceFiles": [
+        "packages/ui/registry/blocks/shell-01/page.tsx",
+        "packages/ui/registry/blocks/shell-01/components/tasks.ts"
+      ],
+      "docsSlug": "/docs/blocks/shell-01",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "board-01",
       "inventoryClass": "block",
       "wave": "Block",
@@ -9049,6 +9074,17 @@
         "packages/ui/registry/lib/page-layout.ts"
       ],
       "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shell-layout",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/shell-layout.ts"
+      ],
+      "docsSlug": "/docs/components/shell",
       "contractStatus": "reconciled"
     },
     {
