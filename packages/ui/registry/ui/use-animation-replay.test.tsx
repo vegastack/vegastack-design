@@ -4,8 +4,7 @@ import { expect, test } from "vitest";
 import { useAnimationReplay, useShakeOnInvalid } from "./use-animation-replay";
 
 /* ---------------------------------------------------------------------------------------------
- * Real-animation mirror (same technique as checkbox.test.tsx's "Touch-target remediation" suite
- * and animated-number.test.tsx's fast-tween mirror): this package's fast unit-test harness
+ * Real-animation mirror (same technique as checkbox.test.tsx's "Touch-target remediation" suite): this package's fast unit-test harness
  * compiles no Tailwind/token CSS, so `@utility motion-shake` (and its `@keyframes vs-shake`) never
  * resolve here. Injecting a literal `<style>` that defines `.motion-shake` with a short REAL
  * keyframe animation lets the browser fire genuine `animationstart`/`animationend` events — this

@@ -116,7 +116,7 @@ const VEGASTACK_DEP_PKGS = [
 //   field          — hidden-dependency regression guard: must bring input on a clean install.
 //   toast          — dependency-sensitive provider/toaster item.
 //   text-edit      — heavy rich-text dependency graph.
-//   country-select — search/select graph with popover + command + button.
+//   searchable-select — search/select graph with combobox + item + button.
 const REAL_CRITICAL_GRAPHS = [
   "button",
   "filter-row",
@@ -124,7 +124,7 @@ const REAL_CRITICAL_GRAPHS = [
   "field",
   "toast",
   "text-edit",
-  "country-select",
+  "searchable-select",
 ];
 
 // Required external dependency/engine families. The actual roots are selected from the built

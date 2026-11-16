@@ -56,7 +56,6 @@ export const BROWSER_ONLY_NOTES: Record<string, string> = {
  * silent-acceptance this manifest exists to remove.
  */
 export const PLAYGROUND_COMPONENTS = new Set([
-  "AnimatedNumberPlayground",
   "AttachmentPlayground",
   "CheckboxPlayground",
   "ComboboxPlayground",

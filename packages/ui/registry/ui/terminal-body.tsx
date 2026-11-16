@@ -1,4 +1,4 @@
-// @vegastack terminal@0.90.0 sha256-HCv7xhJJQZl5Z1qEJUT636y8UAPcXxrJblrhSaaNlh8=
+// @vegastack terminal@0.90.0 sha256-3rknd5vAfys3Co3BEed/rMuUR5PchwOq70a2xey94xA=
 
 "use client";
 
@@ -29,7 +29,7 @@ export interface TerminalBodyProps extends React.ComponentProps<"div"> {
  *
  * Terminal itself is server-safe (non-negotiable #3) and stays that way: the one
  * thing here that needs a hook — measuring whether the pane actually scrolls — is
- * isolated in this file, exactly as `table-scroll-region.tsx` is for `Table`.
+ * isolated in this file.
  *
  * The pane takes `tabIndex={0}` **only while it overflows**. A scrollable region
  * that cannot be focused is unreachable without a pointer (axe

@@ -90,8 +90,8 @@ function json(value) {
 
 /**
  * A SHARED-GUIDE-ONLY component has no page of its own: it is a `registry:ui` item other components
- * install as a dependency, documented in the components guide the way `geo-data` and `drag-item`
- * are. `verify-component-contracts.mjs` asserts the whole shape (docs, preview, vrt, docsSlug,
+ * install as a dependency, documented in the components guide the way `drag-item`
+ * is. `verify-component-contracts.mjs` asserts the whole shape (docs, preview, vrt, docsSlug,
  * previewModule) so the exemption cannot be half-declared here.
  */
 const isSharedGuideOnly = (record) => record.coverage?.navigation === "exempt";

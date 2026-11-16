@@ -79,8 +79,7 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   toolbar to its content, `--card-spacing` inside a card, and `FieldGroup`'s own gaps in a form
   (<https://design.vegastack.com/docs/foundations/spacing#page-rhythm>).
 - **`select`** for a short fixed option set; **`searchable-select`** when the list is long enough to
-  need a search field (it is the preset `country-select` and `region-select` are built from — reach
-  for it before composing `combobox` by hand); **`combobox`** directly only for free text,
+  need a search field (reach for it before composing `combobox` by hand); **`combobox`** directly only for free text,
   suggestions or multi-select chips.
 - **One view-switch rule.** Form choices use `radio-group`; toolbar scope switches use default
   `Tabs`, and Grid | List | Board is the `ListToolbar`'s Layout tool. `ToggleGroup` is for
@@ -101,8 +100,7 @@ overflow="menu"`) left; the search, then the tools — Filter (n), Sort (`SortMe
   chips, Clear; people facets take `itemToSecondaryLabel={(p) => p.email}`. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
   `sortMode="client"`) and `rowActions` (the ⋯ column, always last); row links are never underlined.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
-info`, each an ink on the `card` surface with a required icon; **`announcement-banner`** only for
-  the full-width inverse strip at the very top of the page.
+info`, each an ink on the `card` surface with a required icon.
 - **`chip` is the ONE pill** — `hue` × `size` (`sm` inline · `md` control-scale) × `active`, with
   `onRemove` giving a real 24×24 remove control. `Tag` and `FilterChip` wrap that primitive; `ComboboxChip` is Base UI's own chip and does not share its geometry
   yet. Never hand-roll a pill with its own height, radius, or a sub-24px `×`. A **`badge`** is the different job: status, never removable, never a selection.

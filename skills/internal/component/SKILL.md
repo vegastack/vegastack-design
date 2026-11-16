@@ -20,8 +20,7 @@ fails it.
 Reference implementations — read the source, not a description of it. Upstream-backed:
 `packages/ui/registry/ui/button.tsx` with `packages/ui/upstream/patches/button.patch` beside it (six
 decision IDs, one hunk each). Ours: `date-picker.tsx` (a keeper that composes upstream's `calendar`,
-`popover` and `button`), `animated-number.tsx` (a client hook-driven primitive with a documented
-mechanism choice). The per-file rules are the sections below and `design-lint`.
+`popover` and `button`). The per-file rules are the sections below and `design-lint`.
 
 **What is authoritative, in order:** `vendor/shadcn/4.21.0/` and the `tooling/upstream/*` gates (they
 decide what a shared component may contain) → existing component source and `tooling/design-lint.mjs`
@@ -161,7 +160,6 @@ Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full voc
 | **Docked presence**       | A control parked at a viewport edge that stays mounted and flips `data-active` (bottom action bar, floating scroll-to-edge button) | `data-[active=true]:motion-dock-in` + `data-[active=false]:motion-dock-out` — 150ms in on `emphasized`, 100ms out on `exit`, translate + fade, **no scale** (an exit is never slower than its enter). The pair owns the timing, the fade and the parked `pointer-events: none`; state the travel DISTANCE yourself as ordinary `translate-*` utilities, because it is per-dock geometry and a `translate` in the utility would clobber a centred bar's composed transform                                                                                                                                                                                                                |
 | **Replay APIs**           | Re-triggering without remounting, when focus/caret/value must survive (shaking an already-focused invalid input)                   | `useAnimationReplay(animationClassName)` is the primitive; `useShakeOnInvalid({ shakeSignal? })` wraps it, watching `aria-invalid`/`data-invalid` via `MutationObserver`. **No canonical component calls it as of Batch 3 of the shadcn reset**: `field.tsx` is upstream's file now and upstream's Field has no validation motion (FRM-9 is an **ours** row that `implementation.md` § 5.2 does not assign to any component, so the reset does not reintroduce it). The hook ships as a registry item for consumers; if a component ever shakes again, the shake belongs to ONE owner in a field — two owners make the field shake twice (audit D5).                                     |
 | **Animated-icon handles** | Stroke-draw / complex icon motion (a success check drawing in)                                                                     | The `lucide-animated` mirrors under `registry/ui/icons/**` are data modules over one factory (`@vegastack/design/create-animated-icon`); each exposes an imperative `startAnimation()`/`stopAnimation()` on a React 19 ref prop — call it from your own handler. Attaching a ref also stands the icon's own hover/focus triggers down, so your handler is the only driver                                                                                                                                                                                                                                                                                                                |
-| **`AnimatedNumber`**      | Tweening a displayed number on `value` change                                                                                      | `<AnimatedNumber value={n} format={intlOptions} />` — a `requestAnimationFrame` tween, reads `--duration-*`/`--motion-ease-standard` live via `getComputedStyle`, instant under reduced motion, `aria-hidden` ticking text plus a polite live region announcing only the settled value                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 Do **not** hand-roll `pathLength` animation onto a plain `lucide-react` icon: it spreads props onto
 the SVG root only and never reaches the inner `<path>` (verified in its compiled source), and
@@ -236,7 +234,7 @@ decision tree in [references/conventions.md](references/conventions.md).
   is a lint guarantee rather than a type-level one. Every icon size is already a circle
   (`rounded-icon`, BRD-12) and every other size a pill (`rounded-control`).
 - **Chevron policy** — `ChevronsUpDown` marks combobox-style triggers that filter/search (Combobox,
-  CountrySelect, RegionSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
+  SearchableSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
   that open a fixed list (Select, DatePicker, ButtonGroup's menu trigger, Accordion — rotates
   180°). Never mix the two within one trigger family.
 - **Size names are upstream's** — `default` is the tier name, with `xs`, `sm` and `lg` around it, plus
@@ -329,7 +327,7 @@ decision tree in [references/conventions.md](references/conventions.md).
   surface (Alert) is `role="status"` for every intent, and takes the assertive `alert` role only when
   the caller passes an explicit `live` prop AND the intent is `destructive`/`warning` — i.e. the
   message appeared after mount because of something the user did. **Page chrome present at load gets
-  no live role at all** (`AnnouncementBanner`): announcing it competes with the page's own heading.
+  no live role at all**: announcing it competes with the page's own heading.
   Test the policy, not the markup: a static banner must resolve to `status`, a live destructive one
   to `alert`.
 - **A role that requires a parent is licensed by a CONTEXT, never by a default.** `role="listitem"`
@@ -384,7 +382,7 @@ For component `<name>` (PascalCase `<Name>`), in dependency order:
    is a `registry:lib` instead: it lives in `packages/ui/registry/lib/<name>.ts`, targets
    `@lib/<name>.ts`, is imported as `@/lib/<name>`, and is modeled in the contract's `libs` bucket
    (family `lib`, wave `Libs`) with `docs: "shared-guide-only"` — no docs page, no preview, no VRT
-   route, but a test file is still required. `geo-data` and `drag-item` are the two. Reach for it
+   route, but a test file is still required. `drag-item` is one. Reach for it
    when two components would otherwise carry the same bulk data or the same class string.
    `'use client'` only if interactive. JSDoc every exported prop (`@default` where relevant) so
    `ApiTable` renders correctly; JSDoc the component with an `@example`. Export a named

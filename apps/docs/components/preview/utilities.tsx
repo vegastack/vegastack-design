@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ListToolbar } from "@/components/ui/list-toolbar";
 import { useViewTransition } from "@/components/ui/use-view-transition";
-import { useOptimisticAction } from "@/components/ui/use-optimistic-action";
 import { Marker, MarkerContent, MarkerIcon } from "@/components/ui/marker";
 
 /* ----------------------------------------------------------------------------
@@ -308,44 +307,6 @@ export function viewTransition(): ReactNode {
   return (
     <Wrapper>
       <ViewTransitionDemo />
-    </Wrapper>
-  );
-}
-
-function OptimisticUndoDemo(): ReactNode {
-  const [tasks, setTasks] = useState([
-    "Design review",
-    "Ship the release",
-    "Write the docs",
-  ]);
-  const archive = useOptimisticAction<string>({
-    apply: (task) => setTasks((all) => all.filter((t) => t !== task)),
-    revert: (task) =>
-      setTasks((all) => (all.includes(task) ? all : [...all, task])),
-    commit: () => new Promise((resolve) => setTimeout(resolve, 300)),
-    message: (task) => `Archived “${task}”`,
-  });
-  return (
-    <ul className="flex w-full max-w-sm flex-col gap-2">
-      {tasks.map((task) => (
-        <li
-          key={task}
-          className="flex items-center justify-between rounded-block border p-2 ps-3 text-sm"
-        >
-          {task}
-          <Button variant="ghost" size="sm" onClick={() => archive.run(task)}>
-            Archive
-          </Button>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
-export function optimisticUndo(): ReactNode {
-  return (
-    <Wrapper>
-      <OptimisticUndoDemo />
     </Wrapper>
   );
 }

@@ -99,9 +99,9 @@ export function installedVersionsFromLock(
 }
 
 // A registry item is imported either through the `ui` alias (`registry:ui` / `registry:hook`) or
-// the `lib` alias (`registry:lib` — pure data/helper modules such as `geo-data`). Both resolve to
+// the `lib` alias (`registry:lib` — pure data/helper modules such as `drag-item`). Both resolve to
 // an item NAME, so both must be reconciled against `registryDependencies`; without the second arm
-// a `@vegastack/geo-data` dependency would read as a phantom.
+// a `@vegastack/drag-item` dependency would read as a phantom.
 function registrySpecifier(specifier) {
   // A vendored animated icon (`@/components/ui/icons/search`) is the item `icon-search`.
   const icon = /^@\/components\/ui\/icons\/([a-z0-9-]+)$/.exec(specifier)?.[1];

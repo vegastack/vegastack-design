@@ -40,8 +40,8 @@ describe("affected component closure", () => {
     expect(result.errors).toEqual([]);
     expect(result.seedItems).toEqual(["code-block"]);
     expect(result.affectedItems).toEqual([
-      // FileViewer renders Markdown previews through MarkdownView (2026-09-30), and attachment,
-      // library-01 and upload-dialog open a FileViewer.
+      // FileViewer renders Markdown previews through MarkdownView (2026-09-30), and attachment
+      // and library-01 open a FileViewer.
       "attachment",
       // block-view draws a fence's source with the code panel (B.2).
       "block-view",
@@ -71,7 +71,6 @@ describe("affected component closure", () => {
       // TextEdit's read view is a MarkdownView (2026-09-27).
       "source-list",
       "text-edit",
-      "upload-dialog",
     ]);
     expect(result.componentTestFiles).toEqual([
       "packages/ui/registry/blocks/issue-detail-01/issue-detail-01.test.tsx",
@@ -94,7 +93,6 @@ describe("affected component closure", () => {
       "packages/ui/registry/ui/message-parts.test.tsx",
       "packages/ui/registry/ui/source-list.test.tsx",
       "packages/ui/registry/ui/text-edit.test.tsx",
-      "packages/ui/registry/ui/upload-dialog.test.tsx",
     ]);
     // bubble's preview renders a CodeBlock, so its fixtures run although bubble does not depend on it.
     // text-edit's preview renders a MarkdownView beside the editor (the Markdown guide's parity demo).
@@ -138,7 +136,6 @@ describe("affected component closure", () => {
       "sortable-list",
       "source-list",
       "text-edit",
-      "upload-dialog",
       // version-compare's preview reads the selected version through a MarkdownView.
       "version-compare",
     ]);
@@ -189,7 +186,6 @@ describe("affected component closure", () => {
       "terminal",
       // text-edit's code-block node view carries the copy affordance.
       "text-edit",
-      "upload-dialog",
     ]);
     expect(result.affectedItems).not.toContain("provider");
   });
@@ -239,7 +235,6 @@ describe("affected component closure", () => {
       "provider",
       "source-list",
       "text-edit",
-      "upload-dialog",
     ]);
   });
 
@@ -248,8 +243,8 @@ describe("affected component closure", () => {
       plan(change("packages/ui/registry/ui/use-announcer.ts")).affectedItems,
     ).toContain("code-block");
     expect(
-      plan(change("packages/ui/registry/lib/geo-data.ts")).affectedItems,
-    ).toEqual(["country-select", "geo-data", "region-select"]);
+      plan(change("packages/ui/registry/lib/upload-progress.ts")).affectedItems,
+    ).toEqual(["upload-panel", "upload-progress"]);
     expect(
       plan(change("packages/ui/registry/blocks/board-01/page.tsx"))
         .affectedItems,
