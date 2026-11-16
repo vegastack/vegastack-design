@@ -76,7 +76,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..0093002 100644
+index 5cb64c9..b3d1b3e 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -92,7 +92,7 @@ index 5cb64c9..0093002 100644
  
  import {
    Dialog,
-@@ -10,42 +10,269 @@ import {
+@@ -10,42 +10,268 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
@@ -100,7 +100,6 @@ index 5cb64c9..0093002 100644
 +} from "@/components/ui/dialog";
 +import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 +import { SearchIcon, CheckIcon } from "lucide-react";
-+import type { SearchIconHandle } from "@/components/ui/icons/search";
 +import { Kbd, KbdGroup } from "@/components/ui/kbd";
 +import { usePlatform } from "@/components/ui/use-platform";
 +
@@ -384,7 +383,7 @@ index 5cb64c9..0093002 100644
  }) {
    return (
      <Dialog {...props}>
-@@ -55,15 +282,20 @@ function CommandDialog({
+@@ -55,15 +281,20 @@ function CommandDialog({
        </DialogHeader>
        <DialogContent
          className={cn(
@@ -409,7 +408,7 @@ index 5cb64c9..0093002 100644
  }
  
  function CommandInput({
-@@ -72,12 +304,16 @@ function CommandInput({
+@@ -72,12 +303,16 @@ function CommandInput({
  }: React.ComponentProps<typeof CommandPrimitive.Input>) {
    return (
      <div data-slot="command-input-wrapper" className="p-1 pb-0">
@@ -429,7 +428,7 @@ index 5cb64c9..0093002 100644
            )}
            {...props}
          />
-@@ -86,36 +322,297 @@ function CommandInput({
+@@ -86,36 +321,281 @@ function CommandInput({
          </InputGroupAddon>
        </InputGroup>
      </div>
@@ -455,32 +454,16 @@ index 5cb64c9..0093002 100644
 +}
 +
 +/**
-+ * The animated glyph and its motion engine load only once a search runs, so the menu's first load
-+ * carries none of it.
++ * The search glyph, pulsing while the search is running (CSS only: no motion engine, so the menu
++ * and every page that hosts it carry no animation runtime). Still under reduced motion.
 + */
-+const AnimatedSearchingIcon = React.lazy(() =>
-+  import("@/components/ui/icons/search").then(({ SearchIcon: Animated }) => ({
-+    default: function AnimatedSearchingIcon() {
-+      const ref = React.useRef<SearchIconHandle>(null);
-+      React.useEffect(() => {
-+        ref.current?.startAnimation();
-+        const id = window.setInterval(
-+          () => ref.current?.startAnimation(),
-+          1200,
-+        );
-+        return () => window.clearInterval(id);
-+      }, []);
-+      return <Animated ref={ref} size={16} aria-hidden />;
-+    },
-+  })),
-+);
-+
-+/** The search glyph, replayed while the search is running; the still glyph until it has loaded. */
 +function CommandSearchingIcon() {
 +  return (
-+    <React.Suspense fallback={<SearchIcon size={16} aria-hidden />}>
-+      <AnimatedSearchingIcon />
-+    </React.Suspense>
++    <SearchIcon
++      size={16}
++      aria-hidden
++      className="shrink-0 motion-safe:animate-pulse"
++    />
 +  );
  }
  
@@ -734,7 +717,7 @@ index 5cb64c9..0093002 100644
  }
  
  function CommandGroup({
-@@ -127,11 +624,11 @@ function CommandGroup({
+@@ -127,11 +607,11 @@ function CommandGroup({
        data-slot="command-group"
        className={cn(
          "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
@@ -748,7 +731,7 @@ index 5cb64c9..0093002 100644
  }
  
  function CommandSeparator({
-@@ -144,27 +641,44 @@ function CommandSeparator({
+@@ -144,27 +624,44 @@ function CommandSeparator({
        className={cn("-mx-1 h-px bg-border", className)}
        {...props}
      />
@@ -798,7 +781,7 @@ index 5cb64c9..0093002 100644
  }
  
  function CommandShortcut({
-@@ -176,21 +690,26 @@ function CommandShortcut({
+@@ -176,21 +673,26 @@ function CommandShortcut({
        data-slot="command-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",

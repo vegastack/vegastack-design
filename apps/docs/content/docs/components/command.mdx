@@ -142,7 +142,7 @@ and the list ends right above it.
 
 When results come from a server, turn cmdk's filter off with `shouldFilter={false}`, feed the
 query to your fetch through `CommandInput`'s `value`/`onValueChange`, and render `CommandLoading`
-while a request is in flight. It shows the animated search icon beside its text and is a polite
+while a request is in flight. It shows the search icon, pulsing (still under reduced motion), beside its text and is a polite
 `role="status"` whose text is spoken (default "Searching…"); pass `progress` (0–100) and it stays a labelled `progressbar` instead. Render it above `CommandList`, or only while the list is empty — a status inside a
 listbox that holds options is not a valid listbox child.
 
@@ -282,7 +282,7 @@ Upstream's file plus `packages/ui/upstream/patches/command.patch`. Every hunk:
   `lg` and `xl`. Its `default` is the wide 820px palette, and the dialog is a gapless flex column,
   so no empty row or padding sits below the footer.
 - **API-18 (filters, hints)** — `CommandFilters` (a wrapping row under the input), built-in `Kbd`
-  key hints in `CommandFooter`, and the animated search icon in `CommandLoading`.
+  key hints in `CommandFooter`, and the pulsing search icon in `CommandLoading`.
 - **VOI-1** — the default title and description are "Command palette" and "Search for a
   command…", and `resultsLabel` overrides the announced result count.
 - **OVL-20** — `CommandActions`, a sticky footer group for a searchable list's static actions.

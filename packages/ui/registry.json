@@ -1451,7 +1451,6 @@
       "registryDependencies": [
         "@vegastack/dialog",
         "@vegastack/input-group",
-        "@vegastack/icon-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/use-announcer",

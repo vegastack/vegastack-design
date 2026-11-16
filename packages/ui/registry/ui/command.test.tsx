@@ -629,8 +629,12 @@ test("API-18: CommandLoading is a polite status whose text is spoken", async () 
   expect(loading.hasAttribute("aria-label")).toBe(false);
   // The default copy is VOI-1's, and it is exposed rather than hidden behind cmdk's aria-hidden.
   expect(loading.textContent).toBe("Searching…");
-  // Only the decorative animated search icon is hidden; the text is not.
+  // Only the decorative search icon is hidden; the text is not.
   expect(loading.firstElementChild?.hasAttribute("aria-hidden")).toBe(false);
+  const glyph = loading.querySelector("svg");
+  expect(glyph?.getAttribute("aria-hidden")).toBe("true");
+  // Its pulse is CSS that reduced motion turns off.
+  expect(glyph?.getAttribute("class")).toContain("motion-safe:animate-pulse");
   expect(screen.container.querySelector('[role="progressbar"]')).toBeNull();
 });
 
