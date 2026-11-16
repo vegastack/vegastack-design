@@ -42,7 +42,8 @@ function registryRoster() {
 
 Every item the private registry serves. Installing needs the registry setup in
 [Install From VegaStack Registry](/docs/install). The full markdown for any page below is that page's
-URL with \`.md\` appended; \`/llms-full.txt\` is every page at once.
+URL with \`.md\` appended; \`/llms-full.txt\` is every page at once except the changelog and the
+shadcn-reset migration guide, which are read on their own.
 
 ${section("component", "Components")}
 ${section("hook", "Hooks")}

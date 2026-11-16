@@ -1121,6 +1121,12 @@ for (const entry of markdownManifest.entries) {
 
 const llmsIndex = await readFile(path.join(OUT_DIR, "llms.txt"), "utf8");
 const llmsFull = await readFile(path.join(OUT_DIR, "llms-full.txt"), "utf8");
+// Pages left out of llms-full.txt only (R11); every other public page must be in it exactly once.
+const llmsFullOmitted = new Set(
+  JSON.parse(
+    await readFile(path.join(APP_DIR, "lib/llms-full-omitted.json"), "utf8"),
+  ).routes,
+);
 // The index's tripwire, like the corpus budget below: a runaway guard, not a ration. MK blanket
 // approval 27-10-2026 (D19, Regent product cohesion), same reasoning as the 10-10 llms-full raise:
 // raised from 100 KiB when new record and picker components crossed it. Operator decision
@@ -1162,6 +1168,13 @@ for (const record of publicRecords) {
     llmsIndex.includes(`](${record.route})`),
     `llms.txt is missing ${record.route}`,
   );
+  if (llmsFullOmitted.has(record.route)) {
+    assert.ok(
+      !llmsFull.includes(`# ${record.title} (${record.route})`),
+      `llms-full still carries the omitted ${record.route}`,
+    );
+    continue;
+  }
   assert.ok(
     llmsFull.includes(`# ${record.title} (${record.route})`),
     `llms-full is missing ${record.route}`,
@@ -1227,14 +1240,22 @@ for (const name of rosterNames) {
 const llmsFullRoutes = [
   ...llmsFull.matchAll(/^# .+ \((\/docs(?:\/[^)]+)?)\)$/gm),
 ].map((match) => match[1]);
+const llmsFullExpected = publicRecords.filter(
+  ({ route }) => !llmsFullOmitted.has(route),
+);
+assert.equal(
+  llmsFullOmitted.size,
+  publicRecords.filter(({ route }) => llmsFullOmitted.has(route)).length,
+  "llms-full-omitted.json names a route that is not a public page",
+);
 assert.equal(
   llmsFullRoutes.length,
-  publicRecords.length,
+  llmsFullExpected.length,
   "llms-full.txt has duplicate or extra page headings",
 );
 assert.deepEqual(
   new Set(llmsFullRoutes),
-  new Set(publicRecords.map(({ route }) => route)),
+  new Set(llmsFullExpected.map(({ route }) => route)),
   "llms-full.txt route set drifted",
 );
 
