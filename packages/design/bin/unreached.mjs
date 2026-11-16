@@ -60,13 +60,16 @@ function sourceFiles(root, dir = root, out = []) {
 
 /**
  * An `.mdx` page's ESM: each block that starts a line with `import`/`export` outside a code fence
- * and runs to the next blank line (MDX's own rule), so a multi-line import counts and an example
- * inside a fence does not.
+ * and runs to the next blank line once its braces close (MDX's own rule), so a multi-line import
+ * counts and an example inside a fence does not.
  */
 export function mdxEsm(src) {
   const out = [];
   let fence = null;
   let inEsm = false;
+  let depth = 0;
+  const braces = (line) =>
+    (line.match(/[{(]/g)?.length ?? 0) - (line.match(/[})]/g)?.length ?? 0);
   for (const line of src.split("\n")) {
     const marker = /^\s{0,3}(`{3,}|~{3,})/.exec(line);
     if (fence) {
@@ -79,13 +82,18 @@ export function mdxEsm(src) {
       continue;
     }
     if (inEsm) {
-      if (line.trim() === "") inEsm = false;
-      else out.push(line);
+      // A blank line ends the block once its statement is complete (MDX parses an open brace on).
+      if (line.trim() === "" && depth <= 0) inEsm = false;
+      else {
+        out.push(line);
+        depth += braces(line);
+      }
       continue;
     }
     if (marker) fence = marker[1];
     else if (/^(?:import|export)\b/.test(line)) {
       inEsm = true;
+      depth = braces(line);
       out.push(line);
     }
   }
@@ -96,17 +104,58 @@ export function mdxEsm(src) {
 const VI_MOCK =
   /\bvi\.(?:mock|doMock|importActual)\s*\(\s*(["'`])([^"'`\n]+)\1/g;
 
-/** The module specifiers a file's code imports. */
+/**
+ * The module specifiers a file's code imports. With TypeScript, read from the syntax tree — import
+ * and export declarations, `import()` and import types, `require` and `vi.mock` calls — so a
+ * string or a regex that merely looks like an import reaches nothing. Without it, a masked scan.
+ */
 export function specifiersOf(file, src, ts = null) {
   const code = file.endsWith(".mdx") ? mdxEsm(src) : src;
-  if (ts) {
-    const info = ts.preProcessFile(code, true, true);
-    const mocks = [
-      ...maskNonUsage(code, { blankStrings: false }).matchAll(VI_MOCK),
-    ].map((m) => m[2]);
-    return [...info.importedFiles.map((f) => f.fileName), ...mocks];
+  if (!ts) {
+    const masked = maskNonUsage(code);
+    return [
+      ...[...masked.matchAll(SPECIFIER)].map((m) => m[2]),
+      ...[...masked.matchAll(VI_MOCK)].map((m) => m[2]),
+    ];
   }
-  return [...maskNonUsage(code).matchAll(SPECIFIER)].map((m) => m[2]);
+  const out = [];
+  const literal = (node) =>
+    node &&
+    (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node))
+      ? node.text
+      : null;
+  const visit = (node) => {
+    if (
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
+      node.moduleSpecifier
+    )
+      out.push(literal(node.moduleSpecifier));
+    else if (
+      ts.isImportEqualsDeclaration(node) &&
+      ts.isExternalModuleReference(node.moduleReference)
+    )
+      out.push(literal(node.moduleReference.expression));
+    else if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument))
+      out.push(literal(node.argument.literal));
+    else if (ts.isCallExpression(node)) {
+      const callee = node.expression;
+      if (
+        callee.kind === ts.SyntaxKind.ImportKeyword ||
+        (ts.isIdentifier(callee) && callee.text === "require") ||
+        (ts.isPropertyAccessExpression(callee) &&
+          ts.isIdentifier(callee.expression) &&
+          callee.expression.text === "vi" &&
+          ["mock", "doMock", "importActual"].includes(callee.name.text))
+      )
+        out.push(literal(node.arguments[0]));
+    }
+    ts.forEachChild(node, visit);
+  };
+  const kind = /\.[cm]?jsx?$/.test(file)
+    ? ts.ScriptKind.JSX
+    : ts.ScriptKind.TSX;
+  visit(ts.createSourceFile(file, code, ts.ScriptTarget.Latest, false, kind));
+  return out.filter(Boolean);
 }
 
 /** The consuming project's own TypeScript, when it has one. */
@@ -138,9 +187,16 @@ function pathAliases(root) {
   }
   const base = resolve(root, config?.compilerOptions?.baseUrl ?? ".");
   return Object.entries(config?.compilerOptions?.paths ?? {}).flatMap(
-    ([from, [to] = []]) =>
-      from.endsWith("/*") && typeof to === "string" && to.endsWith("/*")
-        ? [[from.slice(0, -1), resolve(base, to.slice(0, -2)) + sep]]
+    ([from, targets = []]) =>
+      from.endsWith("/*")
+        ? [
+            [
+              from.slice(0, -1),
+              targets
+                .filter((t) => typeof t === "string" && t.endsWith("/*"))
+                .map((t) => resolve(base, t.slice(0, -2)) + sep),
+            ],
+          ]
         : [],
   );
 }
@@ -168,7 +224,26 @@ function compilerResolver(ts, root) {
     if (parsed) options = { ...parsed.options, allowJs: true };
   }
   const host = ts.createCompilerHost(options);
-  const fallback = fallbackResolver(root);
+  // The effective `paths` (inherited ones included), for the `.mdx` targets the compiler skips.
+  const pathsBase = resolve(
+    options.pathsBasePath ??
+      options.baseUrl ??
+      (configPath ? dirname(configPath) : root),
+  );
+  const effective = Object.entries(options.paths ?? {}).flatMap(
+    ([from, targets]) =>
+      from.endsWith("/*")
+        ? [
+            [
+              from.slice(0, -1),
+              targets
+                .filter((t) => t.endsWith("/*"))
+                .map((t) => resolve(pathsBase, t.slice(0, -2)) + sep),
+            ],
+          ]
+        : [],
+  );
+  const fallback = fallbackResolver(root, effective);
   return (from, spec) => {
     const hit = ts.resolveModuleName(spec, from, options, host).resolvedModule;
     if (
@@ -182,18 +257,25 @@ function compilerResolver(ts, root) {
   };
 }
 
-/** Without TypeScript: relative paths and the root `tsconfig.json` `paths`, longest prefix first. */
-function fallbackResolver(root) {
-  const aliases = pathAliases(root).sort((a, b) => b[0].length - a[0].length);
-  return (from, spec) => {
-    let base;
-    const hit = aliases.find(([prefix]) => spec.startsWith(prefix));
-    if (hit) base = hit[1] + spec.slice(hit[0].length);
-    else if (/^\.\.?(?:\/|$)/.test(spec)) base = resolve(dirname(from), spec);
-    else return null;
+/**
+ * Without TypeScript (or for an `.mdx` target): relative paths and `paths` aliases — the longest
+ * prefix first, each of its targets in order.
+ */
+function fallbackResolver(root, aliases = pathAliases(root)) {
+  const sorted = [...aliases].sort((a, b) => b[0].length - a[0].length);
+  const probe = (base) => {
     const stem = base.replace(/\.(?:[cm]?js|jsx)$/, "");
-    for (const candidate of [base, ...EXTENSIONS.map((ext) => stem + ext)]) {
+    for (const candidate of [base, ...EXTENSIONS.map((ext) => stem + ext)])
       if (existsSync(candidate) && SOURCE.test(candidate)) return candidate;
+    return null;
+  };
+  return (from, spec) => {
+    if (/^\.\.?(?:\/|$)/.test(spec)) return probe(resolve(dirname(from), spec));
+    const hit = sorted.find(([prefix]) => spec.startsWith(prefix));
+    if (!hit) return null;
+    for (const target of hit[1]) {
+      const found = probe(target + spec.slice(hit[0].length));
+      if (found) return found;
     }
     return null;
   };

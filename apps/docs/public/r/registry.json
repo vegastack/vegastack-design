@@ -2939,7 +2939,7 @@
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
         "version": "0.90.0",
-        "integrity": "sha256-GGzJ0eQexzOyZitp8dPIr6ymCP3VVRj800tiKRJ4hM0="
+        "integrity": "sha256-Y95nJ4jjLzoDqXvrZMNjCVsaN8WRtx/rgUwpQ5HcOcs="
       }
     },
     {

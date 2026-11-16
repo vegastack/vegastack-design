@@ -860,7 +860,7 @@ test("owned-files lists installed index targets and header-carrying files, nothi
           moduleResolution: "bundler",
           paths: {
             "@/*": ["./src/*"],
-            "@/components/ui/*": ["./missing/*", "./src/components/ui/*"],
+            "@/components/ui/*": ["./missing/*", "./vendor-ui/*"],
           },
         },
       }),
@@ -869,14 +869,20 @@ test("owned-files lists installed index targets and header-carrying files, nothi
         `import { Button } from "@/components/ui/button";`,
         `import { cn } from "../lib/utils.js";`,
         "const snippet = `require('@/components/ui/card')`;",
+        "const mock = `vi.mock('@/components/ui/card')`;",
+        String.raw`const pattern = /require\('@\/components\/ui\/card'\)/;`,
       ].join("\n"),
+      "src/app/page.test.tsx": `vi.mock("@/content/intro.mdx");`,
       "src/components/ui/button.tsx": "export {}",
-      "src/components/ui/card.tsx": "export {}",
-      "src/components/ui/tabs.tsx": "export {}",
-      "src/components/ui/kbd.tsx": "export {}",
+      "vendor-ui/button.tsx": "export {}",
+      "vendor-ui/card.tsx": "export {}",
+      "vendor-ui/tabs.tsx": "export {}",
+      "vendor-ui/kbd.tsx": "export {}",
       "src/lib/utils.ts": "export {}",
+      "src/content/intro.mdx": "# Intro",
       "content/guide.mdx": [
         "import {",
+        "",
         "  Tabs,",
         `} from "@/components/ui/tabs";`,
         "",
@@ -887,14 +893,20 @@ test("owned-files lists installed index targets and header-carrying files, nothi
     });
     const owned = [
       "src/components/ui/button.tsx",
-      "src/components/ui/card.tsx",
-      "src/components/ui/kbd.tsx",
-      "src/components/ui/tabs.tsx",
+      "src/content/intro.mdx",
       "src/lib/utils.ts",
+      "vendor-ui/button.tsx",
+      "vendor-ui/card.tsx",
+      "vendor-ui/kbd.tsx",
+      "vendor-ui/tabs.tsx",
     ];
+    // The specific alias wins over `@/*` (so `src/components/ui/button.tsx` is not reached), an
+    // inherited alias reaches an `.mdx` target, and strings, template literals and regexes that
+    // only look like imports reach nothing.
     assert.deepEqual(unreachedFiles(root, owned, { ts }), [
-      "src/components/ui/card.tsx",
-      "src/components/ui/kbd.tsx",
+      "src/components/ui/button.tsx",
+      "vendor-ui/card.tsx",
+      "vendor-ui/kbd.tsx",
     ]);
   });
 }

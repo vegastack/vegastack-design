@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.90.0 sha256-GGzJ0eQexzOyZitp8dPIr6ymCP3VVRj800tiKRJ4hM0=
+// @vegastack upload-panel@0.90.0 sha256-Y95nJ4jjLzoDqXvrZMNjCVsaN8WRtx/rgUwpQ5HcOcs=
 
 "use client";
 
@@ -965,6 +965,12 @@ export function UploadPanel({
         ? null
         : new ResizeObserver(measure);
     observer?.observe(root);
+    // In the shell's floating stack, a neighbour arriving or leaving moves the panel without
+    // resizing it: watch the stack too.
+    const stack = root.closest<HTMLElement>(
+      '[data-slot="shell-floating-area"]',
+    );
+    if (stack) observer?.observe(stack);
     window.addEventListener("resize", measure);
     return () => {
       observer?.disconnect();
