@@ -1,4 +1,4 @@
-// @vegastack shell@0.100.0 sha256-ov3ygRTqLatBoUofcjmjNvOw1s2SgMgsEb0Bq9UYwd8=
+// @vegastack shell@0.100.0 sha256-tNLFQPUZSZTyQQVUvfNuUqXedmsyrsY3pwjPrbs6Oko=
 
 "use client";
 
@@ -252,9 +252,13 @@ export function ShellController() {
     };
 
     let lastPanelOpen: boolean | undefined;
-    let panelOpenRequested = 0;
+    // When a person last asked for the panel to open; `null` when nothing is pending. Only a
+    // closed panel can be asked to open, so a closing click or a tab opened beside an open
+    // panel arms nothing.
+    let panelOpenRequested: number | null = null;
     const onPanelOpenRequest = () => {
-      panelOpenRequested = performance.now();
+      if (root.dataset.panelMode === "closed")
+        panelOpenRequested = performance.now();
     };
     const sync = () => {
       const style = getComputedStyle(mainArea);
@@ -299,8 +303,10 @@ export function ShellController() {
       // Only a person's open moves the page: a fresh request (the toggle's click, or
       // `requestShellPanelOpen`), never the first reading or an open the app makes by itself.
       const requested =
+        panelOpenRequested !== null &&
         performance.now() - panelOpenRequested < PANEL_OPEN_REQUEST_MS;
-      if (panelOpen) panelOpenRequested = 0;
+      // A request is spent by the open it asked for, and lapses on any change of open state.
+      if (panelOpen !== lastPanelOpen) panelOpenRequested = null;
       if (
         lastPanelOpen === false &&
         panelOpen &&
