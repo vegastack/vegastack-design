@@ -1,4 +1,4 @@
-// @vegastack property-list@0.107.0 sha256-PznIJfx0HhOW9phT7dT3K6H+KuBLmyS9A4Qlk8Hl0UA=
+// @vegastack property-list@0.107.0 sha256-FUjb/1o8IeQO/5XllJw4g69WuGHycOhdk/Ffi4HIwRo=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -19,9 +19,12 @@ export interface PropertyListProps extends React.ComponentPropsWithRef<"dl"> {
    * the record-aside row for a narrow rail card: a fixed 112px label column (a long label
    * truncates, its full text in the tooltip), so every value starts at the same x, left-aligned,
    * as in Linear or Notion; its editable values are quiet pickers — `RecordChip variant="ghost"`.
+   * `panel` — the record side panel's row (`RecordPanelSection`): a 92px muted key at the value's
+   * size, rows at least 30px tall and centred on one line, and a plain-text value that truncates
+   * (a value made of controls keeps their own truncation).
    * @default "stacked"
    */
-  variant?: "stacked" | "inline";
+  variant?: "stacked" | "inline" | "panel";
   /**
    * `2` flows the rows into two columns, left to right, once the list's own container is wide
    * enough (`@xl`, 36rem) — a wide record pane reads as two columns of facts, and the same list in
@@ -68,6 +71,7 @@ export function PropertyList({
         // Two columns: a two-track grid whose rows span both tracks until the container reaches
         // @xl (a container cannot query itself, so the ROWS read the width — see PropertyRow).
         columns === 2 && "grid grid-cols-2 gap-x-8",
+        variant === "panel" && "gap-0.5",
         className,
       )}
       {...props}
@@ -95,6 +99,9 @@ export function PropertyRow({ className, ...props }: PropertyRowProps) {
         // Inline: one line at every width — a fixed 112px label column, so every value starts at
         // the same x, and the value takes the rest.
         "group-data-[variant=inline]/property-list:grid-cols-[--spacing(28)_minmax(0,1fr)] group-data-[variant=inline]/property-list:gap-x-3",
+        // Panel: one line at every width — a 92px key column and a row at least 30px tall, its key
+        // and value centred on it (the record side panel, R3).
+        "group-data-[variant=panel]/property-list:min-h-7.5 group-data-[variant=panel]/property-list:grid-cols-[--spacing(23)_minmax(0,1fr)] group-data-[variant=panel]/property-list:items-center group-data-[variant=panel]/property-list:gap-x-2",
         // `columns={2}`: a row spans both tracks of the list's grid below @xl, one track above.
         "group-data-[columns=2]/property-list:col-span-2 @xl/property-list:group-data-[columns=2]/property-list:col-span-1",
         // Top-aligned, never centred: the label sits on the value's FIRST line, so a value that wraps
@@ -126,6 +133,8 @@ export function PropertyLabel({
         // `leading-5` is the value's line height (`text-sm`), so the label's line box IS the value's
         // first line box and the two share a centre whatever the value's length.
         "flex min-w-0 items-center gap-1.5 text-xs leading-5 font-medium text-muted-foreground",
+        // Panel: the key reads at the value's size, in the muted ink, at regular weight.
+        "group-data-[variant=panel]/property-list:text-sm group-data-[variant=panel]/property-list:font-normal",
         "[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-3.5",
         className,
       )}
@@ -183,6 +192,9 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // Inline: a quiet picker's ghost padding hangs past the column's start so its text lines
         // up with plain values.
         "group-data-[variant=inline]/property-list:flex group-data-[variant=inline]/property-list:min-w-0 group-data-[variant=inline]/property-list:[&>[data-slot=button]]:-ms-2",
+        // Panel: a plain-text value stays on its line and truncates; a value made of controls
+        // (a picker, chips) keeps them unclipped, and a quiet picker hangs into the gutter as inline.
+        "group-data-[variant=panel]/property-list:not-has-[>*]:truncate group-data-[variant=panel]/property-list:[&>[data-slot=button]]:-ms-2",
         className,
       )}
       {...props}

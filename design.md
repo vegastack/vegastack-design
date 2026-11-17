@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 37345
-      sha256: "f096d863069bddcd7e8262ff3f2133762f15b16c5cc048eeb54482244d0db3de"
+      bytes: 37791
+      sha256: "ada8d51b9bc6c1490119e4ef8f90780f522221882c75152f5d953887b0202bab"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 13917
-      sha256: "c42d9093976e4a676d7452721d72eaa410f7afb597a160afb1eda776fac83dd5"
+      bytes: 14060
+      sha256: "8cf46e148107e41fbf409ab5aad7f927234ba49535ea1d8bb340b3da8c034abc"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -302,6 +302,10 @@ themes:
     muted-foreground:
       type: "color"
       value: "oklch(0.5 0 0)"
+    panel:
+      type: "color"
+      value: "oklch(0.985 0 0)"
+      description: "COL-26 (ours, operator 2026-11-18, record side panel): the record page's side panel surface, a hair off the page so the panel reads as reference beside the work — the sidebar's tint in light; in dark one step DOWN from the page (the sidebar there is a step up). Opaque, because below 1200px the panel floats over the page. Read it as `bg-panel`."
     popover:
       type: "color"
       value: "oklch(1 0 0)"
@@ -784,6 +788,9 @@ themes:
     muted-foreground:
       type: "color"
       value: "oklch(0.708 0 0)"
+    panel:
+      type: "color"
+      value: "oklch(0.125 0 0)"
     popover:
       type: "color"
       value: "oklch(0.205 0 0)"

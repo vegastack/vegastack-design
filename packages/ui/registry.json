@@ -353,7 +353,7 @@
       "name": "record-layout",
       "type": "registry:ui",
       "title": "Record Layout",
-      "description": "A record page: the main column, and the right-edge strip that opens one reference panel at a time.",
+      "description": "A record page: the main column and one side panel of stacked, folding sections — docked from 1200px, floating below, a sheet on a phone.",
       "categories": ["layout"],
       "dependencies": [
         "@vegastack/design@^0.21.0",
@@ -362,6 +362,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/collapsible",
+        "@vegastack/kbd",
         "@vegastack/peek",
         "@vegastack/skeleton",
         "@vegastack/tooltip",

@@ -2,17 +2,8 @@
 
 import * as React from "react";
 import type { ReactNode } from "react";
-import { FileText, Info, MessageSquare, Paperclip } from "lucide-react";
+import { FileText, Link2 } from "lucide-react";
 import { Wrapper } from "./wrapper";
-import {
-  DocumentLayout,
-  DocumentLayoutBody,
-  DocumentLayoutContents,
-  DocumentLayoutHeader,
-  DocumentLayoutTitle,
-} from "@/components/ui/document-layout";
-import { TableOfContents } from "@/components/ui/table-of-contents";
-import { Switch } from "@/components/ui/switch";
 import {
   PropertyLabel,
   PropertyList,
@@ -22,42 +13,204 @@ import {
 import {
   RecordLayout,
   RecordLayoutMain,
-  RecordLayoutPanel,
-  RecordLayoutSide,
-  RecordLayoutStrip,
-  RecordLayoutStripItem,
-  RecordLayoutStripSlot,
+  RecordPanel,
+  RecordPanelAction,
+  RecordPanelItem,
+  RecordPanelList,
+  RecordPanelProvider,
+  RecordPanelSection,
+  RecordPanelToggle,
+  RecordPanelTrigger,
 } from "@/components/ui/record-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-function Facts() {
+/** The task's sections, in the order R4 fixes: Details · Related · Files · Watching. */
+function TaskSections() {
   return (
-    <PropertyList aria-label="Meeting details">
-      <PropertyRow>
-        <PropertyLabel>Type</PropertyLabel>
-        <PropertyValue>Client call</PropertyValue>
-      </PropertyRow>
-      <PropertyRow>
-        <PropertyLabel>When</PropertyLabel>
-        <PropertyValue>25 Sep, 10:30</PropertyValue>
-      </PropertyRow>
-      <PropertyRow>
-        <PropertyLabel>Length</PropertyLabel>
-        <PropertyValue>42 min</PropertyValue>
-      </PropertyRow>
-    </PropertyList>
+    <>
+      <RecordPanelSection value="details" title="Details">
+        <PropertyList variant="panel" aria-label="Task details">
+          <PropertyRow>
+            <PropertyLabel>Status</PropertyLabel>
+            <PropertyValue>Todo</PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel>Assignee</PropertyLabel>
+            <PropertyValue>Amol Adlakha</PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel>Due</PropertyLabel>
+            <PropertyValue className="text-destructive-text">
+              Overdue 2w
+            </PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel>Priority</PropertyLabel>
+            <PropertyValue>Medium</PropertyValue>
+          </PropertyRow>
+          <PropertyRow>
+            <PropertyLabel>Space</PropertyLabel>
+            <PropertyValue>Dev Ops for App</PropertyValue>
+          </PropertyRow>
+        </PropertyList>
+      </RecordPanelSection>
+      <RecordPanelSection
+        value="related"
+        title="Related"
+        count={2}
+        action={<RecordPanelAction label="Link a task" />}
+      >
+        <RecordPanelList>
+          <RecordPanelItem
+            render={<a href="#related" />}
+            icon={<Link2 />}
+            detail="Blocks"
+          >
+            #131 Product master export
+          </RecordPanelItem>
+          <RecordPanelItem
+            render={<a href="#related" />}
+            icon={<Link2 />}
+            detail="Relates"
+          >
+            #88 Datasheet template
+          </RecordPanelItem>
+        </RecordPanelList>
+      </RecordPanelSection>
+      <RecordPanelSection
+        value="files"
+        title="Files"
+        count={1}
+        action={<RecordPanelAction label="Add file" />}
+      >
+        <RecordPanelList>
+          <RecordPanelItem
+            render={<a href="#files" />}
+            icon={<FileText />}
+            detail="1.2 MB"
+          >
+            Strada-Urban-Road-90W.pdf
+          </RecordPanelItem>
+        </RecordPanelList>
+      </RecordPanelSection>
+      <RecordPanelSection value="watching" title="Watching" count={3}>
+        <RecordPanelList>
+          <RecordPanelItem>You, Amol and Simran</RecordPanelItem>
+        </RecordPanelList>
+      </RecordPanelSection>
+    </>
+  );
+}
+
+/** A 48px page bar with ▥ as its last control, after a divider. */
+function Bar({ children }: { children?: ReactNode }) {
+  return (
+    <div className="flex h-12 shrink-0 items-center justify-between border-b ps-6 pe-2">
+      <span className="truncate text-sm text-muted-foreground">
+        Tasks › Dev Ops for App › #129
+      </span>
+      <div className="flex items-center gap-1">
+        {children}
+        <span aria-hidden className="mx-1 h-4.5 w-px bg-border" />
+        <RecordPanelToggle />
+      </div>
+    </div>
+  );
+}
+
+/** The work, in reading order, centred in the room the panel leaves. */
+function Work() {
+  return (
+    <div className="mx-auto flex w-full max-w-180 flex-col gap-3">
+      <span className="text-xs text-muted-foreground">
+        Dev Ops for App · #129
+      </span>
+      <h2 className="text-2xl font-semibold">
+        Technical Datasheet design format
+      </h2>
+      <RecordPanelTrigger />
+      <p className="text-sm">
+        Create a sample TDS PDF and share it for reference. Review the LightUp
+        Black DALI-2 family for what Product Master captures today.
+      </p>
+      <h3 className="pt-3 text-base font-semibold">Activity</h3>
+      <p className="text-sm text-muted-foreground">
+        Manoj attached a sample PDF for your reference.
+      </p>
+    </div>
+  );
+}
+
+/** One record page in a frame: the bar, then the layout filling the rest. */
+function RecordFrame({
+  width,
+  height = 520,
+  defaultOpen = true,
+}: {
+  width?: number;
+  height?: number;
+  defaultOpen?: boolean;
+}) {
+  return (
+    <RecordPanelProvider defaultOpen={defaultOpen} shortcut={false}>
+      <div
+        className="flex flex-col overflow-hidden rounded-card border bg-background"
+        style={{ width: width ?? "100%", height }}
+      >
+        <Bar />
+        <div className="flex min-h-0 flex-1 flex-col [--page-gutter:--spacing(8)]">
+          <div className="flex min-h-0 flex-1 flex-col p-(--page-gutter)">
+            <RecordLayout>
+              <RecordLayoutMain>
+                <Work />
+              </RecordLayoutMain>
+              <RecordPanel>
+                <TaskSections />
+              </RecordPanel>
+            </RecordLayout>
+          </div>
+        </div>
+      </div>
+    </RecordPanelProvider>
   );
 }
 
 export function recordLayout(): ReactNode {
   return (
+    <Wrapper className="block p-4">
+      <RecordFrame />
+    </Wrapper>
+  );
+}
+
+/**
+ * The same page at 1440 and 1024: docked and open on load from 1200px of record width; below it,
+ * closed, and ▥ floats the panel over the page edge to edge. At a phone's width the Details
+ * button opens the sections as a sheet.
+ */
+export function recordLayoutWidths(): ReactNode {
+  return (
+    <Wrapper className="block p-4">
+      <div className="flex gap-6 overflow-x-auto pb-2">
+        {[1440, 1024].map((w) => (
+          <figure key={w} className="flex shrink-0 flex-col gap-2">
+            <figcaption className="text-xs text-muted-foreground tabular-nums">
+              {w}px
+            </figcaption>
+            <RecordFrame width={w} height={460} />
+          </figure>
+        ))}
+      </div>
+    </Wrapper>
+  );
+}
+
+/** Tabs in the main column: `RecordLayoutPanels` under the tab row. */
+export function recordLayoutTabs(): ReactNode {
+  return (
     <Wrapper>
       <RecordLayout className="w-full">
         <RecordLayoutMain>
-          <h2 className="min-w-0 font-heading text-xl font-medium">
-            Weekly sync with Acme
-          </h2>
-          <Facts />
           <Tabs defaultValue="summary">
             <TabsList>
               <TabsTrigger value="summary">Summary</TabsTrigger>
@@ -72,167 +225,6 @@ export function recordLayout(): ReactNode {
           </Tabs>
         </RecordLayoutMain>
       </RecordLayout>
-    </Wrapper>
-  );
-}
-
-/** The strip and its panels, shared by the examples below. */
-function Panels({
-  panel,
-  onPanelChange,
-  defaultPanel,
-}: {
-  panel?: string | null;
-  onPanelChange?: (panel: string | null) => void;
-  defaultPanel?: string | null;
-}) {
-  const [width, setWidth] = React.useState(360);
-  return (
-    <RecordLayoutSide
-      panel={panel}
-      defaultPanel={defaultPanel}
-      onPanelChange={onPanelChange}
-      panelWidth={width}
-      onPanelWidthChange={setWidth}
-    >
-      <RecordLayoutPanel value="details" title="Details">
-        <Facts />
-      </RecordLayoutPanel>
-      <RecordLayoutPanel value="transcript" title="Transcript">
-        <p className="text-sm">
-          <span className="text-muted-foreground tabular-nums">00:12 </span>
-          Asha: Let&apos;s agree the rollout plan first.
-        </p>
-      </RecordLayoutPanel>
-      <RecordLayoutPanel value="files" title="Files">
-        <ul className="flex flex-col gap-2 text-sm">
-          <li>rollout-plan.pdf</li>
-          <li>pricing.xlsx</li>
-          <li>notes.md</li>
-        </ul>
-      </RecordLayoutPanel>
-      <RecordLayoutPanel value="threads" title="Comment threads">
-        <p className="text-sm text-muted-foreground">No open threads.</p>
-      </RecordLayoutPanel>
-      <RecordLayoutStrip>
-        <RecordLayoutStripItem
-          value="details"
-          label="Details"
-          icon={<Info />}
-        />
-        <RecordLayoutStripItem
-          value="transcript"
-          label="Transcript"
-          icon={<FileText />}
-        />
-        <RecordLayoutStripItem
-          value="files"
-          label="Files"
-          icon={<Paperclip />}
-          count={3}
-        />
-        <RecordLayoutStripItem
-          value="threads"
-          label="Comment threads"
-          icon={<MessageSquare />}
-        />
-      </RecordLayoutStrip>
-    </RecordLayoutSide>
-  );
-}
-
-/**
- * A record page with its reference panels: the strip on the right edge opens one panel at a
- * time (here the meeting's default, Transcript). From 1200px of record width the panel docks;
- * narrower, as here, it floats over the main column. On a phone the strip is a row of buttons
- * under the title and each panel is a bottom sheet.
- */
-export function recordLayoutSide(): ReactNode {
-  return (
-    <Wrapper className="block p-0">
-      <RecordLayout className="h-[26rem] w-full overflow-hidden">
-        <RecordLayoutMain className="overflow-y-auto p-6">
-          <h2 className="min-w-0 font-heading text-xl font-medium">
-            Weekly sync with Acme
-          </h2>
-          <RecordLayoutStripSlot />
-          <p className="text-sm">
-            The team agreed the rollout plan and the next review date. Comments,
-            decisions and tasks follow here, in reading order.
-          </p>
-        </RecordLayoutMain>
-        <Panels defaultPanel="transcript" />
-      </RecordLayout>
-    </Wrapper>
-  );
-}
-
-const OUTLINE = ["Seats", "Renewal", "Limits"].map((text) => ({
-  id: `reading-${text.toLowerCase()}`,
-  level: 2,
-  text,
-}));
-
-/** One reading-width page in a frame of a given width, with or without its side panel. */
-function ReadingFrame({ width, open }: { width: number; open: boolean }) {
-  return (
-    <figure className="flex shrink-0 flex-col gap-2">
-      <figcaption className="text-xs text-muted-foreground tabular-nums">
-        {width}px · panel {open ? "open" : "closed"}
-      </figcaption>
-      <div
-        className="overflow-hidden rounded-card border bg-background"
-        style={{ width, height: 360 }}
-      >
-        <RecordLayout className="h-full">
-          <RecordLayoutMain className="overflow-y-auto py-8">
-            <DocumentLayout>
-              <DocumentLayoutHeader>
-                <DocumentLayoutTitle>Pricing v2</DocumentLayoutTitle>
-              </DocumentLayoutHeader>
-              <DocumentLayoutContents>
-                <TableOfContents
-                  variant="rail"
-                  side="start"
-                  sticky={false}
-                  items={OUTLINE}
-                />
-              </DocumentLayoutContents>
-              <DocumentLayoutBody>
-                <p className="text-base">
-                  Pricing for the annual plan is set per seat and billed once a
-                  year. Teams that grow during the term add seats at the same
-                  rate, prorated to the renewal date.
-                </p>
-              </DocumentLayoutBody>
-            </DocumentLayout>
-          </RecordLayoutMain>
-          <Panels panel={open ? "details" : null} />
-        </RecordLayout>
-      </div>
-    </figure>
-  );
-}
-
-/**
- * The reading-width model at 1440, 1280 and 1024: the text keeps its measure and stays centred
- * in the room the panel leaves (it slides to the start when the panel docks); the contents rail
- * keeps its gap in the start gutter; below 1200px the panel floats over the text instead.
- * Scroll sideways to compare; the switch opens and closes the panel in all three.
- */
-export function recordLayoutReadingWidths(): ReactNode {
-  const [open, setOpen] = React.useState(true);
-  return (
-    <Wrapper className="block p-4">
-      <label className="mb-3 flex items-center gap-2 text-sm">
-        <Switch checked={open} onCheckedChange={setOpen} />
-        Side panel open
-      </label>
-      <div className="flex gap-6 overflow-x-auto pb-2">
-        {[1440, 1280, 1024].map((w) => (
-          <ReadingFrame key={w} width={w} open={open} />
-        ))}
-      </div>
     </Wrapper>
   );
 }

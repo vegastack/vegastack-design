@@ -1,287 +1,238 @@
 import "../../test/geometry.css";
 import * as React from "react";
-import { Info, Paperclip } from "lucide-react";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
+  PropertyLabel,
+  PropertyList,
+  PropertyRow,
+  PropertyValue,
+} from "./property-list";
+import {
   RecordLayout,
   RecordLayoutMain,
-  RecordLayoutPanel,
-  RecordLayoutSide,
-  RecordLayoutStrip,
-  RecordLayoutStripItem,
-  RecordLayoutStripSlot,
+  RecordPanel,
+  RecordPanelAction,
+  RecordPanelItem,
+  RecordPanelList,
+  RecordPanelProvider,
+  RecordPanelSection,
+  RecordPanelToggle,
+  RecordPanelTrigger,
 } from "./record-layout";
-
-test("the main column takes the whole width of the layout", async () => {
-  const screen = await render(
-    <div style={{ width: 900 }}>
-      <RecordLayout>
-        <RecordLayoutMain>
-          <h1>Weekly sync</h1>
-        </RecordLayoutMain>
-      </RecordLayout>
-    </div>,
-  );
-  const main = screen.container.querySelector<HTMLElement>(
-    "[data-slot=record-layout-main]",
-  )!;
-  expect(Math.round(main.getBoundingClientRect().width)).toBe(900);
-  await expectNoA11yViolations(screen.container);
-});
-
-function RecordWithPanels({
-  width,
-  defaultPanel = null,
-  onPanel,
-}: {
-  width: number;
-  defaultPanel?: string | null;
-  onPanel?: (panel: string | null) => void;
-}) {
-  const [panelWidth, setPanelWidth] = React.useState(380);
-  return (
-    <div style={{ width }}>
-      <RecordLayout>
-        <RecordLayoutMain>
-          <h1>Weekly sync</h1>
-          <RecordLayoutStripSlot />
-          <p>Description</p>
-        </RecordLayoutMain>
-        <RecordLayoutSide
-          defaultPanel={defaultPanel}
-          onPanelChange={onPanel}
-          panelWidth={panelWidth}
-          onPanelWidthChange={setPanelWidth}
-        >
-          <RecordLayoutPanel value="details" title="Details">
-            <p>Owner</p>
-          </RecordLayoutPanel>
-          <RecordLayoutPanel value="files" title="Files">
-            <input aria-label="Find a file" />
-          </RecordLayoutPanel>
-          <RecordLayoutStrip>
-            <RecordLayoutStripItem
-              value="details"
-              label="Details"
-              icon={<Info />}
-            />
-            <RecordLayoutStripItem
-              value="files"
-              label="Files"
-              icon={<Paperclip />}
-              count={3}
-            />
-          </RecordLayoutStrip>
-        </RecordLayoutSide>
-      </RecordLayout>
-    </div>
-  );
-}
 
 const slot = (name: string) =>
   document.querySelector<HTMLElement>(`[data-slot='${name}']`);
+const frames = () =>
+  new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
-test("the strip opens one panel at a time, a second click closes it, and each change is reported", async () => {
-  await page.viewport(1440, 900);
-  const changes: (string | null)[] = [];
-  const screen = await render(
-    <RecordWithPanels width={1300} onPanel={(p) => changes.push(p)} />,
+function Record({
+  width,
+  open,
+  defaultOpen,
+  onOpenChange,
+  sections,
+  onSectionOpenChange,
+}: {
+  width: number;
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  sections?: Record<string, boolean>;
+  onSectionOpenChange?: (value: string, open: boolean) => void;
+}) {
+  return (
+    <RecordPanelProvider
+      open={open}
+      defaultOpen={defaultOpen}
+      onOpenChange={onOpenChange}
+    >
+      <header>
+        <RecordPanelToggle />
+      </header>
+      <div style={{ width, height: 600, display: "flex" }}>
+        <RecordLayout>
+          <RecordLayoutMain>
+            <h1>Weekly sync</h1>
+            <RecordPanelTrigger />
+            <p>Description</p>
+          </RecordLayoutMain>
+          <RecordPanel
+            sections={sections}
+            onSectionOpenChange={onSectionOpenChange}
+          >
+            <RecordPanelSection value="details" title="Details">
+              <PropertyList variant="panel" aria-label="Details">
+                <PropertyRow>
+                  <PropertyLabel>Owner</PropertyLabel>
+                  <PropertyValue>Asha Rao</PropertyValue>
+                </PropertyRow>
+              </PropertyList>
+            </RecordPanelSection>
+            <RecordPanelSection
+              value="files"
+              title="Files"
+              count={1}
+              action={<RecordPanelAction label="Add file" />}
+            >
+              <RecordPanelList>
+                <RecordPanelItem detail="1.2 MB">
+                  rollout-plan.pdf
+                </RecordPanelItem>
+              </RecordPanelList>
+            </RecordPanelSection>
+          </RecordPanel>
+        </RecordLayout>
+      </div>
+    </RecordPanelProvider>
   );
-  expect(slot("record-layout-panel")).toBeNull();
-  await screen.getByRole("button", { name: "Details" }).click();
+}
+
+test("from 1200px the panel docks, 320px wide, open on first render, and the main column takes the rest", async () => {
+  await page.viewport(1440, 900);
+  const screen = await render(<Record width={1300} />);
+  const panel = slot("record-panel")!;
+  // Open on the first render (the server's): no motion, nothing moves on hydration.
+  expect(panel.hasAttribute("data-motion")).toBe(false);
+  expect(getComputedStyle(panel).position).not.toBe("absolute");
+  expect(Math.round(panel.getBoundingClientRect().width)).toBe(320);
+  const main = slot("record-layout-main")!.getBoundingClientRect();
+  expect(Math.round(main.width)).toBe(1300 - 320);
+  // One full-height divider: the panel runs the layout's height.
+  expect(Math.round(panel.getBoundingClientRect().height)).toBe(600);
   expect(
-    slot("record-layout-panel")!.getAttribute("aria-labelledby"),
-  ).toBeTruthy();
-  await screen.getByRole("button", { name: "Files, 3" }).click();
-  expect(
-    document.querySelectorAll("[data-slot='record-layout-panel']").length,
-  ).toBe(1);
-  expect(
-    screen
-      .getByRole("button", { name: "Files, 3" })
-      .element()
-      .getAttribute("aria-expanded"),
-  ).toBe("true");
-  await screen.getByRole("button", { name: "Files, 3" }).click();
-  expect(slot("record-layout-panel")).toBeNull();
-  expect(changes).toEqual(["details", "files", null]);
+    screen.getByRole("button", { name: "Hide details" }).element(),
+  ).toHaveAttribute("aria-expanded", "true");
   await expectNoA11yViolations(screen.container);
 });
 
-test("from 1200px the panel docks beside the main column, which narrows; the default plays no motion", async () => {
+test("▥ hides and shows the docked panel, reporting each choice, and ⌘. does the same", async () => {
   await page.viewport(1440, 900);
-  await render(<RecordWithPanels width={1300} defaultPanel="details" />);
-  const panel = slot("record-layout-panel")!;
-  expect(panel.hasAttribute("data-motion")).toBe(false);
-  expect(getComputedStyle(panel).position).not.toBe("absolute");
-  const main = slot("record-layout-main")!.getBoundingClientRect();
-  expect(Math.round(main.width)).toBe(1300 - 380 - 44);
-  expect(Math.round(panel.getBoundingClientRect().left)).toBe(
-    Math.round(main.right),
+  const changes: boolean[] = [];
+  const screen = await render(
+    <Record width={1300} onOpenChange={(o) => changes.push(o)} />,
   );
+  await screen.getByRole("button", { name: "Hide details" }).click();
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
+  await screen.getByRole("button", { name: "Show details" }).click();
+  const panel = slot("record-panel")!;
+  expect(getComputedStyle(panel).display).toBe("flex");
+  // A person's open plays the motion.
+  expect(panel.getAttribute("data-motion")).toBe("enter");
+  await userEvent.keyboard("{Control>}.{/Control}");
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
+  expect(changes).toEqual([false, true, false]);
 });
 
-test("below 1200px the panel floats over the main column, and Escape closes it", async () => {
+test("below 1200px it starts closed even when remembered open, ▥ floats it over the page, and Escape closes it with focus back on ▥", async () => {
   await page.viewport(1440, 900);
-  const screen = await render(<RecordWithPanels width={1100} />);
-  await screen.getByRole("button", { name: "Details" }).click();
-  const panel = slot("record-layout-panel")!;
-  expect(panel.getAttribute("data-motion")).toBe("enter");
+  const changes: boolean[] = [];
+  const screen = await render(
+    <Record width={1100} open onOpenChange={(o) => changes.push(o)} />,
+  );
+  await frames();
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
+  const toggle = screen.getByRole("button", { name: "Show details" });
+  await toggle.click();
+  const panel = slot("record-panel")!;
+  // The slide in has played.
+  await new Promise((r) => setTimeout(r, 400));
   expect(getComputedStyle(panel).position).toBe("absolute");
+  expect(Math.round(panel.getBoundingClientRect().right)).toBe(
+    Math.round(slot("record-layout")!.getBoundingClientRect().right),
+  );
+  // It floats: the main column keeps the whole width.
   expect(
     Math.round(slot("record-layout-main")!.getBoundingClientRect().width),
-  ).toBe(1100 - 44);
+  ).toBe(1100);
+  expect(document.activeElement).toBe(panel);
   await userEvent.keyboard("{Escape}");
-  expect(slot("record-layout-panel")).toBeNull();
+  await frames();
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
+  expect(document.activeElement?.getAttribute("data-slot")).toBe(
+    "record-panel-toggle",
+  );
+  // A floating panel is never remembered.
+  expect(changes).toEqual([]);
 });
 
-test("docked beside the page, Escape leaves the panel open", async () => {
+test("a floating panel closes on a click in the page", async () => {
   await page.viewport(1440, 900);
-  await render(<RecordWithPanels width={1300} defaultPanel="details" />);
+  const screen = await render(<Record width={1100} defaultOpen={false} />);
+  await screen.getByRole("button", { name: "Show details" }).click();
+  await screen.getByText("Description").click();
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
+});
+
+test("docked, Escape leaves the panel open", async () => {
+  await page.viewport(1440, 900);
+  await render(<Record width={1300} />);
   await userEvent.keyboard("{Escape}");
-  expect(slot("record-layout-panel")).not.toBeNull();
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("flex");
 });
 
-test("the panel resizes by keys from 320px", async () => {
+test("sections fold on their header and report each fold; an app's fold state wins over defaultOpen", async () => {
   await page.viewport(1440, 900);
-  await render(<RecordWithPanels width={1300} defaultPanel="details" />);
-  const handle = slot("peek-resize-handle")!;
-  handle.focus();
-  await userEvent.keyboard("{Home}");
-  await new Promise((r) =>
-    requestAnimationFrame(() => requestAnimationFrame(r)),
-  );
-  expect(
-    Math.round(slot("record-layout-panel")!.getBoundingClientRect().width),
-  ).toBe(320);
-  // The maximum is a share of the record layout, not of the side wrapper.
-  await userEvent.keyboard("{End}");
-  await new Promise((r) =>
-    requestAnimationFrame(() => requestAnimationFrame(r)),
-  );
-  expect(
-    Math.round(slot("record-layout-panel")!.getBoundingClientRect().width),
-  ).toBe(780);
-});
-
-test("✕ hands focus back to the panel's strip button", async () => {
-  await page.viewport(1440, 900);
-  const screen = await render(<RecordWithPanels width={1300} />);
-  await screen.getByRole("button", { name: "Files, 3" }).click();
-  await screen.getByRole("button", { name: "Close panel" }).click();
-  await new Promise((r) => requestAnimationFrame(r));
-  expect(slot("record-layout-panel")).toBeNull();
-  expect(document.activeElement?.getAttribute("data-value")).toBe("files");
-});
-
-test("an app's change of the controlled panel plays no motion", async () => {
-  await page.viewport(1440, 900);
-  function Controlled() {
-    const [panel, setPanel] = React.useState<string | null>(null);
+  const folds: [string, boolean][] = [];
+  function Folding() {
+    const [sections, setSections] = React.useState<Record<string, boolean>>({
+      files: false,
+    });
     return (
-      <div style={{ width: 1300 }}>
-        <button type="button" onClick={() => setPanel("details")}>
-          Apply default
-        </button>
-        <RecordLayout>
-          <RecordLayoutMain>Body</RecordLayoutMain>
-          <RecordLayoutSide panel={panel} onPanelChange={setPanel}>
-            <RecordLayoutPanel value="details" title="Details">
-              Owner
-            </RecordLayoutPanel>
-            <RecordLayoutStrip>
-              <RecordLayoutStripItem
-                value="details"
-                label="Details"
-                icon={<Info />}
-              />
-            </RecordLayoutStrip>
-          </RecordLayoutSide>
-        </RecordLayout>
-      </div>
+      <Record
+        width={1300}
+        sections={sections}
+        onSectionOpenChange={(value, open) => {
+          folds.push([value, open]);
+          setSections((s) => ({ ...s, [value]: open }));
+        }}
+      />
     );
   }
-  const screen = await render(<Controlled />);
-  await screen.getByRole("button", { name: "Apply default" }).click();
-  expect(slot("record-layout-panel")!.hasAttribute("data-motion")).toBe(false);
+  const screen = await render(<Folding />);
+  const files = screen.getByRole("button", { name: "Files 1", exact: true });
+  expect(files.element()).toHaveAttribute("aria-expanded", "false");
+  await files.click();
+  expect(files.element()).toHaveAttribute("aria-expanded", "true");
+  await screen.getByRole("button", { name: "Details", exact: true }).click();
+  expect(folds).toEqual([
+    ["files", true],
+    ["details", false],
+  ]);
 });
 
-test("on a phone the strip is a row under the header, and each button opens its panel as a sheet", async () => {
+test("a section is 40px tall at rest, its key column 92px and its rows at least 30px", async () => {
+  await page.viewport(1440, 900);
+  await render(<Record width={1300} />);
+  expect(
+    Math.round(
+      slot("record-panel-section-header")!.getBoundingClientRect().height,
+    ),
+  ).toBe(40);
+  const label = slot("property-label")!.getBoundingClientRect();
+  expect(Math.round(label.width)).toBe(92);
+  const row = slot("property-row")!.getBoundingClientRect();
+  expect(Math.round(row.height)).toBeGreaterThanOrEqual(30);
+  // The section's rows sit 16px in from the panel's edge.
+  const panel = slot("record-panel")!.getBoundingClientRect();
+  expect(Math.round(label.left - panel.left)).toBe(16 + 1);
+});
+
+test("on a phone the Details button opens the sections as a sheet; the remembered choice never pops one", async () => {
   await page.viewport(390, 844);
-  const changes: (string | null)[] = [];
+  const changes: boolean[] = [];
   const screen = await render(
-    <RecordWithPanels
-      width={390}
-      defaultPanel="files"
-      onPanel={(p) => changes.push(p)}
-    />,
+    <Record width={390} open onOpenChange={(o) => changes.push(o)} />,
   );
-  // A type's default never pops a sheet over the page on load.
   expect(slot("peek-sheet")).toBeNull();
-  const row = slot("record-layout-strip")!;
-  expect(row.getAttribute("data-orientation")).toBe("horizontal");
-  expect(row.parentElement!.getAttribute("data-slot")).toBe(
-    "record-layout-strip-slot",
-  );
-  await screen.getByRole("button", { name: /Details/ }).click();
+  await screen.getByRole("button", { name: "Details", exact: true }).click();
   const sheet = slot("peek-sheet")!;
-  expect(sheet.textContent).toContain("Owner");
-  // A tap inside never closes it.
-  await screen.getByText("Owner").click();
+  expect(sheet.textContent).toContain("Asha Rao");
+  await screen.getByText("Asha Rao").click();
   expect(slot("peek-sheet")).not.toBeNull();
-  // A phone sheet never changes the remembered panel.
   expect(changes).toEqual([]);
   await expectNoA11yViolations(document.body);
   await page.viewport(1440, 900);
-});
-
-test("an opening cut short by the app gives up its motion", async () => {
-  await page.viewport(1440, 900);
-  function Switcher() {
-    const [panel, setPanel] = React.useState<string | null>(null);
-    return (
-      <div style={{ width: 1300 }}>
-        <button type="button" onClick={() => setPanel("files")}>
-          Switch
-        </button>
-        <button type="button" onClick={() => setPanel("details")}>
-          Back
-        </button>
-        <RecordLayout>
-          <RecordLayoutMain>Body</RecordLayoutMain>
-          <RecordLayoutSide panel={panel} onPanelChange={setPanel}>
-            <RecordLayoutPanel value="details" title="Details">
-              Owner
-            </RecordLayoutPanel>
-            <RecordLayoutPanel value="files" title="Files">
-              Files
-            </RecordLayoutPanel>
-            <RecordLayoutStrip>
-              <RecordLayoutStripItem
-                value="details"
-                label="Details"
-                icon={<Info />}
-              />
-              <RecordLayoutStripItem
-                value="files"
-                label="Files"
-                icon={<Paperclip />}
-              />
-            </RecordLayoutStrip>
-          </RecordLayoutSide>
-        </RecordLayout>
-      </div>
-    );
-  }
-  const screen = await render(<Switcher />);
-  await screen.getByRole("button", { name: "Details", exact: true }).click();
-  expect(slot("record-layout-panel")!.getAttribute("data-motion")).toBe(
-    "enter",
-  );
-  await screen.getByRole("button", { name: "Switch" }).click();
-  await screen.getByRole("button", { name: "Back" }).click();
-  expect(slot("record-layout-panel")!.hasAttribute("data-motion")).toBe(false);
 });

@@ -1,375 +1,335 @@
-// @vegastack record-layout@0.107.0 sha256-vRTlaw1ciwyp5Aprj942L0iFzYZYs9qFOBrNsK/vpj4=
+// @vegastack record-layout@0.107.0 sha256-m3nXJBZ/q8yqZD2VXCIIvODNhGe2CVjj3o4s45gXxtY=
 
 "use client";
 
 import * as React from "react";
-import { createPortal } from "react-dom";
-import { X } from "lucide-react";
-import { cn, mergeRefs } from "@vegastack/design";
+import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
+import { ChevronRight, PanelRight, Plus, X } from "lucide-react";
+import { cn } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
-import { PeekResizeHandle, PeekSheet } from "@/components/ui/peek";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import { Kbd } from "@/components/ui/kbd";
+import { PeekSheet } from "@/components/ui/peek";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useMediaQuery } from "@/components/ui/use-media-query";
-import { isEditableTarget } from "@/components/ui/use-platform";
+import {
+  formatShortcut,
+  isEditableTarget,
+  usePlatform,
+} from "@/components/ui/use-platform";
 
 /* ------------------------------------------------------------------------------------------------
- * RecordLayoutSide — a record page's reference panels (layout v2, D7–D8): a strip of icon buttons
- * on the page's right edge, each opening one panel beside the main column (Details, Transcript,
- * Files, Links, Versions, Comment threads, Activity, Ask). One panel at a time; it resizes; the app
- * controls which one is open (`panel`) so it can apply a per-type default and remember the choice.
+ * RecordPanel — a record page's one side panel (record side panel R1–R5): 320px, flush to the
+ * page's right edge with one full-height divider, its sections stacked (Details, Related, Files…),
+ * each folding on its own. No strip of icons: the page bar's ▥ (`RecordPanelToggle`, ⌘.) shows and
+ * hides it.
  *
- * Where it sits follows the record layout's own width, not the window's: from 1200px it docks
- * beside the main column; below that it floats over it. On a phone (under 640px) the strip becomes
- * a row of buttons under the record's header (`RecordLayoutStripSlot` marks the spot) and each
- * opens its panel as the peek's bottom sheet. The open motion plays only for a person's click.
+ * Where it sits follows the record layout's own width, not the window's:
+ *
+ *   record width     panel                                             open on load
+ *   ≥ 75rem (1200)   docks beside the main column                     the person's remembered choice
+ *   40–75rem         opens over the page, edge to edge, on ▥ (Esc)     closed
+ *   < 640px window   a bottom sheet the "Details" button opens         closed
+ *
+ * `RecordPanelProvider` holds the state the toggle, the phone button and the panel share; the app
+ * owns the remembered choice (`open`, `onOpenChange`) and each section's fold (`sections`,
+ * `onSectionOpenChange`), so it can keep them per person and per record type. A docked panel that
+ * is open on load is drawn by the server: nothing moves when the page hydrates.
  * ----------------------------------------------------------------------------------------------*/
 
-/** The narrowest the side panel can be, in px. */
-export const RECORD_PANEL_MIN_WIDTH = 320;
-/** The side panel's width when the app has none saved, in px. */
-export const RECORD_PANEL_DEFAULT_WIDTH = 380;
-/** The widest the side panel can be, as a share of the record layout. */
-export const RECORD_PANEL_MAX_RATIO = 0.6;
-
 const PHONE_QUERY = "(max-width: 639px)";
+/** The record width, in rem, from which the panel docks beside the page. */
+const DOCK_REM = 75;
 const ESC_OWNERS =
   "[role='menu'], [data-open] [role='listbox'], [role='listbox'][data-open], [data-slot='popover-content'], [role='alertdialog'], [role='dialog'][aria-modal='true']";
 
-interface SideContextValue {
-  panel: string | null;
-  /** Opens a panel (or closes it with `null`); `person` marks a click, which plays the motion. */
-  setPanel: (value: string | null, person: boolean) => void;
-  /** The panel a person just opened: it alone plays the open motion, once. */
-  motionFor: string | null;
+type Mode = "docked" | "overlay" | "sheet";
+
+interface PanelContextValue {
+  /** The panel element's id (the toggle's `aria-controls`). */
+  id: string;
+  label: string;
+  /** The remembered choice: whether the panel is open where it docks. */
+  open: boolean;
+  /** Whether this record is wide enough to dock: `null` until measured. */
+  docked: boolean | null;
+  setDocked: (docked: boolean | null) => void;
+  /** The panel floating over a narrower record (never remembered). */
+  overlay: boolean;
+  /** The phone's sheet (never remembered). */
+  sheet: boolean;
+  setSheet: (open: boolean) => void;
+  mode: Mode;
+  /** Whether the panel shows now, in whichever mode. */
+  shown: boolean;
+  /** A person's open plays the motion once; a load never does. */
+  motion: boolean;
   clearMotion: () => void;
-  phone: boolean;
-  /**
-   * The panel open as a sheet on a phone. A sheet opens only on a tap and never changes the
-   * remembered `panel`, so a type's default never pops a sheet over a phone's page on load.
-   */
-  sheet: string | null;
-  setSheet: (value: string | null) => void;
-  width: number;
-  onWidthChange?: (width: number) => void;
-  idPrefix: string;
+  toggle: () => void;
+  /** Hides a floating panel or the sheet; focus goes back to ▥ when it was in the panel. */
+  dismiss: () => void;
 }
 
-const SideContext = React.createContext<SideContextValue | null>(null);
+const PanelContext = React.createContext<PanelContextValue | null>(null);
 
-function useSide(part: string): SideContextValue {
-  const ctx = React.useContext(SideContext);
-  if (!ctx) throw new Error(`${part} must be used inside <RecordLayoutSide>.`);
+function usePanel(part: string): PanelContextValue {
+  const ctx = React.useContext(PanelContext);
+  if (!ctx)
+    throw new Error(`${part} must be used inside <RecordPanelProvider>.`);
   return ctx;
 }
 
-const panelId = (prefix: string, value: string) =>
-  `${prefix}-panel-${value.replace(/[^a-zA-Z0-9_-]/g, "_")}`;
+const toggleSelector = (id: string) =>
+  `[data-slot='record-panel-toggle'][data-panel='${id}']`;
 
-/** Props for `RecordLayoutSide`. */
-export interface RecordLayoutSideProps extends Omit<
-  React.ComponentPropsWithRef<"div">,
-  "defaultValue"
-> {
-  /** The open panel's value, or `null` when none is open (controlled). @default undefined */
-  panel?: string | null;
-  /**
-   * The panel open on first render when `panel` is not controlled — the record type's default
-   * (products: Properties; meetings with a recording: Transcript; tasks: none).
-   * @default null
-   */
-  defaultPanel?: string | null;
-  /** Called when a person opens, switches or closes a panel; the app remembers it per type. @default undefined */
-  onPanelChange?: (panel: string | null) => void;
-  /** The panel's width in px — the app saves it and passes it back. @default 380 */
-  panelWidth?: number;
-  /** Called with the new width when a resize ends. Omit to hide the resize handle. @default undefined */
-  onPanelWidthChange?: (width: number) => void;
+/** Props for `RecordPanelProvider`. */
+export interface RecordPanelProviderProps {
+  /** Whether the panel is open where it docks (controlled): the person's remembered choice. @default undefined */
+  open?: boolean;
+  /** The docked panel's state on first render when `open` is not controlled. @default true */
+  defaultOpen?: boolean;
+  /** Called when a person shows or hides the docked panel; the app remembers it. @default undefined */
+  onOpenChange?: (open: boolean) => void;
+  /** The panel's name: its landmark, the sheet's title and the phone button's text. @default "Details" */
+  label?: string;
+  /** Whether ⌘. (Ctrl+. elsewhere) shows and hides the panel. @default true */
+  shortcut?: boolean;
+  children?: React.ReactNode;
 }
 
 /**
- * `RecordLayoutSide` — the reference panels of a record page. Put it after `RecordLayoutMain`
- * inside `RecordLayout`, with one `RecordLayoutStrip` (its `RecordLayoutStripItem`s) and one
- * `RecordLayoutPanel` per item. Never on a list page.
+ * `RecordPanelProvider` — the state one record page's panel, its ▥ toggle and its phone button
+ * share. Wrap the page's `RecordLayout` and the page bar's `RecordPanelToggle` in it (the toggle
+ * may portal into the bar: context follows it).
  *
  * @example
- * <RecordLayout>
- *   <RecordLayoutMain>…</RecordLayoutMain>
- *   <RecordLayoutSide panel={panel} onPanelChange={setPanel} panelWidth={w} onPanelWidthChange={setW}>
- *     <RecordLayoutPanel value="details" title="Details">…</RecordLayoutPanel>
- *     <RecordLayoutStrip>
- *       <RecordLayoutStripItem value="details" label="Details" icon={<Info />} />
- *     </RecordLayoutStrip>
- *   </RecordLayoutSide>
- * </RecordLayout>
+ * <RecordPanelProvider open={open} onOpenChange={remember}>
+ *   <PageBarSlot><RecordPanelToggle /></PageBarSlot>
+ *   <RecordLayout>…<RecordPanel>…</RecordPanel></RecordLayout>
+ * </RecordPanelProvider>
  */
-export function RecordLayoutSide({
-  panel: panelProp,
-  defaultPanel = null,
-  onPanelChange,
-  panelWidth,
-  onPanelWidthChange,
-  className,
+export function RecordPanelProvider({
+  open: openProp,
+  defaultOpen = true,
+  onOpenChange,
+  label = "Details",
+  shortcut = true,
   children,
-  ...props
-}: RecordLayoutSideProps) {
+}: RecordPanelProviderProps) {
   const phone = useMediaQuery(PHONE_QUERY);
-  const [own, setOwn] = React.useState<string | null>(defaultPanel);
-  const panel = panelProp !== undefined ? panelProp : own;
-  const [motionFor, setMotionFor] = React.useState<string | null>(null);
-  const clearMotion = React.useCallback(() => setMotionFor(null), []);
-  const [sheet, setSheet] = React.useState<string | null>(null);
+  const [own, setOwn] = React.useState(defaultOpen);
+  const open = openProp ?? own;
+  const [docked, setDocked] = React.useState<boolean | null>(null);
+  const [overlay, setOverlay] = React.useState(false);
+  const [sheet, setSheet] = React.useState(false);
+  const [motion, setMotion] = React.useState(false);
+  const clearMotion = React.useCallback(() => setMotion(false), []);
+  const id = `record-panel${React.useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
+  const latest = React.useRef(onOpenChange);
+  latest.current = onOpenChange;
+
+  // A record that grows wide enough to dock drops its floating panel (the docked one is the
+  // remembered choice); one that leaves the phone width drops its sheet.
   React.useEffect(() => {
-    if (!phone) setSheet(null);
+    if (docked) setOverlay(false);
+  }, [docked]);
+  React.useEffect(() => {
+    if (!phone) setSheet(false);
   }, [phone]);
-  const idPrefix = `record-side${React.useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
-  const latest = React.useRef(onPanelChange);
-  latest.current = onPanelChange;
 
-  const setPanel = React.useCallback(
-    (value: string | null, person: boolean) => {
-      setMotionFor(person ? value : null);
-      setOwn(value);
-      latest.current?.(value);
-    },
-    [],
-  );
+  const mode: Mode = phone ? "sheet" : docked === false ? "overlay" : "docked";
+  const shown = mode === "sheet" ? sheet : mode === "overlay" ? overlay : open;
 
-  const ctx = React.useMemo<SideContextValue>(
+  const toggle = React.useCallback(() => {
+    if (mode === "sheet") {
+      setSheet((s) => !s);
+      return;
+    }
+    setMotion(true);
+    if (mode === "overlay") {
+      setOverlay((o) => !o);
+      return;
+    }
+    setOwn(!open);
+    latest.current?.(!open);
+  }, [mode, open]);
+
+  const dismiss = React.useCallback(() => {
+    const panel = document.getElementById(id);
+    const active = document.activeElement;
+    const inside =
+      !!panel && (panel.contains(active) || active === document.body);
+    if (mode === "sheet") setSheet(false);
+    else if (mode === "overlay") setOverlay(false);
+    else {
+      setOwn(false);
+      latest.current?.(false);
+    }
+    if (!inside || mode === "sheet") return;
+    requestAnimationFrame(() =>
+      document
+        .querySelector<HTMLElement>(toggleSelector(id))
+        ?.focus({ preventScroll: true }),
+    );
+  }, [id, mode]);
+
+  // ⌘. (Ctrl+. elsewhere) shows and hides it, from anywhere on the page, text fields included:
+  // the chord types nothing.
+  const latestToggle = React.useRef(toggle);
+  latestToggle.current = toggle;
+  React.useEffect(() => {
+    if (!shortcut) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.defaultPrevented || event.isComposing || event.repeat) return;
+      if (event.key !== "." || event.altKey || event.shiftKey) return;
+      if (!(event.metaKey || event.ctrlKey)) return;
+      event.preventDefault();
+      latestToggle.current();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [shortcut]);
+
+  const value = React.useMemo<PanelContextValue>(
     () => ({
-      panel,
-      setPanel,
-      motionFor,
-      clearMotion,
-      phone,
+      id,
+      label,
+      open,
+      docked,
+      setDocked,
+      overlay,
       sheet,
       setSheet,
-      width: panelWidth ?? RECORD_PANEL_DEFAULT_WIDTH,
-      onWidthChange: onPanelWidthChange,
-      idPrefix,
+      mode,
+      shown,
+      motion,
+      clearMotion,
+      toggle,
+      dismiss,
     }),
     [
-      panel,
-      setPanel,
-      motionFor,
-      clearMotion,
-      phone,
+      id,
+      label,
+      open,
+      docked,
+      overlay,
       sheet,
-      panelWidth,
-      onPanelWidthChange,
-      idPrefix,
+      mode,
+      shown,
+      motion,
+      clearMotion,
+      toggle,
+      dismiss,
     ],
   );
-
   return (
-    <SideContext.Provider value={ctx}>
-      <div
-        data-slot="record-layout-side"
-        data-panel={panel ?? undefined}
-        className={cn(
-          "flex shrink-0 self-stretch",
-          // On a phone the strip row (when no slot takes it) runs full width above the main column.
-          "max-sm:order-first max-sm:self-auto",
-          className,
-        )}
-        {...props}
-      >
-        <div
-          data-slot="record-layout-side-inner"
-          className="sticky top-0 flex h-full max-h-dvh max-sm:static max-sm:h-auto max-sm:max-h-none max-sm:w-full"
-        >
-          {children}
-        </div>
-      </div>
-    </SideContext.Provider>
+    <PanelContext.Provider value={value}>{children}</PanelContext.Provider>
   );
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Strip
+ * Toggle and phone button
  * ----------------------------------------------------------------------------------------------*/
 
-/** Native container props for `RecordLayoutStripSlot`. */
-export type RecordLayoutStripSlotProps = React.ComponentPropsWithRef<"div">;
-
-/**
- * `RecordLayoutStripSlot` — marks where the phone's row of panel buttons goes: under the record's
- * header, inside `RecordLayoutMain`. Empty (and taking no room) on wider screens.
- *
- * @example
- * <RecordLayoutMain><RecordHeader … /><RecordLayoutStripSlot />…</RecordLayoutMain>
- */
-export function RecordLayoutStripSlot({
-  className,
-  ...props
-}: RecordLayoutStripSlotProps) {
-  return (
-    <div
-      data-slot="record-layout-strip-slot"
-      className={cn("empty:hidden", className)}
-      {...props}
-    />
-  );
-}
-
-/** Native container props for `RecordLayoutStrip`. */
-export type RecordLayoutStripProps = React.ComponentPropsWithRef<"div">;
-
-/**
- * `RecordLayoutStrip` — the column of icon buttons on the page's right edge; on a phone, a row of
- * labelled buttons under the record's header.
- *
- * @example
- * <RecordLayoutStrip><RecordLayoutStripItem value="files" label="Files" icon={<Paperclip />} count={3} /></RecordLayoutStrip>
- */
-export function RecordLayoutStrip({
-  className,
-  children,
-  ...props
-}: RecordLayoutStripProps) {
-  const { phone } = useSide("RecordLayoutStrip");
-  const anchorRef = React.useRef<HTMLSpanElement | null>(null);
-  const [slot, setSlot] = React.useState<HTMLElement | null>(null);
-
-  // On a phone the row moves into the record's `RecordLayoutStripSlot`, if it has one.
-  React.useEffect(() => {
-    if (!phone) {
-      setSlot(null);
-      return;
-    }
-    const root = anchorRef.current?.closest("[data-slot='record-layout']");
-    setSlot(
-      root?.querySelector<HTMLElement>(
-        "[data-slot='record-layout-strip-slot']",
-      ) ?? null,
-    );
-  }, [phone]);
-
-  const strip = (
-    <div
-      role="group"
-      aria-label="Record panels"
-      data-slot="record-layout-strip"
-      data-orientation={phone ? "horizontal" : "vertical"}
-      className={cn(
-        phone
-          ? "flex w-full min-w-0 items-center gap-2 overflow-x-auto py-2 [scrollbar-width:none]"
-          : "flex w-11 shrink-0 flex-col items-center gap-1 border-s py-2",
-        className,
-      )}
-      {...props}
-    >
-      {children}
-    </div>
-  );
-
-  return (
-    <>
-      <span ref={anchorRef} hidden data-slot="record-layout-strip-anchor" />
-      {phone && slot ? createPortal(strip, slot) : strip}
-    </>
-  );
-}
-
-/** Props for `RecordLayoutStripItem`. */
-export interface RecordLayoutStripItemProps extends Omit<
+/** Props for `RecordPanelToggle` — a ghost `Button`'s, less what it fixes. */
+export type RecordPanelToggleProps = Omit<
   React.ComponentPropsWithRef<typeof Button>,
-  "value" | "children"
-> {
-  /** The panel it opens: a `RecordLayoutPanel`'s `value`. */
-  value: string;
-  /** The panel's name: the tooltip, the accessible name, and the phone button's text. */
-  label: string;
-  /** The panel's icon. */
-  icon: React.ReactNode;
-  /** A count shown with the icon (files, links, comment threads). Hidden at 0. @default undefined */
-  count?: number;
-}
+  "children" | "variant" | "size"
+>;
 
 /**
- * `RecordLayoutStripItem` — one panel's button: an icon with a tooltip (and a count) on the strip,
- * a labelled button on a phone. It opens its panel, and closes it when it is already open.
+ * `RecordPanelToggle` — ▥, the page bar's last control: shows and hides the side panel (⌘.).
+ * A 28px ghost icon button, filled while the panel shows. Hidden on a phone, where the
+ * `RecordPanelTrigger` in the page opens the sheet.
  *
  * @example
- * <RecordLayoutStripItem value="transcript" label="Transcript" icon={<FileText />} />
+ * <ShellTopBarPanel><RecordPanelToggle /></ShellTopBarPanel>
  */
-export function RecordLayoutStripItem({
-  value,
-  label,
-  icon,
-  count,
-  onClick,
+export function RecordPanelToggle({
   className,
+  onClick,
   ...props
-}: RecordLayoutStripItemProps) {
-  const { panel, setPanel, phone, sheet, setSheet, idPrefix } = useSide(
-    "RecordLayoutStripItem",
-  );
-  const active = (phone ? sheet : panel) === value;
-  const name = count ? `${label}, ${count}` : label;
-  const shared = {
-    "aria-expanded": active,
-    "aria-controls": active ? panelId(idPrefix, value) : undefined,
-    "data-active": active ? "" : undefined,
-    "data-value": value,
-    "data-side": idPrefix,
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
-      onClick?.(event as never);
-      if (event.defaultPrevented) return;
-      if (phone) setSheet(active ? null : value);
-      else setPanel(active ? null : value, true);
-    },
-  };
-
-  if (phone)
-    return (
-      <Button
-        variant="outline"
-        size="sm"
-        data-slot="record-layout-strip-item"
-        className={cn("shrink-0", className)}
-        {...shared}
-        {...props}
-      >
-        {icon}
-        <span>{label}</span>
-        {count ? (
-          <span className="text-muted-foreground tabular-nums">{count}</span>
-        ) : null}
-      </Button>
-    );
-
+}: RecordPanelToggleProps) {
+  const ctx = usePanel("RecordPanelToggle");
+  const { os } = usePlatform();
+  const name = `${ctx.shown ? "Hide" : "Show"} ${ctx.label.toLowerCase()}`;
   return (
     <Tooltip>
       <TooltipTrigger
         render={
           <Button
             variant="ghost"
-            size="icon"
+            size="icon-sm"
             aria-label={name}
-            data-slot="record-layout-strip-item"
-            className={cn("relative", className)}
-            {...shared}
+            aria-expanded={ctx.shown}
+            aria-controls={ctx.shown ? ctx.id : undefined}
+            data-slot="record-panel-toggle"
+            data-panel={ctx.id}
+            className={cn("max-sm:hidden", className)}
+            onClick={(event) => {
+              onClick?.(event);
+              if (!event.defaultPrevented) ctx.toggle();
+            }}
             {...props}
           />
         }
       >
-        {icon}
-        {count ? (
-          <span
-            aria-hidden
-            data-slot="record-layout-strip-count"
-            className="absolute -end-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-chip bg-muted px-1 text-xs leading-none text-muted-foreground tabular-nums"
-          >
-            {count}
-          </span>
-        ) : null}
+        <PanelRight />
       </TooltipTrigger>
-      <TooltipContent side="left">{label}</TooltipContent>
+      <TooltipContent>
+        {name}
+        <Kbd aria-hidden="true">{formatShortcut(["mod", "."], os)}</Kbd>
+      </TooltipContent>
     </Tooltip>
+  );
+}
+
+/** Props for `RecordPanelTrigger` — an outline `Button`'s, less what it fixes. */
+export type RecordPanelTriggerProps = Omit<
+  React.ComponentPropsWithRef<typeof Button>,
+  "variant" | "size"
+>;
+
+/**
+ * `RecordPanelTrigger` — the phone's "Details" button: put it in the main column under the
+ * record's header. It opens the panel's sections as a bottom sheet, and takes no room from 640px.
+ *
+ * @example
+ * <RecordLayoutMain><PageHeader … /><RecordPanelTrigger />…</RecordLayoutMain>
+ */
+export function RecordPanelTrigger({
+  className,
+  children,
+  onClick,
+  ...props
+}: RecordPanelTriggerProps) {
+  const ctx = usePanel("RecordPanelTrigger");
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      aria-haspopup="dialog"
+      aria-expanded={ctx.mode === "sheet" && ctx.sheet}
+      data-slot="record-panel-trigger"
+      className={cn("self-start sm:hidden", className)}
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented) ctx.setSheet(true);
+      }}
+      {...props}
+    >
+      <PanelRight />
+      {children ?? ctx.label}
+    </Button>
   );
 }
 
@@ -377,212 +337,444 @@ export function RecordLayoutStripItem({
  * Panel
  * ----------------------------------------------------------------------------------------------*/
 
-/** Props for `RecordLayoutPanel`. */
-export interface RecordLayoutPanelProps extends Omit<
-  React.ComponentPropsWithRef<"aside">,
-  "title"
-> {
-  /** Which strip item opens it. */
-  value: string;
-  /** The panel's title in its header, e.g. "Transcript". */
-  title: React.ReactNode;
-  /** Controls after the title (a filter, a follow toggle), before the close button. @default undefined */
-  actions?: React.ReactNode;
+interface SectionsContextValue {
+  state: Readonly<Record<string, boolean>>;
+  set: (value: string, open: boolean) => void;
+}
+
+const SectionsContext = React.createContext<SectionsContextValue | null>(null);
+
+/** Props for `RecordPanel`. */
+export interface RecordPanelProps extends React.ComponentPropsWithRef<"aside"> {
+  /**
+   * Each section's fold, by its `value` (controlled): `true` open, `false` folded; a section not
+   * in it takes its `defaultOpen`. The app keeps it per record type. @default undefined
+   */
+  sections?: Readonly<Record<string, boolean>>;
+  /** Called when a person folds or opens a section. @default undefined */
+  onSectionOpenChange?: (value: string, open: boolean) => void;
 }
 
 /**
- * `RecordLayoutPanel` — one reference panel: a header (title, actions, close) over its scrolling
- * body. It renders only while it is the open one: beside the main column from 1200px, over it
- * below that, and as a bottom sheet on a phone. Escape closes it while it floats over the page.
+ * `RecordPanel` — the side panel itself, after `RecordLayoutMain` inside `RecordLayout`: an
+ * `aside` of stacked `RecordPanelSection`s on the `panel` surface. It docks from 1200px of record
+ * width, floats over the page below that (Escape or a click on the page closes it, and focus
+ * returns to ▥), and is a bottom sheet on a phone. Never on a list page: rows open in `Peek`.
  *
  * @example
- * <RecordLayoutPanel value="details" title="Details"><PropertyList>…</PropertyList></RecordLayoutPanel>
+ * <RecordPanel sections={folds} onSectionOpenChange={rememberFold}>
+ *   <RecordPanelSection value="details" title="Details">…</RecordPanelSection>
+ *   <RecordPanelSection value="files" title="Files" count={2}>…</RecordPanelSection>
+ * </RecordPanel>
  */
-export function RecordLayoutPanel({
-  value,
-  title,
-  actions,
+export function RecordPanel({
+  sections,
+  onSectionOpenChange,
   className,
   children,
-  style,
-  ref,
   onTransitionEnd,
   ...props
-}: RecordLayoutPanelProps) {
-  const {
-    panel,
-    setPanel,
-    motionFor,
-    clearMotion,
-    phone,
-    sheet,
-    setSheet,
-    width,
-    onWidthChange,
-    idPrefix,
-  } = useSide("RecordLayoutPanel");
-  const open = (phone ? sheet : panel) === value;
-  const id = panelId(idPrefix, value);
-  const titleId = `${id}-title`;
-  const rootRef = React.useRef<HTMLElement | null>(null);
-  const refs = React.useMemo(
-    () => mergeRefs<HTMLElement>(rootRef, ref as React.Ref<HTMLElement>),
-    [ref],
-  );
+}: RecordPanelProps) {
+  const ctx = usePanel("RecordPanel");
+  const ref = React.useRef<HTMLElement | null>(null);
+  const titleId = `${ctx.id}-title`;
+  const [own, setOwn] = React.useState<Record<string, boolean>>({});
+  const latest = React.useRef(onSectionOpenChange);
+  latest.current = onSectionOpenChange;
+  const state = sections ?? own;
+  const set = React.useCallback((value: string, open: boolean) => {
+    setOwn((s) => ({ ...s, [value]: open }));
+    latest.current?.(value, open);
+  }, []);
+  const folds = React.useMemo(() => ({ state, set }), [state, set]);
+  const { setDocked, mode, overlay, dismiss } = ctx;
+  const sheet = mode === "sheet";
 
-  // A close from inside the panel hands focus back to its own strip button (this record's, not
-  // another one on the page).
-  const close = () => {
-    const root = rootRef.current;
-    const active = document.activeElement;
-    const inside =
-      !!root && (root.contains(active) || active === document.body);
-    if (phone) setSheet(null);
-    else setPanel(null, true);
-    if (!inside) return;
-    requestAnimationFrame(() =>
-      document
-        .querySelector<HTMLElement>(
-          `[data-slot='record-layout-strip-item'][data-side='${idPrefix}'][data-value='${CSS.escape(value)}']`,
-        )
-        ?.focus({ preventScroll: true }),
-    );
-  };
-  // An opening that is cut short (the app switches panels before it plays) gives up its motion,
-  // so a later programmatic reopen stays still.
+  // Whether this record docks: its layout's own width, as the panel's container query reads it.
   React.useEffect(() => {
-    if (!open && motionFor === value) clearMotion();
-  }, [open, motionFor, value, clearMotion]);
-  const latestClose = React.useRef(close);
-  latestClose.current = close;
+    const layout = ref.current?.closest("[data-slot='record-layout']");
+    if (!layout) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const rem =
+        parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
+      setDocked((entry?.contentRect.width ?? 0) >= DOCK_REM * rem);
+    });
+    observer.observe(layout);
+    return () => {
+      observer.disconnect();
+      setDocked(null);
+    };
+  }, [setDocked, sheet]);
 
-  // Over the page (below 1200px) Escape closes it; docked beside the page it stays (R5). Only
-  // this record answers: focus in its layout, or nowhere.
+  // Floating over the page: it takes focus when it opens, and Escape or a click on the page
+  // closes it (never a click in a menu or dialog it opened).
+  const latestDismiss = React.useRef(dismiss);
+  latestDismiss.current = dismiss;
   React.useEffect(() => {
-    if (!open || phone) return;
+    if (mode !== "overlay" || !overlay) return;
+    const panel = ref.current;
+    panel?.focus({ preventScroll: true });
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Escape" || event.defaultPrevented || event.isComposing)
         return;
-      const root = rootRef.current;
-      if (!root || getComputedStyle(root).position !== "absolute") return;
-      const active = document.activeElement;
-      const layout = root.closest("[data-slot='record-layout']");
-      if (active && active !== document.body && !layout?.contains(active))
-        return;
       if (document.querySelector(ESC_OWNERS)) return;
       if (isEditableTarget(event)) return;
+      const active = document.activeElement;
+      const layout = panel?.closest("[data-slot='record-layout']");
+      if (active && active !== document.body && !layout?.contains(active))
+        return;
       event.preventDefault();
-      latestClose.current();
+      latestDismiss.current();
+    };
+    const onPointer = (event: PointerEvent) => {
+      const target = event.target as Element | null;
+      const main = target?.closest("[data-slot='record-layout-main']");
+      if (!main || main.parentElement !== panel?.parentElement) return;
+      latestDismiss.current();
     };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [open, phone]);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [mode, overlay]);
 
-  const header = (
-    <div
-      data-slot="record-layout-panel-header"
-      className="flex h-12 shrink-0 items-center gap-1 border-b ps-4 pe-2"
-    >
-      <h2
-        id={titleId}
-        className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground"
-      >
-        {title}
-      </h2>
-      {actions}
-      <Button
-        variant="ghost"
-        size="icon-sm"
-        aria-label="Close panel"
-        data-slot="record-layout-panel-close"
-        onClick={close}
-      >
-        <X />
-      </Button>
-    </div>
-  );
   const body = (
-    <div
-      data-slot="record-layout-panel-body"
-      className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4"
-    >
+    <SectionsContext.Provider value={folds}>
       {children}
-    </div>
+    </SectionsContext.Provider>
   );
 
-  if (phone)
+  if (mode === "sheet")
     return (
       <PeekSheet
-        open={open}
+        open={ctx.sheet}
         onOpenChange={(next) => {
-          if (!next) close();
+          if (!next) ctx.setSheet(false);
         }}
         labelledBy={titleId}
       >
         <div
-          ref={refs as React.Ref<HTMLDivElement>}
-          id={id}
-          data-slot="record-layout-panel"
+          id={ctx.id}
+          data-slot="record-panel"
           data-surface="sheet"
           className={cn("flex min-h-0 flex-1 flex-col", className)}
-          style={style}
-          onTransitionEnd={onTransitionEnd}
-          {...(props as React.HTMLAttributes<HTMLDivElement>)}
         >
-          {header}
-          {body}
+          <div className="flex h-12 shrink-0 items-center gap-1 border-b ps-4 pe-2">
+            <h2
+              id={titleId}
+              className="min-w-0 flex-1 truncate text-sm font-semibold"
+            >
+              {ctx.label}
+            </h2>
+            <Button
+              variant="ghost"
+              size="icon-sm"
+              aria-label={`Close ${ctx.label.toLowerCase()}`}
+              onClick={() => ctx.setSheet(false)}
+            >
+              <X />
+            </Button>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+            {body}
+          </div>
         </div>
       </PeekSheet>
     );
 
-  if (!open) return null;
+  // Drawn while it can show: open where it docks (the server draws it, so nothing moves on
+  // hydration), or floating. A remembered open on a record too narrow to dock stays empty.
+  const rendered = ctx.overlay || (ctx.open && ctx.docked !== false);
   return (
     <aside
-      ref={refs}
-      id={id}
-      aria-labelledby={titleId}
-      data-slot="record-layout-panel"
-      data-surface="side"
-      data-motion={motionFor === value ? "enter" : undefined}
+      ref={ref}
+      id={ctx.id}
+      aria-label={ctx.label}
+      tabIndex={-1}
+      data-slot="record-panel"
+      data-surface={mode === "overlay" ? "overlay" : "docked"}
+      data-open={ctx.open ? "" : undefined}
+      data-overlay={ctx.overlay ? "" : undefined}
+      data-motion={ctx.motion && ctx.shown ? "enter" : undefined}
       onTransitionEnd={(event) => {
         onTransitionEnd?.(event);
-        // The open has played: later width changes (a resize) and re-renders stay still.
-        if (event.target === event.currentTarget) clearMotion();
+        if (event.target === event.currentTarget) ctx.clearMotion();
       }}
-      style={
-        {
-          "--record-panel-width": `${width}px`,
-          ...style,
-        } as React.CSSProperties
-      }
       className={cn(
-        "relative flex h-full w-(--record-panel-width) min-w-0 shrink-0 flex-col border-s bg-background text-foreground",
-        // Below 1200px of record width it floats over the main column, beside the strip.
-        "@max-[75rem]/record-layout:absolute @max-[75rem]/record-layout:inset-y-0 @max-[75rem]/record-layout:end-full @max-[75rem]/record-layout:z-20 @max-[75rem]/record-layout:max-w-[calc(100cqw-2.75rem)] @max-[75rem]/record-layout:shadow-xl",
-        // A person's open: docked, the panel grows from nothing so the content beside it slides to
-        // stay centred; floating, it slides in from the strip.
+        "hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-panel text-foreground outline-none",
+        // From 1200px of record width it docks: in the flow, as tall as the record, while open.
+        "@min-[75rem]/record-layout:data-open:flex",
+        // Narrower, ▥ floats it over the page, edge to edge under the bar, with a shadow.
+        "@max-[75rem]/record-layout:absolute @max-[75rem]/record-layout:inset-y-0 @max-[75rem]/record-layout:end-0 @max-[75rem]/record-layout:z-20 @max-[75rem]/record-layout:max-w-full @max-[75rem]/record-layout:shadow-xl @max-[75rem]/record-layout:data-overlay:flex",
+        // A person's open: docked, it grows from nothing so the work beside it slides to stay
+        // centred; floating, it slides in from the edge. Never on load; reduced motion: none.
         "data-[motion=enter]:transition-[width,translate,opacity] data-[motion=enter]:duration-panel data-[motion=enter]:ease-enter data-[motion=enter]:starting:opacity-0",
         "@min-[75rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[75rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[75rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
         className,
       )}
       {...props}
     >
-      {onWidthChange ? (
-        <PeekResizeHandle
-          width={width}
-          onWidthChange={onWidthChange}
-          min={RECORD_PANEL_MIN_WIDTH}
-          maxRatio={RECORD_PANEL_MAX_RATIO}
-          property="--record-panel-width"
-          area={() => rootRef.current?.closest("[data-slot='record-layout']")}
-          label={typeof title === "string" ? title.toLowerCase() : "panel"}
-        />
-      ) : null}
-      {/* Clipped inside, so the panel can grow from nothing while the handle straddles its edge. */}
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
-        {header}
-        {body}
-      </div>
+      {rendered ? body : null}
     </aside>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Sections
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props for `RecordPanelSection`. */
+export interface RecordPanelSectionProps extends Omit<
+  React.ComponentPropsWithRef<"section">,
+  "title"
+> {
+  /** The section's key: its fold is remembered under it ("details", "files"). */
+  value: string;
+  /** Its title, e.g. "Files". */
+  title: React.ReactNode;
+  /** A muted count after the title (files, attendees, comments). @default undefined */
+  count?: number;
+  /** One action at the header's end, shown on hover or focus: a `RecordPanelAction`. @default undefined */
+  action?: React.ReactNode;
+  /** Whether it starts open when no fold is remembered for it. @default true */
+  defaultOpen?: boolean;
+}
+
+/**
+ * `RecordPanelSection` — one stacked section: a 40px header (fold chevron, title, muted count and
+ * an optional action on hover) over its rows, 16px in from the panel's edges, with a hairline
+ * under it. Its rows are a `PropertyList variant="panel"` (key and value) or a `RecordPanelList`.
+ *
+ * @example
+ * <RecordPanelSection value="files" title="Files" count={1} action={<RecordPanelAction label="Add file" onClick={add} />}>
+ *   <RecordPanelList><RecordPanelItem detail="1.2 MB">Strada-90W.pdf</RecordPanelItem></RecordPanelList>
+ * </RecordPanelSection>
+ */
+export function RecordPanelSection({
+  value,
+  title,
+  count,
+  action,
+  defaultOpen = true,
+  className,
+  children,
+  ...props
+}: RecordPanelSectionProps) {
+  const folds = React.useContext(SectionsContext);
+  const [own, setOwn] = React.useState(defaultOpen);
+  const open = folds ? (folds.state[value] ?? defaultOpen) : own;
+  const headingId = React.useId();
+  return (
+    <Collapsible
+      open={open}
+      onOpenChange={(next) => (folds ? folds.set(value, next) : setOwn(next))}
+      render={
+        <section
+          data-slot="record-panel-section"
+          data-value={value}
+          aria-labelledby={headingId}
+          className={cn(
+            "group/record-panel-section flex min-w-0 shrink-0 flex-col border-b",
+            className,
+          )}
+          {...props}
+        />
+      }
+    >
+      <div
+        data-slot="record-panel-section-header"
+        className="flex h-10 min-w-0 items-center gap-1 px-2"
+      >
+        <h3 className="flex min-w-0 flex-1 text-sm font-semibold">
+          <CollapsibleTrigger
+            data-slot="record-panel-section-trigger"
+            className="group/fold state-layer flex h-8 min-w-0 flex-1 items-center gap-1.5 rounded-item px-2 text-start outline-none"
+          >
+            <ChevronRight
+              aria-hidden
+              className="size-3 shrink-0 text-muted-foreground transition-transform duration-state group-data-panel-open/fold:rotate-90 rtl:rotate-180 rtl:group-data-panel-open/fold:rotate-90"
+            />
+            <span id={headingId} className="min-w-0 truncate">
+              {title}
+            </span>
+            {count !== undefined ? (
+              <>
+                {/* A real space, so the name reads "Files 2", not "Files2". */}{" "}
+                <span className="text-xs font-normal text-muted-foreground tabular-nums">
+                  {count}
+                </span>
+              </>
+            ) : null}
+          </CollapsibleTrigger>
+        </h3>
+        {action ? (
+          <div
+            data-slot="record-panel-section-action"
+            className="flex shrink-0 items-center opacity-0 transition-opacity duration-state group-focus-within/record-panel-section:opacity-100 group-hover/record-panel-section:opacity-100 pointer-coarse:opacity-100"
+          >
+            {action}
+          </div>
+        ) : null}
+      </div>
+      <CollapsibleContent
+        data-slot="record-panel-section-content"
+        className="flex min-w-0 flex-col gap-0.5 px-4 pb-3"
+      >
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
+
+/** Props for `RecordPanelAction`. */
+export interface RecordPanelActionProps extends Omit<
+  React.ComponentPropsWithRef<typeof Button>,
+  "children" | "variant" | "size"
+> {
+  /** The tooltip and the accessible name, e.g. "Add file". */
+  label: string;
+  /** The icon. @default <Plus /> */
+  icon?: React.ReactNode;
+}
+
+/**
+ * `RecordPanelAction` — a section header's one action: a 24px ghost icon button with a tooltip,
+ * shown while the section is hovered or focused (always on touch). Pass `render={<a href="…" />}`
+ * with `nativeButton={false}` for a link.
+ *
+ * @example
+ * <RecordPanelAction label="Add file" onClick={add} />
+ */
+export function RecordPanelAction({
+  label,
+  icon = <Plus />,
+  ...props
+}: RecordPanelActionProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            aria-label={label}
+            data-slot="record-panel-action"
+            {...props}
+          />
+        }
+      >
+        {icon}
+      </TooltipTrigger>
+      <TooltipContent>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * Rows
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Native list props for `RecordPanelList`. */
+export type RecordPanelListProps = React.ComponentPropsWithRef<"ul">;
+
+/**
+ * `RecordPanelList` — a section's list of records (files, contacts, related tasks): rows whose
+ * hover runs 8px past the text on both sides, with the item radius.
+ *
+ * @example
+ * <RecordPanelList><RecordPanelItem detail="Blocks">#131 Product master export</RecordPanelItem></RecordPanelList>
+ */
+export function RecordPanelList({ className, ...props }: RecordPanelListProps) {
+  return (
+    <ul
+      role="list"
+      data-slot="record-panel-list"
+      className={cn("-mx-2 flex min-w-0 flex-col gap-0.5", className)}
+      {...props}
+    />
+  );
+}
+
+/** Props for `RecordPanelItem`. */
+export interface RecordPanelItemProps extends Omit<
+  useRender.ComponentProps<"div">,
+  "children"
+> {
+  /** A leading 16px icon or 20px avatar. @default undefined */
+  icon?: React.ReactNode;
+  /** The muted trailing detail: a size, a relation, a role, a time. @default undefined */
+  detail?: React.ReactNode;
+  /** The row's text; it truncates. */
+  children?: React.ReactNode;
+}
+
+/**
+ * `RecordPanelItem` — one row of a `RecordPanelList`: an optional icon, the text (truncating) and
+ * a muted trailing detail, at least 30px tall. Pass `render` (a link or a button) for a row that
+ * opens something: it then takes the hover and pressed layers.
+ *
+ * @example
+ * <RecordPanelItem render={<a href="/files/1" />} icon={<FileText />} detail="420 KB">Rate contract.pdf</RecordPanelItem>
+ */
+export function RecordPanelItem({
+  icon,
+  detail,
+  className,
+  children,
+  render,
+  ...props
+}: RecordPanelItemProps) {
+  const row = useRender({
+    defaultTagName: "div",
+    render,
+    props: mergeProps<"div">(
+      {
+        className: cn(
+          "flex min-h-7.5 min-w-0 items-center gap-2 rounded-item px-2 text-sm text-foreground no-underline outline-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_svg:not([class*='size-'])]:size-4",
+          render !== undefined && "state-layer cursor-pointer",
+          className,
+        ),
+        children: (
+          <>
+            {icon}
+            <span className="min-w-0 flex-1 truncate">{children}</span>
+            {detail !== undefined && detail !== null ? (
+              <span
+                data-slot="record-panel-item-detail"
+                className="shrink-0 text-xs text-muted-foreground tabular-nums"
+              >
+                {detail}
+              </span>
+            ) : null}
+          </>
+        ),
+      },
+      props,
+    ),
+    state: { slot: "record-panel-item" },
+  });
+  return (
+    <li data-slot="record-panel-list-item" className="min-w-0">
+      {row}
+    </li>
+  );
+}
+
+/** Native paragraph props for `RecordPanelEmpty`. */
+export type RecordPanelEmptyProps = React.ComponentPropsWithRef<"p">;
+
+/** `RecordPanelEmpty` — a section's one-line empty state. @example <RecordPanelEmpty>No files yet</RecordPanelEmpty> */
+export function RecordPanelEmpty({
+  className,
+  ...props
+}: RecordPanelEmptyProps) {
+  return (
+    <p
+      data-slot="record-panel-empty"
+      className={cn("py-1.5 text-sm text-muted-foreground", className)}
+      {...props}
+    />
   );
 }

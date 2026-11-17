@@ -75,7 +75,7 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   `Image`'s corner — and they say so on their own pages.
 - **Compose `shell`** for the global bar, rail, column, top bar and main region — never hand-roll
   the landmarks. A record from a list opens in `Peek`; a record page is `RecordLayout`, with its
-  reference panels in `RecordLayoutSide`.
+  one side panel of stacked sections in `RecordPanel` (▥ `RecordPanelToggle` in the page bar).
 - **Space a page with the page-rhythm recipe** — gutters `px-4 py-6` / `md:px-8 md:py-8`,
   `gap-6` under `PageHeader`, `gap-8` between sections, `gap-3` from a section heading or a list
   toolbar to its content, `--card-spacing` inside a card, and `FieldGroup`'s own gaps in a form

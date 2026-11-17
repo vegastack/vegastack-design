@@ -1756,6 +1756,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ShellTopBarPanel",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -39911,123 +39920,165 @@
           }
         },
         {
-          "name": "RECORD_PANEL_MIN_WIDTH",
-          "kind": "constant",
+          "name": "RecordPanel",
+          "kind": "component",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A number; not rendered."
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RECORD_PANEL_DEFAULT_WIDTH",
-          "kind": "constant",
+          "name": "RecordPanelAction",
+          "kind": "component",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "A number; not rendered."
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RECORD_PANEL_MAX_RATIO",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/record-layout-side.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A number; not rendered."
-          }
-        },
-        {
-          "name": "RecordLayoutSideProps",
+          "name": "RecordPanelActionProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RecordLayoutSide",
+          "name": "RecordPanelEmpty",
           "kind": "component",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout-side.tsx."
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RecordLayoutStripSlotProps",
+          "name": "RecordPanelEmptyProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RecordLayoutStripSlot",
+          "name": "RecordPanelItem",
           "kind": "component",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout-side.tsx."
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RecordLayoutStripProps",
+          "name": "RecordPanelItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordPanelList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordPanelListProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RecordLayoutStrip",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/record-layout-side.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders a composed control; takes no ref."
-          }
-        },
-        {
-          "name": "RecordLayoutStripItemProps",
+          "name": "RecordPanelProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RecordLayoutStripItem",
+          "name": "RecordPanelProvider",
           "kind": "component",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Renders a composed control; takes no ref."
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RecordLayoutPanelProps",
+          "name": "RecordPanelProviderProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         },
         {
-          "name": "RecordLayoutPanel",
+          "name": "RecordPanelSection",
           "kind": "component",
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
-            "status": "observed",
-            "target": "aside",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout-side.tsx."
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordPanelSectionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordPanelToggle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordPanelToggleProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordPanelTrigger",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordPanelTriggerProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],
@@ -40089,7 +40140,9 @@
         "@vegastack/skeleton",
         "@vegastack/tooltip",
         "@vegastack/use-media-query",
-        "@vegastack/use-platform"
+        "@vegastack/use-platform",
+        "@vegastack/collapsible",
+        "@vegastack/kbd"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.21.0",
@@ -40107,7 +40160,7 @@
       },
       "previewModule": "record-layout",
       "dataAttributes": {
-        "RecordLayoutSide": {
+        "RecordPanelToggle": {
           "attributes": [
             {
               "name": "data-panel",
@@ -40115,66 +40168,99 @@
             },
             {
               "name": "data-slot",
-              "values": ["record-layout-side", "record-layout-side-inner"]
+              "values": ["record-panel-toggle"]
             }
           ],
           "cssVariables": []
         },
-        "RecordLayoutStripSlot": {
+        "RecordPanelTrigger": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["record-layout-strip-slot"]
+              "values": ["record-panel-trigger"]
             }
           ],
           "cssVariables": []
         },
-        "RecordLayoutStrip": {
-          "attributes": [
-            {
-              "name": "data-orientation",
-              "values": ["horizontal", "vertical"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["record-layout-strip", "record-layout-strip-anchor"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "RecordLayoutStripItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "record-layout-strip-count",
-                "record-layout-strip-item"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "RecordLayoutPanel": {
+        "RecordPanel": {
           "attributes": [
             {
               "name": "data-motion",
               "values": ["enter"]
             },
             {
+              "name": "data-open",
+              "values": [""]
+            },
+            {
+              "name": "data-overlay",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
-              "values": [
-                "record-layout-panel",
-                "record-layout-panel-body",
-                "record-layout-panel-close",
-                "record-layout-panel-header"
-              ]
+              "values": ["record-panel"]
             },
             {
               "name": "data-surface",
-              "values": ["sheet", "side"]
+              "values": ["docked", "overlay", "sheet"]
             }
           ],
-          "cssVariables": ["--record-panel-width"]
+          "cssVariables": []
+        },
+        "RecordPanelSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "record-panel-section",
+                "record-panel-section-action",
+                "record-panel-section-content",
+                "record-panel-section-header",
+                "record-panel-section-trigger"
+              ]
+            },
+            {
+              "name": "data-value",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordPanelAction": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-panel-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordPanelList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-panel-list"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordPanelItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-panel-item-detail", "record-panel-list-item"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordPanelEmpty": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-panel-empty"]
+            }
+          ],
+          "cssVariables": []
         },
         "RecordLayout": {
           "attributes": [

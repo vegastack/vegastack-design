@@ -144,6 +144,10 @@ it.
 | `ShellTopBarShare`    | Share, an outline button                            |
 | `ShellTopBarFavorite` | ☆                                                   |
 | `ShellTopBarMore`     | ⋯, the page's menu; it also holds every folded tool |
+| `ShellTopBarPanel`    | A record page's ▥, after ⋯ and a divider            |
+
+A record page adds one control after ⋯: ▥ (`RecordPanelToggle` in `ShellTopBarPanel`, behind a
+hairline divider), which shows and hides its side panel ([Record Layout](/docs/components/record-layout)).
 
 The tools, Share, ☆ and ⋯ are one button shape: 28px, round, with the same hover. Narrow, Share
 shows its icon alone (`ShellTopBarLabel`), presence leaves, and tools marked `data-shell-fold` go

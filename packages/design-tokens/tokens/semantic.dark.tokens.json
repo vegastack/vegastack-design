@@ -249,6 +249,14 @@
       "alpha": 0.03
     }
   },
+  "panel": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.125, 0, 0],
+      "alpha": 1
+    }
+  },
   "chart-1": {
     "$type": "color",
     "$value": {

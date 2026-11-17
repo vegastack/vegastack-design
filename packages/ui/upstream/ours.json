@@ -372,8 +372,8 @@
     "record-layout": {
       "disposition": "keep",
       "family": "layout",
-      "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25; side panel and strip: VegaStack layout v2, P0 part 5 — operator approval 17-11-2026",
-      "rationale": "Upstream ships no record-page frame. It is a fixed composition of upstream sheet and button with a sticky rail; no patch."
+      "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25; the stacked side panel (RecordPanel): Regent record side panel rebuild R1–R5 — operator sign-off 18-11-2026",
+      "rationale": "Upstream ships no record-page frame. It is a fixed composition of upstream button, collapsible, tooltip and the peek sheet; no patch."
     },
     "record-list": {
       "disposition": "keep",
