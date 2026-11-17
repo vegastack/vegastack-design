@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.90.0 sha256-IDGbAbNsSUgWB6XXpnRyuuNajq/5Sd8lcJK8LLpJKag=
+// @vegastack breadcrumb-cascade@0.90.0 sha256-69vu9q1yEl+3AibyY+457bPnzA8333WUB6woDJeUNp8=
 
 "use client";
 
@@ -67,10 +67,29 @@ const dropTargetClasses =
   // keeps the trail's spacing where it was.
   "-mx-1 rounded-item px-1 data-drop-invalid:bg-destructive/10 data-drop-over:bg-primary/10 data-drop-over:text-foreground";
 
-// The drag half is its own chunk (`useDragInto`), loaded the first time a drop target mounts.
-const LazyDropTargetLink = React.lazy(() =>
+/** The drop state the wiring reports back onto the link. */
+export type BreadcrumbDropState = {
+  "data-dragging"?: "";
+  "data-drop-over"?: "";
+  "data-drop-invalid"?: "";
+};
+
+/** Props the lazily loaded wiring takes: the drop target's and the link it wires. */
+export interface BreadcrumbDropWiringProps extends Pick<
+  BreadcrumbDropTargetProps,
+  "targetId" | "dragScope" | "onDropInto" | "canDropInto"
+> {
+  /** The link element to make a drop target. */
+  node: HTMLElement | null;
+  /** Receives the drop state each time it changes. */
+  onState: (state: BreadcrumbDropState) => void;
+}
+
+// The drag half is its own chunk (`useDragInto`), loaded the first time a drop target mounts. It
+// renders nothing: it wires the link the part already rendered, so the element never changes.
+const LazyDropWiring = React.lazy(() =>
   import("@/components/ui/breadcrumb-drop-target").then((module) => ({
-    default: module.BreadcrumbDropTargetLink,
+    default: module.BreadcrumbDropWiring,
   })),
 );
 
@@ -81,7 +100,8 @@ const LazyDropTargetLink = React.lazy(() =>
  * was; while a drag is over it, it washes in the primary tint (`data-drop-over`), or the
  * destructive tint when it refuses (`data-drop-invalid`). Pointer only — the keyboard path is the
  * host's "Move…" action. The drag code loads the first time a drop target mounts; until then
- * (and on the server) it renders the same link without the drop wiring.
+ * (and on the server) it is the same link without the drop wiring, marked `data-drop-pending` — one
+ * element throughout, so focus and the ref stay on it when the wiring arrives.
  *
  * @example
  * <BreadcrumbItem>
@@ -101,24 +121,33 @@ export function BreadcrumbDropTarget({
   onDropInto,
   canDropInto,
   className,
+  ref,
   ...props
 }: BreadcrumbDropTargetProps) {
-  const classes = cn(dropTargetClasses, className);
+  const [node, setNode] = React.useState<HTMLElement | null>(null);
+  const [state, setState] = React.useState<BreadcrumbDropState | null>(null);
+  const mergedRef = React.useMemo(() => mergeRefs(setNode, ref), [ref]);
   return (
-    <React.Suspense
-      fallback={
-        <BreadcrumbLink data-drop-target="" className={classes} {...props} />
-      }
-    >
-      <LazyDropTargetLink
-        targetId={targetId}
-        dragScope={dragScope}
-        onDropInto={onDropInto}
-        canDropInto={canDropInto}
-        className={classes}
+    <>
+      <BreadcrumbLink
+        ref={mergedRef}
+        data-drop-target=""
+        data-drop-pending={state ? undefined : ""}
+        {...state}
+        className={cn(dropTargetClasses, className)}
         {...props}
       />
-    </React.Suspense>
+      <React.Suspense fallback={null}>
+        <LazyDropWiring
+          node={node}
+          targetId={targetId}
+          dragScope={dragScope}
+          onDropInto={onDropInto}
+          canDropInto={canDropInto}
+          onState={setState}
+        />
+      </React.Suspense>
+    </>
   );
 }
 

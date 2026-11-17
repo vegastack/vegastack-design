@@ -371,9 +371,9 @@
       ],
       "meta": {
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
-        "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
+        "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox).",
         "version": "0.90.0",
-        "integrity": "sha256-Kp+WE2r6iCAkX8gnRi7xQA7haAS7yTFyxKIKAS2IQXQ="
+        "integrity": "sha256-AIq8N82mRnaeVkhK+X263nfsC0LmJOfypEVzijGRFEs="
       }
     },
     {
@@ -435,9 +435,9 @@
       ],
       "meta": {
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
-        "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
+        "whenNotToUse": "An activity feed (ActivityFeed) or a list of records (DataList).",
         "version": "0.90.0",
-        "integrity": "sha256-IAimw3Szf3+qFTnbKDJ2ObEXlzhjKbSqJZYk3ryxs1o="
+        "integrity": "sha256-lbugNn2ZT2+VOWdmub8v8TxEqfgYEDY8OPSDR8JNDTY="
       }
     },
     {
@@ -471,9 +471,9 @@
       ],
       "meta": {
         "whenToUse": "A document's full history in DialogContent size=\"fullscreen\": read a version or its changes beside the list, and restore or copy it.",
-        "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (Timeline), or comparing two arbitrary texts (DiffView).",
+        "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (ActivityFeed), or comparing two arbitrary texts (DiffView).",
         "version": "0.90.0",
-        "integrity": "sha256-AXRPhHl50lF/FHwXdeRRW370qMMoalDHIloJKQd8dQc="
+        "integrity": "sha256-1A447oXEKgtKvBj4Wh8KU9QjcCqgV7WrfQG1rPhlFb0="
       }
     },
     {
@@ -1038,7 +1038,7 @@
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
         "version": "0.90.0",
-        "integrity": "sha256-IDGbAbNsSUgWB6XXpnRyuuNajq/5Sd8lcJK8LLpJKag="
+        "integrity": "sha256-69vu9q1yEl+3AibyY+457bPnzA8333WUB6woDJeUNp8="
       }
     },
     {
@@ -17069,9 +17069,9 @@
       ],
       "meta": {
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
-        "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
+        "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
         "version": "0.90.0",
-        "integrity": "sha256-uy2aA+NecCeiZO/v68p2L6DxuHe3B0d2CHcmZCpScGQ="
+        "integrity": "sha256-DrZsCTJjiKwfKpc02r0bNGDQJvuo5eZ4x8SonKvg+rc="
       }
     },
     {
@@ -17470,9 +17470,9 @@
       ],
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
-        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
+        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread count (NotificationBell).",
         "version": "0.92.0",
-        "integrity": "sha256-lJltuCRItrWX8NU/1IL8oGq9tNqdNskClki8IqLnl8s="
+        "integrity": "sha256-LH4ITtjneb8lOSXJ59BAqfXGk6Cd/Go9V650ZKWECUs="
       }
     },
     {
@@ -23708,9 +23708,9 @@
       ],
       "meta": {
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
-        "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
+        "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use ActivityFeed.",
         "version": "0.90.0",
-        "integrity": "sha256-PHOWFY26h9fCUbZsOXCn9Qy7ARA+N3mPOZoERH+yBpg="
+        "integrity": "sha256-SOeqxXDYn0ObSUa/dWsESrFTBjE5svxbKwkA3wQOkKI="
       }
     },
     {

@@ -4616,8 +4616,26 @@
           }
         },
         {
-          "name": "BreadcrumbDropTargetLink",
+          "name": "BreadcrumbDropState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "BreadcrumbDropWiring",
           "kind": "component",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "BreadcrumbDropWiringProps",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
           "ref": {
             "status": "not-applicable",
@@ -4709,6 +4727,10 @@
         "BreadcrumbDropTarget": {
           "attributes": [
             {
+              "name": "data-drop-pending",
+              "values": [""]
+            },
+            {
               "name": "data-drop-target",
               "values": [""]
             }
@@ -4767,15 +4789,6 @@
                 "breadcrumb-trail-compact-menu",
                 "breadcrumb-trail-folded"
               ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "BreadcrumbDropTargetLink": {
-          "attributes": [
-            {
-              "name": "data-drop-target",
-              "values": [""]
             }
           ],
           "cssVariables": []

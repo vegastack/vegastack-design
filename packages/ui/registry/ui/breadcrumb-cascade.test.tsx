@@ -267,6 +267,15 @@ test("BreadcrumbDropTarget takes rows dragged from a DataList in the same scope"
   });
 });
 
+test("BreadcrumbDropTarget keeps one link while its drag code loads, so focus stays on it", async () => {
+  await render(<Browser onDropInto={() => {}} />);
+  const link = crumb();
+  link.focus();
+  await dropReady();
+  expect(crumb()).toBe(link);
+  expect(document.activeElement).toBe(link);
+});
+
 test("BreadcrumbDropTarget refuses what canDropInto refuses", async () => {
   const onDropInto = vi.fn();
   await render(<Browser onDropInto={onDropInto} canDropInto={() => false} />);

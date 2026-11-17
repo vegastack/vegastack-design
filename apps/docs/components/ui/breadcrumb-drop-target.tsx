@@ -1,39 +1,36 @@
-// @vegastack breadcrumb-cascade@0.90.0 sha256-IDGbAbNsSUgWB6XXpnRyuuNajq/5Sd8lcJK8LLpJKag=
+// @vegastack breadcrumb-cascade@0.90.0 sha256-69vu9q1yEl+3AibyY+457bPnzA8333WUB6woDJeUNp8=
 
 "use client";
 
 import * as React from "react";
-import { mergeRefs } from "@vegastack/design";
-import { BreadcrumbLink } from "@/components/ui/breadcrumb";
 import { useDragInto } from "@/components/ui/use-drag-reorder";
-import type { BreadcrumbDropTargetProps } from "@/components/ui/breadcrumb-cascade";
+import type {
+  BreadcrumbDropState,
+  BreadcrumbDropWiringProps,
+} from "@/components/ui/breadcrumb-cascade";
 
 /* ---
 The drag half of `BreadcrumbDropTarget`, in its own file so the drag code (`useDragInto`) loads
-only when a trail renders a drop target. `breadcrumb-cascade.tsx` exports the part and loads this
-file the first time one mounts; it is not imported on its own.
+only when a trail renders a drop target. `breadcrumb-cascade.tsx` loads it the first time one
+mounts; it renders nothing and wires the link that part already rendered, so the element (and any
+focus on it) never changes. It is not used on its own.
 --- */
 
 /**
- * `BreadcrumbDropTargetLink` — the loaded drop target: a `BreadcrumbLink` wired to
- * `useDragInto`. Use `BreadcrumbDropTarget` from `breadcrumb-cascade`, which loads it.
+ * `BreadcrumbDropWiring` — makes `node` a `useDragInto` drop target and reports its drop state
+ * through `onState`. Rendered by `BreadcrumbDropTarget`; use that part.
  *
  * @example
- * const Lazy = React.lazy(() =>
- *   import("@/components/ui/breadcrumb-drop-target").then((m) => ({
- *     default: m.BreadcrumbDropTargetLink,
- *   })),
- * );
+ * <BreadcrumbDropWiring node={link} targetId="1" dragScope="library" onDropInto={move} onState={setState} />
  */
-export function BreadcrumbDropTargetLink({
+export function BreadcrumbDropWiring({
+  node,
   targetId,
   dragScope,
   onDropInto,
   canDropInto,
-  className,
-  ref,
-  ...props
-}: BreadcrumbDropTargetProps) {
+  onState,
+}: BreadcrumbDropWiringProps) {
   const into = useDragInto({
     scope: dragScope,
     canDrop: ({ ids, targetKey }) =>
@@ -42,20 +39,22 @@ export function BreadcrumbDropTargetLink({
       void onDropInto({ ids, targetId: targetKey });
     },
   });
-  const { ref: dropRef, ...dropState } = into.getItemProps(targetId, {
-    drop: "whole",
-  });
-  const mergedRef = React.useMemo(
-    () => mergeRefs(dropRef, ref),
-    [dropRef, ref],
-  );
-  return (
-    <BreadcrumbLink
-      ref={mergedRef}
-      data-drop-target=""
-      {...dropState}
-      className={className}
-      {...props}
-    />
-  );
+  const {
+    ref: dropRef,
+    "data-dragging": dragging,
+    "data-drop-over": over,
+    "data-drop-invalid": invalid,
+  } = into.getItemProps(targetId, { drop: "whole" });
+  React.useLayoutEffect(() => {
+    dropRef(node);
+    return () => dropRef(null);
+  }, [dropRef, node]);
+  React.useLayoutEffect(() => {
+    const state: BreadcrumbDropState = {};
+    if (dragging !== undefined) state["data-dragging"] = "";
+    if (over !== undefined) state["data-drop-over"] = "";
+    if (invalid !== undefined) state["data-drop-invalid"] = "";
+    onState(state);
+  }, [dragging, over, invalid, onState]);
+  return null;
 }

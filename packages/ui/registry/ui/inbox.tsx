@@ -1,4 +1,4 @@
-// @vegastack inbox@0.92.0 sha256-lJltuCRItrWX8NU/1IL8oGq9tNqdNskClki8IqLnl8s=
+// @vegastack inbox@0.92.0 sha256-LH4ITtjneb8lOSXJ59BAqfXGk6Cd/Go9V650ZKWECUs=
 
 "use client";
 
@@ -886,28 +886,48 @@ const defaultCountLabel = (n: number) =>
 /** At most this many stacked avatars; the rest read "+n". */
 const ACTORS_SHOWN = 3;
 
-/** The text a node reads as — strings and numbers, through elements' children. */
-function textOf(node: React.ReactNode): string {
+/**
+ * The text a node reads as, through elements' children. `strict` returns `null` for anything it
+ * cannot read in full (a component, which may render more than its children — a time, a link), so
+ * a meta line is only ever compared when all of it is plain text.
+ */
+function textOf(node: React.ReactNode, strict = false): string | null {
   if (node == null || typeof node === "boolean") return "";
   if (typeof node === "string" || typeof node === "number") return String(node);
-  if (Array.isArray(node)) return node.map(textOf).join("");
-  if (React.isValidElement<{ children?: React.ReactNode }>(node))
-    return textOf(node.props.children);
-  return "";
+  if (Array.isArray(node)) {
+    let text = "";
+    for (const child of node) {
+      const part = textOf(child as React.ReactNode, strict);
+      if (part === null) return null;
+      text += part;
+    }
+    return text;
+  }
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    if (strict && typeof node.type !== "string" && node.type !== React.Fragment)
+      return null;
+    return textOf(node.props.children, strict);
+  }
+  return strict ? null : "";
 }
 
-/** Folded for comparison: case, spacing, quotes and closing punctuation do not count. */
-const folded = (text: string) =>
+/** The words of a text, folded: case, quotes and punctuation do not count. */
+const wordsOf = (text: string) =>
   text
     .toLowerCase()
-    .replace(/[\u201c\u201d\u2018\u2019"'.…:]/g, "")
-    .replace(/\s+/g, " ")
-    .trim();
+    .split(/[^\p{L}\p{N}]+/u)
+    .filter(Boolean);
 
-/** Whether the meta line only repeats what the title already says. */
+/** Whether the meta line only repeats the title: all plain text, its words a run of the title's. */
 function metaRepeatsTitle(title: React.ReactNode, meta: React.ReactNode) {
-  const said = folded(textOf(meta));
-  return said !== "" && folded(textOf(title)).includes(said);
+  const metaText = textOf(meta, true);
+  if (metaText === null) return false;
+  const said = wordsOf(metaText);
+  const heading = wordsOf(textOf(title) ?? "");
+  if (said.length === 0 || said.length > heading.length) return false;
+  for (let start = 0; start + said.length <= heading.length; start++)
+    if (said.every((word, i) => heading[start + i] === word)) return true;
+  return false;
 }
 
 /** The click was on one of the row's own controls (a chip, the toggle, the ⋯ menu, a link). */
@@ -1222,7 +1242,8 @@ export function InboxItem({
         ) : null}
       </div>
       <div className="relative flex min-w-16 shrink-0 flex-col items-end gap-1">
-        {time !== undefined || unread ? (
+        {time !== undefined || unread || hasControls ? (
+          // Held at one line even with no time, so the controls that overlay it on hover have a place.
           // Unread is a 6px dot just before the time (the title's ink says it too), so the row
           // keeps its normal start inset.
           <div

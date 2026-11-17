@@ -339,7 +339,7 @@
       ],
       "meta": {
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
-        "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
+        "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox).",
         "version": "0.90.0"
       }
     },
@@ -397,7 +397,7 @@
       ],
       "meta": {
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
-        "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
+        "whenNotToUse": "An activity feed (ActivityFeed) or a list of records (DataList).",
         "version": "0.90.0"
       }
     },
@@ -430,7 +430,7 @@
       ],
       "meta": {
         "whenToUse": "A document's full history in DialogContent size=\"fullscreen\": read a version or its changes beside the list, and restore or copy it.",
-        "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (Timeline), or comparing two arbitrary texts (DiffView).",
+        "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (ActivityFeed), or comparing two arbitrary texts (DiffView).",
         "version": "0.90.0"
       }
     },
@@ -13834,7 +13834,7 @@
       ],
       "meta": {
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
-        "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
+        "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
         "version": "0.90.0"
       }
     },
@@ -14192,7 +14192,7 @@
       ],
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
-        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
+        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread count (NotificationBell).",
         "version": "0.92.0"
       }
     },
@@ -19446,7 +19446,7 @@
       ],
       "meta": {
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
-        "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
+        "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use ActivityFeed.",
         "version": "0.90.0"
       }
     },

@@ -63,19 +63,32 @@ test("a meta line that repeats the title is dropped, and the row is marked one-l
           title="Ravi assigned you Pricing"
           meta="Due tomorrow"
         />
+        <InboxItem value="c" title="Joanne joined Pricing" meta="Ann" />
+        <InboxItem
+          value="d"
+          title="Ravi commented on Pricing"
+          meta={
+            <>
+              Ravi <InboxEmphasis>commented</InboxEmphasis>
+            </>
+          }
+        />
       </InboxGroup>
     </Inbox>,
   );
   const rows = screen.container.querySelectorAll<HTMLElement>(
     '[data-slot="inbox-item"]',
   );
-  await expect.poll(() => rows.length).toBe(2);
+  await expect.poll(() => rows.length).toBe(4);
   // The title's line only: no meta line under it.
   expect(rows[0]!.querySelectorAll("p").length).toBe(1);
   expect(rows[0]!.hasAttribute("data-single-line")).toBe(true);
   expect(rows[1]!.querySelectorAll("p").length).toBe(2);
   expect(rows[1]!.textContent).toContain("Due tomorrow");
   expect(rows[1]!.hasAttribute("data-single-line")).toBe(false);
+  // Whole words only, and never a meta it cannot read in full (a component may render more).
+  expect(rows[2]!.querySelectorAll("p").length).toBe(2);
+  expect(rows[3]!.querySelectorAll("p").length).toBe(2);
 });
 
 test("an unread row shows a dot, a read row none; the badge sits on the avatar, hidden from the name", async () => {
