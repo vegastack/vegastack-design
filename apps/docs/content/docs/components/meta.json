@@ -90,6 +90,7 @@
     "resizable",
     "shell",
     "shell-panel",
+    "peek",
     "record-layout",
     "document-layout",
     "comments",
