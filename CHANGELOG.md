@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.109.2] — November 17, 2026
+
+<!-- assembled from 1 changeset: 08a3279cd415 -->
+
+### 🔧 Changed components
+
+- NavTree: children keep their small 12px indent under a parent but no longer hang from thread lines, so Settings, Spaces and Home's column read quieter.
+  [`4595cad`](https://github.com/VegaStack/vegastack-design/commit/4595cad)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.109.1 → 0.109.2.
+
 ## [0.109.1] — November 17, 2026
 
 <!-- assembled from 1 changeset: 31c6029d56b2 -->

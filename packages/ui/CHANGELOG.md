@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.109.2
+
+### Patch Changes
+
+- [#1025](https://github.com/vegastack/vegastack-design/pull/1025) [`4595cad`](https://github.com/vegastack/vegastack-design/commit/4595cadcbae45a40711952d82785472d4d0bdf9d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 NavTree: children keep their small 12px indent under a parent but no longer hang from thread lines, so Settings, Spaces and Home's column read quieter.
+
 ## 0.109.1
 
 ### Patch Changes
