@@ -1,4 +1,4 @@
-// @vegastack chat-user-bubble@0.106.0 sha256-PWJraWnnvEBQFzxfCoZNF4D5hEHJWkx5nz4k9CBkcCo=
+// @vegastack chat-user-bubble@0.107.0 sha256-EsEN7KG9UAQ3JqQUxblmqait33A9iIC5cK/dDToi3ZQ=
 
 "use client";
 

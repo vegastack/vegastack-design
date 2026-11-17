@@ -10,6 +10,24 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.107.0] — November 17, 2026
+
+### 🔧 Changed components
+
+- `PeekSheet` and `Peek` take `finalFocus`, Base UI's drawer option for where focus goes when the phone sheet closes. `Peek`'s sheet now hands focus back to the row that opened it, or leaves it where it is, and never returns it to a text field such as the page's search box, which raised a phone's keyboard on close.
+  [`058d416`](https://github.com/VegaStack/vegastack-design/commit/058d416)
+
+### 🗑 Removed / renamed
+
+- Shell Panel and Panel Tabs are removed (layout v2, D11): `ShellPanel` and its parts (`ShellPanelHeader`, `ShellPanelTabs`, `ShellPanelTab`, `ShellPanelTabMenu`, `ShellPanelOverflow` with Recently closed, `ShellPanelClose`, `ShellPanelBody`, `ShellPanelView`, `ShellPanelSkeleton`, `ShellPanelEmpty`, `usePanelTabs`) and the `panel-tabs` lib (the tab reducer, preview tabs, the cap, auto-close, Recently closed, the saved tabs and the `?panel=` codec), with their docs page, previews and tests. A record opens in `Peek` from a list, or on its page, where `RecordLayout`'s side panel holds the reference material. Record Aside and Document Layout now point at the record page's side panel. `AssistantPill` is removed too (the global bar's Ask opens the card now), and `AssistantCardHeader` loses `onMoveToPanel` and `moveToPanelLabel` (there is no panel tab to move a chat into). The shell's own panel goes with them: `Shell` loses `panel`, `panelOpen`, `panelWidth` and `pageMin` (and `data-panel`, `data-page-min`, `data-panel-mode`, `data-panel-anim`), `ShellPanelToggle` and `requestShellPanelOpen` are removed, `useShellLayout()` reports `tier` and `column` only, `ShellStateScript` reads the `vs_shell_col` cookie alone, and `@/lib/shell-layout` drops `SHELL_PAGE_MIN`, `ShellPageMin`, `ShellPanelMode`, `clampPanelWidth`, the panel sizes and cookie, and the panel branch of `resolveShellLayout`; `parseShellCookie(value)` takes the column cookie's value only. The `--shell-panel-width` tokens (`-min`, `-max`) are deleted. `shell-01` opens a task in a `Peek`.
+  [`058d416`](https://github.com/VegaStack/vegastack-design/commit/058d416)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.21.0`** (was `0.20.0`).
+- **`@vegastack/design`** → **`0.21.0`** (was `0.20.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.106.2 → 0.107.0.
+
 ## [0.106.2] — November 17, 2026
 
 ### 🔧 Changed components
