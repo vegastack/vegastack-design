@@ -22073,6 +22073,15 @@
             }
           ],
           "cssVariables": []
+        },
+        "InboxSkeleton": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": []
+            }
+          ],
+          "cssVariables": []
         }
       }
     },

@@ -1,4 +1,4 @@
-// @vegastack data-list@0.100.0 sha256-DOMHyApJc4lGDqcK6s0EEge4jf3XUy75GQC8EPlXdrc=
+// @vegastack data-list@0.100.0 sha256-o0Wflp6OuSNYKaM/qJEaoQq13kCItw1mzd0ZSI6Knpc=
 
 "use client";
 
@@ -1326,6 +1326,122 @@ function opensInBackground(event: React.SyntheticEvent | null): boolean {
   const e = event as React.MouseEvent;
   if (e.shiftKey || e.altKey) return false;
   return e.button === 1 || (e.button === 0 && (e.metaKey || e.ctrlKey));
+}
+
+/** How long a touch holds still on a row before it selects (the platforms' long press). */
+const LONG_PRESS_MS = 500;
+/** How far (px) a held touch may drift and still count as a press, not a scroll. */
+const LONG_PRESS_SLOP = 10;
+
+/**
+ * The list's phone posture (a touch screen, the list under 30rem): rows are a title and one meta
+ * line, with no column header and no checkboxes in sight until a long press starts a selection;
+ * both come back while anything is selected (Select all, and each row's tick). They are visually
+ * hidden, not removed: a screen reader still reads the column names and reaches every checkbox,
+ * and a keyboard tabs to them (focus shows the header or the checkbox's cell). Sorting stays the
+ * toolbar's (a header that is the list's only sort control stays, `headerSorts`).
+ */
+const PHONE_HEADER_CLASS =
+  "pointer-coarse:@max-[30rem]/data-list:[&>thead:not(:focus-within)]:sr-only";
+/** The checkboxes, likewise; a keyboard's focus on one shows its cell. */
+const PHONE_BOXES_CLASS =
+  "pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-table-selection-cell]:not(:focus-within)]:sr-only pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-list-skeleton-row]>td:first-child]:hidden";
+
+/**
+ * Touch selection for a selectable list: a long press on a row selects it (the phone posture shows
+ * no checkboxes until then), and while anything is selected a tap on a row toggles it instead of
+ * opening it, as a phone's own lists do. A press that moves is a scroll; the click a long press may
+ * end in is swallowed; the platform's long-press menu (Android's `contextmenu`, iOS's link callout)
+ * gives way. The row's own controls (its ⋯, a chip, its checkbox) keep their taps.
+ */
+function useTouchRowSelect({
+  enabled,
+  selecting,
+  toggle,
+}: {
+  enabled: boolean;
+  selecting: boolean;
+  toggle: (id: string) => void;
+}): Pick<
+  React.HTMLAttributes<HTMLElement>,
+  | "onPointerDown"
+  | "onPointerMove"
+  | "onPointerUp"
+  | "onPointerCancel"
+  | "onContextMenu"
+  | "onClickCapture"
+> {
+  const press = React.useRef<{
+    timer: ReturnType<typeof setTimeout>;
+    x: number;
+    y: number;
+  } | null>(null);
+  const fired = React.useRef(false);
+  const touch = React.useRef(false);
+  const cancel = () => {
+    if (press.current) clearTimeout(press.current.timer);
+    press.current = null;
+  };
+  React.useEffect(() => cancel, []);
+  if (!enabled) return {};
+  /** The row a gesture is on, unless it began on one of the row's own controls. */
+  const rowOf = (event: React.SyntheticEvent) => {
+    const target = event.target as HTMLElement;
+    const row = target.closest<HTMLElement>('[data-slot="data-list-row"]');
+    const control = target.closest(INTERACTIVE_SELECTOR);
+    if (control && row?.contains(control)) {
+      const slot = control.getAttribute("data-slot");
+      if (slot !== "data-list-row-link" && slot !== "data-list-row-action")
+        return null;
+    }
+    return row?.getAttribute("data-row-id") ?? null;
+  };
+  return {
+    onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+      touch.current = event.pointerType === "touch";
+      fired.current = false;
+      cancel();
+      const id = touch.current && event.isPrimary ? rowOf(event) : null;
+      if (id === null) return;
+      press.current = {
+        timer: setTimeout(() => {
+          cancel();
+          fired.current = true;
+          toggle(id);
+        }, LONG_PRESS_MS),
+        x: event.clientX,
+        y: event.clientY,
+      };
+    },
+    onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
+      const at = press.current;
+      if (
+        at &&
+        Math.hypot(event.clientX - at.x, event.clientY - at.y) > LONG_PRESS_SLOP
+      )
+        cancel();
+    },
+    onPointerUp: cancel,
+    onPointerCancel: cancel,
+    onContextMenu: (event: React.MouseEvent<HTMLElement>) => {
+      if (touch.current && rowOf(event) !== null) event.preventDefault();
+    },
+    onClickCapture: (event: React.MouseEvent<HTMLElement>) => {
+      if (fired.current && event.detail > 0) {
+        fired.current = false;
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      // A keyboard's or an assistive technology's click (`detail` 0) is never the touch's.
+      if (!touch.current || !selecting || event.detail === 0) return;
+      const id = rowOf(event);
+      if (id === null) return;
+      event.preventDefault();
+      event.stopPropagation();
+      toggle(id);
+    },
+  };
 }
 
 /** A double-click on a control in a row (its checkbox, ⋯ menu): not the row's own. */
@@ -2711,6 +2827,14 @@ export function DataList<T>({
     anchorId.current = null;
     setSelected(new Set());
   }, [setSelected]);
+  const touchSelect = useTouchRowSelect({
+    enabled: selectable && activeView === "list",
+    selecting: selected.size > 0,
+    toggle: (id) => {
+      anchorId.current = id;
+      toggleRow(id);
+    },
+  });
   // ⌘/Ctrl+A selects every row, Escape clears, and Space on a row's own link toggles that row —
   // while focus is in the list, never from a text field, and never from a popup (a row's ⋯ menu
   // portals out of the list, so its keys bubble here through React but not through the DOM).
@@ -2830,6 +2954,14 @@ export function DataList<T>({
       ? React.cloneElement(rowLinkRender ?? <AppLink />, { draggable: false })
       : rowLinkRender;
 
+  // The header is the only way to sort: sortable columns it sorts, and no ListToolbar with a Sort
+  // tool beside them (any other toolbar may carry none).
+  const toolbarSorts =
+    React.isValidElement<ListToolbarProps>(toolbar) &&
+    toolbar.type === ListToolbar &&
+    toolbar.props.sort != null;
+  const headerSorts =
+    !sortLocked && visibleColumns.some((col) => col.sortable) && !toolbarSorts;
   const table = (
     // DS-68: a list owns its keyboard model — a row link or a row click, not one tab stop per
     // clipped value or timestamp — so truncated text and RelativeTime in the cells are not tab
@@ -2847,6 +2979,15 @@ export function DataList<T>({
             density === "compact"
               ? "[&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8 [&_[data-slot=data-list-row]]:h-8 [&_[data-slot=data-list-skeleton-row]]:h-8 [&_[data-slot=data-list-secondary]]:hidden"
               : "[&_[data-slot=data-list-row]]:h-10 [&_[data-slot=data-list-skeleton-row]]:h-10",
+            // The phone posture: no header in sight (unless it is the only way to sort), and no
+            // checkboxes until a long press selects a row.
+            !(selectable && selected.size > 0) &&
+              !headerSorts &&
+              PHONE_HEADER_CLASS,
+            selectable && selected.size === 0 && PHONE_BOXES_CLASS,
+            // A long press selects: no text selection or link callout under the finger.
+            selectable &&
+              "pointer-coarse:[&_[data-slot=data-list-row]]:[-webkit-touch-callout:none] pointer-coarse:[&_[data-slot=data-list-row]]:select-none",
             className,
           )}
           aria-busy={loading ? true : ariaBusy}
@@ -3419,8 +3560,16 @@ export function DataList<T>({
       data-slot="data-list-root"
       data-view={activeView}
       data-selecting={selectable && selectionCount > 0 ? "" : undefined}
+      {...touchSelect}
       onKeyDown={selectable ? handleSelectionKeys : undefined}
-      onPointerMove={tracksCursor ? followPointer : undefined}
+      onPointerMove={
+        tracksCursor || touchSelect.onPointerMove
+          ? (event: React.PointerEvent<HTMLDivElement>) => {
+              touchSelect.onPointerMove?.(event);
+              if (tracksCursor) followPointer(event);
+            }
+          : undefined
+      }
       className="@container/data-list flex w-full min-w-0 flex-col gap-3"
     >
       {toolbarNode != null ? (

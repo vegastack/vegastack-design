@@ -1,4 +1,4 @@
-// @vegastack inbox@0.101.0 sha256-yqgBYa5phJXKm3tJ0vQCmPxJUJPaDCqMZ9YJz3B01IQ=
+// @vegastack inbox@0.101.0 sha256-ivuTkXhAoDMSzjCwLmeQBAi5/xaplJyQNkWV71JDCEA=
 
 "use client";
 
@@ -160,7 +160,7 @@ export interface InboxProps extends Omit<
 
 /**
  * `Inbox` — the notification panel's frame: a header (title, icon actions, close), a filter row,
- * a scrolling body of full-bleed rows and an optional footer. Pass `onLoadMore` + `hasMore` +
+ * a scrolling body of inset rows and an optional footer. Pass `onLoadMore` + `hasMore` +
  * `loadingMore` for infinite scroll: an IntersectionObserver sentinel pages as the list nears its
  * end, three skeleton rows stand in while a page loads, a ghost "Try again" follows a failure and
  * "You’re all caught up" ends the list. It fills its container, so put it in
@@ -317,7 +317,7 @@ export function Inbox({
       aria-labelledby={titleId}
       aria-keyshortcuts="J K"
       className={cn(
-        "flex w-full flex-col bg-background text-foreground",
+        "group/inbox flex w-full flex-col bg-background text-foreground",
         !page && "h-full min-h-0",
         className,
       )}
@@ -593,11 +593,21 @@ export function InboxList({
       role="list"
       aria-label={label}
       data-slot="inbox-list"
-      className={cn("flex flex-col gap-px px-2", className)}
+      className={cn(ROWS_CLASS, className)}
       {...props}
     />
   );
 }
+
+/**
+ * The rows' list. In a panel it sits 8px inside the pane, so a row's fill never runs to the pane's
+ * edge (LAY-20). On a page (`layout="page"`) the page's gutter is that inset: the list reaches 8px
+ * into it and each row pads 8px, so the avatars, the day labels and the page's other content share
+ * one edge and the hover fill is still an inset `rounded-item` shape (a select option's hover),
+ * never a band across the pane, and never a second gutter inside the page's own.
+ */
+const ROWS_CLASS =
+  "flex flex-col gap-px px-2 group-data-[layout=page]/inbox:-mx-2 group-data-[layout=page]/inbox:px-0";
 
 /** Props for {@link InboxGroup}. */
 export interface InboxGroupProps extends React.ComponentProps<"ul"> {
@@ -623,14 +633,15 @@ export function InboxGroup({
     <div data-slot="inbox-group" className="group/inbox-group">
       <div
         id={id}
-        className="sticky top-0 z-10 bg-background px-4 pt-4 pb-1.5 text-xs font-medium text-muted-foreground group-first/inbox-group:pt-2"
+        // On a page the label starts at the page's own edge, in line with the rows' avatars.
+        className="sticky top-0 z-10 bg-background px-4 pt-4 pb-1.5 text-xs font-medium text-muted-foreground group-first/inbox-group:pt-2 group-data-[layout=page]/inbox:px-0"
       >
         {label}
       </div>
       <ul
         role="list"
         aria-labelledby={id}
-        className={cn("flex flex-col gap-px px-2", className)}
+        className={cn(ROWS_CLASS, className)}
         {...props}
       >
         {children}
@@ -868,8 +879,16 @@ export interface InboxItemProps extends Omit<
    */
   onToggleRead?: () => void;
   /**
+   * The `menu` carries Mark read / Mark unread too. On a touch screen the row then shows no buttons
+   * (only the unread dot and the time), so the title keeps its width; a long press opens the menu.
+   * Without it a touch row keeps the toggle in view.
+   * @default false
+   */
+  readInMenu?: boolean;
+  /**
    * `DropdownMenuItem`s for the row's ⋯ menu (Archive, Mark unread, Unwatch, Mute this type);
-   * omit to hide it.
+   * omit to hide it. On a touch screen a long press on the row opens it; with `readInMenu` (or no
+   * `onToggleRead`) the row shows no buttons there.
    * @default undefined
    */
   menu?: React.ReactNode;
@@ -956,15 +975,146 @@ const onControl = (event: React.SyntheticEvent) =>
     "button,a,input,[role=menuitem],[role=button]",
   );
 
+/** How long a touch holds still on a row before its ⋯ menu opens (the platforms' long press). */
+const LONG_PRESS_MS = 500;
+/** How far (px) a held touch may drift and still count as a press, not a scroll. */
+const LONG_PRESS_SLOP = 10;
+/** The compatibility mouse events a touch's release can send after a long press. */
+const SWALLOWED = ["mousedown", "mouseup", "click"] as const;
+
 /**
- * One notification row: full-bleed, 16px sides and 12px vertical padding, a 28px avatar or muted
+ * A touch's long press on a row opens its ⋯ menu: from anywhere on the row (the title's link
+ * covers it on touch) but its own other controls. A press that moves is a scroll; the click a
+ * long press may end in is swallowed, so the row does not also open; the platform's own long-press
+ * menu (Android's `contextmenu`, iOS's link callout) gives way to the row's.
+ */
+type LongPressHandlers = Pick<
+  React.HTMLAttributes<HTMLElement>,
+  | "onPointerDown"
+  | "onPointerMove"
+  | "onPointerUp"
+  | "onPointerCancel"
+  | "onContextMenu"
+  | "onClickCapture"
+>;
+
+function useLongPressMenu(enabled: boolean): {
+  open: boolean;
+  setOpen: (open: boolean) => void;
+  handlers: LongPressHandlers;
+} {
+  const [open, setOpen] = React.useState(false);
+  const press = React.useRef<{
+    timer: ReturnType<typeof setTimeout>;
+    x: number;
+    y: number;
+  } | null>(null);
+  const fired = React.useRef(false);
+  const touch = React.useRef(false);
+  // Takes down the window listeners of the last long press (the gesture's end, or unmount).
+  const unswallow = React.useRef<(() => void) | null>(null);
+  const cancel = () => {
+    if (press.current) clearTimeout(press.current.timer);
+    press.current = null;
+  };
+  React.useEffect(
+    () => () => {
+      cancel();
+      unswallow.current?.();
+    },
+    [],
+  );
+  const fire = () => {
+    cancel();
+    fired.current = true;
+    // The mouse events a touch's release may still send (the compatibility mousedown and click)
+    // would land outside the menu it just opened and close it: the window's capture phase swallows
+    // them before the menu hears them. Only a pointer's events (`detail` > 0): a keyboard's or an
+    // assistive technology's click on a menu item is never one. The gesture ends at its click or at
+    // the next touch, whichever comes first.
+    const swallow = (event: MouseEvent) => {
+      if (event.detail === 0) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.type === "click") {
+        fired.current = false;
+        done();
+      }
+    };
+    const done = () => {
+      for (const type of SWALLOWED)
+        window.removeEventListener(type, swallow, { capture: true });
+      window.removeEventListener("pointerdown", done, { capture: true });
+      unswallow.current = null;
+    };
+    unswallow.current?.();
+    for (const type of SWALLOWED)
+      window.addEventListener(type, swallow, { capture: true });
+    window.addEventListener("pointerdown", done, { capture: true });
+    unswallow.current = done;
+    setOpen(true);
+  };
+  const ownControl = (event: React.SyntheticEvent) => {
+    const control = (event.target as HTMLElement).closest(
+      "button,a,input,[role=menuitem],[role=button]",
+    );
+    return !!control && control.getAttribute("data-slot") !== "inbox-item-link";
+  };
+  if (!enabled) return { open, setOpen, handlers: {} };
+  return {
+    open,
+    setOpen,
+    handlers: {
+      onPointerDown: (event: React.PointerEvent<HTMLElement>) => {
+        touch.current = event.pointerType === "touch";
+        fired.current = false;
+        cancel();
+        if (!touch.current || !event.isPrimary || ownControl(event)) return;
+        press.current = {
+          timer: setTimeout(fire, LONG_PRESS_MS),
+          x: event.clientX,
+          y: event.clientY,
+        };
+      },
+      onPointerMove: (event: React.PointerEvent<HTMLElement>) => {
+        const at = press.current;
+        if (
+          at &&
+          Math.hypot(event.clientX - at.x, event.clientY - at.y) >
+            LONG_PRESS_SLOP
+        )
+          cancel();
+      },
+      onPointerUp: cancel,
+      onPointerCancel: cancel,
+      onContextMenu: (event: React.MouseEvent<HTMLElement>) => {
+        if (!touch.current || ownControl(event)) return;
+        event.preventDefault();
+        if (!fired.current) fire();
+      },
+      onClickCapture: (event: React.MouseEvent<HTMLElement>) => {
+        if (!fired.current || event.detail === 0) return;
+        fired.current = false;
+        event.preventDefault();
+        event.stopPropagation();
+      },
+    },
+  };
+}
+
+/**
+ * One notification row: an inset `rounded-item` shape, 12px sides (8px on a page, so its content
+ * keeps the page's edge) and 12px vertical padding, a 28px avatar or muted
  * icon tile (with an optional kind `badge` on its corner), the title, the `meta` line (a grouped
  * row's latest event), a line with the stacked `actors` and the `count` ("9 updates", a disclosure
  * for the `events` behind it), and the inline `actions` (Allow · Decline) or, once `status` is
  * `answered`, the `answeredLabel`.
  * Unread rows get a dot just before the time; the {@link Inbox}'s active row a start bar. A right
- * column (64px at least) holds the time, with Mark read / Mark unread and the ⋯ menu below it,
- * shown on hover or keyboard focus.
+ * column holds the time; with a pointer, Mark read / Mark unread and the ⋯ menu take its place on
+ * hover or keyboard focus (64px at least, so they fit). On a touch screen the row keeps its width for
+ * the title when its `menu` carries Mark read / Mark unread (`readInMenu`): only the dot and the time
+ * show, and a long press opens the ⋯ menu, as a touch list's row does. Otherwise the toggle stays in
+ * view (and a long press still opens the menu).
  *
  * @example
  * <InboxItem value="task-39" unread icon={<SquareCheck />} title="#39 Agent link RCA test"
@@ -992,6 +1142,7 @@ export function InboxItem({
   answeredLabel,
   actions,
   onToggleRead,
+  readInMenu = false,
   menu,
   menuLabel = "More actions",
   className,
@@ -1005,6 +1156,10 @@ export function InboxItem({
   const [expanded, setExpanded] = React.useState(defaultExpanded);
   const eventsId = React.useId();
   const hasControls = Boolean(onToggleRead || menu);
+  // On a touch screen a long press opens the ⋯ menu; a row whose menu holds everything its buttons
+  // do shows none of them there, so the title keeps its width.
+  const longPress = useLongPressMenu(Boolean(menu));
+  const touchMenuOnly = Boolean(menu) && (readInMenu || !onToggleRead);
   const count = countProp ?? events?.length ?? 0;
   const showCount = count > 1;
   const expandable = showCount && !!events?.length;
@@ -1110,17 +1265,23 @@ export function InboxItem({
       aria-current={active && !href && !inbox.open ? "true" : undefined}
       className={cn(
         // LAY-20: the row sits 8px inside the pane (the list's `px-2`) on `rounded-item`, so its fill never
-        // runs to the pane edge; unread is the dot and the title's ink, never a fill (COL-24).
+        // runs to the pane edge; on a page it pads 8px from a list that reaches 8px into the page's
+        // gutter, so its content keeps the page's edge (`ROWS_CLASS`). Unread is the dot and the
+        // title's ink, never a fill (COL-24).
         // Three columns — the avatar, the text, the time and controls — and, under them, the
         // expanded events across the whole row, threaded from the avatar.
-        "group/inbox-item relative grid scroll-mt-10 grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 rounded-item px-3 py-3 transition-colors state-layer",
+        "group/inbox-item relative grid scroll-mt-10 grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 rounded-item px-3 py-3 transition-colors state-layer group-data-[layout=page]/inbox:px-2",
         // One line of text: 52px (12px + the 28px avatar + 12px), the text and time centred on it.
         "data-single-line:items-center",
         // The active row (the one the peek shows): the selected step and a 2px start bar.
         "data-active:bg-state-selected data-active:before:absolute data-active:before:inset-y-2 data-active:before:start-0 data-active:before:w-0.5 data-active:before:rounded-full data-active:before:bg-primary",
         tracked && !href && inbox.open && "cursor-pointer",
+        // A long press opens the ⋯ menu: no text selection or link callout under the finger.
+        menu &&
+          "pointer-coarse:[-webkit-touch-callout:none] pointer-coarse:select-none",
         className,
       )}
+      {...longPress.handlers}
       onClick={(event) => {
         onClick?.(event);
         if (event.defaultPrevented || href || onControl(event)) return;
@@ -1261,7 +1422,13 @@ export function InboxItem({
           </div>
         ) : null}
       </div>
-      <div className="relative flex min-w-16 shrink-0 flex-col items-end gap-1">
+      <div
+        className={cn(
+          "relative flex min-w-16 shrink-0 flex-col items-end gap-1",
+          // Touch, with only the menu: the time's own width, so the title gets the rest.
+          touchMenuOnly && "pointer-coarse:min-w-0",
+        )}
+      >
         {time !== undefined || unread || hasControls ? (
           // Held at one line even with no time, so the controls that overlay it on hover have a place.
           // Unread is a 6px dot just before the time (the title's ink says it too), so the row
@@ -1272,6 +1439,10 @@ export function InboxItem({
               // With a pointer the controls take the time's place on hover, so they add no height.
               hasControls &&
                 "pointer-fine:group-focus-within/inbox-item:invisible pointer-fine:group-hover/inbox-item:invisible pointer-fine:group-has-data-popup-open/inbox-item:invisible",
+              // Touch: the ⋯ shows in the time's place only while its menu is open or a keyboard
+              // focuses it.
+              touchMenuOnly &&
+                "pointer-coarse:group-has-focus-visible/inbox-item:invisible pointer-coarse:group-has-data-popup-open/inbox-item:invisible",
             )}
           >
             {unread ? (
@@ -1291,7 +1462,15 @@ export function InboxItem({
           </div>
         ) : null}
         {hasControls ? (
-          <div className="relative z-10 -me-1 flex items-center gap-0.5 pointer-fine:absolute pointer-fine:end-0 pointer-fine:-top-1 pointer-fine:opacity-0 pointer-fine:group-focus-within/inbox-item:opacity-100 pointer-fine:group-hover/inbox-item:opacity-100 pointer-fine:group-has-data-popup-open/inbox-item:opacity-100">
+          <div
+            className={cn(
+              "relative z-10 -me-1 flex items-center gap-0.5 pointer-fine:absolute pointer-fine:end-0 pointer-fine:-top-1 pointer-fine:opacity-0 pointer-fine:group-focus-within/inbox-item:opacity-100 pointer-fine:group-hover/inbox-item:opacity-100 pointer-fine:group-has-data-popup-open/inbox-item:opacity-100",
+              // Touch, with a menu: out of sight and out of the finger's way (the row's long press
+              // opens the menu); in the time's place while it is open, or for a keyboard's focus.
+              touchMenuOnly &&
+                "pointer-coarse:pointer-events-none pointer-coarse:absolute pointer-coarse:end-0 pointer-coarse:-top-1 pointer-coarse:opacity-0 pointer-coarse:group-has-focus-visible/inbox-item:pointer-events-auto pointer-coarse:group-has-focus-visible/inbox-item:opacity-100 pointer-coarse:group-has-data-popup-open/inbox-item:opacity-100",
+            )}
+          >
             {onToggleRead ? (
               <Tooltip>
                 <TooltipTrigger
@@ -1301,6 +1480,8 @@ export function InboxItem({
                       size="icon-sm"
                       aria-label={unread ? "Mark read" : "Mark unread"}
                       onClick={onToggleRead}
+                      // Touch, with `readInMenu`: the menu carries it, so the row keeps its width.
+                      className={cn(touchMenuOnly && "pointer-coarse:hidden")}
                     >
                       {unread ? <MailOpen /> : <Mail />}
                     </Button>
@@ -1312,7 +1493,10 @@ export function InboxItem({
               </Tooltip>
             ) : null}
             {menu ? (
-              <DropdownMenu>
+              <DropdownMenu
+                open={longPress.open}
+                onOpenChange={longPress.setOpen}
+              >
                 <DropdownMenuTrigger
                   render={
                     <Button
@@ -1533,6 +1717,12 @@ export interface InboxSkeletonProps {
   rows?: number;
   /** @default "Loading notifications" */
   label?: string;
+  /**
+   * The {@link Inbox} `layout` the rows stand in for. Inside an `Inbox` it follows that Inbox; a
+   * page's loading state outside one passes `page`, so its rows keep the page's edge.
+   * @default "panel"
+   */
+  layout?: "panel" | "page";
 }
 
 /**
@@ -1544,11 +1734,23 @@ export interface InboxSkeletonProps {
 export function InboxSkeleton({
   rows = 5,
   label = "Loading notifications",
+  layout,
 }: InboxSkeletonProps) {
   return (
-    <div role="status" aria-label={label} className="flex flex-col gap-px px-2">
+    <div
+      role="status"
+      aria-label={label}
+      data-layout={layout}
+      className={cn(ROWS_CLASS, layout === "page" && "-mx-2 px-0")}
+    >
       {Array.from({ length: rows }, (_, i) => (
-        <div key={i} className="flex gap-3 px-3 py-3">
+        <div
+          key={i}
+          className={cn(
+            "flex gap-3 px-3 py-3 group-data-[layout=page]/inbox:px-2",
+            layout === "page" && "px-2",
+          )}
+        >
           <Skeleton className="size-7 shrink-0 rounded-full" />
           <div className="flex flex-1 flex-col gap-2 pt-0.5">
             <Skeleton className="h-3.5 w-4/5" />

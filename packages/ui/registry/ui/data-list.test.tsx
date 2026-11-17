@@ -3714,3 +3714,61 @@ test("an empty list drops its column header", async () => {
   );
   expect(document.querySelector("thead")?.hidden).toBe(true);
 });
+
+/** A touch on a row's title (its link) held for `ms`, then released with the click it may send. */
+async function touchRow(name: string, ms: number) {
+  const link = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-slot="data-list-row-link"]',
+    ),
+  ].find((el) => el.textContent === name)!;
+  const at = link.getBoundingClientRect();
+  const init = {
+    bubbles: true,
+    pointerType: "touch",
+    isPrimary: true,
+    clientX: at.left + 4,
+    clientY: at.top + 4,
+  };
+  link.dispatchEvent(new PointerEvent("pointerdown", init));
+  await new Promise((r) => setTimeout(r, ms));
+  link.dispatchEvent(new PointerEvent("pointerup", init));
+  link.dispatchEvent(
+    new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 }),
+  );
+  await new Promise((r) => setTimeout(r, 0));
+}
+
+test("on touch, a long press selects a row without opening it, and a tap toggles rows while selecting", async () => {
+  const onRowOpen = vi.fn();
+  await render(<Files onRowOpen={onRowOpen} />);
+  await touchRow("Projects", 600);
+  await expect.poll(checkedNames).toEqual(["Projects"]);
+  await touchRow("notes.md", 50);
+  await expect.poll(checkedNames).toEqual(["Projects", "notes.md"]);
+  await touchRow("Projects", 50);
+  await touchRow("notes.md", 50);
+  await expect.poll(checkedNames).toEqual([]);
+  expect(onRowOpen).not.toHaveBeenCalled();
+  // Nothing selected: a tap is the row's own again.
+  await touchRow("Clients", 50);
+  expect(onRowOpen).toHaveBeenCalledOnce();
+});
+
+test("after a touch selection, a keyboard's Enter on a row opens it instead of toggling it", async () => {
+  const onRowOpen = vi.fn();
+  await render(<Files onRowOpen={onRowOpen} />);
+  await touchRow("Projects", 600);
+  await expect.poll(checkedNames).toEqual(["Projects"]);
+  const link = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-slot="data-list-row-link"]',
+    ),
+  ].find((el) => el.textContent === "notes.md")!;
+  link.dispatchEvent(
+    new MouseEvent("click", { bubbles: true, cancelable: true, detail: 0 }),
+  );
+  await new Promise((r) => setTimeout(r, 0));
+  expect(checkedNames()).toEqual(["Projects"]);
+  expect(onRowOpen).toHaveBeenCalledOnce();
+});

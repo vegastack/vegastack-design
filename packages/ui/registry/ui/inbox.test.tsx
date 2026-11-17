@@ -2,6 +2,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import { DropdownMenuItem } from "./dropdown-menu";
 import {
   Inbox,
   InboxEmphasis,
@@ -473,4 +474,82 @@ test("a page Inbox has no visible header, is named by its hidden title and pages
     .element(screen.getByRole("heading", { name: "Mentions" }))
     .toHaveClass("sr-only");
   await vi.waitFor(() => expect(onLoadMore).toHaveBeenCalled());
+});
+
+/** A touch held on `target` for `ms`, ending in the click a release may send. */
+async function longPress(target: Element, ms = 600, drift = 0) {
+  const at = target.getBoundingClientRect();
+  const x = at.left + 10;
+  const y = at.top + 10;
+  const fire = (type: string, dx = 0) =>
+    target.dispatchEvent(
+      new PointerEvent(type, {
+        bubbles: true,
+        pointerType: "touch",
+        isPrimary: true,
+        clientX: x + dx,
+        clientY: y,
+      }),
+    );
+  fire("pointerdown");
+  if (drift) fire("pointermove", drift);
+  await new Promise((resolve) => setTimeout(resolve, ms));
+  fire("pointerup", drift);
+  target.dispatchEvent(
+    new MouseEvent("mousedown", { bubbles: true, detail: 1 }),
+  );
+  target.dispatchEvent(
+    new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 }),
+  );
+}
+
+test("on touch, a long press opens the row's menu and its trailing click neither opens the row nor closes the menu", async () => {
+  const onOpen = vi.fn();
+  const onArchive = vi.fn();
+  const screen = await render(
+    <Inbox onOpen={onOpen}>
+      <InboxGroup label="Today">
+        <InboxItem
+          value="one"
+          title="Asha assigned you a task"
+          href="/tasks/1"
+          menu={
+            <DropdownMenuItem onClick={onArchive}>Archive</DropdownMenuItem>
+          }
+        />
+      </InboxGroup>
+    </Inbox>,
+  );
+  const link = screen.getByRole("link", { name: /Asha assigned you/ });
+  await longPress(link.element());
+  const archive = screen.getByRole("menuitem", { name: "Archive" });
+  await expect.element(archive).toBeVisible();
+  expect(onOpen).not.toHaveBeenCalled();
+  // A keyboard's activation (a click with no pointer behind it) is never swallowed.
+  archive
+    .element()
+    .dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true, detail: 0 }),
+    );
+  expect(onArchive).toHaveBeenCalledOnce();
+});
+
+test("on touch, a press that moves is a scroll, not a long press", async () => {
+  const screen = await render(
+    <Inbox>
+      <InboxGroup label="Today">
+        <InboxItem
+          value="one"
+          title="Asha assigned you a task"
+          menu={<DropdownMenuItem>Archive</DropdownMenuItem>}
+        />
+      </InboxGroup>
+    </Inbox>,
+  );
+  await longPress(
+    screen.getByText("Asha assigned you a task").element(),
+    600,
+    40,
+  );
+  expect(screen.getByRole("menuitem", { name: "Archive" }).query()).toBeNull();
 });
