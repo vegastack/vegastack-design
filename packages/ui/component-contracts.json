@@ -44248,7 +44248,10 @@
             "team",
             "empty",
             "count",
-            "popover"
+            "popover",
+            "rtl",
+            "agent-halo",
+            "row-click-contained"
           ],
           "evidence": "packages/ui/registry/ui/members-stack.tsx + packages/ui/registry/ui/members-stack.test.tsx"
         },
@@ -44308,12 +44311,16 @@
               "values": ["only-you"]
             },
             {
+              "name": "data-members-stack-faces",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
+                "avatar-group",
                 "members-stack",
                 "members-stack-active",
                 "members-stack-count",
-                "members-stack-faces",
                 "members-stack-footer",
                 "members-stack-overflow",
                 "members-stack-popover"

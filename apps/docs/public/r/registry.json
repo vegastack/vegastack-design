@@ -17875,7 +17875,7 @@
         "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
         "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
         "version": "0.107.0",
-        "integrity": "sha256-uh5UP2tMuEnS795NdsaxJ1epS9cq74q27rxYS6TDZ1A="
+        "integrity": "sha256-vbkIg4pgfik9hxPfKwNClA9OgKjY8mS2/+Mcpren36A="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack members-stack@0.107.0 sha256-uh5UP2tMuEnS795NdsaxJ1epS9cq74q27rxYS6TDZ1A=
+// @vegastack members-stack@0.107.0 sha256-vbkIg4pgfik9hxPfKwNClA9OgKjY8mS2/+Mcpren36A=
 
 "use client";
 
@@ -182,17 +182,23 @@ export function MembersStack({
         ? count(all)
         : defaultCount(all)
       : null;
+  // The visible words lead the name, so speech input can target it (WCAG 2.5.3).
   const accessible = grouped
     ? `${label}: ${groupText}`
-    : `${label}: ${namesLine(ordered, all)}`;
+    : countText != null
+      ? `${label}: ${countText}, ${namesLine(ordered, all)}`
+      : `${label}: ${namesLine(ordered, all)}`;
 
   const faces = grouped ? (
     <PersonAvatar person={group} size="sm" />
   ) : (
+    // `avatar-group`: the slot `PersonAvatar` reads to give an agent's hexagon its surface halo
+    // and to centre overlapped initials, as in any avatar stack.
     <span
       aria-hidden
-      data-slot="members-stack-faces"
-      className="flex items-center -space-x-1.5 rtl:space-x-reverse"
+      data-slot="avatar-group"
+      data-members-stack-faces=""
+      className="flex items-center -space-x-1.5"
     >
       {shown.map((person, i) => (
         <span
@@ -267,6 +273,9 @@ export function MembersStack({
         aria-label={label}
         data-slot="members-stack-popover"
         className="w-64 p-2"
+        // The popover is portalled but its events bubble through React: a stack in a list row
+        // must not open the row from inside its list.
+        onClick={(event) => event.stopPropagation()}
       >
         {ordered.length > 0 ? (
           <ul
@@ -313,6 +322,8 @@ function MembersStackTrigger({
         render={
           <Button
             variant="ghost"
+            {...props}
+            // After the injected props: the trigger's own slot is the stack's public marker.
             data-slot="members-stack"
             className={cn(
               "h-7 max-w-full shrink-0 gap-2 px-1 active:not-aria-[haspopup]:translate-y-0",
@@ -323,7 +334,6 @@ function MembersStackTrigger({
               event.stopPropagation();
               onClick?.(event);
             }}
-            {...props}
           />
         }
       />

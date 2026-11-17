@@ -25,7 +25,7 @@ const PEOPLE = [
 test("shows at most three faces, then a +N pill counted from total", async () => {
   const screen = await render(<MembersStack people={PEOPLE} total={23} />);
   const faces = screen.container.querySelectorAll(
-    '[data-slot="members-stack-faces"] [data-slot="avatar"]',
+    '[data-members-stack-faces] [data-slot="avatar"]',
   );
   expect(faces).toHaveLength(3);
   const pill = screen.container.querySelector<HTMLElement>(
@@ -45,7 +45,7 @@ test("overlaps faces by 6px", async () => {
   const screen = await render(<MembersStack people={PEOPLE} />);
   const [a, b] = Array.from(
     screen.container.querySelectorAll<HTMLElement>(
-      '[data-slot="members-stack-faces"] > span',
+      "[data-members-stack-faces] > span",
     ),
   );
   expect(
@@ -94,6 +94,7 @@ test("names everyone on the button and lists them in the popover with the footer
   const stack = screen.getByRole("button", {
     name: /^Members: Asha Rao, .* and 9 more$/,
   });
+  expect(stack.element().getAttribute("data-slot")).toBe("members-stack");
   await stack.click();
   await expect
     .element(screen.getByRole("list", { name: "Members" }))
@@ -145,10 +146,65 @@ test("a row's stack ends in the count, 8px on", async () => {
     '[data-slot="members-stack-count"]',
   );
   expect(count?.textContent).toBe("23 members");
+  // The visible count leads the accessible name.
+  await expect
+    .element(
+      screen.getByRole("button", { name: /^Members: 23 members, Asha Rao/ }),
+    )
+    .toBeVisible();
   const faces = screen.container.querySelector<HTMLElement>(
-    '[data-slot="members-stack-faces"]',
+    "[data-members-stack-faces]",
   );
   expect(
     count!.getBoundingClientRect().left - faces!.getBoundingClientRect().right,
   ).toBe(8);
+});
+
+test("in a clickable row, the stack and its popover never open the row", async () => {
+  let opened = 0;
+  const screen = await render(
+    <div onClick={() => (opened += 1)}>
+      <MembersStack
+        people={PEOPLE}
+        footer={<button type="button">Manage members</button>}
+      />
+    </div>,
+  );
+  await screen.getByRole("button", { name: /^Members:/ }).click();
+  await screen.getByText("Dev Menon").click();
+  await screen.getByRole("button", { name: "Manage members" }).click();
+  expect(opened).toBe(0);
+});
+
+test("right to left, every face still overlaps the next by 6px", async () => {
+  const screen = await render(
+    <div dir="rtl">
+      <MembersStack people={PEOPLE} total={23} />
+    </div>,
+  );
+  const parts = Array.from(
+    screen.container.querySelectorAll<HTMLElement>(
+      "[data-members-stack-faces] > span",
+    ),
+  );
+  expect(parts).toHaveLength(4);
+  for (let i = 0; i < parts.length - 1; i++)
+    expect(
+      parts[i + 1]!.getBoundingClientRect().right -
+        parts[i]!.getBoundingClientRect().left,
+    ).toBe(6);
+});
+
+test("an agent in the stack gets its shaped halo", async () => {
+  const screen = await render(
+    <MembersStack
+      people={[{ name: "Asha Rao" }, { name: "Orbit", kind: "agent" }]}
+    />,
+  );
+  const agent = screen.container.querySelector<HTMLElement>(
+    '[data-members-stack-faces] [data-kind="agent"]',
+  )!;
+  expect(
+    getComputedStyle(agent).getPropertyValue("--person-avatar-halo").trim(),
+  ).not.toBe("");
 });
