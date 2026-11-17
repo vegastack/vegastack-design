@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.109.4
+
+### Patch Changes
+
+- [#1027](https://github.com/vegastack/vegastack-design/pull/1027) [`b096988`](https://github.com/vegastack/vegastack-design/commit/b0969887d889bb372ec86a27479a3e64a71db496) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 NavTree: two levels at most. A child row is text only (its `icon` is no longer drawn), a third level warns in development, and a count over 99 shows "99+".
+
 ## 0.109.3
 
 ### Patch Changes

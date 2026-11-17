@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.109.4] — November 17, 2026
+
+<!-- assembled from 1 changeset: 508c024d9eb5 -->
+
+### 🔧 Changed components
+
+- NavTree: two levels at most. A child row is text only (its `icon` is no longer drawn), a third level warns in development, and a count over 99 shows "99+".
+  [`b096988`](https://github.com/VegaStack/vegastack-design/commit/b096988)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.109.3 → 0.109.4.
+
 ## [0.109.3] — November 17, 2026
 
 <!-- assembled from 1 changeset: d2e7909e7404 -->

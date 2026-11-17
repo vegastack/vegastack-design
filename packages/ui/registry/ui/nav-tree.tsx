@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.109.2 sha256-Ynx3UEd7m1xESf2nn8M5gCN+2pVDlopIQx4vPiF6oJw=
+// @vegastack nav-tree@0.109.4 sha256-DHHsVbCro2XLSQUw9l+72swx2ZB4Jy69g9YUtvd/kjU=
 
 "use client";
 
@@ -17,6 +17,10 @@ control sits at its END, so a parent and its siblings keep their labels on one l
 indent alone shows what belongs to what: no thread lines (operator, 17-11-2026: keep the
 indentation close, without the lines).
 
+Two levels at most (operator, 18-11-2026, rule N3): a first-level row has its 16px icon; a child is
+text only, one step in, so the component never draws an icon below the first level. A third level
+is a design error: it still renders, but warns in development.
+
 Rows are 32px, and 44px (`size="touch"`, or by themselves in a shell narrower than 40rem, where
 the column is a phone sheet). The height is one variable (`--nav-tree-row`).
 
@@ -24,6 +28,10 @@ Keyboard (on top of Tab, which reaches every row): ↑ ↓ move between visible 
 jump to the ends, → opens a folded parent or moves into it, ← folds an open parent or moves to
 its parent. Enter follows the row's link or presses its button.
 --- */
+
+// Bundlers replace `process.env.NODE_ENV` at build time; declared here so consumers without
+// @types/node still type-check the dev-only warning below.
+declare const process: { env: { NODE_ENV?: string } };
 
 type NavTreeSize = "default" | "touch";
 
@@ -196,9 +204,9 @@ export interface NavTreeItemProps extends Omit<
 > {
   /** The item's name. */
   label: React.ReactNode;
-  /** Its icon, 16px. @default undefined */
+  /** Its icon, 16px. First-level rows only: a child row never draws one (rule N3). @default undefined */
   icon?: React.ReactNode;
-  /** A count at the end, muted and tabular. Zero or empty shows nothing. @default undefined */
+  /** A count at the end, muted and tabular; a number (or digits) over 99 shows "99+". Zero or empty shows nothing. @default undefined */
   count?: number | string;
   /** Whether this is the current place. @default false */
   active?: boolean;
@@ -234,6 +242,17 @@ function hasCount(count: number | string | undefined): boolean {
   return count !== undefined && count !== "" && count !== 0;
 }
 
+/** A count as the row shows it: numbers cap at "99+" (rule N6). */
+function countText(count: number | string): string | number {
+  const n =
+    typeof count === "number"
+      ? count
+      : /^\d+$/.test(count)
+        ? Number(count)
+        : NaN;
+  return n > 99 ? "99+" : count;
+}
+
 /**
  * `NavTreeItem` — one row: icon, name and count, on an inset rounded fill. With children it is a
  * parent: its fold control sits at the row's end (never before the label), and its children are
@@ -261,6 +280,12 @@ export function NavTreeItem({
   ...props
 }: NavTreeItemProps) {
   const depth = React.useContext(DepthContext);
+  React.useEffect(() => {
+    if (process.env.NODE_ENV !== "production" && depth > 1)
+      console.warn(
+        "NavTreeItem: a column has two levels at most; flatten this third-level row.",
+      );
+  }, [depth]);
   const groupId = React.useId();
   const parent = React.Children.count(children) > 0;
   const [openState, setOpenState] = React.useState(defaultOpen ?? active);
@@ -299,7 +324,7 @@ export function NavTreeItem({
     ),
     children: (
       <>
-        {icon}
+        {depth === 0 ? icon : null}
         <span className="min-w-0 flex-1 truncate">{label}</span>
         {shown ? (
           <span
@@ -310,7 +335,7 @@ export function NavTreeItem({
                 "group-focus-within/nav-tree-row:invisible group-hover/nav-tree-row:invisible pointer-coarse:invisible",
             )}
           >
-            {count}
+            {countText(count!)}
           </span>
         ) : null}
       </>

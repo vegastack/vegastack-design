@@ -157,3 +157,38 @@ test("the arrow keys skip a disabled row, and → enters a parent at its first e
   await userEvent.keyboard("{Home}");
   expect(document.activeElement).toBe(row("One"));
 });
+
+test("a child row draws no icon (two levels, N3) and a count over 99 shows 99+", async () => {
+  await render(
+    <nav aria-label="Views">
+      <NavTree>
+        <NavTreeSection>
+          <NavTreeItem
+            icon={<ListChecks data-testid="parent-icon" />}
+            label="Tasks"
+            count={140}
+            href="#tasks"
+            defaultOpen
+          >
+            <NavTreeItem
+              icon={<Hexagon data-testid="child-icon" />}
+              label="Overdue"
+              href="#overdue"
+            />
+            <NavTreeItem label="Mentions" count="250" href="#mentions" />
+          </NavTreeItem>
+        </NavTreeSection>
+      </NavTree>
+    </nav>,
+  );
+  expect(
+    row("Tasks").querySelector('[data-testid="parent-icon"]'),
+  ).not.toBeNull();
+  expect(row("Overdue").querySelector('[data-testid="child-icon"]')).toBeNull();
+  expect(
+    row("Tasks").querySelector('[data-slot="nav-tree-count"]')?.textContent,
+  ).toBe("99+");
+  expect(
+    row("Mentions").querySelector('[data-slot="nav-tree-count"]')?.textContent,
+  ).toBe("99+");
+});
