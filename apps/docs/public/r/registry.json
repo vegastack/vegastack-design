@@ -20859,10 +20859,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A task or issue page — title, description, comments and a properties rail; compose the same components in your app.",
+        "whenToUse": "A task or issue page — title, properties, description and comments in one column; compose the same components in your app.",
         "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
         "version": "0.100.0",
-        "integrity": "sha256-begwt7vcgSso+CwRa9OyYcmtZ58ahyLy9/t0aLE9neM="
+        "integrity": "sha256-cbespDOjlUFLe6jdlL9NHzQC7KmzmpowNaGHELXqgmc="
       }
     },
     {
