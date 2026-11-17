@@ -95,11 +95,6 @@ const EXPECTED_HOSTS = new Map([
   // `<body>`) to keep that much room under the page's end. It stays inside the theme subtree and
   // paints nothing, so it carries no scope of its own.
   ["packages/ui/registry/ui/document-layout-tools.tsx", ["createPortal"]],
-  // RecordLayoutStrip's phone row (layout v2, D8): under 640px the strip's buttons move into the
-  // record's own `RecordLayoutStripSlot`, under its header, inside the same `RecordLayout` (never
-  // `<body>`). It stays in the theme subtree, so it carries no scope of its own; each panel it opens
-  // is a scoped `PeekSheet` (the system's Drawer).
-  ["packages/ui/registry/ui/record-layout-side.tsx", ["createPortal"]],
   // MarkdownView's selection Comment button (Regent Pages #469): like TextEdit's bubble it must
   // leave the reader's selection where it is, so no Base UI popup fits — a `position: fixed`
   // toolbar portaled to `<body>`, carrying `useInternalThemeScope()` on its own root.
