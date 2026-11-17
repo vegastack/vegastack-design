@@ -1,11 +1,12 @@
 /**
  * `shell-01.test.tsx` — the block's browser contract: one h1, the landmarks and skip link, the
- * current module and view marked, counts inside the names, no `href="#"`, a task opening in the
- * panel, and axe-clean.
+ * current module and view marked, counts inside the names, no `href="#"`, a task opening in a
+ * peek, and axe-clean.
  */
 
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
+import { page } from "vitest/browser";
 import { expectNoA11yViolations } from "../../../test/a11y";
 import Shell01Page from "./page";
 
@@ -35,21 +36,30 @@ test("shell-01 has landmarks, a skip link and one h1", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("a task opens in the panel, and its close button closes it", async () => {
+test("a task opens in a peek, ↓ moves to the next one, and ✕ closes it", async () => {
+  await page.viewport(1440, 900);
   const screen = await render(<Frame />);
-  const shell = () =>
-    document.querySelector<HTMLElement>('[data-slot="shell"]')!;
-  expect(shell().dataset.panel).toBe("closed");
+  const peek = () => document.querySelector<HTMLElement>('[data-slot="peek"]');
+  expect(peek()).toBeNull();
+  // The block's test page has no stylesheet, so its parts overlap: click the elements directly.
   (
     screen
       .getByRole("button", { name: /Send the Q3 pricing review/ })
       .element() as HTMLElement
   ).click();
-  await expect.poll(() => shell().dataset.panel).toBe("open");
+  await expect.poll(() => peek()).not.toBeNull();
+  const first = document.querySelector('[data-slot="peek-title"]')!.textContent;
   (
-    screen
-      .getByRole("button", { name: "Close the panel" })
-      .element() as HTMLElement
+    screen.getByRole("button", { name: "Next" }).element() as HTMLElement
   ).click();
-  await expect.poll(() => shell().dataset.panel).toBe("closed");
+  await expect
+    .poll(() => document.querySelector('[data-slot="peek-title"]')!.textContent)
+    .not.toBe(first);
+  expect(
+    document.querySelector('[data-slot="peek-title"]')!.textContent,
+  ).not.toBe(first);
+  (
+    screen.getByRole("button", { name: "Close" }).element() as HTMLElement
+  ).click();
+  await expect.poll(() => peek()).toBeNull();
 });

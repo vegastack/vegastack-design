@@ -1,195 +1,13 @@
-// @vegastack shell-assistant@0.106.0 sha256-RKKzLxWY75i1gep0LX7FO/juM6UQwYwwbEhCov8En14=
+// @vegastack shell-assistant@0.106.0 sha256-9TQRlyNjoH6iKSO9p0S+6qzy499bsF9jzvlZ/Qe9el8=
 
 "use client";
 
 import * as React from "react";
-import {
-  Maximize2Icon,
-  PanelRightIcon,
-  SparklesIcon,
-  XIcon,
-} from "lucide-react";
+import { Maximize2Icon, SparklesIcon, XIcon } from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
 import { ToolGroup, ToolGroupItem } from "@/components/ui/tool-group";
-
-/** How far (px) a scroll must travel before the pill reacts, so a trackpad's jitter never flickers it. */
-const TUCK_SLOP = 2;
-/** Near the top of the page the pill always shows. */
-const TUCK_FLOOR = 60;
-
-/** Props for `AssistantPill`: a `Button` minus its variant, size and children. */
-export interface AssistantPillProps extends Omit<
-  React.ComponentProps<typeof Button>,
-  "variant" | "size" | "children"
-> {
-  /** The assistant's name in this workspace; the pill reads "Ask {name}", or the name alone when it already starts with "Ask". */
-  name: string;
-  /**
-   * The assistant's mark.
-   * @default <SparklesIcon />
-   */
-  icon?: React.ReactNode;
-  /**
-   * The shortcut hint after the name, shown on a fine pointer only. Pass `null` for none, and set
-   * `aria-keyshortcuts` to match.
-   * @default "⌘J"
-   */
-  shortcut?: React.ReactNode;
-  /**
-   * The element whose scrolling tucks the pill away (scrolling down) and brings it back (scrolling
-   * up).
-   * @default window
-   */
-  scrollTarget?: React.RefObject<HTMLElement | null>;
-  /**
-   * The card is open: the pill steps aside for it and reports `aria-expanded`.
-   * @default false
-   */
-  expanded?: boolean;
-}
-
-/**
- * The floating "Ask {name}" pill at the bottom-end corner of the page area (L21). It tucks away
- * while the page scrolls down and returns on scroll up, on hover of its corner and on keyboard
- * focus. Place it in the page area's positioned container (`relative`), never over a side panel —
- * or in the shell's floating area (`data-slot="shell-floating-area"`), where it stacks in flow;
- * opening the card is the host's (`onClick`, and ⌘J). Not for phones, where the tab bar holds
- * the bottom edge.
- *
- * @example
- * ```tsx
- * <AssistantPill
- *   name="William"
- *   expanded={open}
- *   aria-controls="assistant-card"
- *   aria-keyshortcuts="Meta+J"
- *   scrollTarget={mainRef}
- *   onClick={() => setOpen(true)}
- * />
- * ```
- */
-function AssistantPill({
-  name,
-  icon,
-  shortcut = "⌘J",
-  scrollTarget,
-  expanded = false,
-  className,
-  onFocus,
-  onBlur,
-  ...props
-}: AssistantPillProps) {
-  const [tucked, setTucked] = React.useState(false);
-  const [focused, setFocused] = React.useState(false);
-
-  React.useEffect(() => {
-    // Scroll events don't bubble, but they reach the document in its capture phase, so the pill
-    // follows whichever element `scrollTarget` points at now, even one attached after mount.
-    const readFrom = (node: EventTarget | null) => {
-      if (scrollTarget) {
-        return node === scrollTarget.current && node instanceof HTMLElement
-          ? node.scrollTop
-          : null;
-      }
-      return node === document ? window.scrollY : null;
-    };
-    const start = scrollTarget
-      ? (scrollTarget.current?.scrollTop ?? 0)
-      : window.scrollY;
-    let anchor = start;
-    let last = start;
-    let seen: EventTarget | null = scrollTarget
-      ? (scrollTarget.current ?? null)
-      : document;
-    const onScroll = (event: Event) => {
-      const y = readFrom(event.target);
-      if (y === null) return;
-      // A scroller attached (or swapped) after mount starts its own history.
-      if (event.target !== seen) {
-        seen = event.target;
-        anchor = last = y;
-        if (y <= TUCK_FLOOR) setTucked(false);
-        return;
-      }
-      // Measure from where the current run of movement began, so slow scrolling adds up.
-      if (Math.sign(y - last) !== Math.sign(last - anchor) && last !== anchor)
-        anchor = last;
-      last = y;
-      if (y <= TUCK_FLOOR) {
-        setTucked(false);
-        anchor = y;
-      } else if (y - anchor > TUCK_SLOP) {
-        setTucked(true);
-        anchor = y;
-      } else if (anchor - y > TUCK_SLOP) {
-        setTucked(false);
-        anchor = y;
-      }
-    };
-    document.addEventListener("scroll", onScroll, {
-      capture: true,
-      passive: true,
-    });
-    return () =>
-      document.removeEventListener("scroll", onScroll, { capture: true });
-  }, [scrollTarget]);
-
-  // A pill that holds keyboard focus never hides under it.
-  const shown = (!tucked || focused) && !expanded;
-  return (
-    <div
-      data-slot="assistant-pill-zone"
-      data-tucked={tucked ? "" : undefined}
-      // A tucked pill is out of reach, so its corner brings it back on hover.
-      onPointerEnter={() => setTucked(false)}
-      className={cn(
-        // Alone it holds the corner; inside the shell's floating area it is one stacked item.
-        "absolute end-4 bottom-4 z-10 flex in-data-[slot=shell-floating-area]:static print:hidden",
-        expanded && "pointer-events-none",
-        className,
-      )}
-    >
-      <Button
-        variant="outline"
-        size="lg"
-        data-slot="assistant-pill"
-        data-active={shown}
-        aria-expanded={expanded}
-        inert={expanded}
-        onFocus={(event) => {
-          setFocused(true);
-          setTucked(false);
-          onFocus?.(event);
-        }}
-        onBlur={(event) => {
-          setFocused(false);
-          onBlur?.(event);
-        }}
-        className="gap-2 ps-3 pe-3.5 shadow-md data-[active=false]:translate-y-2.5 data-[active=false]:motion-dock-out data-[active=true]:translate-y-0 data-[active=true]:motion-dock-in"
-        {...props}
-      >
-        <span
-          aria-hidden
-          className="flex shrink-0 [&_svg:not([class*='size-'])]:size-4"
-        >
-          {icon ?? <SparklesIcon />}
-        </span>
-        <span>{/^ask\b/i.test(name) ? name : `Ask ${name}`}</span>
-        {shortcut != null ? (
-          <span
-            aria-hidden
-            data-slot="assistant-pill-shortcut"
-            className="text-xs font-normal text-muted-foreground pointer-coarse:hidden"
-          >
-            {shortcut}
-          </span>
-        ) : null}
-      </Button>
-    </div>
-  );
-}
 
 const AssistantCardTitle = React.createContext<{ titleId: string } | null>(
   null,
@@ -220,14 +38,14 @@ export interface AssistantCardProps extends React.ComponentProps<"section"> {
  * The compact assistant chat (about 380 × 520), anchored to the page area's bottom-end corner and
  * growing out of it (L21). Compose `AssistantCardHeader`, an optional `AssistantCardContext`,
  * `AssistantCardBody` and `AssistantCardComposer`. Non-modal: the page stays usable behind it,
- * Escape closes it and focus returns to the pill. The parts also compose inside a phone's bottom
+ * Escape closes it and focus returns to what opened it (the global bar's Ask, or ⌘J's origin). The parts also compose inside a phone's bottom
  * sheet, without this surface.
  *
  * @example
  * ```tsx
  * <AssistantCard id="assistant-card" open={open} onOpenChange={setOpen}>
  *   <AssistantCardHeader title="William" onClose={() => setOpen(false)}
- *     onMoveToPanel={moveToPanel} onOpenFull={openFull} />
+ *     onOpenFull={openFull} />
  *   <AssistantCardContext onRemove={clearContext}>#3 Review Q3 pricing</AssistantCardContext>
  *   <AssistantCardBody>{messages}</AssistantCardBody>
  *   <AssistantCardComposer><ChatComposer … /></AssistantCardComposer>
@@ -369,34 +187,27 @@ export interface AssistantCardHeaderProps extends Omit<
    */
   icon?: React.ReactNode;
   /**
-   * Turns the chat into a panel tab. Omit to hide the action.
-   * @default undefined
-   */
-  onMoveToPanel?: () => void;
-  /**
    * Opens the chat as a full page. Omit to hide the action (no Agents module).
    * @default undefined
    */
   onOpenFull?: () => void;
   /** Closes the card. */
   onClose: () => void;
-  /** @default "Move to panel" */
-  moveToPanelLabel?: string;
   /** @default "Open full chat" */
   openFullLabel?: string;
   /** @default "Close" */
   closeLabel?: string;
   /**
-   * The chat's own tools — New chat, Chats — as `ToolGroupItem`s, placed before Move to panel,
-   * Open full chat and Close.
+   * The chat's own tools — New chat, Chats — as `ToolGroupItem`s, placed before Open full chat
+   * and Close.
    * @default undefined
    */
   actions?: React.ReactNode;
 }
 
 /**
- * The card's 48px header: the assistant's mark and name, then Move to panel, Open full chat and
- * Close as one tool group.
+ * The card's 48px header: the assistant's mark and name, then Open full chat and Close as one
+ * tool group.
  *
  * @example
  * ```tsx
@@ -404,7 +215,6 @@ export interface AssistantCardHeaderProps extends Omit<
  *   title="William"
  *   actions={<ToolGroupItem label="New chat" onClick={newChat}><SquarePenIcon /></ToolGroupItem>}
  *   onClose={close}
- *   onMoveToPanel={toPanel}
  *   onOpenFull={toFull}
  * />
  * ```
@@ -412,10 +222,8 @@ export interface AssistantCardHeaderProps extends Omit<
 function AssistantCardHeader({
   title,
   icon,
-  onMoveToPanel,
   onOpenFull,
   onClose,
-  moveToPanelLabel = "Move to panel",
   openFullLabel = "Open full chat",
   closeLabel = "Close",
   actions,
@@ -446,11 +254,6 @@ function AssistantCardHeader({
       </h2>
       <ToolGroup aria-label="Chat actions">
         {actions}
-        {onMoveToPanel ? (
-          <ToolGroupItem label={moveToPanelLabel} onClick={onMoveToPanel}>
-            <PanelRightIcon />
-          </ToolGroupItem>
-        ) : null}
         {onOpenFull ? (
           <ToolGroupItem label={openFullLabel} onClick={onOpenFull}>
             <Maximize2Icon />
@@ -571,7 +374,6 @@ function AssistantCardComposer({
 }
 
 export {
-  AssistantPill,
   AssistantCard,
   AssistantCardHeader,
   AssistantCardContext,

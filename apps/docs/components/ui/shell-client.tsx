@@ -1,4 +1,4 @@
-// @vegastack shell@0.106.1 sha256-3T0Y0kMiMbB1nOAvwrlkT/GekNFeE/QbSlegpkYm0gY=
+// @vegastack shell@0.106.1 sha256-FYuHmyrA0TG5XBQxfAtt9QXo8Bo07k7DeMKN5aFI9+Q=
 
 "use client";
 
@@ -13,15 +13,13 @@ import {
   SHELL_SIZES,
   clampColumnWidth,
   shellCookie,
-  type ShellPanelMode,
 } from "@/lib/shell-layout";
 
 /* ---
 The shell's client islands. The frame itself is server markup laid out in CSS (`shell.tsx`); what
 is here only adds behaviour on top of a layout that is already right:
 
-- `ShellController` mirrors the CSS outcome into `data-tier`, `data-column` and `data-panel-mode`
-  on the shell for scripts (`useShellLayout`), keeps the cookies, and owns ⌘\, F6, Escape, the
+- `ShellController` mirrors the CSS outcome into `data-tier` and `data-column` on the shell for scripts (`useShellLayout`), keeps the cookies, and owns ⌘\, F6, Escape, the
   hover-peek of a folded column and the tablet slide-over (L14).
 - `ShellColumnResize`, `ShellSkipLink`, `ShellColumnToggle`, `ShellColumnSwitch` and
   `ShellBottomBar` are the interactive leaves.
@@ -32,9 +30,6 @@ variables on the shell element directly.
 
 const LAYOUT_EVENT = "vegastack:shell-layout";
 const COLUMN_EVENT = "vegastack:shell-column";
-const PANEL_OPEN_EVENT = "vegastack:shell-panel-open";
-// How long a person's open request waits for the panel to open before it lapses.
-const PANEL_OPEN_REQUEST_MS = 1000;
 const PEEK_DELAY_MS = 220;
 const PEEK_LEAVE_MS = 180;
 
@@ -45,7 +40,6 @@ export type ShellColumnState = "shown" | "folded" | "over" | "none";
 export interface ShellLayoutState {
   tier: LayoutTier;
   column: ShellColumnState;
-  panelMode: ShellPanelMode;
 }
 
 type ColumnAction = "toggle" | "open" | "close";
@@ -56,22 +50,9 @@ function shellOf(from?: Element | null): HTMLElement | null {
 }
 
 /**
- * Marks the next opening of the panel in the shell `from` sits in as a person's: the page makes
- * room on the open motion instead of jumping. Call it where someone opens a panel tab (a row, a
- * link, a menu entry); `ShellPanelToggle`'s click marks itself. The first paint and opens the app
- * makes by itself (restoring a tab, an automatic Details tab) never animate.
- *
- * @example
- * <button onClick={(e) => { requestShellPanelOpen(e.currentTarget); openTab(record); }}>Open</button>
- */
-export function requestShellPanelOpen(from?: Element | null) {
-  shellOf(from)?.dispatchEvent(new CustomEvent(PANEL_OPEN_EVENT));
-}
-
-/**
  * Opens, closes or toggles the column of the shell `from` sits in (the first shell otherwise),
  * the way ▤ and ⌘\ do: on a laptop it keeps or folds the column; where the column cannot take
- * room (a tablet, a phone, or folded for the panel) it slides it over the page.
+ * room (a tablet, a phone) it slides it over the page.
  *
  * @example
  * <Button onClick={(e) => toggleShellColumn(e.currentTarget)}>Spaces</Button>
@@ -91,17 +72,16 @@ function readLayout(root: HTMLElement): ShellLayoutState | null {
   return {
     tier,
     column: (root.dataset.column ?? "none") as ShellColumnState,
-    panelMode: (root.dataset.panelMode ?? "closed") as ShellPanelMode,
   };
 }
 
 /**
- * The shell's current layout — tier, column and panel mode — for code that must act on it (an
- * Escape that closes only an overlaying panel, R5). `null` before the shell has measured.
+ * The shell's current layout — tier and column — for code that must act on it. `null` before the
+ * shell has measured.
  *
  * @example
  * const layout = useShellLayout();
- * if (layout?.panelMode === "overlay") closePanel();
+ * if (layout?.tier === "phone") openAsSheet();
  */
 export function useShellLayout(): ShellLayoutState | null {
   const cache = React.useRef<{ key: string; value: ShellLayoutState | null }>({
@@ -116,9 +96,7 @@ export function useShellLayout(): ShellLayoutState | null {
     () => {
       const root = document.querySelector<HTMLElement>('[data-slot="shell"]');
       const value = root ? readLayout(root) : null;
-      const key = value
-        ? `${value.tier}|${value.column}|${value.panelMode}`
-        : "";
+      const key = value ? `${value.tier}|${value.column}` : "";
       if (key !== cache.current.key) cache.current = { key, value };
       return cache.current.value;
     },
@@ -174,10 +152,8 @@ export function ShellController() {
     // Where focus goes when the column it was in goes away: ▤, else the page landmark.
     const fallback = () => visibleToggle() ?? content ?? root;
 
-    let lastPanelCookie = "";
     let restoreFocus: HTMLElement | null = null;
     let peekTimer = 0;
-    let animTimer = 0;
 
     const railArea = root.querySelector<HTMLElement>(
       '[data-slot="shell-rail-area"]',
@@ -187,7 +163,6 @@ export function ShellController() {
       [
         mainArea,
         railArea,
-        root.querySelector<HTMLElement>('[data-slot="shell-panel-slot"]'),
         root.querySelector<HTMLElement>('[data-slot="shell-bottombar"]'),
       ].filter((el): el is HTMLElement => el !== null);
     const setSheet = (modal: boolean) => {
@@ -239,15 +214,6 @@ export function ShellController() {
       sync();
     };
 
-    let lastPanelOpen: boolean | undefined;
-    // When a person last asked for the panel to open; `null` when nothing is pending. Only a
-    // closed panel can be asked to open, so a closing click or a tab opened beside an open
-    // panel arms nothing.
-    let panelOpenRequested: number | null = null;
-    const onPanelOpenRequest = () => {
-      if (root.dataset.panelMode === "closed")
-        panelOpenRequested = performance.now();
-    };
     const sync = () => {
       const style = getComputedStyle(mainArea);
       const tier = layoutTierOf(root.clientWidth);
@@ -275,58 +241,11 @@ export function ShellController() {
         columnArea?.contains(document.activeElement)
       )
         fallback().focus({ preventScroll: true });
-      const panelMode = (style
-        .getPropertyValue("--shell-layout-panel")
-        .trim() || "closed") as ShellPanelMode;
 
       const changed =
-        root.dataset.tier !== tier ||
-        root.dataset.column !== column ||
-        root.dataset.panelMode !== panelMode;
+        root.dataset.tier !== tier || root.dataset.column !== column;
       root.dataset.tier = tier;
       root.dataset.column = column;
-      root.dataset.panelMode = panelMode;
-
-      const panelOpen = panelMode !== "closed";
-      // Only a person's open moves the page: a fresh request (the toggle's click, or
-      // `requestShellPanelOpen`), never the first reading or an open the app makes by itself.
-      const requested =
-        panelOpenRequested !== null &&
-        performance.now() - panelOpenRequested < PANEL_OPEN_REQUEST_MS;
-      // A request is spent by the open it asked for, and lapses on any change of open state.
-      if (panelOpen !== lastPanelOpen) panelOpenRequested = null;
-      if (
-        lastPanelOpen === false &&
-        panelOpen &&
-        panelMode === "dock" &&
-        requested
-      ) {
-        root.dataset.panelAnim = "open";
-        window.clearTimeout(animTimer);
-        animTimer = window.setTimeout(() => delete root.dataset.panelAnim, 400);
-      }
-      lastPanelOpen = panelOpen;
-      if (root.dataset.panel !== "off") {
-        const width = cssPx(
-          getComputedStyle(root).getPropertyValue(
-            "--shell-panel-current-width",
-          ),
-          SHELL_SIZES.panel,
-        );
-        const value = `${panelOpen}:${Math.round(width)}`;
-        if (value !== lastPanelCookie) {
-          // The first reading is what the page painted with; only a change is the person's.
-          if (lastPanelCookie) {
-            writeCookie(SHELL_COOKIES.panel, panelOpen, width);
-            if (html.hasAttribute("data-shell-panel"))
-              html.setAttribute(
-                "data-shell-panel",
-                panelOpen ? "open" : "closed",
-              );
-          }
-          lastPanelCookie = value;
-        }
-      }
       if (changed)
         document.dispatchEvent(new CustomEvent(LAYOUT_EVENT, { detail: root }));
     };
@@ -360,8 +279,6 @@ export function ShellController() {
       }
       const next = action === "toggle" ? column !== "shown" : action === "open";
       setPref(next);
-      // Kept open but folded at once for the panel: slide it over, so one press shows it.
-      if (next && root.dataset.column !== "shown") setFloat(true, "user");
     };
 
     const regions = () =>
@@ -457,8 +374,6 @@ export function ShellController() {
     };
     const onClick = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (target.closest('[data-slot="shell-panel-toggle"]'))
-        onPanelOpenRequest();
       if (root.dataset.colFloat !== "open") return;
       if (
         columnArea?.contains(target) &&
@@ -506,14 +421,13 @@ export function ShellController() {
     const mutations = new MutationObserver(() => sync());
     mutations.observe(root, {
       attributes: true,
-      attributeFilter: ["data-panel", "data-col", "data-page-min", "style"],
+      attributeFilter: ["data-col", "style"],
     });
     mutations.observe(html, {
       attributes: true,
-      attributeFilter: ["data-shell-col", "data-shell-panel", "style"],
+      attributeFilter: ["data-shell-col", "style"],
     });
     root.addEventListener(COLUMN_EVENT, onColumn);
-    root.addEventListener(PANEL_OPEN_EVENT, onPanelOpenRequest);
     window.addEventListener("keydown", onKeyDown);
     root.addEventListener("pointerover", onPointerOver);
     columnArea?.addEventListener("pointerleave", onPointerLeave);
@@ -528,7 +442,6 @@ export function ShellController() {
       resize.disconnect();
       mutations.disconnect();
       root.removeEventListener(COLUMN_EVENT, onColumn);
-      root.removeEventListener(PANEL_OPEN_EVENT, onPanelOpenRequest);
       window.removeEventListener("keydown", onKeyDown);
       root.removeEventListener("pointerover", onPointerOver);
       columnArea?.removeEventListener("pointerleave", onPointerLeave);
@@ -539,7 +452,6 @@ export function ShellController() {
       root.removeEventListener("touchstart", onTouchStart);
       root.removeEventListener("touchmove", onTouchMove);
       window.clearTimeout(peekTimer);
-      window.clearTimeout(animTimer);
     };
   }, []);
 
@@ -589,13 +501,15 @@ export function ShellColumnResize() {
         : "",
       SHELL_SIZES.column,
     );
-    const pageMin = Number(root?.dataset.pageMin ?? 640);
     // The page area's width less its hairline is the page (SHELL_SIZES.divider).
     const page =
       (main?.getBoundingClientRect().width ?? Infinity) - SHELL_SIZES.divider;
     const max = Math.max(
       SHELL_SIZES.columnMin,
-      Math.min(SHELL_SIZES.columnMax, Math.round(now + page - pageMin)),
+      Math.min(
+        SHELL_SIZES.columnMax,
+        Math.round(now + page - SHELL_SIZES.pageMin),
+      ),
     );
     return { now: Math.round(now), max };
   };
@@ -705,8 +619,7 @@ export type ShellColumnToggleProps = Omit<
 /**
  * `ShellColumnToggle` — ▤: shows or hides the module's column (⌘\), and hides itself on a screen
  * with no column. It lives in the global bar's leading slot; on a laptop it keeps or folds the
- * column, where the column cannot take room (a tablet, or folded for the panel) it slides the
- * column over the page.
+ * column, where the column cannot take room (a tablet) it slides the column over the page.
  *
  * @example
  * <GlobalBarLeading><ShellColumnToggle /></GlobalBarLeading>
@@ -840,8 +753,7 @@ export function ShellBottomBar({
     let scrolledAway = false;
     let keyboard = false;
     const paint = () => {
-      const panel = root.dataset.panelMode === "full";
-      bar.toggleAttribute("data-hidden", scrolledAway || keyboard || panel);
+      bar.toggleAttribute("data-hidden", scrolledAway || keyboard);
     };
     const onScroll = (event: Event) => {
       const y =
@@ -874,11 +786,6 @@ export function ShellBottomBar({
       keyboard = typing && tallest - height > 150;
       paint();
     };
-    const mutations = new MutationObserver(paint);
-    mutations.observe(root, {
-      attributes: true,
-      attributeFilter: ["data-panel-mode"],
-    });
     window.addEventListener("scroll", onScroll, { passive: true });
     content?.addEventListener("scroll", onScroll, { passive: true });
     viewport?.addEventListener("resize", onViewport);
@@ -887,7 +794,6 @@ export function ShellBottomBar({
     document.addEventListener("focusout", onViewport);
     onViewport();
     return () => {
-      mutations.disconnect();
       window.removeEventListener("scroll", onScroll);
       content?.removeEventListener("scroll", onScroll);
       viewport?.removeEventListener("resize", onViewport);

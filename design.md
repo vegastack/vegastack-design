@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 38121
-      sha256: "e740f5e44ecd59ed5a94641141e9774f4d68a93df30645cf37100c2e55d86f23"
+      bytes: 37278
+      sha256: "35fb9d1186dc85a4f12b04b7a086ac87b69c26e54a2c2d3ed78e8479fe3239e2"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13917
@@ -360,18 +360,6 @@ themes:
       type: "dimension"
       value: "2.75rem"
       description: "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
-    shell-panel-width:
-      type: "dimension"
-      value: "26.25rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
-    shell-panel-width-max:
-      type: "dimension"
-      value: "45rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
-    shell-panel-width-min:
-      type: "dimension"
-      value: "22.5rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
     shell-rail-width:
       type: "dimension"
       value: "4rem"
@@ -853,18 +841,6 @@ themes:
       type: "dimension"
       value: "2.75rem"
       description: "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
-    shell-panel-width:
-      type: "dimension"
-      value: "26.25rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
-    shell-panel-width-max:
-      type: "dimension"
-      value: "45rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
-    shell-panel-width-min:
-      type: "dimension"
-      value: "22.5rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
     shell-rail-width:
       type: "dimension"
       value: "4rem"

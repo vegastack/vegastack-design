@@ -1,9 +1,9 @@
-// @vegastack shell@0.106.1 sha256-3T0Y0kMiMbB1nOAvwrlkT/GekNFeE/QbSlegpkYm0gY=
+// @vegastack shell@0.106.1 sha256-FYuHmyrA0TG5XBQxfAtt9QXo8Bo07k7DeMKN5aFI9+Q=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cn } from "@vegastack/design";
-import { ChevronRight, PanelRight, Search } from "lucide-react";
+import { ChevronRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   InputGroup,
@@ -18,18 +18,12 @@ import {
 } from "@/components/ui/shell-client";
 import { RailBadge, railBadgeText } from "@/components/ui/rail";
 import type { PageWidth } from "@/lib/page-layout";
-import {
-  clampColumnWidth,
-  clampPanelWidth,
-  SHELL_PAGE_MIN,
-  type ShellPageMin,
-} from "@/lib/shell-layout";
+import { clampColumnWidth } from "@/lib/shell-layout";
 
 export {
   ShellBottomBar,
   ShellColumnSwitch,
   ShellColumnToggle,
-  requestShellPanelOpen,
   toggleShellColumn,
   useShellLayout,
   type ShellBottomBarProps,
@@ -44,30 +38,22 @@ WHY THIS FILE IS SERVER-SAFE — the shell lays itself out in CSS, not in JavaSc
 
 Every screen of the app sits in this frame, so its first paint is the app's first paint. The global
 bar on top, then the rail, the column and the page under its top bar render on the server, and WHERE things go — the column in the
-flow or folded, the panel beside the page or over it, phone or tablet — is decided by container
+flow or folded, phone or tablet — is decided by container
 queries on the shell itself, reading data attributes the server (or `ShellStateScript`, before the
 first paint) set. Nothing waits for hydration to lay out, so nothing shifts when it arrives.
 
-The layout rule (LAY-22) needs `pageWidth ≥ pageMin` while the panel is open. A container query
-cannot compute `width − panel`, so the shell measures it with boxes: `shell-room` is the shell
-minus the open panel's width, and `shell-fit` is that room minus the rail and the column. Each is a
-named container, and the column and page ask them: does the page still fit beside the panel with
-the column (`shell-fit ≥ pageMin`), without it (`shell-room ≥ pageMin + rail`), or not at all? The
-panel itself is anchored to the shell's own edge, so it slides in and out without the room moving
-under it. `resolveShellLayout` in `@/lib/shell-layout` is the same rule in TypeScript; the browser
-test holds the two in step.
+There is no right panel in the frame (layout v2, D11): a record opens in `Peek` inside the page
+area, or on its page, where `RecordLayout`'s side panel is part of the page. `resolveShellLayout`
+in `@/lib/shell-layout` is the frame's rule in TypeScript; the browser test holds the two in step.
 
 The client islands are small and live in `shell-client.tsx`: the controller (⌘\, F6, hover-peek,
-the tablet slide-over, the cookies, the `data-panel-mode` mirror for scripts), the column's resize
+the tablet slide-over, the cookie, the `data-tier`/`data-column` mirror for scripts), the column's resize
 handle, the skip link, the column toggle and the phone bottom bar. The global bar (`global-bar`),
 the rail (`rail`) and the column's items (`nav-tree`) are their own items, passed in as slots.
 --- */
 
 const S = '[data-slot="shell"]';
 const COL_OPEN = `:is(:root[data-shell-col="open"] ${S}, :root:not([data-shell-col]) ${S}[data-col="open"])[data-has-column]`;
-// Open when the app says so, or — with `panelOpen="auto"` — when the device's cookie says so
-// (`ShellStateScript`), so a cached page reserves the panel's room before it hydrates.
-const PANEL_OPEN = `:is(${S}[data-panel="open"], :root[data-shell-panel="open"] ${S}[data-panel="auto"])`;
 // A floating column (slide-over or hover-peek) beats the auto-fold that hid it: the attribute is
 // repeated to outrank that rule's selector, which no plain selector here can reach.
 const FLOAT = `${S}${'[data-col-float="open"]'.repeat(12)}`;
@@ -75,41 +61,12 @@ const RAIL = "var(--shell-rail-width)";
 const NO_DRAG =
   ':where(button, a, input, textarea, select, [role="button"], [role="tab"], [role="separator"], [contenteditable="true"])';
 
-/** One block per page minimum: where the column folds, and where the panel stops docking. */
-function pageMinRules(min: ShellPageMin): string {
-  // The page's 1px hairline counts against it (SHELL_SIZES.divider).
-  const fit = `${(min + 1) / 16}rem`;
-  const room = `${(min + 1) / 16 + 4}rem`;
-  const at = `${PANEL_OPEN}[data-page-min="${min}"]`;
-  return `
-@container shell (width >= 64rem) {
-  @container shell-fit (width < ${fit}) {
-    @container shell-room (width >= ${room}) {
-      ${COL_OPEN}${PANEL_OPEN}[data-page-min="${min}"] [data-slot="shell-column-area"] { visibility: hidden; opacity: 0; }
-      ${COL_OPEN}${PANEL_OPEN}[data-page-min="${min}"] [data-slot="shell-main-area"] { margin-inline-start: calc(-1 * var(--shell-col-room)); --shell-layout-column: folded; }
-    }
-  }
-}
-@container shell (width >= 40rem) {
-  @container shell-room (width < ${room}) {
-    ${at} [data-slot="shell-main-area"] { margin-inline-end: calc(-1 * var(--shell-room-cut)); --shell-layout-panel: overlay; }
-    ${at} [data-slot="shell-panel-shadow"] { opacity: 1; }
-    ${at} [data-slot="shell-main-area"] { --shell-floating-end: calc(var(--shell-room-cut) + 1rem); }
-  }
-}`;
-}
-
 /**
  * The shell's stylesheet. React 19 hoists it into `<head>` once (`href` + `precedence`), however
  * many shells render. Plain CSS because the rule is a handful of nested container queries over
  * data attributes that Tailwind's variants would spell as hundred-character class names.
  */
 const SHELL_CSS = `
-@property --shell-room-cut {
-  syntax: "<length>";
-  inherits: true;
-  initial-value: 0px;
-}
 /* Screen only: printing gets the page alone, with none of the frame's geometry (below). */
 @media screen {
 ${S} {
@@ -121,32 +78,24 @@ ${S} {
   color: var(--foreground);
   --shell-column-current-width: var(--shell-column-saved, var(--shell-column-width));
   --shell-globalbar-room: 0px;
-  --shell-panel-current-width: var(--shell-panel-saved, var(--shell-panel-width));
 }
 ${S}[data-fill="parent"] { height: 100%; }
 ${S}[data-has-global-bar] { --shell-globalbar-room: var(--shell-globalbar-height); }
 [data-slot="shell-room"] {
-  container: shell-room / inline-size;
   position: relative;
   display: flex;
   min-height: 100dvh;
   --shell-col-room: 0px;
-  --shell-panel-room: 0px;
-  /* The open panel's room, never more than leaves the rail: a 720px panel on a 640px tablet. */
-  --shell-room-cut: min(var(--shell-panel-room), calc(100cqw - ${RAIL}));
-  width: calc(100% - var(--shell-room-cut));
 }
 ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100%; }
 [data-slot="shell-rail-area"] { display: none; }
 [data-slot="shell-fit"] {
-  container: shell-fit / inline-size;
   position: relative;
   flex: 1 1 0%;
   min-width: 0;
   margin-inline-start: var(--shell-col-room);
 }
 [data-slot="shell-main-area"] {
-  --shell-layout-panel: closed;
   --shell-layout-column: none;
   --shell-floating-end: 1rem;
   position: relative;
@@ -174,36 +123,6 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   contain: layout paint;
   transition: opacity var(--duration-quick) var(--motion-ease-standard), visibility 0s linear var(--duration-quick);
 }
-[data-slot="shell-panel-slot"] {
-  position: absolute;
-  inset-block: 0;
-  inset-inline-end: 0;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  width: var(--shell-panel-current-width);
-  max-width: 100%;
-  background: var(--background);
-  border-inline-start: 1px solid var(--border);
-  translate: 100% 0;
-  visibility: hidden;
-  transition: translate var(--duration-quick-exit) var(--motion-ease-exit), visibility 0s linear var(--duration-quick-exit);
-}
-${PANEL_OPEN} [data-slot="shell-panel-slot"] {
-  translate: none;
-  visibility: visible;
-  transition: translate var(--duration-panel) var(--motion-ease-enter), visibility 0s;
-}
-[data-slot="shell-panel-shadow"] {
-  position: absolute;
-  inset-block: 0;
-  inset-inline-start: 100%;
-  z-index: 25;
-  width: var(--shell-room-cut);
-  pointer-events: none;
-  opacity: 0;
-  box-shadow: -0.5rem 0 2rem -0.25rem oklch(0 0 0 / 0.16), -0.0625rem 0 0.125rem oklch(0 0 0 / 0.06);
-}
 [data-slot="shell-floating-area"] {
   position: absolute;
   inset-inline-end: var(--shell-floating-end);
@@ -229,7 +148,7 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
 [data-slot="shell-content"] { min-height: 0; }
 
 /* Phone (under 40rem): no rail, no column in the flow, the page scrolls the document so the
-   browser's own toolbars can compact, the bar sits at the bottom, the panel is full screen. */
+   browser's own toolbars can compact, the bar sits at the bottom. */
 @container shell (width < 40rem) {
   [data-slot="shell-topbar"] { position: sticky; top: 0; z-index: 10; background: var(--background); }
   ${S}[data-fill="parent"] [data-slot="shell-main-area"] { height: 100%; }
@@ -246,17 +165,6 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
   ${S}[data-has-bottombar]:not([data-fill="parent"]) [data-slot="shell-floating-area"] {
     bottom: calc(1rem + var(--shell-bottombar-height) + env(safe-area-inset-bottom));
   }
-  ${PANEL_OPEN} [data-slot="shell-main-area"] { --shell-layout-panel: full; }
-  [data-slot="shell-panel-slot"] {
-    position: fixed;
-    inset: 0;
-    z-index: 50;
-    width: auto;
-    border-inline-start: 0;
-    overscroll-behavior: contain;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  ${S}[data-fill="parent"] [data-slot="shell-panel-slot"] { position: absolute; }
   [data-slot="shell-column-area"] {
     position: fixed;
     inset: auto 0 0 0;
@@ -288,12 +196,11 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
   ${FLOAT} [data-slot="shell-scrim"] { opacity: 1; visibility: visible; transition: opacity var(--duration-state) var(--motion-ease-standard), visibility 0s; }
 }
 
-/* Tablet and up: the frame fills its height, the rail shows, the panel takes room. */
+/* Tablet and up: the frame fills its height and the rail shows. */
 @container shell (width >= 40rem) {
-  /* The global bar takes its 44px row; the rail, column, page and panel share the rest. */
+  /* The global bar takes its 44px row; the rail, column and page share the rest. */
   [data-slot="shell-room"] { height: calc(100dvh - var(--shell-globalbar-room)); min-height: 0; }
   ${S}[data-fill="parent"] > [data-slot="shell-room"] { height: calc(100% - var(--shell-globalbar-room)); }
-  [data-slot="shell-panel-slot"] { inset-block-start: var(--shell-globalbar-room); }
   [data-slot="shell-rail-area"] {
     display: flex;
     flex: none;
@@ -309,8 +216,6 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
     border-inline-start: 1px solid var(--sidebar-border);
   }
   [data-slot="shell-content"] { overflow-y: auto; overscroll-behavior-y: contain; }
-  ${PANEL_OPEN} [data-slot="shell-room"] { --shell-panel-room: var(--shell-panel-current-width); }
-  ${PANEL_OPEN} [data-slot="shell-main-area"] { --shell-layout-panel: dock; }
   ${FLOAT} [data-slot="shell-column-area"] {
     visibility: visible;
     opacity: 1;
@@ -336,16 +241,6 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
   }
   ${COL_OPEN} [data-slot="shell-main-area"] { margin-inline-start: 0; --shell-layout-column: shown; }
 }
-${pageMinRules(SHELL_PAGE_MIN.list)}
-${pageMinRules(SHELL_PAGE_MIN.document)}
-${pageMinRules(SHELL_PAGE_MIN.chat)}
-
-/* The page makes room for a panel that opens beside it (the controller marks the moment). */
-@keyframes vs-shell-make-room { from { margin-inline-end: calc(-1 * var(--shell-room-cut)); } }
-${S}[data-panel-anim="open"] [data-slot="shell-main-area"] { animation: vs-shell-make-room var(--duration-panel) var(--motion-ease-enter); }
-[dir="rtl"] [data-slot="shell-panel-slot"] { translate: -100% 0; }
-[dir="rtl"] ${PANEL_OPEN} [data-slot="shell-panel-slot"] { translate: none; }
-
 /* The desktop app's title row is the global bar's (\`global-bar\`): it drags the window and clears
    the window's own buttons, so nothing below it does. */
 
@@ -354,7 +249,7 @@ ${S}[data-panel-anim="open"] [data-slot="shell-main-area"] { animation: vs-shell
 }
 }
 @media print {
-  ${S} :is([data-slot="shell-rail-area"], [data-slot="shell-column-area"], [data-slot="shell-panel-slot"], [data-slot="shell-panel-shadow"], [data-slot="global-bar"], [data-slot="shell-topbar"], [data-slot="shell-floating-area"], [data-slot="shell-bottombar"], [data-slot="shell-scrim"], [data-slot="shell-skip"]) { display: none; }
+  ${S} :is([data-slot="shell-rail-area"], [data-slot="shell-column-area"], [data-slot="global-bar"], [data-slot="shell-topbar"], [data-slot="shell-floating-area"], [data-slot="shell-bottombar"], [data-slot="shell-scrim"], [data-slot="shell-skip"]) { display: none; }
   ${S}, [data-slot="shell-room"], [data-slot="shell-main-area"] { height: auto; width: auto; overflow: visible; margin: 0; border: 0; display: block; }
   [data-slot="shell-fit"] { margin: 0; }
   [data-slot="shell-content"] { overflow: visible; padding: 0; }
@@ -376,18 +271,6 @@ export interface ShellProps extends Omit<
   rail: React.ReactNode;
   /** The current module's column: a `ShellColumn`, or `null` for a screen without one. @default undefined */
   column?: React.ReactNode;
-  /** The panel host (`ShellPanel`). The shell positions it; the panel only fills its box. @default undefined */
-  panel?: React.ReactNode;
-  /**
-   * Whether the panel is open. `auto` follows the device's saved state (`ShellStateScript`'s
-   * mark) until the app knows better — pass it when no `?panel=` decides, so a cached page
-   * reserves the panel's room before its tabs hydrate. `off` removes it on screens that have none
-   * (Settings, setup).
-   * @default false
-   */
-  panelOpen?: boolean | "auto" | "off";
-  /** The panel's width in pixels (the person's saved width). @default 420 */
-  panelWidth?: number;
   /** The column's width in pixels (the person's saved width). @default 240 */
   columnWidth?: number;
   /**
@@ -396,8 +279,6 @@ export interface ShellProps extends Omit<
    * @default true
    */
   defaultColumnOpen?: boolean;
-  /** The page's minimum width while the panel docks beside it: list 640, document 560, chat 520. @default 640 */
-  pageMin?: ShellPageMin;
   /** The phone bottom tab bar: a `ShellBottomBar`. @default undefined */
   bottomBar?: React.ReactNode;
   /** Floating items at the page's bottom-right: a `ShellFloatingArea`. @default undefined */
@@ -414,7 +295,7 @@ export interface ShellProps extends Omit<
 
 /**
  * `Shell` — the frame every screen sits in: a 44px global bar across the top, then a 64px module
- * rail, the module's 240px column, the page under its 48px top bar, and a right panel (LAY-22). It
+ * rail, the module's 240px column and the page under its 48px top bar (LAY-22). It
  * lays itself out in CSS before hydration, from the data attributes it renders and the marks
  * `ShellStateScript` leaves.
  *
@@ -423,9 +304,6 @@ export interface ShellProps extends Omit<
  *   globalBar={<GlobalBar>…</GlobalBar>}
  *   rail={<Rail>…</Rail>}
  *   column={<ShellColumn label="Tasks">…</ShellColumn>}
- *   panel={<ShellPanel …/>}
- *   panelOpen={tabs.length > 0}
- *   pageMin={640}
  *   bottomBar={<ShellBottomBar>…</ShellBottomBar>}
  * >
  *   <ShellTopBar>…</ShellTopBar>
@@ -436,12 +314,8 @@ export function Shell({
   globalBar,
   rail,
   column,
-  panel,
-  panelOpen = false,
-  panelWidth,
   columnWidth,
   defaultColumnOpen = true,
-  pageMin = SHELL_PAGE_MIN.list,
   bottomBar,
   floating,
   fill = "viewport",
@@ -451,11 +325,8 @@ export function Shell({
   ...props
 }: ShellProps) {
   const hasColumn = column != null;
-  // The person's saved widths; `ShellStateScript` sets the same names on `<html>` for a cached page.
+  // The person's saved width; `ShellStateScript` sets the same name on `<html>` for a cached page.
   const vars = {
-    ...(panelWidth !== undefined
-      ? { "--shell-panel-saved": `${clampPanelWidth(panelWidth)}px` }
-      : {}),
     ...(columnWidth !== undefined
       ? { "--shell-column-saved": `${clampColumnWidth(columnWidth)}px` }
       : {}),
@@ -464,14 +335,6 @@ export function Shell({
     <div
       data-slot="shell"
       data-col={defaultColumnOpen ? "open" : "closed"}
-      data-panel={
-        panelOpen === "off" || panelOpen === "auto"
-          ? panelOpen
-          : panelOpen
-            ? "open"
-            : "closed"
-      }
-      data-page-min={pageMin}
       data-fill={fill}
       data-has-column={hasColumn ? "" : undefined}
       data-has-global-bar={globalBar ? "" : undefined}
@@ -504,18 +367,7 @@ export function Shell({
             {floating}
           </div>
         </div>
-        <div data-slot="shell-panel-shadow" aria-hidden="true" />
       </div>
-      {panelOpen === "off" ? null : (
-        <div
-          data-slot="shell-panel-slot"
-          data-shell-region="panel"
-          tabIndex={-1}
-          className="outline-none"
-        >
-          {panel}
-        </div>
-      )}
       {hasColumn ? <div data-slot="shell-scrim" aria-hidden="true" /> : null}
       {bottomBar}
       <ShellController />
@@ -903,49 +755,6 @@ export function ShellTopBarLabel({
   );
 }
 
-/** Props accepted by `ShellPanelToggle`. */
-export interface ShellPanelToggleProps extends Omit<
-  React.ComponentProps<typeof Button>,
-  "children"
-> {
-  /** Whether the panel is open. */
-  pressed: boolean;
-  /** The accessible name. @default 'Panel' */
-  label?: string;
-}
-
-/**
- * `ShellPanelToggle` — the top bar's last control: opens and closes the panel (⌘.). Hidden on
- * screens without a panel (Settings, setup).
- *
- * @example
- * <ShellPanelToggle pressed={open} onClick={() => setOpen(!open)} />
- */
-export function ShellPanelToggle({
-  pressed,
-  label = "Panel",
-  className,
-  ...props
-}: ShellPanelToggleProps) {
-  return (
-    <Button
-      data-slot="shell-panel-toggle"
-      variant="ghost"
-      size="icon-sm"
-      aria-label={label}
-      aria-pressed={pressed}
-      aria-keyshortcuts="Meta+Period"
-      className={cn(
-        "order-8 aria-pressed:bg-state-selected aria-pressed:text-foreground",
-        className,
-      )}
-      {...props}
-    >
-      <PanelRight aria-hidden="true" />
-    </Button>
-  );
-}
-
 /** Props accepted by `ShellMain`. */
 export type ShellMainProps = React.ComponentProps<"main">;
 
@@ -1116,12 +925,12 @@ export function ShellBleed({
 }
 
 /**
- * `ShellFloatingArea` — the one stack of floating items at the page's bottom-right: the
- * assistant pill, the audio player, upload progress. It never covers the panel, lifts over the
- * phone bar and the home indicator, and is left out of print. Toasts stay bottom-centre.
+ * `ShellFloatingArea` — the one stack of floating items at the page's bottom-right: the audio
+ * player, upload progress. It lifts over the phone bar and the home indicator, and is left out of
+ * print. Toasts stay bottom-centre.
  *
  * @example
- * <Shell floating={<ShellFloatingArea><UploadProgress /><AssistantPill /></ShellFloatingArea>} …>
+ * <Shell floating={<ShellFloatingArea><UploadProgress /></ShellFloatingArea>} …>
  */
 export function ShellFloatingArea({
   className,

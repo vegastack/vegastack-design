@@ -972,30 +972,6 @@
     },
     "$description": "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
   },
-  "shell-panel-width": {
-    "$type": "dimension",
-    "$value": {
-      "value": 26.25,
-      "unit": "rem"
-    },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
-  },
-  "shell-panel-width-min": {
-    "$type": "dimension",
-    "$value": {
-      "value": 22.5,
-      "unit": "rem"
-    },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
-  },
-  "shell-panel-width-max": {
-    "$type": "dimension",
-    "$value": {
-      "value": 45,
-      "unit": "rem"
-    },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
-  },
   "shell-bottombar-height": {
     "$type": "dimension",
     "$value": {

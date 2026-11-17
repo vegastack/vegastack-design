@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.106.0 sha256-VdqxIYEKt+rDMCQzVaqiDgcztOzh0NL7/+INTg7lIo8=
+// @vegastack document-layout@0.106.0 sha256-Ly3X9WBLcnPfn0ehnyzqQBHS83P1NKHm9CEzSXlEbaU=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -110,7 +110,7 @@ export {
  * stacks above the text and the margin, so its open panel takes the pointer over both.
  *
  * The discussion beside a page is not a rail inside the layout: below the L tier, and whenever the
- * comment margin has no room, comments open in the shell panel's Comments tab (shell layout L7).
+ * comment margin has no room, comments open in the record page's Comment threads panel (layout v2, D7).
  *
  * Each tier also sets `--document-layout-tier` (`s` · `m` · `l` · `xl` · `2xl`) on the grid,
  * which `useDocumentLayoutTier` reads — CSS is the one source of the tier.
@@ -514,7 +514,7 @@ export function DocumentLayoutFloatingButton({
  * `margin`: an `aside` named "Comments" after the text (20rem, 24rem from XL, its 2rem gap
  * included), as tall as the text, positioned (`relative`) so threads can sit at their
  * highlights' tops. Cards in it take its whole width. Below L the host shows comments in a
- * popover or the shell panel's Comments tab. Pass `CommentMargin quote={false}` so cards beside
+ * popover or the record page's Comment threads panel. Pass `CommentMargin quote={false}` so cards beside
  * their highlight do not repeat it.
  *
  * @example

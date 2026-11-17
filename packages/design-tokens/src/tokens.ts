@@ -139,9 +139,6 @@ export const tokens = {
     "shell-column-width-max": "22.5rem",
     "shell-topbar-height": "3rem",
     "shell-globalbar-height": "2.75rem",
-    "shell-panel-width": "26.25rem",
-    "shell-panel-width-min": "22.5rem",
-    "shell-panel-width-max": "45rem",
     "shell-bottombar-height": "3.5rem",
     "shell-titlebar-mac-inset": "4.875rem",
     "shell-titlebar-win-inset": "8.625rem"
@@ -285,9 +282,6 @@ export const tokens = {
     "shell-column-width-max": "22.5rem",
     "shell-topbar-height": "3rem",
     "shell-globalbar-height": "2.75rem",
-    "shell-panel-width": "26.25rem",
-    "shell-panel-width-min": "22.5rem",
-    "shell-panel-width-max": "45rem",
     "shell-bottombar-height": "3.5rem",
     "shell-titlebar-mac-inset": "4.875rem",
     "shell-titlebar-win-inset": "8.625rem"

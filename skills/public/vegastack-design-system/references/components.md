@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**228 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 24 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`, `panel-tabs`) — 818 registry items in total.
+**227 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 816 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -200,7 +200,6 @@ starts with `icon-` is a component and never an icon.
 - **`separator`** — A thin rule dividing content — horizontal or vertical, built on Base UI.
 - **`settings-row`** — A borders-only settings layout — titled sections, bordered cards, label-plus-control rows whose controls share one width and right edge (controlSize), and a settings × channels switch matrix with its column names once.
 - **`shell`** — The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over.
-- **`shell-panel`** — The shell's one right-hand panel: a 48px head of tabs (preview, pinned, dots, reorder, menu, overflow), bodies kept alive, a resizable edge, the Escape rule.
 
 ## Media
 
@@ -252,7 +251,7 @@ starts with `icon-` is a component and never an icon.
 - **`request-card`** — One card for every question an agent asks before it acts — Allow once · Always allow (one step wider from its menu) · Decline (with a note, or Never allow this) — its settled line in the same words on every channel, and What I've allowed with uses and Revoke.
 - **`resource-pill`** — The person's own thing in an answer — its type icon and real title as an inline chip — never a numbered source.
 - **`run-usage`** — What one agent run used: a chip under the answer (steps, context, cache, optional money), a panel by model with cache per step and Subagents, and a table with one row per model call.
-- **`shell-assistant`** — The floating "Ask {name}" pill at the page area's corner and the compact assistant card it opens.
+- **`shell-assistant`** — The compact assistant card at the page area's corner, opened from the global bar's Ask or ⌘J.
 - **`source-list`** — The web pages an answer cites: a quiet Sources fold of one-line numbered rows, the citation card and the MarkdownView wiring.
 - **`status-glyph`** — One glyph per state in agent UI: ✓ done in the blue accent, ◌ not started, ◐ running (still), ⊘ skipped, ✗ failed, ⚠ needs you.
 - **`suggestion-card`** — An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.
