@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.109.0] — November 17, 2026
+
+<!-- assembled from 1 changeset: eb4df7cb1311 -->
+
+### 🗑 Removed / renamed
+
+- `DataList`'s `rowOpenGestures` is removed, with `RowOpenDetails`' `background` and `keep`: they served the retired panel tabs (a ⌘/Ctrl or middle click opened a background tab, a double-click kept a preview tab). With layout v2 a row opens in a peek on a plain click, and ⌘/Ctrl, Shift, Alt and middle clicks are the row link's own, opening the record's page in a new tab or window (D6).
+  [`9aaf794`](https://github.com/VegaStack/vegastack-design/commit/9aaf794)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.108.0 → 0.109.0.
+
 ## [0.108.0] — November 17, 2026
 
 <!-- assembled from 1 changeset: b90f412e03f4 -->
