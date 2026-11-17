@@ -195,7 +195,7 @@
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.102.0",
-        "integrity": "sha256-7uTpJR8Wx0rlx8BFgu/8rW7Jrmv50m9H8MLTLZUHcD4="
+        "integrity": "sha256-zrRPg/F1E2WOnsLZ1q4J5ELrCQxi8BA2NPo+ue5VHCU="
       }
     },
     {
@@ -328,7 +328,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.100.0",
-        "integrity": "sha256-OcCUt7bcRT0ReqpzP2GHmQ5yyveAHkAyukAXfKT6r7Q="
+        "integrity": "sha256-7Ud1cgTtjuRShEvnpIkn/61OfRLA7UAQ2gQxrgNTpv4="
       }
     },
     {
@@ -364,7 +364,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox).",
         "version": "0.100.0",
-        "integrity": "sha256-bBL00dIDjTa3t2QveFEaeI1L60JOOVdJN17W90DZteg="
+        "integrity": "sha256-z78YdVeZOGXOeY4zyestJwX6JccuTkL2f9lX47SSHTQ="
       }
     },
     {
@@ -921,7 +921,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.100.0",
-        "integrity": "sha256-vYLCP6loQpWbIffA0VkYa21a8+ahBViMQfw7ZUHI5F8="
+        "integrity": "sha256-y7WxDhqCvJANzBH+VU5iaW8ecc9dM5aTU3LEvwaAmoU="
       }
     },
     {
@@ -1629,7 +1629,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.100.0",
-        "integrity": "sha256-M86uGN4hA8b2PSg7AkONPVySnDSpz8Jd1PJDrF9kW38="
+        "integrity": "sha256-wAUodOjGwM0EjEP176E9QKXJbAW4/ddt2BEyGGfDg8g="
       }
     },
     {
@@ -1927,7 +1927,7 @@
         "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
         "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
         "version": "0.100.0",
-        "integrity": "sha256-I8qCkQP6sL8gzD41i8frC0oA4pQkAOaVkpGz+REivGQ="
+        "integrity": "sha256-leEzcwM/dVQVYlUjAiAifBQ2YWjR6P+l/DmjGEkUE34="
       }
     },
     {
@@ -2124,7 +2124,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.100.0",
-        "integrity": "sha256-7+yp5bwQZFAU1sFJNDvkFlI1M8OXX3HJBT/5gU3lsg4="
+        "integrity": "sha256-m/iUfeLbOVUZgnzqDyXTBrPtA6cvcZHXspMkX3MsmdI="
       }
     },
     {
@@ -17062,7 +17062,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
         "version": "0.100.0",
-        "integrity": "sha256-RNjB2I5EOXGEUsa6qVf2jK8ge8ThoW/ARpoJEJAotlc="
+        "integrity": "sha256-xriZZ+wLuZoWwSxuUGYbJFMXWncTLgRd7MShduoM/Ak="
       }
     },
     {
@@ -17313,7 +17313,7 @@
         "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
         "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
         "version": "0.100.0",
-        "integrity": "sha256-kGk6ZDyvIg+4UahXmhGahhoSCjifG9L5umngmmPd+q0="
+        "integrity": "sha256-59kOejr26gud0ZyNsxVmjJSKJGcds2bQz6iWINa4Jmw="
       }
     },
     {
@@ -17527,7 +17527,7 @@
       "name": "page-header",
       "type": "registry:ui",
       "title": "Page Header",
-      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
+      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "categories": [
         "navigation"
       ],
@@ -17553,7 +17553,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.100.0",
-        "integrity": "sha256-xJxUhwhnrFh62/jApsHt6aKj8kbGHnTnFLz5A0QI2iY="
+        "integrity": "sha256-1muEWrr0V+s4BTJFAdfK89nuuBECU/9N58lQuWqg6G0="
       }
     },
     {
@@ -17970,7 +17970,7 @@
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.100.0",
-        "integrity": "sha256-FbFMnZPJBu2eJwEVqrS4KQ43QXJkRLJGhuClq+6DYXo="
+        "integrity": "sha256-Sh7FiyUqBqzYLG3iIdy/pSqbOggWYNc/+lmqG22zChA="
       }
     },
     {
@@ -18223,7 +18223,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.100.0",
-        "integrity": "sha256-Lz2LGKfjdylicTsCbHLPQihzX2kjsIC/QU01b0zOa5M="
+        "integrity": "sha256-q7IDYH5bVdDoMBUei+l/PrGJFrsRYpNAcqEMrD9DMaw="
       }
     },
     {
@@ -18628,7 +18628,7 @@
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
         "version": "0.100.0",
-        "integrity": "sha256-fnqdH9lcCa3O+hyIx+eN4HP4IM9v7XM+0uXqY2r6f9I="
+        "integrity": "sha256-lpppMXTHlhGqU0a8WXuYtN2hTAi+RyPFFQOpcZTjFqw="
       }
     },
     {
@@ -23847,7 +23847,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.100.0",
-        "integrity": "sha256-ZDSFJhdBgufU/dW/vz+hGizI99qqGJbcsGmQGvgDxxE="
+        "integrity": "sha256-ZhSXzCTGRDZcsiPJxjbxE/VZHnQSqR7Ir7zk0Thuk0Q="
       }
     },
     {

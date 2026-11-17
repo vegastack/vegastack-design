@@ -925,7 +925,11 @@ test("pending dims the list and marks the section busy; an agent's event is said
     <ActivityFeed pending>
       <ActivityFeedList>
         <ActivityFeedItem>
-          <ActivityEvent actor={priya} agent date={NOW - HOUR} now={NOW}>
+          <ActivityEvent
+            actor={{ ...priya, kind: "agent" }}
+            date={NOW - HOUR}
+            now={NOW}
+          >
             set priority to <ActivityValue>High</ActivityValue>
           </ActivityEvent>
         </ActivityFeedItem>

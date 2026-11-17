@@ -14238,7 +14238,7 @@
       "name": "page-header",
       "type": "registry:ui",
       "title": "Page Header",
-      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
+      "description": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "categories": ["navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",

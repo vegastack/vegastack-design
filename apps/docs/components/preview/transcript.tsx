@@ -182,7 +182,7 @@ export function transcriptStates(): ReactNode {
   );
 }
 
-function TranscriptSpeakersDemo(): ReactNode {
+function TranscriptRenameDemo(): ReactNode {
   const [names, setNames] = useState(PEOPLE);
   return (
     <Transcript
@@ -204,7 +204,7 @@ function TranscriptSpeakersDemo(): ReactNode {
 export function transcriptSpeakers(): ReactNode {
   return (
     <Wrapper>
-      <TranscriptSpeakersDemo />
+      <TranscriptRenameDemo />
     </Wrapper>
   );
 }

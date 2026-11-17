@@ -1,4 +1,4 @@
-// @vegastack shell@0.102.0 sha256-7uTpJR8Wx0rlx8BFgu/8rW7Jrmv50m9H8MLTLZUHcD4=
+// @vegastack shell@0.102.0 sha256-zrRPg/F1E2WOnsLZ1q4J5ELrCQxi8BA2NPo+ue5VHCU=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -717,19 +717,21 @@ export function ShellRailItem({
   render,
   href,
   className,
+  "aria-label": ariaLabel,
   ...props
 }: ShellRailItemProps) {
   const count = badgeText(badge);
+  // An explicit name wins (the account item reads "<name>, account"); else the label carries the
+  // count or the dot's meaning.
+  const name =
+    ariaLabel ??
+    (count ? `${label}, ${count}` : dot ? `${label} (${dot})` : undefined);
   return renderItem(itemElement(render, href), {
     ...props,
     "data-slot": "shell-rail-item",
     "data-active": active ? "" : undefined,
     "aria-current": active ? "page" : undefined,
-    "aria-label": count
-      ? `${label}, ${count}`
-      : dot
-        ? `${label} (${dot})`
-        : undefined,
+    "aria-label": name,
     className: cn(
       "group/rail-item flex w-16 flex-none flex-col items-center gap-0.5 rounded-item pt-1 pb-1.5 text-xs font-medium text-muted-foreground no-underline outline-none data-active:text-foreground",
       className,
