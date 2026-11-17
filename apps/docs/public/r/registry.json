@@ -201,7 +201,7 @@
       "name": "nav-tree",
       "type": "registry:ui",
       "title": "Nav Tree",
-      "description": "A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step and threaded to their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.",
+      "description": "A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step under their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.",
       "categories": [
         "navigation"
       ],
@@ -222,7 +222,7 @@
         "whenToUse": "The places in an app's module column — views, saved filters, spaces with their sections, folders, settings pages — in the shell's ShellColumn or a phone sheet.",
         "whenNotToUse": "A file browser with drag and drop (FolderTree), a page's own tabs (Tabs), or the module rail (Rail).",
         "version": "0.107.0",
-        "integrity": "sha256-fPVgKBKDkJJyTOEXL8Dt/UmuDq+ltZUxvhv7Sc7j2rI="
+        "integrity": "sha256-1RbPjBh6YV0/YDOWMlW+ochGFgHBXRK3Y5zA9xLTyw8="
       }
     },
     {
