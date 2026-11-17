@@ -1,4 +1,4 @@
-// @vegastack tool-group@0.100.0 sha256-xnnArW9ZVv+kNO3NvxAMXhp1ecUE8jj65grqtJbojS4=
+// @vegastack tool-group@0.106.0 sha256-8i+RYm3gyvsdtIFm2u5LCBpRJJKTg5e3HgG4Utij3rc=
 
 "use client";
 

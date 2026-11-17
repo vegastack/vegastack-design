@@ -1,5 +1,21 @@
 # @vegastack/ui
 
+## 0.106.0
+
+### Minor Changes
+
+- [#1018](https://github.com/vegastack/vegastack-design/pull/1018) [`84f44f4`](https://github.com/vegastack/vegastack-design/commit/84f44f488e2b9b8a724ed5655664fca6c4940e74) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **Layout v2's frame parts** (Regent Layout v2, D1, D2, D9): [`GlobalBar`](/docs/components/global-bar), the 44px bar across the top of every page (column toggle, back and forward, workspace · search with ⌘K · Ask with ⌘J, Help, account), which is also the desktop app's draggable title row and is hidden on phones; [`Rail`](/docs/components/rail), the module rail with a bottom group and `RailBadge`, a compact 14px count of 10px tabular numerals that bites only the icon's corner (TYP-18's one exception, operator 17-11-2026); and [`NavTree`](/docs/components/nav-tree), a column's navigation with titled sections, items level with their title, children one 12px step in and threaded to their parent like the Inbox's events, counts, a fold control at a parent's end, arrow keys and a 44px touch size. New token `--shell-globalbar-height` (2.75rem).
+
+- [#1018](https://github.com/vegastack/vegastack-design/pull/1018) [`84f44f4`](https://github.com/vegastack/vegastack-design/commit/84f44f488e2b9b8a724ed5655664fca6c4940e74) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 **Removed with no aliases** (Layout v2): `ShellRail`, `ShellRailItem`, `ShellRailMore` (the rail's More menu), `ShellRailFooter`, `ShellRailIcon` and the shell's `lazyAnimatedIcon` (use `Rail`, `RailItem`, `RailBottom` and `lazyAnimatedIcon` from `rail`); `ShellColumnSection`, `ShellColumnItem` and `ShellColumnTree` (use `NavTree`, `NavTreeSection` and `NavTreeItem`); `ShellTitleBarControls` and `ShellHistory` (use `ShellColumnToggle` and `GlobalBarHistory`); `ShellTopBarActions` (Share goes in `ShellTopBarShare`). The `shell-rail-head`, `shell-column-head` and `shell-topbar-lead` slots are gone.
+
+- [#1018](https://github.com/vegastack/vegastack-design/pull/1018) [`84f44f4`](https://github.com/vegastack/vegastack-design/commit/84f44f488e2b9b8a724ed5655664fca6c4940e74) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠ **`Shell` is the Layout v2 frame**: `globalBar` on top, then the rail, the column and the page. `railHeader`, `columnHead` and `titleBarControls` are removed; the column toggle is `ShellColumnToggle` (hidden on a screen with no column) in the global bar, and the desktop title row (LAY-24) is the global bar's alone. `ShellColumnHeader` is the column's 48px title row, level with the page's top bar. The page's top bar keeps one order, the title then presence · tools · primary · Share · ☆ · ⋯ (`ShellTopBarShare`, `ShellTopBarFavorite` and `ShellTopBarMore` are new; ⋯ is always last), and its tools, Share, ☆ and ⋯ share one 28px button shape. `HelpMenu` opens under the global bar's Help button (`side` `bottom`, `align` `end`), and `ShellBottomBarItem`'s count is `RailBadge`.
+
+### Patch Changes
+
+- Updated dependencies [[`84f44f4`](https://github.com/vegastack/vegastack-design/commit/84f44f488e2b9b8a724ed5655664fca6c4940e74)]:
+  - @vegastack/design-tokens@0.20.0
+  - @vegastack/design@0.20.0
+
 ## 0.105.0
 
 ### Minor Changes

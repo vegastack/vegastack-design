@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.100.0 sha256-1MsjAf/zXQsBNkEwY8E+pHlPHIUDCWSNGRYEKht/ils=
+// @vegastack message-parts@0.106.0 sha256-9niEML1mqTyro3ZoQXit+AhuiY5itWVVdI4XunxB5gI=
 
 "use client";
 

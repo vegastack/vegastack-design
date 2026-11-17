@@ -1,4 +1,4 @@
-// @vegastack collapsible@0.100.0 sha256-+QJxiYWV4YGPPjPNdNDKu5YT7WeexOdHVmknmj1anA4=
+// @vegastack collapsible@0.106.0 sha256-hoyqoZK5liJBUMWq+NFJ72sOnBhZNFS8AdBJRdHh3cg=
 
 "use client";
 

@@ -1,4 +1,4 @@
-// @vegastack login-01@0.100.0 sha256-RsN4gAqMyu+Ip6ykaUY6twFsyPzBgG6mc8NNZZtPnGM=
+// @vegastack login-01@0.106.0 sha256-a2AGbJjSleCoBYdXf+OskoWaohvjUKuscpSZVDKbLxM=
 
 import { LoginForm } from "./components/login-form";
 

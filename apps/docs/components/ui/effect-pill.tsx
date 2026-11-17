@@ -1,4 +1,4 @@
-// @vegastack effect-pill@0.100.0 sha256-ouJLSN0EHENE1LS/VgVUtbDRvBfJutEzTH8hQKDZ4h8=
+// @vegastack effect-pill@0.106.0 sha256-gaYIHxNtRpjs1nQ6ZyJ1RxVxMvePDNku9YbFjkkfOSo=
 
 import type * as React from "react";
 import {

@@ -1,4 +1,4 @@
-// @vegastack brand-logo@0.100.0 sha256-e72C5cOlixf3ZeZck3UhuqhiKgWRkhZaJ+kRLguOJEc=
+// @vegastack brand-logo@0.106.0 sha256-oUEbAFlOn7kr9N+3Bm2LjYfcleIlKUokQOwwQU/dwbQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
