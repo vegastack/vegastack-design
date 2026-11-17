@@ -349,7 +349,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
         "version": "0.107.0",
-        "integrity": "sha256-lQ6Q5jkb+ofP85mNyxko76IaLVfAasNTv2nvKykFMKo="
+        "integrity": "sha256-DaUS4sUSw5WrmSAvayuUy14gRAws7Bd9NNheecgqr/w="
       }
     },
     {

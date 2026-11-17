@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.107.0 sha256-lQ6Q5jkb+ofP85mNyxko76IaLVfAasNTv2nvKykFMKo=
+// @vegastack document-layout@0.107.0 sha256-DaUS4sUSw5WrmSAvayuUy14gRAws7Bd9NNheecgqr/w=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -99,7 +99,7 @@ export {
  * or a form (operator 17-11-2026); a narrower layout gives it what there is. Inside a record page
  * whose side panel docks, the layout narrows and the text re-centres in the room left (it slides to
  * the start). Wide (`measure="wide"`) is the whole width less the gutters (and the margin), up to 75rem
- * (1200px) — past that a line is too long to read. The rail's gutter, the text, the margin and the
+ * (1200px) — past that a line is too long to read; it follows the same placement. The rail's gutter, the text, the margin and the
  * end gutter are one block, centred, so the text sits in the middle of the room the comment margin
  * leaves: opening comments slides it to the start by half the margin's width. The text gives way
  * only when the width cannot hold text, margin and gutters at once (the text track is
@@ -148,8 +148,7 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
   focusable?: boolean;
 }
 
-// The grid: four tracks — the start track (the rail's: the gutter, widened to mirror the margin
-// while there is room), the text, the margin (its 2rem gap inside it, so a zero track costs no
+// The grid: four tracks — the start track (the rail's: the gutter), the text, the margin (its 2rem gap inside it, so a zero track costs no
 // gap) and the end gutter — centred as one block. Every width is a custom property the tiers set,
 // so the hook, the skeleton and the page share one geometry.
 const GRID = cn(
@@ -174,7 +173,7 @@ const GRID = cn(
 
 /**
  * `DocumentLayout` — the frame of a page read as a document: `DocumentLayoutHeader` (icon, title,
- * meta), `DocumentLayoutBody` (the text), `DocumentLayoutFoot` (what follows it) in one fluid
+ * meta), `DocumentLayoutBody` (the text), `DocumentLayoutFoot` (what follows it) in one 720px
  * column, `DocumentLayoutContents` (the contents rail) in the gutter before it and
  * `DocumentLayoutMargin` (the comment margin) after it. Put the parts in reading order: header,
  * contents, body, foot, margin. Prints as one column of header, body and foot.
@@ -360,7 +359,7 @@ export function DocumentLayoutTitle({
 }
 
 /**
- * `DocumentLayoutBody` — the fluid text column: a `MarkdownView` or `TextEdit`
+ * `DocumentLayoutBody` — the 720px text column: a `MarkdownView` or `TextEdit`
  * at `typeScale="document"`.
  *
  * @example

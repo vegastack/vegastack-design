@@ -35,7 +35,7 @@ import { TextEdit, preloadTextEdit } from "../registry/ui/text-edit";
 import geistVariable from "../../../apps/docs/node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2?url";
 
 /**
- * The document type scale (TYP-20), `DocumentLayout`'s fluid column and tiers, and Button's
+ * The document type scale (TYP-20), `DocumentLayout`'s 720px column and tiers, and Button's
  * coarse hit area (A11Y-24), measured in compiled CSS: the 14/24 and 16/26 metrics, the text
  * column each width gets, the tier it lands in, no shift from the read view into the editor,
  * and a 44px target on a coarse pointer (emulated through CDP touch emulation, which makes
@@ -331,7 +331,9 @@ test("Wide is the whole width less the gutters and the margin, up to 1200px", as
   );
   expect(
     (await measure(800, { measure: "wide", margin: false })).body.width,
-  ).toBe(800 - 2 * 48);
+  ).toBe(800 - 2 * 48); // Wide follows the same placement: centred in the room the comment margin leaves.
+  const wide = await measure(2200, { measure: "wide" });
+  expect(wide.body.left - wide.layout.left).toBe((2200 - 384 - 1200) / 2);
 });
 
 test("the open contents panel takes the pointer over the text, and its frame bridges the gap from the rail", async () => {
