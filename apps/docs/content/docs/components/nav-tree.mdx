@@ -46,6 +46,10 @@ spacing scale (12px), not by a chevron's width: a parent's fold control sits at 
 row, so a parent and its siblings keep their labels on one line. The small indent alone shows
 what belongs to what: there are no thread lines.
 
+A column has two levels at most. A first-level row carries its 16px icon; a child is text only,
+so `icon` on a child row draws nothing. A third level warns in development: flatten it, or make
+its views tabs on the page.
+
 <ComponentPreview name="navTree" file="components/preview/nav-tree.tsx" />
 
 ## Anatomy
@@ -63,7 +67,8 @@ ancestors of an active child with `defaultOpen`, so the column paints open on th
 
 ### Counts and row actions
 
-`count` shows muted, tabular, at the row's end; 0 shows nothing. `action` (a ⋯ menu, a +) takes
+`count` shows muted, tabular, at the row's end; 0 shows nothing and a number over 99 shows
+"99+". Show a count only where something needs action (unread, assigned, overdue). `action` (a ⋯ menu, a +) takes
 the count's place while the row is hovered or holds focus, and always shows on touch, where
 nothing hovers.
 
