@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**227 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 24 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`, `panel-tabs`) — 817 registry items in total.
+**228 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 24 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`, `panel-tabs`) — 818 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -145,6 +145,7 @@ starts with `icon-` is a component and never an icon.
 - **`icon-picker`** — Modes offered by the generic identity picker.
 - **`info-hint`** — A small muted info button that opens one sentence of explanation and an optional new-tab link in a popover; keyboard and touch accessible, named by its label.
 - **`panel-search`** — The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay — plus the scrolling PanelList under it and the PanelActions footer for a searchable menu's static actions.
+- **`peek`** — A record over the right of the page area without leaving its list; a bottom sheet with snap points on a phone.
 - **`permission-menu`** — An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.
 - **`picker-panel`** — A searchable, selectable item in an internal picker panel.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
@@ -193,7 +194,7 @@ starts with `icon-` is a component and never an icon.
 - **`direction`** — Base UI's DirectionProvider and useDirection — the text-direction context components read.
 - **`document-layout`** — A page read as a document — the title area and its meta lines, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.
 - **`global-bar`** — The app's 44px bar across the top of every page: leading (column toggle, back and forward, workspace switcher), a centred search trigger with ⌘K, and trailing (Ask with ⌘J, Help, account); the desktop app's draggable title row; hidden on phones.
-- **`record-layout`** — A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.
+- **`record-layout`** — A record page: the main column, and the right-edge strip that opens one reference panel at a time.
 - **`resizable`** — Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.
 - **`scroll-area`** — Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.
 - **`separator`** — A thin rule dividing content — horizontal or vertical, built on Base UI.

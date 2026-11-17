@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.105.0] — November 17, 2026
+
+### 🧩 New components
+
+- Peek and the record page's side panel (layout v2). `Peek` shows one record over the right of the page area without leaving its list: a non-modal dialog named by the record's own title (`PeekTitle`), with a 48px `PeekHeader` holding `PeekNav` (↑ ↓ as a joined pair), `PeekPath`, and `PeekActions` (`PeekOpen` ⤢ as a real link, `PeekAction` for ☆ and ⋯, `PeekClose` ✕). It resizes from its start edge between 420px and 70% of the page area (`width`/`onWidthChange`, controlled so the app saves it), moves focus in without scrolling the list, returns it to the row on Escape or ✕, and F6 moves between the two; the slide-in plays only for a person's open. Under 640px it is `PeekSheet`, a bottom sheet on the system's drawer that rests at 55% and 92% of the screen, drags down to close, and never closes on a tap inside. `RecordLayout` gains `RecordLayoutSide`: a strip of icon buttons on the right edge (`RecordLayoutStrip`, `RecordLayoutStripItem` with a tooltip and a count) that opens one `RecordLayoutPanel` at a time — resizable, with a title and a close button, controlled by `panel`/`defaultPanel`/`onPanelChange` so the app applies per-type defaults and remembers them. From 1200px of record width the panel docks and the reading-width content re-centres in the room left; below that it floats over the main column; on a phone the strip becomes a row under the header (`RecordLayoutStripSlot`) and each panel a `PeekSheet`.
+  [`b5b040a`](https://github.com/VegaStack/vegastack-design/commit/b5b040a)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.104.0 → 0.105.0.
+
 ## [0.104.0] — November 17, 2026
 
 ### 🔧 Changed components

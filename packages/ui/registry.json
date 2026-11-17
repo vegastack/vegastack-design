@@ -318,28 +318,72 @@
       }
     },
     {
+      "name": "peek",
+      "type": "registry:ui",
+      "title": "Peek",
+      "description": "A record over the right of the page area without leaving its list; a bottom sheet with snap points on a phone.",
+      "categories": ["overlay"],
+      "dependencies": [
+        "@vegastack/design@^0.19.0",
+        "@vegastack/design-tokens@^0.19.0",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/button-group",
+        "@vegastack/drawer",
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query",
+        "@vegastack/use-platform"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/peek.tsx",
+          "type": "registry:ui",
+          "target": "@ui/peek.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
+        "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
+        "version": "0.105.0"
+      }
+    },
+    {
       "name": "record-layout",
       "type": "registry:ui",
       "title": "Record Layout",
-      "description": "A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.",
+      "description": "A record page: the main column, and the right-edge strip that opens one reference panel at a time.",
       "categories": ["layout"],
       "dependencies": [
         "@vegastack/design@^0.19.0",
         "@vegastack/design-tokens@^0.19.0",
         "lucide-react@^1.47.0"
       ],
-      "registryDependencies": ["@vegastack/skeleton"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/peek",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query",
+        "@vegastack/use-platform"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/record-layout.tsx",
           "type": "registry:ui",
           "target": "@ui/record-layout.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/record-layout-side.tsx",
+          "type": "registry:ui",
+          "target": "@ui/record-layout-side.tsx"
         }
       ],
       "meta": {
-        "whenToUse": "A record's page (a meeting, a customer, a deal): one main column with the title, status and tabs; the record's facts open in the shell panel's Details tab.",
-        "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use ShellPage alone.",
-        "version": "0.101.0"
+        "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
+        "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
+        "version": "0.105.0"
       }
     },
     {

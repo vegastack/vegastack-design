@@ -1,14 +1,46 @@
-// @vegastack record-layout@0.101.0 sha256-qxoDGtOMKFtP5lHIBduw9u4S1Zfxe3JTff00QfBbqXU=
+// @vegastack record-layout@0.105.0 sha256-tn3Cf33z5Ss4Hl5iYKQ1t5sA+u6+3dhJfq1cnTYjLOc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 import { Skeleton } from "@/components/ui/skeleton";
 
+// The reference panels and their strip are the one client part; they live in their own file so
+// this one stays server-safe.
+export {
+  RECORD_PANEL_DEFAULT_WIDTH,
+  RECORD_PANEL_MAX_RATIO,
+  RECORD_PANEL_MIN_WIDTH,
+  RecordLayoutPanel,
+  RecordLayoutSide,
+  RecordLayoutStrip,
+  RecordLayoutStripItem,
+  RecordLayoutStripSlot,
+  type RecordLayoutPanelProps,
+  type RecordLayoutSideProps,
+  type RecordLayoutStripItemProps,
+  type RecordLayoutStripProps,
+  type RecordLayoutStripSlotProps,
+} from "@/components/ui/record-layout-side";
+
 /* ------------------------------------------------------------------------------------------------
- * RecordLayout — a record page's main column: the title, the status, the tabs and their panels.
- * A record's details (properties, related work) are not a rail inside the page: they open in the
- * shell's panel beside it (shell layout L7), so the page stays one column at every width.
- * Server-safe.
+ * RecordLayout — a record page: the main column (the work, in reading order: description,
+ * subtasks, comments and activity) and, after it, `RecordLayoutSide`: the strip of icons on the
+ * right edge that opens one reference panel at a time (layout v2, D7–D8).
+ *
+ * One layout model for every page with a reading width (layout v2, D14):
+ *
+ *   record width     side panel                     content
+ *   ≥ 75rem (1200)   docks beside the main column   re-centres in the room that is left
+ *   40–75rem         floats over the main column    stays where it was (the panel covers part)
+ *   < 40rem (phone)  a bottom sheet; strip → a row   full width
+ *
+ * The content keeps its own width and centres itself in the main column (`ShellPage` prose/form,
+ * 720px; `DocumentLayout` for a page read as a document, with the contents rail in the start
+ * gutter and the comment margin in the end gutter). A docked panel narrows the main column, so
+ * the content slides to the start to stay centred in what remains, animated with the panel's
+ * width on a person's click; nothing overlays the text unless the record is narrower than the
+ * content plus the panel (75rem ≈ 45rem of text + gutters + the 380px panel + the 44px strip).
+ * Server-safe; the side panel's parts are client leaves in `record-layout-side`.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Native container props for `RecordLayout`. */
@@ -29,7 +61,10 @@ export function RecordLayout({ className, ...props }: RecordLayoutProps) {
   return (
     <div
       data-slot="record-layout"
-      className={cn("@container/record-layout flex min-w-0", className)}
+      className={cn(
+        "@container/record-layout relative flex min-w-0 max-sm:flex-col",
+        className,
+      )}
       {...props}
     />
   );

@@ -1,0 +1,150 @@
+---
+title: Peek
+description: A record over the right of the page area without leaving its list; a bottom sheet with snap points on a phone.
+audience: public
+registry: peek
+status: stable
+since: 0.105.0
+a11y: non-modal dialog; modal bottom sheet on a phone
+preview: peek
+---
+
+## Install
+
+<InstallSteps name="peek" />
+
+## Usage
+
+```tsx
+import {
+  Peek,
+  PeekAction,
+  PeekActions,
+  PeekBody,
+  PeekClose,
+  PeekHeader,
+  PeekNav,
+  PeekOpen,
+  PeekPath,
+  PeekTitle,
+} from "@/components/ui/peek";
+
+<Peek
+  open={id !== null}
+  onOpenChange={(open) => !open && setId(null)}
+  width={peekWidth}
+  onWidthChange={savePeekWidth}
+>
+  <PeekHeader>
+    <PeekNav onPrevious={previous} onNext={next} />
+    <PeekPath>Tasks › Website › #42</PeekPath>
+    <PeekActions>
+      <PeekOpen href="/tasks/42" />
+      <PeekAction label="Favourite">
+        <Star />
+      </PeekAction>
+      <PeekAction label="More">
+        <MoreHorizontal />
+      </PeekAction>
+      <PeekClose />
+    </PeekActions>
+  </PeekHeader>
+  <PeekBody>
+    <PeekTitle>Fix the login page</PeekTitle>…
+  </PeekBody>
+</Peek>;
+```
+
+`Peek` shows one record without leaving the list it came from: a row of a list, a card of a
+board, a table row, a search result, an Inbox item or a mention chip. It sits over the right of
+the **page area** — render it inside the page's own positioned box, so the rail, the column and
+the global bar stay uncovered — and the list keeps its place and stays live: a click on another
+row swaps the record. One record at a time; there are no tabs.
+
+The header holds, in order: ↑ ↓ (`PeekNav`, the previous and next row in the list's current order
+and filters), the path (`PeekPath`), then the actions (`PeekOpen` ⤢, the app's ☆ and ⋯, and
+`PeekClose` ✕). The record's own title is not chrome: it is the first line of the body
+(`PeekTitle`), and it names the dialog.
+
+<ComponentPreview name="peek" file="components/preview/peek.tsx" />
+
+## Scope
+
+- **Peek** is for looking: a list stays in view. **A record's page** (`RecordLayout`) is for
+  working on one record; ⤢, a link, ⌘K and a notification open it.
+- The width is the app's: it saves `onWidthChange`'s value (shell prefs) and passes it back as
+  `width`. The handle clamps it between 420px and 70% of the page area.
+
+## Anatomy
+
+<Anatomy name="peek" />
+
+## Examples
+
+### Closed
+
+Nothing is drawn while `open` is false; clicking a row opens it.
+
+<ComponentPreview name="peekClosed" file="components/preview/peek.tsx" />
+
+### On a phone
+
+Under 640px the peek is a bottom sheet (`PeekSheet`, the system's `Drawer`) that rests at about
+55% of the screen. Drag it up to about 92%, or down to close it; a tap or a scroll inside never
+closes it. `PeekSheet` is also exported on its own for any phone sheet that should behave the same
+(the record panels in `RecordLayout`, the phone Ask sheet).
+
+<ComponentPreview name="peekSheet" file="components/preview/peek.tsx" />
+
+### Motion
+
+The side peek slides in (`duration-panel`) only when a person opens it after the page has drawn;
+a peek restored on load appears at rest. Switching records with ↑ ↓ never replays it.
+
+## API Reference
+
+<ApiTable path="../../packages/ui/registry/ui/peek.tsx" name="PeekProps" />
+
+### PeekNav
+
+<ApiTable path="../../packages/ui/registry/ui/peek.tsx" name="PeekNavProps" />
+
+### PeekSheet
+
+<ApiTable path="../../packages/ui/registry/ui/peek.tsx" name="PeekSheetProps" />
+
+### PeekResizeHandle
+
+<ApiTable
+  path="../../packages/ui/registry/ui/peek.tsx"
+  name="PeekResizeHandleProps"
+/>
+
+## Accessibility
+
+The side peek follows the WAI-ARIA dialog pattern's **non-modal** variant. It is chosen over a
+modal trap because the list behind it is the point: a person compares rows, clicks another row,
+or keeps scrolling while the peek is open.
+
+- `role="dialog"` without `aria-modal`, named by `PeekTitle` (or `label` while it loads). Nothing
+  outside is made inert and Tab is not trapped.
+- When a person opens it, focus moves to the peek without scrolling the page or the list; when it
+  closes (✕ or Escape), focus returns to the row that opened it.
+- On a phone the sheet is modal, as a sheet over the whole screen must be: focus stays inside until
+  it closes, and the page behind does not scroll.
+
+| Key    | Action                                                                                       |
+| ------ | -------------------------------------------------------------------------------------------- |
+| Escape | Closes the peek (a menu or popover closes first; a text field keeps its own Escape).         |
+| F6     | Moves focus between the peek and the row that opened it.                                     |
+| Tab    | Moves through the peek's controls, then on into the page — never trapped.                    |
+| ← →    | On the resize handle: wider or narrower by 32px; Home and End go to the minimum and maximum. |
+
+<StatesTested name="peek" />
+
+## Do / Don't
+
+<DoDont
+  do="Render the peek inside the page area, so the rail, column and global bar stay uncovered and usable."
+  dont="Put a second record in tabs inside the peek — open its page, or move ↑ ↓ to it."
+/>

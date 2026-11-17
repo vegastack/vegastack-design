@@ -160,6 +160,7 @@ export * from "./space-picker";
 export * from "./info-hint";
 export * from "./choice-card";
 export * from "./record-aside";
+export * from "./peek";
 export * from "./record-layout";
 export * from "./comments";
 export * from "./activity-feed";

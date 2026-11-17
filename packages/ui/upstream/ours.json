@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 146,
+    "total": 148,
     "fromExtras": 40
   },
   "items": {
@@ -372,7 +372,7 @@
     "record-layout": {
       "disposition": "keep",
       "family": "layout",
-      "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25",
+      "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25; side panel and strip: VegaStack layout v2, P0 part 5 — operator approval 17-11-2026",
       "rationale": "Upstream ships no record-page frame. It is a fixed composition of upstream sheet and button with a sticky rail; no patch."
     },
     "record-list": {
@@ -1127,6 +1127,17 @@
       "disposition": "keep",
       "family": "internal",
       "source": "internal part of rail (the animated rail icon and lazyAnimatedIcon) apart so Rail stays server-safe. Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\""
+    },
+    "peek": {
+      "disposition": "keep",
+      "family": "overlay",
+      "source": "VegaStack layout v2, P0 part 4 — Regent operator approval 17-11-2026 \"Layout v2\" (\"Okay, the plan looks good to me, as we shared in the design artifact.\")",
+      "rationale": "Upstream has no record peek. Peek composes upstream drawer (the phone sheet), button, button-group and tooltip; no patch."
+    },
+    "record-layout-side": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of record-layout (its client side panel: strip, panels, phone row). VegaStack layout v2, P0 part 5 — operator approval 17-11-2026"
     }
   }
 }

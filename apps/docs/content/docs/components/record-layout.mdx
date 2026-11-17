@@ -1,6 +1,6 @@
 ---
 title: Record Layout
-description: A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.
+description: A record page — the main column, and the right-edge strip that opens one reference panel at a time.
 audience: public
 registry: record-layout
 status: stable
@@ -16,23 +16,88 @@ preview: recordLayout
 ## Usage
 
 ```tsx
-import { RecordLayout, RecordLayoutMain } from "@/components/ui/record-layout";
+import {
+  RecordLayout,
+  RecordLayoutMain,
+  RecordLayoutPanel,
+  RecordLayoutSide,
+  RecordLayoutStrip,
+  RecordLayoutStripItem,
+  RecordLayoutStripSlot,
+} from "@/components/ui/record-layout";
 
 <RecordLayout>
   <RecordLayoutMain>
     <PageHeader title="Weekly sync" />
-    <Tabs>…</Tabs>
+    <RecordLayoutStripSlot />
+    {/* description, subtasks, comments and activity, in reading order */}
   </RecordLayoutMain>
+  <RecordLayoutSide
+    panel={panel}
+    onPanelChange={rememberPanelForType}
+    panelWidth={width}
+    onPanelWidthChange={saveWidth}
+  >
+    <RecordLayoutPanel value="details" title="Details">
+      …
+    </RecordLayoutPanel>
+    <RecordLayoutPanel value="transcript" title="Transcript">
+      …
+    </RecordLayoutPanel>
+    <RecordLayoutStrip>
+      <RecordLayoutStripItem value="details" label="Details" icon={<Info />} />
+      <RecordLayoutStripItem
+        value="transcript"
+        label="Transcript"
+        icon={<FileText />}
+      />
+    </RecordLayoutStrip>
+  </RecordLayoutSide>
 </RecordLayout>;
 ```
 
-`RecordLayout` is a record page's frame: one main column with the title, the status line and the
-tabs, at every width. A record's facts and related work are not a rail inside the page: they open
-in the shell's panel beside it, as a Details tab ([`ShellPanel`](/docs/components/shell-panel)), so the page
-never splits into two columns that fight for room with the panel.
+`RecordLayout` is a record page: the **main column** holds the work in reading order
+(description, subtasks, comments and activity), and `RecordLayoutSide` adds a **strip of icons**
+on the right edge. Each icon opens one **reference panel** — Details or Properties, Transcript,
+Files, Links, Versions, Comment threads, Activity, Ask — one at a time, resizable, with a title and
+a close button. Never on a list page: a list's rows open in [`Peek`](/docs/components/peek).
+
+The app owns which panel is open (`panel`, `onPanelChange`), so it can apply the record type's
+default on a first visit and remember the person's choice per type: tasks closed, meetings with a
+recording on Transcript, products on Properties, customers and projects on Details. `defaultPanel`
+does the same uncontrolled. On a phone a panel opens as a sheet only when a person taps its button,
+and a phone sheet never changes the remembered panel.
 
 <ComponentPreview
-  name="recordLayout"
+  name="recordLayoutSide"
+  file="components/preview/record-layout.tsx"
+/>
+
+## Scope
+
+One layout model for every page that has a **reading width** — Library pages, settings sections,
+docs pages, a meeting's summary — so the content never wastes space and never hides behind a panel:
+
+| Record width        | Side panel                                                                                    | Content                                      |
+| ------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| from 1200px (75rem) | docks beside the main column                                                                  | keeps its width, re-centred in the room left |
+| 640–1200px          | floats over the main column (Escape closes)                                                   | stays where it was                           |
+| under 640px         | a bottom sheet; the strip becomes a row of buttons under the header (`RecordLayoutStripSlot`) | full width                                   |
+
+- The content keeps its own measure and centres itself in the main column: 720px for prose and
+  forms (`ShellPage` `prose`/`form`), and for a page read as a document `DocumentLayout`'s tiers,
+  with the contents rail in the start gutter (a fixed gap before the text, a Contents button when
+  the gutter is too narrow) and the comment margin in the end gutter.
+- A docked panel narrows the main column, so the content slides to the start to stay centred in
+  what remains — animated with the panel's width (`duration-panel`) when a person opens it, at
+  rest when the page loads with it open. The panel never covers the text unless the record is
+  narrower than the text plus the panel: 1200px is about 45rem of text and its gutters, the 380px
+  panel and the 44px strip.
+- The breakpoints follow the record layout's own width (a container query), not the window's, so
+  a collapsed column or a split window picks the right one.
+
+<ComponentPreview
+  name="recordLayoutReadingWidths"
   file="components/preview/record-layout.tsx"
 />
 
@@ -74,16 +139,49 @@ never splits into two columns that fight for room with the panel.
 
 `RecordLayout` and `RecordLayoutMain` take their element's native props.
 
+### RecordLayoutSide
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-layout-side.tsx"
+  name="RecordLayoutSideProps"
+/>
+
+### RecordLayoutStripItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-layout-side.tsx"
+  name="RecordLayoutStripItemProps"
+/>
+
+### RecordLayoutPanel
+
+<ApiTable
+  path="../../packages/ui/registry/ui/record-layout-side.tsx"
+  name="RecordLayoutPanelProps"
+/>
+
 ## Accessibility
 
 - The layout adds no landmark of its own: the page's `main` region holds it, and the record's title
   is its heading.
+- The strip is a group named "Record panels". Each item is a button with `aria-expanded` (and
+  `aria-controls` while its panel is open); its name is the panel's, with the count after it
+  ("Files, 3"), and the tooltip repeats the name.
+- The panel is an `aside` named by its title. Docked beside the page it stays put on Escape;
+  floating over the page, Escape closes it and focus returns to its strip button. On a phone it
+  is a modal bottom sheet.
+
+| Key          | Action                                                                                               |
+| ------------ | ---------------------------------------------------------------------------------------------------- |
+| Enter, Space | On a strip button: opens its panel, or closes it when it is open.                                    |
+| Escape       | Closes a floating panel (not a docked one).                                                          |
+| ← →          | On the panel's resize handle: wider or narrower by 32px; Home and End go to the minimum and maximum. |
 
 <StatesTested name="record-layout" />
 
 ## Do / Don't
 
 <DoDont
-  do="Open a record's facts in the shell panel's Details tab."
-  dont="Put a second column of cards inside the page — it competes with the panel for room."
+  do="Keep the work (description, comments, activity) in the main column and reference material in one panel."
+  dont="Put a second column of cards inside the page, or open a panel on a list page — rows open in Peek."
 />
