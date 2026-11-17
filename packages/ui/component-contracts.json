@@ -8146,7 +8146,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["command-item"]
+              "values": ["command-item", "command-item-check"]
             }
           ],
           "cssVariables": []
@@ -44893,7 +44893,7 @@
           "attributes": [
             {
               "name": "data-checked",
-              "values": ["true"]
+              "values": ["false", "true"]
             },
             {
               "name": "data-kind",
