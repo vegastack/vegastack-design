@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.101.0 sha256-XMCFNu2JqfVJZP9DFBxhHisBMmYjGHyK3bTDAQs/xp4=
+// @vegastack record-layout@0.101.0 sha256-hSIWFJDxomecu14z+vVULqJKNERtDbaOjgcryauKzi8=
 
 "use client";
 
@@ -448,6 +448,11 @@ export function RecordLayoutPanel({
         ?.focus({ preventScroll: true }),
     );
   };
+  // An opening that is cut short (the app switches panels before it plays) gives up its motion,
+  // so a later programmatic reopen stays still.
+  React.useEffect(() => {
+    if (!open && motionFor === value) clearMotion();
+  }, [open, motionFor, value, clearMotion]);
   const latestClose = React.useRef(close);
   latestClose.current = close;
 
@@ -521,6 +526,7 @@ export function RecordLayoutPanel({
           data-surface="sheet"
           className={cn("flex min-h-0 flex-1 flex-col", className)}
           style={style}
+          onTransitionEnd={onTransitionEnd}
           {...(props as React.HTMLAttributes<HTMLDivElement>)}
         >
           {header}

@@ -1,4 +1,4 @@
-// @vegastack peek@0.101.0 sha256-weZPjAD7m569rhVZChuomqfppRF31FT1RoFqZm30oP4=
+// @vegastack peek@0.101.0 sha256-hCGxh1IELnotPaWZ9XqPPWwnaI0UemIGXVtDQF7TP1U=
 
 "use client";
 
@@ -321,14 +321,21 @@ export function PeekSheet({
         data-slot="peek-sheet"
         aria-label={labelledBy ? undefined : label}
         aria-labelledby={labelledBy}
-        className={cn("text-base", className)}
+        className={cn(
+          // The full screen's height, so each snap point is that share of the screen and the
+          // visible part below is exactly the screen less the snap offset.
+          "text-base data-[swipe-axis=y]:[--drawer-content-max-height:100dvh]",
+          // Base UI registers its offset as non-inheriting, so it is read here, on the popup.
+          "[--peek-sheet-visible:calc(100dvh-var(--drawer-snap-point-offset,0px))]",
+          className,
+        )}
       >
         {/* The popup is the screen's height and slides down to its snap point; this box is only
             the part on screen (less the swipe handle), so the body's scroll ends where the sheet
             does at every snap point. */}
         <div
           data-slot="peek-sheet-viewport"
-          className="flex max-h-[calc(100dvh-var(--drawer-snap-point-offset,0px)-0.75rem)] min-h-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]"
+          className="flex max-h-[calc(var(--peek-sheet-visible,100dvh)-0.75rem)] min-h-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]"
         >
           {children}
         </div>

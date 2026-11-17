@@ -237,3 +237,51 @@ test("on a phone the strip is a row under the header, and each button opens its 
   await expectNoA11yViolations(document.body);
   await page.viewport(1440, 900);
 });
+
+test("an opening cut short by the app gives up its motion", async () => {
+  await page.viewport(1440, 900);
+  function Switcher() {
+    const [panel, setPanel] = React.useState<string | null>(null);
+    return (
+      <div style={{ width: 1300 }}>
+        <button type="button" onClick={() => setPanel("files")}>
+          Switch
+        </button>
+        <button type="button" onClick={() => setPanel("details")}>
+          Back
+        </button>
+        <RecordLayout>
+          <RecordLayoutMain>Body</RecordLayoutMain>
+          <RecordLayoutSide panel={panel} onPanelChange={setPanel}>
+            <RecordLayoutPanel value="details" title="Details">
+              Owner
+            </RecordLayoutPanel>
+            <RecordLayoutPanel value="files" title="Files">
+              Files
+            </RecordLayoutPanel>
+            <RecordLayoutStrip>
+              <RecordLayoutStripItem
+                value="details"
+                label="Details"
+                icon={<Info />}
+              />
+              <RecordLayoutStripItem
+                value="files"
+                label="Files"
+                icon={<Paperclip />}
+              />
+            </RecordLayoutStrip>
+          </RecordLayoutSide>
+        </RecordLayout>
+      </div>
+    );
+  }
+  const screen = await render(<Switcher />);
+  await screen.getByRole("button", { name: "Details", exact: true }).click();
+  expect(slot("record-layout-panel")!.getAttribute("data-motion")).toBe(
+    "enter",
+  );
+  await screen.getByRole("button", { name: "Switch" }).click();
+  await screen.getByRole("button", { name: "Back" }).click();
+  expect(slot("record-layout-panel")!.hasAttribute("data-motion")).toBe(false);
+});

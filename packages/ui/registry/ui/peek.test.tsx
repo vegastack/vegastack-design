@@ -192,6 +192,16 @@ test("the phone sheet rests on its first snap point, and a tap inside never clos
   );
   const popup = bySlot("peek-sheet")!;
   expect(popup.hasAttribute("data-snap-points")).toBe(true);
+  // The popup is the screen's height, and the scroll area is only its visible part: the body's
+  // end is reachable at the 55% snap point.
+  await new Promise((r) => setTimeout(r, 600));
+  expect(Math.round(popup.getBoundingClientRect().height)).toBe(
+    window.innerHeight,
+  );
+  const viewport = document
+    .querySelector<HTMLElement>("[data-slot='peek-sheet-viewport']")!
+    .getBoundingClientRect();
+  expect(viewport.bottom).toBeLessThanOrEqual(window.innerHeight + 1);
   expect(popup.getAttribute("aria-labelledby")).toBe(bySlot("peek-title")!.id);
   await screen.getByTestId("text").click();
   await screen.getByRole("button", { name: "Assign" }).click();
