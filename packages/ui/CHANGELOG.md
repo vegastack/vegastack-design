@@ -8,7 +8,7 @@
 
 ### Patch Changes
 
-- [#1014](https://github.com/vegastack/vegastack-design/pull/1014) [`732af62`](https://github.com/vegastack/vegastack-design/commit/732af623fe10cd292576cb9472a9825533de8df5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **A rail item keeps the name you give it** (`shell`). `ShellRailItem` used to replace a caller's `aria-label` with its own; an explicit `aria-label` now wins (the account item reads "<name>, account"), and the label with its count or dot is the name only when none is given.
+- [#1014](https://github.com/vegastack/vegastack-design/pull/1014) [`732af62`](https://github.com/vegastack/vegastack-design/commit/732af623fe10cd292576cb9472a9825533de8df5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **A rail item keeps the name you give it** (`shell`). `ShellRailItem` used to replace a caller's `aria-label` with its own; an explicit `aria-label` now wins (the account item reads "Asha Kumar, account"), and the label with its count or dot is the name only when none is given.
 
 ## 0.102.0
 
