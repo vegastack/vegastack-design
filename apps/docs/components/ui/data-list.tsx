@@ -1,4 +1,4 @@
-// @vegastack data-list@0.100.0 sha256-Xnx7LMNRQsw9YkFGxlezpuNWb+FI6njdHywZJzDGLXo=
+// @vegastack data-list@0.100.0 sha256-o0Wflp6OuSNYKaM/qJEaoQq13kCItw1mzd0ZSI6Knpc=
 
 "use client";
 
@@ -1338,13 +1338,14 @@ const LONG_PRESS_SLOP = 10;
  * line, with no column header and no checkboxes in sight until a long press starts a selection;
  * both come back while anything is selected (Select all, and each row's tick). They are visually
  * hidden, not removed: a screen reader still reads the column names and reaches every checkbox,
- * and a keyboard tabs to them. Sorting stays the toolbar's (a header that is the list's only sort
- * control stays, `headerSorts`).
+ * and a keyboard tabs to them (focus shows the header or the checkbox's cell). Sorting stays the
+ * toolbar's (a header that is the list's only sort control stays, `headerSorts`).
  */
 const PHONE_HEADER_CLASS =
-  "pointer-coarse:@max-[30rem]/data-list:[&>thead]:sr-only";
+  "pointer-coarse:@max-[30rem]/data-list:[&>thead:not(:focus-within)]:sr-only";
+/** The checkboxes, likewise; a keyboard's focus on one shows its cell. */
 const PHONE_BOXES_CLASS =
-  "pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-table-selection-cell]]:sr-only pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-list-skeleton-row]>td:first-child]:hidden";
+  "pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-table-selection-cell]:not(:focus-within)]:sr-only pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-list-skeleton-row]>td:first-child]:hidden";
 
 /**
  * Touch selection for a selectable list: a long press on a row selects it (the phone posture shows
@@ -2953,11 +2954,14 @@ export function DataList<T>({
       ? React.cloneElement(rowLinkRender ?? <AppLink />, { draggable: false })
       : rowLinkRender;
 
-  // The header is the only way to sort: sortable columns it sorts, and no toolbar beside them.
+  // The header is the only way to sort: sortable columns it sorts, and no ListToolbar with a Sort
+  // tool beside them (any other toolbar may carry none).
+  const toolbarSorts =
+    React.isValidElement<ListToolbarProps>(toolbar) &&
+    toolbar.type === ListToolbar &&
+    toolbar.props.sort != null;
   const headerSorts =
-    !sortLocked &&
-    visibleColumns.some((col) => col.sortable) &&
-    toolbar == null;
+    !sortLocked && visibleColumns.some((col) => col.sortable) && !toolbarSorts;
   const table = (
     // DS-68: a list owns its keyboard model — a row link or a row click, not one tab stop per
     // clipped value or timestamp — so truncated text and RelativeTime in the cells are not tab

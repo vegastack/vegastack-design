@@ -109,9 +109,10 @@ indeterminate when only some rows are selected, checked when all are, and toggle
 column header and the checkboxes are out of sight until a long press on a row selects it. While
 anything is selected, the header (with Select all) and every row's checkbox show, and a tap on a row
 toggles it instead of opening it; clearing the selection brings the plain rows back. Hidden, they
-stay in the accessibility tree and the tab order, so a screen reader and a keyboard still reach them.
-Sorting stays the toolbar's: a list whose sortable header is its only sort control (no toolbar)
-keeps its header. Pair it with
+stay in the accessibility tree and the tab order, so a screen reader and a keyboard still reach them
+(a keyboard's focus shows the header or the checkbox).
+Sorting stays the toolbar's: a list whose sortable header is its only sort control (no `ListToolbar`
+with a `sort` tool) keeps its header. Pair it with
 `mergedLayout="line"` so the folded columns read as one meta line.
 
 <ComponentPreview
