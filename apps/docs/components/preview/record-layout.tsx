@@ -66,14 +66,14 @@ function TaskSections() {
             icon={<Link2 />}
             detail="Blocks"
           >
-            #131 Product master export
+            {`#${131}`} Product master export
           </RecordPanelItem>
           <RecordPanelItem
             render={<a href="#related" />}
             icon={<Link2 />}
             detail="Relates"
           >
-            #88 Datasheet template
+            {`#${88}`} Datasheet template
           </RecordPanelItem>
         </RecordPanelList>
       </RecordPanelSection>
@@ -107,7 +107,7 @@ function Bar({ children }: { children?: ReactNode }) {
   return (
     <div className="flex h-12 shrink-0 items-center justify-between border-b ps-6 pe-2">
       <span className="truncate text-sm text-muted-foreground">
-        Tasks › Dev Ops for App › #129
+        {`Tasks › Dev Ops for App › #${129}`}
       </span>
       <div className="flex items-center gap-1">
         {children}
@@ -123,7 +123,7 @@ function Work() {
   return (
     <div className="mx-auto flex w-full max-w-180 flex-col gap-3">
       <span className="text-xs text-muted-foreground">
-        Dev Ops for App · #129
+        {`Dev Ops for App · #${129}`}
       </span>
       <h2 className="text-2xl font-semibold">
         Technical Datasheet design format
