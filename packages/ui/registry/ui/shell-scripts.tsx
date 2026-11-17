@@ -1,4 +1,4 @@
-// @vegastack shell@0.98.1 sha256-e5b3TrkluHu6DMrecfcuqF6sUvYnEIRhbAvzd/ZEl14=
+// @vegastack shell@0.100.0 sha256-tx/4A+srr/TBqQYMp2laoAQgZoXS9YTFrDuoVkiLiEI=
 
 import { TIME_ZONE_COOKIE_SCRIPT } from "@/lib/date-time";
 import { SHELL_COOKIES, SHELL_SIZES } from "@/lib/shell-layout";

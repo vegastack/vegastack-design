@@ -1,4 +1,4 @@
-// @vegastack cursor-pager@0.90.0 sha256-PjZVFrNPW3eFPyMcNOA0X7hKwiNFQig/7Hx8FTvEGjs=
+// @vegastack cursor-pager@0.100.0 sha256-1g3RrWCxP6qcpXscjlIQIV3kDssuS/pAemLBXL/B55A=
 
 "use client";
 

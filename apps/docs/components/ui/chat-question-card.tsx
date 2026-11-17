@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.90.0 sha256-bZ6xWhTGYssrQehEL27p/nK3vb7J8rR4hu2ra1+ANOY=
+// @vegastack chat-question-card@0.100.0 sha256-tD/pKOhycOVSzlOLpp+Z6j5IseWNfhnCxQEePXaa/5E=
 
 "use client";
 

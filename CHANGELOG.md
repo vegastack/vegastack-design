@@ -9,6 +9,34 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.100.0] — November 17, 2026
+
+<!-- assembled from 6 changesets: 17e28129cd22 -->
+
+### 🔧 Changed components
+
+- **BreadcrumbDropTarget loads its drag code only when one mounts** (`breadcrumb-cascade`). The drop wiring (`useDragInto`) moved to `breadcrumb-drop-target.tsx`, loaded the first time a drop target renders, so a trail without one never ships it; until then, and in the server render, the crumb is the same link without the drop wiring. Import paths are unchanged.
+  [`0787729`](https://github.com/VegaStack/vegastack-design/commit/0787729)
+- **An Inbox row reads as one line when its meta repeats the title** (`inbox`). A `meta` the title already says is dropped, a one-line row is 52px with its text and time centred on the avatar, and with a pointer the read toggle and the menu take the time's place on hover instead of adding a second row.
+  [`0787729`](https://github.com/VegaStack/vegastack-design/commit/0787729)
+- **A text field's rest, hover and focus borders are three even steps in both themes** (FOC-14). New token `input-focus` carries the focus border that `border-ring/50` drew; `input` at rest is firmer in light (1.44:1, was 1.26:1, so the unchecked Switch track and ButtonGroup separators darken with it) and `input-hover` sits between: rest 1.44, hover 2.10, focus 3.26:1 on the page in light and 1.47, 2.10, 3.29:1 in dark. Focus holds 3:1 on every neutral surface, and `contrast-check` now gates the three steps in order. Input, Textarea, InputGroup, Combobox, InputOTP, Questionnaire, TextEdit and the composers use `border-input-focus`.
+  [`0787729`](https://github.com/VegaStack/vegastack-design/commit/0787729)
+- **The shell panel opens in 120 ms** (`shell`). New token `duration-panel` (120ms, on `ease-enter`'s ease-out curve) times the panel sliding in and the page making room; it closes on `duration-quick-exit` with `ease-exit`. Reduced motion still drops both.
+  [`0787729`](https://github.com/VegaStack/vegastack-design/commit/0787729)
+- **Toasts and tooltip delays can sit in the layouts that use them** (`provider`). `VegaStackProvider` takes `toasts={false}` and `tooltips={false}` to leave them out of the root, and the new `VegaStackToasts` and `VegaStackTooltips` mount them lower — so a route group that never toasts mounts no toast viewport. The defaults are unchanged.
+  [`0787729`](https://github.com/VegaStack/vegastack-design/commit/0787729)
+
+### 🗑 Removed / renamed
+
+- **Shell clean-up — the parts the shell replaced, and items no app uses, are removed**, with no compatibility aliases (shell layout L22). Replaced by the shell: `app-shell` (every `AppShell*` part, `pageGutterClasses`) and its block `app-shell-01`, `record-peek` and its `use-record-peek-row` hook, `settings-layout` and `sidebar-menu-flyout`; `page-layout` drops `pageGutterOf`. Never used by a consuming app: `access-chip`, `animated-number`, `announcement-banner`, `country-select`, `region-select` and their `geo-data` lib, `field-type-link-step`, `formula-input`, `level-meter`, `rating-bars`, `timeline`, `upload-dialog` and the `use-optimistic-action` hook; `table` no longer ships the orphaned `table-scroll-region.tsx`. The blocks sit in `ShellPage` (and `notifications-01` in `Shell`), parts that read the old shell's slots (`page-header`, `audio-player`, `auto-save-input`, `upload-panel`) read the shell's, and `vegastack-design doctor` checks `ShellPage`. A consumer that still holds a copy of a removed item deletes it before `ds:pull`.
+  [`0787729`](https://github.com/VegaStack/vegastack-design/commit/0787729)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.19.0`** (was `0.18.0`).
+- **`@vegastack/design`** → **`0.19.0`** (was `0.18.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.99.0 → 0.100.0.
+
 ## [0.99.0] — November 16, 2026
 
 <!-- assembled from 2 changesets: 648b941cf33e -->
