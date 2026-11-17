@@ -105,6 +105,13 @@ Pass `selectable` to add the checkbox column. Selection is **controllable** — 
 `selectedIds` + `onSelectionChange`, or omit both for built-in uncontrolled state. The header checkbox is
 indeterminate when only some rows are selected, checked when all are, and toggles every row on click.
 
+**On a phone** (a touch screen, the list under 30rem) a list row is its title and one meta line: the
+column header and the checkboxes stay out of the way until a long press on a row selects it. While
+anything is selected, the header (with Select all) and every row's checkbox show, and a tap on a row
+toggles it instead of opening it; clearing the selection brings the plain rows back. A list without
+`selectable` drops only its header there. Sorting stays the toolbar's. Pair it with
+`mergedLayout="line"` so the folded columns read as one meta line.
+
 <ComponentPreview
   name="dataListSelectable"
   file="components/preview/data-list.tsx"

@@ -112,7 +112,14 @@ the active row gets a start bar, focus follows and `onActiveChange` reports it; 
 
 A `meta` that only repeats the title is dropped, so the row reads as one line: a one-line row is
 52px, its text and time centred on the avatar. With a pointer the read toggle and ⋯ menu take the
-time's place on hover rather than adding height.
+time's place on hover rather than adding height. On a touch screen a row with a `menu` shows no
+buttons, only the unread dot and the time, so the title gets the width: a long press opens the ⋯
+menu (put Mark read / Mark unread in it). A row without a `menu` keeps its read toggle in view.
+
+On an Inbox page (`layout="page"`) the page's gutter is the rows' inset: the list reaches 8px into
+it and each row pads 8px, so the avatars and the day labels keep the page's edge and the hover fill
+is still an inset `rounded-item` shape. Pass `layout="page"` to an `InboxSkeleton` drawn outside the
+Inbox (a route's loading state) so its rows line up the same way.
 
 ### Grouped events
 
@@ -243,8 +250,9 @@ dropdown only when they do not fit the row.
   avatars are decorative, and an sr-only line reads everyone's names.
 - An event with `href` is a link of its own in the tab order (above the row's link), named by its
   line.
-- The hover controls are always in the tab order and show on `focus-within`; on touch screens they
-  are always visible.
+- The hover controls are always in the tab order and show on `focus-within`; on a touch screen a row
+  with a `menu` shows its ⋯ for a keyboard's focus (`:focus-visible`) and while its menu is open, and
+  a long press opens that menu; a row without one keeps its read toggle visible.
 - An unread row carries a dot before its time and an sr-only "Unread:" before its title; the dot and the `badge` are decorative (`aria-hidden`), so the title must say what happened.
 - The header icon buttons are named by their tooltips; the tabs are a named tab list and Unread a
   pressed-state toggle.
