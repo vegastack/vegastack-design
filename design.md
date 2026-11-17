@@ -1298,7 +1298,8 @@ sizes and the copy tier untouched (TYP-15); smoothed font rendering on `body` (T
 14px body size on `body`, never on `html` (TYP-17); no arbitrary font size, so upstream's 12.8px `sm`
 half-step resolves down to `text-xs` (TYP-18), with one exception: the count badge on a navigation
 icon (`RailBadge`, the rail and the phone bar) is 10px tabular numerals so it never covers the icon
-(operator, 2026-11-17); Avatar's fallback initials are `text-xs` at every
+(operator, 2026-11-17), and the `MembersStack` "+N" pill is 11px semibold tabular numerals so it
+keeps its faces' 24px height (operator, UI ground rules M2, 2026-11-18); Avatar's fallback initials are `text-xs` at every
 size (TYP-14). Icons are lucide,
 the lucide-animated mirrors and `thesvg` brand glyphs through `Icon`/`BrandIcon` and nothing else
 (ICO-1); no inline `<svg>` as an icon (ICO-3); the animated-icon factory owns the trigger and

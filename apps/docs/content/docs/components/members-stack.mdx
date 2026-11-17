@@ -1,0 +1,112 @@
+---
+title: Members Stack
+description: Who has access, drawn one way everywhere — at most three 24px faces and a "+N" pill of the same height, names on hover, one members popover.
+audience: public
+registry: members-stack
+status: stable
+since: 0.110.0
+a11y: one named button, names on hover, list in a popover
+preview: membersStack
+---
+
+## Install
+
+<InstallSteps name="members-stack" />
+
+## Usage
+
+```tsx
+import { MembersStack } from "@/components/ui/members-stack";
+
+<MembersStack people={members} total={23} />;
+```
+
+One component draws who has access to (or is in) a place, in every spot that shows it: the page
+bar's members slot (`ShellTopBarMembers`), a space or record header, the Share button and a list
+row's Members cell. Faces are 24px, overlapped by 6px, each with a 2px ring in the colour of the
+surface beneath. At most three faces show; the rest are a "+N" pill of the same 24px height
+(11px semibold tabular figures on the muted fill), overlapped the same way, so it is never larger
+than a face. Past 99 it reads "99+".
+
+<ComponentPreview
+  name="membersStack"
+  file="components/preview/members-stack.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="members-stack" />
+
+## Examples
+
+### Every combination
+
+| Who               | Drawn as                                   |
+| ----------------- | ------------------------------------------ |
+| Only you          | A lock and "Only you", with no button      |
+| You and one other | Both faces                                 |
+| Two or three      | Every face                                 |
+| Four or more      | Three faces and "+N"                       |
+| A whole space     | The space's tile and "Everyone in General" |
+| A team            | The team's tile and "Sales · 8"            |
+| Nobody (a draft)  | Nothing                                    |
+
+`audience` picks the form (`people`, `only-you`, `everyone`, `team`); `group` is the space,
+workspace or team drawn as its tile.
+
+<ComponentPreview
+  name="membersStackCases"
+  file="components/preview/members-stack.tsx"
+/>
+
+### Order
+
+People active now come first, with a green dot on their face (`active`). Then the order you pass:
+the most recent editors, then everyone else by name. You (`you`) are never the first face unless
+you are alone. `orderMembers` applies the rule, if you need it elsewhere.
+
+### In a list row
+
+`count` adds the number after the faces, 8px on ("23 members"; pass a function to word it). The
+stack stops its click from opening the row, so its popover opens in place.
+
+<ComponentPreview
+  name="membersStackRow"
+  file="components/preview/members-stack.tsx"
+/>
+
+### Partial lists and a footer
+
+When only the first people are loaded, pass `total`: "+N", the count and the list's "and N more"
+count from it. `footer` ends the members popover with the host's action, such as "Manage access"
+or "Manage members". The popover is the same everywhere: a click on any stack opens it.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/members-stack.tsx"
+  name="MembersStackProps"
+/>
+
+## Accessibility
+
+- The stack is one button named `"{label}: {names}"` (up to ten, then "and N more"), or
+  `"{label}: Everyone in General"`; the same names show in its tooltip on hover and focus.
+- The click opens the full list in a popover, so keyboard and touch users reach every person.
+- The active dot is decorative: say who is here in text where it matters.
+- "Only you" is plain text, not a button: there is no one else to list.
+
+| Key                                 | Action                   |
+| ----------------------------------- | ------------------------ |
+| <kbd>Tab</kbd>                      | Move to the stack        |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the members popover |
+| <kbd>Esc</kbd>                      | Close the popover        |
+
+<StatesTested name="members-stack" />
+
+## Do / Don't
+
+<DoDont
+  do="Use MembersStack wherever members show — the bar, a header, Share, a table cell."
+  dont="Build a stack from AvatarGroup and AvatarGroupCount: its count circle is larger than 24px faces."
+/>

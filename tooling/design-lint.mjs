@@ -380,6 +380,10 @@ const UPSTREAM_IMPORTANT =
 // the ramp at 12px or more.
 const NAV_COUNT_TEXT = "text-[0.625rem]";
 const NAV_COUNT_TEXT_FILE = /\/ui\/rail\.tsx$/;
+// TYP-18's second exception (operator, UI ground rules M2, 18-11-2026: the members stack's "+N"
+// pill is "the same 24px height … 11px semibold tabular"): only that token, only in that file.
+const MEMBERS_COUNT_TEXT = "text-[0.6875rem]";
+const MEMBERS_COUNT_TEXT_FILE = /\/ui\/members-stack\.tsx$/;
 
 const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
   ["/ui/command.tsx", { count: 6, rationale: UPSTREAM_IMPORTANT }],
@@ -1419,6 +1423,12 @@ for (const root of ROOTS) {
           id === "arbitrary-text-size" &&
           NAV_COUNT_TEXT_FILE.test(file) &&
           [...line.matchAll(re)].every((m) => m[0] === NAV_COUNT_TEXT)
+        )
+          continue;
+        if (
+          id === "arbitrary-text-size" &&
+          MEMBERS_COUNT_TEXT_FILE.test(file) &&
+          [...line.matchAll(re)].every((m) => m[0] === MEMBERS_COUNT_TEXT)
         )
           continue;
         if (id === "important" && EMAIL_TOKENS_FILE.test(file)) continue;

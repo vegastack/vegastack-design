@@ -14522,10 +14522,10 @@
       "registryDependencies": []
     },
     {
-      "name": "person-hover-card",
+      "name": "members-stack",
       "type": "registry:ui",
-      "title": "Person Hover Card",
-      "description": "Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind \"+N\".",
+      "title": "Members Stack",
+      "description": "Who has access, drawn one way everywhere: 24px faces overlapped 6px, at most three and a \"+N\" pill of the same height, active people first; only you, everyone in a space and a team as their own forms; names on hover and one members popover.",
       "categories": ["data"],
       "dependencies": [
         "@vegastack/design@^0.21.0",
@@ -14533,11 +14533,40 @@
         "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/person-hover-card",
+        "@vegastack/popover",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/members-stack.tsx",
+          "type": "registry:ui",
+          "target": "@ui/members-stack.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
+        "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
+        "version": "0.107.0"
+      }
+    },
+    {
+      "name": "person-hover-card",
+      "type": "registry:ui",
+      "title": "Person Hover Card",
+      "description": "A person behind an avatar or a name: hover, focus or tap opens a compact card with a 32px avatar, the name and a muted email.",
+      "categories": ["data"],
+      "dependencies": [
+        "@vegastack/design@^0.21.0",
+        "@vegastack/design-tokens@^0.21.0",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
         "@vegastack/button",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/popover",
         "@vegastack/searchable-select"
       ],
       "files": [
@@ -14548,7 +14577,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
+        "whenToUse": "Preview a person behind their avatar or name (a comment's author, an activity's actor, a participant). Stacks of people are MembersStack.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.107.0"
       }
@@ -17207,7 +17236,8 @@
         "@vegastack/nav-tree",
         "@vegastack/peek",
         "@vegastack/rail",
-        "@vegastack/shell"
+        "@vegastack/shell",
+        "@vegastack/members-stack"
       ],
       "files": [
         {
