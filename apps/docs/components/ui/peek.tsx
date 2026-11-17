@@ -1,4 +1,4 @@
-// @vegastack peek@0.107.0 sha256-nGmvAAXc+Lj+tJMWX0PRZovoSzJ8PpB4z9UYnZXDzjc=
+// @vegastack peek@0.107.0 sha256-oOYOKZrryLSPEJiPnYsO5w9cnBC6lCVFwuLEuQdXLFY=
 
 "use client";
 
@@ -569,6 +569,10 @@ export function Peek({
     if (!back?.isConnected) return false;
     if (back.matches("input, textarea, select") || back.isContentEditable)
       return false;
+    // A box that only takes focus from code or a tap (iOS Safari focuses the nearest
+    // `tabindex="-1"` ancestor, such as the page's <main>) is not a place to return to: Base UI
+    // would focus its first tabbable descendant instead, often the list's search field.
+    if (back.tabIndex < 0) return false;
     return back;
   }, []);
 

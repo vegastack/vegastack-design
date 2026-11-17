@@ -133,7 +133,9 @@ or keeps scrolling while the peek is open.
 - On a phone the sheet is modal, as a sheet over the whole screen must be: focus stays inside until
   it closes, and the page behind does not scroll.
 - When the phone sheet closes, focus goes back to the row that opened it, or stays put; it never
-  returns to a text field (that would raise the keyboard). `finalFocus` overrides it.
+  returns to a text field (that would raise the keyboard), nor to a box that only took focus from a
+  tap (iOS Safari focuses a `tabindex="-1"` ancestor such as the page's `<main>`), whose first field
+  Base UI would otherwise pick. `finalFocus` overrides it.
 
 | Key    | Action                                                                                       |
 | ------ | -------------------------------------------------------------------------------------------- |
