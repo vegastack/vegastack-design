@@ -2173,7 +2173,7 @@
       "title": "Nav Tree",
       "summary": "A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step and threaded to their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.",
       "status": "stable",
-      "since": "0.105.0",
+      "since": "0.106.0",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": ["packages/ui/registry/ui/nav-tree.tsx"],
@@ -2368,7 +2368,7 @@
       "title": "Global Bar",
       "summary": "The app's 44px bar across the top of every page: leading (column toggle, back and forward, workspace switcher), a centred search trigger with ⌘K, and trailing (Ask with ⌘J, Help, account); the desktop app's draggable title row; hidden on phones.",
       "status": "stable",
-      "since": "0.105.0",
+      "since": "0.106.0",
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": [
@@ -2632,7 +2632,7 @@
       "title": "Rail",
       "summary": "The module rail down the app's start edge: about seven modules, each an icon over a short label with a compact count badge or a dot, and a bottom group.",
       "status": "stable",
-      "since": "0.105.0",
+      "since": "0.106.0",
       "family": "navigation",
       "wave": "Navigation/layout",
       "sourceFiles": [
