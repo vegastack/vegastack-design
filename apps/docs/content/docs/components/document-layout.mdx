@@ -57,25 +57,26 @@ import {
 ```
 
 `DocumentLayout` is the frame of a page people read and write as a document — a wiki page, a
-spec, its public view and a version's full view all wear the same one. The text column is fluid:
-about three quarters of the layout's width, between bounds that grow with each tier, so a large
-monitor gets a generous column rather than a narrow strip. The title area sits above the text and
+spec, its public view and a version's full view all wear the same one. The text column is a fixed
+**720px** (45rem) reading width at every tier — the same width as a prose page or a settings form —
+centred in the room the layout has; a narrower layout gives it the whole width. The title area sits above the text and
 what follows it — sub-pages, the page's own comments — below, in the same column. Before the text,
 in its gutter, a contents rail; after it, when there is room, a comment margin.
 
 The layout follows its **own width**, not the window's (container queries in rem), so a collapsed
 sidebar or a split view lands in the right tier:
 
-| Tier | Width     | Gutters | Text                     | Contents                 | Comments                    |
-| ---- | --------- | ------- | ------------------------ | ------------------------ | --------------------------- |
-| S    | < 40rem   | 0       | the full width           | the host's menu or sheet | the host's sheet or popover |
-| M    | 40–64rem  | 3rem    | max(36rem, 75%)          | the rail, in the gutter  | a popover at the highlight  |
-| L    | 64–90rem  | 3rem    | clamp(40rem, 75%, 52rem) | the rail, in the gutter  | the margin (20rem)          |
-| XL   | 90–120rem | 4rem    | 60rem                    | the rail, in the gutter  | the margin (24rem)          |
-| 2XL  | ≥ 120rem  | 4rem    | 64rem                    | the rail, in the gutter  | the margin (24rem)          |
+| Tier | Width     | Gutters | Text                   | Contents                 | Comments                    |
+| ---- | --------- | ------- | ---------------------- | ------------------------ | --------------------------- |
+| S    | < 40rem   | 0       | the full width         | the host's menu or sheet | the host's sheet or popover |
+| M    | 40–64rem  | 3rem    | 720px, or what is left | the rail, in the gutter  | a popover at the highlight  |
+| L    | 64–90rem  | 3rem    | 720px                  | the rail, in the gutter  | the margin (20rem)          |
+| XL   | 90–120rem | 4rem    | 720px                  | the rail, in the gutter  | the margin (24rem)          |
+| 2XL  | ≥ 120rem  | 4rem    | 720px                  | the rail, in the gutter  | the margin (24rem)          |
 
-At the document type scale (14px Geist) that is about 94 characters a line at M's 36rem, 128 at
-L's 52rem, 150 at XL and 161 at 2XL; the 24px line height carries the longer lines.
+Inside a record page ([`RecordLayout`](/docs/components/record-layout)) whose side panel docks,
+the layout narrows and the 720px text re-centres in the room that is left, sliding to the start;
+the contents rail keeps its gap before the text and the comment margin its place after it.
 
 The tier bounds are the system's layout tiers — `tablet` 40rem, `laptop` 64rem, `wide` 90rem
 (`LAYOUT_TIERS` in `page-layout`) — plus a document-only 120rem step.
