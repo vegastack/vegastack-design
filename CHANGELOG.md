@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.109.3] — November 17, 2026
+
+<!-- assembled from 1 changeset: d2e7909e7404 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.109.2 → 0.109.3.
+
+### 🐛 Fixed
+
+- Command rows no longer keep an empty 24px slot at their end for a checkmark they never show. The slot is now opt-in: a checkable list passes `data-checked` (`"true"` or `"false"`) on its rows, as `PeoplePicker` does, so its checks still line up. A plain row's trailing text, such as the search palette's type and id, now reaches the row's end.
+  [`6f7cea7`](https://github.com/VegaStack/vegastack-design/commit/6f7cea7)
+
 ## [0.109.2] — November 17, 2026
 
 <!-- assembled from 1 changeset: 08a3279cd415 -->

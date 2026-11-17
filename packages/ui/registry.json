@@ -1485,7 +1485,7 @@
       "meta": {
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
-        "version": "0.107.0"
+        "version": "0.109.3"
       }
     },
     {
@@ -14585,7 +14585,7 @@
       "meta": {
         "whenToUse": "Choose a person (assignee, owner, manager) or several people and teams (members of a team or space, a share invite), or filter by person — every people picker.",
         "whenNotToUse": "Type free-form tokens such as emails (ChipInput), or pick non-person records (SearchableSelect).",
-        "version": "0.107.0"
+        "version": "0.109.3"
       }
     },
     {

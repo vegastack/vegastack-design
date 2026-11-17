@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.109.3
+
+### Patch Changes
+
+- [#1026](https://github.com/vegastack/vegastack-design/pull/1026) [`6f7cea7`](https://github.com/vegastack/vegastack-design/commit/6f7cea71725eb7035a59d272fb7e3752f6d5774e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Command rows no longer keep an empty 24px slot at their end for a checkmark they never show. The slot is now opt-in: a checkable list passes `data-checked` (`"true"` or `"false"`) on its rows, as `PeoplePicker` does, so its checks still line up. A plain row's trailing text, such as the search palette's type and id, now reaches the row's end.
+
 ## 0.109.2
 
 ### Patch Changes
