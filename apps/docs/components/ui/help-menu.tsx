@@ -1,14 +1,8 @@
-// @vegastack help-menu@0.100.0 sha256-qXZkxAHkNAq3FvTIZVDETstXvmgd5991bh/BXPzb5BE=
+// @vegastack help-menu@0.100.0 sha256-bQlnHl01Bba2TXjlwhP1K9UQ4pVUfAfAjzxHLZmSzW8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import {
-  BookOpen,
-  CircleHelp,
-  Keyboard,
-  LifeBuoy,
-  Sparkles,
-} from "lucide-react";
+import { BookOpen, Keyboard, LifeBuoy, Sparkles } from "lucide-react";
 
 import {
   DropdownMenu,
@@ -20,16 +14,14 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { NotificationDot } from "@/components/ui/notification-bell";
-import { SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar";
+import { NotificationDot } from "@/components/ui/notification-dot";
 
 /* ---
 `HelpMenu` is the one place to learn the product: What's new, the docs, the keyboard
-shortcuts and support, plus the build version, behind one sidebar-footer item. In the
-collapsed rail it is an icon with a tooltip, and the What's new dot moves onto the icon.
+shortcuts and support, plus the build version, behind one item in the shell's rail footer.
 
-It composes `SidebarMenuItem` + `SidebarMenuButton` as a `DropdownMenu` trigger and
-renders nothing of its own beyond the entries. Every entry is optional, and each is a link
+The trigger is yours — a `ShellRailItem`, with the What's new dot on its icon — rendered as
+the `DropdownMenu` trigger; the menu renders nothing of its own beyond the entries. Every entry is optional, and each is a link
 (`href`, rendered through `linkRender` — your router's `Link`) or an action (`onSelect`,
 say opening the shortcuts overlay). Framework-agnostic: no router import.
 --- */
@@ -72,8 +64,8 @@ export interface HelpMenuProps {
     support?: HelpMenuLink;
   };
   /**
-   * Something new to read: What's new and the trigger carry the unread dot, and both say
-   * `unreadLabel` to assistive technology.
+   * Something new to read: What's new carries the unread dot and says `unreadLabel` to assistive
+   * technology; give your trigger the same dot.
    * @default false
    */
   whatsNewUnread?: boolean;
@@ -89,12 +81,8 @@ export interface HelpMenuProps {
    */
   linkRender?: React.ReactElement;
   /**
-   * The trigger's text, and its tooltip in the collapsed rail.
-   * @default "Help"
-   */
-  label?: string;
-  /**
-   * What the unread dot means, spoken after the trigger's and What's new's names.
+   * What the unread dot means, spoken after What's new's name (give your trigger's dot the same
+   * words).
    * @default "new updates"
    */
   unreadLabel?: string;
@@ -104,13 +92,11 @@ export interface HelpMenuProps {
    */
   shortcutsHint?: React.ReactNode;
   /**
-   * Your own trigger in place of the sidebar row — a `ShellRailItem` in the shell's rail
+   * The trigger: a `ShellRailItem` in the shell's rail footer
    * (`<ShellRailItem icon={<CircleHelp />} label="Help" dot={unread ? "new updates" : undefined} />`).
-   * It is rendered through the menu trigger, so it owns its icon, label and dot; the menu is the
-   * same. Omitted, the trigger is the sidebar row.
-   * @default undefined
+   * It is rendered through the menu trigger, so it owns its icon, label and dot.
    */
-  trigger?: React.ReactElement;
+  trigger: React.ReactElement;
   /**
    * Where the menu opens beside the trigger.
    * @default "top"
@@ -163,34 +149,31 @@ function linkElement(
 }
 
 /**
- * `HelpMenu` — the sidebar-footer Help item: one menu with What's new (marked with a dot while
- * `whatsNewUnread`), Docs, Keyboard shortcuts and Contact support, and the build version at its
- * foot. In the collapsed rail it is the help icon with a tooltip, the dot sitting on the icon.
- * Place it inside a `SidebarMenu` in `SidebarFooter`.
+ * `HelpMenu` — the Help item in the shell's rail footer: one menu with What's new (marked with a
+ * dot while `whatsNewUnread`), Docs, Keyboard shortcuts and Contact support, and the build
+ * version at its foot. The trigger is a `ShellRailItem` you pass, with the dot on its icon.
  *
  * @example
- * <SidebarFooter>
- *   <SidebarMenu>
- *     <HelpMenu
- *       whatsNewUnread={unread}
- *       version="v1.8.21"
- *       linkRender={<Link href="" />}
- *       links={{
- *         whatsNew: { href: "/docs/whats-new" },
- *         docs: { href: "/docs" },
- *         shortcuts: { onSelect: () => setShortcutsOpen(true) },
- *         support: { href: "mailto:support@example.com" },
- *       }}
- *     />
- *   </SidebarMenu>
- * </SidebarFooter>
+ * <ShellRailFooter>
+ *   <HelpMenu
+ *     trigger={<ShellRailItem icon={<CircleHelp />} label="Help" dot={unread ? "new updates" : undefined} />}
+ *     whatsNewUnread={unread}
+ *     version="v1.8.21"
+ *     linkRender={<Link href="" />}
+ *     links={{
+ *       whatsNew: { href: "/docs/whats-new" },
+ *       docs: { href: "/docs" },
+ *       shortcuts: { onSelect: () => setShortcutsOpen(true) },
+ *       support: { href: "mailto:support@example.com" },
+ *     }}
+ *   />
+ * </ShellRailFooter>
  */
 export function HelpMenu({
   links = {},
   whatsNewUnread = false,
   version,
   linkRender,
-  label = "Help",
   unreadLabel = "new updates",
   shortcutsHint = "?",
   side = "top",
@@ -202,31 +185,7 @@ export function HelpMenu({
   const unread = whatsNewUnread && links.whatsNew !== undefined;
   const menu = (
     <DropdownMenu>
-      {trigger ? (
-        <DropdownMenuTrigger render={trigger} data-slot="help-menu-trigger" />
-      ) : (
-        <DropdownMenuTrigger
-          render={
-            <SidebarMenuButton
-              tooltip={unread ? `${label} (${unreadLabel})` : label}
-            />
-          }
-          data-slot="help-menu-trigger"
-        >
-          <CircleHelp aria-hidden />
-          <span>{label}</span>
-          {unread ? (
-            <>
-              {/* Beside the label when expanded; on the icon's corner in the collapsed rail. */}
-              <NotificationDot
-                data-slot="help-menu-dot"
-                className="ms-auto group-data-[collapsible=icon]:absolute group-data-[collapsible=icon]:end-1 group-data-[collapsible=icon]:top-1"
-              />
-              <span className="sr-only"> ({unreadLabel})</span>
-            </>
-          ) : null}
-        </DropdownMenuTrigger>
-      )}
+      <DropdownMenuTrigger render={trigger} data-slot="help-menu-trigger" />
       <DropdownMenuContent
         data-slot="help-menu-content"
         side={side}
@@ -281,15 +240,9 @@ export function HelpMenu({
       </DropdownMenuContent>
     </DropdownMenu>
   );
-  if (trigger)
-    return (
-      <div data-slot="help-menu" className={cn("contents", className)}>
-        {menu}
-      </div>
-    );
   return (
-    <SidebarMenuItem data-slot="help-menu" className={className}>
+    <div data-slot="help-menu" className={cn("contents", className)}>
       {menu}
-    </SidebarMenuItem>
+    </div>
   );
 }

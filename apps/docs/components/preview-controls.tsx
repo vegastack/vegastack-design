@@ -72,10 +72,7 @@ function usePreviewControls() {
  * chrome degrades to its unconstrained layout.
  *
  * Because the frame toggle constrains a CONTAINER, not the viewport, a viewport-driven component
- * (e.g. `Sidebar`'s `useIsMobile` media query) cannot see it, and since Batch 5 of the shadcn reset
- * no component takes a breakpoint override to force the branch — upstream's `SidebarProvider` reads
- * one fixed 768px query. So a demo that wants to show the mobile rail asks the reader to narrow the
- * BROWSER; this hook is for chrome that can genuinely follow a container width.
+ * cannot see it; this hook is for chrome that can genuinely follow a container width.
  */
 export function usePreviewFrameWidth(): FrameWidth {
   return React.useContext(PreviewControlsContext)?.width ?? "full";

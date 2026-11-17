@@ -375,7 +375,6 @@ const UPSTREAM_IMPORTANT =
   "upstream verbatim (vendor/shadcn/4.21.0) — overrides an equal-specificity declaration of a composed part; byte parity holds it";
 const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
   ["/ui/command.tsx", { count: 6, rationale: UPSTREAM_IMPORTANT }],
-  ["/ui/sidebar.tsx", { count: 3, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/menubar.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/badge.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/button-group.tsx", { count: 2, rationale: UPSTREAM_IMPORTANT }],
@@ -595,14 +594,6 @@ const RAW_INTERACTIVE_EXEMPTIONS = new Map([
       counts: { button: 1 },
       rationale:
         "row activation control preserves table semantics \u2014 the sort header composes Button through the shared table parts",
-    },
-  ],
-  [
-    "registry/ui/sidebar.tsx",
-    {
-      counts: { button: 1 },
-      rationale:
-        "`SidebarRail`, the collapse strip along the rail's edge — upstream's own raw <button>, and the one control here no VegaStack component substitutes for: it is a 16px full-height hit strip with no label, no icon and no text, `tabIndex={-1}` by design, and a Button at any size would paint a box where the design wants an invisible seam. Batch 5 of the shadcn reset put this file on upstream's source, which dropped the count from 2 to 1: `SidebarMenuButton`'s fallback is now `useRender`'s, not a literal <button>, and `SidebarTrigger` composes Button.",
     },
   ],
   [

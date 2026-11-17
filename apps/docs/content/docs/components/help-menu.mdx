@@ -1,11 +1,11 @@
 ---
 title: Help Menu
-description: The sidebar-footer Help item — What's new with an unread dot, Docs, Keyboard shortcuts, support and the version, in one menu.
+description: The Help item in the shell's rail footer — What's new with an unread dot, Docs, Keyboard shortcuts, support and the version, in one menu.
 audience: public
 registry: help-menu
 status: stable
 since: 0.25.89
-a11y: menu button; unread in the name; rail tooltip
+a11y: menu button; unread in the name
 preview: helpMenu
 ---
 
@@ -19,81 +19,59 @@ preview: helpMenu
 "use client";
 
 import Link from "next/link";
+import { CircleHelp } from "lucide-react";
 import { HelpMenu } from "@/components/ui/help-menu";
-import { SidebarFooter, SidebarMenu } from "@/components/ui/sidebar";
+import { ShellRailFooter, ShellRailItem } from "@/components/ui/shell";
 
-export function AppSidebarFooter({ unread, openShortcuts }: Props) {
+export function RailFooter({ unread, openShortcuts }: Props) {
   return (
-    <SidebarFooter>
-      <SidebarMenu>
-        <HelpMenu
-          whatsNewUnread={unread}
-          version="v1.8.21"
-          linkRender={<Link href="" />}
-          links={{
-            whatsNew: { href: "/docs/whats-new" },
-            docs: { href: "/docs" },
-            shortcuts: { onSelect: openShortcuts },
-            support: { href: "mailto:support@example.com", external: true },
-          }}
-        />
-      </SidebarMenu>
-    </SidebarFooter>
+    <ShellRailFooter>
+      <HelpMenu
+        side="right"
+        trigger={
+          <ShellRailItem
+            icon={<CircleHelp />}
+            label="Help"
+            dot={unread ? "new updates" : undefined}
+          />
+        }
+        whatsNewUnread={unread}
+        version="v1.8.21"
+        linkRender={<Link href="" />}
+        links={{
+          whatsNew: { href: "/docs/whats-new" },
+          docs: { href: "/docs" },
+          shortcuts: { onSelect: openShortcuts },
+          support: { href: "mailto:support@example.com", external: true },
+        }}
+      />
+    </ShellRailFooter>
   );
 }
 ```
 
 Learning the product is one job — what changed, how something works, which keys do what, who to
-ask — so it gets one item, at the foot of the sidebar. A dot on "Docs" does not say "something
-changed"; here What's new carries the dot, and so does the Help item itself until it is read.
+ask — so it gets one item, at the foot of the shell's rail. A dot on "Docs" does not say
+"something changed"; here What's new carries the dot, and so does the Help item itself until it is
+read.
 
 ## Scope
 
-- Owns: the trigger (label, icon, unread dot, rail tooltip), the four entries in a fixed order,
-  their icons and default labels, the shortcut hint and the version line.
-- Does not own: routing — link entries render through `linkRender` — the unread state, which the
-  host computes, or the shortcuts overlay, which an action entry opens (`ShortcutOverlay`).
-- Compose with: `SidebarFooter` and `SidebarMenu`; extra `DropdownMenuItem`s go in as children,
-  after Contact support.
+- Owns: the four entries in a fixed order, their icons and default labels, the What's new dot,
+  the shortcut hint and the version line.
+- Does not own: the trigger — a `ShellRailItem` you pass, with its icon, label and dot — routing
+  (link entries render through `linkRender`), the unread state, which the host computes, or the
+  shortcuts overlay, which an action entry opens (`ShortcutOverlay`).
+- Compose with: [`Shell`](/docs/components/shell)'s `ShellRailFooter`; extra `DropdownMenuItem`s go
+  in as children, after Contact support.
 
 ## Examples
 
-### In the sidebar
-
 Every entry is optional and is either a link (`href`, rendered through `linkRender`, `external`
 for a new tab) or an action (`onSelect`). Omit an entry and it is not shown. `whatsNewUnread`
-puts the dot on What's new and on the trigger, and adds "(new updates)" to both names.
+puts the dot on What's new and adds "(new updates)" to its name; give the trigger the same `dot`.
 
 <ComponentPreview name="helpMenu" file="components/preview/help-menu.tsx" />
-
-### In the collapsed rail
-
-In an icon-collapsed sidebar the item is the help icon with a "Help" tooltip, and the unread dot
-moves onto the icon's corner.
-
-<ComponentPreview name="helpMenuRail" file="components/preview/help-menu.tsx" />
-
-### In the shell's rail
-
-In a [`Shell`](/docs/components/shell) the footer's items are rail items, so pass your own
-`trigger`: a `ShellRailItem` whose `dot` says what the dot means. The menu is the same.
-
-```tsx
-<ShellRailFooter>
-  <HelpMenu
-    links={links}
-    whatsNewUnread={unread}
-    side="right"
-    trigger={
-      <ShellRailItem
-        icon={<CircleHelp />}
-        label="Help"
-        dot={unread ? "new updates" : undefined}
-      />
-    }
-  />
-</ShellRailFooter>
-```
 
 ## API Reference
 
@@ -115,7 +93,6 @@ Each entry:
 
 - The trigger is a menu button named by its label; while there is something new its name is
   "Help (new updates)", and What's new says the same — the dot itself is decorative.
-- In the collapsed rail the trigger keeps its name and shows it as a tooltip.
 - The version line is a menu label, not an item, so the arrow keys skip it.
 
 | Key                                 | Action                         |

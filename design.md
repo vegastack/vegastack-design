@@ -1193,7 +1193,7 @@ likely to creep back on a future pull, so it has a machine check:
 `design-lint`'s **`no-focus-ring-glow`** rejects `ring-3`, `ring-[3px]`, `ring-ring/NN`,
 `focus:`/`focus-visible:ring-*`, `focus-visible:outline-*`, `aria-invalid:ring-*` and a focus-variant
 `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`, so no ring creeps back.
-A **resting** `0 0 0 1px` hairline — upstream's outline `SidebarMenuButton` draws one — is not a
+A **resting** `0 0 0 1px` hairline — a border technique — is not a
 glow and is accepted; the structural self-test observes both halves.
 
 ### 2. Cursor and touch
@@ -1206,9 +1206,8 @@ and command rows is patched out. `touch-action: manipulation` and no tap-highlig
 is no 300ms delay and no grey flash on mobile (INT-7). The grab cursor appears only where a pointer
 drag can actually start — never under `readOnly`, `dragDisabled`, or below the breakpoint where the
 "Move to…" menu is the only path (INT-9). A global shortcut ignores an editable target (input,
-textarea, select, contenteditable) and an event already `defaultPrevented`, and can be switched off:
-the sidebar's Mod+B reads `isEditableTarget` from `use-platform` and takes `keyboardShortcut`
-(default `"b"`, `false` disables it) (INT-11). On a mouse or trackpad (`pointer: fine`) the page never
+textarea, select, contenteditable) and an event already `defaultPrevented` — `isEditableTarget` from
+`use-platform` — and can be switched off (INT-11). On a mouse or trackpad (`pointer: fine`) the page never
 rubber-bands at its vertical edge and an inner scroller at its end does not chain into the page
 (`overscroll-behavior-y: none` on `html, body`); horizontal stays free for swipe back/forward, and
 touch keeps pull-to-refresh (INT-12). On a touch pointer (`pointer: coarse`) every text-entry control
@@ -1230,8 +1229,8 @@ FRM-4 · FRM-15`
   fail-closed gate (`tooling/contrast-check.mjs`, with its own `--self-test`).
 - **A11Y-2** — target size ≥24px through an **invisible** hit area, verified with a real
   `elementFromPoint` probe rather than `getComputedStyle`. Measured per case, at every width:
-  upstream grows `SidebarMenuAction` with `after:-inset-2` and then switches it off again at `md`,
-  which a 320px-only sweep cannot see.
+  an upstream part that grows its hit area at one width and switches it off at another is only
+  caught by a sweep at every width.
 - **A11Y-24** (MK, 2026-10-14) — on a touch pointer every `Button` size answers a tap 44×44: a
   `pointer-coarse:` `::after` hit area, inset per size from the padding box, so nothing moves
   visually. It never grows into an interactive neighbour — beside a sibling control that side stays
@@ -1284,12 +1283,8 @@ FRM-4 · FRM-15`
   does not — Base UI's Slider keeps the real `<input type=range>` visually hidden, so `role="slider"`
   is anonymous in every composition; Combobox's toggle, clear and chip-remove are icon-only buttons —
   the patch supplies it.
-- **A11Y-17** — a sidebar count is part of its control's name: `SidebarMenuButton` takes
-  `badge`/`badgeLabel`, the name reads "{label} {badgeLabel}" through a comma-free `sr-only` suffix
-  (in the collapsed tooltip too), and the visual `SidebarMenuBadge` is `aria-hidden`. The A11Y-5
-  separator is not used here, because accname would read "{label} , {badgeLabel}".
-- **A11Y-18** — an active nav link carries `aria-current="page"`: `SidebarMenuButton` sets it when
-  `isActive` and it renders a link; a button never gets it.
+- **A11Y-17**, **A11Y-18** — superseded with `sidebar` (2026-11-17): a rail item's count is part of
+  its name and the current module carries `aria-current="page"` (`ShellRailItem`, LAY-22).
 - **A11Y-19** — Checkbox's mixed state has its own glyph: a minus replaces the check.
 - **A11Y-20** — `orientation` reaches the Base UI root on Tabs and ToggleGroup, so
   `aria-orientation` and the arrow keys follow a vertical list.
@@ -1340,8 +1335,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
   `motion-reduce:` restatement of it is a violation (MOT-5). Keyed-presence utilities
-  `motion-pop-in` / `motion-enter-up` / `motion-shake` / `motion-flash` plus `useAnimationReplay`
-  (MOT-6); docked-presence `motion-dock-in` / `motion-dock-out`, 150ms in on `emphasized` and 100ms
+  `motion-pop-in` / `motion-enter-up` / `motion-shake` / `motion-flash` (MOT-6); docked-presence `motion-dock-in` / `motion-dock-out`, 150ms in on `emphasized` and 100ms
   out on `exit`, no scale, an exit never slower than its enter (MOT-7). Excluded by design and not to
   be added speculatively: avatar hover-lift, card tilt, FAB morph (MOT-13). The chat motion set
   (MOT-14) is the one cadence for agent UI — `instant` 100, `quick` 160/120, `state` 220/160,
@@ -1383,25 +1377,17 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   to the bot. In a stack or an `AgentStateRing`, a hexagon's gap and ring follow the hexagon.
 - **Layout** (LAY-9…LAY-16) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
-  edge-pinned surfaces, `dvh` over `vh`, `svh` only for the sidebar; truncation is `min-w-0` on the
-  flex child with `truncate` on an inner span, never both on one element; `Shell` owns the landmarks,
-  the skip link and the content container. **The `<nav>` landmark lives inside the rail**:
-  upstream's `Sidebar` is divs by design and renders two different trees, so there is no single
-  element a role can ride through both. The collapsed state survives a static first paint:
-  `SidebarStateScript` in `<head>` reads the cookie, marks `<html>` with `data-sidebar-state` and
-  gives the desktop panel its collapsed `data-state` before hydration, and `useSidebarCookieOpen`
-  reads and writes the cookie for a controlled provider (LAY-13). A line tab list scrolls inside
+  edge-pinned surfaces, `dvh` over `vh`; truncation is `min-w-0` on the flex child with `truncate`
+  on an inner span, never both on one element; `Shell` owns the landmarks, the skip link and the
+  content container, and `ShellStateScript` sets the column and panel state before the first paint
+  (LAY-22). A line tab list scrolls inside
   itself, with edge fades and the active trigger kept in view — `TabsList overflow="scroll"`, the
   default for `variant="line"` (LAY-14). `AlertAction` takes its own top-aligned grid column and
   drops below the text under `@md`, so it never overlaps the title (LAY-15). Skeleton widths cycle by
   index, never `Math.random()`, so server and client markup agree (LAY-16). Menu rows take `min-w-0`, so a
-  row in a grid or narrow column truncates its label (LAY-18), and a large sidebar row centres its content in
-  the icon rail (LAY-19) — two deliberate deviations MK approved (31-10-2026) so an app needs no class on
-  these shadcn-copied parts; a shadcn refresh keeps them. A sidebar list that scrolls says so (LAY-21,
-  operator 03-11-2026): `scroll-fade-y` fades only the edge with more, the footer casts a soft top shadow
-  while items sit under it, a fine pointer's hover adds a ⌃/⌄ page button on that side and a thin
-  scrollbar; nothing shows when the list fits, in the icon rail, and the phone drawer keeps only the fades
-  and the shadow. The app shell's regions — a 64px labelled rail, a 240px module column, a 48px top bar every title
+  row in a grid or narrow column truncates its label (LAY-18) — a deliberate deviation MK approved
+  (31-10-2026) so an app needs no class on these shadcn-copied parts; a shadcn refresh keeps it
+  (LAY-19 and LAY-21, the sidebar's icon-rail row and scroll cues, went with `sidebar`). The app shell's regions — a 64px labelled rail, a 240px module column, a 48px top bar every title
   row shares, the page, a 420px right panel and a 56px phone bar — take their sizes from the `--shell-*`
   tokens, and one rule places the panel: beside the page while the page keeps its minimum width, else the
   column folds first, else the panel slides over the page, full screen on phones (LAY-22). The
@@ -1502,7 +1488,7 @@ line when its file is next touched, never in a drive-by rename.
 | Default copy            | Every rendered string is an overridable `<action>Label` (or `…Message`) prop with a sentence-case default; a `labels` object only past about six strings. Progress text and search placeholders end with the ellipsis character; a one-line state has no full stop.                                                                                                                                                      |
 | Settled value           | `onValueCommitted` — Base UI's word.                                                                                                                                                                                                                                                                                                                                                                                     |
 | Counts in controls      | The visible count plus an `sr-only` suffix inside the control's accessible name; the visual badge is `aria-hidden`. A new prop that supplies the host noun is `countLabel?: (n) => string` (or `badgeLabel` for a fixed string). A `Badge` shows a count only for unread or attention.                                                                                                                                   |
-| Headings                | Page: `font-heading text-2xl font-semibold`, through `PageHeader`. Section `h2`: `font-heading text-base font-medium` (a plain `h2` with those utilities, or `CardTitle`; the `SettingsSection` title is the same size and weight). Group label: `text-xs font-medium text-muted-foreground` (table section rows, Board lanes; `SidebarGroupLabel` keeps the sidebar's own ink).                                         |
+| Headings                | Page: `font-heading text-2xl font-semibold`, through `PageHeader`. Section `h2`: `font-heading text-base font-medium` (a plain `h2` with those utilities, or `CardTitle`; the `SettingsSection` title is the same size and weight). Group label: `text-xs font-medium text-muted-foreground` (table section rows, Board lanes).                                                                                          |
 | Numbers                 | Counts, dates, amounts and quantities are the regular font with `tabular-nums`; `font-mono` is for code and identifiers only (TYP-10).                                                                                                                                                                                                                                                                                   |
 | Announcements           | `useAnnouncer` for events; the engine's own region where it ships one (Base UI's `Combobox.Status`, the toast viewport); a persistent status that is the component's own content may be `role="status"`.                                                                                                                                                                                                                 |
 | Slots                   | `data-slot` on every part, prefixed with the exported component's kebab-case name; a container-query name is the slot name.                                                                                                                                                                                                                                                                                              |
@@ -1518,7 +1504,7 @@ async-write status (→ one shared shape).
 
 **Differences in upstream components** do not follow this table — each would need its own decision
 row, so they are listed only so nobody copies them into a component we own: `md` on
-`SidebarMenuSubButton`, a physical `side` on `Sheet` and `Sidebar`, three option-row recipes across
+a physical `side` on `Sheet`, three option-row recipes across
 `Select`, `Combobox` and `Command`, and `ComboboxChip` rendering Base UI's own chip rather than
 `Chip`.
 

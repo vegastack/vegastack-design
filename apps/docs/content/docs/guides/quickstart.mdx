@@ -224,11 +224,11 @@ pnpm dlx shadcn@4.21.0 add @vegastack/shell-01
 ```
 
 This is a `registry:block`: it copies a complete signed-in page
-(`app/shell-01/page.tsx` + its `components/`) plus its full component dependency
-graph (Shell, Avatar, Button, hooks, …) in one shot. Unlike components, a block is a
-**starter you own from day one** — edit the page freely; it is not update-tracked.
-(A common first adaptation is moving the shell into a shared `app/(app)/layout.tsx`
-so child routes keep the rail.)
+(`app/shell-01/page.tsx` + its `components/tasks.ts`) plus its full component
+dependency graph (Shell, Avatar, Button, hooks, …) in one shot. Unlike components, a
+block is a **starter you own from day one** — edit the page freely; it is not
+update-tracked. (A common first adaptation is moving the shell into a shared
+`app/(app)/layout.tsx` so child routes keep the rail.)
 
 ```bash
 pnpm dev

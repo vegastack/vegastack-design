@@ -52,16 +52,15 @@ window:
 | 1024px–1919px | 32px            |
 | 1920px up     | 48px            |
 
-`RecordLayoutRail` sticks `--page-gutter` below the top of the scroll container — the gap it
-already has at rest — so it never moves when it starts to stick. `ShellBleed` takes a grid or canvas past the gutter to the page's edges, and `ShellSection` gives a
+`ShellBleed` takes a grid or canvas past the gutter to the page's edges, and `ShellSection` gives a
 region of a page its own measure — both without a width class of their own.
 
 ## Small screens
 
 - **Phone** — the rail gives way to the bottom bar and the column opens as a sheet, so the page
   has the whole width. The gutter steps to 16px.
-- **Record pages** — below 1024px of the record layout's own width, the rail is hidden and the
-  **ⓘ** button beside the title (`RecordDetailsSheet`) opens the same details in a sheet.
+- **Record pages** — a record's details open in the shell panel's Details tab, never a rail inside
+  the page.
 - **Boards** — a `full` page keeps its horizontal scroll inside the board, never on the page.
 
 ## One route map
@@ -118,6 +117,6 @@ state's width (`size={board ? "full" : "default"}`); the map holds its resting w
 ## Related
 
 - [Shell](/docs/components/shell) — `ShellPage`, `ShellTopBar` and the shell.
-- [Record Layout](/docs/components/record-layout) — the rail and the ⓘ details sheet.
+- [Record Layout](/docs/components/record-layout) — a record page's one column.
 - [Spacing](/docs/foundations/spacing) — the page rhythm inside the page.
 - [Board](/docs/blocks/board-01) — a `full` page.

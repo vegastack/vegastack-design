@@ -6226,7 +6226,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
   [docs](https://design.vegastack.com/docs/components/audio-player) ·
   [`10f8d06`](https://github.com/VegaStack/vegastack-design/commit/10f8d06)
 - **NotificationBell** exports `NotificationDot`, the one unread dot for rows, inbox items and nav items (`intent` `default` or `destructive`, decorative), and its dot mode now draws it: **the dot's default intent changes from destructive to primary**, and its `data-slot` is `notification-bell-dot` (the count pill keeps `notification-bell-badge`). A new `countLabel` words the count in the accessible name ("Notifications, 3 unread" by default). **usePlatform** now exports `formatShortcutKey` and `formatShortcut`, which turn `"mod"` into ⌘ on macOS and Ctrl elsewhere; **ShortcutOverlay** uses them and renders the same key labels as before.
-  [docs](https://design.vegastack.com/docs/components/notification-bell) · [docs](https://design.vegastack.com/docs/components/shortcut-overlay) ·
+  [docs](https://design.vegastack.com/docs/components/shortcut-overlay) ·
   [`10f8d06`](https://github.com/VegaStack/vegastack-design/commit/10f8d06)
 - Board lanes show their total as a muted count, lanes and cards have names, and cards can be links. The lane count is now muted `tabular-nums` text instead of a `Badge`, and it shows `count` (the lane's total) when the lane has loaded only some of its cards. [docs](https://design.vegastack.com/docs/components/board)
 
@@ -6283,7 +6283,7 @@ file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
 - Sixteen upstream-backed components gain the facelift fixes: counts and current page read correctly in the sidebar, two-line rows link their description, overlays get sizes and scrolling bodies, and built-in copy is sentence case.
 
-  - **Sidebar**: `SidebarMenuButton` takes `badge`/`badgeLabel`, so the count is part of the item's name and the visual badge is `aria-hidden`. An active link carries `aria-current="page"`. The trigger reads "Toggle sidebar" (`triggerLabel`). Mod+B ignores text fields and takes `keyboardShortcut` (`false` turns it off). Skeleton widths are deterministic. `SidebarStateScript` and `useSidebarCookieOpen` keep a collapsed sidebar collapsed on a static shell's first paint, and a controlled provider writes no cookie. [docs](https://design.vegastack.com/docs/components/sidebar)
+  - **Sidebar**: `SidebarMenuButton` takes `badge`/`badgeLabel`, so the count is part of the item's name and the visual badge is `aria-hidden`. An active link carries `aria-current="page"`. The trigger reads "Toggle sidebar" (`triggerLabel`). Mod+B ignores text fields and takes `keyboardShortcut` (`false` turns it off). Skeleton widths are deterministic. `SidebarStateScript` and `useSidebarCookieOpen` keep a collapsed sidebar collapsed on a static shell's first paint, and a controlled provider writes no cookie.
   - **Item**: a link or button row inside `ItemGroup` keeps its own role, and a `listitem` wrapper takes the list role. New `ItemGroupLabel` names the group. [docs](https://design.vegastack.com/docs/components/item)
   - **Command**: `CommandDialog` takes `size`; new `CommandLoading` and `CommandFooter`; two-line results; `resultsLabel`. Default copy is "Command palette" and "Search for a command…". [docs](https://design.vegastack.com/docs/components/command)
   - **Select**, **Combobox**, **DropdownMenu**, **ContextMenu** and **Menubar**: a two-line row (`ItemTitle` + `ItemDescription`) reads its second line as the row's description, which is where a disabled row gives its reason. [docs](https://design.vegastack.com/docs/components/dropdown-menu)
@@ -8279,8 +8279,9 @@ beside it>`, which is the form `version-sync` writes. The gate keeps failing on 
   `useAnimationReplay` when the count rises after mount **and** the badge visibly changes — so it never
   fires on mount, never on a re-render, and never for 100 → 101 (both read `"99+"`). The `Timeline`
   hero fixture, which sat under the 24px pointer-target floor, is lifted off it.
-  [docs](https://design.vegastack.com/docs/components/notification-bell) ·
+
   [`8c18d2b`](https://github.com/VegaStack/vegastack-design/commit/8c18d2b)
+
 - **tiptap 3.31.3 loaded `prosemirror-model` twice, and TextEdit's suite died on it.**
   `@tiptap/pm@3.31.3` declares `prosemirror-model` directly and resolved to 1.25.11, while its siblings
   stayed on the 1.25.9 the pre-bump lockfile already carried — `pnpm install` only re-resolves what it
@@ -8829,8 +8830,9 @@ add` removes a JS/TS file's entire leading comment prologue as it writes it, for
   [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
 - **Sidebar** — the desktop sidebar and its footer now stay pinned to the viewport while page and
   navigation content scrolls.
-  [docs](https://design.vegastack.com/docs/components/sidebar) ·
+
   [`334cb4c`](https://github.com/VegaStack/vegastack-design/commit/334cb4c)
+
 - **Switch** — the invalid state no longer applies a destructive track border; `aria-invalid`
   remains the semantic cue and the wrapping Field owns the error message. Consumer-visible restyle.
   [docs](https://design.vegastack.com/docs/components/switch) ·

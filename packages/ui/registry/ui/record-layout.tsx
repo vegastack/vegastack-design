@@ -1,202 +1,54 @@
-// @vegastack record-layout@0.100.0 sha256-dIYKe5NW9Q5WgVxJiHszFOj8x2net6FK33ltOKnPMeY=
-
-"use client";
+// @vegastack record-layout@0.100.0 sha256-U85ZgGZZbrMTnEycmbtWiHHKQoXL6YS4oaN9g4KASd4=
 
 import * as React from "react";
-import { Info } from "lucide-react";
 import { cn } from "@vegastack/design";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Sheet,
-  SheetBody,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 
 /* ------------------------------------------------------------------------------------------------
- * RecordLayout — a record page's two columns: the main column (title, status, tabs) and a sticky
- * right rail of cards (properties, related work) that scrolls on its own when it is taller than the
- * viewport. Below that the rail is hidden and `RecordDetailsSheet` — an ⓘ icon button beside the
- * title — opens the same details in a Sheet from the right (full screen on a phone). Server-safe:
- * the switch is CSS, so both branches may be mounted; mount rail content once (with your own
- * `useMediaQuery`) when it holds state that must not be duplicated.
+ * RecordLayout — a record page's main column: the title, the status, the tabs and their panels.
+ * A record's details (properties, related work) are not a rail inside the page: they open in the
+ * shell's panel beside it (shell layout L7), so the page stays one column at every width.
+ * Server-safe.
  * ----------------------------------------------------------------------------------------------*/
 
-/** Props for `RecordLayout`. */
-export interface RecordLayoutProps extends React.ComponentPropsWithRef<"div"> {
-  /**
-   * Below the 64rem layout width, flow the rail under the main column instead of hiding it: one
-   * column, the rail full width in ordinary flow — not sticky, no scroller of its own — so the
-   * page has one scroller and `RecordDetailsSheet` is not needed (mount the rail always). From
-   * 64rem it is the normal sticky rail beside the main column.
-   * @default false
-   */
-  stack?: boolean;
-}
-
-/** Whether the enclosing `RecordLayout` stacks (`stack`), read by its main column and rail. */
-const RecordLayoutStackContext = React.createContext(false);
+/** Native container props for `RecordLayout`. */
+export type RecordLayoutProps = React.ComponentPropsWithRef<"div">;
 
 /**
- * `RecordLayout` — the two-column frame. Put `RecordLayoutMain` first and `RecordLayoutRail` second.
+ * `RecordLayout` — the record page's frame. Put `RecordLayoutMain` inside it.
  *
  * @example
  * <RecordLayout>
  *   <RecordLayoutMain>
- *     <PageHeader title="Weekly sync" actions={<RecordDetailsSheet>{facts}</RecordDetailsSheet>} />
+ *     <PageHeader title="Weekly sync" />
  *     <Tabs>…</Tabs>
  *   </RecordLayoutMain>
- *   <RecordLayoutRail aria-label="Details">
- *     <Card size="sm">…</Card>
- *   </RecordLayoutRail>
- * </RecordLayout>
- *
- * @example
- * // A file page: the details flow under the preview below 64rem, with one scroller.
- * <RecordLayout stack>
- *   <RecordLayoutMain>…the preview…</RecordLayoutMain>
- *   <RecordLayoutRail aria-label="Details">…</RecordLayoutRail>
  * </RecordLayout>
  */
-export function RecordLayout({
-  className,
-  stack = false,
-  ...props
-}: RecordLayoutProps) {
+export function RecordLayout({ className, ...props }: RecordLayoutProps) {
   return (
-    <RecordLayoutStackContext.Provider value={stack}>
-      <div
-        data-slot="record-layout"
-        data-stack={stack ? "" : undefined}
-        className={cn(
-          "@container/record-layout flex min-w-0 items-start gap-8",
-          // Stacked: the main column takes the whole first line below 64rem, so the rail wraps
-          // under it.
-          stack && "flex-wrap",
-          className,
-        )}
-        {...props}
-      />
-    </RecordLayoutStackContext.Provider>
+    <div
+      data-slot="record-layout"
+      className={cn("@container/record-layout flex min-w-0", className)}
+      {...props}
+    />
   );
 }
 
 /** Native container props for `RecordLayoutMain`. */
 export type RecordLayoutMainProps = React.ComponentPropsWithRef<"div">;
 
-/** `RecordLayoutMain` — the main column; it takes the remaining width. @example <RecordLayoutMain>…</RecordLayoutMain> */
+/** `RecordLayoutMain` — the main column; it takes the whole width. @example <RecordLayoutMain>…</RecordLayoutMain> */
 export function RecordLayoutMain({
   className,
   ...props
 }: RecordLayoutMainProps) {
-  const stack = React.useContext(RecordLayoutStackContext);
   return (
     <div
       data-slot="record-layout-main"
-      className={cn(
-        "flex min-w-0 flex-1 flex-col gap-6",
-        stack && "basis-full @min-[64rem]/record-layout:basis-0",
-        className,
-      )}
+      className={cn("flex min-w-0 flex-1 flex-col gap-6", className)}
       {...props}
     />
-  );
-}
-
-/** Native `aside` props for `RecordLayoutRail`. */
-export type RecordLayoutRailProps = React.ComponentPropsWithRef<"aside">;
-
-/**
- * `RecordLayoutRail` — the sticky right rail (320px), shown from 1024px of the layout's own width
- * (a container query, not the viewport). It sticks `--record-rail-gap` below the top of the scroll
- * container — by default `--page-gutter`, the gutter `ShellPage` pads with (32px outside one),
- * which is the same gap it has at rest, so it never slides under the header —
- * and scrolls on its own when taller than the viewport minus that gap above and below. Set
- * `--record-rail-offset` (default `--spacing(14)`, a 56px top bar) to the height of the
- * chrome above the scroll container. Name it with `aria-label`. In a `RecordLayout stack` it is
- * shown at every width: below 64rem it flows under the main column, full width, in ordinary flow.
- *
- * @example
- * <RecordLayoutRail aria-label="Details"><Card size="sm">…</Card></RecordLayoutRail>
- */
-export function RecordLayoutRail({
-  className,
-  ...props
-}: RecordLayoutRailProps) {
-  const stack = React.useContext(RecordLayoutStackContext);
-  return (
-    <aside
-      data-slot="record-layout-rail"
-      className={cn(
-        "[--record-rail-gap:var(--page-gutter,--spacing(8))] [--record-rail-offset:--spacing(14)]",
-        stack
-          ? "flex w-full min-w-0 shrink-0 flex-col gap-4 @min-[64rem]/record-layout:sticky @min-[64rem]/record-layout:top-(--record-rail-gap) @min-[64rem]/record-layout:max-h-[calc(100dvh-var(--record-rail-offset)-2*var(--record-rail-gap))] @min-[64rem]/record-layout:w-80 @min-[64rem]/record-layout:self-start @min-[64rem]/record-layout:overflow-y-auto @min-[64rem]/record-layout:overscroll-contain"
-          : "sticky top-(--record-rail-gap) hidden max-h-[calc(100dvh-var(--record-rail-offset)-2*var(--record-rail-gap))] w-80 shrink-0 flex-col gap-4 self-start overflow-y-auto overscroll-contain @min-[64rem]/record-layout:flex",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-/** Props for `RecordDetailsSheet`. */
-export interface RecordDetailsSheetProps {
-  /** What the sheet shows — usually the same `PropertyList` as the rail's first card. */
-  children: React.ReactNode;
-  /**
-   * The sheet's title, and the trigger's accessible name.
-   * @default "Details"
-   */
-  title?: string;
-  /** Controlled open state. @default undefined */
-  open?: boolean;
-  /** Called when the sheet opens or closes. @default undefined */
-  onOpenChange?: (open: boolean) => void;
-  /** Classes for the ⓘ trigger button. @default undefined */
-  className?: string;
-}
-
-/**
- * `RecordDetailsSheet` — the rail's small-screen stand-in: a ghost ⓘ icon button, hidden from `lg`
- * up, that opens `children` in a Sheet from the right (full width on a phone).
- *
- * @example
- * <RecordDetailsSheet><PropertyList>…</PropertyList></RecordDetailsSheet>
- */
-export function RecordDetailsSheet({
-  children,
-  title = "Details",
-  open,
-  onOpenChange,
-  className,
-}: RecordDetailsSheetProps) {
-  return (
-    <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetTrigger
-        render={
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label={title}
-            className={cn(
-              "shrink-0 @min-[64rem]/record-layout:hidden",
-              className,
-            )}
-          />
-        }
-      >
-        <Info aria-hidden />
-      </SheetTrigger>
-      <SheetContent side="right">
-        <SheetHeader>
-          <SheetTitle>{title}</SheetTitle>
-        </SheetHeader>
-        <SheetBody>{children}</SheetBody>
-      </SheetContent>
-    </Sheet>
   );
 }
 
@@ -277,51 +129,6 @@ export function RecordLayoutMainSkeleton() {
       </div>
     </div>
   );
-}
-
-/**
- * `useRecordLayoutWide` — whether a `RecordLayout` is wide enough for its rail (1024px of its own
- * width, the same container query the rail uses), for mounting rail content once: pass the
- * returned `ref` to `RecordLayout`.
- *
- * The width is unknown on the server and in the first paint, so `wide` is `false` until measured
- * — mount by `rail` and `sheet` instead: both are `true` until the first measure (the CSS switch
- * already shows only the right one, so the server-rendered page has its final layout, rail
- * included), then exactly one is.
- *
- * @example
- * const { ref, rail, sheet } = useRecordLayoutWide();
- * <RecordLayout ref={ref}>
- *   <RecordLayoutMain>
- *     <PageHeader title="Weekly sync" actions={sheet && <RecordDetailsSheet>{facts}</RecordDetailsSheet>} />
- *   </RecordLayoutMain>
- *   {rail && <RecordLayoutRail aria-label="Details">…</RecordLayoutRail>}
- * </RecordLayout>
- */
-export function useRecordLayoutWide(): {
-  ref: (el: HTMLDivElement | null) => void;
-  /** The layout is measured and at least 1024px wide. `false` until measured. */
-  wide: boolean;
-  /** Mount the rail: until measured, and while wide. */
-  rail: boolean;
-  /** Mount the small-screen stand-ins (`RecordDetailsSheet`, a rail tab): until measured, and while narrow. */
-  sheet: boolean;
-} {
-  const [wide, setWide] = React.useState<boolean | null>(null);
-  const ref = React.useCallback((el: HTMLDivElement | null) => {
-    if (!el || typeof ResizeObserver === "undefined") return;
-    const measure = () => setWide(el.getBoundingClientRect().width >= 1024);
-    measure();
-    const ro = new ResizeObserver(measure);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-  return {
-    ref,
-    wide: wide === true,
-    rail: wide !== false,
-    sheet: wide !== true,
-  };
 }
 
 /** Native container props for `RecordTabsRow` and `RecordTabsActions`. */

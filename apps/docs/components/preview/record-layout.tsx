@@ -2,19 +2,13 @@
 
 import type { ReactNode } from "react";
 import { Wrapper } from "./wrapper";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   PropertyLabel,
   PropertyList,
   PropertyRow,
   PropertyValue,
 } from "@/components/ui/property-list";
-import {
-  RecordDetailsSheet,
-  RecordLayout,
-  RecordLayoutMain,
-  RecordLayoutRail,
-} from "@/components/ui/record-layout";
+import { RecordLayout, RecordLayoutMain } from "@/components/ui/record-layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 function Facts() {
@@ -41,14 +35,10 @@ export function recordLayout(): ReactNode {
     <Wrapper>
       <RecordLayout className="w-full">
         <RecordLayoutMain>
-          <div className="flex items-start gap-2">
-            <h2 className="min-w-0 flex-1 font-heading text-xl font-medium">
-              Weekly sync with Acme
-            </h2>
-            <RecordDetailsSheet>
-              <Facts />
-            </RecordDetailsSheet>
-          </div>
+          <h2 className="min-w-0 font-heading text-xl font-medium">
+            Weekly sync with Acme
+          </h2>
+          <Facts />
           <Tabs defaultValue="summary">
             <TabsList>
               <TabsTrigger value="summary">Summary</TabsTrigger>
@@ -62,16 +52,6 @@ export function recordLayout(): ReactNode {
             </TabsContent>
           </Tabs>
         </RecordLayoutMain>
-        <RecordLayoutRail aria-label="Meeting details">
-          <Card size="sm">
-            <CardHeader>
-              <CardTitle>Properties</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Facts />
-            </CardContent>
-          </Card>
-        </RecordLayoutRail>
       </RecordLayout>
     </Wrapper>
   );

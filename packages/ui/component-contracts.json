@@ -12,10 +12,10 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 816,
-    "components": 225,
+    "totalRegistryItems": 814,
+    "components": 224,
     "animatedIcons": 467,
-    "hooks": 17,
+    "hooks": 16,
     "blocks": 15,
     "libs": 24,
     "chartBlocks": 68
@@ -23,13 +23,13 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 39,
-    "Navigation/layout": 26,
+    "Navigation/layout": 25,
     "Overlays": 22,
     "Data display": 48,
     "Content/marketing": 14,
     "Shared internals": 6,
     "AI/chat": 46,
-    "Hooks": 17,
+    "Hooks": 16,
     "Block": 15,
     "Animated icons": 467
   },
@@ -38,7 +38,7 @@
       "button",
       "button-group",
       "copy-button",
-      "notification-bell",
+      "notification-dot",
       "badge",
       "avatar",
       "label",
@@ -124,7 +124,6 @@
       "scroll-area",
       "shell",
       "shell-panel",
-      "sidebar",
       "stepper",
       "table-of-contents",
       "tabs"
@@ -276,7 +275,6 @@
       "shell-assistant"
     ],
     "Hooks": [
-      "use-animation-replay",
       "use-announcer",
       "use-async-search",
       "use-inline-edit",
@@ -374,8 +372,7 @@
           "data-grid",
           "dropdown-menu",
           "context-menu",
-          "menubar",
-          "notification-bell"
+          "menubar"
         ],
         "globalInputGroups": ["tokens", "shared-runtime"]
       },
@@ -6393,10 +6390,10 @@
       },
       "motion": {
         "status": "observed",
-        "mechanisms": ["replay-api"],
+        "mechanisms": ["css-state-transition"],
         "reducedMotion": {
           "status": "observed",
-          "rationale": "useShakeOnInvalid replays motion-shake on the group when it turns invalid; the global reduced-motion reset collapses it."
+          "rationale": "The field group eases its border colour on hover and focus (duration-150 ease-out); the global reduced-motion reset collapses it."
         }
       },
       "engines": [],
@@ -22107,38 +22104,20 @@
       }
     },
     {
-      "name": "notification-bell",
+      "name": "notification-dot",
       "registryType": "registry:ui",
-      "title": "Notification Bell",
-      "summary": "A bell icon button with an unread-count badge overlay, plus the shared NotificationDot unread marker. Presentational — the app supplies the count.",
+      "title": "Notification Dot",
+      "summary": "The one unread dot: an 8px solid circle, decorative, for unread rows, inbox items and nav items.",
       "status": "stable",
-      "since": "0.1.0",
+      "since": "0.97.0",
       "family": "media",
       "wave": "Core controls",
-      "sourceFiles": ["packages/ui/registry/ui/notification-bell.tsx"],
+      "sourceFiles": ["packages/ui/registry/ui/notification-dot.tsx"],
       "publicSymbols": [
-        {
-          "name": "NotificationBell",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/notification-bell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by NotificationBell in packages/ui/registry/ui/notification-bell.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "NotificationBellProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/notification-bell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
         {
           "name": "NotificationDot",
           "kind": "component",
-          "source": "packages/ui/registry/ui/notification-bell.tsx",
+          "source": "packages/ui/registry/ui/notification-dot.tsx",
           "ref": {
             "status": "observed",
             "target": "span",
@@ -22148,7 +22127,7 @@
         {
           "name": "NotificationDotProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/notification-bell.tsx",
+          "source": "packages/ui/registry/ui/notification-dot.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -22161,7 +22140,7 @@
           {
             "name": "intent",
             "values": ["default", "destructive"],
-            "evidence": "packages/ui/registry/ui/notification-bell.tsx: NotificationDotProps intent union (API-17) (default | destructive); default is bg-primary, destructive is bg-destructive"
+            "evidence": "packages/ui/registry/ui/notification-dot.tsx: NotificationDotProps intent union (API-17) (default | destructive); default is bg-info, destructive is bg-destructive"
           }
         ]
       },
@@ -22173,23 +22152,18 @@
       "states": {
         "behavior": {
           "status": "observed",
-          "values": ["default", "error", "dot", "count-label"],
-          "evidence": "Observed from branches, state attributes, and inline source contract. DS-56: dot mode renders the shared NotificationDot; countLabel words the count in the accessible name."
+          "values": ["default"],
+          "evidence": "A static decorative span; no interactive state."
         },
         "accessibility": {
           "status": "observed",
-          "values": ["labeled"],
-          "evidence": "Observed from semantic elements, ARIA, keyboard handlers, or focus styling."
+          "values": ["decorative"],
+          "evidence": "aria-hidden; the marked row carries the unread wording."
         },
         "visual": {
           "status": "observed",
-          "values": [
-            "default",
-            "error",
-            "dot-intent-default",
-            "dot-intent-destructive"
-          ],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
+          "values": ["intent-default", "intent-destructive"],
+          "evidence": "Observed from the intent fill branch."
         }
       },
       "responsive": {
@@ -22198,27 +22172,21 @@
         "rationale": "No component-owned responsive risk observed; consumer layout can still constrain it."
       },
       "motion": {
-        "status": "modeled",
-        "mechanisms": ["CSS utility motion-pop-in", "tokenized CSS transition"],
+        "status": "none-observed",
+        "mechanisms": [],
         "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "CSS animation/transition reduction is enforced by packages/design-tokens/src/base.css; component-specific JS engines require an intrinsic branch instead.",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
+          "status": "not-applicable",
+          "rationale": "The dot does not animate."
         }
       },
       "engines": [],
-      "docsSlug": "/docs/components/notification-bell",
-      "registryDependencies": [
-        "@vegastack/badge",
-        "@vegastack/button",
-        "@vegastack/use-animation-replay"
-      ],
+      "docsSlug": "/docs/components/notification-dot",
+      "registryDependencies": [],
       "npmDependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.19.0",
-        "@vegastack/design-tokens@^0.19.0"
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
       ],
-      "testFiles": ["packages/ui/registry/ui/notification-bell.test.tsx"],
+      "testFiles": ["packages/ui/registry/ui/notification-dot.test.tsx"],
       "coverage": {
         "source": "required",
         "test": "required",
@@ -22227,26 +22195,13 @@
         "preview": "required",
         "vrt": "required"
       },
-      "previewModule": "notification-bell",
+      "previewModule": "notification-dot",
       "dataAttributes": {
         "NotificationDot": {
           "attributes": [
             {
               "name": "data-slot",
               "values": ["notification-dot"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "NotificationBell": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["notification-bell", "notification-bell-badge"]
-            },
-            {
-              "name": "data-unread",
-              "values": [""]
             }
           ],
           "cssVariables": []
@@ -22325,10 +22280,10 @@
       },
       "motion": {
         "status": "observed",
-        "mechanisms": ["replay-api"],
+        "mechanisms": ["css-state-transition"],
         "reducedMotion": {
           "status": "observed",
-          "rationale": "useShakeOnInvalid replays motion-shake on the group border without remounting; the global reduced-motion reset collapses it."
+          "rationale": "The field group eases its border colour on hover and focus (duration-150 ease-out); the global reduced-motion reset collapses it."
         }
       },
       "engines": [],
@@ -25760,7 +25715,7 @@
       "name": "sheet",
       "registryType": "registry:ui",
       "title": "Sheet",
-      "summary": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).",
+      "summary": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -26026,10 +25981,6 @@
         },
         "SheetContent": {
           "attributes": [
-            {
-              "name": "data-beside",
-              "values": []
-            },
             {
               "name": "data-side",
               "values": []
@@ -37404,692 +37355,6 @@
       }
     },
     {
-      "name": "sidebar",
-      "registryType": "registry:ui",
-      "title": "Sidebar",
-      "summary": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.",
-      "status": "stable",
-      "since": "0.1.0",
-      "family": "navigation",
-      "wave": "Navigation/layout",
-      "sourceFiles": ["packages/ui/registry/ui/sidebar.tsx"],
-      "publicSymbols": [
-        {
-          "name": "Sidebar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarFooter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupContent",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarGroupLabel",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarInput",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarInset",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenu",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuAction",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuBadge",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuButton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSkeleton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSub",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSubButton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarMenuSubItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarProvider",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarRail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarSeparator",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "SidebarStateScript",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders an inline head script with no consumer-facing element to reference."
-          }
-        },
-        {
-          "name": "SidebarTrigger",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "element",
-            "rationale": "Upstream forwards the ref to its own render target."
-          }
-        },
-        {
-          "name": "useSidebar",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "useSidebarCookieOpen",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/sidebar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "side",
-            "values": ["left", "right"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "variant",
-            "values": ["sidebar", "floating", "inset"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "collapsible",
-            "values": ["offcanvas", "icon", "none"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          },
-          {
-            "name": "menuButtonVariant",
-            "values": ["default", "outline"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
-          }
-        ]
-      },
-      "sizes": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "menuButtonSize",
-            "values": ["default", "sm", "lg"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: CVA"
-          },
-          {
-            "name": "menuSubButtonSize",
-            "values": ["sm", "md"],
-            "evidence": "packages/ui/registry/ui/sidebar.tsx: prop union"
-          }
-        ]
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "default",
-            "expanded",
-            "collapsed",
-            "open",
-            "active",
-            "disabled",
-            "loading",
-            "mobile"
-          ],
-          "evidence": "Observed from branches, state attributes, and inline source contract."
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "native-or-base-ui-semantics",
-            "browser-accessibility-test",
-            "keyboard-navigation",
-            "labeled",
-            "focus-visible"
-          ],
-          "evidence": "packages/ui/registry/ui/sidebar.tsx + packages/ui/registry/ui/sidebar.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "active", "disabled", "loading"],
-          "evidence": "Observed from token classes, state selectors, or visual branches."
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "mobile-or-touch-mode",
-          "overflow-and-scroll",
-          "text-truncation-and-flex-shrink"
-        ],
-        "rationale": "Upstream's own layout: a fixed desktop panel above the md breakpoint and a Sheet below it, with a scrolling content region and truncating rows."
-      },
-      "motion": {
-        "status": "observed",
-        "mechanisms": ["tokenized CSS transition"],
-        "reducedMotion": {
-          "status": "inherited-global",
-          "rationale": "The global reduced-motion reset in base.css neutralises it (MOT-5).",
-          "evidence": "packages/design-tokens/src/base.css#prefers-reduced-motion"
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/sidebar",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/input",
-        "@vegastack/page-layout",
-        "@vegastack/separator",
-        "@vegastack/sheet",
-        "@vegastack/skeleton",
-        "@vegastack/tooltip",
-        "@vegastack/use-mobile",
-        "@vegastack/use-platform"
-      ],
-      "npmDependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.19.0",
-        "@vegastack/design-tokens@^0.19.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/sidebar.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "sidebar",
-      "dataAttributes": {
-        "SidebarStateScript": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-state-script"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarProvider": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-wrapper"]
-            }
-          ],
-          "cssVariables": ["--sidebar-width", "--sidebar-width-icon"]
-        },
-        "Sidebar": {
-          "attributes": [
-            {
-              "name": "data-collapsible",
-              "values": [""]
-            },
-            {
-              "name": "data-mobile",
-              "values": ["true"]
-            },
-            {
-              "name": "data-side",
-              "values": []
-            },
-            {
-              "name": "data-sidebar",
-              "values": ["sidebar"]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "sidebar",
-                "sidebar-container",
-                "sidebar-gap",
-                "sidebar-inner"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": []
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": ["--sidebar-width"]
-        },
-        "SidebarTrigger": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["trigger"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-trigger"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarRail": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["rail"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-rail"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarInset": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["sidebar-inset"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarInput": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["input"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-input"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarHeader": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["header"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-header"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarFooter": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["footer"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-footer"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarSeparator": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["separator"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-separator"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarContent": {
-          "attributes": [
-            {
-              "name": "data-direction",
-              "values": ["down", "up"]
-            },
-            {
-              "name": "data-more-above",
-              "values": [""]
-            },
-            {
-              "name": "data-more-below",
-              "values": [""]
-            },
-            {
-              "name": "data-sidebar",
-              "values": ["content"]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "sidebar-content",
-                "sidebar-content-frame",
-                "sidebar-content-scroll"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarGroup": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["group"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarGroupContent": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["group-content"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-group-content"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenu": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuItem": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-item"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-item"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuButton": {
-          "attributes": [
-            {
-              "name": "data-badge-size",
-              "values": ["default", "dot", "lg", "pill"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-badge-rail"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuBadge": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-badge"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-badge"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuSkeleton": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": [
-                "menu-skeleton",
-                "menu-skeleton-icon",
-                "menu-skeleton-text"
-              ]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-skeleton"]
-            }
-          ],
-          "cssVariables": ["--skeleton-width"]
-        },
-        "SidebarMenuSub": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-sub"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-sub"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "SidebarMenuSubItem": {
-          "attributes": [
-            {
-              "name": "data-sidebar",
-              "values": ["menu-sub-item"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["sidebar-menu-sub-item"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "meta-line",
       "registryType": "registry:ui",
       "title": "Meta Line",
@@ -39632,7 +38897,7 @@
       "name": "record-layout",
       "registryType": "registry:ui",
       "title": "Record Layout",
-      "summary": "A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.",
+      "summary": "A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.",
       "status": "stable",
       "since": "0.23.15",
       "family": "layout",
@@ -39660,25 +38925,6 @@
           }
         },
         {
-          "name": "RecordLayoutRail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "aside",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout.tsx."
-          }
-        },
-        {
-          "name": "RecordDetailsSheet",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "RecordDetailsSheet takes no ref; it renders a Sheet and its trigger."
-          }
-        },
-        {
           "name": "RecordLayoutProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/record-layout.tsx",
@@ -39690,24 +38936,6 @@
         {
           "name": "RecordLayoutMainProps",
           "kind": "type",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RecordLayoutRailProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RecordDetailsSheetProps",
-          "kind": "interface",
           "source": "packages/ui/registry/ui/record-layout.tsx",
           "ref": {
             "status": "not-applicable",
@@ -39788,15 +39016,6 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
-        },
-        {
-          "name": "useRecordLayoutWide",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/record-layout.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A hook; returns a callback ref."
-          }
         }
       ],
       "variants": {
@@ -39812,7 +39031,7 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["rail", "details-sheet"],
+          "values": ["default"],
           "evidence": "packages/ui/registry/ui/record-layout.tsx + packages/ui/registry/ui/record-layout.test.tsx"
         },
         "accessibility": {
@@ -39827,9 +39046,9 @@
         }
       },
       "responsive": {
-        "status": "modeled",
-        "risks": ["responsive-or-container-layout"],
-        "rationale": "The rail shows from lg up; below it the Details sheet takes its place."
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "One column at every width; the details open in the shell panel."
       },
       "motion": {
         "status": "not-applicable",
@@ -39841,11 +39060,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/record-layout",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/sheet",
-        "@vegastack/skeleton"
-      ],
+      "registryDependencies": ["@vegastack/skeleton"],
       "npmDependencies": [
         "@vegastack/design@^0.19.0",
         "@vegastack/design-tokens@^0.19.0",
@@ -39867,10 +39082,6 @@
             {
               "name": "data-slot",
               "values": ["record-layout"]
-            },
-            {
-              "name": "data-stack",
-              "values": [""]
             }
           ],
           "cssVariables": []
@@ -39880,15 +39091,6 @@
             {
               "name": "data-slot",
               "values": ["record-layout-main"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "RecordLayoutRail": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["record-layout-rail"]
             }
           ],
           "cssVariables": []
@@ -39950,7 +39152,6 @@
       "family": "layout",
       "wave": "Navigation/layout",
       "sourceFiles": [
-        "packages/ui/registry/ui/document-layout-aside.tsx",
         "packages/ui/registry/ui/document-layout-meta.tsx",
         "packages/ui/registry/ui/document-layout-sections.tsx",
         "packages/ui/registry/ui/document-layout-tools.tsx",
@@ -40749,34 +39950,6 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
-        },
-        {
-          "name": "DocumentLayoutAside",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "aside",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/document-layout-aside.tsx."
-          }
-        },
-        {
-          "name": "DocumentLayoutAsideProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "DocumentLayoutAsideTab",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/document-layout-aside.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
         }
       ],
       "variants": {
@@ -40799,10 +39972,7 @@
             "tier-xl",
             "tier-2xl",
             "wide",
-            "loading",
-            "aside-discussion",
-            "aside-outline",
-            "aside-sheet"
+            "loading"
           ],
           "evidence": "packages/ui/registry/ui/document-layout.tsx + packages/ui/registry/ui/document-layout.test.tsx + packages/ui/test/document-geometry.browser.test.tsx"
         },
@@ -40838,9 +40008,7 @@
         "@vegastack/input-group",
         "@vegastack/skeleton",
         "@vegastack/item",
-        "@vegastack/use-overflow",
-        "@vegastack/sheet",
-        "@vegastack/tabs"
+        "@vegastack/use-overflow"
       ],
       "npmDependencies": [
         "@base-ui/react@^1.6.0",
@@ -40859,31 +40027,6 @@
       },
       "previewModule": "document-layout",
       "dataAttributes": {
-        "DocumentLayoutAside": {
-          "attributes": [
-            {
-              "name": "data-kind",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "document-layout-aside",
-                "document-layout-aside-body",
-                "document-layout-aside-close",
-                "document-layout-aside-count",
-                "document-layout-aside-header",
-                "document-layout-aside-panel",
-                "document-layout-aside-panel-frame",
-                "document-layout-aside-sheet",
-                "document-layout-aside-tab-count",
-                "document-layout-aside-tablist",
-                "document-layout-aside-tabs"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
         "DocumentLayoutMeta": {
           "attributes": [
             {
@@ -41283,10 +40426,6 @@
         },
         "DocumentLayout": {
           "attributes": [
-            {
-              "name": "data-aside",
-              "values": []
-            },
             {
               "name": "data-margin",
               "values": [""]
@@ -43485,7 +42624,7 @@
       "name": "record-aside",
       "registryType": "registry:ui",
       "title": "Record Aside",
-      "summary": "The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.",
+      "summary": "The cards of a record's details — titled sections of inline properties, people, linked records and full-width action rows.",
       "status": "stable",
       "since": "0.23.19",
       "family": "data",
@@ -43770,7 +42909,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "Sized by the rail or sheet it sits in; rows wrap their meta, values truncate."
+        "rationale": "Sized by the panel or sheet it sits in; rows wrap their meta, values truncate."
       },
       "motion": {
         "status": "not-applicable",
@@ -47912,7 +47051,7 @@
       "name": "help-menu",
       "registryType": "registry:ui",
       "title": "Help Menu",
-      "summary": "The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.",
+      "summary": "The Help menu behind the shell rail's Help item — What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version. Links render through your router's link.",
       "status": "stable",
       "since": "0.25.89",
       "family": "navigation",
@@ -47966,7 +47105,6 @@
             "link-entry",
             "action-entry",
             "unread",
-            "collapsed-rail",
             "version"
           ],
           "evidence": "packages/ui/registry/ui/help-menu.tsx + packages/ui/registry/ui/help-menu.test.tsx"
@@ -47983,17 +47121,14 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "open", "unread", "collapsed"],
+          "values": ["default", "open", "unread"],
           "evidence": "packages/ui/registry/ui/help-menu.tsx"
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Follows the sidebar: a full row expanded, the icon with a tooltip in the collapsed rail; the menu is a positioned popup clamped to the viewport."
+        "risks": ["viewport-positioning-and-collision"],
+        "rationale": "The trigger is the caller's rail item; the menu is a positioned popup clamped to the viewport."
       },
       "motion": {
         "status": "not-applicable",
@@ -48007,8 +47142,7 @@
       "docsSlug": "/docs/components/help-menu",
       "registryDependencies": [
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
-        "@vegastack/sidebar"
+        "@vegastack/notification-dot"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.19.0",
@@ -48037,7 +47171,6 @@
               "values": [
                 "help-menu",
                 "help-menu-content",
-                "help-menu-dot",
                 "help-menu-item",
                 "help-menu-trigger",
                 "help-menu-version"
@@ -48449,9 +47582,9 @@
       "registryDependencies": [
         "@vegastack/command",
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
         "@vegastack/toggle",
-        "@vegastack/toggle-group"
+        "@vegastack/toggle-group",
+        "@vegastack/notification-dot"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.19.0",
@@ -54578,132 +53711,6 @@
   },
   "hooks": [
     {
-      "name": "use-animation-replay",
-      "registryType": "registry:hook",
-      "title": "useAnimationReplay / useShakeOnInvalid",
-      "summary": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element — preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
-      "family": "hook",
-      "wave": "Hooks",
-      "sourceFiles": ["packages/ui/registry/ui/use-animation-replay.ts"],
-      "publicSymbols": [
-        {
-          "name": "ShakeSignal",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "useAnimationReplay",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "UseAnimationReplayResult",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "useShakeOnInvalid",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "UseShakeOnInvalidOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "UseShakeOnInvalidResult",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/use-animation-replay.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "active", "error", "invalid"],
-          "evidence": "Observed in hook implementation and inline contract."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render an accessibility tree."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "Pure hooks do not render visual states."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "Pure behavior hook does not own responsive layout."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": [
-          "CSS utility motion-pop-in",
-          "CSS utility motion-enter-up",
-          "CSS utility motion-shake",
-          "CSS utility motion-check-draw",
-          "tokenized CSS transition",
-          "replay hook",
-          "requestAnimationFrame"
-        ],
-        "reducedMotion": {
-          "status": "consumer-policy",
-          "rationale": "Hook replays a supplied class; consumer/utility owns reduced motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/guides/components",
-      "registryDependencies": [],
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/ui/use-animation-replay.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
       "name": "use-modal-inert",
       "registryType": "registry:hook",
       "title": "useModalInert",
@@ -56802,7 +55809,7 @@
       "name": "issue-detail-01",
       "registryType": "registry:block",
       "title": "Issue Detail 01",
-      "summary": "An issue page (Linear style) — status circle and a large title that edits in place, a Notion-style description, a separator, then comments; a Properties rail with a Details sheet on small screens.",
+      "summary": "An issue page (Linear style) — status circle and a large title that edits in place, its properties, a Notion-style description, a separator, then comments, in one column.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -57629,7 +56636,7 @@
       "name": "notifications-01",
       "registryType": "registry:block",
       "title": "Notifications 01",
-      "summary": "An Inbox sheet on the Inbox component — rail row and bell triggers with the unread count, Mark all read and ⋯, All | Unread chips, day groups of linked rows with avatars, unread tint and action chips, and infinite scroll.",
+      "summary": "An Inbox sheet on the Inbox component — rail and phone-bar Inbox items with the unread count, Mark all read and ⋯, For you | Updates | Archived tabs, day groups of linked rows with avatars, unread tint and action chips, and infinite scroll.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -58862,7 +57869,7 @@
     },
     {
       "id": "pure-hooks-do-not-render",
-      "appliesTo": ["use-mobile", "use-animation-replay"],
+      "appliesTo": ["use-mobile"],
       "exemptFrom": [
         "component-docs-navigation",
         "preview-module",
@@ -58870,7 +57877,7 @@
         "visual-states",
         "rendered-a11y-states"
       ],
-      "rationale": "Pure hooks have source and browser tests but no independently rendered component surface; use-animation-replay is additionally exercised by affected dependents and the optional manual all-engine audit."
+      "rationale": "Pure hooks have source and browser tests but no independently rendered component surface."
     },
     {
       "id": "chart-blocks-share-a-gallery",
@@ -60715,15 +59722,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RAIL_COLLAPSED_QUERY",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/page-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
           }
         }
       ],

@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.100.0 sha256-gq8Yom4zLEP77Ggt2iLEJbFbjlUqnayJBm1I+XFnvRE=
+// @vegastack folder-tree@0.100.0 sha256-ftTT6d+6X8K7vB6lUx164jvqRScs6BKJuwZ6IsZjXl8=
 
 "use client";
 
@@ -28,7 +28,7 @@ import { FileTypeIcon } from "@/lib/file-kind";
 familiar: sections ("Shared", "Private") holding folders, pages and files, each folder a
 disclosure whose children load when it first opens. It is a NAVIGATION pattern, not an ARIA
 tree: a `<nav>` of nested lists, each row a link (`aria-current="page"` when it is the open
-item) with a disclosure button beside it (`aria-expanded`), the structure `SidebarMenuSub` uses.
+item) with a disclosure button beside it (`aria-expanded`), the structure shadcn's sidebar sub-menu uses.
 The system records a stance against `role="tree"` — editing controls inside tree items trap a
 screen reader (see `filter-bar-managed`) — and a row here carries a ⋯ menu.
 

@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "652c43d734366d0aae03a470a72fe43cc3afd2786b8fa5b2f9e2fd56d4550d32",
+  "contractSha256": "3dc565471f9fdcaa866aeeaad5bc0e31b7d1f30e43048948b7c2b6e4d61832a4",
   "inventory": {
-    "expected": 816,
-    "actual": 816,
-    "unique": 816
+    "expected": 814,
+    "actual": 814,
+    "unique": 814
   },
   "classes": {
-    "components": 225,
+    "components": 224,
     "animatedIcons": 467,
-    "hooks": 17,
+    "hooks": 16,
     "blocks": 15,
     "chartBlocks": 68,
     "libs": 24
@@ -29,7 +29,7 @@
         "input",
         "kbd",
         "label",
-        "notification-bell",
+        "notification-dot",
         "priority-icon",
         "progress",
         "radio-group",
@@ -92,8 +92,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 26,
-      "actual": 26,
+      "expected": 25,
+      "actual": 25,
       "members": [
         "accordion",
         "aspect-ratio",
@@ -117,7 +117,6 @@
         "scroll-area",
         "shell",
         "shell-panel",
-        "sidebar",
         "stepper",
         "table-of-contents",
         "tabs"
@@ -290,10 +289,9 @@
       ]
     },
     "Hooks": {
-      "expected": 17,
-      "actual": 17,
+      "expected": 16,
+      "actual": 16,
       "members": [
-        "use-animation-replay",
         "use-announcer",
         "use-async-search",
         "use-drag-reorder",
@@ -875,7 +873,7 @@
       ]
     }
   },
-  "componentRoutes": 219,
+  "componentRoutes": 218,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }
