@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 814,
-    "components": 224,
+    "totalRegistryItems": 815,
+    "components": 225,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -24,7 +24,7 @@
     "Core controls": 24,
     "Forms/editing": 39,
     "Navigation/layout": 25,
-    "Overlays": 22,
+    "Overlays": 23,
     "Data display": 48,
     "Content/marketing": 14,
     "Shared internals": 6,
@@ -131,26 +131,27 @@
     "Overlays": [
       "action-bar",
       "alert-dialog",
+      "command-search",
       "context-menu",
       "dialog",
       "drawer",
       "dropdown-menu",
+      "dropdown-menu-form",
       "emoji-picker",
       "file-viewer",
       "hover-card",
+      "icon-picker",
+      "info-hint",
+      "peek",
       "permission-menu",
       "popover",
       "provider",
       "responsive-dialog",
-      "sheet",
       "share-dialog",
+      "sheet",
       "shortcut-overlay",
       "toast",
-      "tooltip",
-      "icon-picker",
-      "info-hint",
-      "command-search",
-      "dropdown-menu-form"
+      "tooltip"
     ],
     "Data display": [
       "activity-feed",
@@ -38845,15 +38846,496 @@
       }
     },
     {
+      "name": "peek",
+      "registryType": "registry:ui",
+      "title": "Peek",
+      "summary": "A record over the right of the page area without leaving its list; a bottom sheet with snap points on a phone.",
+      "status": "stable",
+      "since": "0.105.0",
+      "family": "overlay",
+      "wave": "Overlays",
+      "sourceFiles": ["packages/ui/registry/ui/peek.tsx"],
+      "publicSymbols": [
+        {
+          "name": "PEEK_MIN_WIDTH",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A number; not rendered."
+          }
+        },
+        {
+          "name": "PEEK_MAX_RATIO",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A number; not rendered."
+          }
+        },
+        {
+          "name": "PEEK_DEFAULT_WIDTH",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A number; not rendered."
+          }
+        },
+        {
+          "name": "PEEK_SNAP_POINTS",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A number; not rendered."
+          }
+        },
+        {
+          "name": "PeekResizeHandleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekResizeHandle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; takes no ref."
+          }
+        },
+        {
+          "name": "PeekSnapPoint",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekSheetProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekSheet",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; takes no ref."
+          }
+        },
+        {
+          "name": "PeekProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "Peek",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "section",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/peek.tsx."
+          }
+        },
+        {
+          "name": "PeekHeaderProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekHeader",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/peek.tsx."
+          }
+        },
+        {
+          "name": "PeekNavProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekNav",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/peek.tsx."
+          }
+        },
+        {
+          "name": "PeekPathProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekPath",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/peek.tsx."
+          }
+        },
+        {
+          "name": "PeekActionsProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekActions",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/peek.tsx."
+          }
+        },
+        {
+          "name": "PeekActionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekAction",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; takes no ref."
+          }
+        },
+        {
+          "name": "PeekOpenProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekOpen",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; takes no ref."
+          }
+        },
+        {
+          "name": "PeekCloseProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekClose",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; takes no ref."
+          }
+        },
+        {
+          "name": "PeekBodyProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/peek.tsx."
+          }
+        },
+        {
+          "name": "PeekTitleProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "PeekTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "h2",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/peek.tsx."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One surface per width; no local axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Width is the app's (controlled), clamped 420px to 70% of the page area."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "open",
+            "closed",
+            "resizing",
+            "side",
+            "sheet",
+            "snapped"
+          ],
+          "evidence": "packages/ui/registry/ui/peek.tsx + packages/ui/registry/ui/peek.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "labeled",
+            "browser-accessibility-test",
+            "keyboard-navigation"
+          ],
+          "evidence": "packages/ui/registry/ui/peek.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "open", "resizing"],
+          "evidence": "packages/ui/registry/ui/peek.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [],
+        "rationale": "A side sheet over the page area from 640px; the drawer's bottom sheet with snap points below it (a JS media branch: a different tree)."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": [
+          "@starting-style transition on a person's open (duration-panel); the phone sheet uses the drawer's own"
+        ],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css zeroes the duration tokens (MOT-5)."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/peek",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/button-group",
+        "@vegastack/drawer",
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query",
+        "@vegastack/use-platform"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.19.0",
+        "@vegastack/design-tokens@^0.19.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/peek.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "peek",
+      "dataAttributes": {
+        "PeekResizeHandle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-resize-handle"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekSheet": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-sheet"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Peek": {
+          "attributes": [
+            {
+              "name": "data-motion",
+              "values": ["enter"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["peek"]
+            },
+            {
+              "name": "data-surface",
+              "values": ["sheet", "side"]
+            }
+          ],
+          "cssVariables": ["--peek-min-width"]
+        },
+        "PeekHeader": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-header"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekNav": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-nav"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekPath": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-path"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekActions": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-actions"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekAction": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-action"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekOpen": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-open"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekClose": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-close"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekBody": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-body"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "PeekTitle": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["peek-title"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "record-layout",
       "registryType": "registry:ui",
       "title": "Record Layout",
-      "summary": "A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.",
+      "summary": "A record page: the main column, and the right-edge strip that opens one reference panel at a time.",
       "status": "stable",
       "since": "0.23.15",
       "family": "layout",
       "wave": "Navigation/layout",
-      "sourceFiles": ["packages/ui/registry/ui/record-layout.tsx"],
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-layout-side.tsx",
+        "packages/ui/registry/ui/record-layout.tsx"
+      ],
       "publicSymbols": [
         {
           "name": "RecordLayout",
@@ -38967,6 +39449,126 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "RECORD_PANEL_MIN_WIDTH",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A number; not rendered."
+          }
+        },
+        {
+          "name": "RECORD_PANEL_DEFAULT_WIDTH",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A number; not rendered."
+          }
+        },
+        {
+          "name": "RECORD_PANEL_MAX_RATIO",
+          "kind": "constant",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A number; not rendered."
+          }
+        },
+        {
+          "name": "RecordLayoutSideProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordLayoutSide",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout-side.tsx."
+          }
+        },
+        {
+          "name": "RecordLayoutStripSlotProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordLayoutStripSlot",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "div",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout-side.tsx."
+          }
+        },
+        {
+          "name": "RecordLayoutStripProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordLayoutStrip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; takes no ref."
+          }
+        },
+        {
+          "name": "RecordLayoutStripItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordLayoutStripItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a composed control; takes no ref."
+          }
+        },
+        {
+          "name": "RecordLayoutPanelProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "RecordLayoutPanel",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "observed",
+            "target": "aside",
+            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/record-layout-side.tsx."
+          }
         }
       ],
       "variants": {
@@ -38982,7 +39584,15 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["default"],
+          "values": [
+            "default",
+            "panel-open",
+            "panel-closed",
+            "docked",
+            "floating",
+            "sheet",
+            "resizing"
+          ],
           "evidence": "packages/ui/registry/ui/record-layout.tsx + packages/ui/registry/ui/record-layout.test.tsx"
         },
         "accessibility": {
@@ -38997,21 +39607,30 @@
         }
       },
       "responsive": {
-        "status": "none-observed",
+        "status": "modeled",
         "risks": [],
-        "rationale": "One column at every width; the details open in the shell panel."
+        "rationale": "By the record layout's own width: the panel docks from 75rem and floats over the main column below; under 640px (a JS media branch: a different tree) the strip becomes a row and each panel a bottom sheet."
       },
       "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
+        "status": "observed",
+        "mechanisms": [
+          "@starting-style width/translate transition on a person's open (duration-panel)"
+        ],
         "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism."
+          "status": "covered",
+          "rationale": "The global reduced-motion reset in base.css zeroes the duration tokens (MOT-5)."
         }
       },
       "engines": [],
       "docsSlug": "/docs/components/record-layout",
-      "registryDependencies": ["@vegastack/skeleton"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/peek",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip",
+        "@vegastack/use-media-query",
+        "@vegastack/use-platform"
+      ],
       "npmDependencies": [
         "@vegastack/design@^0.19.0",
         "@vegastack/design-tokens@^0.19.0",
@@ -39028,6 +39647,75 @@
       },
       "previewModule": "record-layout",
       "dataAttributes": {
+        "RecordLayoutSide": {
+          "attributes": [
+            {
+              "name": "data-panel",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["record-layout-side", "record-layout-side-inner"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordLayoutStripSlot": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["record-layout-strip-slot"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordLayoutStrip": {
+          "attributes": [
+            {
+              "name": "data-orientation",
+              "values": ["horizontal", "vertical"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["record-layout-strip", "record-layout-strip-anchor"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordLayoutStripItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "record-layout-strip-count",
+                "record-layout-strip-item"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordLayoutPanel": {
+          "attributes": [
+            {
+              "name": "data-motion",
+              "values": ["enter"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "record-layout-panel",
+                "record-layout-panel-body",
+                "record-layout-panel-close",
+                "record-layout-panel-header"
+              ]
+            },
+            {
+              "name": "data-surface",
+              "values": ["sheet", "side"]
+            }
+          ],
+          "cssVariables": ["--record-panel-width"]
+        },
         "RecordLayout": {
           "attributes": [
             {
