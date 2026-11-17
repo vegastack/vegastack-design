@@ -1171,7 +1171,7 @@ test("hover card lanyard: kind, owner, description, badges, a link to the page a
       kindLabel="Connected app"
       owner="Priya Raman's agent"
       description="Works with Priya's access."
-      badges={<span data-testid="managed">Managed by VegaStack</span>}
+      badges={<span data-testid="beta">Beta</span>}
       footer="claude.ai · MCP · Signed in"
       href="/agents/a1"
       state="working"
@@ -1188,7 +1188,7 @@ test("hover card lanyard: kind, owner, description, badges, a link to the page a
   expect(slot(card, "agent-hover-card-description")!.className).toContain(
     "line-clamp-2",
   );
-  expect(card.querySelector('[data-testid="managed"]')).not.toBeNull();
+  expect(card.querySelector('[data-testid="beta"]')).not.toBeNull();
   expect(slot(card, "agent-hover-card-footer")!.textContent).toBe(
     "claude.ai · MCP · Signed in",
   );

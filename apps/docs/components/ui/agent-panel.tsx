@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.106.0 sha256-CIljMXUwfiAfOL1wUFvoGIQx0crMajufWt+SaoBEybw=
+// @vegastack agent-panel@0.106.0 sha256-1oMN5Cg/vQpQ+TcQTS95CsE7Oqa9kCe6PXJJ4vkDnuw=
 
 "use client";
 
@@ -711,7 +711,7 @@ export interface AgentLanyardProps {
   owner?: React.ReactNode;
   /** What it does, clamped to two lines. @default undefined */
   description?: React.ReactNode;
-  /** More badges after the kind ("Managed by VegaStack"). @default undefined */
+  /** More badges after the kind ("Beta"). @default undefined */
   badges?: React.ReactNode;
   /**
    * The technical facts — where it runs, how it signs in ("claude.ai · MCP · Access token") — in
