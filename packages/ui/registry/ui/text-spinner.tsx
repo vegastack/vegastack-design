@@ -1,4 +1,4 @@
-// @vegastack text-spinner@0.107.0 sha256-YPfxTtzxEyCCFzYp+oHMyeV730BmjT2JW5Xc+CuPjAg=
+// @vegastack text-spinner@0.111.0 sha256-8qtGAuaS4dhGT4R3OFbtaxRtSyp36lrRTse4gg3TaaM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
