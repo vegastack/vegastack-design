@@ -314,7 +314,7 @@
   "panel": {
     "$type": "color",
     "$value": "{color.neutral.50}",
-    "$description": "COL-26 (ours, operator 2026-11-18, record side panel): the record page's side panel surface, a hair off the page so the panel reads as reference beside the work — the sidebar's tint in light; in dark one step DOWN from the page (the sidebar there is a step up). Opaque, because below 1200px the panel floats over the page. Read it as `bg-panel`."
+    "$description": "COL-26 (ours, operator 2026-11-18, record side panel): the record page's side panel surface, a hair off the page so the panel reads as reference beside the work — the sidebar's tint in light; in dark one step DOWN from the page (the sidebar there is a step up). Opaque, because below 68rem of record width the panel floats over the page. Read it as `bg-panel`."
   },
   "chart-1": {
     "$type": "color",

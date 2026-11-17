@@ -282,3 +282,39 @@ test("focus in a floating panel goes back to ▥ when the record grows wide enou
     "record-panel-toggle",
   );
 });
+
+test("a reveal asked before the record is measured opens where it ends up: floating on a narrow record", async () => {
+  await page.viewport(1440, 900);
+  function Early() {
+    const panel = useRecordPanel();
+    const asked = React.useRef(false);
+    React.useEffect(() => {
+      if (asked.current || !panel) return;
+      asked.current = true;
+      panel.reveal("files");
+    }, [panel]);
+    return null;
+  }
+  const screen = await render(
+    <RecordPanelProvider defaultOpen={false}>
+      <Early />
+      <RecordPanelToggle />
+      <div style={{ width: 1000, height: 600, display: "flex" }}>
+        <RecordLayout>
+          <RecordLayoutMain>Body</RecordLayoutMain>
+          <RecordPanel>
+            <RecordPanelSection value="files" title="Files" defaultOpen={false}>
+              <p>rollout-plan.pdf</p>
+            </RecordPanelSection>
+          </RecordPanel>
+        </RecordLayout>
+      </div>
+    </RecordPanelProvider>,
+  );
+  await frames();
+  await frames();
+  const panel = slot("record-panel")!;
+  expect(getComputedStyle(panel).display).toBe("flex");
+  expect(panel.getAttribute("data-surface")).toBe("overlay");
+  expect(screen.getByText("rollout-plan.pdf").element()).toBeVisible();
+});

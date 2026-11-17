@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.111.0 sha256-E2eoQnh9NGgPHFJ+lfDAM9Z5HPT9yesVhtSrl5HAQig=
+// @vegastack record-layout@0.111.0 sha256-i1+X7pe9WUCCszc+oI5MaVYaFCUivIY3pjMcgHu6GYc=
 
 "use client";
 
@@ -261,8 +261,15 @@ export function RecordPanelProvider({
     latest.current?.(true);
   }, [mode, shown, dismiss]);
 
+  // A reveal asked before the record is measured (a `#comment-` link on load) waits for its mode:
+  // a docked open on a record that turns out to float would show nothing.
+  const pendingReveal = React.useRef<string | null>(null);
   const reveal = React.useCallback(
     (value: string) => {
+      if (mode !== "sheet" && docked === null) {
+        pendingReveal.current = value;
+        return;
+      }
       setSection(value, true);
       if (mode === "sheet") setSheet(true);
       else if (mode === "overlay") {
@@ -284,8 +291,14 @@ export function RecordPanelProvider({
         ),
       );
     },
-    [id, mode, open, setSection],
+    [id, mode, docked, open, setSection],
   );
+  React.useEffect(() => {
+    if ((docked === null && mode !== "sheet") || !pendingReveal.current) return;
+    const value = pendingReveal.current;
+    pendingReveal.current = null;
+    reveal(value);
+  }, [docked, mode, reveal]);
 
   // ⌘. (Ctrl+. elsewhere) shows and hides it, from anywhere on the page, text fields included:
   // the chord types nothing.
