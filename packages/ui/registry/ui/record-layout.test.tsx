@@ -21,7 +21,17 @@ import {
   RecordPanelSection,
   RecordPanelToggle,
   RecordPanelTrigger,
+  useRecordPanel,
 } from "./record-layout";
+
+function Reveal() {
+  const panel = useRecordPanel();
+  return (
+    <button type="button" onClick={() => panel?.reveal("files")}>
+      Show files
+    </button>
+  );
+}
 
 const slot = (name: string) =>
   document.querySelector<HTMLElement>(`[data-slot='${name}']`);
@@ -48,9 +58,12 @@ function Record({
       open={open}
       defaultOpen={defaultOpen}
       onOpenChange={onOpenChange}
+      sections={sections}
+      onSectionOpenChange={onSectionOpenChange}
     >
       <header>
         <RecordPanelToggle />
+        <Reveal />
       </header>
       <div style={{ width, height: 600, display: "flex" }}>
         <RecordLayout>
@@ -59,10 +72,7 @@ function Record({
             <RecordPanelTrigger />
             <p>Description</p>
           </RecordLayoutMain>
-          <RecordPanel
-            sections={sections}
-            onSectionOpenChange={onSectionOpenChange}
-          >
+          <RecordPanel>
             <RecordPanelSection value="details" title="Details">
               <PropertyList variant="panel" aria-label="Details">
                 <PropertyRow>
@@ -235,4 +245,24 @@ test("on a phone the Details button opens the sections as a sheet; the remembere
   expect(changes).toEqual([]);
   await expectNoA11yViolations(document.body);
   await page.viewport(1440, 900);
+});
+
+test("a page's reveal shows a hidden panel and opens a folded section, remembering both", async () => {
+  await page.viewport(1440, 900);
+  const opens: boolean[] = [];
+  const folds: [string, boolean][] = [];
+  const screen = await render(
+    <Record
+      width={1300}
+      defaultOpen={false}
+      sections={{ files: false }}
+      onOpenChange={(o) => opens.push(o)}
+      onSectionOpenChange={(v, o) => folds.push([v, o])}
+    />,
+  );
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
+  await screen.getByRole("button", { name: "Show files" }).click();
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("flex");
+  expect(opens).toEqual([true]);
+  expect(folds).toEqual([["files", true]]);
 });

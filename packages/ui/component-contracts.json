@@ -40080,6 +40080,24 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "RecordPanelControls",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useRecordPanel",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {

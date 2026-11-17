@@ -35,7 +35,12 @@ import {
   RecordPanelTrigger,
 } from "@/components/ui/record-layout";
 
-<RecordPanelProvider open={open} onOpenChange={rememberOpen}>
+<RecordPanelProvider
+  open={open}
+  onOpenChange={rememberOpen}
+  sections={folds}
+  onSectionOpenChange={rememberFold}
+>
   <ShellTopBarPanel>
     <RecordPanelToggle />
   </ShellTopBarPanel>
@@ -45,7 +50,7 @@ import {
       <RecordPanelTrigger />
       {/* description, subtasks, activity and comments, in reading order */}
     </RecordLayoutMain>
-    <RecordPanel sections={folds} onSectionOpenChange={rememberFold}>
+    <RecordPanel>
       <RecordPanelSection value="details" title="Details">
         <PropertyList variant="panel" aria-label="Task details">
           <PropertyRow>
@@ -121,8 +126,10 @@ The page bar's **▥** (`RecordPanelToggle`) is its last control, after ⋯ and 
 Each `RecordPanelSection` is a 40px header — fold chevron, title (14/600), a muted count and one
 optional action (`RecordPanelAction`, "+" by default) that shows on hover or focus — over its
 rows, 16px in from the panel's edges, with a hairline under it. The app keeps each section's fold
-per record type (`sections`, `onSectionOpenChange` on `RecordPanel`); `defaultOpen` stands until
-the person folds it. Fix the order per record type; never reorder sections per record.
+per record type (`sections`, `onSectionOpenChange` on `RecordPanelProvider`); `defaultOpen`
+stands until the person folds it. `useRecordPanel()` gives the page around the panel its controls —
+`shown`, `toggle` and `reveal(value)`, which shows the panel and opens that section scrolled into
+view (a menu's "Versions"); it is null outside a provider, as in a peek. Fix the order per record type; never reorder sections per record.
 
 Two row shapes, the same everywhere:
 

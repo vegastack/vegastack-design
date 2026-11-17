@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.107.0 sha256-m3nXJBZ/q8yqZD2VXCIIvODNhGe2CVjj3o4s45gXxtY=
+// @vegastack record-layout@0.107.0 sha256-69tudVau+HNwJxYiaerex6fQYOiOFEX22eSb2EphaWs=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -15,7 +15,9 @@ export {
   RecordPanelSection,
   RecordPanelToggle,
   RecordPanelTrigger,
+  useRecordPanel,
   type RecordPanelActionProps,
+  type RecordPanelControls,
   type RecordPanelEmptyProps,
   type RecordPanelItemProps,
   type RecordPanelListProps,

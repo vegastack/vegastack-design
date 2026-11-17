@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.107.0 sha256-m3nXJBZ/q8yqZD2VXCIIvODNhGe2CVjj3o4s45gXxtY=
+// @vegastack record-layout@0.107.0 sha256-69tudVau+HNwJxYiaerex6fQYOiOFEX22eSb2EphaWs=
 
 "use client";
 
@@ -42,7 +42,8 @@ import {
  *
  * `RecordPanelProvider` holds the state the toggle, the phone button and the panel share; the app
  * owns the remembered choice (`open`, `onOpenChange`) and each section's fold (`sections`,
- * `onSectionOpenChange`), so it can keep them per person and per record type. A docked panel that
+ * `onSectionOpenChange`), so it can keep them per person and per record type; `useRecordPanel`
+ * lets the page reveal a section from elsewhere (a menu's "Versions"). A docked panel that
  * is open on load is drawn by the server: nothing moves when the page hydrates.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -77,6 +78,11 @@ interface PanelContextValue {
   toggle: () => void;
   /** Hides a floating panel or the sheet; focus goes back to ▥ when it was in the panel. */
   dismiss: () => void;
+  /** Each section's fold, by its `value`. */
+  sections: Readonly<Record<string, boolean>>;
+  setSection: (value: string, open: boolean) => void;
+  /** Shows the panel and opens `value`'s section, scrolled into view. */
+  reveal: (value: string) => void;
 }
 
 const PanelContext = React.createContext<PanelContextValue | null>(null);
@@ -103,6 +109,13 @@ export interface RecordPanelProviderProps {
   label?: string;
   /** Whether ⌘. (Ctrl+. elsewhere) shows and hides the panel. @default true */
   shortcut?: boolean;
+  /**
+   * Each section's fold, by its `value` (controlled): `true` open, `false` folded; a section not
+   * in it takes its `defaultOpen`. The app keeps it per record type. @default undefined
+   */
+  sections?: Readonly<Record<string, boolean>>;
+  /** Called when a person folds or opens a section. @default undefined */
+  onSectionOpenChange?: (value: string, open: boolean) => void;
   children?: React.ReactNode;
 }
 
@@ -112,7 +125,7 @@ export interface RecordPanelProviderProps {
  * may portal into the bar: context follows it).
  *
  * @example
- * <RecordPanelProvider open={open} onOpenChange={remember}>
+ * <RecordPanelProvider open={open} onOpenChange={remember} sections={folds} onSectionOpenChange={fold}>
  *   <PageBarSlot><RecordPanelToggle /></PageBarSlot>
  *   <RecordLayout>…<RecordPanel>…</RecordPanel></RecordLayout>
  * </RecordPanelProvider>
@@ -123,6 +136,8 @@ export function RecordPanelProvider({
   onOpenChange,
   label = "Details",
   shortcut = true,
+  sections: sectionsProp,
+  onSectionOpenChange,
   children,
 }: RecordPanelProviderProps) {
   const phone = useMediaQuery(PHONE_QUERY);
@@ -136,6 +151,16 @@ export function RecordPanelProvider({
   const id = `record-panel${React.useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const latest = React.useRef(onOpenChange);
   latest.current = onOpenChange;
+  const [ownSections, setOwnSections] = React.useState<Record<string, boolean>>(
+    {},
+  );
+  const sections = sectionsProp ?? ownSections;
+  const latestFold = React.useRef(onSectionOpenChange);
+  latestFold.current = onSectionOpenChange;
+  const setSection = React.useCallback((value: string, next: boolean) => {
+    setOwnSections((s) => ({ ...s, [value]: next }));
+    latestFold.current?.(value, next);
+  }, []);
 
   // A record that grows wide enough to dock drops its floating panel (the docked one is the
   // remembered choice); one that leaves the phone width drops its sheet.
@@ -182,6 +207,32 @@ export function RecordPanelProvider({
     );
   }, [id, mode]);
 
+  const reveal = React.useCallback(
+    (value: string) => {
+      if (sections[value] === false) setSection(value, true);
+      if (mode === "sheet") setSheet(true);
+      else if (mode === "overlay") {
+        setMotion(true);
+        setOverlay(true);
+      } else if (!open) {
+        setMotion(true);
+        setOwn(true);
+        latest.current?.(true);
+      }
+      // Once it is drawn (a sheet mounts its content as it opens), bring the section into view.
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() =>
+          document
+            .querySelector(
+              `#${CSS.escape(id)} [data-slot='record-panel-section'][data-value='${CSS.escape(value)}']`,
+            )
+            ?.scrollIntoView({ block: "nearest" }),
+        ),
+      );
+    },
+    [id, mode, open, sections, setSection],
+  );
+
   // ⌘. (Ctrl+. elsewhere) shows and hides it, from anywhere on the page, text fields included:
   // the chord types nothing.
   const latestToggle = React.useRef(toggle);
@@ -215,6 +266,9 @@ export function RecordPanelProvider({
       clearMotion,
       toggle,
       dismiss,
+      sections,
+      setSection,
+      reveal,
     }),
     [
       id,
@@ -229,10 +283,40 @@ export function RecordPanelProvider({
       clearMotion,
       toggle,
       dismiss,
+      sections,
+      setSection,
+      reveal,
     ],
   );
   return (
     <PanelContext.Provider value={value}>{children}</PanelContext.Provider>
+  );
+}
+
+/** What `useRecordPanel` gives a page. */
+export interface RecordPanelControls {
+  /** Whether the panel shows now (docked, floating or as the phone's sheet). */
+  shown: boolean;
+  /** Shows or hides it, as ▥ does. */
+  toggle: () => void;
+  /** Shows it and opens `value`'s section, scrolled into view: a menu's "Versions", a link's target. */
+  reveal: (value: string) => void;
+}
+
+/**
+ * `useRecordPanel` — the panel's controls for the page around it, inside `RecordPanelProvider`.
+ * Null outside one (a record shown in a peek has no side panel).
+ *
+ * @example
+ * const panel = useRecordPanel();
+ * <DropdownMenuItem onClick={() => panel?.reveal("versions")}>Versions</DropdownMenuItem>
+ */
+export function useRecordPanel(): RecordPanelControls | null {
+  const ctx = React.useContext(PanelContext);
+  return React.useMemo(
+    () =>
+      ctx ? { shown: ctx.shown, toggle: ctx.toggle, reveal: ctx.reveal } : null,
+    [ctx],
   );
 }
 
@@ -337,23 +421,8 @@ export function RecordPanelTrigger({
  * Panel
  * ----------------------------------------------------------------------------------------------*/
 
-interface SectionsContextValue {
-  state: Readonly<Record<string, boolean>>;
-  set: (value: string, open: boolean) => void;
-}
-
-const SectionsContext = React.createContext<SectionsContextValue | null>(null);
-
 /** Props for `RecordPanel`. */
-export interface RecordPanelProps extends React.ComponentPropsWithRef<"aside"> {
-  /**
-   * Each section's fold, by its `value` (controlled): `true` open, `false` folded; a section not
-   * in it takes its `defaultOpen`. The app keeps it per record type. @default undefined
-   */
-  sections?: Readonly<Record<string, boolean>>;
-  /** Called when a person folds or opens a section. @default undefined */
-  onSectionOpenChange?: (value: string, open: boolean) => void;
-}
+export type RecordPanelProps = React.ComponentPropsWithRef<"aside">;
 
 /**
  * `RecordPanel` — the side panel itself, after `RecordLayoutMain` inside `RecordLayout`: an
@@ -362,14 +431,12 @@ export interface RecordPanelProps extends React.ComponentPropsWithRef<"aside"> {
  * returns to ▥), and is a bottom sheet on a phone. Never on a list page: rows open in `Peek`.
  *
  * @example
- * <RecordPanel sections={folds} onSectionOpenChange={rememberFold}>
+ * <RecordPanel>
  *   <RecordPanelSection value="details" title="Details">…</RecordPanelSection>
  *   <RecordPanelSection value="files" title="Files" count={2}>…</RecordPanelSection>
  * </RecordPanel>
  */
 export function RecordPanel({
-  sections,
-  onSectionOpenChange,
   className,
   children,
   onTransitionEnd,
@@ -378,15 +445,6 @@ export function RecordPanel({
   const ctx = usePanel("RecordPanel");
   const ref = React.useRef<HTMLElement | null>(null);
   const titleId = `${ctx.id}-title`;
-  const [own, setOwn] = React.useState<Record<string, boolean>>({});
-  const latest = React.useRef(onSectionOpenChange);
-  latest.current = onSectionOpenChange;
-  const state = sections ?? own;
-  const set = React.useCallback((value: string, open: boolean) => {
-    setOwn((s) => ({ ...s, [value]: open }));
-    latest.current?.(value, open);
-  }, []);
-  const folds = React.useMemo(() => ({ state, set }), [state, set]);
   const { setDocked, mode, overlay, dismiss } = ctx;
   const sheet = mode === "sheet";
 
@@ -440,11 +498,7 @@ export function RecordPanel({
     };
   }, [mode, overlay]);
 
-  const body = (
-    <SectionsContext.Provider value={folds}>
-      {children}
-    </SectionsContext.Provider>
-  );
+  const body = children;
 
   if (mode === "sheet")
     return (
@@ -562,14 +616,16 @@ export function RecordPanelSection({
   children,
   ...props
 }: RecordPanelSectionProps) {
-  const folds = React.useContext(SectionsContext);
+  const panel = React.useContext(PanelContext);
   const [own, setOwn] = React.useState(defaultOpen);
-  const open = folds ? (folds.state[value] ?? defaultOpen) : own;
+  const open = panel ? (panel.sections[value] ?? defaultOpen) : own;
   const headingId = React.useId();
   return (
     <Collapsible
       open={open}
-      onOpenChange={(next) => (folds ? folds.set(value, next) : setOwn(next))}
+      onOpenChange={(next) =>
+        panel ? panel.setSection(value, next) : setOwn(next)
+      }
       render={
         <section
           data-slot="record-panel-section"
