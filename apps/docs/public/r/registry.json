@@ -221,8 +221,8 @@
       "meta": {
         "whenToUse": "The places in an app's module column — views, saved filters, spaces with their sections, folders, settings pages — in the shell's ShellColumn or a phone sheet.",
         "whenNotToUse": "A file browser with drag and drop (FolderTree), a page's own tabs (Tabs), or the module rail (Rail).",
-        "version": "0.109.2",
-        "integrity": "sha256-tTHM0IeUhagVJxo6hfJ8kbSgyAqcCMfR99cZJQHIjts="
+        "version": "0.109.4",
+        "integrity": "sha256-DHHsVbCro2XLSQUw9l+72swx2ZB4Jy69g9YUtvd/kjU="
       }
     },
     {
