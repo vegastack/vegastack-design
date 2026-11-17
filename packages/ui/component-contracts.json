@@ -39218,7 +39218,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["peek-sheet"]
+              "values": ["peek-sheet", "peek-sheet-viewport"]
             }
           ],
           "cssVariables": []

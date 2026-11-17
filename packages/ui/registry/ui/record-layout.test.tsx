@@ -157,6 +157,56 @@ test("the panel resizes by keys from 320px", async () => {
   expect(
     Math.round(slot("record-layout-panel")!.getBoundingClientRect().width),
   ).toBe(320);
+  // The maximum is a share of the record layout, not of the side wrapper.
+  await userEvent.keyboard("{End}");
+  await new Promise((r) =>
+    requestAnimationFrame(() => requestAnimationFrame(r)),
+  );
+  expect(
+    Math.round(slot("record-layout-panel")!.getBoundingClientRect().width),
+  ).toBe(780);
+});
+
+test("✕ hands focus back to the panel's strip button", async () => {
+  await page.viewport(1440, 900);
+  const screen = await render(<RecordWithPanels width={1300} />);
+  await screen.getByRole("button", { name: "Files, 3" }).click();
+  await screen.getByRole("button", { name: "Close panel" }).click();
+  await new Promise((r) => requestAnimationFrame(r));
+  expect(slot("record-layout-panel")).toBeNull();
+  expect(document.activeElement?.getAttribute("data-value")).toBe("files");
+});
+
+test("an app's change of the controlled panel plays no motion", async () => {
+  await page.viewport(1440, 900);
+  function Controlled() {
+    const [panel, setPanel] = React.useState<string | null>(null);
+    return (
+      <div style={{ width: 1300 }}>
+        <button type="button" onClick={() => setPanel("details")}>
+          Apply default
+        </button>
+        <RecordLayout>
+          <RecordLayoutMain>Body</RecordLayoutMain>
+          <RecordLayoutSide panel={panel} onPanelChange={setPanel}>
+            <RecordLayoutPanel value="details" title="Details">
+              Owner
+            </RecordLayoutPanel>
+            <RecordLayoutStrip>
+              <RecordLayoutStripItem
+                value="details"
+                label="Details"
+                icon={<Info />}
+              />
+            </RecordLayoutStrip>
+          </RecordLayoutSide>
+        </RecordLayout>
+      </div>
+    );
+  }
+  const screen = await render(<Controlled />);
+  await screen.getByRole("button", { name: "Apply default" }).click();
+  expect(slot("record-layout-panel")!.hasAttribute("data-motion")).toBe(false);
 });
 
 test("on a phone the strip is a row under the header, and each button opens its panel as a sheet", async () => {

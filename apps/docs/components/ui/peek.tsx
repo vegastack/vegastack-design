@@ -1,4 +1,4 @@
-// @vegastack peek@0.101.0 sha256-LSwkOEn7PGTDYmEPR0mKKT0Z4yu5yVae+T9R+amBE/A=
+// @vegastack peek@0.101.0 sha256-weZPjAD7m569rhVZChuomqfppRF31FT1RoFqZm30oP4=
 
 "use client";
 
@@ -84,6 +84,12 @@ export interface PeekResizeHandleProps {
   /** The edge the handle sits on: the start edge for a box anchored to the end. @default "start" */
   edge?: "start" | "end";
   /**
+   * The element whose width `maxRatio` is taken of. Defaults to the box's containing block (the
+   * page area, for a peek); pass the layout for a box that sits inside a narrower wrapper.
+   * @default undefined
+   */
+  area?: () => Element | null | undefined;
+  /**
    * The inline style property written mid-drag: `width`, or the custom property the box reads its
    * width from (so the app's next width is never shadowed by a stale inline one).
    * @default "width"
@@ -111,6 +117,7 @@ export function PeekResizeHandle({
   label = "panel",
   edge = "start",
   property = "width",
+  area: areaOf,
   className,
 }: PeekResizeHandleProps) {
   const handleRef = React.useRef<HTMLDivElement | null>(null);
@@ -120,14 +127,13 @@ export function PeekResizeHandle({
 
   const bounds = React.useCallback(() => {
     const box = handleRef.current?.parentElement;
+    const target = areaOf ? areaOf() : box?.offsetParent;
     const area =
-      box?.offsetParent instanceof HTMLElement
-        ? box.offsetParent.clientWidth
-        : window.innerWidth;
+      target instanceof HTMLElement ? target.clientWidth : window.innerWidth;
     const cap = Math.floor(area * maxRatio);
     // A page area too narrow for the minimum keeps the box at the minimum (CSS clamps it to 100%).
     return { min, max: Math.max(min, cap) };
-  }, [min, maxRatio]);
+  }, [min, maxRatio, areaOf]);
 
   const clamp = (n: number, b: { min: number; max: number }) =>
     Math.round(Math.min(b.max, Math.max(b.min, n)));
@@ -283,14 +289,20 @@ export function PeekSheet({
   children,
   className,
 }: PeekSheetProps) {
-  const points = React.useMemo(() => [...snapPoints], [snapPoints]);
+  // Keyed by value, so a fresh array literal on each parent render is the same points.
+  const pointsKey = snapPoints.join(",");
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const points = React.useMemo(() => [...snapPoints], [pointsKey]);
   const [restingPoint, setRestingPoint] = React.useState<PeekSnapPoint | null>(
     points[0] ?? null,
   );
-  // Each opening starts on the first snap point unless the app controls it.
-  React.useEffect(() => {
+  // Each opening starts on the first snap point unless the app controls it: reset on the
+  // closed-to-open change only, never on a re-render while it is open.
+  const [wasOpen, setWasOpen] = React.useState(open);
+  if (open !== wasOpen) {
+    setWasOpen(open);
     if (open) setRestingPoint(points[0] ?? null);
-  }, [open, points]);
+  }
   const controlled = snapPoint !== undefined;
   return (
     <Drawer
@@ -309,13 +321,17 @@ export function PeekSheet({
         data-slot="peek-sheet"
         aria-label={labelledBy ? undefined : label}
         aria-labelledby={labelledBy}
-        className={cn(
-          "pb-[env(safe-area-inset-bottom)] text-base",
-          // The sheet is the screen's height and slides to its snap point; its body scrolls.
-          className,
-        )}
+        className={cn("text-base", className)}
       >
-        {children}
+        {/* The popup is the screen's height and slides down to its snap point; this box is only
+            the part on screen (less the swipe handle), so the body's scroll ends where the sheet
+            does at every snap point. */}
+        <div
+          data-slot="peek-sheet-viewport"
+          className="flex max-h-[calc(100dvh-var(--drawer-snap-point-offset,0px)-0.75rem)] min-h-0 flex-1 flex-col pb-[env(safe-area-inset-bottom)]"
+        >
+          {children}
+        </div>
       </DrawerContent>
     </Drawer>
   );
@@ -427,13 +443,16 @@ export function Peek({
 
   // The open motion plays only when a person opens it after the page has drawn (a cue reacts to a
   // live change, never to the first render): a peek restored on load appears at rest.
-  const [motion, setMotion] = React.useState(false);
+  // Known at render, so the section is inserted with its `@starting-style` classes: a peek open
+  // on the first render is "restored" and stays at rest until it has closed once.
+  const [restored, setRestored] = React.useState(open);
+  if (!open && restored) setRestored(false);
+  const motion = open && !restored;
   const wasOpen = React.useRef(open);
   React.useEffect(() => {
     const was = wasOpen.current;
     wasOpen.current = open;
     if (open && !was) {
-      setMotion(true);
       const active = document.activeElement;
       if (
         active instanceof HTMLElement &&
@@ -444,7 +463,6 @@ export function Peek({
       if (focusOnOpen && surface === "side")
         rootRef.current?.focus({ preventScroll: true });
     }
-    if (!open) setMotion(false);
   }, [open, focusOnOpen, surface]);
 
   // Escape closes the side peek from the peek or the list; a menu or popover takes it first, and a
@@ -456,6 +474,15 @@ export function Peek({
       if (event.defaultPrevented || event.isComposing) return;
       const root = rootRef.current;
       if (!root) return;
+      // Only this peek's own page area answers: focus in the peek, in its page area, or nowhere.
+      const active = document.activeElement;
+      const area = root.offsetParent ?? root.parentElement;
+      const owned =
+        !active ||
+        active === document.body ||
+        root.contains(active) ||
+        !!area?.contains(active);
+      if (!owned) return;
       if (event.key === "F6") {
         const inside = root.contains(document.activeElement);
         if (inside && returnTo.current?.isConnected) {
@@ -515,6 +542,8 @@ export function Peek({
             data-slot="peek"
             data-surface="sheet"
             className="flex min-h-0 flex-1 flex-col"
+            style={style}
+            {...(props as React.HTMLAttributes<HTMLDivElement>)}
           >
             {children}
           </div>

@@ -1,11 +1,11 @@
-// @vegastack record-layout@0.101.0 sha256-Mwapit0weatrQ4AvaxDO0rp3yt5xFLXBWRDcvKuXSwo=
+// @vegastack record-layout@0.101.0 sha256-XMCFNu2JqfVJZP9DFBxhHisBMmYjGHyK3bTDAQs/xp4=
 
 "use client";
 
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { PeekResizeHandle, PeekSheet } from "@/components/ui/peek";
 import {
@@ -43,7 +43,9 @@ interface SideContextValue {
   panel: string | null;
   /** Opens a panel (or closes it with `null`); `person` marks a click, which plays the motion. */
   setPanel: (value: string | null, person: boolean) => void;
-  motion: boolean;
+  /** The panel a person just opened: it alone plays the open motion, once. */
+  motionFor: string | null;
+  clearMotion: () => void;
   phone: boolean;
   /**
    * The panel open as a sheet on a phone. A sheet opens only on a tap and never changes the
@@ -117,7 +119,8 @@ export function RecordLayoutSide({
   const phone = useMediaQuery(PHONE_QUERY);
   const [own, setOwn] = React.useState<string | null>(defaultPanel);
   const panel = panelProp !== undefined ? panelProp : own;
-  const [motion, setMotion] = React.useState(false);
+  const [motionFor, setMotionFor] = React.useState<string | null>(null);
+  const clearMotion = React.useCallback(() => setMotionFor(null), []);
   const [sheet, setSheet] = React.useState<string | null>(null);
   React.useEffect(() => {
     if (!phone) setSheet(null);
@@ -128,7 +131,7 @@ export function RecordLayoutSide({
 
   const setPanel = React.useCallback(
     (value: string | null, person: boolean) => {
-      setMotion(person);
+      setMotionFor(person ? value : null);
       setOwn(value);
       latest.current?.(value);
     },
@@ -139,7 +142,8 @@ export function RecordLayoutSide({
     () => ({
       panel,
       setPanel,
-      motion,
+      motionFor,
+      clearMotion,
       phone,
       sheet,
       setSheet,
@@ -150,7 +154,8 @@ export function RecordLayoutSide({
     [
       panel,
       setPanel,
-      motion,
+      motionFor,
+      clearMotion,
       phone,
       sheet,
       panelWidth,
@@ -310,6 +315,7 @@ export function RecordLayoutStripItem({
     "aria-controls": active ? panelId(idPrefix, value) : undefined,
     "data-active": active ? "" : undefined,
     "data-value": value,
+    "data-side": idPrefix,
     onClick: (event: React.MouseEvent<HTMLButtonElement>) => {
       onClick?.(event as never);
       if (event.defaultPrevented) return;
@@ -399,12 +405,15 @@ export function RecordLayoutPanel({
   className,
   children,
   style,
+  ref,
+  onTransitionEnd,
   ...props
 }: RecordLayoutPanelProps) {
   const {
     panel,
     setPanel,
-    motion,
+    motionFor,
+    clearMotion,
     phone,
     sheet,
     setSheet,
@@ -413,12 +422,37 @@ export function RecordLayoutPanel({
     idPrefix,
   } = useSide("RecordLayoutPanel");
   const open = (phone ? sheet : panel) === value;
-  const close = () => (phone ? setSheet(null) : setPanel(null, true));
   const id = panelId(idPrefix, value);
   const titleId = `${id}-title`;
   const rootRef = React.useRef<HTMLElement | null>(null);
+  const refs = React.useMemo(
+    () => mergeRefs<HTMLElement>(rootRef, ref as React.Ref<HTMLElement>),
+    [ref],
+  );
 
-  // Over the page (below 1200px) Escape closes it; docked beside the page it stays (R5).
+  // A close from inside the panel hands focus back to its own strip button (this record's, not
+  // another one on the page).
+  const close = () => {
+    const root = rootRef.current;
+    const active = document.activeElement;
+    const inside =
+      !!root && (root.contains(active) || active === document.body);
+    if (phone) setSheet(null);
+    else setPanel(null, true);
+    if (!inside) return;
+    requestAnimationFrame(() =>
+      document
+        .querySelector<HTMLElement>(
+          `[data-slot='record-layout-strip-item'][data-side='${idPrefix}'][data-value='${CSS.escape(value)}']`,
+        )
+        ?.focus({ preventScroll: true }),
+    );
+  };
+  const latestClose = React.useRef(close);
+  latestClose.current = close;
+
+  // Over the page (below 1200px) Escape closes it; docked beside the page it stays (R5). Only
+  // this record answers: focus in its layout, or nowhere.
   React.useEffect(() => {
     if (!open || phone) return;
     const onKey = (event: KeyboardEvent) => {
@@ -426,21 +460,18 @@ export function RecordLayoutPanel({
         return;
       const root = rootRef.current;
       if (!root || getComputedStyle(root).position !== "absolute") return;
+      const active = document.activeElement;
+      const layout = root.closest("[data-slot='record-layout']");
+      if (active && active !== document.body && !layout?.contains(active))
+        return;
       if (document.querySelector(ESC_OWNERS)) return;
       if (isEditableTarget(event)) return;
       event.preventDefault();
-      const inside = root.contains(document.activeElement);
-      setPanel(null, true);
-      if (inside)
-        document
-          .querySelector<HTMLElement>(
-            `[data-slot='record-layout-strip-item'][data-value='${CSS.escape(value)}']`,
-          )
-          ?.focus({ preventScroll: true });
+      latestClose.current();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [open, phone, setPanel, value]);
+  }, [open, phone]);
 
   const header = (
     <div
@@ -484,10 +515,13 @@ export function RecordLayoutPanel({
         labelledBy={titleId}
       >
         <div
+          ref={refs as React.Ref<HTMLDivElement>}
           id={id}
           data-slot="record-layout-panel"
           data-surface="sheet"
           className={cn("flex min-h-0 flex-1 flex-col", className)}
+          style={style}
+          {...(props as React.HTMLAttributes<HTMLDivElement>)}
         >
           {header}
           {body}
@@ -498,12 +532,17 @@ export function RecordLayoutPanel({
   if (!open) return null;
   return (
     <aside
-      ref={rootRef}
+      ref={refs}
       id={id}
       aria-labelledby={titleId}
       data-slot="record-layout-panel"
       data-surface="side"
-      data-motion={motion ? "enter" : undefined}
+      data-motion={motionFor === value ? "enter" : undefined}
+      onTransitionEnd={(event) => {
+        onTransitionEnd?.(event);
+        // The open has played: later width changes (a resize) and re-renders stay still.
+        if (event.target === event.currentTarget) clearMotion();
+      }}
       style={
         {
           "--record-panel-width": `${width}px`,
@@ -529,6 +568,7 @@ export function RecordLayoutPanel({
           min={RECORD_PANEL_MIN_WIDTH}
           maxRatio={RECORD_PANEL_MAX_RATIO}
           property="--record-panel-width"
+          area={() => rootRef.current?.closest("[data-slot='record-layout']")}
           label={typeof title === "string" ? title.toLowerCase() : "panel"}
         />
       ) : null}
