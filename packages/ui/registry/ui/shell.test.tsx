@@ -488,3 +488,52 @@ test("the top bar keeps presence, tools, primary, Share, ☆ and ⋯ in order, w
   );
   expect(new Set(heights)).toEqual(new Set([28]));
 });
+
+test("picking a place in a column that slid over closes it; folding a parent does not", async () => {
+  await render(
+    <div style={{ width: 820, height: 600 }}>
+      <Shell
+        fill="parent"
+        globalBar={
+          <GlobalBar>
+            <GlobalBarLeading>
+              <ShellColumnToggle />
+            </GlobalBarLeading>
+            <GlobalBarCenter />
+            <GlobalBarTrailing />
+          </GlobalBar>
+        }
+        rail={<Rail />}
+        column={
+          <ShellColumn label="Spaces">
+            <NavTree>
+              <NavTreeSection>
+                <NavTreeItem label="Design">
+                  <NavTreeItem label="Board" onClick={() => {}} />
+                </NavTreeItem>
+              </NavTreeSection>
+            </NavTree>
+          </ShellColumn>
+        }
+      >
+        <ShellMain>
+          <ShellPage>Page</ShellPage>
+        </ShellMain>
+      </Shell>
+    </div>,
+  );
+  await settled();
+  document
+    .querySelector<HTMLElement>('[data-slot="shell-column-toggle"]')!
+    .click();
+  await expect.poll(() => shell().dataset.column).toBe("over");
+  const row = (name: string) =>
+    [
+      ...document.querySelectorAll<HTMLElement>('[data-slot="nav-tree-item"]'),
+    ].find((el) => el.textContent === name)!;
+  row("Design").click();
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(shell().dataset.column).toBe("over");
+  row("Board").click();
+  await expect.poll(() => shell().dataset.column).toBe("folded");
+});
