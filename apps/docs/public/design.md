@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 38121
-      sha256: "e740f5e44ecd59ed5a94641141e9774f4d68a93df30645cf37100c2e55d86f23"
+      bytes: 37345
+      sha256: "f096d863069bddcd7e8262ff3f2133762f15b16c5cc048eeb54482244d0db3de"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13917
@@ -188,7 +188,7 @@ themes:
     duration-panel:
       type: "duration"
       value: "120ms"
-      description: "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
+      description: "A peek or a record page's side panel opening: it slides in (a docked panel grows and the page re-centres), quick enough to read as a response to the click, and only for a person's action. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -360,18 +360,6 @@ themes:
       type: "dimension"
       value: "2.75rem"
       description: "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
-    shell-panel-width:
-      type: "dimension"
-      value: "26.25rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
-    shell-panel-width-max:
-      type: "dimension"
-      value: "45rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
-    shell-panel-width-min:
-      type: "dimension"
-      value: "22.5rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
     shell-rail-width:
       type: "dimension"
       value: "4rem"
@@ -687,7 +675,7 @@ themes:
     duration-panel:
       type: "duration"
       value: "120ms"
-      description: "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
+      description: "A peek or a record page's side panel opening: it slides in (a docked panel grows and the page re-centres), quick enough to read as a response to the click, and only for a person's action. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -853,18 +841,6 @@ themes:
       type: "dimension"
       value: "2.75rem"
       description: "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
-    shell-panel-width:
-      type: "dimension"
-      value: "26.25rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
-    shell-panel-width-max:
-      type: "dimension"
-      value: "45rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
-    shell-panel-width-min:
-      type: "dimension"
-      value: "22.5rem"
-      description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
     shell-rail-width:
       type: "dimension"
       value: "4rem"
@@ -1389,7 +1365,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
   edge-pinned surfaces, `dvh` over `vh`; truncation is `min-w-0` on the flex child with `truncate`
   on an inner span, never both on one element; `Shell` owns the landmarks, the skip link and the
-  content container, and `ShellStateScript` sets the column and panel state before the first paint
+  content container, and `ShellStateScript` sets the column state before the first paint
   (LAY-22). A line tab list scrolls inside
   itself, with edge fades and the active trigger kept in view — `TabsList overflow="scroll"`, the
   default for `variant="line"` (LAY-14). `AlertAction` takes its own top-aligned grid column and
@@ -1398,9 +1374,10 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   row in a grid or narrow column truncates its label (LAY-18) — a deliberate deviation MK approved
   (31-10-2026) so an app needs no class on these shadcn-copied parts; a shadcn refresh keeps it
   (LAY-19 and LAY-21, the sidebar's icon-rail row and scroll cues, went with `sidebar`). The app shell's regions — a 44px global bar across the top, a 64px labelled rail, a 240px module
-  column that opens on a 48px title row level with the page's 48px top bar, the page, a 420px right panel
-  and a 56px phone bar — take their sizes from the `--shell-*` tokens, and one rule places the panel: beside the page while the page keeps its minimum width, else the
-  column folds first, else the panel slides over the page, full screen on phones (LAY-22). The
+  column that opens on a 48px title row level with the page's 48px top bar, the page, and a 56px phone
+  bar — take their sizes from the `--shell-*` tokens (LAY-22). The frame has no right panel (layout v2,
+  D11): a record opens in `Peek` over the page area, or on its page, where `RecordLayout`'s side panel
+  docks beside the main column from 1200px of record width and floats over it below. The
   phone bar steps aside as the browser's own bars compact and while the keyboard is open (LAY-23), the
   desktop app's title row is the global bar, which drags the window and clears the traffic lights or
   caption buttons (LAY-24), and on a tablet the column slides over the page (LAY-25).

@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "0a4a59466725252a5cb382a89c22f461072ea3ae52bfbf9842ae3f9d7d128c98",
+  "contractSha256": "9d5c2b01f6a89aaedd9d3d595d7f0912e17e67979d310ca3f2b9e639f9cac7d1",
   "inventory": {
-    "expected": 818,
-    "actual": 818,
-    "unique": 818
+    "expected": 816,
+    "actual": 816,
+    "unique": 816
   },
   "classes": {
-    "components": 228,
+    "components": 227,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
     "chartBlocks": 68,
-    "libs": 24
+    "libs": 23
   },
   "waves": {
     "Core controls": {
@@ -92,8 +92,8 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 28,
-      "actual": 28,
+      "expected": 27,
+      "actual": 27,
       "members": [
         "accordion",
         "aspect-ratio",
@@ -119,7 +119,6 @@
         "route-tabs",
         "scroll-area",
         "shell",
-        "shell-panel",
         "stepper",
         "table-of-contents",
         "tabs"
@@ -877,7 +876,7 @@
       ]
     }
   },
-  "componentRoutes": 222,
+  "componentRoutes": 221,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

@@ -132,6 +132,8 @@ or keeps scrolling while the peek is open.
   closes (✕ or Escape), focus returns to the row that opened it.
 - On a phone the sheet is modal, as a sheet over the whole screen must be: focus stays inside until
   it closes, and the page behind does not scroll.
+- When the phone sheet closes, focus goes back to the row that opened it, or stays put; it never
+  returns to a text field (that would raise the keyboard). `finalFocus` overrides it.
 
 | Key    | Action                                                                                       |
 | ------ | -------------------------------------------------------------------------------------------- |

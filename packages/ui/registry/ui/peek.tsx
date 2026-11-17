@@ -1,4 +1,4 @@
-// @vegastack peek@0.106.0 sha256-pCCuAMTYZCnOTcbGw3qTXYp26DXoReO5OQJsfjntu30=
+// @vegastack peek@0.106.0 sha256-OgiEKDrXAv9ehWXooP7LhJbB32YFHZCEpxkl2WT+mbk=
 
 "use client";
 
@@ -245,6 +245,11 @@ export function PeekResizeHandle({
 /** A snap point: a share of the screen's height (0–1), or a px / rem length. */
 export type PeekSnapPoint = number | string;
 
+/** Where focus goes when a phone sheet closes (Base UI's drawer `finalFocus`). */
+export type PeekFinalFocus = React.ComponentProps<
+  typeof DrawerContent
+>["finalFocus"];
+
 /** Props for `PeekSheet`. */
 export interface PeekSheetProps {
   /** Whether the sheet is open. */
@@ -261,6 +266,14 @@ export interface PeekSheetProps {
   snapPoint?: PeekSnapPoint | null;
   /** Called when a drag moves it to another snap point. @default undefined */
   onSnapPointChange?: (snapPoint: PeekSnapPoint | null) => void;
+  /**
+   * Where focus goes when the sheet closes: an element (a ref), `true` for Base UI's default (back
+   * to what had focus before, which can be a search field and so raise a phone's keyboard),
+   * `false` to leave it, or a function given how it closed. `Peek` passes the row that opened it,
+   * or nothing.
+   * @default true
+   */
+  finalFocus?: PeekFinalFocus;
   /** The sheet's content: a header and a body. @default undefined */
   children?: React.ReactNode;
   /** Extra classes for the sheet's popup. @default undefined */
@@ -286,6 +299,7 @@ export function PeekSheet({
   snapPoints = PEEK_SNAP_POINTS,
   snapPoint,
   onSnapPointChange,
+  finalFocus,
   children,
   className,
 }: PeekSheetProps) {
@@ -321,6 +335,7 @@ export function PeekSheet({
         data-slot="peek-sheet"
         aria-label={labelledBy ? undefined : label}
         aria-labelledby={labelledBy}
+        finalFocus={finalFocus}
         className={cn(
           // The full screen's height, so each snap point is that share of the screen and the
           // visible part below is exactly the screen less the snap offset.
@@ -389,6 +404,12 @@ export interface PeekProps extends Omit<
   snapPoint?: PeekSnapPoint | null;
   /** Called when the phone sheet moves to another snap point. @default undefined */
   onSnapPointChange?: (snapPoint: PeekSnapPoint | null) => void;
+  /**
+   * Where focus goes when the phone sheet closes. By default the row that opened the peek, and
+   * otherwise nowhere — never back into a text field, which would raise the keyboard.
+   * @default undefined
+   */
+  finalFocus?: PeekFinalFocus;
 }
 
 function focusBack(back: HTMLElement | null) {
@@ -422,6 +443,7 @@ export function Peek({
   snapPoints,
   snapPoint,
   onSnapPointChange,
+  finalFocus,
   className,
   style,
   children,
@@ -455,21 +477,31 @@ export function Peek({
   const [restored, setRestored] = React.useState(open);
   if (!open && restored) setRestored(false);
   const motion = open && !restored;
+  // Where focus was when it opened — read in a layout effect, before the phone sheet's own focus
+  // management moves it inside, and on the first render too (a peek mounted already open).
+  const captured = React.useRef(false);
+  React.useLayoutEffect(() => {
+    if (!open) {
+      captured.current = false;
+      return;
+    }
+    if (captured.current) return;
+    captured.current = true;
+    const active = document.activeElement;
+    if (
+      active instanceof HTMLElement &&
+      active !== document.body &&
+      !rootRef.current?.contains(active) &&
+      !active.closest("[data-slot='peek-sheet']")
+    )
+      returnTo.current = active;
+  }, [open]);
   const wasOpen = React.useRef(open);
   React.useEffect(() => {
     const was = wasOpen.current;
     wasOpen.current = open;
-    if (open && !was) {
-      const active = document.activeElement;
-      if (
-        active instanceof HTMLElement &&
-        active !== document.body &&
-        !rootRef.current?.contains(active)
-      )
-        returnTo.current = active;
-      if (focusOnOpen && surface === "side")
-        rootRef.current?.focus({ preventScroll: true });
-    }
+    if (open && !was && focusOnOpen && surface === "side")
+      rootRef.current?.focus({ preventScroll: true });
   }, [open, focusOnOpen, surface]);
 
   // Escape closes the side peek from the peek or the list; a menu or popover takes it first, and a
@@ -529,6 +561,17 @@ export function Peek({
     [ref],
   );
 
+  // The phone sheet hands focus back to the row that opened it, or leaves it: Base UI's default
+  // returns it to whatever had focus before, which can be the page's search field, and focusing a
+  // field on a phone raises the keyboard.
+  const sheetFinalFocus = React.useCallback(() => {
+    const back = returnTo.current;
+    if (!back?.isConnected) return false;
+    if (back.matches("input, textarea, select") || back.isContentEditable)
+      return false;
+    return back;
+  }, []);
+
   if (surface === "sheet") {
     return (
       <PeekContext.Provider value={ctx}>
@@ -542,6 +585,7 @@ export function Peek({
           snapPoints={snapPoints}
           snapPoint={snapPoint}
           onSnapPointChange={onSnapPointChange}
+          finalFocus={finalFocus ?? sheetFinalFocus}
           className={className}
         >
           <div

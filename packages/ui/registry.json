@@ -115,7 +115,7 @@
       "name": "shell-layout",
       "type": "registry:lib",
       "title": "Shell Layout",
-      "description": "The shell's layout rule as one pure function — resolveShellLayout decides, for a width, whether the column takes room and whether the panel docks beside the page, folds the column, slides over the page or goes full screen — plus the shell's sizes, page minimums, cookies and width clamps.",
+      "description": "The shell's layout rule as one pure function — resolveShellLayout decides, for a width, whether the rail shows and whether the column takes room or slides over — plus the shell's sizes, the column cookie and its width clamp.",
       "categories": ["layout"],
       "dependencies": [],
       "registryDependencies": ["@vegastack/page-layout"],
@@ -127,7 +127,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Code that must know where the shell puts the column and panel without a DOM — a server deciding how a record opens, a test, a docs table — or the shell's sizes and cookie format.",
+        "whenToUse": "Code that must know where the shell puts the column without a DOM — a server render, a test, a docs table — or the shell's sizes and cookie format.",
         "whenNotToUse": "Laying the shell out: Shell does that in CSS before hydration; read the live outcome with useShellLayout.",
         "version": "0.93.0"
       }
@@ -136,7 +136,7 @@
       "name": "shell",
       "type": "registry:ui",
       "title": "Shell",
-      "description": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over; with the cookie state script and the floating area.",
+      "description": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, and a phone bottom bar — laid out in CSS before hydration, with the cookie state script and the floating area.",
       "categories": ["layout", "navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -171,7 +171,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
+        "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.106.1"
       }
@@ -14870,7 +14870,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A record's details (the shell panel's Details tab, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
+        "whenToUse": "A record's details (the record page's Details panel, a peek, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.106.0"
       }
@@ -14899,7 +14899,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "The top of every record page and every record tab in the shell panel: task, meeting, row, page, customer, project.",
+        "whenToUse": "The top of every record page and every record peek: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
         "version": "0.106.0"
       }
@@ -17194,7 +17194,7 @@
       "name": "shell-01",
       "type": "registry:block",
       "title": "Shell 01",
-      "description": "The shell reference — the module rail with counts and More, the Tasks column with views and a spaces tree, the top bar in its fixed order, a task list, and a task opening in the panel beside it; the phone bottom bar below 640px.",
+      "description": "The shell reference — the module rail with counts and More, the Tasks column with views and a spaces tree, the top bar in its fixed order, a task list, and a task opening in a peek over the page; the phone bottom bar below 640px.",
       "categories": ["layout", "navigation"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -17205,6 +17205,7 @@
         "@vegastack/button",
         "@vegastack/global-bar",
         "@vegastack/nav-tree",
+        "@vegastack/peek",
         "@vegastack/rail",
         "@vegastack/shell"
       ],
@@ -17221,7 +17222,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout and feed its rail, column and panel from your routes.",
+        "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.106.0"
       }
@@ -20107,7 +20108,7 @@
       "name": "shell-assistant",
       "type": "registry:ui",
       "title": "Shell Assistant",
-      "description": "The floating \"Ask {name}\" pill at the page area's corner and the compact assistant card it opens — header actions, a removable context chip, a scrolling body and a composer slot.",
+      "description": "The compact assistant card at the page area's corner — header actions, a removable context chip, a scrolling body and a composer slot.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -20127,64 +20128,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "The workspace assistant on record and page screens: a corner pill that opens a small chat about what the person is looking at.",
-        "whenNotToUse": "The full chat page (Agents), phones (a bottom sheet composes the card's parts), or any data fetching — the host owns the chat.",
-        "version": "0.106.0"
-      }
-    },
-    {
-      "name": "panel-tabs",
-      "type": "registry:lib",
-      "title": "Panel Tabs",
-      "description": "The rules of the shell panel's tabs as one pure reducer — references with canonical keys, a back-stack per tab, insert after the current tab, one preview tab, a soft cap of 10 with Undo, auto-close, Recently closed — plus the saved shape and the ?panel= URL codec.",
-      "categories": ["layout"],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/lib/panel-tabs.ts",
-          "type": "registry:lib",
-          "target": "@lib/panel-tabs.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Holding the shell panel's open tabs — dispatch its actions from usePanelTabs, save serializePanelTabs per workspace and sync encodePanelParam with the URL.",
-        "whenNotToUse": "In-page section tabs (Tabs, RouteTabs, ViewTabs) — they have no preview, cap or back-stack.",
-        "version": "0.96.0"
-      }
-    },
-    {
-      "name": "shell-panel",
-      "type": "registry:ui",
-      "title": "Shell Panel",
-      "description": "The shell's one right-hand panel — a 48px head with a tab row (italic preview tabs, pinned icons, change dots, drag or keys to reorder, a right-click menu, ▾ overflow with Recently closed), tab bodies kept alive under Activity, a resizable start edge and the Escape rule.",
-      "categories": ["layout"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.20.0",
-        "@vegastack/design-tokens@^0.20.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/command",
-        "@vegastack/context-menu",
-        "@vegastack/empty",
-        "@vegastack/popover",
-        "@vegastack/skeleton",
-        "@vegastack/use-platform",
-        "@vegastack/panel-tabs",
-        "@vegastack/shell-layout"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/shell-panel.tsx",
-          "type": "registry:ui",
-          "target": "@ui/shell-panel.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Inside Shell's panel slot: every record, record view or assistant chat opened beside the page as a tab.",
-        "whenNotToUse": "A form, a confirmation or a picker (Dialog, AlertDialog, ResponsiveDialog), or a page's own section tabs (Tabs).",
+        "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
+        "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.106.0"
       }
     }

@@ -1792,7 +1792,7 @@ export function main(argv = []) {
     "overlay header",
     composition.headers,
     "hand-written <header>(s) inside Sheet, Drawer or Dialog content",
-    "use the overlay's own header part (SheetHeader · DrawerHeader · DialogHeader · AlertDialogHeader), or ShellPanel for a record panel",
+    "use the overlay's own header part (SheetHeader · DrawerHeader · DialogHeader · AlertDialogHeader), or PeekHeader / RecordLayoutPanel for a record peek or side panel",
     "no overlay content hand-writes a <header> (same-file nesting only)",
   );
   // A green check is a failure whatever --strict says (COL-25): the rule is the operator's, and a

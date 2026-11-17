@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.106.0 sha256-rg2DrSq5hrVkFK8qE1f12uMmnLjqOrBR1sXjQg+ZxrI=
+// @vegastack shell-01@0.106.0 sha256-hDCd5ESCvH2S1mHrb1lYB5us46jcgSkPK3mY6y6s8Qc=
 
 /** A task row for the `shell-01` reference page. */
 export interface Task {
@@ -38,7 +38,7 @@ export const TASKS: Task[] = [
     assignee: "Ravi Shah",
     due: "Fri",
     space: "Design",
-    note: "Check the panel at 1024 and 820 wide, and the phone bar in Safari.",
+    note: "Check the peek at 1024 and 820 wide, and the phone sheet in Safari.",
   },
   {
     id: "t4",

@@ -3,7 +3,7 @@ import { afterEach, expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
 import { Home, ListChecks } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { resolveShellLayout, type ShellPageMin } from "../lib/shell-layout";
+import { resolveShellLayout } from "../lib/shell-layout";
 import { Button } from "./button";
 import {
   GlobalBar,
@@ -19,7 +19,6 @@ import {
   ShellColumnToggle,
   ShellMain,
   ShellPage,
-  ShellPanelToggle,
   ShellTopBar,
   ShellTopBarFavorite,
   ShellTopBarMore,
@@ -28,7 +27,6 @@ import {
   ShellTopBarShare,
   ShellTopBarTitle,
   ShellTopBarTools,
-  requestShellPanelOpen,
 } from "./shell";
 import { ShellStateScript } from "./shell-scripts";
 import "../../test/geometry.css";
@@ -36,35 +34,24 @@ import "../../test/geometry.css";
 afterEach(() => {
   const html = document.documentElement;
   html.removeAttribute("data-shell-col");
-  html.removeAttribute("data-shell-panel");
   html.removeAttribute("data-desktop-titlebar");
   html.style.removeProperty("--shell-column-saved");
   document.cookie = "vs_shell_col=; max-age=0; path=/";
-  document.cookie = "vs_shell_panel=; max-age=0; path=/";
 });
 
 function Frame({
   width,
-  panelOpen = false,
-  pageMin = 640,
   column = true,
-  panelWidth,
   columnWidth,
 }: {
   width: number;
-  panelWidth?: number;
   columnWidth?: number;
-  panelOpen?: boolean | "auto";
-  pageMin?: ShellPageMin;
   column?: boolean;
 }) {
   return (
     <div style={{ width, height: 600 }}>
       <Shell
         fill="parent"
-        pageMin={pageMin}
-        panelOpen={panelOpen}
-        panelWidth={panelWidth}
         columnWidth={columnWidth}
         globalBar={
           <GlobalBar>
@@ -98,11 +85,9 @@ function Frame({
             </ShellColumn>
           ) : null
         }
-        panel={<div data-slot="shell-panel-head">Record</div>}
       >
         <ShellTopBar>
           <ShellTopBarTitle>My tasks</ShellTopBarTitle>
-          <ShellPanelToggle pressed={panelOpen === true} />
         </ShellTopBar>
         <ShellMain>
           <ShellPage>Page</ShellPage>
@@ -116,33 +101,14 @@ const shell = () => document.querySelector<HTMLElement>('[data-slot="shell"]')!;
 const settled = () =>
   expect.poll(() => shell().dataset.tier, { timeout: 2000 }).toBeTruthy();
 
-test.each([
-  [390, true, 640],
-  [820, true, 640],
-  [1024, true, 640],
-  [1024, false, 640],
-  [1280, true, 640],
-  [1280, true, 520],
-  [1100, true, 560],
-  [1440, true, 640],
-  [1440, false, 640],
-  [1920, true, 640],
-] as const)(
-  "at %ipx (panel open %s, page %i) the CSS lays out what resolveShellLayout says",
-  async (width, panelOpen, pageMin) => {
-    await render(
-      <Frame width={width} panelOpen={panelOpen} pageMin={pageMin} />,
-    );
+test.each([390, 820, 1024, 1280, 1440, 1920] as const)(
+  "at %ipx the CSS lays out what resolveShellLayout says",
+  async (width) => {
+    await render(<Frame width={width} />);
     await settled();
-    const expected = resolveShellLayout({
-      width,
-      pageMin,
-      columnOpen: true,
-      panelOpen,
-    });
+    const expected = resolveShellLayout({ width, columnOpen: true });
     const root = shell();
     expect(root.dataset.tier).toBe(expected.tier);
-    expect(root.dataset.panelMode).toBe(expected.panelMode);
     const column =
       expected.tier === "phone"
         ? "none"
@@ -150,44 +116,6 @@ test.each([
           ? "shown"
           : "folded";
     expect(root.dataset.column).toBe(column);
-    if (expected.panelMode !== "full") {
-      const main = root.querySelector('[data-slot="shell-content"]')!;
-      expect(Math.round(main.getBoundingClientRect().width)).toBe(
-        expected.pageWidth,
-      );
-    }
-  },
-);
-
-test.each([
-  // width, panel width, column width — the resolver's clamps and exact thresholds
-  [640, 720, undefined],
-  [1485, 420, 400],
-  [1365, 420, 240],
-  [1364, 420, 240],
-  [1300, 360, 200],
-  [1300, 0, 0],
-] as const)(
-  "at %ipx with a %ipx panel and a %spx column the CSS still matches the resolver",
-  async (width, panelWidth, columnWidth) => {
-    await render(
-      <Frame
-        width={width}
-        panelOpen
-        panelWidth={panelWidth}
-        columnWidth={columnWidth}
-      />,
-    );
-    await settled();
-    const expected = resolveShellLayout({
-      width,
-      columnOpen: true,
-      panelOpen: true,
-      panelWidth,
-      columnWidth,
-    });
-    const root = shell();
-    expect(root.dataset.panelMode).toBe(expected.panelMode);
     const main = root.querySelector('[data-slot="shell-content"]')!;
     expect(Math.round(main.getBoundingClientRect().width)).toBe(
       expected.pageWidth,
@@ -195,56 +123,27 @@ test.each([
   },
 );
 
-test("panelOpen auto follows the device's saved panel before the app decides", async () => {
-  document.documentElement.setAttribute("data-shell-panel", "open");
-  await render(<Frame width={1440} panelOpen="auto" />);
-  await settled();
-  expect(shell().dataset.panelMode).toBe("dock");
-});
-
-test("the page makes room on the open motion only for a person's open", async () => {
-  let animated = 0;
-  const watch = new MutationObserver(() => {
-    if (shell()?.dataset.panelAnim === "open") animated++;
-  });
-  const screen = await render(<Frame width={1440} panelOpen={false} />);
-  await settled();
-  watch.observe(shell(), { attributeFilter: ["data-panel-anim"] });
-  // An open the app makes by itself docks at once.
-  await screen.rerender(<Frame width={1440} panelOpen />);
-  await expect.poll(() => shell().dataset.panelMode).toBe("dock");
-  expect(animated).toBe(0);
-  await screen.rerender(<Frame width={1440} panelOpen={false} />);
-  await expect.poll(() => shell().dataset.panelMode).toBe("closed");
-  // A person's open (the app marks it) moves the page.
-  requestShellPanelOpen(shell());
-  await screen.rerender(<Frame width={1440} panelOpen />);
-  await expect.poll(() => animated).toBeGreaterThan(0);
-  watch.disconnect();
-});
-
-test("a click on the toggle while the panel is open arms nothing for a later automatic open", async () => {
-  let animated = 0;
-  const screen = await render(<Frame width={1440} panelOpen />);
-  await settled();
-  await expect.poll(() => shell().dataset.panelMode).toBe("dock");
-  const watch = new MutationObserver(() => {
-    if (shell()?.dataset.panelAnim === "open") animated++;
-  });
-  watch.observe(shell(), { attributeFilter: ["data-panel-anim"] });
-  // The closing click, then a request beside the open panel: neither is an open.
-  document
-    .querySelector<HTMLElement>('[data-slot="shell-panel-toggle"]')!
-    .click();
-  requestShellPanelOpen(shell());
-  await screen.rerender(<Frame width={1440} panelOpen={false} />);
-  await expect.poll(() => shell().dataset.panelMode).toBe("closed");
-  await screen.rerender(<Frame width={1440} panelOpen />);
-  await expect.poll(() => shell().dataset.panelMode).toBe("dock");
-  await new Promise((resolve) => setTimeout(resolve, 100));
-  expect(animated).toBe(0);
-  watch.disconnect();
-});
+test.each([
+  // width, column width — the resolver's clamps
+  [1485, 400],
+  [1300, 200],
+  [1300, 0],
+] as const)(
+  "at %ipx with a %ipx column the CSS still matches the resolver",
+  async (width, columnWidth) => {
+    await render(<Frame width={width} columnWidth={columnWidth} />);
+    await settled();
+    const expected = resolveShellLayout({
+      width,
+      columnOpen: true,
+      columnWidth,
+    });
+    const main = shell().querySelector('[data-slot="shell-content"]')!;
+    expect(Math.round(main.getBoundingClientRect().width)).toBe(
+      expected.pageWidth,
+    );
+  },
+);
 
 test("landmarks: the rail and column are named navigation, the page is main, the title is h1", async () => {
   const screen = await render(<Frame width={1440} />);
@@ -417,15 +316,6 @@ test("on a phone the global bar is hidden", async () => {
     getComputedStyle(document.querySelector('[data-slot="global-bar"]')!)
       .display,
   ).toBe("none");
-});
-
-test("an open panel starts under the global bar", async () => {
-  await render(<Frame width={1440} panelOpen />);
-  await settled();
-  const panel = document
-    .querySelector('[data-slot="shell-panel-slot"]')!
-    .getBoundingClientRect();
-  expect([panel.top, panel.height]).toEqual([44, 556]);
 });
 
 test("the top bar keeps presence, tools, primary, Share, ☆ and ⋯ in order, whatever order they are written in", async () => {

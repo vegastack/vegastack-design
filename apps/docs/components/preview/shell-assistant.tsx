@@ -10,7 +10,6 @@ import {
   AssistantCardComposer,
   AssistantCardContext,
   AssistantCardHeader,
-  AssistantPill,
 } from "@/components/ui/shell-assistant";
 import { Button } from "@/components/ui/button";
 import { ToolGroupItem } from "@/components/ui/tool-group";
@@ -19,31 +18,30 @@ import { Textarea } from "@/components/ui/textarea";
 function Page({ withContext = true }: { withContext?: boolean }) {
   const [open, setOpen] = React.useState(false);
   const [about, setAbout] = React.useState(withContext);
-  const scroller = React.useRef<HTMLDivElement>(null);
   return (
     <div className="relative h-150 w-full overflow-hidden rounded-block border border-border bg-background">
-      <div
-        ref={scroller}
-        className="h-full overflow-y-auto p-6 text-sm text-muted-foreground"
-      >
+      <div className="h-full overflow-y-auto p-6 text-sm text-muted-foreground">
         <p className="mb-4 text-base font-semibold text-foreground">
           #3 Review Q3 pricing
         </p>
         {Array.from({ length: 24 }, (_, i) => (
           <p key={i} className="mb-3">
-            Scroll down and the pill tucks away; scroll up, or hover its corner,
-            and it comes back. Paragraph {i + 1}.
+            The card opens from the global bar&apos;s Ask or ⌘J and grows out of
+            the page area&apos;s corner. Paragraph {i + 1}.
           </p>
         ))}
       </div>
-      <AssistantPill
-        name="William"
-        expanded={open}
+      <Button
+        variant="outline"
+        size="sm"
+        className="absolute end-4 top-4"
+        aria-expanded={open}
         aria-controls="assistant-card-demo"
         aria-keyshortcuts="Meta+J"
-        scrollTarget={scroller}
         onClick={() => setOpen(true)}
-      />
+      >
+        Ask William
+      </Button>
       <AssistantCard
         id="assistant-card-demo"
         open={open}
@@ -57,7 +55,6 @@ function Page({ withContext = true }: { withContext?: boolean }) {
             </ToolGroupItem>
           }
           onClose={() => setOpen(false)}
-          onMoveToPanel={() => setOpen(false)}
           onOpenFull={() => setOpen(false)}
         />
         {about ? (

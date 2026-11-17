@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.106.0 sha256-rg2DrSq5hrVkFK8qE1f12uMmnLjqOrBR1sXjQg+ZxrI=
+// @vegastack shell-01@0.106.0 sha256-hDCd5ESCvH2S1mHrb1lYB5us46jcgSkPK3mY6y6s8Qc=
 
 "use client";
 
@@ -26,7 +26,6 @@ import {
   Share2,
   Sparkles,
   Star,
-  X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarGroup } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -39,6 +38,17 @@ import {
   GlobalBarTrailing,
 } from "@/components/ui/global-bar";
 import { NavTree, NavTreeItem, NavTreeSection } from "@/components/ui/nav-tree";
+import {
+  Peek,
+  PeekActions,
+  PeekBody,
+  PeekClose,
+  PeekHeader,
+  PeekNav,
+  PeekOpen,
+  PeekPath,
+  PeekTitle,
+} from "@/components/ui/peek";
 import { Rail, RailBottom, RailItem } from "@/components/ui/rail";
 import {
   Shell,
@@ -49,7 +59,6 @@ import {
   ShellColumnToggle,
   ShellMain,
   ShellPage,
-  ShellPanelToggle,
   ShellTopBar,
   ShellTopBarFavorite,
   ShellTopBarLabel,
@@ -84,8 +93,8 @@ function StatusIcon({ status }: { status: Task["status"] }) {
 /**
  * `shell-01` — the shell reference: the global bar, the module rail, Home's column with Tasks,
  * Meetings and Library nested under Work, the top bar in its fixed order, a task list, and a
- * record opening in the panel beside it. Click a task: it opens on the
- * right, and the column folds by itself when the page would get narrower than a list may.
+ * task opening in a `Peek` over the page's right side: ↑ ↓ walk the list, ⤢ opens its page, Esc
+ * closes it. On a phone the peek is a bottom sheet.
  *
  * @example
  * <Shell01Page fill="parent" />
@@ -97,19 +106,13 @@ export default function Shell01Page({
   fill?: "viewport" | "parent";
 }) {
   const [openId, setOpenId] = React.useState<string | null>(null);
-  const [panelOpen, setPanelOpen] = React.useState(false);
-  const task = TASKS.find((t) => t.id === openId) ?? null;
-
-  const openTask = (id: string) => {
-    setOpenId(id);
-    setPanelOpen(true);
-  };
+  const [peekWidth, setPeekWidth] = React.useState(520);
+  const index = TASKS.findIndex((t) => t.id === openId);
+  const task = index >= 0 ? TASKS[index] : null;
 
   return (
     <Shell
       fill={fill}
-      pageMin={640}
-      panelOpen={panelOpen}
       globalBar={
         <GlobalBar>
           <GlobalBarLeading>
@@ -205,51 +208,6 @@ export default function Shell01Page({
           </NavTree>
         </ShellColumn>
       }
-      panel={
-        <div className="flex h-full min-h-0 flex-col">
-          <div
-            data-slot="shell-panel-head"
-            className="flex h-(--shell-topbar-height) flex-none items-center gap-1 border-b border-border ps-2 pe-2"
-          >
-            <span className="min-w-0 flex-1 truncate ps-2 text-sm font-medium">
-              {task ? task.title : "Nothing open"}
-            </span>
-            <Button
-              variant="ghost"
-              size="icon-sm"
-              aria-label="Close the panel"
-              onClick={() => setPanelOpen(false)}
-            >
-              <X />
-            </Button>
-          </div>
-          <div className="flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto p-4">
-            {task ? (
-              <>
-                <h2 className="flex items-start gap-2 text-lg font-semibold">
-                  <span className="mt-1.5">
-                    <StatusIcon status={task.status} />
-                  </span>
-                  {task.title}
-                </h2>
-                <dl className="grid grid-cols-[6rem_minmax(0,1fr)] gap-y-2 text-sm">
-                  <dt className="text-muted-foreground">Assignee</dt>
-                  <dd>{task.assignee}</dd>
-                  <dt className="text-muted-foreground">Due</dt>
-                  <dd>{task.due}</dd>
-                  <dt className="text-muted-foreground">Space</dt>
-                  <dd>{task.space}</dd>
-                </dl>
-                <p className="text-sm text-muted-foreground">{task.note}</p>
-              </>
-            ) : (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                Open a task and it shows here.
-              </p>
-            )}
-          </div>
-        </div>
-      }
       bottomBar={
         <ShellBottomBar>
           <ShellBottomBarItem
@@ -329,10 +287,6 @@ export default function Shell01Page({
             <MessageSquare />
           </Button>
         </ShellTopBarTools>
-        <ShellPanelToggle
-          pressed={panelOpen}
-          onClick={() => setPanelOpen((open) => !open)}
-        />
       </ShellTopBar>
       <ShellMain>
         <ShellPage>
@@ -341,10 +295,8 @@ export default function Shell01Page({
               <li key={t.id}>
                 <Button
                   variant="ghost"
-                  aria-current={
-                    t.id === openId && panelOpen ? "true" : undefined
-                  }
-                  onClick={() => openTask(t.id)}
+                  aria-current={t.id === openId ? "true" : undefined}
+                  onClick={() => setOpenId(t.id)}
                   className="h-auto w-full justify-start gap-3 rounded-item px-2 py-2 text-start font-normal aria-current:bg-state-selected"
                 >
                   <StatusIcon status={t.status} />
@@ -360,6 +312,56 @@ export default function Shell01Page({
             ))}
           </ul>
         </ShellPage>
+        <Peek
+          open={task !== null}
+          onOpenChange={(open) => !open && setOpenId(null)}
+          width={peekWidth}
+          onWidthChange={setPeekWidth}
+          label="Task"
+        >
+          {task ? (
+            <>
+              <PeekHeader>
+                <PeekNav
+                  onPrevious={
+                    index > 0
+                      ? () => setOpenId(TASKS[index - 1]!.id)
+                      : undefined
+                  }
+                  onNext={
+                    index < TASKS.length - 1
+                      ? () => setOpenId(TASKS[index + 1]!.id)
+                      : undefined
+                  }
+                />
+                <PeekPath>
+                  <span className="truncate">Tasks › {task.space}</span>
+                </PeekPath>
+                <PeekActions>
+                  <PeekOpen href={`#task-${task.id}`} />
+                  <PeekClose />
+                </PeekActions>
+              </PeekHeader>
+              <PeekBody>
+                <PeekTitle className="flex items-start gap-2">
+                  <span className="mt-1.5">
+                    <StatusIcon status={task.status} />
+                  </span>
+                  {task.title}
+                </PeekTitle>
+                <dl className="grid grid-cols-[6rem_minmax(0,1fr)] gap-y-2 text-sm">
+                  <dt className="text-muted-foreground">Assignee</dt>
+                  <dd>{task.assignee}</dd>
+                  <dt className="text-muted-foreground">Due</dt>
+                  <dd>{task.due}</dd>
+                  <dt className="text-muted-foreground">Space</dt>
+                  <dd>{task.space}</dd>
+                </dl>
+                <p className="text-sm text-muted-foreground">{task.note}</p>
+              </PeekBody>
+            </>
+          ) : null}
+        </Peek>
       </ShellMain>
     </Shell>
   );

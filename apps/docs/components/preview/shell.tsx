@@ -25,7 +25,7 @@ import {
   ShellTopBarTools,
 } from "@/components/ui/shell";
 
-/** The whole frame, in a preview box: global bar, rail, column, top bar, page and panel. */
+/** The whole frame, in a preview box: global bar, rail, column, top bar and page; a task opens in a peek. */
 export function shell(): ReactNode {
   return (
     <Wrapper

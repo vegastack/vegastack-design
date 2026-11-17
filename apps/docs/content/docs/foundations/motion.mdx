@@ -24,15 +24,15 @@ not an optional one.
 Agent UI moves on one set (MOT-14), and no chat component sets its own duration — `design-lint`'s
 `chat-motion-tokens` rule rejects a numeric or arbitrary duration or ease there.
 
-| Token                                      | Value         | Easing                     | Used for                                                                                   |
-| ------------------------------------------ | ------------- | -------------------------- | ------------------------------------------------------------------------------------------ |
-| `duration-instant`                         | 100ms         | `ease-standard`            | hover and press fills, icon colour, a toggle's knob                                        |
-| `duration-quick` / `duration-quick-exit`   | 160ms / 120ms | `ease-enter` / `ease-exit` | menus, popovers, tooltips (opacity, scale .98→1, 4px from the trigger); a check appearing  |
-| `duration-state` / `duration-state-exit`   | 220ms / 160ms | `ease-enter` / `ease-exit` | a fold opening and closing, its chevron, Send↔Stop, a card settling to its line, Show more |
-| `duration-layout`                          | 280ms         | `ease-enter`               | a new message or card arriving (opacity + 6px rise), a side sheet sliding in               |
-| `duration-panel`                           | 120ms         | `ease-enter`               | the shell panel opening (it closes on `duration-quick-exit`)                               |
-| `--duration-stream-word`                   | 180ms         | `ease-enter`               | a streamed word fading in, prose only (never code, tables or maths)                        |
-| `--duration-loader-frame` / `-loader-dots` | 80ms / 300ms  | steps                      | one frame of the [`TextSpinner`](/docs/components/text-spinner) bolt: Strike / Pulse       |
+| Token                                      | Value         | Easing                     | Used for                                                                                           |
+| ------------------------------------------ | ------------- | -------------------------- | -------------------------------------------------------------------------------------------------- |
+| `duration-instant`                         | 100ms         | `ease-standard`            | hover and press fills, icon colour, a toggle's knob                                                |
+| `duration-quick` / `duration-quick-exit`   | 160ms / 120ms | `ease-enter` / `ease-exit` | menus, popovers, tooltips (opacity, scale .98→1, 4px from the trigger); a check appearing          |
+| `duration-state` / `duration-state-exit`   | 220ms / 160ms | `ease-enter` / `ease-exit` | a fold opening and closing, its chevron, Send↔Stop, a card settling to its line, Show more         |
+| `duration-layout`                          | 280ms         | `ease-enter`               | a new message or card arriving (opacity + 6px rise), a side sheet sliding in                       |
+| `duration-panel`                           | 120ms         | `ease-enter`               | a peek or a record's side panel opening, for a person's click (it closes on `duration-quick-exit`) |
+| `--duration-stream-word`                   | 180ms         | `ease-enter`               | a streamed word fading in, prose only (never code, tables or maths)                                |
+| `--duration-loader-frame` / `-loader-dots` | 80ms / 300ms  | steps                      | one frame of the [`TextSpinner`](/docs/components/text-spinner) bolt: Strike / Pulse               |
 
 `--motion-ease-enter` is `cubic-bezier(0.16, 1, 0.3, 1)`: a fast start that settles softly. Every
 exit uses `ease-exit`, and an exit is never slower than its enter. The stream and loader cadences

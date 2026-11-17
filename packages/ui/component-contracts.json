@@ -12,18 +12,18 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 818,
-    "components": 228,
+    "totalRegistryItems": 816,
+    "components": 227,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
-    "libs": 24,
+    "libs": 23,
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 39,
-    "Navigation/layout": 28,
+    "Navigation/layout": 27,
     "Overlays": 23,
     "Data display": 48,
     "Content/marketing": 14,
@@ -123,7 +123,6 @@
       "route-tabs",
       "scroll-area",
       "shell",
-      "shell-panel",
       "stepper",
       "table-of-contents",
       "tabs",
@@ -1306,7 +1305,7 @@
       "name": "shell",
       "registryType": "registry:ui",
       "title": "Shell",
-      "summary": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over.",
+      "summary": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, and a phone bottom bar — laid out in CSS before hydration.",
       "status": "stable",
       "since": "0.90.0",
       "family": "layout",
@@ -1500,24 +1499,6 @@
         {
           "name": "ShellPageSize",
           "kind": "type",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellPanelToggle",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellPanelToggleProps",
-          "kind": "interface",
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
@@ -1732,15 +1713,6 @@
           }
         },
         {
-          "name": "requestShellPanelOpen",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ShellColumnToggle",
           "kind": "component",
           "source": "packages/ui/registry/ui/shell.tsx",
@@ -1819,12 +1791,7 @@
           "values": [
             "column-shown",
             "column-folded",
-            "column-auto-folded",
             "column-over",
-            "panel-closed",
-            "panel-dock",
-            "panel-overlay",
-            "panel-full",
             "bottom-bar-hidden",
             "print",
             "global-bar-row"
@@ -1929,16 +1896,8 @@
               "values": [""]
             },
             {
-              "name": "data-page-min",
-              "values": []
-            },
-            {
-              "name": "data-panel",
-              "values": ["closed", "open"]
-            },
-            {
               "name": "data-shell-region",
-              "values": ["column", "panel"]
+              "values": ["column"]
             },
             {
               "name": "data-slot",
@@ -1947,8 +1906,6 @@
                 "shell-column-area",
                 "shell-fit",
                 "shell-main-area",
-                "shell-panel-shadow",
-                "shell-panel-slot",
                 "shell-rail-area",
                 "shell-room",
                 "shell-scrim"
@@ -2011,15 +1968,6 @@
             {
               "name": "data-slot",
               "values": ["shell-topbar-label"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelToggle": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-toggle"]
             }
           ],
           "cssVariables": []
@@ -39626,6 +39574,15 @@
             "target": "h2",
             "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/peek.tsx."
           }
+        },
+        {
+          "name": "PeekFinalFocus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/peek.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -51551,7 +51508,7 @@
       "name": "shell-assistant",
       "registryType": "registry:ui",
       "title": "Shell Assistant",
-      "summary": "The floating \"Ask {name}\" pill at the page area's corner and the compact assistant card it opens.",
+      "summary": "The compact assistant card at the page area's corner, opened from the global bar's Ask or ⌘J.",
       "status": "stable",
       "since": "0.91.0",
       "family": "chat",
@@ -51629,24 +51586,6 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
-        },
-        {
-          "name": "AssistantPill",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "AssistantPillProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
         }
       ],
       "variants": {
@@ -51662,14 +51601,7 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": [
-            "closed",
-            "open",
-            "tucked",
-            "expanded",
-            "lazy",
-            "context-removable"
-          ],
+          "values": ["closed", "open", "lazy", "context-removable"],
           "evidence": "packages/ui/registry/ui/shell-assistant.tsx + packages/ui/registry/ui/shell-assistant.test.tsx"
         },
         "accessibility": {
@@ -51684,7 +51616,7 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "tucked", "open", "hover"],
+          "values": ["default", "open", "hover"],
           "evidence": "packages/ui/registry/ui/shell-assistant.tsx"
         }
       },
@@ -51699,7 +51631,6 @@
       "motion": {
         "status": "modeled",
         "mechanisms": [
-          "CSS utility motion-dock-in/motion-dock-out",
           "CSS transition duration-state/ease-enter",
           "@starting-style"
         ],
@@ -51732,27 +51663,6 @@
       },
       "previewModule": "shell-assistant",
       "dataAttributes": {
-        "AssistantPill": {
-          "attributes": [
-            {
-              "name": "data-active",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "assistant-pill",
-                "assistant-pill-shortcut",
-                "assistant-pill-zone"
-              ]
-            },
-            {
-              "name": "data-tucked",
-              "values": [""]
-            }
-          ],
-          "cssVariables": []
-        },
         "AssistantCard": {
           "attributes": [
             {
@@ -51798,487 +51708,6 @@
             {
               "name": "data-slot",
               "values": ["assistant-card-composer"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "shell-panel",
-      "registryType": "registry:ui",
-      "title": "Shell Panel",
-      "summary": "The shell's one right-hand panel: a 48px head of tabs (preview, pinned, dots, reorder, menu, overflow), bodies kept alive, a resizable edge, the Escape rule.",
-      "status": "preview",
-      "since": "0.96.0",
-      "family": "layout",
-      "wave": "Navigation/layout",
-      "sourceFiles": ["packages/ui/registry/ui/shell-panel.tsx"],
-      "publicSymbols": [
-        {
-          "name": "ShellPanel",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "aside",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelBody",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelBodyProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelClose",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "Button",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelCloseProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelEmpty",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelEmptyProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelHeaderProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelOverflow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by ShellPanelOverflow in packages/ui/registry/ui/shell-panel.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "ShellPanelOverflowProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelSkeleton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelSkeletonProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelTab",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "button",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelTabAction",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelTabItem",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelTabMenu",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by ShellPanelTabMenu in packages/ui/registry/ui/shell-panel.tsx; incidental internal nodes are not part of its API."
-          }
-        },
-        {
-          "name": "ShellPanelTabMenuProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelTabProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelTabs",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelTabsProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "ShellPanelView",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/shell-panel.tsx."
-          }
-        },
-        {
-          "name": "ShellPanelViewProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "usePanelTabs",
-          "kind": "hook",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "UsePanelTabsOptions",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-panel.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No local variant scale; the mode comes from Shell."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Width is the shell's --shell-panel-current-width; the head is --shell-topbar-height."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": [
-            "dock",
-            "overlay",
-            "full",
-            "closed",
-            "empty",
-            "preview",
-            "pinned",
-            "changed",
-            "resizing",
-            "dragging"
-          ],
-          "evidence": "Observed from the mode attribute and the tab's data attributes."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["labeled", "tablist", "modal-on-phone"],
-          "evidence": "Observed from roles, ARIA and focus handling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": [
-            "default",
-            "active",
-            "preview",
-            "pinned",
-            "changed",
-            "drop-target"
-          ],
-          "evidence": "Observed from token classes and data attributes."
-        }
-      },
-      "responsive": {
-        "status": "observed",
-        "risks": [],
-        "rationale": "Shell picks dock, overlay or full; on a phone only the current tab shows and close becomes Back."
-      },
-      "motion": {
-        "status": "observed",
-        "mechanisms": ["keyed-presence"],
-        "reducedMotion": {
-          "status": "observed",
-          "rationale": "A new tab rises in with motion-enter-up, which the global reduced-motion reset collapses."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/shell-panel",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/command",
-        "@vegastack/context-menu",
-        "@vegastack/empty",
-        "@vegastack/popover",
-        "@vegastack/skeleton",
-        "@vegastack/use-platform",
-        "@vegastack/panel-tabs",
-        "@vegastack/shell-layout"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.20.0",
-        "@vegastack/design@^0.20.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/shell-panel.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "shell-panel",
-      "dataAttributes": {
-        "ShellPanel": {
-          "attributes": [
-            {
-              "name": "data-mode",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": ["shell-panel"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelHeader": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-head"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelTabs": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-tabs"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelTab": {
-          "attributes": [
-            {
-              "name": "data-changed",
-              "values": []
-            },
-            {
-              "name": "data-drop-edge",
-              "values": []
-            },
-            {
-              "name": "data-pinned",
-              "values": []
-            },
-            {
-              "name": "data-preview",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "shell-panel-tab",
-                "shell-panel-tab-close",
-                "shell-panel-tab-dot",
-                "shell-panel-tab-icon",
-                "shell-panel-tab-title"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": ["active", "inactive"]
-            },
-            {
-              "name": "data-value",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelTabMenu": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-tab-menu"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelOverflow": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-overflow", "shell-panel-overflow-footer"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelClose": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-close"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelBody": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-body"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelView": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-view"]
-            },
-            {
-              "name": "data-value",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelSkeleton": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-skeleton"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellPanelEmpty": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-panel-empty"]
             }
           ],
           "cssVariables": []
@@ -56829,12 +56258,13 @@
       "engines": [],
       "docsSlug": "/docs/blocks/shell-01",
       "registryDependencies": [
-        "@vegastack/button",
         "@vegastack/avatar",
-        "@vegastack/shell",
+        "@vegastack/button",
         "@vegastack/global-bar",
         "@vegastack/nav-tree",
-        "@vegastack/rail"
+        "@vegastack/peek",
+        "@vegastack/rail",
+        "@vegastack/shell"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -60928,22 +60358,13 @@
       "name": "shell-layout",
       "registryType": "registry:lib",
       "title": "Shell Layout",
-      "summary": "The shell's layout rule as one pure function — resolveShellLayout — plus the shell's sizes, page minimums, cookies and width clamps.",
+      "summary": "The shell's layout rule as one pure function — resolveShellLayout — plus the shell's sizes, the column cookie and its width clamp.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/shell-layout.ts"],
       "publicSymbols": [
         {
           "name": "clampColumnWidth",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/shell-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "clampPanelWidth",
           "kind": "function",
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
@@ -60980,15 +60401,6 @@
         },
         {
           "name": "SHELL_COOKIES",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/shell-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "SHELL_PAGE_MIN",
           "kind": "component-constant",
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
@@ -61035,24 +60447,6 @@
         {
           "name": "ShellLayoutInput",
           "kind": "interface",
-          "source": "packages/ui/registry/lib/shell-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellPageMin",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/shell-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellPanelMode",
-          "kind": "type",
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
@@ -62816,331 +62210,6 @@
       },
       "npmDependencies": [],
       "testFiles": ["packages/ui/registry/lib/upload-progress.test.ts"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "shared-guide-only",
-        "navigation": "exempt",
-        "preview": "exempt",
-        "vrt": "exempt"
-      }
-    },
-    {
-      "name": "panel-tabs",
-      "registryType": "registry:lib",
-      "title": "Panel Tabs",
-      "summary": "The shell panel's tab rules as one pure reducer, the tab reference and canonical key, the saved shape and the ?panel= URL codec.",
-      "family": "lib",
-      "wave": "Libs",
-      "sourceFiles": ["packages/ui/registry/lib/panel-tabs.ts"],
-      "publicSymbols": [
-        {
-          "name": "activeIndexOf",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "createPanelTabs",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "decodePanelParam",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "DEFAULT_TAB_AUTO_CLOSE",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "deserializePanelTabs",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "encodePanelParam",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "PANEL_CLOSED_LIMIT",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "PANEL_PARAM",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "PANEL_TAB_CAP",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "PANEL_TAB_PARAM",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "PANEL_VIEWS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "panelTabKey",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "panelTabsReducer",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "parsePanelTabKey",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "serializePanelTabs",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "TAB_AUTO_CLOSE_MS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "PanelAssistantRef",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelParamTab",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelRecordRef",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelTab",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelTabRef",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelTabsAction",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelTabsEvent",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelTabsState",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelTabsUndo",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelViewName",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PanelViewRef",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SavedPanelTabs",
-          "kind": "interface",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TabAutoClose",
-          "kind": "type",
-          "source": "packages/ui/registry/lib/panel-tabs.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data module renders nothing and has no variant surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A data module renders nothing and has no size scale."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "registryDependencies": [],
-      "docsSlug": "/docs/components/shell-panel",
-      "states": {
-        "behavior": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "A pure reducer and codec: no DOM."
-        },
-        "accessibility": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM — ShellPanelTabs renders the tabs."
-        },
-        "visual": {
-          "status": "not-applicable",
-          "values": ["not-applicable"],
-          "evidence": "No DOM."
-        }
-      },
-      "responsive": {
-        "status": "not-applicable",
-        "risks": [],
-        "rationale": "No DOM of its own; consumers own layout."
-      },
-      "npmDependencies": [],
-      "testFiles": ["packages/ui/registry/lib/panel-tabs.test.ts"],
       "coverage": {
         "source": "required",
         "test": "required",

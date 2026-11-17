@@ -1,6 +1,6 @@
 ---
 title: Shell
-description: The frame every screen sits in — the global bar, then the module rail, the column, the page under its top bar and a right panel, laid out in CSS.
+description: The frame every screen sits in — the global bar, then the module rail, the column and the page under its top bar, laid out in CSS.
 audience: public
 registry: shell
 status: stable
@@ -60,7 +60,6 @@ import {
       </NavTree>
     </ShellColumn>
   }
-  pageMin={640}
 >
   <ShellTopBar>
     <ShellTopBarTitle>My tasks</ShellTopBarTitle>
@@ -99,31 +98,26 @@ import {
 
 ### The layout rule
 
-One rule places the column and the panel, at every width ([Shell layout](/docs/foundations/shell)):
+One rule places the column, at every width ([Shell layout](/docs/foundations/shell)):
 
-| Width                   | Global bar | Rail    | Column                                     | Panel                                    |
-| ----------------------- | ---------- | ------- | ------------------------------------------ | ---------------------------------------- |
-| Phone (under 640)       | Hidden     | Tab bar | A sheet, from the page title               | Full screen                              |
-| Tablet (640–1024)       | 44px       | 64px    | Slides over from ▤, an edge swipe or hover | Beside the page if it fits, else over it |
-| Laptop and wide (1024+) | 44px       | 64px    | 240px in the flow while kept open          | Beside the page; the column folds first  |
+| Width                   | Global bar | Rail    | Column                                     |
+| ----------------------- | ---------- | ------- | ------------------------------------------ |
+| Phone (under 640)       | Hidden     | Tab bar | A sheet, from the page title               |
+| Tablet (640–1024)       | 44px       | 64px    | Slides over from ▤, an edge swipe or hover |
+| Laptop and wide (1024+) | 44px       | 64px    | 240px in the flow while kept open          |
 
-The panel docks beside the page while the page keeps its minimum (`pageMin`: a list 640, a
-document 560, a chat 520). When it would not, the column folds by itself; when even that is not
-enough, the panel slides over the page and the column comes back. `resolveShellLayout` in
-`@/lib/shell-layout` gives the same answer without a DOM.
+`resolveShellLayout` in `@/lib/shell-layout` gives the same answer without a DOM. The rule runs
+in CSS — container queries on the shell, over the data attributes it renders — so the server's
+HTML is already laid out. Nothing measures after hydration.
 
-The rule runs in CSS — container queries on the shell, over the data attributes it renders — so
-the server's HTML is already laid out. Nothing measures after hydration.
-
-The page makes room for a docking panel on the open motion (`duration-panel`, 120ms) only when a
-person opened it: `ShellPanelToggle`'s click marks itself, and the app calls
-`requestShellPanelOpen(element)` where someone opens a tab (a row, a link, ⌘.). The first paint
-and opens the app makes by itself — a restored tab, an automatic Details tab — dock at once.
+There is no right panel in the frame: a record opens in [`Peek`](/docs/components/peek), placed in
+the page area (inside `ShellMain`), and its full page uses
+[`RecordLayout`](/docs/components/record-layout), whose side panel belongs to the page.
 
 ### The global bar
 
 `globalBar` takes a [`GlobalBar`](/docs/components/global-bar): 44px across the whole window,
-above the rail, the column, the page and the panel. It holds the app's own controls: ▤
+above the rail, the column and the page. It holds the app's own controls: ▤
 (`ShellColumnToggle`, ⌘\\, hidden on a screen with no column), back and forward in the desktop app,
 the workspace switcher, search (⌘K), Ask (⌘J), Help and the account. In the desktop app it is the
 window's title row: it drags the window and clears the window's own buttons, so nothing below it
@@ -191,9 +185,9 @@ gutter.
 
 ### Floating items
 
-`ShellFloatingArea`, passed as `floating`, stacks the assistant pill, the audio player and upload
-progress at the page's bottom-right. It never covers the panel, lifts over the phone bar and the
-home indicator, and is left out of print. Toasts stay bottom-centre.
+`ShellFloatingArea`, passed as `floating`, stacks the audio player and upload progress at the
+page's bottom-right. It lifts over the phone bar and the home indicator, and is left out of
+print. Toasts stay bottom-centre.
 
 ## API Reference
 
@@ -216,18 +210,18 @@ home indicator, and is left out of print. Toasts stay bottom-centre.
 - The column's resize edge is a separator: drag it, or focus it and use the arrow keys.
 - Everything that hovers has a key or button: the column's peek opens from ▤ and ⌘\ too.
 
-| Key                                   | Action                                                             |
-| ------------------------------------- | ------------------------------------------------------------------ |
-| <kbd>F6</kbd> / <kbd>Shift+F6</kbd>   | Move between the global bar, rail, column, top bar, page and panel |
-| <kbd>⌘</kbd> <kbd>\\</kbd>            | Fold or unfold the column (slide it over on a tablet)              |
-| <kbd>Escape</kbd>                     | Put away a column that slid over the page                          |
-| <kbd>←</kbd> <kbd>→</kbd> on the edge | Resize the column; Home and End for its ends                       |
+| Key                                   | Action                                                      |
+| ------------------------------------- | ----------------------------------------------------------- |
+| <kbd>F6</kbd> / <kbd>Shift+F6</kbd>   | Move between the global bar, rail, column, top bar and page |
+| <kbd>⌘</kbd> <kbd>\\</kbd>            | Fold or unfold the column (slide it over on a tablet)       |
+| <kbd>Escape</kbd>                     | Put away a column that slid over the page                   |
+| <kbd>←</kbd> <kbd>→</kbd> on the edge | Resize the column; Home and End for its ends                |
 
 <StatesTested name="shell" />
 
 ## Do / Don't
 
 <DoDont
-  do="Give each route its page minimum and let the shell decide where the panel goes."
-  dont="Measure the window and move the panel yourself, or put page actions inside the page header: they belong in the top bar's slots."
+  do="Let the shell decide where the column goes, and open records in a Peek inside the page area."
+  dont="Measure the window and move the column yourself, or put page actions inside the page header: they belong in the top bar's slots."
 />

@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.106.0 sha256-09meJNGZ3zqRVoRx2BTzO2WsD6/3R1D3whlQ7nzMe2g=
+// @vegastack issue-detail-01@0.106.0 sha256-tt/pCUFI/NiFUL+DHSF3kK/Oou6Hlbuljme1zZGDRmk=
 
 import { IssueDetail } from "./components/issue-detail";
 import { ShellPage } from "@/components/ui/shell";
@@ -6,7 +6,7 @@ import { ShellPage } from "@/components/ui/shell";
 /**
  * `issue-detail-01` — an issue's page (Linear style): the status circle beside a large title that
  * edits in place, its properties, a Notion-style description, a separator, then the comments — one
- * column, the same body a shell panel tab shows.
+ * column, the same body a peek shows.
  *
  * Server-safe: the interactive half is the client leaf it imports.
  *

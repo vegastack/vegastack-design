@@ -805,7 +805,7 @@
       "value": 120,
       "unit": "ms"
     },
-    "$description": "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
+    "$description": "A peek or a record page's side panel opening: it slides in (a docked panel grows and the page re-centres), quick enough to read as a response to the click, and only for a person's action. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
   },
   "duration-stream-word": {
     "$type": "duration",
@@ -971,30 +971,6 @@
       "unit": "rem"
     },
     "$description": "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
-  },
-  "shell-panel-width": {
-    "$type": "dimension",
-    "$value": {
-      "value": 26.25,
-      "unit": "rem"
-    },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 420px: the right panel's default width (L5, L6); resizable between `--shell-panel-width-min` and `--shell-panel-width-max`."
-  },
-  "shell-panel-width-min": {
-    "$type": "dimension",
-    "$value": {
-      "value": 22.5,
-      "unit": "rem"
-    },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the narrowest a person can drag the right panel."
-  },
-  "shell-panel-width-max": {
-    "$type": "dimension",
-    "$value": {
-      "value": 45,
-      "unit": "rem"
-    },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 720px: the widest a person can drag the right panel."
   },
   "shell-bottombar-height": {
     "$type": "dimension",

@@ -1,6 +1,6 @@
 ---
 title: shell-01
-description: The shell reference — the module rail, the Tasks column, the top bar in its fixed order, a task list, and a task opening in the panel beside it.
+description: The shell reference — the module rail, the Tasks column, the top bar in its fixed order, a task list, and a task opening in a peek over the page.
 audience: public
 registry: shell-01
 preview: shell01Demo
@@ -9,8 +9,8 @@ preview: shell01Demo
 ## What it is
 
 The shell reference: the module rail with counts and More, the Tasks column with views and a
-spaces tree, the top bar in its fixed order, a task list, and a task opening in the panel beside
-it. It is a **block**: you pull it once with `shadcn add`, and then you own it.
+spaces tree, the top bar in its fixed order, a task list, and a task opening in a peek over the
+page. It is a **block**: you pull it once with `shadcn add`, and then you own it.
 
 ## Install
 
@@ -28,12 +28,13 @@ This installs the block's own files plus `shell`, `avatar`, `button` and `dropdo
 
 ## Try it
 
-- Click a task: it opens in the panel. At 1280 the column folds by itself so the list keeps its
-  640px; at 1024 the panel slides over the page instead.
+- Click a task: it opens in a peek over the page's right side. ↑ ↓ walk the list, ⤢ opens the
+  task's page, Esc or ✕ closes it, and the list keeps its place.
 - Press ⌘\ to fold the column, or hover the Tasks rail item while it is folded to peek it.
-- Narrow the window under 640: the rail becomes the bottom tab bar and the task opens full screen.
+- Narrow the window under 640: the rail becomes the bottom tab bar and the task opens in a bottom
+  sheet that drags up to nearly the whole screen.
 
 ## Moving it into an app
 
 `Shell` belongs in the root layout of the signed-in app, with `ShellStateScript` in `<head>`. Feed
-`rail` and `column` from your routes, the panel from your panel host, and set `pageMin` per route.
+`rail` and `column` from your routes, and open a record in a `Peek` inside `ShellMain`.
