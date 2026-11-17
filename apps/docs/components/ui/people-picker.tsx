@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.107.0 sha256-Bd8vFwihUjK+Qc12skqEv5S7WTN5klcC4t+04ZTzQro=
+// @vegastack people-picker@0.107.0 sha256-T+2p6yMYsWw6Qu+de35j/svnP9/BrleCG/Cp3zDF1rE=
 
 "use client";
 
@@ -570,7 +570,7 @@ export function PeoplePickerContent({
                 value={option.id}
                 data-slot="people-picker-item"
                 data-kind={option.kind ?? "person"}
-                data-checked={checked.has(option.id) ? "true" : undefined}
+                data-checked={checked.has(option.id) ? "true" : "false"}
                 disabled={!!option.disabledReason}
                 onSelect={() => onSelect(option)}
               >
