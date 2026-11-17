@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.107.0 sha256-gb5TILHLqcOcWP7qKIxD8UXn0nC/jwZfxsSZ0IMY/4U=
+// @vegastack data-table-parts@0.107.0 sha256-+KPVXI//6/gV3Jd462zU482lzZSEPUWz0Q68kotIYlc=
 
 "use client";
 
@@ -433,16 +433,6 @@ export interface RowOpenDetails {
   event: React.SyntheticEvent | null;
   /** The row's index in `data` (`DataList`) or among the loaded rows in display order (`DataGrid`). */
   index: number;
-  /**
-   * Open it without moving to it — a ⌘/Ctrl or middle click (`DataList`'s `rowOpenGestures`).
-   * @default undefined
-   */
-  background?: boolean;
-  /**
-   * Keep it open — a double-click (`DataList`'s `rowOpenGestures`).
-   * @default undefined
-   */
-  keep?: boolean;
 }
 
 /** The `minWidth` a column that declares none is budgeted at. */
