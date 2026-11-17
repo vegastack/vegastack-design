@@ -285,8 +285,8 @@
       "meta": {
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
-        "version": "0.101.0",
-        "integrity": "sha256-hCGxh1IELnotPaWZ9XqPPWwnaI0UemIGXVtDQF7TP1U="
+        "version": "0.105.0",
+        "integrity": "sha256-5c85aaZ2ZuasLs/1QxSqkDSfWcXCCXOS3I6GNcM8n0Y="
       }
     },
     {
@@ -325,8 +325,8 @@
       "meta": {
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
-        "version": "0.101.0",
-        "integrity": "sha256-hSIWFJDxomecu14z+vVULqJKNERtDbaOjgcryauKzi8="
+        "version": "0.105.0",
+        "integrity": "sha256-tn3Cf33z5Ss4Hl5iYKQ1t5sA+u6+3dhJfq1cnTYjLOc="
       }
     },
     {
