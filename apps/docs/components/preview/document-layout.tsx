@@ -155,11 +155,7 @@ function Thread({ who, text }: { who: string; text: string }) {
   );
 }
 
-/**
- * The aside: the discussion rail or the pinned outline in the track the layout keeps for it, so
- * the text never moves when it opens. Below L the discussion is a bottom sheet; the outline pins
- * from XL (the hover rail stays below it). The preview holds the L tier at least.
- */
+/** The layout's skeleton while a document loads. */
 export function documentLayoutSkeleton(): ReactNode {
   return (
     <Wrapper className="block p-0 py-8">

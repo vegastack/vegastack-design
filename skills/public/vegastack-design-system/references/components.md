@@ -125,7 +125,7 @@ starts with `icon-` is a component and never an icon.
 - **`person-hover-card`** — Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind "+N".
 - **`property-list`** — Record-facts rows: an icon+label column beside a value column, as an accessible definition list.
 - **`recent-strip`** — One row of the records a person opened last — compact cards in a sideways strip with edge fades and roving arrow keys, a single line of chips on a phone, collapsible, with a same-shape skeleton.
-- **`record-aside`** — The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.
+- **`record-aside`** — The cards of a record's details — titled sections of inline properties, people, linked records and full-width action rows.
 - **`record-list`** — A numbered list of the records a change affects — a muted record-type icon, the name with a new-tab link after it, a badge and a description line — plus a footer that loads the next rows on scroll and keeps the numbering. For confirmation dialogs.
 - **`sort-menu`** — The one-key sort: the fields, then the two directions worded by field type (Oldest first, A → Z, Low → high), with Reset while not at the page default.
 - **`sortable-list`** — Reorderable rows or tiles on ItemGroup/Item via use-drag-reorder — pointer drag with drop indicators, touch long-press, keyboard move mode, a remove button or a row menu, locked rows, a grid layout with bare tiles for attachments, and server-refusable moves. Controlled; the host owns the order.
@@ -150,7 +150,7 @@ starts with `icon-` is a component and never an icon.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
 - **`responsive-dialog`** — One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.
 - **`share-dialog`** — Share one item — invite people and teams with one access level, people with access and why, the item's space access, and a view-only public link behind a Publish switch; a Dialog on wide screens, a bottom Sheet on phones.
-- **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).
+- **`sheet`** — A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×.
 - **`shortcut-overlay`** — The ?-triggered dialog listing keyboard shortcuts, rendered from a declaration registry (keys, label, category, when) — grouped, filterable, platform-aware via use-platform + Kbd.
 - **`suggestion-menu`** — The caret-anchored list an editor opens while you type a trigger (@, /, {{) — shared by TextEdit's slash and mention menus and TemplateEditor's placeholder picker — with rows that read exactly like ComboboxItem's, optional group headings, a status for empty, loading and error, a viewport flip, and one active index the editor's arrow keys and the pointer move.
 - **`tooltip`** — A floating label on hover or focus, portaled inside the theme scope (OVL-13).
@@ -161,7 +161,7 @@ starts with `icon-` is a component and never an icon.
 - **`breadcrumb-cascade`** — Two additions to a breadcrumb trail for a file browser: BreadcrumbDropTarget, a crumb that takes rows dragged from a DataList, and BreadcrumbSiblings, a menu of a segment's siblings.
 - **`command`** — A searchable command palette — filtered, grouped items with keyboard navigation, optionally inside a ⌘K dialog.
 - **`folder-tree`** — A Notion-style navigation tree for a file library — sections of folders, pages and files; folders that load their children on first open with loading, error, empty and Show all rows; one tab stop with tree arrow keys and typeahead; a ⋯ menu per row; pointer drag into a folder or section; and a folders-only picker mode for Move dialogs.
-- **`help-menu`** — The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.
+- **`help-menu`** — The Help menu behind the shell rail's Help item — What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version. Links render through your router's link.
 - **`link-provider`** — One rule for every link, set once at the app root: an in-app link opens in place through the host router, a modified click stays the browser's, another origin opens a new tab.
 - **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
 - **`multi-step-form`** — A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.
@@ -190,7 +190,7 @@ starts with `icon-` is a component and never an icon.
 - **`board`** — Kanban lanes — full-height lanes that scroll their cards inside, sticky headers with a collapse button left of the ⋯ menu, a subtle top-down fade on each lane, + Add after the last card (the empty lane's action when it has none), Nothing here / Drop here empty zones, per-lane skeletons and load-on-scroll paging; live pointer and touch drag (lift, make room, settle, edge auto-scroll), a keyboard pick-up/move/drop model, a per-card ⋯ menu of the card's own actions, optimistic moves with rollback and a toast, and one lane at a time on a phone.
 - **`direction`** — Base UI's DirectionProvider and useDirection — the text-direction context components read.
 - **`document-layout`** — A page read as a document — the title area and its meta lines, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.
-- **`record-layout`** — A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.
+- **`record-layout`** — A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.
 - **`resizable`** — Accessible resizable panel groups and layouts with keyboard support — horizontal or vertical, nestable, with an optional visible grip.
 - **`scroll-area`** — Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.
 - **`separator`** — A thin rule dividing content — horizontal or vertical, built on Base UI.

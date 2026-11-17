@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.100.0 sha256-MMLY7C+SagfAjKm3OIXGfnIKJ7QbZ4y1awXXcCZVTw4=
+// @vegastack notifications-01@0.100.0 sha256-Sgvglfp8j+DdPpiFywumIj5Kz7gN5n4EnMKJAwItOC0=
 
 "use client";
 
@@ -29,8 +29,8 @@ import {
  * bar, both carrying the unread count in their names, opening one `InboxSheet`.
  *
  * Replace the sample notifications with your API, and "Mark all read" and the infinite-scroll
- * `loadOlder` (15 rows a page) with its calls. The sheet docks beside the rail (`side="left"`,
- * non-modal on desktop, full screen on a phone). In an app with more pages, the triggers live in
+ * `loadOlder` (15 rows a page) with its calls. The sheet opens from the right, modal, and full
+ * screen on a phone. In an app with more pages, the triggers live in
  * your shell layout.
  *
  * @example

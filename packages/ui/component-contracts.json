@@ -25715,7 +25715,7 @@
       "name": "sheet",
       "registryType": "registry:ui",
       "title": "Sheet",
-      "summary": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).",
+      "summary": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×.",
       "status": "stable",
       "since": "0.1.0",
       "family": "overlay",
@@ -38897,7 +38897,7 @@
       "name": "record-layout",
       "registryType": "registry:ui",
       "title": "Record Layout",
-      "summary": "A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.",
+      "summary": "A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.",
       "status": "stable",
       "since": "0.23.15",
       "family": "layout",
@@ -39031,7 +39031,7 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["rail", "details-sheet"],
+          "values": ["default"],
           "evidence": "packages/ui/registry/ui/record-layout.tsx + packages/ui/registry/ui/record-layout.test.tsx"
         },
         "accessibility": {
@@ -39046,9 +39046,9 @@
         }
       },
       "responsive": {
-        "status": "modeled",
-        "risks": ["responsive-or-container-layout"],
-        "rationale": "The rail shows from lg up; below it the Details sheet takes its place."
+        "status": "none-observed",
+        "risks": [],
+        "rationale": "One column at every width; the details open in the shell panel."
       },
       "motion": {
         "status": "not-applicable",
@@ -39972,10 +39972,7 @@
             "tier-xl",
             "tier-2xl",
             "wide",
-            "loading",
-            "aside-discussion",
-            "aside-outline",
-            "aside-sheet"
+            "loading"
           ],
           "evidence": "packages/ui/registry/ui/document-layout.tsx + packages/ui/registry/ui/document-layout.test.tsx + packages/ui/test/document-geometry.browser.test.tsx"
         },
@@ -42627,7 +42624,7 @@
       "name": "record-aside",
       "registryType": "registry:ui",
       "title": "Record Aside",
-      "summary": "The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.",
+      "summary": "The cards of a record's details — titled sections of inline properties, people, linked records and full-width action rows.",
       "status": "stable",
       "since": "0.23.19",
       "family": "data",
@@ -42912,7 +42909,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "Sized by the rail or sheet it sits in; rows wrap their meta, values truncate."
+        "rationale": "Sized by the panel or sheet it sits in; rows wrap their meta, values truncate."
       },
       "motion": {
         "status": "not-applicable",
@@ -47054,7 +47051,7 @@
       "name": "help-menu",
       "registryType": "registry:ui",
       "title": "Help Menu",
-      "summary": "The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.",
+      "summary": "The Help menu behind the shell rail's Help item — What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version. Links render through your router's link.",
       "status": "stable",
       "since": "0.25.89",
       "family": "navigation",
@@ -47108,7 +47105,6 @@
             "link-entry",
             "action-entry",
             "unread",
-            "collapsed-rail",
             "version"
           ],
           "evidence": "packages/ui/registry/ui/help-menu.tsx + packages/ui/registry/ui/help-menu.test.tsx"
@@ -47125,17 +47121,14 @@
         },
         "visual": {
           "status": "observed",
-          "values": ["default", "open", "unread", "collapsed"],
+          "values": ["default", "open", "unread"],
           "evidence": "packages/ui/registry/ui/help-menu.tsx"
         }
       },
       "responsive": {
         "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "viewport-positioning-and-collision"
-        ],
-        "rationale": "Follows the sidebar: a full row expanded, the icon with a tooltip in the collapsed rail; the menu is a positioned popup clamped to the viewport."
+        "risks": ["viewport-positioning-and-collision"],
+        "rationale": "The trigger is the caller's rail item; the menu is a positioned popup clamped to the viewport."
       },
       "motion": {
         "status": "not-applicable",
@@ -55816,7 +55809,7 @@
       "name": "issue-detail-01",
       "registryType": "registry:block",
       "title": "Issue Detail 01",
-      "summary": "An issue page (Linear style) — status circle and a large title that edits in place, a Notion-style description, a separator, then comments; a Properties rail with a Details sheet on small screens.",
+      "summary": "An issue page (Linear style) — status circle and a large title that edits in place, its properties, a Notion-style description, a separator, then comments, in one column.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [
@@ -56643,7 +56636,7 @@
       "name": "notifications-01",
       "registryType": "registry:block",
       "title": "Notifications 01",
-      "summary": "An Inbox sheet on the Inbox component — rail row and bell triggers with the unread count, Mark all read and ⋯, All | Unread chips, day groups of linked rows with avatars, unread tint and action chips, and infinite scroll.",
+      "summary": "An Inbox sheet on the Inbox component — rail and phone-bar Inbox items with the unread count, Mark all read and ⋯, For you | Updates | Archived tabs, day groups of linked rows with avatars, unread tint and action chips, and infinite scroll.",
       "family": "starter-block",
       "wave": "Block",
       "sourceFiles": [

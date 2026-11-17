@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.100.0 sha256-RbIQoVOKvaggiyo5Ph+8mzgylg9Y07n1YITm8gBXuLA=
+// @vegastack issue-detail-01@0.100.0 sha256-begwt7vcgSso+CwRa9OyYcmtZ58ahyLy9/t0aLE9neM=
 
 "use client";
 
@@ -106,7 +106,7 @@ const PEOPLE = [ME, { name: "Arjun Mehta" }, { name: "Neha Kapoor" }];
 const DAY = 24 * HOUR;
 
 /**
- * The issue's facts, shown in the rail card and in the Details sheet. Each editable value is a
+ * The issue's facts, under its title. Each editable value is a
  * ghost RecordChip — it reads as plain text and shows its ▾ on hover, focus or while open; the
  * links to other records keep the bordered chips under "Linked to".
  */

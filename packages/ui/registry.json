@@ -226,7 +226,7 @@
       ],
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
-        "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
+        "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
         "version": "0.100.0"
       }
     },
@@ -234,7 +234,7 @@
       "name": "record-layout",
       "type": "registry:ui",
       "title": "Record Layout",
-      "description": "A record page's main column beside a sticky right rail of cards, with an ⓘ Details sheet in its place on small screens.",
+      "description": "A record page's one main column — title, status, tabs and their panels; its details open in the shell panel.",
       "categories": ["layout"],
       "dependencies": [
         "@vegastack/design@^0.19.0",
@@ -250,7 +250,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A record's page (a meeting, a customer, a deal): the main column with a sticky rail of property and related-work cards on wide screens, and an ⓘ Details sheet on small ones.",
+        "whenToUse": "A record's page (a meeting, a customer, a deal): one main column with the title, status and tabs; the record's facts open in the shell panel's Details tab.",
         "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use ShellPage alone.",
         "version": "0.100.0"
       }
@@ -14713,7 +14713,7 @@
       "name": "record-aside",
       "type": "registry:ui",
       "title": "Record Aside",
-      "description": "The cards of a record page's right rail — titled sections of inline properties, people, linked records and full-width action rows.",
+      "description": "The cards of a record's details — titled sections of inline properties, people, linked records and full-width action rows.",
       "categories": ["data"],
       "dependencies": [
         "@vegastack/design@^0.19.0",
@@ -14739,7 +14739,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A record page's rail cards (and its Details sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
+        "whenToUse": "A record's details (the shell panel's Details tab, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.100.0"
       }
@@ -15070,7 +15070,7 @@
       "name": "sheet",
       "type": "registry:ui",
       "title": "Sheet",
-      "description": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×; a left sheet can dock beside the sidebar rail (beside).",
+      "description": "A panel that slides in from any edge — Dialog semantics with a side, a header and a footer; opens onto the first field, never the close ×.",
       "categories": ["overlay"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -17135,7 +17135,7 @@
       "name": "issue-detail-01",
       "type": "registry:block",
       "title": "Issue Detail 01",
-      "description": "An issue page (Linear style) — status circle and a large title that edits in place, a Notion-style description, a separator, then comments; a Properties rail with a Details sheet on small screens.",
+      "description": "An issue page (Linear style) — status circle and a large title that edits in place, its properties, a Notion-style description, a separator, then comments, in one column.",
       "categories": ["record", "comments"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -19336,7 +19336,7 @@
       "name": "notifications-01",
       "type": "registry:block",
       "title": "Notifications 01",
-      "description": "An Inbox sheet on the Inbox component — rail row and bell triggers with the unread count, Mark all read and ⋯, All | Unread chips, day groups of linked rows with avatars, unread tint and action chips, and Load older.",
+      "description": "An Inbox sheet on the Inbox component — rail and phone-bar Inbox items with the unread count, Mark all read and ⋯, For you | Updates | Archived tabs, day groups of linked rows with avatars, unread tint and action chips, and infinite scroll.",
       "categories": ["notifications", "navigation"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -19805,7 +19805,7 @@
       "name": "help-menu",
       "type": "registry:ui",
       "title": "Help Menu",
-      "description": "The sidebar-footer Help item — one menu with What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version; an icon with a tooltip in the collapsed rail. Links render through your router's link.",
+      "description": "The Help menu behind the shell rail's Help item — What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version. Links render through your router's link.",
       "categories": ["navigation", "layout"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -19824,7 +19824,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "An app's one place to learn the product, at the foot of its sidebar: what changed, the docs, the shortcuts, support and the version.",
+        "whenToUse": "An app's one place to learn the product, behind the Help item at the foot of the shell rail: what changed, the docs, the shortcuts, support and the version.",
         "whenNotToUse": "The account menu (profile, theme, sign out) or a page's own help hint (InfoHint).",
         "version": "0.100.0"
       }

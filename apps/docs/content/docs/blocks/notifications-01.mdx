@@ -1,6 +1,6 @@
 ---
 title: notifications-01
-description: An app's Inbox — a sheet on the Inbox component with Mark all read, a More menu, All | Unread chips, day groups, rich rows, action chips and infinite scroll.
+description: An app's Inbox — a sheet on the Inbox component with Mark all read, a More menu, tabs, day groups, rich rows, action chips and infinite scroll.
 audience: public
 registry: notifications-01
 preview: notifications01Demo
@@ -8,7 +8,7 @@ preview: notifications01Demo
 
 ## What it is
 
-The VegaStack web app's Inbox, as a block: rail row and bell triggers with the unread count in their names, opening a sheet that holds the [`Inbox`](/docs/components/inbox) panel — Mark all read and ⋯ in the header, All | Unread chips, day groups of linked rows, action chips, infinite scroll and "You’re all caught up". It is a **block**: you pull it once with `shadcn add`, and then you own it —
+The VegaStack web app's Inbox, as a block: the shell rail's and the phone bar's Inbox items, with the unread count in their names, opening a sheet that holds the [`Inbox`](/docs/components/inbox) panel — Mark all read and ⋯ in the header, For you | Updates | Archived tabs, day groups of linked rows, action chips, infinite scroll and "You’re all caught up". It is a **block**: you pull it once with `shadcn add`, and then you own it —
 nothing re-pulls it and no integrity hash tracks your edits, unlike the components it composes.
 
 `InboxSheet` in `components/` is the sheet; the page wires it to two triggers and the sample notifications.
@@ -37,12 +37,10 @@ to whichever trigger opened it.
 ## The panel
 
 - `SheetContent showCloseButton={false}` holds `Inbox`, whose `title` is the `SheetTitle` and whose
-  ✕ closes the sheet. In the VegaStack web app the sheet docks beside the rail (`side="left"`, non-modal with
-  `showOverlay={false}` on desktop, full screen on a phone); the block uses a plain right sheet.
+  ✕ closes the sheet. The block uses a plain modal sheet from the right, full screen on a phone.
 - **Header** — `InboxMarkAllRead` (✓✓, shown while anything is unread) and `InboxMenuAction` (⋯)
   for settings. "Mark all read" is announced once through `useAnnouncer`: "Marked all read".
-- **Filters** — `InboxFilters`: All | Unread chips, the unread count on Unread, and a Requests chip
-  (`extra`) for rows that ask for a decision, with its count.
+- **Filters** — `InboxFilters`: For you | Updates | Archived tabs.
 - **Day groups** — `groupByDay` from `date-time` buckets rows into Today, Yesterday, This week,
   Last week and Earlier, each an `InboxGroup` whose label sticks within the scroll area — no
   dividers around it, just space (16px above, 6px below); rows keep a 1px divider between them.

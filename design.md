@@ -1206,9 +1206,8 @@ and command rows is patched out. `touch-action: manipulation` and no tap-highlig
 is no 300ms delay and no grey flash on mobile (INT-7). The grab cursor appears only where a pointer
 drag can actually start — never under `readOnly`, `dragDisabled`, or below the breakpoint where the
 "Move to…" menu is the only path (INT-9). A global shortcut ignores an editable target (input,
-textarea, select, contenteditable) and an event already `defaultPrevented`, and can be switched off:
-the sidebar's Mod+B reads `isEditableTarget` from `use-platform` and takes `keyboardShortcut`
-(default `"b"`, `false` disables it) (INT-11). On a mouse or trackpad (`pointer: fine`) the page never
+textarea, select, contenteditable) and an event already `defaultPrevented` — `isEditableTarget` from
+`use-platform` — and can be switched off (INT-11). On a mouse or trackpad (`pointer: fine`) the page never
 rubber-bands at its vertical edge and an inner scroller at its end does not chain into the page
 (`overscroll-behavior-y: none` on `html, body`); horizontal stays free for swipe back/forward, and
 touch keeps pull-to-refresh (INT-12). On a touch pointer (`pointer: coarse`) every text-entry control
@@ -1386,13 +1385,9 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   default for `variant="line"` (LAY-14). `AlertAction` takes its own top-aligned grid column and
   drops below the text under `@md`, so it never overlaps the title (LAY-15). Skeleton widths cycle by
   index, never `Math.random()`, so server and client markup agree (LAY-16). Menu rows take `min-w-0`, so a
-  row in a grid or narrow column truncates its label (LAY-18), and a large sidebar row centres its content in
-  the icon rail (LAY-19) — two deliberate deviations MK approved (31-10-2026) so an app needs no class on
-  these shadcn-copied parts; a shadcn refresh keeps them. A sidebar list that scrolls says so (LAY-21,
-  operator 03-11-2026): `scroll-fade-y` fades only the edge with more, the footer casts a soft top shadow
-  while items sit under it, a fine pointer's hover adds a ⌃/⌄ page button on that side and a thin
-  scrollbar; nothing shows when the list fits, in the icon rail, and the phone drawer keeps only the fades
-  and the shadow. The app shell's regions — a 64px labelled rail, a 240px module column, a 48px top bar every title
+  row in a grid or narrow column truncates its label (LAY-18) — a deliberate deviation MK approved
+  (31-10-2026) so an app needs no class on these shadcn-copied parts; a shadcn refresh keeps it
+  (LAY-19 and LAY-21, the sidebar's icon-rail row and scroll cues, went with `sidebar`). The app shell's regions — a 64px labelled rail, a 240px module column, a 48px top bar every title
   row shares, the page, a 420px right panel and a 56px phone bar — take their sizes from the `--shell-*`
   tokens, and one rule places the panel: beside the page while the page keeps its minimum width, else the
   column folds first, else the panel slides over the page, full screen on phones (LAY-22). The
@@ -1493,7 +1488,7 @@ line when its file is next touched, never in a drive-by rename.
 | Default copy            | Every rendered string is an overridable `<action>Label` (or `…Message`) prop with a sentence-case default; a `labels` object only past about six strings. Progress text and search placeholders end with the ellipsis character; a one-line state has no full stop.                                                                                                                                                      |
 | Settled value           | `onValueCommitted` — Base UI's word.                                                                                                                                                                                                                                                                                                                                                                                     |
 | Counts in controls      | The visible count plus an `sr-only` suffix inside the control's accessible name; the visual badge is `aria-hidden`. A new prop that supplies the host noun is `countLabel?: (n) => string` (or `badgeLabel` for a fixed string). A `Badge` shows a count only for unread or attention.                                                                                                                                   |
-| Headings                | Page: `font-heading text-2xl font-semibold`, through `PageHeader`. Section `h2`: `font-heading text-base font-medium` (a plain `h2` with those utilities, or `CardTitle`; the `SettingsSection` title is the same size and weight). Group label: `text-xs font-medium text-muted-foreground` (table section rows, Board lanes; `SidebarGroupLabel` keeps the sidebar's own ink).                                         |
+| Headings                | Page: `font-heading text-2xl font-semibold`, through `PageHeader`. Section `h2`: `font-heading text-base font-medium` (a plain `h2` with those utilities, or `CardTitle`; the `SettingsSection` title is the same size and weight). Group label: `text-xs font-medium text-muted-foreground` (table section rows, Board lanes).                                                                                          |
 | Numbers                 | Counts, dates, amounts and quantities are the regular font with `tabular-nums`; `font-mono` is for code and identifiers only (TYP-10).                                                                                                                                                                                                                                                                                   |
 | Announcements           | `useAnnouncer` for events; the engine's own region where it ships one (Base UI's `Combobox.Status`, the toast viewport); a persistent status that is the component's own content may be `role="status"`.                                                                                                                                                                                                                 |
 | Slots                   | `data-slot` on every part, prefixed with the exported component's kebab-case name; a container-query name is the slot name.                                                                                                                                                                                                                                                                                              |
