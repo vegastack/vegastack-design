@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
-import { expect, test } from "vitest";
+import { expect, onTestFinished, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   AssistantCard,
@@ -12,7 +12,7 @@ import {
 } from "./shell-assistant";
 import { Peek, PeekBody, PeekTitle } from "./peek";
 import { ToolGroupItem } from "./tool-group";
-import "../../test/geometry.css";
+import geometryCss from "../../test/geometry.css?inline";
 
 function Host({
   onBody,
@@ -152,6 +152,11 @@ test("an autofocusing composer keeps focus, and closing still returns to the ope
 });
 
 test("a card opened while a record is peeked sits above the peek", async () => {
+  // The layout's real classes, for this test only (the others check behaviour, not geometry).
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
   await render(
     <div style={{ position: "relative", width: 400, height: 600 }}>
       <div style={{ position: "absolute", inset: 0 }}>
