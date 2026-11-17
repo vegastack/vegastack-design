@@ -384,7 +384,7 @@
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
         "version": "0.106.0",
-        "integrity": "sha256-agtB7V+KYG2ElBEo31a9eIk55oaMoQGtIjpGBkMqPWw="
+        "integrity": "sha256-OgiEKDrXAv9ehWXooP7LhJbB32YFHZCEpxkl2WT+mbk="
       }
     },
     {
@@ -18239,10 +18239,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "A record's details (the shell panel's Details tab, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
+        "whenToUse": "A record's details (the record page's Details panel, a peek, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.106.0",
-        "integrity": "sha256-8xUn7J6xd/HTF56cTI5GEU3h354yzX/QFVIlSekoVuE="
+        "integrity": "sha256-hJBPbNZ9+xvaPIEn2n1LDu0FUa8kCIzCzN3TiX0Slyc="
       }
     },
     {
@@ -18271,10 +18271,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "The top of every record page and every record tab in the shell panel: task, meeting, row, page, customer, project.",
+        "whenToUse": "The top of every record page and every record peek: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
         "version": "0.106.0",
-        "integrity": "sha256-Lk5MMCkY7BF8wquPnMNHxZ75yXR1OZxpPu0ECDSUOy0="
+        "integrity": "sha256-tQ/SqzQ1IQtYkq6sGbl52xNQWmc5r37ZpCb/wvagflM="
       }
     },
     {
@@ -21008,7 +21008,7 @@
         "whenToUse": "A task or issue page — title, properties, description and comments in one column; compose the same components in your app.",
         "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
         "version": "0.106.0",
-        "integrity": "sha256-09meJNGZ3zqRVoRx2BTzO2WsD6/3R1D3whlQ7nzMe2g="
+        "integrity": "sha256-tt/pCUFI/NiFUL+DHSF3kK/Oou6Hlbuljme1zZGDRmk="
       }
     },
     {

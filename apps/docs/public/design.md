@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 37278
-      sha256: "35fb9d1186dc85a4f12b04b7a086ac87b69c26e54a2c2d3ed78e8479fe3239e2"
+      bytes: 37345
+      sha256: "f096d863069bddcd7e8262ff3f2133762f15b16c5cc048eeb54482244d0db3de"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13917
@@ -188,7 +188,7 @@ themes:
     duration-panel:
       type: "duration"
       value: "120ms"
-      description: "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
+      description: "A peek or a record page's side panel opening: it slides in (a docked panel grows and the page re-centres), quick enough to read as a response to the click, and only for a person's action. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -675,7 +675,7 @@ themes:
     duration-panel:
       type: "duration"
       value: "120ms"
-      description: "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
+      description: "A peek or a record page's side panel opening: it slides in (a docked panel grows and the page re-centres), quick enough to read as a response to the click, and only for a person's action. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
     duration-quick:
       type: "duration"
       value: "160ms"

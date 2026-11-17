@@ -246,3 +246,35 @@ test("closing the phone sheet never sends focus back into a text field (no keybo
   await new Promise((r) => setTimeout(r, 300));
   expect(document.activeElement).not.toBe(search.element());
 });
+
+test("a phone peek mounted already open hands focus back to the row that opened it", async () => {
+  function MountOnSelect() {
+    const [open, setOpen] = React.useState(false);
+    return (
+      <div>
+        <button type="button" onClick={() => setOpen(true)}>
+          Row 7
+        </button>
+        {open ? (
+          <Peek open onOpenChange={setOpen} layout="sheet">
+            <PeekHeader>
+              <PeekActions>
+                <PeekClose />
+              </PeekActions>
+            </PeekHeader>
+            <PeekBody>
+              <PeekTitle>Task 7</PeekTitle>
+            </PeekBody>
+          </Peek>
+        ) : null}
+      </div>
+    );
+  }
+  const screen = await render(<MountOnSelect />);
+  const row = screen.getByRole("button", { name: "Row 7" });
+  await row.click();
+  await expect.poll(() => !!bySlot("peek-sheet")).toBe(true);
+  // The parent unmounts the peek on close, after Base UI's close has run.
+  await screen.getByRole("button", { name: "Close" }).click();
+  await expect.poll(() => document.activeElement).toBe(row.element());
+});

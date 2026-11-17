@@ -1,4 +1,4 @@
-// @vegastack peek@0.106.0 sha256-agtB7V+KYG2ElBEo31a9eIk55oaMoQGtIjpGBkMqPWw=
+// @vegastack peek@0.106.0 sha256-OgiEKDrXAv9ehWXooP7LhJbB32YFHZCEpxkl2WT+mbk=
 
 "use client";
 
@@ -477,21 +477,31 @@ export function Peek({
   const [restored, setRestored] = React.useState(open);
   if (!open && restored) setRestored(false);
   const motion = open && !restored;
+  // Where focus was when it opened — read in a layout effect, before the phone sheet's own focus
+  // management moves it inside, and on the first render too (a peek mounted already open).
+  const captured = React.useRef(false);
+  React.useLayoutEffect(() => {
+    if (!open) {
+      captured.current = false;
+      return;
+    }
+    if (captured.current) return;
+    captured.current = true;
+    const active = document.activeElement;
+    if (
+      active instanceof HTMLElement &&
+      active !== document.body &&
+      !rootRef.current?.contains(active) &&
+      !active.closest("[data-slot='peek-sheet']")
+    )
+      returnTo.current = active;
+  }, [open]);
   const wasOpen = React.useRef(open);
   React.useEffect(() => {
     const was = wasOpen.current;
     wasOpen.current = open;
-    if (open && !was) {
-      const active = document.activeElement;
-      if (
-        active instanceof HTMLElement &&
-        active !== document.body &&
-        !rootRef.current?.contains(active)
-      )
-        returnTo.current = active;
-      if (focusOnOpen && surface === "side")
-        rootRef.current?.focus({ preventScroll: true });
-    }
+    if (open && !was && focusOnOpen && surface === "side")
+      rootRef.current?.focus({ preventScroll: true });
   }, [open, focusOnOpen, surface]);
 
   // Escape closes the side peek from the peek or the list; a menu or popover takes it first, and a
@@ -557,7 +567,7 @@ export function Peek({
   const sheetFinalFocus = React.useCallback(() => {
     const back = returnTo.current;
     if (!back?.isConnected) return false;
-    if (back.matches("input, textarea, select, [contenteditable='true']"))
+    if (back.matches("input, textarea, select") || back.isContentEditable)
       return false;
     return back;
   }, []);

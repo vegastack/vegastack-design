@@ -805,7 +805,7 @@
       "value": 120,
       "unit": "ms"
     },
-    "$description": "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
+    "$description": "A peek or a record page's side panel opening: it slides in (a docked panel grows and the page re-centres), quick enough to read as a response to the click, and only for a person's action. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
   },
   "duration-stream-word": {
     "$type": "duration",

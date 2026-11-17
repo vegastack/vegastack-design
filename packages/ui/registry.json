@@ -14870,7 +14870,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "A record's details (the shell panel's Details tab, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
+        "whenToUse": "A record's details (the record page's Details panel, a peek, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.106.0"
       }
@@ -14899,7 +14899,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "The top of every record page and every record tab in the shell panel: task, meeting, row, page, customer, project.",
+        "whenToUse": "The top of every record page and every record peek: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
         "version": "0.106.0"
       }
