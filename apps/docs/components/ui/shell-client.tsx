@@ -1,4 +1,4 @@
-// @vegastack shell@0.107.0 sha256-MjWhS+B4hiVsVcp1xRof1q8ce3ADPLrU3otZ2g3cc54=
+// @vegastack shell@0.107.0 sha256-769hwtb/V6sttCYBlvzhSSIpqKwlkZnTVowYrkI11No=
 
 "use client";
 
@@ -36,6 +36,8 @@ const PEEK_LEAVE_MS = 180;
 const SHEET_HEAD = 64;
 /** How far, in px, the phone column sheet is dragged down before it closes on release. */
 const SHEET_CLOSE_DISTANCE = 96;
+/** How far, in px, a touch on the phone column sheet moves before it counts as a drag or a scroll. */
+const SHEET_SLOP = 8;
 
 /** What the column is doing: in the flow, folded, floating over the page, or absent. */
 export type ShellColumnState = "shown" | "folded" | "over" | "none";
@@ -158,6 +160,21 @@ export function ShellController() {
 
     let restoreFocus: HTMLElement | null = null;
     let peekTimer = 0;
+    // The phone sheet's drag (below): the gesture in progress, and putting the sheet back.
+    let drag: {
+      x: number;
+      y: number;
+      t: number;
+      dy: number;
+      head: boolean;
+      dragging: boolean;
+    } | null = null;
+    const endDrag = () => {
+      drag = null;
+      if (!columnArea) return;
+      columnArea.style.removeProperty("transition");
+      columnArea.style.removeProperty("translate");
+    };
 
     const railArea = root.querySelector<HTMLElement>(
       '[data-slot="shell-rail-area"]',
@@ -203,6 +220,7 @@ export function ShellController() {
           );
         }
       } else {
+        endDrag();
         delete root.dataset.colFloat;
         delete root.dataset.colFloatSource;
         setSheet(false);
@@ -422,44 +440,61 @@ export function ShellController() {
 
     // The phone sheet follows a downward drag and closes past a threshold. A drag from its top
     // (the grabber and the title row), or a pull down while its list is at the top, moves the
-    // sheet and never reaches the page behind: no page scroll, no Safari pull-to-refresh.
-    let drag: { y: number; t: number; dy: number; head: boolean; moved: boolean } | null =
-      null;
+    // sheet and never reaches the page behind: no page scroll, no Safari pull-to-refresh. An
+    // upward or sideways swipe on the list, a second finger or a cancelled touch leave it alone.
     const sheetUp = () =>
       root.dataset.colFloat === "open" && root.dataset.tier === "phone";
     const onSheetTouchStart = (event: TouchEvent) => {
+      endDrag();
       const touch = event.touches[0];
-      drag = null;
-      if (!touch || !columnArea || event.touches.length > 1 || !sheetUp()) return;
+      if (!touch || !columnArea || event.touches.length > 1 || !sheetUp())
+        return;
       const head =
         touch.clientY - columnArea.getBoundingClientRect().top < SHEET_HEAD;
       const list = columnArea.querySelector<HTMLElement>(
         '[data-slot="shell-column"]',
       );
       if (head || !list || list.scrollTop <= 0)
-        drag = { y: touch.clientY, t: event.timeStamp, dy: 0, head, moved: false };
+        drag = {
+          x: touch.clientX,
+          y: touch.clientY,
+          t: event.timeStamp,
+          dy: 0,
+          head,
+          dragging: false,
+        };
     };
     const onSheetTouchMove = (event: TouchEvent) => {
+      if (!drag || !columnArea) return;
       const touch = event.touches[0];
-      if (!drag || !touch || !columnArea) return;
-      const dy = touch.clientY - drag.y;
-      // An upward swipe on the list scrolls it, natively.
-      if (!drag.head && !drag.moved && dy < 0) {
-        drag = null;
+      if (!touch || event.touches.length > 1 || !event.cancelable) {
+        endDrag();
         return;
       }
-      if (event.cancelable) event.preventDefault();
-      drag.moved = true;
+      const dx = touch.clientX - drag.x;
+      const dy = touch.clientY - drag.y;
+      if (!drag.dragging) {
+        if (Math.abs(dx) < SHEET_SLOP && Math.abs(dy) < SHEET_SLOP) {
+          // On the grabber, even the first pixels stay with the sheet.
+          if (drag.head) event.preventDefault();
+          return;
+        }
+        // Sideways, or up on the list: the list's own scroll takes it.
+        if (Math.abs(dx) > Math.abs(dy) || (dy < 0 && !drag.head)) {
+          drag = null;
+          return;
+        }
+        drag.dragging = true;
+      }
+      event.preventDefault();
       drag.dy = Math.max(0, dy);
       columnArea.style.transition = "none";
       columnArea.style.translate = `0 ${drag.dy}px`;
     };
     const onSheetTouchEnd = (event: TouchEvent) => {
       const done = drag;
-      drag = null;
-      if (!done?.moved || !columnArea) return;
-      columnArea.style.transition = "";
-      columnArea.style.translate = "";
+      endDrag();
+      if (!done?.dragging) return;
       const speed = done.dy / Math.max(1, event.timeStamp - done.t);
       if (done.dy > SHEET_CLOSE_DISTANCE || (done.dy > 24 && speed > 0.5))
         setFloat(false);
@@ -485,10 +520,14 @@ export function ShellController() {
     root.addEventListener("click", onClick);
     root.addEventListener("touchstart", onTouchStart, { passive: true });
     root.addEventListener("touchmove", onTouchMove, { passive: true });
-    columnArea?.addEventListener("touchstart", onSheetTouchStart, { passive: true });
-    columnArea?.addEventListener("touchmove", onSheetTouchMove, { passive: false });
+    columnArea?.addEventListener("touchstart", onSheetTouchStart, {
+      passive: true,
+    });
+    columnArea?.addEventListener("touchmove", onSheetTouchMove, {
+      passive: false,
+    });
     columnArea?.addEventListener("touchend", onSheetTouchEnd);
-    columnArea?.addEventListener("touchcancel", onSheetTouchEnd);
+    columnArea?.addEventListener("touchcancel", endDrag);
     sync();
 
     return () => {
@@ -507,7 +546,7 @@ export function ShellController() {
       columnArea?.removeEventListener("touchstart", onSheetTouchStart);
       columnArea?.removeEventListener("touchmove", onSheetTouchMove);
       columnArea?.removeEventListener("touchend", onSheetTouchEnd);
-      columnArea?.removeEventListener("touchcancel", onSheetTouchEnd);
+      columnArea?.removeEventListener("touchcancel", endDrag);
       window.clearTimeout(peekTimer);
     };
   }, []);

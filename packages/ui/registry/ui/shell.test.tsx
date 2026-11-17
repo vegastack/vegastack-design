@@ -295,12 +295,19 @@ test("on a phone a drag down the column sheet moves it, never the page, and clos
   send("touchend", top + 40);
   expect(shell().dataset.column).toBe("over");
   expect(sheet.style.translate).toBe("");
+  // A cancelled touch (the browser took the gesture) puts the sheet back and leaves it open.
+  send("touchstart", top);
+  send("touchmove", top + 160);
+  send("touchcancel", top + 160);
+  expect(shell().dataset.column).toBe("over");
+  expect(sheet.style.translate).toBe("");
   // Past the threshold it closes.
   send("touchstart", top);
   send("touchmove", top + 60);
   send("touchmove", top + 160);
   send("touchend", top + 160);
   await expect.poll(() => shell().dataset.column).toBe("none");
+  expect(sheet.style.translate).toBe("");
 });
 
 test.each([

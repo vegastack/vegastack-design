@@ -194,7 +194,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.107.0",
-        "integrity": "sha256-MjWhS+B4hiVsVcp1xRof1q8ce3ADPLrU3otZ2g3cc54="
+        "integrity": "sha256-769hwtb/V6sttCYBlvzhSSIpqKwlkZnTVowYrkI11No="
       }
     },
     {
