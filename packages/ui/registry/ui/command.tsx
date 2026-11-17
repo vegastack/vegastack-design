@@ -1,4 +1,4 @@
-// @vegastack command@0.107.0 sha256-GKLOvl9jy35kpGIP4pYtSKsfVJey3AZ+JjCiDrmYgTs=
+// @vegastack command@0.107.0 sha256-buMLy0b3jdslht2lvK8/M68KjDUw8xq4iiu6Elzfn8g=
 
 "use client";
 
@@ -665,7 +665,7 @@ function CommandItem({
           checkable list) without a shortcut keeps it, so a plain row's trailing text reaches the row's end. */}
       <CheckIcon
         data-slot="command-item-check"
-        className="ms-auto hidden opacity-0 group-data-[checked=true]/command-item:opacity-100 [[data-slot=command-item][data-checked]:not(:has([data-slot=command-shortcut]))>&]:block"
+        className="ms-auto hidden opacity-0 group-data-[checked=true]/command-item:opacity-100 [[data-checked]:not(:has([data-slot=command-shortcut]))>&]:block"
       />
     </CommandPrimitive.Item>
   );

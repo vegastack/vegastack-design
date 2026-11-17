@@ -76,7 +76,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..830a38c 100644
+index 5cb64c9..1a51953 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -779,7 +779,7 @@ index 5cb64c9..830a38c 100644
 +          checkable list) without a shortcut keeps it, so a plain row's trailing text reaches the row's end. */}
 +      <CheckIcon
 +        data-slot="command-item-check"
-+        className="ms-auto hidden opacity-0 group-data-[checked=true]/command-item:opacity-100 [[data-slot=command-item][data-checked]:not(:has([data-slot=command-shortcut]))>&]:block"
++        className="ms-auto hidden opacity-0 group-data-[checked=true]/command-item:opacity-100 [[data-checked]:not(:has([data-slot=command-shortcut]))>&]:block"
 +      />
      </CommandPrimitive.Item>
 -  )
