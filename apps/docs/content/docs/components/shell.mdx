@@ -108,6 +108,11 @@ enough, the panel slides over the page and the column comes back. `resolveShellL
 The rule runs in CSS — container queries on the shell, over the data attributes it renders — so
 the server's HTML is already laid out. Nothing measures after hydration.
 
+The page makes room for a docking panel on the open motion (`duration-panel`, 120ms) only when a
+person opened it: `ShellPanelToggle`'s click marks itself, and the app calls
+`requestShellPanelOpen(element)` where someone opens a tab (a row, a link, ⌘.). The first paint
+and opens the app makes by itself — a restored tab, an automatic Details tab — dock at once.
+
 ### The top bar's order
 
 The slots sit in one order whatever order they are written in: title, presence, tools, actions,

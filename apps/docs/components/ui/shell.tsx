@@ -1,4 +1,4 @@
-// @vegastack shell@0.100.0 sha256-tx/4A+srr/TBqQYMp2laoAQgZoXS9YTFrDuoVkiLiEI=
+// @vegastack shell@0.100.0 sha256-ov3ygRTqLatBoUofcjmjNvOw1s2SgMgsEb0Bq9UYwd8=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -40,6 +40,7 @@ export {
   ShellColumnSwitch,
   ShellTitleBarControls,
   lazyAnimatedIcon,
+  requestShellPanelOpen,
   toggleShellColumn,
   useShellLayout,
   type ShellBottomBarProps,
