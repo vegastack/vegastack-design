@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 37827
-      sha256: "59288a299b63e9ad68edfba0eb0649b1b0b243dfd744c4ddd8c853a45254dd3a"
+      bytes: 38121
+      sha256: "e740f5e44ecd59ed5a94641141e9774f4d68a93df30645cf37100c2e55d86f23"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 13917
@@ -356,6 +356,10 @@ themes:
       type: "dimension"
       value: "12.5rem"
       description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 200px: the narrowest a person can drag the module column."
+    shell-globalbar-height:
+      type: "dimension"
+      value: "2.75rem"
+      description: "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
     shell-panel-width:
       type: "dimension"
       value: "26.25rem"
@@ -845,6 +849,10 @@ themes:
       type: "dimension"
       value: "12.5rem"
       description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 200px: the narrowest a person can drag the module column."
+    shell-globalbar-height:
+      type: "dimension"
+      value: "2.75rem"
+      description: "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
     shell-panel-width:
       type: "dimension"
       value: "26.25rem"
@@ -1284,7 +1292,7 @@ FRM-4 · FRM-15`
   is anonymous in every composition; Combobox's toggle, clear and chip-remove are icon-only buttons —
   the patch supplies it.
 - **A11Y-17**, **A11Y-18** — superseded with `sidebar` (2026-11-17): a rail item's count is part of
-  its name and the current module carries `aria-current="page"` (`ShellRailItem`, LAY-22).
+  its name and the current module carries `aria-current="page"` (`RailItem`, LAY-22).
 - **A11Y-19** — Checkbox's mixed state has its own glyph: a minus replaces the check.
 - **A11Y-20** — `orientation` reaches the Base UI root on Tabs and ToggleGroup, so
   `aria-orientation` and the arrow keys follow a vertical list.
@@ -1312,7 +1320,9 @@ only, no authored hex and no numbered Tailwind palette (COL-20); `color-scheme` 
 (`text-lg` and up) takes Geist's line-height and letter-spacing from the `@theme inline` bridge, with
 sizes and the copy tier untouched (TYP-15); smoothed font rendering on `body` (TYP-16); a declared
 14px body size on `body`, never on `html` (TYP-17); no arbitrary font size, so upstream's 12.8px `sm`
-half-step resolves down to `text-xs` (TYP-18); Avatar's fallback initials are `text-xs` at every
+half-step resolves down to `text-xs` (TYP-18), with one exception: the count badge on a navigation
+icon (`RailBadge`, the rail and the phone bar) is 10px tabular numerals so it never covers the icon
+(operator, 2026-11-17); Avatar's fallback initials are `text-xs` at every
 size (TYP-14). Icons are lucide,
 the lucide-animated mirrors and `thesvg` brand glyphs through `Icon`/`BrandIcon` and nothing else
 (ICO-1); no inline `<svg>` as an icon (ICO-3); the animated-icon factory owns the trigger and
@@ -1387,13 +1397,13 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   index, never `Math.random()`, so server and client markup agree (LAY-16). Menu rows take `min-w-0`, so a
   row in a grid or narrow column truncates its label (LAY-18) — a deliberate deviation MK approved
   (31-10-2026) so an app needs no class on these shadcn-copied parts; a shadcn refresh keeps it
-  (LAY-19 and LAY-21, the sidebar's icon-rail row and scroll cues, went with `sidebar`). The app shell's regions — a 64px labelled rail, a 240px module column, a 48px top bar every title
-  row shares, the page, a 420px right panel and a 56px phone bar — take their sizes from the `--shell-*`
-  tokens, and one rule places the panel: beside the page while the page keeps its minimum width, else the
+  (LAY-19 and LAY-21, the sidebar's icon-rail row and scroll cues, went with `sidebar`). The app shell's regions — a 44px global bar across the top, a 64px labelled rail, a 240px module
+  column that opens on a 48px title row level with the page's 48px top bar, the page, a 420px right panel
+  and a 56px phone bar — take their sizes from the `--shell-*` tokens, and one rule places the panel: beside the page while the page keeps its minimum width, else the
   column folds first, else the panel slides over the page, full screen on phones (LAY-22). The
   phone bar steps aside as the browser's own bars compact and while the keyboard is open (LAY-23), the
-  desktop app's first row is one draggable title row that clears the traffic lights or caption buttons
-  (LAY-24), and on a tablet the column slides over the page (LAY-25).
+  desktop app's title row is the global bar, which drags the window and clears the traffic lights or
+  caption buttons (LAY-24), and on a tablet the column slides over the page (LAY-25).
 - **Forms** (FRM-9…FRM-13, API-26) — `Field` wires its control through Base UI Field (API-26): the label, the
   description and error ids, and `aria-invalid` from the Field's `data-invalid`, on every control
   including the composite ones (Select, Combobox, RadioGroup, NumberField, DatePicker, TextEdit). Pass

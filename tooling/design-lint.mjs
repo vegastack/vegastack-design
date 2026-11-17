@@ -373,6 +373,14 @@ const NO_SURFACE_RING_MSG = RULES.find(
 
 const UPSTREAM_IMPORTANT =
   "upstream verbatim (vendor/shadcn/4.21.0) — overrides an equal-specificity declaration of a composed part; byte parity holds it";
+// TYP-18's one exception (operator, Regent Layout v2, 17-11-2026: "numbers size can be reduced a
+// bit … reduce the size of it, the font size of it. Because it's completely covering the icon."):
+// the count badge on a navigation icon — `RailBadge`, used by the rail and the phone bottom bar —
+// is 10px with tabular numerals. Only that token, only in that file; every other text stays on
+// the ramp at 12px or more.
+const NAV_COUNT_TEXT = "text-[0.625rem]";
+const NAV_COUNT_TEXT_FILE = /\/ui\/rail\.tsx$/;
+
 const IMPORTANT_MODIFIER_EXEMPTIONS = new Map([
   ["/ui/command.tsx", { count: 6, rationale: UPSTREAM_IMPORTANT }],
   ["/ui/menubar.tsx", { count: 1, rationale: UPSTREAM_IMPORTANT }],
@@ -1415,6 +1423,12 @@ for (const root of ROOTS) {
         return;
       for (const { id, re, msg } of RULES) {
         if (id === "hex-color" && HEX_COLOR_FILE_ALLOWLIST.test(file)) continue;
+        if (
+          id === "arbitrary-text-size" &&
+          NAV_COUNT_TEXT_FILE.test(file) &&
+          [...line.matchAll(re)].every((m) => m[0] === NAV_COUNT_TEXT)
+        )
+          continue;
         if (id === "important" && EMAIL_TOKENS_FILE.test(file)) continue;
         // `hex-color` reads the line with attribute-selector VALUES masked out — see SELECTOR_HEX.
         const subject =

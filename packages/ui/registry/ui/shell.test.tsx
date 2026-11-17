@@ -4,19 +4,30 @@ import { userEvent } from "vitest/browser";
 import { Home, ListChecks } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { resolveShellLayout, type ShellPageMin } from "../lib/shell-layout";
+import { Button } from "./button";
+import {
+  GlobalBar,
+  GlobalBarCenter,
+  GlobalBarLeading,
+  GlobalBarTrailing,
+} from "./global-bar";
+import { NavTree, NavTreeItem, NavTreeSection } from "./nav-tree";
+import { Rail, RailItem } from "./rail";
 import {
   Shell,
   ShellColumn,
-  ShellColumnItem,
-  ShellColumnSection,
+  ShellColumnToggle,
   ShellMain,
   ShellPage,
   ShellPanelToggle,
-  ShellRail,
-  ShellRailItem,
   ShellTopBar,
+  ShellTopBarFavorite,
+  ShellTopBarMore,
+  ShellTopBarPresence,
+  ShellTopBarPrimary,
+  ShellTopBarShare,
   ShellTopBarTitle,
-  ShellTitleBarControls,
+  ShellTopBarTools,
   requestShellPanelOpen,
 } from "./shell";
 import { ShellStateScript } from "./shell-scripts";
@@ -55,30 +66,35 @@ function Frame({
         panelOpen={panelOpen}
         panelWidth={panelWidth}
         columnWidth={columnWidth}
-        titleBarControls={<ShellTitleBarControls />}
+        globalBar={
+          <GlobalBar>
+            <GlobalBarLeading>
+              <ShellColumnToggle />
+            </GlobalBarLeading>
+            <GlobalBarCenter />
+            <GlobalBarTrailing />
+          </GlobalBar>
+        }
         rail={
-          <ShellRail>
-            <ShellRailItem icon={<Home />} label="Home" href="#home" />
-            <ShellRailItem
+          <Rail>
+            <RailItem icon={<Home />} label="Home" href="#home" />
+            <RailItem
               icon={<ListChecks />}
               label="Tasks"
               href="#tasks"
               badge={120}
               active
             />
-          </ShellRail>
+          </Rail>
         }
         column={
           column ? (
             <ShellColumn label="Tasks">
-              <ShellColumnSection label="Views">
-                <ShellColumnItem
-                  label="My tasks"
-                  count={3}
-                  href="#mine"
-                  active
-                />
-              </ShellColumnSection>
+              <NavTree>
+                <NavTreeSection label="Views">
+                  <NavTreeItem label="My tasks" count={3} href="#mine" active />
+                </NavTreeSection>
+              </NavTree>
             </ShellColumn>
           ) : null
         }
@@ -237,9 +253,7 @@ test("landmarks: the rail and column are named navigation, the page is main, the
   expect(document.querySelector('nav[aria-label="Tasks"]')).not.toBeNull();
   expect(document.querySelector("main")).not.toBeNull();
   expect(document.querySelector("h1")?.textContent).toBe("My tasks");
-  const tasks = document.querySelector(
-    '[data-slot="shell-rail-item"][data-active]',
-  )!;
+  const tasks = document.querySelector('[data-slot="rail-item"][data-active]')!;
   expect(tasks.getAttribute("aria-current")).toBe("page");
   expect(tasks.getAttribute("aria-label")).toBe("Tasks, 99+");
   await expectNoA11yViolations(screen.container);
@@ -263,7 +277,7 @@ test("on a tablet ▤ slides the column over the page, and Escape puts it away",
   expect(shell().dataset.column).toBe("folded");
   const toggle = [
     ...document.querySelectorAll<HTMLElement>(
-      '[data-slot="shell-titlebar-toggle"]',
+      '[data-slot="shell-column-toggle"]',
     ),
   ].find((b) => b.checkVisibility())!;
   toggle.click();
@@ -272,38 +286,17 @@ test("on a tablet ▤ slides the column over the page, and Escape puts it away",
   await expect.poll(() => shell().dataset.column).toBe("folded");
 });
 
-test("a rail item's explicit aria-label wins over the label and its count", async () => {
-  const screen = await render(
-    <nav aria-label="Modules">
-      <ShellRailItem
-        icon={<Home />}
-        label="You"
-        aria-label="Asha Kumar, account"
-        badge={3}
-        render={<button type="button" />}
-      />
-      <ShellRailItem icon={<Home />} label="Inbox" badge={3} href="#inbox" />
-    </nav>,
-  );
-  await expect
-    .element(screen.getByRole("button", { name: "Asha Kumar, account" }))
-    .toBeInTheDocument();
-  await expect
-    .element(screen.getByRole("link", { name: "Inbox, 3" }))
-    .toBeInTheDocument();
-});
-
-test("F6 moves between the rail, the column, the top bar and the page", async () => {
+test("F6 moves between the global bar, the rail, the column, the top bar and the page", async () => {
   await render(<Frame width={1440} />);
   await settled();
   const regions: string[] = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     await userEvent.keyboard("{F6}");
     regions.push(
       (document.activeElement as HTMLElement).dataset.shellRegion ?? "",
     );
   }
-  expect(regions).toEqual(["rail", "column", "topbar", "main"]);
+  expect(regions).toEqual(["global-bar", "rail", "column", "topbar", "main"]);
 });
 
 test("the state script's mark wins over the server's column default", async () => {
@@ -329,46 +322,11 @@ test("a screen without a column has no column region", async () => {
   expect(document.querySelector('[data-slot="shell-column-area"]')).toBeNull();
 });
 
-test("an animated rail icon paints static first, then swaps in at the same size once idle", async () => {
-  const { lazyAnimatedIcon } = await import("./shell-client");
-  const HomeIconLazy = lazyAnimatedIcon(() =>
-    import("./icons/home").then((m) => m.HomeIcon),
-  );
-  await render(
-    <nav aria-label="Modules">
-      <ShellRailItem
-        icon={<Home data-testid="static" />}
-        animatedIcon={<HomeIconLazy />}
-        label="Home"
-        href="#home"
-      />
-    </nav>,
-  );
-  const box = () =>
-    document
-      .querySelector('[data-slot="shell-rail-icon"]')!
-      .getBoundingClientRect();
-  const before = box();
-  expect(document.querySelector('[data-testid="static"]')).not.toBeNull();
-  await expect
-    .poll(() => document.querySelector('[data-testid="static"]'), {
-      timeout: 4000,
-    })
-    .toBeNull();
-  const after = box();
-  expect([after.width, after.height]).toEqual([before.width, before.height]);
-  expect(
-    document
-      .querySelector('[data-slot="shell-rail-icon"] svg')
-      ?.getAttribute("width"),
-  ).toBe("1.125rem");
-});
-
 test("a section keeps its measure and a bleed reaches past the page gutter", async () => {
   const { ShellBleed, ShellSection } = await import("./shell");
   await render(
     <div style={{ width: 1440, height: 600 }}>
-      <Shell fill="parent" rail={<ShellRail />}>
+      <Shell fill="parent" rail={<Rail />}>
         <ShellMain>
           <ShellPage size="full">
             <ShellSection measure="default" data-testid="section">
@@ -420,3 +378,113 @@ test.each([
     expect(getComputedStyle(columnSwitch()).display).toBe("none");
   },
 );
+
+test.each([1440, 820])(
+  "at %ipx the global bar runs across the top and the frame fills the rest",
+  async (width) => {
+    await render(<Frame width={width} />);
+    await settled();
+    const bar = document
+      .querySelector('[data-slot="global-bar"]')!
+      .getBoundingClientRect();
+    const rail = document
+      .querySelector('[data-slot="shell-rail-area"]')!
+      .getBoundingClientRect();
+    const room = document
+      .querySelector('[data-slot="shell-room"]')!
+      .getBoundingClientRect();
+    expect([bar.top, bar.height, bar.width]).toEqual([0, 44, width]);
+    expect(rail.top).toBe(44);
+    expect(room.height).toBe(600 - 44);
+    // The bar's first control sits on the rail's centre line, the same axis as the rail's icons.
+    const toggle = document
+      .querySelector('[data-slot="shell-column-toggle"]')!
+      .getBoundingClientRect();
+    const icon = document
+      .querySelector('[data-slot="rail-item"] svg')!
+      .getBoundingClientRect();
+    expect(toggle.left + toggle.width / 2).toBeCloseTo(
+      icon.left + icon.width / 2,
+      0,
+    );
+  },
+);
+
+test("on a phone the global bar is hidden", async () => {
+  await render(<Frame width={390} />);
+  await settled();
+  expect(
+    getComputedStyle(document.querySelector('[data-slot="global-bar"]')!)
+      .display,
+  ).toBe("none");
+});
+
+test("an open panel starts under the global bar", async () => {
+  await render(<Frame width={1440} panelOpen />);
+  await settled();
+  const panel = document
+    .querySelector('[data-slot="shell-panel-slot"]')!
+    .getBoundingClientRect();
+  expect([panel.top, panel.height]).toEqual([44, 556]);
+});
+
+test("the top bar keeps presence, tools, primary, Share, ☆ and ⋯ in order, whatever order they are written in", async () => {
+  await render(
+    <div style={{ width: 1200 }}>
+      <ShellTopBar>
+        <ShellTopBarMore>
+          <Button variant="ghost" size="icon-sm" aria-label="More">
+            ⋯
+          </Button>
+        </ShellTopBarMore>
+        <ShellTopBarFavorite>
+          <Button variant="ghost" size="icon-sm" aria-label="Favourite">
+            ☆
+          </Button>
+        </ShellTopBarFavorite>
+        <ShellTopBarShare>
+          <Button variant="outline" size="sm">
+            Share
+          </Button>
+        </ShellTopBarShare>
+        <ShellTopBarPrimary>
+          <Button size="sm">Approve</Button>
+        </ShellTopBarPrimary>
+        <ShellTopBarTools>
+          <Button variant="ghost" size="icon-sm" aria-label="Watch">
+            W
+          </Button>
+        </ShellTopBarTools>
+        <ShellTopBarPresence>
+          <span>AC</span>
+        </ShellTopBarPresence>
+        <ShellTopBarTitle>Q3 pricing</ShellTopBarTitle>
+      </ShellTopBar>
+    </div>,
+  );
+  const order = [
+    "shell-topbar-title",
+    "shell-topbar-presence",
+    "shell-topbar-tools",
+    "shell-topbar-primary",
+    "shell-topbar-share",
+    "shell-topbar-favorite",
+    "shell-topbar-more",
+  ].map(
+    (slot) =>
+      document.querySelector(`[data-slot="${slot}"]`)!.getBoundingClientRect()
+        .left,
+  );
+  expect(order).toEqual([...order].sort((a, b) => a - b));
+  // The tools, Share, ☆ and ⋯ share one height.
+  const heights = ["Watch", "Share", "Favourite", "More"].map(
+    (name) =>
+      [...document.querySelectorAll<HTMLElement>('[data-slot="button"]')]
+        .find(
+          (b) =>
+            b.getAttribute("aria-label") === name || b.textContent === name,
+        )!
+        .getBoundingClientRect().height,
+  );
+  expect(new Set(heights)).toEqual(new Set([28]));
+});

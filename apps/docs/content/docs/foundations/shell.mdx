@@ -1,15 +1,17 @@
 ---
 title: Shell layout
-description: Five regions with one owner each, one set of sizes, and one rule for where the column and the panel go at every width.
+description: Six regions with one owner each, one set of sizes, and one rule for where the column and the panel go at every width.
 audience: public
 ---
 
-Every screen of the app sits in one frame, [`Shell`](/docs/components/shell). It has **five
+Every screen of the app sits in one frame, [`Shell`](/docs/components/shell). It has **six
 regions**, each owned by one part, and **one rule** decides where they go at every width (LAY-22).
 
 ```
-┌────┬───────────────┬────────────────────────────────────────┬────────────────┐
-│ R  │ C             │ T  top bar (48)                        │ P  panel       │
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ G  global bar (44): ▤ ‹ › workspace · search ⌘K · Ask ⌘J, Help, account       │
+├────┬───────────────┬────────────────────────────────────────┬────────────────┤
+│ R  │ C  title (48) │ T  top bar (48)                        │ P  panel       │
 │ a  │ o             ├────────────────────────────────────────┤  (tabs)        │
 │ i  │ l             │                                        │                │
 │ l  │ u             │  W  the page                           │                │
@@ -20,20 +22,21 @@ regions**, each owned by one part, and **one rule** decides where they go at eve
 
 ## The regions
 
-| Region    | Part                              | Size                                       | Holds                                                                  |
-| --------- | --------------------------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
-| Rail      | `ShellRail`                       | 64px                                       | New, Search, the modules (icon and a short label), More, Help, you     |
-| Column    | `ShellColumn`                     | 240px, 200–360, folds to 0                 | The current module's own navigation: views, folders, spaces, chats     |
-| Top bar   | `ShellTopBar`                     | 48px                                       | Title, presence, tools, actions, primary, panel toggle — in that order |
-| Page      | `ShellMain` › `ShellPage`         | prose 720 · default 1200 · full · form 720 | The page                                                               |
-| Panel     | the panel host, placed by `Shell` | 420px, 360–720                             | Records and views as tabs                                              |
-| Phone bar | `ShellBottomBar`                  | 56px + the home indicator                  | Home, Agents, Tasks, Inbox, More                                       |
+| Region     | Part                              | Size                                       | Holds                                                              |
+| ---------- | --------------------------------- | ------------------------------------------ | ------------------------------------------------------------------ |
+| Global bar | `GlobalBar`                       | 44px, full width                           | ▤, ‹ › (desktop), the workspace · search · Ask, Help, the account  |
+| Rail       | `Rail`                            | 64px                                       | The modules (icon and a short label), Settings at the foot         |
+| Column     | `ShellColumn` › `NavTree`         | 240px, 200–360, folds to 0                 | A 48px title row, then the module's places: views, folders, spaces |
+| Top bar    | `ShellTopBar`                     | 48px                                       | Title · presence, tools, primary, Share, ☆, ⋯ — in that order      |
+| Page       | `ShellMain` › `ShellPage`         | prose 720 · default 1200 · full · form 720 | The page                                                           |
+| Panel      | the panel host, placed by `Shell` | 420px, 360–720                             | Records and views as tabs                                          |
+| Phone bar  | `ShellBottomBar`                  | 56px + the home indicator                  | Home, Inbox, Agents, Spaces, More                                  |
 
-Every size is a token, never a literal: `--shell-rail-width`, `--shell-column-width` (`-min`,
+Every size is a token, never a literal: `--shell-globalbar-height`, `--shell-rail-width`, `--shell-column-width` (`-min`,
 `-max`), `--shell-topbar-height`, `--shell-panel-width` (`-min`, `-max`),
 `--shell-bottombar-height`, and the desktop title row's `--shell-titlebar-mac-inset` and
-`--shell-titlebar-win-inset`. The top bar's height is the height of every title row: the column's
-head, the panel's head and the desktop app's window row.
+`--shell-titlebar-win-inset`. The top bar's height is the height of every page-level title row: the
+column's title row and the panel's head. The global bar is the desktop app's window row.
 
 ## Where the column and the panel go
 
@@ -41,7 +44,7 @@ The tiers are the design system's own: phone under 40rem, tablet under 64rem, la
 then wide — read on the shell's width with container queries, so a resized desktop window, iPad
 split view and browser zoom all behave the same.
 
-- **Phone.** No rail: the bottom bar. The column is a sheet from the page's title. The panel is
+- **Phone.** No global bar or rail: the page's own top row and the bottom bar. The column is a sheet from the page's title. The panel is
   full screen.
 - **Tablet.** The rail shows. The column never takes room: it slides over the page from ▤, an
   edge swipe, or a hover on the current module, and goes away once you pick something.

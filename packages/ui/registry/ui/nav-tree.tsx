@@ -1,0 +1,362 @@
+// @vegastack nav-tree@0.104.0 sha256-oifnyvtE3N0JZS+bCOfWtqu914ZZiGUhbfJ2Bc5QjuE=
+
+"use client";
+
+import * as React from "react";
+import { Button as ButtonPrimitive } from "@base-ui/react/button";
+import { cn } from "@vegastack/design";
+import { ChevronRight } from "lucide-react";
+
+/* ---
+WHY THIS SHAPE — one tree for every column (Layout v2, D9).
+
+Every module column (Home, Spaces, Library, Settings, Tasks…) lists its places the same way:
+sections with a title, items left-aligned with that title, and children indented by one step of
+the spacing scale (12px). There is no chevron gutter at the start of a row: a parent's fold
+control sits at its END, so a parent and its siblings keep their labels on one line. Children hang
+from a thin thread line with a rounded elbow per child, the visual the Inbox uses for a
+notification's threaded events.
+
+Rows are 32px, and 44px (`size="touch"`, or by themselves in a shell narrower than 40rem, where
+the column is a phone sheet). The height is one variable (`--nav-tree-row`), so the elbows meet
+each row's middle at either size.
+
+Keyboard (on top of Tab, which reaches every row): ↑ ↓ move between visible rows, Home and End
+jump to the ends, → opens a folded parent or moves into it, ← folds an open parent or moves to
+its parent. Enter follows the row's link or presses its button.
+--- */
+
+type NavTreeSize = "default" | "touch";
+
+const DepthContext = React.createContext(0);
+
+const ROW = '[data-slot="nav-tree-item"]';
+
+function visibleRows(root: HTMLElement): HTMLElement[] {
+  return Array.from(root.querySelectorAll<HTMLElement>(ROW)).filter(
+    (row) => !row.closest("[hidden]"),
+  );
+}
+
+function rowOf(el: Element | null): HTMLElement | null {
+  const li = el?.closest<HTMLElement>('[data-slot="nav-tree-row"]');
+  return li?.querySelector<HTMLElement>(`:scope > div > ${ROW}`) ?? null;
+}
+
+/** Props accepted by `NavTree`. */
+export interface NavTreeProps extends React.ComponentProps<"div"> {
+  /**
+   * Row height: `default` is 32px (44px inside a shell narrower than 40rem, where the column is a
+   * phone sheet); `touch` is always 44px, for a list in a phone sheet of its own.
+   * @default 'default'
+   */
+  size?: NavTreeSize;
+}
+
+/**
+ * `NavTree` — a column's navigation: `NavTreeSection`s of `NavTreeItem`s, with the arrow keys
+ * moving between rows and folding parents. Put it inside the shell's `ShellColumn` (the
+ * navigation landmark) or any `nav`.
+ *
+ * @example
+ * <NavTree>
+ *   <NavTreeSection label="Views">
+ *     <NavTreeItem icon={<ListChecks />} label="My tasks" count={12} href="/tasks" active />
+ *   </NavTreeSection>
+ * </NavTree>
+ */
+export function NavTree({
+  size = "default",
+  className,
+  onKeyDown,
+  ...props
+}: NavTreeProps) {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    onKeyDown?.(event);
+    if (event.defaultPrevented || event.altKey || event.metaKey) return;
+    const root = event.currentTarget;
+    const target = event.target as HTMLElement;
+    // Keys typed into a field inside the tree (a rename box) are the field's.
+    if (target.matches("input, textarea, select, [contenteditable='true']"))
+      return;
+    const current = rowOf(target);
+    if (!current) return;
+    const rows = visibleRows(root);
+    const at = rows.indexOf(current);
+    const rtl = getComputedStyle(root).direction === "rtl";
+    const into = rtl ? "ArrowLeft" : "ArrowRight";
+    const out = rtl ? "ArrowRight" : "ArrowLeft";
+    const li = current.closest<HTMLElement>('[data-slot="nav-tree-row"]')!;
+    const fold = li.querySelector<HTMLElement>(
+      ':scope > div > [data-slot="nav-tree-fold"]',
+    );
+    const open = fold?.getAttribute("aria-expanded") === "true";
+    let next: HTMLElement | null | undefined;
+    if (event.key === "ArrowDown") next = rows[at + 1];
+    else if (event.key === "ArrowUp") next = rows[at - 1];
+    else if (event.key === "Home") next = rows[0];
+    else if (event.key === "End") next = rows.at(-1);
+    else if (event.key === into && fold) {
+      if (!open) fold.click();
+      else
+        next = li.querySelector<HTMLElement>(
+          `:scope > [data-slot="nav-tree-group"] ${ROW}`,
+        );
+    } else if (event.key === out) {
+      if (fold && open) fold.click();
+      else next = rowOf(li.parentElement);
+    } else return;
+    event.preventDefault();
+    next?.focus();
+  };
+  return (
+    <div
+      data-slot="nav-tree"
+      data-size={size}
+      className={cn("group/nav-tree flex flex-col gap-1", className)}
+      onKeyDown={handleKeyDown}
+      {...props}
+    />
+  );
+}
+
+/** Props accepted by `NavTreeSection`. */
+export interface NavTreeSectionProps extends Omit<
+  React.ComponentProps<"section">,
+  "title"
+> {
+  /** The section's title, above its items, left-aligned with them. @default undefined */
+  label?: React.ReactNode;
+  /** An action beside the title (a + button). @default undefined */
+  action?: React.ReactNode;
+}
+
+/**
+ * `NavTreeSection` — a titled group of items. Without a `label` it is a plain list (the column's
+ * first group of views).
+ *
+ * @example
+ * <NavTreeSection label="Spaces" action={<Button size="icon-xs" variant="ghost" aria-label="New space"><Plus /></Button>}>…</NavTreeSection>
+ */
+export function NavTreeSection({
+  label,
+  action,
+  className,
+  children,
+  ...props
+}: NavTreeSectionProps) {
+  const id = React.useId();
+  return (
+    <section
+      data-slot="nav-tree-section"
+      aria-labelledby={label ? id : undefined}
+      className={cn(
+        // The row height lives here, so a section works inside a NavTree or on its own.
+        "flex flex-col [--nav-tree-row:--spacing(8)] group-data-[size=touch]/nav-tree:[--nav-tree-row:--spacing(11)] @max-[40rem]/shell:[--nav-tree-row:--spacing(11)]",
+        className,
+      )}
+      {...props}
+    >
+      {label ? (
+        <div className="flex h-8 items-center justify-between gap-2 ps-2 pe-1 pt-2">
+          <h3
+            id={id}
+            className="min-w-0 truncate text-xs font-medium text-muted-foreground"
+          >
+            {label}
+          </h3>
+          {action}
+        </div>
+      ) : null}
+      <ul role="list" className="flex flex-col gap-px">
+        {children}
+      </ul>
+    </section>
+  );
+}
+
+/** Props accepted by `NavTreeItem`. */
+export interface NavTreeItemProps extends Omit<
+  React.ComponentProps<"a">,
+  "children"
+> {
+  /** The item's name. */
+  label: React.ReactNode;
+  /** Its icon, 16px. @default undefined */
+  icon?: React.ReactNode;
+  /** A count at the end, muted and tabular. Zero or empty shows nothing. @default undefined */
+  count?: number | string;
+  /** Whether this is the current place. @default false */
+  active?: boolean;
+  /** An action shown on hover and focus in the count's place (a ⋯ menu). @default undefined */
+  action?: React.ReactNode;
+  /** Child items: the item becomes a parent that folds, its children threaded under it. @default undefined */
+  children?: React.ReactNode;
+  /** Whether a parent starts open (uncontrolled). @default true when `active`, else false */
+  defaultOpen?: boolean;
+  /** Whether a parent is open (controlled). @default undefined */
+  open?: boolean;
+  /** Called when a parent opens or folds. @default undefined */
+  onOpenChange?: (open: boolean) => void;
+  /** The app's own link or button element (`<Link href="/tasks" />`); its props win. @default undefined */
+  render?: React.ReactElement;
+}
+
+type ElementProps = Record<string, unknown> & {
+  className?: string;
+  children?: React.ReactNode;
+};
+
+function rowElement(
+  render: React.ReactElement | undefined,
+  href: string | undefined,
+): React.ReactElement {
+  if (render) return render;
+  if (href) return <a href={href} />;
+  return <ButtonPrimitive />;
+}
+
+function hasCount(count: number | string | undefined): boolean {
+  return count !== undefined && count !== "" && count !== 0;
+}
+
+/**
+ * `NavTreeItem` — one row: icon, name and count, on an inset rounded fill. With children it is a
+ * parent: its fold control sits at the row's end (never before the label), and its children are
+ * indented one 12px step and threaded to it. A parent with no link of its own folds on a click.
+ *
+ * @example
+ * <NavTreeItem icon={<Hexagon />} label="General" defaultOpen>
+ *   <NavTreeItem label="Launch plan" href="/spaces/general/launch" />
+ * </NavTreeItem>
+ */
+export function NavTreeItem({
+  label,
+  icon,
+  count,
+  active = false,
+  action,
+  children,
+  defaultOpen,
+  open: openProp,
+  onOpenChange,
+  render,
+  href,
+  className,
+  onClick,
+  ...props
+}: NavTreeItemProps) {
+  const depth = React.useContext(DepthContext);
+  const groupId = React.useId();
+  const parent = React.Children.count(children) > 0;
+  const [openState, setOpenState] = React.useState(defaultOpen ?? active);
+  const open = openProp ?? openState;
+  const setOpen = (next: boolean) => {
+    if (openProp === undefined) setOpenState(next);
+    onOpenChange?.(next);
+  };
+  const own = (render?.props ?? {}) as ElementProps;
+  // A parent that goes nowhere folds on a click.
+  const folds =
+    parent && !render && !href && !onClick && !own.onClick && !own.href;
+  const shown = hasCount(count);
+  const element = rowElement(render, href);
+  const row = React.cloneElement(element, {
+    ...props,
+    ...own,
+    "data-slot": "nav-tree-item",
+    "data-active": active ? "" : undefined,
+    "data-depth": depth,
+    "aria-current": active ? "page" : undefined,
+    ...(folds
+      ? {
+          "aria-expanded": open,
+          "aria-controls": groupId,
+          onClick: () => setOpen(!open),
+        }
+      : { onClick: onClick ?? own.onClick }),
+    className: cn(
+      "state-layer relative flex h-(--nav-tree-row) w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-foreground no-underline outline-none data-active:layer-selected data-active:font-medium [&_svg:not([class*='size-'])]:size-4 [&>svg]:flex-none [&>svg]:text-muted-foreground",
+      parent && "pe-8",
+      className,
+      own.className,
+    ),
+    children: (
+      <>
+        {icon}
+        <span className="min-w-0 flex-1 truncate">{label}</span>
+        {shown ? (
+          <span
+            data-slot="nav-tree-count"
+            className={cn(
+              "flex-none text-xs font-normal text-muted-foreground tabular-nums",
+              action &&
+                "group-focus-within/nav-tree-row:invisible group-hover/nav-tree-row:invisible",
+            )}
+          >
+            {count}
+          </span>
+        ) : null}
+      </>
+    ),
+  } as ElementProps);
+
+  return (
+    <li
+      data-slot="nav-tree-row"
+      data-parent={parent ? "" : undefined}
+      className={cn(
+        "relative",
+        // A child hangs from its parent's thread: an elbow to its row's middle, and the line
+        // running on past it to the next sibling (Inbox's threaded events).
+        depth > 0 &&
+          "before:pointer-events-none before:absolute before:-start-1.5 before:-top-px before:h-[calc(var(--nav-tree-row)/2+1px)] before:w-1.5 before:rounded-es-item before:border-s before:border-b before:border-border not-last:after:pointer-events-none not-last:after:absolute not-last:after:-start-1.5 not-last:after:top-0 not-last:after:-bottom-px not-last:after:border-s not-last:after:border-border",
+      )}
+    >
+      <div className="group/nav-tree-row relative flex items-center">
+        {row}
+        {action ? (
+          <span
+            data-slot="nav-tree-action"
+            className={cn(
+              "absolute top-1/2 hidden -translate-y-1/2 items-center group-focus-within/nav-tree-row:flex group-hover/nav-tree-row:flex",
+              parent ? "end-7" : "end-1",
+            )}
+          >
+            {action}
+          </span>
+        ) : null}
+        {parent ? (
+          <ButtonPrimitive
+            data-slot="nav-tree-fold"
+            aria-label={`Show or hide ${typeof label === "string" ? label : "items"}`}
+            aria-expanded={open}
+            aria-controls={groupId}
+            tabIndex={-1}
+            onClick={() => setOpen(!open)}
+            className="absolute end-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-icon text-muted-foreground outline-none state-layer pointer-coarse:after:absolute pointer-coarse:after:-inset-2.5"
+          >
+            <ChevronRight
+              aria-hidden="true"
+              className={cn(
+                "size-3.5 transition-transform duration-state rtl:-scale-x-100",
+                open && "rotate-90",
+              )}
+            />
+          </ButtonPrimitive>
+        ) : null}
+      </div>
+      {parent ? (
+        <ul
+          id={groupId}
+          role="list"
+          data-slot="nav-tree-group"
+          hidden={!open}
+          className="ms-3 flex flex-col gap-px pt-px"
+        >
+          <DepthContext value={depth + 1}>{children}</DepthContext>
+        </ul>
+      ) : null}
+    </li>
+  );
+}

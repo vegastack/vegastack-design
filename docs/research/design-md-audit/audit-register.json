@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9400c8d0dc1ab4ca116770ef03fc82905e480753828fe1e066043d085a188013",
+  "contractSha256": "1e0991c76514df337614ce0b93e3d71462678884b7d9efc03053121e9574424d",
   "expectedCounts": {
-    "totalRegistryItems": 814,
-    "components": 224,
+    "totalRegistryItems": 817,
+    "components": 227,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -68,6 +68,41 @@
         "packages/ui/registry/ui/shell-scripts.tsx"
       ],
       "docsSlug": "/docs/components/shell",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "nav-tree",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/nav-tree.tsx"
+      ],
+      "docsSlug": "/docs/components/nav-tree",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "global-bar",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/global-bar.tsx",
+        "packages/ui/registry/ui/global-bar-client.tsx"
+      ],
+      "docsSlug": "/docs/components/global-bar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "rail",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/rail.tsx",
+        "packages/ui/registry/ui/rail-client.tsx"
+      ],
+      "docsSlug": "/docs/components/rail",
       "contractStatus": "reconciled"
     },
     {

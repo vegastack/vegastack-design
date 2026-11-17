@@ -1,4 +1,4 @@
-// @vegastack help-menu@0.101.0 sha256-1jcb0Ip8RZfmvhL7RrQKDl5hZ4gqNheS3fKYy0eFxIo=
+// @vegastack help-menu@0.101.0 sha256-BWjdlpSHej7lYuExhUgDpf6laE1J95qOZAg92ekyRos=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -18,9 +18,9 @@ import { NotificationDot } from "@/components/ui/notification-dot";
 
 /* ---
 `HelpMenu` is the one place to learn the product: What's new, the docs, the keyboard
-shortcuts and support, plus the build version, behind one item in the shell's rail footer.
+shortcuts and support, plus the build version, behind the Help button in the global bar.
 
-The trigger is yours — a `ShellRailItem`, with the What's new dot on its icon — rendered as
+The trigger is yours — the global bar's Help button, with the What's new dot on it — rendered as
 the `DropdownMenu` trigger; the menu renders nothing of its own beyond the entries. Every entry is optional, and each is a link
 (`href`, rendered through `linkRender` — your router's `Link`) or an action (`onSelect`,
 say opening the shortcuts overlay). Framework-agnostic: no router import.
@@ -92,19 +92,19 @@ export interface HelpMenuProps {
    */
   shortcutsHint?: React.ReactNode;
   /**
-   * The trigger: a `ShellRailItem` in the shell's rail footer
-   * (`<ShellRailItem icon={<CircleHelp />} label="Help" dot={unread ? "new updates" : undefined} />`).
-   * It is rendered through the menu trigger, so it owns its icon, label and dot.
+   * The trigger: the Help button in the global bar's trailing slot, a ghost `icon-sm` button with
+   * a `NotificationDot` while something is unread. It is rendered through the menu trigger, so it
+   * owns its icon, name and dot.
    */
   trigger: React.ReactElement;
   /**
-   * Where the menu opens beside the trigger.
-   * @default "top"
+   * Where the menu opens beside the trigger: under the global bar's Help button.
+   * @default "bottom"
    */
   side?: "top" | "right" | "bottom" | "left";
   /**
-   * The menu's alignment along that side.
-   * @default "start"
+   * The menu's alignment along that side: the bar's end.
+   * @default "end"
    */
   align?: "start" | "center" | "end";
   /**
@@ -113,7 +113,7 @@ export interface HelpMenuProps {
    */
   children?: React.ReactNode;
   /**
-   * Classes for the sidebar item.
+   * Classes for the menu's wrapper.
    * @default undefined
    */
   className?: string;
@@ -149,14 +149,14 @@ function linkElement(
 }
 
 /**
- * `HelpMenu` — the Help item in the shell's rail footer: one menu with What's new (marked with a
- * dot while `whatsNewUnread`), Docs, Keyboard shortcuts and Contact support, and the build
- * version at its foot. The trigger is a `ShellRailItem` you pass, with the dot on its icon.
+ * `HelpMenu` — the Help button in the global bar: one menu with What's new (marked with a dot
+ * while `whatsNewUnread`), Docs, Keyboard shortcuts and Contact support, and the build version at
+ * its foot. The trigger is the Help button you pass, with the dot on it.
  *
  * @example
- * <ShellRailFooter>
+ * <GlobalBarTrailing>
  *   <HelpMenu
- *     trigger={<ShellRailItem icon={<CircleHelp />} label="Help" dot={unread ? "new updates" : undefined} />}
+ *     trigger={<Button variant="ghost" size="icon-sm" aria-label={unread ? "Help (new updates)" : "Help"} className="relative"><CircleHelp />{unread ? <NotificationDot className="absolute top-0.5 end-0.5" /> : null}</Button>}
  *     whatsNewUnread={unread}
  *     version="v1.8.21"
  *     linkRender={<Link href="" />}
@@ -167,7 +167,7 @@ function linkElement(
  *       support: { href: "mailto:support@example.com" },
  *     }}
  *   />
- * </ShellRailFooter>
+ * </GlobalBarTrailing>
  */
 export function HelpMenu({
   links = {},
@@ -176,8 +176,8 @@ export function HelpMenu({
   linkRender,
   unreadLabel = "new updates",
   shortcutsHint = "?",
-  side = "top",
-  align = "start",
+  side = "bottom",
+  align = "end",
   trigger,
   children,
   className,

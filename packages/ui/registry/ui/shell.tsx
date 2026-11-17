@@ -1,20 +1,10 @@
-// @vegastack shell@0.103.0 sha256-UQPG0RwpcIhYoOQu5qlf6Dtk+Wr+BeKYeNu0XPOgcY8=
+// @vegastack shell@0.103.0 sha256-jLQnnJGNOtqc92vTVJvWE72tucBtpyr68fsf4NMfgas=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cn } from "@vegastack/design";
-import { ChevronRight, MoreHorizontal, PanelRight, Search } from "lucide-react";
+import { ChevronRight, PanelRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   InputGroup,
   InputGroupAddon,
@@ -24,9 +14,9 @@ import {
   ShellColumnResize,
   ShellColumnSwitch,
   ShellController,
-  ShellRailIcon,
   ShellSkipLink,
 } from "@/components/ui/shell-client";
+import { RailBadge, railBadgeText } from "@/components/ui/rail";
 import type { PageWidth } from "@/lib/page-layout";
 import {
   clampColumnWidth,
@@ -38,24 +28,22 @@ import {
 export {
   ShellBottomBar,
   ShellColumnSwitch,
-  ShellTitleBarControls,
-  lazyAnimatedIcon,
+  ShellColumnToggle,
   requestShellPanelOpen,
   toggleShellColumn,
   useShellLayout,
   type ShellBottomBarProps,
   type ShellColumnState,
   type ShellColumnSwitchProps,
-  type ShellHistory,
+  type ShellColumnToggleProps,
   type ShellLayoutState,
-  type ShellTitleBarControlsProps,
 } from "@/components/ui/shell-client";
 
 /* ---
 WHY THIS FILE IS SERVER-SAFE — the shell lays itself out in CSS, not in JavaScript.
 
-Every screen of the app sits in this frame, so its first paint is the app's first paint. The grid,
-the rail, the column and the top bar render on the server, and WHERE things go — the column in the
+Every screen of the app sits in this frame, so its first paint is the app's first paint. The global
+bar on top, then the rail, the column and the page under its top bar render on the server, and WHERE things go — the column in the
 flow or folded, the panel beside the page or over it, phone or tablet — is decided by container
 queries on the shell itself, reading data attributes the server (or `ShellStateScript`, before the
 first paint) set. Nothing waits for hydration to lay out, so nothing shifts when it arrives.
@@ -71,7 +59,8 @@ test holds the two in step.
 
 The client islands are small and live in `shell-client.tsx`: the controller (⌘\, F6, hover-peek,
 the tablet slide-over, the cookies, the `data-panel-mode` mirror for scripts), the column's resize
-handle, the skip link, the title-bar controls and the phone bottom bar.
+handle, the skip link, the column toggle and the phone bottom bar. The global bar (`global-bar`),
+the rail (`rail`) and the column's items (`nav-tree`) are their own items, passed in as slots.
 --- */
 
 const S = '[data-slot="shell"]';
@@ -98,7 +87,6 @@ function pageMinRules(min: ShellPageMin): string {
     @container shell-room (width >= ${room}) {
       ${COL_OPEN}${PANEL_OPEN}[data-page-min="${min}"] [data-slot="shell-column-area"] { visibility: hidden; opacity: 0; }
       ${COL_OPEN}${PANEL_OPEN}[data-page-min="${min}"] [data-slot="shell-main-area"] { margin-inline-start: calc(-1 * var(--shell-col-room)); --shell-layout-column: folded; }
-      ${COL_OPEN}${PANEL_OPEN}[data-page-min="${min}"] [data-slot="shell-topbar-lead"] { display: flex; }
     }
   }
 }
@@ -132,9 +120,11 @@ ${S} {
   background: var(--background);
   color: var(--foreground);
   --shell-column-current-width: var(--shell-column-saved, var(--shell-column-width));
+  --shell-globalbar-room: 0px;
   --shell-panel-current-width: var(--shell-panel-saved, var(--shell-panel-width));
 }
 ${S}[data-fill="parent"] { height: 100%; }
+${S}[data-has-global-bar] { --shell-globalbar-room: var(--shell-globalbar-height); }
 [data-slot="shell-room"] {
   container: shell-room / inline-size;
   position: relative;
@@ -161,22 +151,14 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   --shell-floating-end: 1rem;
   position: relative;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 100%;
   background: var(--background);
   transition: margin-inline-start var(--duration-state) var(--motion-ease-emphasized);
 }
-[data-slot="shell-main-area"] > [data-slot="shell-topbar-lead"] { grid-area: 1 / 1; }
-[data-slot="shell-main-area"] > [data-slot="shell-topbar"] { grid-area: 1 / 2; }
-[data-slot="shell-main-area"] > :not([data-slot="shell-topbar-lead"], [data-slot="shell-topbar"], [data-slot="shell-floating-area"]) { grid-column: 1 / -1; }
-[data-slot="shell-topbar-lead"] {
-  display: none;
-  align-items: center;
-  gap: 0.125rem;
-  height: var(--shell-topbar-height);
-  padding-inline-start: 0.5rem;
-}
+[data-slot="shell-main-area"] > [data-slot="shell-topbar"] { grid-row: 1; }
+[data-slot="shell-main-area"] > :not([data-slot="shell-topbar"], [data-slot="shell-floating-area"]) { grid-row: 2; }
 [data-slot="shell-column-area"] {
   position: absolute;
   inset-block: 0;
@@ -191,14 +173,6 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   opacity: 0;
   contain: layout paint;
   transition: opacity var(--duration-quick) var(--motion-ease-standard), visibility 0s linear var(--duration-quick);
-}
-[data-slot="shell-column-head"] {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: 0.125rem;
-  height: var(--shell-topbar-height);
-  padding-inline: 0.25rem 0.5rem;
 }
 [data-slot="shell-panel-slot"] {
   position: absolute;
@@ -264,8 +238,6 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
   /* The column has no ▤ here: the page title opens it as a sheet (L13). */
   ${S}[data-has-column] [data-slot="shell-column-switch"] { display: grid; }
   [data-slot="shell-topbar-heading"] > h1 { font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: 600; }
-  /* The column as a sheet takes fingers, not a pointer: rows grow to a 44px target. */
-  [data-slot="shell-column-area"] [data-slot="shell-column-item"] { height: 2.75rem; }
   ${S}:not([data-fill="parent"]) [data-slot="shell-floating-area"] {
     position: fixed;
     inset-inline-end: max(1rem, env(safe-area-inset-right));
@@ -318,8 +290,10 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
 
 /* Tablet and up: the frame fills its height, the rail shows, the panel takes room. */
 @container shell (width >= 40rem) {
-  [data-slot="shell-room"] { height: 100dvh; min-height: 0; }
-  ${S}[data-fill="parent"] > [data-slot="shell-room"] { height: 100%; }
+  /* The global bar takes its 44px row; the rail, column, page and panel share the rest. */
+  [data-slot="shell-room"] { height: calc(100dvh - var(--shell-globalbar-room)); min-height: 0; }
+  ${S}[data-fill="parent"] > [data-slot="shell-room"] { height: calc(100% - var(--shell-globalbar-room)); }
+  [data-slot="shell-panel-slot"] { inset-block-start: var(--shell-globalbar-room); }
   [data-slot="shell-rail-area"] {
     display: flex;
     flex: none;
@@ -335,7 +309,6 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
     border-inline-start: 1px solid var(--sidebar-border);
   }
   [data-slot="shell-content"] { overflow-y: auto; overscroll-behavior-y: contain; }
-  [data-slot="shell-topbar-lead"] { display: flex; }
   ${PANEL_OPEN} [data-slot="shell-room"] { --shell-panel-room: var(--shell-panel-current-width); }
   ${PANEL_OPEN} [data-slot="shell-main-area"] { --shell-layout-panel: dock; }
   ${FLOAT} [data-slot="shell-column-area"] {
@@ -362,7 +335,6 @@ ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
     transition: opacity var(--duration-quick) var(--motion-ease-standard), visibility 0s;
   }
   ${COL_OPEN} [data-slot="shell-main-area"] { margin-inline-start: 0; --shell-layout-column: shown; }
-  ${COL_OPEN} [data-slot="shell-topbar-lead"] { display: none; }
 }
 ${pageMinRules(SHELL_PAGE_MIN.list)}
 ${pageMinRules(SHELL_PAGE_MIN.document)}
@@ -374,31 +346,15 @@ ${S}[data-panel-anim="open"] [data-slot="shell-main-area"] { animation: vs-shell
 [dir="rtl"] [data-slot="shell-panel-slot"] { translate: -100% 0; }
 [dir="rtl"] ${PANEL_OPEN} [data-slot="shell-panel-slot"] { translate: none; }
 
-/* The desktop app's one title row (L10): the traffic lights sit in the rail's head, the column's
-   head and the top bar continue the same 48px row, and the row drags the window. */
-:root[data-desktop-titlebar="macos"] [data-slot="shell-rail-head"] > * { visibility: hidden; }
-:root[data-desktop-titlebar="macos"] [data-slot="shell-rail-header-below"] { display: flex; }
-:root[data-desktop-titlebar="macos"] [data-slot="shell-column-head"],
-:root[data-desktop-titlebar="macos"] [data-slot="shell-topbar-lead"] {
-  padding-inline-start: calc(var(--shell-titlebar-mac-inset) - ${RAIL});
-}
-:root[data-desktop-titlebar="windows"] ${S}:not(${PANEL_OPEN}) [data-slot="shell-topbar"],
-:root[data-desktop-titlebar="windows"] ${PANEL_OPEN} [data-slot="shell-panel-head"] {
-  padding-inline-end: calc(var(--shell-titlebar-win-inset) + 0.5rem);
-}
-/* A panel with no head of its own yet (loading) keeps its first row clear of the caption buttons. */
-:root[data-desktop-titlebar="windows"] ${PANEL_OPEN} [data-slot="shell-panel-slot"]:not(:has([data-slot="shell-panel-head"])) {
-  padding-top: var(--shell-topbar-height);
-}
-:root[data-desktop-titlebar] :is([data-slot="shell-rail-head"], [data-slot="shell-column-head"], [data-slot="shell-topbar-lead"], [data-slot="shell-topbar"], [data-slot="shell-panel-head"]) { -webkit-app-region: drag; }
-:root[data-desktop-titlebar] :is([data-slot="shell-rail-head"], [data-slot="shell-column-head"], [data-slot="shell-topbar-lead"], [data-slot="shell-topbar"], [data-slot="shell-panel-head"]) ${NO_DRAG} { -webkit-app-region: no-drag; }
+/* The desktop app's title row is the global bar's (\`global-bar\`): it drags the window and clears
+   the window's own buttons, so nothing below it does. */
 
 @media (prefers-reduced-motion: reduce) {
   ${S} *, ${S} { transition-duration: 0s; animation: none; }
 }
 }
 @media print {
-  ${S} :is([data-slot="shell-rail-area"], [data-slot="shell-column-area"], [data-slot="shell-panel-slot"], [data-slot="shell-panel-shadow"], [data-slot="shell-topbar-lead"], [data-slot="shell-topbar"], [data-slot="shell-floating-area"], [data-slot="shell-bottombar"], [data-slot="shell-scrim"], [data-slot="shell-skip"]) { display: none; }
+  ${S} :is([data-slot="shell-rail-area"], [data-slot="shell-column-area"], [data-slot="shell-panel-slot"], [data-slot="shell-panel-shadow"], [data-slot="global-bar"], [data-slot="shell-topbar"], [data-slot="shell-floating-area"], [data-slot="shell-bottombar"], [data-slot="shell-scrim"], [data-slot="shell-skip"]) { display: none; }
   ${S}, [data-slot="shell-room"], [data-slot="shell-main-area"] { height: auto; width: auto; overflow: visible; margin: 0; border: 0; display: block; }
   [data-slot="shell-fit"] { margin: 0; }
   [data-slot="shell-content"] { overflow: visible; padding: 0; }
@@ -410,24 +366,16 @@ export interface ShellProps extends Omit<
   React.ComponentProps<"div">,
   "children"
 > {
-  /** The module rail: a `ShellRail`. Hidden on phones, where `bottomBar` takes over. */
+  /**
+   * The 44px bar over everything: a `GlobalBar` (column toggle, back and forward, workspace
+   * switcher · search · Ask, Help, account). It is the desktop app's title row; hidden on phones.
+   * @default undefined
+   */
+  globalBar?: React.ReactNode;
+  /** The module rail: a `Rail`. Hidden on phones, where `bottomBar` takes over. */
   rail: React.ReactNode;
-  /**
-   * The rail's head, on the 48px title row above the rail — the workspace's mark. In the desktop
-   * app on macOS the traffic lights take that cell, so the mark moves to the top of the rail.
-   * @default undefined
-   */
-  railHeader?: React.ReactNode;
-  /** The current module's column: a `ShellColumn`, or `null` for a screen without one (Home). @default undefined */
+  /** The current module's column: a `ShellColumn`, or `null` for a screen without one. @default undefined */
   column?: React.ReactNode;
-  /** The column's head row, beside the title-bar controls — the workspace switcher. @default undefined */
-  columnHead?: React.ReactNode;
-  /**
-   * `ShellTitleBarControls`. The shell places it: in the column's head row while the column is
-   * open, otherwise at the start of the top bar.
-   * @default undefined
-   */
-  titleBarControls?: React.ReactNode;
   /** The panel host (`ShellPanel`). The shell positions it; the panel only fills its box. @default undefined */
   panel?: React.ReactNode;
   /**
@@ -465,17 +413,16 @@ export interface ShellProps extends Omit<
 }
 
 /**
- * `Shell` — the frame every screen sits in: a 64px module rail, the module's 240px column, the
- * page under a 48px top bar, and a right panel (LAY-22). It lays itself out in CSS before
- * hydration, from the data attributes it renders and the marks `ShellStateScript` leaves.
+ * `Shell` — the frame every screen sits in: a 44px global bar across the top, then a 64px module
+ * rail, the module's 240px column, the page under its 48px top bar, and a right panel (LAY-22). It
+ * lays itself out in CSS before hydration, from the data attributes it renders and the marks
+ * `ShellStateScript` leaves.
  *
  * @example
  * <Shell
- *   rail={<ShellRail label="Modules">…</ShellRail>}
- *   railHeader={<WorkspaceMark />}
+ *   globalBar={<GlobalBar>…</GlobalBar>}
+ *   rail={<Rail>…</Rail>}
  *   column={<ShellColumn label="Tasks">…</ShellColumn>}
- *   columnHead={<WorkspaceSwitcher />}
- *   titleBarControls={<ShellTitleBarControls />}
  *   panel={<ShellPanel …/>}
  *   panelOpen={tabs.length > 0}
  *   pageMin={640}
@@ -486,11 +433,9 @@ export interface ShellProps extends Omit<
  * </Shell>
  */
 export function Shell({
+  globalBar,
   rail,
-  railHeader,
   column,
-  columnHead,
-  titleBarControls,
   panel,
   panelOpen = false,
   panelWidth,
@@ -529,6 +474,7 @@ export function Shell({
       data-page-min={pageMin}
       data-fill={fill}
       data-has-column={hasColumn ? "" : undefined}
+      data-has-global-bar={globalBar ? "" : undefined}
       data-has-bottombar={bottomBar ? "" : undefined}
       className={cn("group/shell font-sans", className)}
       style={{ ...vars, ...style } as React.CSSProperties}
@@ -538,24 +484,9 @@ export function Shell({
         {SHELL_CSS}
       </style>
       <ShellSkipLink />
+      {globalBar}
       <div data-slot="shell-room">
-        <div data-slot="shell-rail-area">
-          <div
-            data-slot="shell-rail-head"
-            className="flex h-(--shell-topbar-height) flex-none items-center justify-center"
-          >
-            {railHeader}
-          </div>
-          {railHeader ? (
-            <div
-              data-slot="shell-rail-header-below"
-              className="hidden flex-none justify-center pb-1.5"
-            >
-              {railHeader}
-            </div>
-          ) : null}
-          {rail}
-        </div>
+        <div data-slot="shell-rail-area">{rail}</div>
         <div data-slot="shell-fit">
           {hasColumn ? (
             <div
@@ -564,18 +495,11 @@ export function Shell({
               tabIndex={-1}
               className="outline-none"
             >
-              <div data-slot="shell-column-head">
-                <div className="flex min-w-0 flex-1 items-center">
-                  {columnHead}
-                </div>
-                {titleBarControls}
-              </div>
               {column}
               <ShellColumnResize />
             </div>
           ) : null}
           <div data-slot="shell-main-area">
-            <div data-slot="shell-topbar-lead">{titleBarControls}</div>
             {children}
             {floating}
           </div>
@@ -627,216 +551,6 @@ function renderItem(
   } as ItemElementProps);
 }
 
-/** Props accepted by `ShellRail`. */
-export interface ShellRailProps extends React.ComponentProps<"nav"> {
-  /** The navigation landmark's name. @default 'Modules' */
-  label?: string;
-}
-
-/**
- * `ShellRail` — the 64px rail of modules, each an icon with a short label under it (L2). It
- * scrolls on its own when a short window cannot fit every module; `ShellRailFooter` keeps Help,
- * Settings and the person at the bottom.
- *
- * @example
- * <ShellRail>
- *   <ShellRailItem icon={<Home />} label="Home" href="/" active />
- *   <ShellRailMore>…</ShellRailMore>
- *   <ShellRailFooter>…</ShellRailFooter>
- * </ShellRail>
- */
-export function ShellRail({
-  label = "Modules",
-  className,
-  ...props
-}: ShellRailProps) {
-  return (
-    <nav
-      data-slot="shell-rail"
-      data-shell-region="rail"
-      tabIndex={-1}
-      aria-label={label}
-      className={cn(
-        "scroll-fade-y flex min-h-0 flex-1 flex-col items-center gap-0.5 overflow-y-auto pt-0.5 pb-2.5 outline-none [scrollbar-width:none]",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-/** Props accepted by `ShellRailItem`. */
-export interface ShellRailItemProps extends Omit<
-  React.ComponentProps<"a">,
-  "children"
-> {
-  /** The module's icon, 18px. */
-  icon: React.ReactNode;
-  /**
-   * The same icon, animated (L23): an element of a `lazyAnimatedIcon`. The static `icon` paints
-   * first; this loads once the browser is idle and plays on hover and when the item becomes the
-   * current module.
-   * @default undefined
-   */
-  animatedIcon?: React.ReactElement;
-  /** The short label under the icon. */
-  label: string;
-  /** A count on the icon (99+ past 99); a neutral chip (INT-15). @default undefined */
-  badge?: number | string;
-  /**
-   * A dot on the icon for something new to see that has no count — Help's What's new. Pass the
-   * words it means ("new updates"); they are read after the label.
-   * @default undefined
-   */
-  dot?: string;
-  /** Whether this is the current module. @default false */
-  active?: boolean;
-  /** The app's own link or button element (`<Link href="/tasks" />`); its props win. @default undefined */
-  render?: React.ReactElement;
-}
-
-function badgeText(badge: number | string | undefined): string | undefined {
-  if (badge === undefined || badge === 0 || badge === "") return undefined;
-  return typeof badge === "number" && badge > 99 ? "99+" : String(badge);
-}
-
-/**
- * `ShellRailItem` — one module on the rail: its icon in a 36×28 tile with the label under it.
- * The current module's tile is filled; hovering it while the column is folded peeks the column.
- *
- * @example
- * <ShellRailItem icon={<ListChecks />} label="Tasks" badge={17} render={<Link href="/tasks" />} active />
- */
-export function ShellRailItem({
-  icon,
-  animatedIcon,
-  label,
-  badge,
-  dot,
-  active = false,
-  render,
-  href,
-  className,
-  "aria-label": ariaLabel,
-  ...props
-}: ShellRailItemProps) {
-  const count = badgeText(badge);
-  // An explicit name wins (the account item reads "<name>, account"); else the label carries the
-  // count or the dot's meaning.
-  const name =
-    ariaLabel ??
-    (count ? `${label}, ${count}` : dot ? `${label} (${dot})` : undefined);
-  return renderItem(itemElement(render, href), {
-    ...props,
-    "data-slot": "shell-rail-item",
-    "data-active": active ? "" : undefined,
-    "aria-current": active ? "page" : undefined,
-    "aria-label": name,
-    className: cn(
-      "group/rail-item flex w-16 flex-none flex-col items-center gap-0.5 rounded-item pt-1 pb-1.5 text-xs font-medium text-muted-foreground no-underline outline-none data-active:text-foreground",
-      className,
-    ),
-    children: (
-      <>
-        <span
-          aria-hidden="true"
-          className="relative grid h-7 w-9 place-items-center rounded-item transition-colors duration-instant group-hover/rail-item:bg-state-hover group-hover/rail-item:text-foreground group-focus-visible/rail-item:bg-state-hover group-data-active/rail-item:bg-state-selected [&_svg:not([class*='size-'])]:size-4.5"
-        >
-          {animatedIcon ? (
-            <ShellRailIcon icon={icon} animated={animatedIcon} />
-          ) : (
-            icon
-          )}
-          {count ? (
-            <span
-              data-slot="shell-rail-badge"
-              className="absolute -top-1 -end-1.5 grid h-4 min-w-4 place-items-center rounded-chip bg-foreground px-1 text-xs leading-none font-semibold text-background tabular-nums shadow-[0_0_0_2px_var(--sidebar)]"
-            >
-              {count}
-            </span>
-          ) : dot ? (
-            <span
-              data-slot="shell-rail-dot"
-              className="absolute -top-0.5 end-0.5 size-2 rounded-chip bg-info shadow-[0_0_0_2px_var(--sidebar)]"
-            />
-          ) : null}
-        </span>
-        <span className="max-w-full truncate">{label}</span>
-      </>
-    ),
-  });
-}
-
-/** Props accepted by `ShellRailMore`. */
-export interface ShellRailMoreProps {
-  /** The menu's items: `DropdownMenuItem`s for the modules the rail has no room for. */
-  children: React.ReactNode;
-  /** The label under the icon. @default 'More' */
-  label?: string;
-  /** The icon. @default a horizontal ellipsis */
-  icon?: React.ReactNode;
-  /** Whether the current module lives in this menu. @default false */
-  active?: boolean;
-}
-
-/**
- * `ShellRailMore` — the rail's More item: a menu of the modules that are not on the rail.
- *
- * @example
- * <ShellRailMore icon={<MoreHorizontal />}>
- *   <DropdownMenuItem render={<Link href="/products" />}>Products</DropdownMenuItem>
- * </ShellRailMore>
- */
-export function ShellRailMore({
-  children,
-  label = "More",
-  icon,
-  active = false,
-}: ShellRailMoreProps) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <ShellRailItem
-            icon={icon ?? <MoreHorizontal />}
-            label={label}
-            active={active}
-            render={<ButtonPrimitive />}
-          />
-        }
-      />
-      <DropdownMenuContent side="right" align="start" className="min-w-48">
-        {children}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
-
-/**
- * `ShellRailFooter` — the rail's foot: Help, Settings and the person, pinned to the bottom.
- *
- * @example
- * <ShellRailFooter>
- *   <ShellRailItem icon={<CircleHelp />} label="Help" href="/docs" />
- *   <PersonMenu />
- * </ShellRailFooter>
- */
-export function ShellRailFooter({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="shell-rail-footer"
-      className={cn(
-        "mt-auto flex flex-col items-center gap-0.5 pt-2",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
 /** Props accepted by `ShellColumn`. */
 export interface ShellColumnProps extends React.ComponentProps<"nav"> {
   /** The navigation landmark's name — the module's name. */
@@ -844,13 +558,14 @@ export interface ShellColumnProps extends React.ComponentProps<"nav"> {
 }
 
 /**
- * `ShellColumn` — the current module's own navigation: its views, saved filters, folders, spaces
- * or chats (L1). 240px, resizable from 200 to 360 at its end edge, folded with ⌘\.
+ * `ShellColumn` — the current module's own navigation: its title row (`ShellColumnHeader`), then
+ * its views, saved filters, folders, spaces or chats as a `NavTree` (L1, D4, D9). 240px,
+ * resizable from 200 to 360 at its end edge, folded with ⌘\.
  *
  * @example
  * <ShellColumn label="Tasks">
  *   <ShellColumnHeader title="Tasks" actions={<NewTaskButton />} />
- *   <ShellColumnSection label="Views">…</ShellColumnSection>
+ *   <NavTree><NavTreeSection label="Views">…</NavTreeSection></NavTree>
  * </ShellColumn>
  */
 export function ShellColumn({ label, className, ...props }: ShellColumnProps) {
@@ -859,7 +574,7 @@ export function ShellColumn({ label, className, ...props }: ShellColumnProps) {
       data-slot="shell-column"
       aria-label={label}
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-px overflow-y-auto px-2 pt-0.5 pb-3.5 [scrollbar-width:thin]",
+        "flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-3.5 [scrollbar-width:thin]",
         className,
       )}
       {...props}
@@ -879,7 +594,8 @@ export interface ShellColumnHeaderProps extends Omit<
 }
 
 /**
- * `ShellColumnHeader` — the column's title row: the module's name and its actions.
+ * `ShellColumnHeader` — the column's first row, on every module (D4): the module's name and one or
+ * two actions, 48px and level with the page's top bar. It stays put while the column scrolls.
  *
  * @example
  * <ShellColumnHeader title="Agents" actions={<Button size="icon-sm" variant="ghost" aria-label="New chat"><SquarePen /></Button>} />
@@ -894,7 +610,7 @@ export function ShellColumnHeader({
     <div
       data-slot="shell-column-header"
       className={cn(
-        "flex h-9 flex-none items-center justify-between gap-2 ps-2 pe-0.5",
+        "sticky top-0 z-10 -mx-2 flex h-(--shell-topbar-height) flex-none items-center justify-between gap-2 bg-sidebar ps-4 pe-2.5",
         className,
       )}
       {...props}
@@ -945,216 +661,24 @@ export function ShellColumnSearch({
   );
 }
 
-/** Props accepted by `ShellColumnSection`. */
-export interface ShellColumnSectionProps extends React.ComponentProps<"section"> {
-  /** The section's label, above its items. @default undefined */
-  label?: React.ReactNode;
-  /** An action beside the label (a + button). @default undefined */
-  action?: React.ReactNode;
-}
-
-/**
- * `ShellColumnSection` — a labelled group of column items.
- *
- * @example
- * <ShellColumnSection label="Pinned">…</ShellColumnSection>
- */
-export function ShellColumnSection({
-  label,
-  action,
-  className,
-  children,
-  ...props
-}: ShellColumnSectionProps) {
-  const id = React.useId();
-  return (
-    <section
-      data-slot="shell-column-section"
-      aria-labelledby={label ? id : undefined}
-      className={cn("flex flex-col gap-px", className)}
-      {...props}
-    >
-      {label ? (
-        <div className="flex items-center justify-between gap-2 ps-2 pe-0.5 pt-3.5 pb-1">
-          <h3 id={id} className="text-xs font-medium text-muted-foreground">
-            {label}
-          </h3>
-          {action}
-        </div>
-      ) : null}
-      <ul role="list" className="flex flex-col gap-px">
-        {children}
-      </ul>
-    </section>
-  );
-}
-
-/** Props accepted by `ShellColumnItem`. */
-export interface ShellColumnItemProps extends Omit<
-  React.ComponentProps<"a">,
-  "children"
-> {
-  /** The item's name. */
-  label: React.ReactNode;
-  /** Its icon, 16px. @default undefined */
-  icon?: React.ReactNode;
-  /** A count at the end, muted and tabular. @default undefined */
-  count?: number | string;
-  /** Whether this is the current view. @default false */
-  active?: boolean;
-  /** How deep it sits in a tree; each level indents by the chevron (26px). @default 0 */
-  depth?: number;
-  /** An action shown on hover in the count's place (a ⋯ menu). @default undefined */
-  action?: React.ReactNode;
-  /** Child items: the item becomes a branch that opens and closes. @default undefined */
-  children?: React.ReactNode;
-  /** Whether a branch starts open. @default false, or true when `active` */
-  defaultOpen?: boolean;
-  /** The app's own link or button element; its props win. @default undefined */
-  render?: React.ReactElement;
-}
-
-/**
- * `ShellColumnItem` — one row of the column: icon, name and count, 32px tall. With children it
- * is a branch of a `ShellColumnTree`, opened and closed by its chevron.
- *
- * @example
- * <ShellColumnItem icon={<Inbox />} label="Assigned to me" count={12} render={<Link href="/tasks/assigned" />} active />
- */
-export function ShellColumnItem({
-  label,
-  icon,
-  count,
-  active = false,
-  depth = 0,
-  action,
-  children,
-  defaultOpen,
-  render,
-  href,
-  className,
-  ...props
-}: ShellColumnItemProps) {
-  const row = renderItem(itemElement(render, href), {
-    ...props,
-    "data-slot": "shell-column-item",
-    "data-active": active ? "" : undefined,
-    "aria-current": active ? "page" : undefined,
-    className: cn(
-      "state-layer flex h-8 w-full min-w-0 flex-1 items-center gap-2 rounded-item px-2 text-start text-sm text-foreground no-underline outline-none data-active:layer-selected data-active:font-medium [&_svg:not([class*='size-'])]:size-4 [&>svg]:text-muted-foreground",
-      className,
-    ),
-    children: (
-      <>
-        {icon}
-        <span className="min-w-0 flex-1 truncate">{label}</span>
-        {count !== undefined && count !== "" ? (
-          <span
-            className={cn(
-              "flex-none text-xs text-muted-foreground tabular-nums",
-              action && "group-hover/column-item:hidden",
-            )}
-          >
-            {count}
-          </span>
-        ) : null}
-      </>
-    ),
-  });
-  // A level indents by the chevron's width, so a child lines up under its parent's icon.
-  const indent = {
-    paddingInlineStart: `${depth * 1.625}rem`,
-  } as React.CSSProperties;
-  const actionNode = action ? (
-    <span className="absolute end-1 top-1 hidden group-focus-within/column-item:flex group-hover/column-item:flex">
-      {action}
-    </span>
-  ) : null;
-  if (!children) {
-    return (
-      <li
-        data-slot="shell-column-row"
-        className="group/column-item relative flex"
-        style={indent}
-      >
-        {row}
-        {actionNode}
-      </li>
-    );
-  }
-  return (
-    <li
-      data-slot="shell-column-row"
-      className="group/column-item"
-      style={indent}
-    >
-      <Collapsible defaultOpen={defaultOpen ?? active}>
-        <div className="relative flex items-center">
-          <CollapsibleTrigger
-            render={
-              <Button
-                variant="ghost"
-                size="icon-xs"
-                aria-label={`Show or hide ${typeof label === "string" ? label : "items"}`}
-                className="me-0.5 aria-expanded:bg-transparent [&_svg]:transition-transform [&_svg]:duration-state data-panel-open:[&_svg]:rotate-90"
-              />
-            }
-          >
-            <ChevronRight aria-hidden="true" />
-          </CollapsibleTrigger>
-          {row}
-          {actionNode}
-        </div>
-        <CollapsibleContent>
-          <ul role="list" className="flex flex-col gap-px pt-px">
-            {children}
-          </ul>
-        </CollapsibleContent>
-      </Collapsible>
-    </li>
-  );
-}
-
-/**
- * `ShellColumnTree` — a list of `ShellColumnItem` branches: spaces with their sections, a folder
- * tree. Inside a `ShellColumnSection`, put the items straight in the section: it is a list already.
- *
- * @example
- * <ShellColumnTree aria-label="Spaces">
- *   <ShellColumnItem label="General" defaultOpen>
- *     <ShellColumnItem label="Tasks" depth={1} href="/spaces/general/tasks" />
- *   </ShellColumnItem>
- * </ShellColumnTree>
- */
-export function ShellColumnTree({
-  className,
-  ...props
-}: React.ComponentProps<"ul">) {
-  return (
-    <ul
-      data-slot="shell-column-tree"
-      role="list"
-      className={cn("flex flex-col gap-px", className)}
-      {...props}
-    />
-  );
-}
-
 /** Props accepted by `ShellTopBar`. */
 export type ShellTopBarProps = React.ComponentProps<"header">;
 
 /**
- * `ShellTopBar` — the 48px bar over the page, its slots in one fixed order whatever order they
- * are written in (L9): title, presence, tools, actions, primary, panel toggle. The shell puts the
- * title-bar controls before it while the column is folded. Narrow, text actions turn into their
- * icons, then items marked `data-shell-fold` leave for the ⋯ menu.
+ * `ShellTopBar` — the 48px bar over the page. Its slots keep one order whatever order a page
+ * writes them in (D12): the title, then at the end `[presence] · [icon tools] · [primary] ·
+ * [Share] · [☆] · [⋯]`, with ⋯ always last. The tools, Share, ☆ and ⋯ share one button shape:
+ * 28px, round, the same hover. Narrow, Share shows its icon alone, presence leaves, and tools
+ * marked `data-shell-fold` leave for the ⋯ menu. There is no save status: saving is silent, and a
+ * failed save is an alert in the page.
  *
  * @example
  * <ShellTopBar>
  *   <ShellTopBarTitle parents={<a href="/spaces/general">General</a>}>Q3 pricing</ShellTopBarTitle>
- *   <ShellTopBarTools>…</ShellTopBarTools>
- *   <ShellTopBarActions><Button variant="outline" size="sm">Share</Button></ShellTopBarActions>
- *   <ShellPanelToggle pressed={open} onClick={toggle} />
+ *   <ShellTopBarPresence><AvatarGroup max={3}>…</AvatarGroup></ShellTopBarPresence>
+ *   <ShellTopBarShare><Button variant="outline" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
+ *   <ShellTopBarFavorite><Button variant="ghost" size="icon-sm" aria-label="Favourite"><Star /></Button></ShellTopBarFavorite>
+ *   <ShellTopBarMore><MoreMenu /></ShellTopBarMore>
  * </ShellTopBar>
  */
 export function ShellTopBar({ className, ...props }: ShellTopBarProps) {
@@ -1243,6 +767,10 @@ export interface ShellTopBarSlotProps extends React.ComponentProps<"div"> {
   reserve?: number;
 }
 
+// The tools, Share, ☆ and ⋯ are one button shape: 28px tall and fully round (an icon button's
+// circle, Share's pill), with the one `state-layer` hover that ghost and outline buttons share.
+const BUTTON_SHAPE = "*:data-[slot=button]:h-7";
+
 function topBarSlot(slot: string, order: string, extra = "") {
   return function ShellTopBarSlot({
     reserve,
@@ -1270,8 +798,7 @@ function topBarSlot(slot: string, order: string, extra = "") {
 }
 
 /**
- * `ShellTopBarLead` — the top bar's start: a back button on a phone, or a tool that belongs
- * before the title. The shell's own title-bar controls sit before it.
+ * `ShellTopBarLead` — the top bar's start, before the title: a back button on a phone.
  *
  * @example
  * <ShellTopBarLead><Button variant="ghost" size="icon-sm" aria-label="Back"><ChevronLeft /></Button></ShellTopBarLead>
@@ -1283,7 +810,8 @@ export const ShellTopBarLead = topBarSlot(
 );
 
 /**
- * `ShellTopBarPresence` — who else is here: one `AvatarGroup` with `max={3}`.
+ * `ShellTopBarPresence` — who else is here, first at the bar's end: one `AvatarGroup` with
+ * `max={3}`.
  *
  * @example
  * <ShellTopBarPresence><AvatarGroup max={3}>…</AvatarGroup></ShellTopBarPresence>
@@ -1295,42 +823,65 @@ export const ShellTopBarPresence = topBarSlot(
 );
 
 /**
- * `ShellTopBarTools` — the page's icon tools: 28px ghost buttons, 2px apart, `MoreHorizontal`
- * last. Mark a tool `data-shell-fold` and include it in the ⋯ menu too: a narrow bar keeps only
- * the menu.
+ * `ShellTopBarTools` — the page's icon tools, after presence: 28px ghost icon buttons, 2px apart.
+ * Mark a tool `data-shell-fold` and put it in the ⋯ menu too: a narrow bar keeps only the menu.
  *
  * @example
- * <ShellTopBarTools reserve={5.75}>
+ * <ShellTopBarTools reserve={3.75}>
  *   <Button variant="ghost" size="icon-sm" aria-label="Watch" data-shell-fold><Bell /></Button>
- *   <MoreMenu />
  * </ShellTopBarTools>
  */
 export const ShellTopBarTools = topBarSlot(
   "shell-topbar-tools",
   "order-3",
-  "gap-0.5 @max-md/shell-topbar:[&>[data-shell-fold]]:hidden",
+  cn("gap-0.5 @max-md/shell-topbar:[&>[data-shell-fold]]:hidden", BUTTON_SHAPE),
 );
 
 /**
- * `ShellTopBarActions` — text buttons, Share first (outline). Wrap a button's words in
- * `ShellTopBarLabel` and a narrow bar shows only its icon.
- *
- * @example
- * <ShellTopBarActions><Button variant="outline" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarActions>
- */
-export const ShellTopBarActions = topBarSlot(
-  "shell-topbar-actions",
-  "order-4",
-  "gap-2",
-);
-
-/**
- * `ShellTopBarPrimary` — the page's one primary action.
+ * `ShellTopBarPrimary` — the page's one primary action, if it has one, after the tools.
  *
  * @example
  * <ShellTopBarPrimary><Button size="sm">Approve</Button></ShellTopBarPrimary>
  */
-export const ShellTopBarPrimary = topBarSlot("shell-topbar-primary", "order-5");
+export const ShellTopBarPrimary = topBarSlot("shell-topbar-primary", "order-4");
+
+/**
+ * `ShellTopBarShare` — Share, an outline button, after the primary action. Wrap its word in
+ * `ShellTopBarLabel` and a narrow bar shows its icon alone.
+ *
+ * @example
+ * <ShellTopBarShare><Button variant="outline" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
+ */
+export const ShellTopBarShare = topBarSlot(
+  "shell-topbar-share",
+  "order-5",
+  BUTTON_SHAPE,
+);
+
+/**
+ * `ShellTopBarFavorite` — ☆, immediately before ⋯: one ghost icon button.
+ *
+ * @example
+ * <ShellTopBarFavorite><Button variant="ghost" size="icon-sm" aria-label="Favourite" aria-pressed={starred}><Star /></Button></ShellTopBarFavorite>
+ */
+export const ShellTopBarFavorite = topBarSlot(
+  "shell-topbar-favorite",
+  "order-6",
+  BUTTON_SHAPE,
+);
+
+/**
+ * `ShellTopBarMore` — ⋯, always the bar's last control: the record's menu, which also holds every
+ * tool a narrow bar folded away.
+ *
+ * @example
+ * <ShellTopBarMore><DropdownMenu>…</DropdownMenu></ShellTopBarMore>
+ */
+export const ShellTopBarMore = topBarSlot(
+  "shell-topbar-more",
+  "order-7",
+  BUTTON_SHAPE,
+);
 
 /**
  * `ShellTopBarLabel` — a top-bar button's words, read out always but shown only while the bar
@@ -1385,7 +936,7 @@ export function ShellPanelToggle({
       aria-pressed={pressed}
       aria-keyshortcuts="Meta+Period"
       className={cn(
-        "order-6 aria-pressed:bg-state-selected aria-pressed:text-foreground",
+        "order-8 aria-pressed:bg-state-selected aria-pressed:text-foreground",
         className,
       )}
       {...props}
@@ -1590,7 +1141,7 @@ export interface ShellBottomBarItemProps extends Omit<
   icon: React.ReactNode;
   /** The short label under the icon. */
   label: string;
-  /** A count on the icon (99+ past 99). @default undefined */
+  /** A count on the icon: the rail's compact badge (`RailBadge`, "99+" past 99). @default undefined */
   badge?: number | string;
   /** Whether this is the current tab. @default false */
   active?: boolean;
@@ -1614,7 +1165,7 @@ export function ShellBottomBarItem({
   className,
   ...props
 }: ShellBottomBarItemProps) {
-  const count = badgeText(badge);
+  const count = railBadgeText(badge);
   return renderItem(itemElement(render, href), {
     ...props,
     "data-slot": "shell-bottombar-item",
@@ -1631,12 +1182,13 @@ export function ShellBottomBarItem({
           aria-hidden="true"
           className="relative grid h-6.5 w-11 place-items-center rounded-chip transition-colors duration-instant group-focus-visible/bottom-item:bg-state-hover group-data-active/bottom-item:bg-state-selected [&_svg:not([class*='size-'])]:size-5"
         >
-          {icon}
-          {count ? (
-            <span className="absolute -top-0.5 start-[calc(50%+0.375rem)] grid h-4 min-w-4 place-items-center rounded-chip bg-foreground px-1 text-xs leading-none font-semibold text-background tabular-nums">
-              {count}
-            </span>
-          ) : null}
+          <span className="relative grid size-5 place-items-center">
+            {icon}
+            <RailBadge
+              count={count}
+              className="shadow-[0_0_0_1.5px_var(--background)]"
+            />
+          </span>
         </span>
         <span className="max-w-full truncate">{label}</span>
       </>

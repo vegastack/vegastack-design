@@ -735,7 +735,7 @@
       "disposition": "keep",
       "family": "navigation",
       "source": "Regent product-cohesion W1-DS3 item 9 (UXS-03, one Help menu), approved by the operator 2026-10-27",
-      "rationale": "Upstream ships no help menu. Composes upstream dropdown-menu, triggered by the caller's ShellRailItem, with our NotificationDot; carries no patch."
+      "rationale": "Upstream ships no help menu. Composes upstream dropdown-menu, triggered by the caller's Help button in the global bar, with our NotificationDot; carries no patch."
     },
     "route-tabs": {
       "disposition": "keep",
@@ -1069,7 +1069,7 @@
     "shell-client": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of shell (its client islands — the controller for ⌘\\, F6, hover-peek, slide-over and cookies, the column resize edge, the skip link, the title-bar controls and the phone bar) apart so Shell stays server-safe. Regent shell layout overhaul P0 (decisions L1–L22, contract `04-contract.md` §2 and §5) — operator batch approval 16-11-2026 \"Approve, go dark\""
+      "source": "internal part of shell (its client islands — the controller for ⌘\\, F6, hover-peek, slide-over and cookies, the column resize edge, the skip link, the column toggle and the phone bar) apart so Shell stays server-safe. Regent shell layout overhaul P0 (decisions L1–L22, contract `04-contract.md` §2 and §5) — operator batch approval 16-11-2026 \"Approve, go dark\""
     },
     "shell-scripts": {
       "disposition": "keep",
@@ -1099,6 +1099,34 @@
       "family": "data",
       "source": "VegaStack shell layout overhaul, performance lane L22 finding #8 — operator batch approval 16-11-2026 \"Shell layout overhaul\"",
       "rationale": "Upstream ships no list skeleton. DataList's loading geometry composed from upstream table and skeleton only, so a route's loading state needs none of the list; no patch."
+    },
+    "nav-tree": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
+      "rationale": "Upstream ships no column navigation since `sidebar` was excluded. Sections of link rows with a compact 12px child indent, a thread line per child (the Inbox's threaded events), a fold control at the row's end and arrow-key movement, on upstream's Base UI button; no ARIA tree engine and no patch."
+    },
+    "global-bar": {
+      "disposition": "keep",
+      "family": "layout",
+      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
+      "rationale": "Upstream has no app bar. Three slots (leading, centred search, trailing) on upstream's button and kbd, which are also the desktop app's title row (LAY-24); no patch."
+    },
+    "global-bar-client": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of global-bar (the search and Ask triggers, which print the platform's shortcut through use-platform) apart so GlobalBar stays server-safe. Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\""
+    },
+    "rail": {
+      "disposition": "keep",
+      "family": "navigation",
+      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
+      "rationale": "Upstream has no module rail. Icon-over-label items with a compact count badge (the one TYP-18 exception) or a dot, and a bottom group, server-rendered on upstream's Base UI button; no patch."
+    },
+    "rail-client": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of rail (the animated rail icon and lazyAnimatedIcon) apart so Rail stays server-safe. Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\""
     }
   }
 }

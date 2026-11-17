@@ -1,54 +1,62 @@
-// @vegastack shell-01@0.100.0 sha256-u0JWW/g0PBA5OHjwSwtp0DmW/ffDo+g0mVW6j1KtXnk=
+// @vegastack shell-01@0.100.0 sha256-ps/FI/6xL/tD1dqW5gOEkJ/2hYv0B66rbsJ55Gj514I=
 
 "use client";
 
 import * as React from "react";
 import {
-  Bell,
+  BarChart3,
+  Boxes,
   CalendarDays,
+  ChevronsUpDown,
   Circle,
   CircleCheck,
   CircleDashed,
   CircleHelp,
+  Clock,
+  Hexagon,
   Home,
   Inbox,
+  LayoutDashboard,
   Library,
   ListChecks,
   MessageSquare,
+  MoreHorizontal,
   Plus,
-  Search,
+  Settings2,
   Share2,
   Sparkles,
-  SquarePen,
-  Hexagon,
-  MoreHorizontal,
-  Settings2,
+  Star,
   X,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarGroup } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import {
+  GlobalBar,
+  GlobalBarAsk,
+  GlobalBarCenter,
+  GlobalBarLeading,
+  GlobalBarSearch,
+  GlobalBarTrailing,
+} from "@/components/ui/global-bar";
+import { NavTree, NavTreeItem, NavTreeSection } from "@/components/ui/nav-tree";
+import { Rail, RailBottom, RailItem } from "@/components/ui/rail";
 import {
   Shell,
   ShellBottomBar,
   ShellBottomBarItem,
   ShellColumn,
   ShellColumnHeader,
-  ShellColumnItem,
-  ShellColumnSection,
+  ShellColumnToggle,
   ShellMain,
   ShellPage,
   ShellPanelToggle,
-  ShellRail,
-  ShellRailFooter,
-  ShellRailItem,
-  ShellRailMore,
-  ShellTitleBarControls,
   ShellTopBar,
-  ShellTopBarActions,
+  ShellTopBarFavorite,
   ShellTopBarLabel,
+  ShellTopBarMore,
   ShellTopBarPresence,
   ShellTopBarPrimary,
+  ShellTopBarShare,
   ShellTopBarTitle,
   ShellTopBarTools,
 } from "@/components/ui/shell";
@@ -74,8 +82,9 @@ function StatusIcon({ status }: { status: Task["status"] }) {
 }
 
 /**
- * `shell-01` — the shell reference: the module rail, the Tasks column, the top bar in its fixed
- * order, a task list, and a record opening in the panel beside it. Click a task: it opens on the
+ * `shell-01` — the shell reference: the global bar, the module rail, Home's column with Tasks,
+ * Meetings and Library nested under Work, the top bar in its fixed order, a task list, and a
+ * record opening in the panel beside it. Click a task: it opens on the
  * right, and the column folds by itself when the page would get narrower than a list may.
  *
  * @example
@@ -101,116 +110,99 @@ export default function Shell01Page({
       fill={fill}
       pageMin={640}
       panelOpen={panelOpen}
-      railHeader={
-        <span
-          aria-label="Acme"
-          role="img"
-          className="grid size-8 place-items-center rounded-tile bg-primary text-sm font-semibold text-primary-foreground"
-        >
-          A
-        </span>
-      }
-      columnHead={
-        <span className="truncate px-2 text-sm font-semibold">Acme</span>
-      }
-      titleBarControls={<ShellTitleBarControls />}
-      rail={
-        <ShellRail>
-          <ShellRailItem icon={<SquarePen />} label="New" href="#new" />
-          <ShellRailItem icon={<Search />} label="Search" href="#search" />
-          <span
-            aria-hidden="true"
-            className="my-1 h-px w-7 flex-none bg-border"
-          />
-          <ShellRailItem icon={<Home />} label="Home" href="#home" />
-          <ShellRailItem
-            icon={<Inbox />}
-            label="Inbox"
-            href="#inbox"
-            badge={4}
-          />
-          <ShellRailItem icon={<Sparkles />} label="Agents" href="#agents" />
-          <ShellRailItem
-            icon={<ListChecks />}
-            label="Tasks"
-            href="#tasks"
-            badge={17}
-            active
-          />
-          <ShellRailItem
-            icon={<CalendarDays />}
-            label="Meetings"
-            href="#meetings"
-          />
-          <ShellRailItem icon={<Library />} label="Library" href="#library" />
-          <ShellRailItem icon={<Hexagon />} label="Spaces" href="#spaces" />
-          <ShellRailMore>
-            <DropdownMenuItem>Products</DropdownMenuItem>
-            <DropdownMenuItem>Customers</DropdownMenuItem>
-            <DropdownMenuItem>Projects</DropdownMenuItem>
-          </ShellRailMore>
-          <ShellRailFooter>
-            <ShellRailItem icon={<CircleHelp />} label="Help" href="#help" />
-            <ShellRailItem
-              icon={<Settings2 />}
-              label="Settings"
-              href="#settings"
-            />
-            <Avatar size="sm" className="mt-1">
-              <AvatarFallback>MK</AvatarFallback>
+      globalBar={
+        <GlobalBar>
+          <GlobalBarLeading>
+            <ShellColumnToggle />
+            <Button variant="ghost" size="sm" className="gap-2 font-semibold">
+              <span
+                aria-hidden="true"
+                className="grid size-5 place-items-center rounded-tile bg-primary text-xs font-semibold text-primary-foreground"
+              >
+                A
+              </span>
+              Acme
+              <ChevronsUpDown className="text-muted-foreground" />
+            </Button>
+          </GlobalBarLeading>
+          <GlobalBarCenter>
+            <GlobalBarSearch />
+          </GlobalBarCenter>
+          <GlobalBarTrailing>
+            <GlobalBarAsk />
+            <Button variant="ghost" size="icon-sm" aria-label="Help">
+              <CircleHelp />
+            </Button>
+            <Avatar size="sm">
+              <AvatarFallback aria-label="Manoj Kumar">MK</AvatarFallback>
             </Avatar>
-          </ShellRailFooter>
-        </ShellRail>
+          </GlobalBarTrailing>
+        </GlobalBar>
+      }
+      rail={
+        <Rail>
+          <RailItem icon={<Home />} label="Home" href="#home" active />
+          <RailItem icon={<Inbox />} label="Inbox" href="#inbox" badge={120} />
+          <RailItem icon={<Hexagon />} label="Spaces" href="#spaces" />
+          <RailItem icon={<Sparkles />} label="Agents" href="#agents" />
+          <RailItem icon={<Boxes />} label="Products" href="#products" />
+          <RailItem icon={<BarChart3 />} label="Sales" href="#sales" />
+          <RailBottom>
+            <RailItem icon={<Settings2 />} label="Settings" href="#settings" />
+          </RailBottom>
+        </Rail>
       }
       column={
-        <ShellColumn label="Tasks">
+        <ShellColumn label="Home">
           <ShellColumnHeader
-            title="Tasks"
+            title="Home"
             actions={
               <Button variant="ghost" size="icon-sm" aria-label="New task">
                 <Plus />
               </Button>
             }
           />
-          <ShellColumnSection>
-            <ShellColumnItem
-              label="My tasks"
-              icon={<ListChecks />}
-              count={12}
-              href="#mine"
-              active
-            />
-            <ShellColumnItem
-              label="Created by me"
-              icon={<SquarePen />}
-              count={5}
-              href="#created"
-            />
-            <ShellColumnItem
-              label="Shared with me"
-              icon={<Share2 />}
-              href="#shared"
-            />
-            <ShellColumnItem
-              label="Overdue"
-              icon={<Bell />}
-              count={3}
-              href="#overdue"
-            />
-          </ShellColumnSection>
-          <ShellColumnSection label="Spaces">
-            <ShellColumnItem label="General" icon={<Hexagon />} defaultOpen>
-              <ShellColumnItem label="Launch plan" depth={1} href="#launch" />
-              <ShellColumnItem
+          <NavTree>
+            <NavTreeSection>
+              <NavTreeItem
+                label="Overview"
+                icon={<LayoutDashboard />}
+                href="#overview"
+              />
+            </NavTreeSection>
+            <NavTreeSection label="Favourites">
+              <NavTreeItem label="Launch plan" icon={<Star />} href="#launch" />
+            </NavTreeSection>
+            <NavTreeSection label="Work">
+              <NavTreeItem
+                label="Tasks"
+                icon={<ListChecks />}
+                count={17}
+                href="#tasks"
+                defaultOpen
+              >
+                <NavTreeItem label="My tasks" count={12} href="#mine" active />
+                <NavTreeItem label="Created by me" count={5} href="#created" />
+                <NavTreeItem label="Overdue" count={3} href="#overdue" />
+              </NavTreeItem>
+              <NavTreeItem
+                label="Meetings"
+                icon={<CalendarDays />}
+                href="#meetings"
+              >
+                <NavTreeItem label="Upcoming" href="#upcoming" />
+                <NavTreeItem label="Recordings" href="#recordings" />
+              </NavTreeItem>
+              <NavTreeItem label="Library" icon={<Library />} href="#library" />
+            </NavTreeSection>
+            <NavTreeSection label="Recent">
+              <NavTreeItem
                 label="Pricing review"
-                depth={1}
+                icon={<Clock />}
                 href="#pricing"
               />
-            </ShellColumnItem>
-            <ShellColumnItem label="Design" icon={<Hexagon />}>
-              <ShellColumnItem label="Shell layout" depth={1} href="#shell" />
-            </ShellColumnItem>
-          </ShellColumnSection>
+            </NavTreeSection>
+          </NavTree>
         </ShellColumn>
       }
       panel={
@@ -260,23 +252,27 @@ export default function Shell01Page({
       }
       bottomBar={
         <ShellBottomBar>
-          <ShellBottomBarItem icon={<Home />} label="Home" href="#home" />
           <ShellBottomBarItem
-            icon={<Sparkles />}
-            label="Agents"
-            href="#agents"
-          />
-          <ShellBottomBarItem
-            icon={<ListChecks />}
-            label="Tasks"
-            href="#tasks"
+            icon={<Home />}
+            label="Home"
+            href="#home"
             active
           />
           <ShellBottomBarItem
             icon={<Inbox />}
             label="Inbox"
             href="#inbox"
-            badge={4}
+            badge={120}
+          />
+          <ShellBottomBarItem
+            icon={<Sparkles />}
+            label="Agents"
+            href="#agents"
+          />
+          <ShellBottomBarItem
+            icon={<Hexagon />}
+            label="Spaces"
+            href="#spaces"
           />
           <ShellBottomBarItem
             icon={<MoreHorizontal />}
@@ -287,7 +283,7 @@ export default function Shell01Page({
       }
     >
       <ShellTopBar>
-        <ShellTopBarTitle parents={<a href="#tasks">Tasks</a>}>
+        <ShellTopBarTitle parents={<a href="#home">Home</a>}>
           My tasks
         </ShellTopBarTitle>
         <ShellTopBarPresence>
@@ -301,6 +297,28 @@ export default function Shell01Page({
             ))}
           </AvatarGroup>
         </ShellTopBarPresence>
+        <ShellTopBarMore>
+          <Button variant="ghost" size="icon-sm" aria-label="More">
+            <MoreHorizontal />
+          </Button>
+        </ShellTopBarMore>
+        <ShellTopBarFavorite>
+          <Button variant="ghost" size="icon-sm" aria-label="Favourite">
+            <Star />
+          </Button>
+        </ShellTopBarFavorite>
+        <ShellTopBarShare>
+          <Button variant="outline" size="sm">
+            <Share2 />
+            <ShellTopBarLabel>Share</ShellTopBarLabel>
+          </Button>
+        </ShellTopBarShare>
+        <ShellTopBarPrimary>
+          <Button size="sm">
+            <Plus />
+            <ShellTopBarLabel>New task</ShellTopBarLabel>
+          </Button>
+        </ShellTopBarPrimary>
         <ShellTopBarTools>
           <Button
             variant="ghost"
@@ -311,18 +329,6 @@ export default function Shell01Page({
             <MessageSquare />
           </Button>
         </ShellTopBarTools>
-        <ShellTopBarActions>
-          <Button variant="outline" size="sm">
-            <Share2 />
-            <ShellTopBarLabel>Share</ShellTopBarLabel>
-          </Button>
-        </ShellTopBarActions>
-        <ShellTopBarPrimary>
-          <Button size="sm">
-            <Plus />
-            <ShellTopBarLabel>New task</ShellTopBarLabel>
-          </Button>
-        </ShellTopBarPrimary>
         <ShellPanelToggle
           pressed={panelOpen}
           onClick={() => setPanelOpen((open) => !open)}
