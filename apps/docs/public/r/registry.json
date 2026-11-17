@@ -17030,7 +17030,7 @@
       "name": "transcript",
       "type": "registry:ui",
       "title": "Transcript",
-      "description": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, speaker chips with rename, and progressive mounting of long transcripts.",
+      "description": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, renaming a speaker from any turn, and progressive mounting of long transcripts.",
       "categories": [
         "communication"
       ],
@@ -17062,7 +17062,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
         "version": "0.100.0",
-        "integrity": "sha256-xriZZ+wLuZoWwSxuUGYbJFMXWncTLgRd7MShduoM/Ak="
+        "integrity": "sha256-zuqAjIPN5AdlCl6O3Jb7QdwKblKkPf/8dzRGJnGDxcY="
       }
     },
     {

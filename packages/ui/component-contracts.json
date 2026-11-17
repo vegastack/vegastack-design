@@ -21058,7 +21058,7 @@
       "name": "transcript",
       "registryType": "registry:ui",
       "title": "Transcript",
-      "summary": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, speaker chips with rename, and progressive mounting of long transcripts.",
+      "summary": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, renaming a speaker from any turn, and progressive mounting of long transcripts.",
       "status": "stable",
       "since": "0.18.0",
       "family": "communication",

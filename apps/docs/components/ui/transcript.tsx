@@ -1,4 +1,4 @@
-// @vegastack transcript@0.100.0 sha256-xriZZ+wLuZoWwSxuUGYbJFMXWncTLgRd7MShduoM/Ak=
+// @vegastack transcript@0.100.0 sha256-zuqAjIPN5AdlCl6O3Jb7QdwKblKkPf/8dzRGJnGDxcY=
 
 "use client";
 
@@ -79,8 +79,7 @@ export interface TranscriptProps extends Omit<
   segments: TranscriptSegment[];
   /**
    * Called when a speaker is renamed — by clicking the name in any turn of `TranscriptList`
-   * (every turn with that id takes the new name). Without it, names are read-only and the chips have no
-   * rename button.
+   * (every turn with that id takes the new name). Without it, names are read-only.
    * @default undefined
    */
   onSpeakerRename?: (id: string, name: string) => void;

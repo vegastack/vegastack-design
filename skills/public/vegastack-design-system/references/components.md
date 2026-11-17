@@ -264,7 +264,7 @@ starts with `icon-` is a component and never an icon.
 - **`message`** — Layout primitives for a conversation row - avatar anchoring, content column, header/footer slots, start/end alignment. Server-safe.
 - **`message-scroller`** — An auto-scrolling conversation viewport (not virtualised) - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.
 - **`questionnaire`** — A guided one-question-at-a-time form — choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.
-- **`transcript`** — A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, speaker chips with rename, and progressive mounting of long transcripts.
+- **`transcript`** — A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, renaming a speaker from any turn, and progressive mounting of long transcripts.
 
 ## Marketing
 
