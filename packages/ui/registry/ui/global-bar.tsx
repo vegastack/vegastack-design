@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.104.0 sha256-3F3tWfOX9HGTVn2w53QHTIl5/UsYOzpmulHoLZP2xpE=
+// @vegastack global-bar@0.104.0 sha256-7l9sH7h2o3wycieXbN2o85K9MeFiY+kDlZafNoGNQhg=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -165,7 +165,11 @@ export function GlobalBarHistory({
   return (
     <div
       data-slot="global-bar-history"
-      className={cn("flex flex-none items-center gap-0.5", className)}
+      // A narrow bar keeps its room for the workspace: ‹ › leave (the window keeps ⌘[ and ⌘]).
+      className={cn(
+        "flex flex-none items-center gap-0.5 @max-3xl/global-bar:hidden",
+        className,
+      )}
       {...props}
     >
       <Button

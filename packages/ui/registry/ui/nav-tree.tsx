@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.104.0 sha256-WKrZAx5sOEkl+8z0StqpqPnaiH7eyu7c3sBc2FyQB1g=
+// @vegastack nav-tree@0.104.0 sha256-rLRpHhP9Wh1i1TjDOLCJ8rUW0RtGW4QrrVYDsAWZRik=
 
 "use client";
 
@@ -32,13 +32,23 @@ const DepthContext = React.createContext(0);
 
 const ROW = '[data-slot="nav-tree-item"]';
 
+/** Rows not inside a folded parent, in order. */
 function visibleRows(root: HTMLElement): HTMLElement[] {
-  // A row the keyboard can land on: shown (no folded ancestor) and not a disabled button.
   return Array.from(root.querySelectorAll<HTMLElement>(ROW)).filter(
-    (row) =>
-      !row.closest("[hidden]") &&
-      !row.matches(":disabled, [aria-disabled='true']"),
+    (row) => !row.closest("[hidden]"),
   );
+}
+
+/** A row the keyboard can land on: not a disabled button or link. */
+function enabled(row: HTMLElement): boolean {
+  return !row.matches(":disabled, [aria-disabled='true']");
+}
+
+/** The first enabled row from `from`, stepping by `step` (the current row itself never counts). */
+function step(rows: HTMLElement[], from: number, by: 1 | -1) {
+  for (let i = from + by; i >= 0 && i < rows.length; i += by)
+    if (enabled(rows[i]!)) return rows[i];
+  return undefined;
 }
 
 function rowOf(el: Element | null): HTMLElement | null {
@@ -95,16 +105,18 @@ export function NavTree({
     );
     const open = fold?.getAttribute("aria-expanded") === "true";
     let next: HTMLElement | null | undefined;
-    if (event.key === "ArrowDown") next = rows[at + 1];
-    else if (event.key === "ArrowUp") next = rows[at - 1];
-    else if (event.key === "Home") next = rows[0];
-    else if (event.key === "End") next = rows.at(-1);
+    if (event.key === "ArrowDown") next = step(rows, at, 1);
+    else if (event.key === "ArrowUp") next = step(rows, at, -1);
+    else if (event.key === "Home") next = step(rows, -1, 1);
+    else if (event.key === "End") next = step(rows, rows.length, -1);
     else if (event.key === into && fold) {
       if (!open) fold.click();
       else
-        next = li.querySelector<HTMLElement>(
-          `:scope > [data-slot="nav-tree-group"] ${ROW}`,
-        );
+        next = Array.from(
+          li.querySelectorAll<HTMLElement>(
+            `:scope > [data-slot="nav-tree-group"] > li > div > ${ROW}`,
+          ),
+        ).find(enabled);
     } else if (event.key === out) {
       if (fold && open) fold.click();
       else next = rowOf(li.parentElement);
@@ -340,7 +352,7 @@ export function NavTreeItem({
             aria-controls={groupId}
             tabIndex={-1}
             onClick={() => setOpen(!open)}
-            className="absolute end-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-icon text-muted-foreground outline-none state-layer after:absolute after:-inset-1 pointer-coarse:after:-inset-2.5"
+            className="absolute end-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-icon text-muted-foreground outline-none state-layer after:absolute after:inset-0 after:-inset-y-1 after:-end-1 pointer-coarse:after:-inset-y-2.5 pointer-coarse:after:-end-2.5"
           >
             <ChevronRight
               aria-hidden="true"

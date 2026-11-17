@@ -222,7 +222,7 @@
         "whenToUse": "The places in an app's module column — views, saved filters, spaces with their sections, folders, settings pages — in the shell's ShellColumn or a phone sheet.",
         "whenNotToUse": "A file browser with drag and drop (FolderTree), a page's own tabs (Tabs), or the module rail (Rail).",
         "version": "0.104.0",
-        "integrity": "sha256-WKrZAx5sOEkl+8z0StqpqPnaiH7eyu7c3sBc2FyQB1g="
+        "integrity": "sha256-rLRpHhP9Wh1i1TjDOLCJ8rUW0RtGW4QrrVYDsAWZRik="
       }
     },
     {
@@ -260,7 +260,7 @@
         "whenToUse": "The shell's top row (Shell's globalBar), in the browser and as the desktop app's title row.",
         "whenNotToUse": "A page's own header and actions (ShellTopBar), or a phone's top row.",
         "version": "0.104.0",
-        "integrity": "sha256-3F3tWfOX9HGTVn2w53QHTIl5/UsYOzpmulHoLZP2xpE="
+        "integrity": "sha256-7l9sH7h2o3wycieXbN2o85K9MeFiY+kDlZafNoGNQhg="
       }
     },
     {

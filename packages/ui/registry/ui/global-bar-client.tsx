@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.104.0 sha256-3F3tWfOX9HGTVn2w53QHTIl5/UsYOzpmulHoLZP2xpE=
+// @vegastack global-bar@0.104.0 sha256-7l9sH7h2o3wycieXbN2o85K9MeFiY+kDlZafNoGNQhg=
 
 "use client";
 
@@ -44,9 +44,9 @@ export function GlobalBarSearch({
       size="sm"
       aria-keyshortcuts={os === "mac" ? "Meta+K" : "Control+K"}
       className={cn(
-        // Sized by the bar, not the window, so the sides keep room in a narrow shell; narrow, it
-        // keeps its icon and shortcut.
-        "w-[min(28rem,36cqw)] min-w-0 justify-start gap-2 font-normal text-muted-foreground",
+        // Sized by the bar, not the window, so the sides keep room in a narrow shell; under 42rem it
+        // shrinks to its icon and shortcut.
+        "w-[min(28rem,30cqw)] min-w-0 @max-2xl/global-bar:w-auto justify-start gap-2 font-normal text-muted-foreground",
         className,
       )}
       {...props}
@@ -91,8 +91,8 @@ export function GlobalBarAsk({
       {...props}
     >
       <Sparkles aria-hidden="true" />
-      {label}
-      <Kbd aria-hidden="true" className="max-md:hidden">
+      <span className="@max-3xl/global-bar:sr-only">{label}</span>
+      <Kbd aria-hidden="true" className="@max-3xl/global-bar:hidden">
         {formatShortcut(["mod", "J"], os)}
       </Kbd>
     </Button>

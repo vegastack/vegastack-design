@@ -21,9 +21,15 @@ afterEach(() => {
   html.style.removeProperty("--shell-titlebar-win-inset");
 });
 
-function Bar({ leading = "Acme" }: { leading?: string }) {
+function Bar({
+  leading = "Acme",
+  width = 1200,
+}: {
+  leading?: string;
+  width?: number;
+}) {
   return (
-    <div style={{ width: 1200 }}>
+    <div style={{ width }}>
       <GlobalBar>
         <GlobalBarLeading>
           <Button variant="ghost" size="icon-sm" aria-label="Column">
@@ -119,15 +125,38 @@ test("in RTL the traffic lights' room stays on the left, at the trailing slot", 
   expect(getComputedStyle(trailing).paddingInlineEnd).toBe("80px");
 });
 
-test("in a narrow bar the search trigger shrinks and the sides keep their room", async () => {
-  await render(
-    <div style={{ width: 640 }}>
-      <Bar />
-    </div>,
-  );
-  const bar = box('[data-slot="global-bar"]');
-  const search = box('[data-slot="global-bar-search"]');
-  const leading = box('[data-slot="global-bar-leading"] > :last-child');
-  expect(search.width).toBeLessThanOrEqual(bar.width * 0.36 + 1);
-  expect(leading.right).toBeLessThanOrEqual(search.left);
-});
+test.each([
+  ["ltr", undefined],
+  ["ltr", "macos"],
+  ["ltr", "windows"],
+  ["rtl", "macos"],
+  ["rtl", "windows"],
+] as const)(
+  "in a 640px bar (%s, %s) the sides and the search never overlap",
+  async (dir, titlebar) => {
+    const html = document.documentElement;
+    if (titlebar) {
+      html.setAttribute("data-desktop-titlebar", titlebar);
+      html.style.setProperty("--shell-titlebar-mac-inset", "78px");
+      html.style.setProperty("--shell-titlebar-win-inset", "138px");
+    }
+    await render(
+      <div dir={dir}>
+        <Bar width={640} />
+      </div>,
+    );
+    expect(box('[data-slot="global-bar"]').width).toBe(640);
+    const search = box('[data-slot="global-bar-search"]');
+    const sides = [
+      ...document.querySelectorAll(
+        '[data-slot="global-bar-leading"] > *, [data-slot="global-bar-trailing"] > *',
+      ),
+    ]
+      .map((el) => el.getBoundingClientRect())
+      .filter((r) => r.width > 0);
+    for (const r of sides)
+      expect(r.right <= search.left + 0.5 || r.left >= search.right - 0.5).toBe(
+        true,
+      );
+  },
+);

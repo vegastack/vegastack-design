@@ -131,3 +131,30 @@ test.each([
   expect(box(row("My tasks")).height).toBe(height);
   expect(box(row("Launch plan")).height).toBe(height);
 });
+
+test("the arrow keys skip a disabled row, and → enters a parent at its first enabled child", async () => {
+  await render(
+    <nav aria-label="Views">
+      <NavTree>
+        <NavTreeSection>
+          <NavTreeItem label="One" href="#one" />
+          <NavTreeItem label="Two" render={<button type="button" disabled />} />
+          <NavTreeItem label="Three" href="#three" defaultOpen>
+            <NavTreeItem
+              label="Locked"
+              render={<button type="button" disabled />}
+            />
+            <NavTreeItem label="Open" href="#open" />
+          </NavTreeItem>
+        </NavTreeSection>
+      </NavTree>
+    </nav>,
+  );
+  row("One").focus();
+  await userEvent.keyboard("{ArrowDown}");
+  expect(document.activeElement).toBe(row("Three"));
+  await userEvent.keyboard("{ArrowRight}");
+  expect(document.activeElement).toBe(row("Open"));
+  await userEvent.keyboard("{Home}");
+  expect(document.activeElement).toBe(row("One"));
+});
