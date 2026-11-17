@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.107.0 sha256-L1s+AkGdZ3Bfhv52kMB2/ZXhA4yHda4fUFO7jH6xs5c=
+// @vegastack record-layout@0.107.0 sha256-Qq5ANtleba7cZbhfnXZNDMjnVjYuxRE7VOQaVHmijxA=
 
 "use client";
 
@@ -6,7 +6,7 @@ import * as React from "react";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { ChevronRight, PanelRight, Plus, X } from "lucide-react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import {
   Collapsible,
@@ -50,6 +50,9 @@ import {
 const PHONE_QUERY = "(max-width: 639px)";
 /** The record width, in rem, from which the panel docks beside the page. */
 const DOCK_REM = 75;
+/** Popups a panel row may open, which a press in never counts as outside the panel. */
+const POPUPS =
+  "[role='menu'], [role='listbox'], [role='dialog'], [role='alertdialog'], [data-slot='popover-content'], [data-slot='tooltip-content'], [data-base-ui-portal]";
 const ESC_OWNERS =
   "[role='menu'], [data-open] [role='listbox'], [role='listbox'][data-open], [data-slot='popover-content'], [role='alertdialog'], [role='dialog'][aria-modal='true']";
 
@@ -76,8 +79,8 @@ interface PanelContextValue {
   motion: boolean;
   clearMotion: () => void;
   toggle: () => void;
-  /** Hides a floating panel or the sheet; focus goes back to ▥ when it was in the panel. */
-  dismiss: () => void;
+  /** Hides the panel; focus goes back to ▥ when it was in the panel (unless `restoreFocus` is false). */
+  dismiss: (restoreFocus?: boolean) => void;
   /** Each section's fold, by its `value`. */
   sections: Readonly<Record<string, boolean>>;
   setSection: (value: string, open: boolean) => void;
@@ -163,54 +166,63 @@ export function RecordPanelProvider({
     latestFold.current?.(value, next);
   }, []);
 
-  // A record that grows wide enough to dock drops its floating panel (the docked one is the
-  // remembered choice); one that leaves the phone width drops its sheet.
-  React.useEffect(() => {
-    if (docked) setOverlay(false);
-  }, [docked]);
-  React.useEffect(() => {
-    if (!phone) setSheet(false);
-  }, [phone]);
-
   const mode: Mode = phone ? "sheet" : docked === false ? "overlay" : "docked";
   const shown = mode === "sheet" ? sheet : mode === "overlay" ? overlay : open;
 
+  // A floating panel and a sheet belong to their mode: leaving it (the record grows wide enough to
+  // dock, the window leaves a phone's width) drops them, so neither comes back on its own later.
+  React.useEffect(() => {
+    if (mode !== "overlay") setOverlay(false);
+    if (mode !== "sheet") setSheet(false);
+  }, [mode]);
+
+  /**
+   * Hides the panel in its mode. `restoreFocus`: when focus was in the panel, it goes back to ▥
+   * (a click elsewhere on the page keeps the focus it gave).
+   */
+  const dismiss = React.useCallback(
+    (restoreFocus = true) => {
+      const panel = document.getElementById(id);
+      const active = document.activeElement;
+      const inside =
+        !!panel && (panel.contains(active) || active === document.body);
+      if (mode === "sheet") setSheet(false);
+      else if (mode === "overlay") setOverlay(false);
+      else {
+        setOwn(false);
+        latest.current?.(false);
+      }
+      if (!restoreFocus || !inside || mode === "sheet") return;
+      requestAnimationFrame(() =>
+        document
+          .querySelector<HTMLElement>(toggleSelector(id))
+          ?.focus({ preventScroll: true }),
+      );
+    },
+    [id, mode],
+  );
+
   const toggle = React.useCallback(() => {
+    if (shown) {
+      dismiss();
+      return;
+    }
     if (mode === "sheet") {
-      setSheet((s) => !s);
+      setSheet(true);
       return;
     }
     setMotion(true);
     if (mode === "overlay") {
-      setOverlay((o) => !o);
+      setOverlay(true);
       return;
     }
-    setOwn(!open);
-    latest.current?.(!open);
-  }, [mode, open]);
-
-  const dismiss = React.useCallback(() => {
-    const panel = document.getElementById(id);
-    const active = document.activeElement;
-    const inside =
-      !!panel && (panel.contains(active) || active === document.body);
-    if (mode === "sheet") setSheet(false);
-    else if (mode === "overlay") setOverlay(false);
-    else {
-      setOwn(false);
-      latest.current?.(false);
-    }
-    if (!inside || mode === "sheet") return;
-    requestAnimationFrame(() =>
-      document
-        .querySelector<HTMLElement>(toggleSelector(id))
-        ?.focus({ preventScroll: true }),
-    );
-  }, [id, mode]);
+    setOwn(true);
+    latest.current?.(true);
+  }, [mode, shown, dismiss]);
 
   const reveal = React.useCallback(
     (value: string) => {
-      if (sections[value] === false) setSection(value, true);
+      setSection(value, true);
       if (mode === "sheet") setSheet(true);
       else if (mode === "overlay") {
         setMotion(true);
@@ -231,7 +243,7 @@ export function RecordPanelProvider({
         ),
       );
     },
-    [id, mode, open, sections, setSection],
+    [id, mode, open, setSection],
   );
 
   // ⌘. (Ctrl+. elsewhere) shows and hides it, from anywhere on the page, text fields included:
@@ -438,6 +450,7 @@ export type RecordPanelProps = React.ComponentPropsWithRef<"aside">;
  * </RecordPanel>
  */
 export function RecordPanel({
+  ref: refProp,
   className,
   children,
   onTransitionEnd,
@@ -445,6 +458,10 @@ export function RecordPanel({
 }: RecordPanelProps) {
   const ctx = usePanel("RecordPanel");
   const ref = React.useRef<HTMLElement | null>(null);
+  const refs = React.useMemo(
+    () => mergeRefs<HTMLElement>(ref, refProp as React.Ref<HTMLElement>),
+    [refProp],
+  );
   const titleId = `${ctx.id}-title`;
   const { setDocked, mode, overlay, dismiss } = ctx;
   const sheet = mode === "sheet";
@@ -485,11 +502,14 @@ export function RecordPanel({
       event.preventDefault();
       latestDismiss.current();
     };
+    // A press anywhere outside it closes it: not in it, not on its ▥, and not in a popup (a menu,
+    // a picker, a dialog) one of its rows opened. The press keeps the focus it gives.
     const onPointer = (event: PointerEvent) => {
       const target = event.target as Element | null;
-      const main = target?.closest("[data-slot='record-layout-main']");
-      if (!main || main.parentElement !== panel?.parentElement) return;
-      latestDismiss.current();
+      if (!target || panel?.contains(target)) return;
+      if (target.closest("[data-slot='record-panel-toggle']")) return;
+      if (target.closest(POPUPS)) return;
+      latestDismiss.current(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onPointer);
@@ -544,7 +564,7 @@ export function RecordPanel({
   const rendered = ctx.overlay || (ctx.open && ctx.docked !== false);
   return (
     <aside
-      ref={ref}
+      ref={refs}
       id={ctx.id}
       aria-label={ctx.label}
       tabIndex={-1}
@@ -800,7 +820,7 @@ export function RecordPanelItem({
             {detail !== undefined && detail !== null ? (
               <span
                 data-slot="record-panel-item-detail"
-                className="shrink-0 text-xs text-muted-foreground tabular-nums"
+                className="max-w-1/2 min-w-0 shrink-0 truncate text-xs text-muted-foreground tabular-nums"
               >
                 {detail}
               </span>
