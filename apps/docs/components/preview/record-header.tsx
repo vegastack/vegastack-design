@@ -19,7 +19,7 @@ import {
 import { MetaLine, MetaLineItem } from "@/components/ui/meta-line";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { AvatarStack } from "@/components/ui/person-hover-card";
+import { MembersStack } from "@/components/ui/members-stack";
 
 const PEOPLE = [
   { name: "Asha Kumar", hue: "blue" as const },
@@ -38,7 +38,7 @@ export function recordHeader(): ReactNode {
         title={title}
         onRename={setTitle}
         status={<Badge variant="secondary">In review</Badge>}
-        presence={<AvatarStack people={PEOPLE} max={3} label="Viewing now" />}
+        presence={<MembersStack people={PEOPLE} label="Viewing now" />}
         actions={
           <>
             <Button variant="outline" size="sm">

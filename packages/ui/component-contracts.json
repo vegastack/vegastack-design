@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 816,
-    "components": 227,
+    "totalRegistryItems": 817,
+    "components": 228,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 39,
     "Navigation/layout": 27,
     "Overlays": 23,
-    "Data display": 48,
+    "Data display": 49,
     "Content/marketing": 14,
     "Shared internals": 6,
     "AI/chat": 46,
@@ -177,6 +177,7 @@
       "meta-line",
       "entry-list",
       "value-change",
+      "members-stack",
       "person-hover-card",
       "property-list",
       "reactions",
@@ -1560,24 +1561,6 @@
           }
         },
         {
-          "name": "ShellTopBarPresence",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellTopBarPrimary",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ShellTopBarProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/shell.tsx",
@@ -1607,15 +1590,6 @@
         {
           "name": "ShellTopBarTitleProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellTopBarTools",
-          "kind": "component-constant",
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
@@ -1750,6 +1724,24 @@
         },
         {
           "name": "ShellTopBarShare",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarMembers",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarWatch",
           "kind": "component-constant",
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
@@ -10944,6 +10936,7 @@
                 "list-toolbar-filter",
                 "list-toolbar-filter-row",
                 "list-toolbar-layout",
+                "list-toolbar-primary",
                 "list-toolbar-row",
                 "list-toolbar-search",
                 "list-toolbar-sort",
@@ -44166,25 +44159,189 @@
       }
     },
     {
+      "name": "members-stack",
+      "registryType": "registry:ui",
+      "title": "Members Stack",
+      "summary": "Who has access, drawn one way everywhere: 24px faces overlapped 6px, at most three and a \"+N\" pill of the same height, active people first; only you, everyone in a space and a team as their own forms; names on hover and one members popover.",
+      "status": "stable",
+      "since": "0.110.0",
+      "family": "data",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/members-stack.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MembersStack",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/members-stack.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Renders a Popover and its trigger button; takes no ref."
+          }
+        },
+        {
+          "name": "MembersStackProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/members-stack.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MembersStackPerson",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/members-stack.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MembersStackAudience",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/members-stack.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "membersOverflowLabel",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/members-stack.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A plain function; renders nothing."
+          }
+        },
+        {
+          "name": "orderMembers",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/members-stack.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A plain function; renders nothing."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One shape; `audience` picks the form (people, only you, everyone, team), not a style axis."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One size: 24px faces on the 28px bar line (UI ground rules M2)."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "faces",
+            "overflow",
+            "cap-99",
+            "order",
+            "active",
+            "only-you",
+            "everyone",
+            "team",
+            "empty",
+            "count",
+            "popover",
+            "rtl",
+            "agent-halo",
+            "row-click-contained"
+          ],
+          "evidence": "packages/ui/registry/ui/members-stack.tsx + packages/ui/registry/ui/members-stack.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["labeled", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/members-stack.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["default", "open"],
+          "evidence": "packages/ui/registry/ui/members-stack.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["responsive-or-container-layout"],
+        "rationale": "A fixed-size stack; the group text and count truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion mechanism."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/members-stack",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/person-hover-card",
+        "@vegastack/popover",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design@^0.21.0",
+        "@vegastack/design-tokens@^0.21.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/members-stack.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "members-stack",
+      "dataAttributes": {
+        "MembersStack": {
+          "attributes": [
+            {
+              "name": "data-audience",
+              "values": ["only-you"]
+            },
+            {
+              "name": "data-members-stack-faces",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "avatar-group",
+                "members-stack",
+                "members-stack-active",
+                "members-stack-count",
+                "members-stack-footer",
+                "members-stack-overflow",
+                "members-stack-popover"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
       "name": "person-hover-card",
       "registryType": "registry:ui",
       "title": "Person Hover Card",
-      "summary": "Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind \"+N\".",
+      "summary": "A person behind an avatar or a name: hover, focus or tap opens a compact card with a 32px avatar, the name and a muted email.",
       "status": "stable",
       "since": "0.23.19",
       "family": "data",
       "wave": "Data display",
       "sourceFiles": ["packages/ui/registry/ui/person-hover-card.tsx"],
       "publicSymbols": [
-        {
-          "name": "AvatarStack",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/person-hover-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Renders an Avatar group; takes no ref."
-          }
-        },
         {
           "name": "PersonHoverCard",
           "kind": "component",
@@ -44211,15 +44368,6 @@
             "status": "observed",
             "target": "div",
             "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/person-hover-card.tsx."
-          }
-        },
-        {
-          "name": "AvatarStackProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/person-hover-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -44271,17 +44419,17 @@
       "variants": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "Composes Avatar, HoverCard and Popover; no local axis."
+        "rationale": "Composes HoverCard and Button; no local axis."
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "Composes Avatar, HoverCard and Popover; no local axis."
+        "rationale": "Composes HoverCard and Button; no local axis."
       },
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["stack", "overflow", "hover-card", "team", "host-card"],
+          "values": ["hover-card", "team", "host-card", "name-trigger"],
           "evidence": "packages/ui/registry/ui/person-hover-card.tsx + packages/ui/registry/ui/person-hover-card.test.tsx"
         },
         "accessibility": {
@@ -44298,7 +44446,7 @@
       "responsive": {
         "status": "modeled",
         "risks": ["responsive-or-container-layout"],
-        "rationale": "A fixed-size stack; the card and list cap their width and truncate."
+        "rationale": "The card caps its width and wraps long names."
       },
       "motion": {
         "status": "not-applicable",
@@ -44311,11 +44459,9 @@
       "engines": [],
       "docsSlug": "/docs/components/person-hover-card",
       "registryDependencies": [
-        "@vegastack/avatar",
         "@vegastack/button",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/popover",
         "@vegastack/searchable-select"
       ],
       "npmDependencies": [
@@ -44352,15 +44498,6 @@
             {
               "name": "data-slot",
               "values": ["person-hover-card-name"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AvatarStack": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["avatar-stack", "avatar-stack-footer"]
             }
           ],
           "cssVariables": []
@@ -56264,7 +56401,8 @@
         "@vegastack/nav-tree",
         "@vegastack/peek",
         "@vegastack/rail",
-        "@vegastack/shell"
+        "@vegastack/shell",
+        "@vegastack/members-stack"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",

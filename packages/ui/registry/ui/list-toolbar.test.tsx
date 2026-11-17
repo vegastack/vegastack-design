@@ -445,3 +445,30 @@ test("search suggestion: leaving the field forgets the reached row", async () =>
   await userEvent.keyboard("{Enter}");
   expect(onSelect).not.toHaveBeenCalled();
 });
+
+test("the primary button is the row's last control, after the tools (P1a)", async () => {
+  const screen = await render(
+    <div style={{ width: 900 }}>
+      <ListToolbar
+        search={{ value: "", onValueChange: () => {}, placeholder: "Search" }}
+        sort={{ content: <p>Sort</p> }}
+        display={
+          <ListToolbarButton icon={<Plus aria-hidden />} label="Display" />
+        }
+        primary={<button type="button">New task</button>}
+      />
+    </div>,
+  );
+  const tools = screen.container.querySelector(
+    '[data-slot="list-toolbar-tools"]',
+  )!;
+  expect(tools.lastElementChild?.getAttribute("data-slot")).toBe(
+    "list-toolbar-primary",
+  );
+  const display = screen.getByRole("button", { name: "Display" }).element();
+  const primary = screen.getByRole("button", { name: "New task" }).element();
+  expect(primary.getBoundingClientRect().left).toBeGreaterThan(
+    display.getBoundingClientRect().right,
+  );
+  await expectNoA11yViolations(screen.container);
+});

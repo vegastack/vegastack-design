@@ -22,11 +22,10 @@ import {
   ShellTopBar,
   ShellTopBarFavorite,
   ShellTopBarMore,
-  ShellTopBarPresence,
-  ShellTopBarPrimary,
+  ShellTopBarMembers,
   ShellTopBarShare,
   ShellTopBarTitle,
-  ShellTopBarTools,
+  ShellTopBarWatch,
 } from "./shell";
 import { ShellStateScript } from "./shell-scripts";
 import "../../test/geometry.css";
@@ -363,7 +362,7 @@ test("on a phone the global bar is hidden", async () => {
   ).toBe("none");
 });
 
-test("the top bar keeps presence, tools, primary, Share, ☆ and ⋯ in order, whatever order they are written in", async () => {
+test("the top bar keeps members, Share, Watch, ☆ and ⋯ in order, whatever order they are written in", async () => {
   await render(
     <div style={{ width: 1200 }}>
       <ShellTopBar>
@@ -377,32 +376,33 @@ test("the top bar keeps presence, tools, primary, Share, ☆ and ⋯ in order, w
             ☆
           </Button>
         </ShellTopBarFavorite>
+        <ShellTopBarWatch>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Watch"
+            aria-pressed={false}
+          >
+            W
+          </Button>
+        </ShellTopBarWatch>
         <ShellTopBarShare>
-          <Button variant="outline" size="sm">
+          <Button variant="ghost" size="sm">
             Share
           </Button>
         </ShellTopBarShare>
-        <ShellTopBarPrimary>
-          <Button size="sm">Approve</Button>
-        </ShellTopBarPrimary>
-        <ShellTopBarTools>
-          <Button variant="ghost" size="icon-sm" aria-label="Watch">
-            W
-          </Button>
-        </ShellTopBarTools>
-        <ShellTopBarPresence>
+        <ShellTopBarMembers>
           <span>AC</span>
-        </ShellTopBarPresence>
+        </ShellTopBarMembers>
         <ShellTopBarTitle>Q3 pricing</ShellTopBarTitle>
       </ShellTopBar>
     </div>,
   );
   const order = [
     "shell-topbar-title",
-    "shell-topbar-presence",
-    "shell-topbar-tools",
-    "shell-topbar-primary",
+    "shell-topbar-members",
     "shell-topbar-share",
+    "shell-topbar-watch",
     "shell-topbar-favorite",
     "shell-topbar-more",
   ].map(
@@ -411,7 +411,7 @@ test("the top bar keeps presence, tools, primary, Share, ☆ and ⋯ in order, w
         .left,
   );
   expect(order).toEqual([...order].sort((a, b) => a - b));
-  // The tools, Share, ☆ and ⋯ share one height.
+  // Share, Watch, ☆ and ⋯ share one height.
   const heights = ["Watch", "Share", "Favourite", "More"].map(
     (name) =>
       [...document.querySelectorAll<HTMLElement>('[data-slot="button"]')]

@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.107.0 sha256-1oeVUIgJsigBnIzWCbhaNsQQFhI3nNEb0qliThoM/Eg=
+// @vegastack list-toolbar@0.107.0 sha256-MwXySHuTl4UkPwUu8YosNEq6puiKBaHfCObeXuZTQyY=
 
 "use client";
 
@@ -49,10 +49,11 @@ import { layoutTierQuery } from "@/lib/page-layout";
 
 /* ---
 `ListToolbar` is the one header row of every list and table: the search on the LEFT, and on the
-right a tight cluster of borderless icon tools — Filter, Sort, Layout, Display, ⋯. Scope tabs (or a
-table's saved views) sit in their own row ABOVE it, and the filter row of chips opens UNDER it from
-the Filter tool. A tool renders only when the page passes it something to do. The page's main
-button is not part of it: it lives at the right end of the app's top bar on every page type.
+right a tight cluster of borderless icon tools — Filter, Sort, Layout, Display, ⋯ — and then the
+page's one primary button (`primary`, "New task"), filled and last (UI ground rules P1a: a list's
+primary is never in the page bar). Scope tabs (or a table's saved views) sit in their own row ABOVE
+it, and the filter row of chips opens UNDER it from the Filter tool. A tool renders only when the
+page passes it something to do.
 
 The row never wraps. It measures its own width and gives way in a fixed order: the search
 shrinks, Layout and then Sort move into Display, the search becomes an icon, and a table's
@@ -312,6 +313,13 @@ export interface ListToolbarProps extends Omit<
    * @default undefined
    */
   edit?: readonly ListToolbarMenuItem[];
+  /**
+   * The page's one primary button, the row's last control after the tools: a filled
+   * `<Button size="sm">` (28px) with a verb and a noun ("New task"), or a "New ▾" menu trigger.
+   * It never folds away.
+   * @default undefined
+   */
+  primary?: React.ReactNode;
   /**
    * `compact` is the toolbar of a short list inside a record tab: 28px tools, no shortcuts.
    * @default "default"
@@ -772,6 +780,7 @@ export function ListToolbar({
   more,
   state,
   edit,
+  primary,
   size = "default",
   shortcuts,
   className,
@@ -866,6 +875,7 @@ export function ListToolbar({
   const hasSort = sort != null;
   const hasState = state != null;
   const hasMore = more != null;
+  const hasPrimary = primary != null;
   /** An open or filled search: the freeze below, as a primitive the measuring effect follows. */
   const searchHeld = search != null && (searchOpen || search.value !== "");
 
@@ -881,6 +891,7 @@ export function ListToolbar({
     };
     const filterWidth = hasFilter ? read("list-toolbar-filter", icon) : 0;
     const stateWidth = hasState ? read("list-toolbar-state", 96) : 0;
+    const primaryWidth = hasPrimary ? read("list-toolbar-primary", 96) : 0;
     const editWidth =
       editCount > 0 ? editCount * icon + (editCount - 1) * METRICS.toolGap : 0;
     const need = (lvl: number) => {
@@ -897,6 +908,7 @@ export function ListToolbar({
       if (hasSearch) parts.push(lvl >= 3 ? icon : METRICS.search);
       if (editCount > 0 && lvl < 4) parts.push(editWidth + 1 + METRICS.gap);
       if (stateWidth && lvl < 4) parts.push(stateWidth);
+      if (primaryWidth) parts.push(primaryWidth);
       return (
         parts.reduce((sum, w) => sum + w, 0) +
         Math.max(0, parts.filter((w) => w > 0).length - 1) * METRICS.gap
@@ -923,6 +935,7 @@ export function ListToolbar({
     hasSearch,
     hasSort,
     hasState,
+    hasPrimary,
   ]);
   // Re-measured on a size change only (the row, or a measured slot's own width), never on a host
   // render: a host passes new `search`/`sort`/`state` objects every render, and measuring forces
@@ -935,7 +948,7 @@ export function ListToolbar({
     observer.observe(row);
     // The measured slots change width on their own (a filter count, the state's text).
     for (const slot of row.querySelectorAll<HTMLElement>(
-      '[data-slot="list-toolbar-filter"], [data-slot="list-toolbar-state"]',
+      '[data-slot="list-toolbar-filter"], [data-slot="list-toolbar-state"], [data-slot="list-toolbar-primary"]',
     ))
       observer.observe(slot);
     return () => observer.disconnect();
@@ -1300,6 +1313,14 @@ export function ListToolbar({
               {display}
               {moreTool}
             </div>
+            {primary != null ? (
+              <div
+                data-slot="list-toolbar-primary"
+                className="flex shrink-0 items-center"
+              >
+                {primary}
+              </div>
+            ) : null}
           </div>
         </div>
         {filterRowNode}

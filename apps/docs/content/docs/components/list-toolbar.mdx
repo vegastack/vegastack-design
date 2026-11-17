@@ -94,10 +94,10 @@ tells the Filter tool how many filters are applied. Opening it shows the row and
 its first control; no picker or menu opens by itself. Its Clear closes it again.
 `filter.storageKey` remembers the open state per page.
 
-**The page's main button is never in the toolbar.** It sits at the right end of the app's top bar,
-placed the same way on every page type — list pages, record pages (a task, a page, a table, a
-project), module master pages, settings and the library — so it is always in one place. A record
-page's other actions stay in the top bar's ⋯.
+**The page's primary button is the toolbar's last control** (`primary`): after search · filter ·
+sort · layout · display · ⋯, filled and 28px (`<Button size="sm">` with a verb and a noun, or a
+"New ▾" menu). It never folds away, and the row measures it with the tools. The page bar never
+holds a primary; a record page's or a form's main action sits in the content, beside the work.
 
 ## Scope
 
@@ -111,7 +111,7 @@ page's other actions stay in the top bar's ⋯.
 | Filter counts                                      | `FilterRow` (or `filter.count`)             |
 | Turning a plain-language request into filters (AI) | Host — `AddFilterMenu ai.onSubmit`          |
 | Bottom sheets on a phone                           | `ListToolbarPopover`                        |
-| The page's main button                             | Host — the app's top bar, right end         |
+| The page's primary button                          | `ListToolbar` `primary`, the row's last     |
 
 ## Anatomy
 
@@ -301,6 +301,6 @@ adds its own margins around the toolbar.
 ## Do / Don't
 
 <DoDont
-  do="Pass a tool only when the page has something for it to do, put scope tabs in tabs (their own row), keep the page's one main button at the right end of the app's top bar, and let the toolbar fold Sort and Layout into Display."
-  dont="Add labelled text buttons beside the icons, show a disabled tool as a placeholder, or put a main button in the toolbar."
+  do="Pass a tool only when the page has something for it to do, put scope tabs in tabs (their own row), put the page's one primary button in primary, and let the toolbar fold Sort and Layout into Display."
+  dont="Add labelled text buttons beside the icons, show a disabled tool as a placeholder, or put a primary button anywhere but primary (never in the page bar)."
 />

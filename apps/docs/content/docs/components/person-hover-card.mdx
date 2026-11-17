@@ -1,6 +1,6 @@
 ---
 title: Person Hover Card
-description: Overlapping 24px avatars with a compact hover card per person (a 32px avatar, the name and a muted email) and a "+N" count; the stack lists everyone.
+description: A person behind an avatar or a name — hover, focus or tap opens a compact card with a 32px avatar, the name and a muted email.
 audience: public
 registry: person-hover-card
 status: stable
@@ -16,17 +16,19 @@ preview: personHoverCard
 ## Usage
 
 ```tsx
-import { AvatarStack } from "@/components/ui/person-hover-card";
+import { PersonAvatar } from "@/components/ui/person-avatar";
+import { PersonHoverCard } from "@/components/ui/person-hover-card";
 
-<AvatarStack people={participants} label="Participants" />;
+<PersonHoverCard person={person}>
+  <PersonAvatar person={person} />
+</PersonHoverCard>;
 ```
 
-`AvatarStack` stacks up to `max` (5) 24px avatars — overlapping, each ringed in the background
-colour — with the rest counted in a "+N". Hovering an avatar previews that person: a compact 240px
-card with a 32px avatar and, beside it, the name over a smaller muted email (always shown when
-known). The stack is one button: click, tap or <kbd>Enter</kbd> lists everyone in the same format.
-Someone without an account (a free-text participant such as "Northwind FM leads") has no email:
-their avatar shows initials and the card just the name.
+Hovering or focusing the trigger previews the person: a compact 240px card with a 32px avatar and,
+beside it, the name over a smaller muted email (always shown when known). Someone without an
+account (a free-text participant such as "Northwind FM leads") has no email: their avatar shows
+initials and the card just the name. A stack of people is a
+[`MembersStack`](/docs/components/members-stack).
 
 <ComponentPreview
   name="personHoverCard"
@@ -159,7 +161,7 @@ agent" in both forms.
 
 ### People and agents together
 
-`AvatarStack` mixes people and agents in one stack. Each person keeps the background-coloured ring,
+[`MembersStack`](/docs/components/members-stack) mixes people and agents in one stack. Each person keeps the background-coloured ring,
 and each agent gets the same 2px halo in its own hexagon, so an overlap never cuts a circle into a
 hexagon. A raw `AvatarGroup` gets the same treatment.
 
@@ -184,8 +186,8 @@ rows, `iconOnly` keeps only the state's icon, with the word in a tooltip and for
 ### Teams
 
 A person with `kind: "team"` is a team: `PersonAvatar` draws it as a rounded-square tile with the
-team icon on its hue — never initials or a photo — and `AvatarStack`, its hover previews and its
-list show teams beside people the same way. Use the muted line (`email`) for something like
+team icon on its hue — never initials or a photo — and `MembersStack` and its list show teams
+beside people the same way. Use the muted line (`email`) for something like
 "8 members".
 
 A workspace (`kind: "workspace"`) is a rounded-square tile too: its logo is shown whole
@@ -200,22 +202,11 @@ and without a logo its initials sit on its hue. Use it for workspace switchers a
 ### Inactive member
 
 `badge` on the person puts a status right after the name — a string such as "Inactive" is a small
-muted outline badge. It shows in `PersonCard`, the hover card and the `AvatarStack` list. For a
+muted outline badge. It shows in `PersonCard`, the hover card and the `MembersStack` list. For a
 table's person cell, compose `PersonAvatar` with the name and `PersonBadge`.
 
 <ComponentPreview
   name="personHoverCardInactive"
-  file="components/preview/person-hover-card.tsx"
-/>
-
-### Partial lists and a footer
-
-When only the first page of people is loaded, pass `total`: "+N" and the list's "and N more" count
-from it, so the stack never shows two avatars for fourteen members. `footer` ends the list popover
-with an action such as "Manage access". The avatars overlap by 4px, so two initials are never cut.
-
-<ComponentPreview
-  name="personHoverCardTotal"
   file="components/preview/person-hover-card.tsx"
 />
 
@@ -248,13 +239,6 @@ for the standard `PersonCard`. The element you return renders only while its car
 
 ## API Reference
 
-### AvatarStack
-
-<ApiTable
-  path="../../packages/ui/registry/ui/person-hover-card.tsx"
-  name="AvatarStackProps"
-/>
-
 ### PersonHoverCard
 
 <ApiTable
@@ -280,20 +264,18 @@ for the standard `PersonCard`. The element you return renders only while its car
 
 ## Accessibility
 
-- The stack is one button named `"{label}: {names}"`; it opens the full list, so keyboard and touch
-  users reach every person without the hover previews.
-- `PersonHoverCard` on its own is a round button named by the person (or, with `trigger="name"`,
+- `PersonHoverCard` is a round button named by the person (or, with `trigger="name"`,
   a text button whose name is the visible name); its card opens on hover and on keyboard focus, a
   tap toggles it, and <kbd>Esc</kbd> closes it.
 - An agent is never told apart by shape alone: `PersonName` and `personAccessibleName` say
   "agent" in text. A mark image takes an `alt` only when no name is shown beside it, and an
   `indicator` is decorative, so say the state it shows in text too.
 
-| Key                                 | Action                                  |
-| ----------------------------------- | --------------------------------------- |
-| <kbd>Tab</kbd>                      | Move to the stack                       |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | List everyone (or open a person's card) |
-| <kbd>Esc</kbd>                      | Close the list or the card              |
+| Key                                 | Action                 |
+| ----------------------------------- | ---------------------- |
+| <kbd>Tab</kbd>                      | Move to the person     |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the person's card |
+| <kbd>Esc</kbd>                      | Close the card         |
 
 <StatesTested name="person-hover-card" />
 

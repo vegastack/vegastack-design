@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.107.0 sha256-b8it75MRgWdN5fDTNmgUmkIVXIJKv7MebC5nZwIqrkM=
+// @vegastack person-avatar@0.107.0 sha256-4V30b33wAl1nmpkQpx6qEhkhYC8jTRvHRHKdDgh40uk=
 
 "use client";
 
@@ -86,7 +86,7 @@ export function personInitials(name: string, email?: string | null): string {
   return (head(words[0]!, 1) + head(words.at(-1)!, 1)).toUpperCase();
 }
 
-/** A person shown by `PersonAvatar`, `PersonCard`, `PersonHoverCard` and `AvatarStack`. */
+/** A person shown by `PersonAvatar`, `PersonCard`, `PersonHoverCard` and `MembersStack`. */
 export interface Person {
   /**
    * Your stable id for them (a member's id, an agent's id), never shown — what a

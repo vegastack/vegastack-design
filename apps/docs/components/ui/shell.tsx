@@ -1,4 +1,4 @@
-// @vegastack shell@0.109.1 sha256-J+PPNQzIaUJPmPG2T8MkkkbpdRaJgAcCnLNVP3ooHMs=
+// @vegastack shell@0.109.1 sha256-HeNyrUMPTnM0RtxpDIVB2kPl85PVzQjylaLooK5Tan0=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -520,17 +520,17 @@ export type ShellTopBarProps = React.ComponentProps<"header">;
 
 /**
  * `ShellTopBar` — the 48px bar over the page. Its slots keep one order whatever order a page
- * writes them in (D12): the title, then at the end `[presence] · [icon tools] · [primary] ·
- * [Share] · [☆] · [⋯]`, with ⋯ always last. The tools, Share, ☆ and ⋯ share one button shape:
- * 28px, round, the same hover. Narrow, Share shows its icon alone, presence leaves, and tools
- * marked `data-shell-fold` leave for the ⋯ menu. There is no save status: saving is silent, and a
- * failed save is an alert in the page.
+ * writes them in (UI ground rules P1): the title, then at the end `[members] · [Share] ·
+ * [Watch] · [☆] · [⋯]`, with ⋯ always last. Every control is ghost and 28px: no primary, no
+ * outline, no other tools — a list's primary is its toolbar's last control. Narrow, Share shows
+ * its icon alone and the members leave. There is no save status: saving is silent, and a failed
+ * save is an alert in the page.
  *
  * @example
  * <ShellTopBar>
  *   <ShellTopBarTitle parents={<a href="/spaces/general">General</a>}>Q3 pricing</ShellTopBarTitle>
- *   <ShellTopBarPresence><AvatarGroup max={3}>…</AvatarGroup></ShellTopBarPresence>
- *   <ShellTopBarShare><Button variant="outline" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
+ *   <ShellTopBarMembers><MembersStack people={members} /></ShellTopBarMembers>
+ *   <ShellTopBarShare><Button variant="ghost" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
  *   <ShellTopBarFavorite><Button variant="ghost" size="icon-sm" aria-label="Favourite"><Star /></Button></ShellTopBarFavorite>
  *   <ShellTopBarMore><MoreMenu /></ShellTopBarMore>
  * </ShellTopBar>
@@ -621,9 +621,10 @@ export interface ShellTopBarSlotProps extends React.ComponentProps<"div"> {
   reserve?: number;
 }
 
-// The tools, Share, ☆ and ⋯ are one button shape: 28px tall and fully round (an icon button's
-// circle, Share's pill), with the one `state-layer` hover that ghost and outline buttons share.
-const BUTTON_SHAPE = "*:data-[slot=button]:h-7";
+// Every control in the bar is one ghost shape, 28px tall (UI ground rules P1, C1): the members
+// stack, Share (icon and label), the Watch and ☆ toggles (the same 28px circle) and ⋯.
+const BUTTON_SHAPE =
+  "*:data-[slot=button]:h-7 *:[&[aria-pressed]]:size-7 *:[&[aria-pressed]]:min-w-7 *:[&[aria-pressed]]:px-0";
 
 function topBarSlot(slot: string, order: string, extra = "") {
   return function ShellTopBarSlot({
@@ -663,77 +664,72 @@ export const ShellTopBarLead = topBarSlot(
   "gap-0.5",
 );
 
+/*
+ * The bar's end holds five slots in one fixed order, whatever order a page declares them in:
+ * members · Share · Watch · ☆ · ⋯ (UI ground rules P1). Nothing else goes in the bar: a list's
+ * primary button is the last control of its `ListToolbar` (`primary`), and a record's or a
+ * form's main action sits in the content, beside the work (P1a).
+ */
+
 /**
- * `ShellTopBarPresence` — who else is here, first at the bar's end: one `AvatarGroup` with
- * `max={3}`.
+ * `ShellTopBarMembers` — who has access, first at the bar's end: one `MembersStack`.
  *
  * @example
- * <ShellTopBarPresence><AvatarGroup max={3}>…</AvatarGroup></ShellTopBarPresence>
+ * <ShellTopBarMembers><MembersStack people={members} total={23} /></ShellTopBarMembers>
  */
-export const ShellTopBarPresence = topBarSlot(
-  "shell-topbar-presence",
+export const ShellTopBarMembers = topBarSlot(
+  "shell-topbar-members",
   "order-2",
-  "@max-md/shell-topbar:hidden",
+  cn("@max-md/shell-topbar:hidden", BUTTON_SHAPE),
 );
 
 /**
- * `ShellTopBarTools` — the page's icon tools, after presence: 28px ghost icon buttons, 2px apart.
- * Mark a tool `data-shell-fold` and put it in the ⋯ menu too: a narrow bar keeps only the menu.
- *
- * @example
- * <ShellTopBarTools reserve={3.75}>
- *   <Button variant="ghost" size="icon-sm" aria-label="Watch" data-shell-fold><Bell /></Button>
- * </ShellTopBarTools>
- */
-export const ShellTopBarTools = topBarSlot(
-  "shell-topbar-tools",
-  "order-3",
-  cn("gap-0.5 @max-md/shell-topbar:[&>[data-shell-fold]]:hidden", BUTTON_SHAPE),
-);
-
-/**
- * `ShellTopBarPrimary` — the page's one primary action, if it has one, after the tools.
- *
- * @example
- * <ShellTopBarPrimary><Button size="sm">Approve</Button></ShellTopBarPrimary>
- */
-export const ShellTopBarPrimary = topBarSlot("shell-topbar-primary", "order-4");
-
-/**
- * `ShellTopBarShare` — Share, an outline button, after the primary action. Wrap its word in
+ * `ShellTopBarShare` — Share, a ghost button with its icon and label. Wrap its word in
  * `ShellTopBarLabel` and a narrow bar shows its icon alone.
  *
  * @example
- * <ShellTopBarShare><Button variant="outline" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
+ * <ShellTopBarShare><Button variant="ghost" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
  */
 export const ShellTopBarShare = topBarSlot(
   "shell-topbar-share",
-  "order-5",
+  "order-3",
   BUTTON_SHAPE,
 );
 
 /**
- * `ShellTopBarFavorite` — ☆, immediately before ⋯: one ghost icon button.
+ * `ShellTopBarWatch` — the Watch bell, where the record has one: a ghost icon toggle beside ☆.
+ *
+ * @example
+ * <ShellTopBarWatch><Button variant="ghost" size="icon-sm" aria-label="Watch" aria-pressed={watching}><Bell /></Button></ShellTopBarWatch>
+ */
+export const ShellTopBarWatch = topBarSlot(
+  "shell-topbar-watch",
+  "order-4",
+  BUTTON_SHAPE,
+);
+
+/**
+ * `ShellTopBarFavorite` — ☆, immediately before ⋯: one ghost icon toggle.
  *
  * @example
  * <ShellTopBarFavorite><Button variant="ghost" size="icon-sm" aria-label="Favourite" aria-pressed={starred}><Star /></Button></ShellTopBarFavorite>
  */
 export const ShellTopBarFavorite = topBarSlot(
   "shell-topbar-favorite",
-  "order-6",
+  "order-5",
   BUTTON_SHAPE,
 );
 
 /**
- * `ShellTopBarMore` — ⋯, always the bar's last control: the record's menu, which also holds every
- * tool a narrow bar folded away.
+ * `ShellTopBarMore` — ⋯, always the bar's last control: the record's menu. Render it only when it
+ * holds two or more actions (P3); one action is its own button, and Copy link belongs in Share.
  *
  * @example
  * <ShellTopBarMore><DropdownMenu>…</DropdownMenu></ShellTopBarMore>
  */
 export const ShellTopBarMore = topBarSlot(
   "shell-topbar-more",
-  "order-7",
+  "order-6",
   BUTTON_SHAPE,
 );
 
@@ -742,7 +738,7 @@ export const ShellTopBarMore = topBarSlot(
  * has room; below it the button shows its icon alone.
  *
  * @example
- * <Button variant="outline" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button>
+ * <Button variant="ghost" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button>
  */
 export function ShellTopBarLabel({
   className,

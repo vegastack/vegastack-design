@@ -194,7 +194,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.109.1",
-        "integrity": "sha256-J+PPNQzIaUJPmPG2T8MkkkbpdRaJgAcCnLNVP3ooHMs="
+        "integrity": "sha256-HeNyrUMPTnM0RtxpDIVB2kPl85PVzQjylaLooK5Tan0="
       }
     },
     {
@@ -2226,7 +2226,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.107.0",
-        "integrity": "sha256-1oeVUIgJsigBnIzWCbhaNsQQFhI3nNEb0qliThoM/Eg="
+        "integrity": "sha256-MwXySHuTl4UkPwUu8YosNEq6puiKBaHfCObeXuZTQyY="
       }
     },
     {
@@ -17845,10 +17845,10 @@
       "registryDependencies": []
     },
     {
-      "name": "person-hover-card",
+      "name": "members-stack",
       "type": "registry:ui",
-      "title": "Person Hover Card",
-      "description": "Stacked avatars with a hover card per person — a compact card with a 32px avatar, with the name and muted email beside it — and the rest behind \"+N\".",
+      "title": "Members Stack",
+      "description": "Who has access, drawn one way everywhere: 24px faces overlapped 6px, at most three and a \"+N\" pill of the same height, active people first; only you, everyone in a space and a team as their own forms; names on hover and one members popover.",
       "categories": [
         "data"
       ],
@@ -17858,11 +17858,43 @@
         "lucide-react@^1.47.0"
       ],
       "registryDependencies": [
-        "@vegastack/avatar",
+        "@vegastack/button",
+        "@vegastack/person-avatar",
+        "@vegastack/person-hover-card",
+        "@vegastack/popover",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/members-stack.tsx",
+          "type": "registry:ui",
+          "target": "@ui/members-stack.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
+        "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
+        "version": "0.107.0",
+        "integrity": "sha256-vbkIg4pgfik9hxPfKwNClA9OgKjY8mS2/+Mcpren36A="
+      }
+    },
+    {
+      "name": "person-hover-card",
+      "type": "registry:ui",
+      "title": "Person Hover Card",
+      "description": "A person behind an avatar or a name: hover, focus or tap opens a compact card with a 32px avatar, the name and a muted email.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "@vegastack/design@^0.21.0",
+        "@vegastack/design-tokens@^0.21.0",
+        "lucide-react@^1.47.0"
+      ],
+      "registryDependencies": [
         "@vegastack/button",
         "@vegastack/hover-card",
         "@vegastack/person-avatar",
-        "@vegastack/popover",
         "@vegastack/searchable-select"
       ],
       "files": [
@@ -17873,10 +17905,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Show the people on a record (participants, watchers, a team) as stacked avatars, each previewing the person on hover, focus or tap.",
+        "whenToUse": "Preview a person behind their avatar or name (a comment's author, an activity's actor, a participant). Stacks of people are MembersStack.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
         "version": "0.107.0",
-        "integrity": "sha256-ZJ/xD1TY4MOh/t0JZtg3KOlp92iUkEmS7wilxCrIn1s="
+        "integrity": "sha256-wt50cSwhdc3RFsqkf/1HnUMa9/hibLhbUC9tvBCs27Y="
       }
     },
     {
@@ -18204,7 +18236,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.107.0",
-        "integrity": "sha256-b8it75MRgWdN5fDTNmgUmkIVXIJKv7MebC5nZwIqrkM="
+        "integrity": "sha256-4V30b33wAl1nmpkQpx6qEhkhYC8jTRvHRHKdDgh40uk="
       }
     },
     {
@@ -18242,7 +18274,7 @@
         "whenToUse": "A record's details (the record page's Details panel, a peek, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
         "version": "0.107.0",
-        "integrity": "sha256-o2oPXc04ZvxUEYqr+30/PuDMnAdzA2tP65oYV75afFI="
+        "integrity": "sha256-jRFLSrDW1nriQzLeHAtonwxJcCT6EPeUHe5vpw4NMBQ="
       }
     },
     {
@@ -18274,7 +18306,7 @@
         "whenToUse": "The top of every record page and every record peek: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
         "version": "0.107.0",
-        "integrity": "sha256-+zPoAQioZ3jAM4byGLU7nX38hJftLhBYinLDHEVpowM="
+        "integrity": "sha256-emHfMwhz+tkdt2dxcHSRF+fqN1DnuO+MjYsROJx5Q28="
       }
     },
     {
@@ -20900,7 +20932,8 @@
         "@vegastack/nav-tree",
         "@vegastack/peek",
         "@vegastack/rail",
-        "@vegastack/shell"
+        "@vegastack/shell",
+        "@vegastack/members-stack"
       ],
       "files": [
         {
@@ -20918,7 +20951,7 @@
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.107.0",
-        "integrity": "sha256-xjwKXhQZhMsMThC/5gXYxEs7ABYiMAKOaVLy8hsfmIY="
+        "integrity": "sha256-Fqp/3aeifYtFSGKzdXIB1pr1u5mLPr4P87ZcVvBThzY="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack record-aside@0.107.0 sha256-o2oPXc04ZvxUEYqr+30/PuDMnAdzA2tP65oYV75afFI=
+// @vegastack record-aside@0.107.0 sha256-jRFLSrDW1nriQzLeHAtonwxJcCT6EPeUHe5vpw4NMBQ=
 
 "use client";
 
@@ -29,7 +29,7 @@ import {
  * action with a tooltip, or a button) above its content — an inline `PropertyList`, a
  * `PropertySection`, or an `ActionList` whose rows run to the card's edges like the Inbox's.
  * `PropertyPerson` and `PropertyClamp` are the rail's value shapes (people stacks are
- * `AvatarStack`), and the `*Skeleton` parts draw the same layout while it loads.
+ * `MembersStack`), and the `*Skeleton` parts draw the same layout while it loads.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Native container props for `RecordAsideCard`. */

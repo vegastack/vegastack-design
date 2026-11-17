@@ -154,6 +154,7 @@ export * from "./thumbnail";
 export * from "./qr-code";
 export * from "./brand-logo";
 export * from "./person-hover-card";
+export * from "./members-stack";
 export * from "./permission-menu";
 export * from "./responsive-dialog";
 export * from "./space-picker";

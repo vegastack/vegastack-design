@@ -1,14 +1,11 @@
-// @vegastack person-hover-card@0.107.0 sha256-ZJ/xD1TY4MOh/t0JZtg3KOlp92iUkEmS7wilxCrIn1s=
+// @vegastack person-hover-card@0.107.0 sha256-wt50cSwhdc3RFsqkf/1HnUMa9/hibLhbUC9tvBCs27Y=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import { AvatarGroup, AvatarGroupCount } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
-  PERSON_AVATAR_STACK_ITEM,
-  PERSON_AVATAR_STACK_RING,
   PersonAvatar as BasePersonAvatar,
   PersonName,
   AgentShapeLayer,
@@ -23,16 +20,11 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 
 /* ------------------------------------------------------------------------------------------------
  * PersonHoverCard — a person behind an avatar: hover or focus (tap on touch) opens a card with a
- * 32px avatar (`PersonAvatar`: the photo, else initials on the person's hue) with the name and a muted email stacked beside it. AvatarStack stacks up to `max` of them (the Avatar
- * group recipe) with the rest behind a "+N" that opens the same rows in a list. A person without
+ * 32px avatar (`PersonAvatar`: the photo, else initials on the person's hue) with the name and a
+ * muted email stacked beside it (`MembersStack` stacks several and lists them). A person without
  * an account (a free-text participant) shows initials and just the name. A team (`kind: "team"`)
  * stacks and lists the same way, drawn as its rounded-square team tile; an agent
  * (`kind: "agent"`) as its hexagon, named "Claude Code for Manoj".
@@ -224,126 +216,5 @@ export function PersonHoverCard({
         {custom ?? <PersonCard person={person} />}
       </HoverCardContent>
     </HoverCard>
-  );
-}
-
-/** Props for `AvatarStack`. */
-export interface AvatarStackProps {
-  /** The people, in order. */
-  people: readonly Person[];
-  /**
-   * How many avatars show before the rest go behind "+N".
-   * @default 5
-   */
-  max?: number;
-  /**
-   * The total number of people, when `people` is only the first page of them (a space with 14
-   * members, 5 loaded). "+N" counts from it, so the stack and its count always agree.
-   * @default people.length
-   */
-  total?: number;
-  /** The group's accessible name. @default "People" */
-  label?: string;
-  /**
-   * A footer action in the list popover, such as "Manage access" that opens the Share dialog.
-   * @default undefined
-   */
-  footer?: React.ReactNode;
-  /** Classes for the group. @default undefined */
-  className?: string;
-}
-
-/**
- * `AvatarStack` — truly stacked 24px avatars (overlapping, a ring in the colour of the surface beneath) with
- * "+N" past `max`. Hovering an avatar previews that person (`PersonCard`); the stack itself is one
- * button — click, tap or Enter — that lists everyone as `PersonCard` rows. One control for the
- * whole stack keeps a full 24px target without spreading the avatars apart.
- *
- * @example
- * <AvatarStack people={participants} label="Participants" />
- */
-export function AvatarStack({
-  people,
-  max = 5,
-  total,
-  label = "People",
-  footer,
-  className,
-}: AvatarStackProps) {
-  const shown = people.slice(0, max);
-  const count = Math.max(total ?? people.length, people.length);
-  const rest = count - shown.length;
-  return (
-    <Popover>
-      <PopoverTrigger
-        render={
-          <Button
-            // No fill at rest, on hover or while open: a tint behind overlapping circles reads as
-            // a box around them (the avatars' own hover cards are the feedback).
-            variant="link"
-            data-slot="avatar-stack"
-            aria-label={`${label}: ${people.map(personAccessibleName).join(", ")}${
-              count > people.length ? ` and ${count - people.length} more` : ""
-            }`}
-            className={cn(
-              "h-auto p-0.5 text-inherit hover:no-underline active:not-aria-[haspopup]:translate-y-0",
-              className,
-            )}
-          />
-        }
-      >
-        {/* A 4px overlap (not upstream's 8px): each 24px avatar keeps 20px visible, so two
-            initials are never cut by the next avatar. */}
-        <AvatarGroup aria-hidden className="-space-x-1">
-          {shown.map((p, i) => (
-            <HoverCard key={`${p.name}-${i}`}>
-              <HoverCardTrigger
-                render={
-                  <span
-                    className={cn(
-                      "inline-flex",
-                      PERSON_AVATAR_STACK_ITEM,
-                      p.kind === "team" ? "rounded-tile" : "rounded-full",
-                    )}
-                  />
-                }
-              >
-                <PersonAvatar person={p} className={PERSON_AVATAR_STACK_RING} />
-              </HoverCardTrigger>
-              <HoverCardContent align="start" className="w-60 p-2">
-                <PersonCard person={p} />
-              </HoverCardContent>
-            </HoverCard>
-          ))}
-          {rest > 0 ? (
-            <AvatarGroupCount className={PERSON_AVATAR_STACK_RING}>
-              +{rest}
-            </AvatarGroupCount>
-          ) : null}
-        </AvatarGroup>
-      </PopoverTrigger>
-      <PopoverContent align="start" className="w-60 p-2">
-        <ul aria-label={label} className="flex flex-col gap-2">
-          {people.map((p, i) => (
-            <li key={`${p.name}-${i}`}>
-              <PersonCard person={p} />
-            </li>
-          ))}
-        </ul>
-        {count > people.length ? (
-          <p className="px-1 pt-2 text-xs text-muted-foreground">
-            and {count - people.length} more
-          </p>
-        ) : null}
-        {footer != null ? (
-          <div
-            data-slot="avatar-stack-footer"
-            className="-mx-2 -mb-2 mt-2 border-t border-border p-1"
-          >
-            {footer}
-          </div>
-        ) : null}
-      </PopoverContent>
-    </Popover>
   );
 }

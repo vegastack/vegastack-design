@@ -41,7 +41,7 @@ import {
   RecordAsideCard,
   RecordAsideSection,
 } from "@/components/ui/record-aside";
-import { AvatarStack } from "@/components/ui/person-hover-card";
+import { MembersStack } from "@/components/ui/members-stack";
 import { RecordChip } from "@/components/ui/record-chip";
 import { StatusIcon } from "@/components/ui/status-icon";
 
@@ -79,7 +79,7 @@ function Details() {
         </PropertyRow>
       </PropertyList>
       <PropertySection title="Participants">
-        <AvatarStack people={PEOPLE} label="Participants" />
+        <MembersStack people={PEOPLE} label="Participants" />
       </PropertySection>
       <PropertySection title="Linked to">
         <RecordChip icon={<Building2 />} value="Acme Industries" />
