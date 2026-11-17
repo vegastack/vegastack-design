@@ -1,7 +1,7 @@
-// @vegastack issue-detail-01@0.90.0 sha256-wi+SzL+xc8cPeIPTBG75Q5HLSJAUH5OYwMMShVSl1aQ=
+// @vegastack issue-detail-01@0.90.0 sha256-FzjJL2gNUh5f/NdAxkt21omAdacuAD8UoQOG5QSiL2E=
 
 import { IssueDetail } from "./components/issue-detail";
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 
 /**
  * `issue-detail-01` — an issue's page (Linear style): the status circle beside a large title that
@@ -16,8 +16,8 @@ import { AppShellPage } from "@/components/ui/app-shell";
  */
 export default function Page() {
   return (
-    <AppShellPage size="full">
+    <ShellPage size="full">
       <IssueDetail />
-    </AppShellPage>
+    </ShellPage>
   );
 }

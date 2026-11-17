@@ -14,20 +14,20 @@ generated:
       sha256: "6ecea2bf4a2bf6783d1f53da37057218b37d209be9d7aa6d69b569c813fd24d8"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3257
-      sha256: "01d9a03201611bacc7cd5f0394801410422b2685f76ac9ff2347576463169930"
+      bytes: 3261
+      sha256: "c286358b9be7c51acde436068509b2a2f8363d7624421e258d9023717259bbfc"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
       bytes: 3105
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 36554
-      sha256: "f11984d8286afb3245685e82680e7aee606f5ad0c2dca141f8885d2af28aa83d"
+      bytes: 37827
+      sha256: "59288a299b63e9ad68edfba0eb0649b1b0b243dfd744c4ddd8c853a45254dd3a"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 13441
-      sha256: "e72eb266c0b4551c34510f4348d1aed71186c148bfd62a269ebd30b5b036c2cf"
+      bytes: 13917
+      sha256: "c42d9093976e4a676d7452721d72eaa410f7afb597a160afb1eda776fac83dd5"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -185,6 +185,10 @@ themes:
       type: "duration"
       value: "80ms"
       description: "MOT-14: one frame of the TextSpinner's Strike (`working`: the bolt fills, holds and clears in 17 frames)."
+    duration-panel:
+      type: "duration"
+      value: "120ms"
+      description: "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -253,11 +257,16 @@ themes:
       value: "oklch(0.456 0.156 256)"
     input:
       type: "color"
-      value: "oklch(0.922 0 0)"
+      value: "oklch(0.88 0 0)"
+      description: "FOC-14 (ours, 2026-11-17): a text field's resting border, the first of three even steps (rest 1.44:1, hover 2.10:1, focus 3.26:1 on the page), so focus reads as the next step rather than a jump from a pale field. Was `neutral.200` (1.26:1). Also the unchecked Switch track and ButtonGroup separators."
+    input-focus:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.46)"
+      description: "FOC-14 (ours, 2026-11-17): text entry's focus border, the top of its three steps (rest 1.44:1, hover 2.10:1, focus 3.26:1 on the page; at least 3:1 on every neutral surface, FOC-10). Text entry only; every other control keeps its border on focus."
     input-hover:
       type: "color"
-      value: "oklch(0.145 0 0 / 0.22)"
-      description: "FOC-16 (ours, operator 2026-10-31): text entry's hover border — a visible step above `input` at rest."
+      value: "oklch(0.145 0 0 / 0.31)"
+      description: "FOC-16 (ours, operator 2026-10-31): text entry's hover border — the middle step between `input` at rest and `input-focus` (2.10:1 on the page)."
     media-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -671,6 +680,10 @@ themes:
       type: "duration"
       value: "80ms"
       description: "MOT-14: one frame of the TextSpinner's Strike (`working`: the bolt fills, holds and clears in 17 frames)."
+    duration-panel:
+      type: "duration"
+      value: "120ms"
+      description: "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -736,9 +749,14 @@ themes:
     input:
       type: "color"
       value: "oklch(1 0 0 / 0.15)"
+    input-focus:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.37)"
+      description: "FOC-14 (ours, 2026-11-17): the dark half of text entry's focus border — the same three steps as light (rest 1.47:1, hover 2.10:1, focus 3.3:1 on the page; at least 3:1 on every neutral surface, FOC-10)."
     input-hover:
       type: "color"
       value: "oklch(0.985 0 0 / 0.25)"
+      description: "FOC-16: the dark half of text entry's hover border (2.10:1 on the page)."
     media-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -1027,7 +1045,7 @@ recipes:
     foreground: "{foreground}"
     border: "{input}"
     hoverBorder: "{input-hover}"
-    focusBorder: "{ring}/50"
+    focusBorder: "{input-focus}"
     readOnly: "{readonly}, transparent border"
     radius: "{radius}"
     typography: "text-sm"
@@ -1158,12 +1176,12 @@ every wrapper, keeps its resting `border-border`/`border-input` in every state �
 Input, Textarea, the Questionnaire answer, the InputOTP active slot, the bordered field groups that
 frame a text control (InputGroup and everything built on it: NumberField, ChipInput, Combobox,
 Command, the popup search rows; the combobox chips) and TextEdit's `boxed`
-variant (the comment composer) — shows focus as `border-ring/50` easing in over
+variant (the comment composer) — shows focus as `border-input-focus` easing in over
 `duration-150 ease-out`, on the element that draws the border (the group, never the control inside
 it), and no background change at all. Invalid shows its destructive border in every state, focused
 or not: the focus class carries a `not-…invalid` guard, so focus never replaces it; never a ring.
 `design-lint`'s **`no-focus-border`** rejects a focus-variant border colour in the registry except
-the one text-entry shape (`…:border-ring/50`) in the named text-entry files, and the geometry
+the one text-entry shape (`…:border-input-focus`) in the named text-entry files, and the geometry
 lane's focus sweep fails a non-text control whose border colour moves, a text-entry control whose
 background moves or whose border does not, and an invalid field whose border moves on focus. A forced-colours block restores
 `outline: 2px solid Highlight` on every focused element, because forced colours drop the tint and
@@ -1231,8 +1249,9 @@ FRM-4 · FRM-15`
 - **A11Y-6** — a scroll viewport is a tab stop only while it can actually scroll; a named viewport is
   `role="region"`. Base UI's `ScrollArea.Viewport` implements this itself, so the row is a no-hunk
   with a test. **It is not implemented for tables**: upstream's `Table` wraps itself in a plain
-  container, `table-scroll-region.tsx` is the orphaned implementation, and the gap is pinned by
-  `data-list.test.tsx` rather than hidden. Open, and recorded on the `ours.json` entry.
+  container, and the gap is pinned by `data-list.test.tsx` rather than hidden. The orphaned
+  `table-scroll-region.tsx` that nothing imported was deleted in the shell clean-up (2026-11-16); a
+  rebuild that closes the gap measures the way `terminal-body.tsx` does.
 - **A11Y-7** — a role that requires a parent is licensed by a **context**, never by a default.
   `Item` takes `listitem` only inside `ItemGroup`; cmdk's empty palette takes its roles the same way.
   An `Item` that renders a link or a button inside `ItemGroup` moves `listitem` to a wrapper
@@ -1365,8 +1384,8 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 - **Layout** (LAY-9…LAY-16) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
   edge-pinned surfaces, `dvh` over `vh`, `svh` only for the sidebar; truncation is `min-w-0` on the
-  flex child with `truncate` on an inner span, never both on one element; `AppShell` owns the landmark
-  trio, the skip link and the content container. **The `<nav>` landmark lives inside the rail**:
+  flex child with `truncate` on an inner span, never both on one element; `Shell` owns the landmarks,
+  the skip link and the content container. **The `<nav>` landmark lives inside the rail**:
   upstream's `Sidebar` is divs by design and renders two different trees, so there is no single
   element a role can ride through both. The collapsed state survives a static first paint:
   `SidebarStateScript` in `<head>` reads the cookie, marks `<html>` with `data-sidebar-state` and
@@ -1492,10 +1511,8 @@ line when its file is next touched, never in a drive-by rename.
 
 **Known deviations in components we own**, each fixed when its file is next touched: `md` on
 `Stat`, `StatusIcon` and `Chip` (add `default`, keep `md` as an alias); `SettingsSection`'s `titleAs`
-and `TruncatedText`'s `as` (→ `render`); `dismissable` on `AnnouncementBanner` (→ `dismissible`);
-`ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip` and `Exit` parts,
-which export no `…Props` type; `AppShellPage`'s `size` (`prose · default · full`, a page width off
-the size ladder); `DataList`'s "Loading rows" status (→ "Loading rows…");
+and `TruncatedText`'s `as` (→ `render`); `ActionBar`'s `pending` (→ `loading`); `MultiStepForm`'s `Back`, `Next`, `Skip` and `Exit` parts,
+which export no `…Props` type; `DataList`'s "Loading rows" status (→ "Loading rows…");
 `PanelSearch`'s look differing from `SearchableSelect`'s in-popup search; and per-component
 async-write status (→ one shared shape).
 
@@ -1540,15 +1557,15 @@ moving the others.
 foreground layer over whatever is underneath, so the step reads the same on page, card, popover,
 sidebar and muted, in both themes:
 
-| state                              | token (light / dark)                                                                                                                              | how a part gets it                                                                           |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| hover                              | `--state-hover` (5% / 4% foreground)                                                                                                              | `state-layer` (a background image over any rest fill)                                        |
-| pressed                            | `--state-pressed` (10% / 9%)                                                                                                                      | `state-layer`, on `:active`                                                                  |
-| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                      | `bg-state-selected`, or `layer-selected` over a filled part; it holds through hover          |
-| highlighted (menu / list cursor)   | `--state-hover`                                                                                                                                   | `data-highlighted:bg-state-hover`                                                            |
-| keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                             | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
-| inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                          | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |
-| text entry                         | `input` → `--input-hover` border on hover → `ring/50` border on focus (no ring or glow); `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
+| state                              | token (light / dark)                                                                                                                                    | how a part gets it                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| hover                              | `--state-hover` (5% / 4% foreground)                                                                                                                    | `state-layer` (a background image over any rest fill)                                        |
+| pressed                            | `--state-pressed` (10% / 9%)                                                                                                                            | `state-layer`, on `:active`                                                                  |
+| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                            | `bg-state-selected`, or `layer-selected` over a filled part; it holds through hover          |
+| highlighted (menu / list cursor)   | `--state-hover`                                                                                                                                         | `data-highlighted:bg-state-hover`                                                            |
+| keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                                   | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
+| inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                                | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |
+| text entry                         | `input` → `--input-hover` border on hover → `--input-focus` border on focus (no ring or glow); `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
 
 **Status in agent UI is one quiet language (COL-25; operator 2026-11-13, agent chat ground up).**
 Every check — done, selected, approved, allowed, remembered, uploaded — is `primary`
@@ -1657,8 +1674,8 @@ the alpha/opacity role rules and the z-band rules among them. The complete rule-
 
 **The marketing layer is gone, not deprecated.** Ten components, the `MarketingSurface` theme scope
 and its `.vs-marketing` selectors, the marketing tokens and every marketing lint rule were deleted on
-2026-09-18. `announcement-banner`, `terminal` and `code-block` were explicitly kept and moved to
-Feedback and Content. The portal half of the theme scope stays — OVL-13 depends on it.
+2026-09-18. `terminal` and `code-block` were explicitly kept and moved to Feedback and Content
+(`announcement-banner` too, until the shell clean-up deleted it unused on 2026-11-16). The portal half of the theme scope stays — OVL-13 depends on it.
 
 ## Iconography
 
@@ -1695,8 +1712,8 @@ on screen.
 **A component is reusable, prop-configured, imported in several places and tracked for updates**
 (`registry:ui`). **A block is a screen or section someone copies once and then owns** (`registry:block`)
 — sample data inline, no primitive invented inside it, never updated after install. When a thing is
-both, it ships as both: `board` is a component and `board-01` is a block, exactly as `app-shell` pairs
-with `app-shell-01`. Two narrower types exist: `registry:hook` for a pure hook, and
+both, it ships as both: `board` is a component and `board-01` is a block, exactly as `shell` pairs
+with `shell-01`. Two narrower types exist: `registry:hook` for a pure hook, and
 `registry:lib` for a module with no React in it at all.
 
 **Where a new thing goes — the decision tree.** Ask in order and stop at the first yes:
@@ -1713,9 +1730,8 @@ with `app-shell-01`. Two narrower types exist: `registry:hook` for a pure hook, 
 Rules that survive the reset, because they are ours and not upstream's:
 
 - **A keeper that wraps an upstream component imports it**, never a copy of it. `date-picker` mounts
-  upstream's `calendar`; `number-field`, `chip-input` and `region-select` are upstream's `input-group`;
-  `settings-row` is upstream's `Card`; `tool-call-chip` is upstream's `Badge`; `app-shell` is
-  upstream's `sidebar` primitives plus the landmarks LAY-12 asks for. A re-derived box is drift with a
+  upstream's `calendar`; `number-field` and `chip-input` are upstream's `input-group`;
+  `settings-row` is upstream's `Card`; `tool-call-chip` is upstream's `Badge`. A re-derived box is drift with a
   different spelling.
 - **A form control never owns its width.** Every one is `w-full`; the parent decides. A fixed `w-56`
   reads fine on the page it was tuned for and overflows at 320px.
@@ -1727,8 +1743,7 @@ Rules that survive the reset, because they are ours and not upstream's:
   than stretched.
 - **A shared internal is not a catalogue entry.** `data-table-parts` and `panel-search` are installed
   as dependencies of the components that need them and documented where those components are
-  documented (`coverage.navigation: "exempt"` + `docs: "shared-guide-only"`), the way `geo-data` and
-  `drag-item` are. The contract gate asserts the whole shape, so the exemption cannot be
+  documented (`coverage.navigation: "exempt"` + `docs: "shared-guide-only"`), the way `drag-item` is. The contract gate asserts the whole shape, so the exemption cannot be
   half-declared.
 
 ## Voice & content

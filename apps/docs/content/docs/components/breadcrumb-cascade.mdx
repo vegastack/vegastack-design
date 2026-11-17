@@ -76,6 +76,10 @@ folder. While a drag is over it the crumb washes in the primary tint (`data-drop
 destructive tint when `canDropInto` refuses (`data-drop-invalid`). A selected row carries the whole
 selection.
 
+The drag code lives in `breadcrumb-drop-target.tsx` and loads the first time a drop target
+mounts, so a trail without one never ships it. Until it arrives (and in the server render) the
+crumb is the same link without the drop wiring.
+
 <ComponentPreview
   name="breadcrumbCascadeDropTarget"
   file="components/preview/breadcrumb-cascade.tsx"

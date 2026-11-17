@@ -112,88 +112,6 @@
       }
     },
     {
-      "name": "animated-number",
-      "type": "registry:ui",
-      "title": "Animated Number",
-      "description": "A number display that tweens from its previous value to a new one on every change — Intl.NumberFormat-aware (currency/percent/compact), instant under reduced motion, the dashboard stat-card counter.",
-      "categories": ["data-display"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": ["@vegastack/use-media-query"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/animated-number.tsx",
-          "type": "registry:ui",
-          "target": "@ui/animated-number.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A numeric stat/metric that updates over time and should visually count/tween to its new value — dashboard KPIs, live prices, counters.",
-        "whenNotToUse": "A static number that never changes after render — just render it directly; the tween machinery adds nothing.",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "announcement-banner",
-      "type": "registry:ui",
-      "title": "Announcement Banner",
-      "description": "A dismissible one-line announcement — full-width inverse band or inline hairline card.",
-      "categories": ["marketing"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": ["@vegastack/button"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/announcement-banner.tsx",
-          "type": "registry:ui",
-          "target": "@ui/announcement-banner.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "One temporary message with one action (releases, promos, sync prompts).",
-        "whenNotToUse": "Status feedback (Alert/Toast) or permanent notices (Alert strip).",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "app-shell",
-      "type": "registry:ui",
-      "title": "App Shell",
-      "description": "The shared dashboard layout — a skip-linked sidebar + header + scrollable main region, composing Sidebar/SidebarTrigger into one reusable, hash-tracked shell.",
-      "categories": ["layout"],
-      "dependencies": [
-        "class-variance-authority@^0.7.1",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/dropdown-menu",
-        "@vegastack/page-layout",
-        "@vegastack/sidebar",
-        "@vegastack/skeleton",
-        "@vegastack/use-media-query"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/app-shell.tsx",
-          "type": "registry:ui",
-          "target": "@ui/app-shell.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "The root layout for a dashboard/console app — sidebar + header + main content, shared across every downstream VegaStack app; AppShellPage gives every page one container — the page gutter, rhythm and a prose/default/full width picked per route from one definePageWidths map.",
-        "whenNotToUse": "A marketing/docs page with no persistent nav rail, or an app that already owns an equivalent shell — compose Sidebar/PageHeader/Breadcrumb directly instead.",
-        "version": "0.97.0"
-      }
-    },
-    {
       "name": "shell-layout",
       "type": "registry:lib",
       "title": "Shell Layout",
@@ -315,7 +233,7 @@
       ],
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
-        "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (AppShellPage size=\"prose\"), or a list.",
+        "whenNotToUse": "A record page with a rail of property cards (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
         "version": "0.90.0"
       }
     },
@@ -344,7 +262,7 @@
       ],
       "meta": {
         "whenToUse": "A record's page (a meeting, a customer, a deal): the main column with a sticky rail of property and related-work cards on wide screens, and an ⓘ Details sheet on small ones.",
-        "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use AppShellPage alone.",
+        "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use ShellPage alone.",
         "version": "0.90.0"
       }
     },
@@ -421,7 +339,7 @@
       ],
       "meta": {
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
-        "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox), or a dated milestone list (Timeline).",
+        "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox).",
         "version": "0.90.0"
       }
     },
@@ -479,7 +397,7 @@
       ],
       "meta": {
         "whenToUse": "A page's version history beside a DiffView, in a sheet.",
-        "whenNotToUse": "An activity feed (Timeline) or a list of records (DataList).",
+        "whenNotToUse": "An activity feed (ActivityFeed) or a list of records (DataList).",
         "version": "0.90.0"
       }
     },
@@ -512,7 +430,7 @@
       ],
       "meta": {
         "whenToUse": "A document's full history in DialogContent size=\"fullscreen\": read a version or its changes beside the list, and restore or copy it.",
-        "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (Timeline), or comparing two arbitrary texts (DiffView).",
+        "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (ActivityFeed), or comparing two arbitrary texts (DiffView).",
         "version": "0.90.0"
       }
     },
@@ -645,30 +563,6 @@
       "meta": {
         "whenToUse": "Naming a model provider, coding tool or channel by its mark in a list, a picker or a settings row (Anthropic, OpenAI, Slack, MCP) — beside its name, or labelled when it stands alone.",
         "whenNotToUse": "A brand in its own colours or a wordmark (BrandIcon with a thesvg module); a person or workspace (Avatar); a functional icon (lucide).",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "rating-bars",
-      "type": "registry:ui",
-      "title": "Rating Bars",
-      "description": "A short qualitative rating — a label, a row of lit and unlit segments and the word that says what it means — read as one meter. Server-safe.",
-      "categories": ["display"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/rating-bars.tsx",
-          "type": "registry:ui",
-          "target": "@ui/rating-bars.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Rating something on a small fixed scale with a word that says what it means — a model's speed, cost and quality in a picker's details, stacked so the rows compare down the column.",
-        "whenNotToUse": "A live or continuous value (Progress, LevelMeter); a user's own star rating input; an exact number or a price (show the figure).",
         "version": "0.90.0"
       }
     },
@@ -1033,6 +927,11 @@
           "path": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
           "type": "registry:ui",
           "target": "@ui/breadcrumb-cascade.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/breadcrumb-drop-target.tsx",
+          "type": "registry:ui",
+          "target": "@ui/breadcrumb-drop-target.tsx"
         }
       ],
       "meta": {
@@ -1517,33 +1416,6 @@
       "meta": {
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "country-select",
-      "type": "registry:ui",
-      "title": "Country Select",
-      "description": "A searchable country picker returning the ISO 3166-1 alpha-2 code, with flag + name. A thin wrapper over SearchableSelect fed by the geo-data item.",
-      "categories": ["form"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/searchable-select",
-        "@vegastack/geo-data"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/country-select.tsx",
-          "type": "registry:ui",
-          "target": "@ui/country-select.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Collecting a country in an address/billing form — store the ISO code.",
-        "whenNotToUse": "A small fixed option set (Select) or multi-select.",
         "version": "0.90.0"
       }
     },
@@ -2545,7 +2417,7 @@
       "name": "file-kind",
       "type": "registry:lib",
       "title": "File Kind",
-      "description": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, 25 kinds from images and PDFs to CAD, photometric and design files) and FileTypeIcon/FileKindTile (the lucide icon, tint and label per kind) — shared by Attachment rows, FileViewer, UploadPanel, UploadDialog, AvatarPicker and FolderTree.",
+      "description": "The one answer to \"what is this file and how big is it\" — formatBytes (1024 base, one decimal under 10), fileKindOf (MIME first, extension fallback, 25 kinds from images and PDFs to CAD, photometric and design files) and FileTypeIcon/FileKindTile (the lucide icon, tint and label per kind) — shared by Attachment rows, FileViewer, UploadPanel, AvatarPicker and FolderTree.",
       "categories": ["data"],
       "dependencies": ["lucide-react@^1.47.0", "@vegastack/design@^0.18.0"],
       "registryDependencies": [],
@@ -2608,7 +2480,7 @@
       "name": "page-layout",
       "type": "registry:lib",
       "title": "Page Layout",
-      "description": "The page-width contract — the prose/default/full vocabulary AppShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
+      "description": "The page-width contract — the prose/form/default/full vocabulary ShellPage takes, and definePageWidths, one route → width map that a page, its loading skeleton and a test all read.",
       "categories": ["layout"],
       "dependencies": [],
       "registryDependencies": [],
@@ -2620,8 +2492,8 @@
         }
       ],
       "meta": {
-        "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's AppShellPage, its loading skeleton and a route test.",
-        "whenNotToUse": "A page outside AppShell (sign-in, a marketing page) — it owns its own layout.",
+        "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's ShellPage, its loading skeleton and a route test.",
+        "whenNotToUse": "A page outside the Shell (sign-in, a marketing page) — it owns its own layout.",
         "version": "0.97.0"
       }
     },
@@ -2693,39 +2565,6 @@
       }
     },
     {
-      "name": "record-peek",
-      "type": "registry:ui",
-      "title": "Record Peek",
-      "description": "A record opened beside its list — a non-modal, resizable side panel whose header walks the list (↑/↓, J/K, n of N), opens the full page (⌘↵) and closes with focus back on the row; full-screen below the tablet tier.",
-      "categories": ["overlay"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/direction",
-        "@vegastack/drawer",
-        "@vegastack/kbd",
-        "@vegastack/tooltip",
-        "@vegastack/use-platform",
-        "@vegastack/link-provider"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/record-peek.tsx",
-          "type": "registry:ui",
-          "target": "@ui/record-peek.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Opening any record from a list — a task, a table row, a meeting, a customer — beside the list, with keyboard walking and a way to the full page.",
-        "whenNotToUse": "A document or file that opens as its own page or viewer, or a form that needs the page to wait (Dialog, Sheet).",
-        "version": "0.90.0"
-      }
-    },
-    {
       "name": "dropdown-menu",
       "type": "registry:ui",
       "title": "Dropdown Menu",
@@ -2776,41 +2615,6 @@
       }
     },
     {
-      "name": "upload-dialog",
-      "type": "registry:ui",
-      "title": "Upload Dialog",
-      "description": "The \"Add files\" modal: a drop zone and the staged files (thumbnail or icon, name, size, remove), then an optional per-file details view the host renders, and Add. It stages files only; the host uploads them.",
-      "categories": ["forms"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/attachment",
-        "@vegastack/button",
-        "@vegastack/dialog",
-        "@vegastack/dropzone",
-        "@vegastack/empty",
-        "@vegastack/field",
-        "@vegastack/file-kind",
-        "@vegastack/image",
-        "@vegastack/use-file-drop"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/upload-dialog.tsx",
-          "type": "registry:ui",
-          "target": "@ui/upload-dialog.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Adding files to a record from a button — drop or browse, review the files, set each one's name or category, then Add and let the page's upload queue carry on.",
-        "whenNotToUse": "An always-visible drop surface (Dropzone), a single profile photo (AvatarPicker), or showing upload progress (Attachment tiles on the page).",
-        "version": "0.90.0"
-      }
-    },
-    {
       "name": "upload-panel",
       "type": "registry:ui",
       "title": "Upload Panel",
@@ -2841,7 +2645,7 @@
       ],
       "meta": {
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
-        "whenNotToUse": "Choosing files (UploadDialog, Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
+        "whenNotToUse": "Choosing files (Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
         "version": "0.90.0"
       }
     },
@@ -3136,27 +2940,6 @@
         "whenToUse": "Editing a filter or a rule as data: nested and/or groups, or flat condition rules (allowGroups={false}) with a sentence summary, host-injected fields and typed value editors.",
         "whenNotToUse": "A presentational chip row over host-owned filter state (filter-bar), or free-text search (Input in a toolbar).",
         "version": "0.90.0"
-      }
-    },
-    {
-      "name": "geo-data",
-      "type": "registry:lib",
-      "title": "Geo Data",
-      "description": "The ISO 3166-1 country list and the states/provinces map behind CountrySelect and RegionSelect, plus their two lookups. Pure data — installed once, shared by both selects.",
-      "categories": ["form"],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/lib/geo-data.ts",
-          "type": "registry:lib",
-          "target": "@lib/geo-data.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Any surface that needs the country or subdivision lists — the two selects, a shipping-rate table, a billing-address validator.",
-        "whenNotToUse": "A curated subset (pass your own array to the select) or data that has to come from a server.",
-        "version": "0.26.4"
       }
     },
     {
@@ -14051,7 +13834,7 @@
       ],
       "meta": {
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
-        "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (Timeline).",
+        "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
         "version": "0.90.0"
       }
     },
@@ -14409,7 +14192,7 @@
       ],
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
-        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
+        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread count (NotificationBell).",
         "version": "0.92.0"
       }
     },
@@ -14781,34 +14564,6 @@
       }
     },
     {
-      "name": "field-type-link-step",
-      "type": "registry:ui",
-      "title": "Field Type Link Step",
-      "description": "The \"Links to\" step of FieldTypePicker — grouped kinds of record, each with one line on what a link to it does, and a table choice for a kind that lives in a table (Rows).",
-      "categories": ["form"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/command",
-        "@vegastack/field-type-picker"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/field-type-link-step.tsx",
-          "type": "registry:ui",
-          "target": "@ui/field-type-link-step.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A link field's second step in FieldTypePicker's renderStep: which kind of record it points at, and for rows which table.",
-        "whenNotToUse": "Picking a record itself (RecordPicker), or a field type (FieldTypePicker).",
-        "version": "0.90.0"
-      }
-    },
-    {
       "name": "permission-menu",
       "type": "registry:ui",
       "title": "Permission Menu",
@@ -14894,36 +14649,6 @@
       "meta": {
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "access-chip",
-      "type": "registry:ui",
-      "title": "Access Chip",
-      "description": "How far one record reaches as one focusable chip: the space tile and name, a lock and Only invited, My space, or a space the viewer cannot see (someone's My space, a private space) — with a globe when published and the full sentence in a tooltip. Clicking opens Share.",
-      "categories": ["overlay"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/icon-glyph",
-        "@vegastack/space-picker",
-        "@vegastack/tooltip"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/access-chip.tsx",
-          "type": "registry:ui",
-          "target": "@ui/access-chip.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A record header that shows who can open the record and opens Share.",
-        "whenNotToUse": "Changing access inline (PermissionMenu) or listing people (AvatarStack).",
         "version": "0.90.0"
       }
     },
@@ -15060,7 +14785,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "The top of every record page and every RecordPeek body: task, meeting, row, page, customer, project.",
+        "whenToUse": "The top of every record page and every record tab in the shell panel: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
         "version": "0.90.0"
       }
@@ -15112,35 +14837,6 @@
       "meta": {
         "whenToUse": "A form value from 2–5 mutually-exclusive choices, all visible at once.",
         "whenNotToUse": "An immediate view or scope switch over the same content (ToggleGroup), many options (Select), or non-exclusive multi-select (Checkboxes).",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "region-select",
-      "type": "registry:ui",
-      "title": "Region Select",
-      "description": "A searchable picker of states/provinces for a country, with a free-text fallback for countries with no subdivisions. A thin wrapper over SearchableSelect fed by the geo-data item.",
-      "categories": ["form"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/geo-data",
-        "@vegastack/input-group",
-        "@vegastack/searchable-select"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/region-select.tsx",
-          "type": "registry:ui",
-          "target": "@ui/region-select.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A state/province as part of an address form, dependent on the selected country.",
-        "whenNotToUse": "A small country-independent option set (Select) or multi-select.",
         "version": "0.90.0"
       }
     },
@@ -15388,31 +15084,6 @@
       }
     },
     {
-      "name": "settings-layout",
-      "type": "registry:ui",
-      "title": "Settings Layout",
-      "description": "The two-pane Settings frame — a 220px sticky section nav with current-page marking and counts, and one 960px content column where forms cap at 720px left-aligned and lists fill; on a phone the nav is the first screen and pages push in with a back link.",
-      "categories": ["layout", "navigation"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": ["@vegastack/link-provider"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/settings-layout.tsx",
-          "type": "registry:ui",
-          "target": "@ui/settings-layout.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "An app's Settings area — many settings pages browsed sideways, each starting at the same x with one width rule.",
-        "whenNotToUse": "One settings form on its own page (AppShellPage size=\"prose\"), or a record's tabs (Tabs).",
-        "version": "0.90.0"
-      }
-    },
-    {
       "name": "sheet",
       "type": "registry:ui",
       "title": "Sheet",
@@ -15637,7 +15308,7 @@
       ],
       "meta": {
         "whenToUse": "Record highlights and dashboard stat tiles where a value needs a quiet label.",
-        "whenNotToUse": "Tabular data (Table/DataList) or live-updating counters (AnimatedNumber inside StatValue is fine).",
+        "whenNotToUse": "Tabular data (Table/DataList).",
         "version": "0.90.0"
       },
       "registryDependencies": [
@@ -15842,17 +15513,11 @@
         "@vegastack/design@^0.18.0",
         "@vegastack/design-tokens@^0.18.0"
       ],
-      "registryDependencies": ["@vegastack/use-overflow"],
       "files": [
         {
           "path": "packages/ui/registry/ui/table.tsx",
           "type": "registry:ui",
           "target": "@ui/table.tsx"
-        },
-        {
-          "path": "packages/ui/registry/ui/table-scroll-region.tsx",
-          "type": "registry:ui",
-          "target": "@ui/table-scroll-region.tsx"
         }
       ],
       "meta": {
@@ -15982,30 +15647,6 @@
       }
     },
     {
-      "name": "formula-input",
-      "type": "registry:ui",
-      "title": "Formula Input",
-      "description": "A calculated field's formula on one line — `{` inserts field chips, * and / read as × and ÷, the first row's result under it and the formula's error in its place.",
-      "categories": ["form"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": ["@vegastack/template-editor"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/formula-input.tsx",
-          "type": "registry:ui",
-          "target": "@ui/formula-input.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A calculated field's formula — field chips, numbers and + − × ÷ on one line, with the host's first-row result and error under it.",
-        "whenNotToUse": "Free text with placeholders (TemplateEditor), or a plain number (Input).",
-        "version": "0.90.0"
-      }
-    },
-    {
       "name": "text-edit",
       "type": "registry:ui",
       "title": "Text Edit",
@@ -16111,30 +15752,6 @@
       "meta": {
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "timeline",
-      "type": "registry:ui",
-      "title": "Timeline",
-      "description": "Rail geometry for chronological records — a continuous connector with a node per entry. Rows compose Item parts; separators render through Marker; entries carry content-visibility render skipping.",
-      "categories": ["data-display"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": ["@vegastack/marker"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/timeline.tsx",
-          "type": "registry:ui",
-          "target": "@ui/timeline.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Chronological records — activity feeds, audit trails, delivery logs — where entries need a visible temporal thread (rail + node) and rows compose Item/RelativeTime/Avatar.",
-        "whenNotToUse": "Live bottom-pinned conversation feeds (MessageScroller), bounded processes with gating (Stepper), or plain lists with no temporal thread (ItemGroup).",
         "version": "0.90.0"
       }
     },
@@ -16645,7 +16262,7 @@
       ],
       "meta": {
         "whenToUse": "Loading a chat thread; returning a scrolled-up reader to the latest message.",
-        "whenNotToUse": "Page-level loading (AppShellProgress, Spinner).",
+        "whenNotToUse": "Page-level loading (Spinner).",
         "version": "0.90.0"
       }
     },
@@ -17363,27 +16980,6 @@
       }
     },
     {
-      "name": "use-record-peek-row",
-      "type": "registry:hook",
-      "title": "useRecordPeekRow",
-      "description": "The open-row contract between a list and RecordPeek — data-peek-active on the open row, scrolled into view as the peek walks.",
-      "categories": ["hook"],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/use-record-peek-row.ts",
-          "type": "registry:hook",
-          "target": "@ui/use-record-peek-row.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A hand-rolled list whose rows open in RecordPeek.",
-        "whenNotToUse": "DataList, DataGrid and Board, which take activeRowId and mark the row themselves.",
-        "version": "0.27.0"
-      }
-    },
-    {
       "name": "use-grid-selection",
       "type": "registry:hook",
       "title": "useGridSelection",
@@ -17539,51 +17135,6 @@
       }
     },
     {
-      "name": "app-shell-01",
-      "type": "registry:block",
-      "title": "App Shell 01",
-      "description": "The application shell reference — AppShell's landmarks and skip link, a rail with search, inbox count, grouped links and a user menu, and a page of linked stat tiles.",
-      "categories": ["dashboard", "layout"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/app-shell",
-        "@vegastack/breadcrumb",
-        "@vegastack/button",
-        "@vegastack/card",
-        "@vegastack/collapsible",
-        "@vegastack/command",
-        "@vegastack/dropdown-menu",
-        "@vegastack/item",
-        "@vegastack/kbd",
-        "@vegastack/page-header",
-        "@vegastack/person-avatar",
-        "@vegastack/provider",
-        "@vegastack/sidebar",
-        "@vegastack/stat",
-        "@vegastack/use-platform"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx",
-          "type": "registry:component",
-          "target": "app/app-shell-01/components/app-sidebar.tsx"
-        },
-        {
-          "path": "packages/ui/registry/blocks/app-shell-01/page.tsx",
-          "type": "registry:page",
-          "target": "app/app-shell-01/page.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Starting an application whose every route sits inside one shell and sidebar — copy it once, then hoist AppShell into a layout.",
-        "whenNotToUse": "You only need the shell mechanics in many places — install the app-shell component and compose it yourself.",
-        "version": "0.90.0"
-      }
-    },
-    {
       "name": "shell-01",
       "type": "registry:block",
       "title": "Shell 01",
@@ -17628,14 +17179,14 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/board-card",
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/data-table-parts",
-        "@vegastack/page-header",
         "@vegastack/filter-row",
-        "@vegastack/list-toolbar"
+        "@vegastack/list-toolbar",
+        "@vegastack/page-header",
+        "@vegastack/shell"
       ],
       "files": [
         {
@@ -17666,7 +17217,6 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/comments",
         "@vegastack/dropdown-menu",
         "@vegastack/editable-cell",
@@ -17678,6 +17228,7 @@
         "@vegastack/record-layout",
         "@vegastack/relative-time",
         "@vegastack/separator",
+        "@vegastack/shell",
         "@vegastack/status-icon",
         "@vegastack/text-edit"
       ],
@@ -17710,7 +17261,6 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/avatar",
         "@vegastack/breadcrumb",
         "@vegastack/button",
@@ -17720,6 +17270,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/person-avatar",
         "@vegastack/sheet",
+        "@vegastack/shell",
         "@vegastack/table-of-contents",
         "@vegastack/text-edit",
         "@vegastack/use-media-query",
@@ -19556,17 +19107,17 @@
       "categories": ["settings", "forms"],
       "dependencies": ["@vegastack/design-tokens@^0.18.0"],
       "registryDependencies": [
+        "@vegastack/alert-dialog",
+        "@vegastack/auto-save-input",
         "@vegastack/button",
         "@vegastack/field",
         "@vegastack/input",
         "@vegastack/native-select",
-        "@vegastack/settings-row",
-        "@vegastack/switch",
-        "@vegastack/textarea",
-        "@vegastack/alert-dialog",
-        "@vegastack/app-shell",
         "@vegastack/page-header",
-        "@vegastack/auto-save-input"
+        "@vegastack/settings-row",
+        "@vegastack/shell",
+        "@vegastack/switch",
+        "@vegastack/textarea"
       ],
       "files": [
         {
@@ -19592,11 +19143,11 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/badge",
         "@vegastack/item",
         "@vegastack/page-header",
-        "@vegastack/settings-row"
+        "@vegastack/settings-row",
+        "@vegastack/shell"
       ],
       "files": [
         {
@@ -19727,12 +19278,12 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/audio-player",
         "@vegastack/checkbox",
         "@vegastack/data-table-parts",
         "@vegastack/field",
         "@vegastack/page-header",
+        "@vegastack/shell",
         "@vegastack/skeleton",
         "@vegastack/tabs",
         "@vegastack/transcript"
@@ -19756,7 +19307,7 @@
       ],
       "meta": {
         "whenToUse": "A detail page that reviews a record against a long companion pane, such as a meeting with its transcript — copy it once and wire your record.",
-        "whenNotToUse": "A plain detail page with one column — compose AppShellPage and PageHeader directly.",
+        "whenNotToUse": "A plain detail page with one column — compose ShellPage and PageHeader directly.",
         "version": "0.90.0"
       }
     },
@@ -19771,16 +19322,16 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/badge",
         "@vegastack/button",
         "@vegastack/data-list",
         "@vegastack/empty",
+        "@vegastack/filter-row",
+        "@vegastack/list-toolbar",
         "@vegastack/page-header",
         "@vegastack/relative-time",
-        "@vegastack/tabs",
-        "@vegastack/filter-row",
-        "@vegastack/list-toolbar"
+        "@vegastack/shell",
+        "@vegastack/tabs"
       ],
       "files": [
         {
@@ -19852,7 +19403,7 @@
       ],
       "meta": {
         "whenToUse": "A page for a team's files and pages — folders in Shared and Private, uploads, a list or grid of a folder's contents, a viewer and moves; copy it once and wire it to your storage API.",
-        "whenNotToUse": "A few files on a record (AttachmentGroup) or a single upload form (UploadDialog).",
+        "whenNotToUse": "A few files on a record (AttachmentGroup) or a single upload form (Dropzone).",
         "version": "0.90.0"
       }
     },
@@ -19867,14 +19418,12 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/date-time",
         "@vegastack/dropdown-menu",
         "@vegastack/inbox",
-        "@vegastack/notification-bell",
         "@vegastack/page-header",
         "@vegastack/sheet",
-        "@vegastack/sidebar",
+        "@vegastack/shell",
         "@vegastack/tooltip",
         "@vegastack/use-announcer"
       ],
@@ -19897,7 +19446,7 @@
       ],
       "meta": {
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
-        "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use Timeline.",
+        "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use ActivityFeed.",
         "version": "0.90.0"
       }
     },
@@ -19913,13 +19462,13 @@
         "@vegastack/design-tokens@^0.18.0"
       ],
       "registryDependencies": [
-        "@vegastack/app-shell",
         "@vegastack/button",
         "@vegastack/command",
         "@vegastack/command-search",
         "@vegastack/item",
         "@vegastack/kbd",
         "@vegastack/page-header",
+        "@vegastack/shell",
         "@vegastack/use-announcer",
         "@vegastack/use-platform"
       ],
@@ -20151,48 +19700,6 @@
       }
     },
     {
-      "name": "use-optimistic-action",
-      "type": "registry:hook",
-      "title": "useOptimisticAction",
-      "description": "Apply a reversible action at once, offer Undo in a toast, and commit only when the Undo window closes; a failed commit reverts and offers Retry.",
-      "categories": ["hook"],
-      "dependencies": [],
-      "registryDependencies": ["@vegastack/toast"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/use-optimistic-action.ts",
-          "type": "registry:hook",
-          "target": "@ui/use-optimistic-action.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Reversible actions that should feel instant — archive, delete to trash, move, mark done — with an Undo toast.",
-        "whenNotToUse": "Irreversible or slow-to-confirm actions (ask first with AlertDialog), or edits that save in place (EditableCell has its own optimistic layer).",
-        "version": "0.26.4"
-      }
-    },
-    {
-      "name": "level-meter",
-      "type": "registry:ui",
-      "title": "Level Meter",
-      "description": "A segmented live input-level meter for a recording — Web Audio RMS from a MediaStream, or a level you drive — with warning and clipping zones.",
-      "categories": ["media"],
-      "dependencies": ["@vegastack/design@^0.18.0"],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/level-meter.tsx",
-          "type": "registry:ui",
-          "target": "@ui/level-meter.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Show that a microphone is being heard while recording or before a call starts.",
-        "whenNotToUse": "Playback progress or a seek bar (AudioPlayer), or a static measurement (Progress or Meter).",
-        "version": "0.90.0"
-      }
-    },
-    {
       "name": "request-card",
       "type": "registry:ui",
       "title": "Request Card",
@@ -20252,7 +19759,7 @@
       ],
       "meta": {
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
-        "whenNotToUse": "An agent asking before it acts (RequestCard), a transient result after the viewer's own action (Toast), or a page-wide notice (AnnouncementBanner).",
+        "whenNotToUse": "An agent asking before it acts (RequestCard), a transient result after the viewer's own action (Toast), or a page-wide notice (Alert).",
         "version": "0.90.0"
       }
     },
@@ -20489,33 +19996,6 @@
       "meta": {
         "whenToUse": "A Recent row above a list (the Library home) or Home's Jump back in: up to six records to return to, one tap away, without pushing the main list down.",
         "whenNotToUse": "The main list of records (DataList), a grid of every item (DataList view=\"grid\"), or a record's own links (RecordChip).",
-        "version": "0.90.0"
-      }
-    },
-    {
-      "name": "sidebar-menu-flyout",
-      "type": "registry:ui",
-      "title": "Sidebar Menu Flyout",
-      "description": "A sidebar row whose entries open in a menu beside it on hover or press — nested lists such as Spaces in the collapsed icon rail, with the row's count kept in sight.",
-      "categories": ["navigation"],
-      "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/dropdown-menu",
-        "@vegastack/sidebar"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/sidebar-menu-flyout.tsx",
-          "type": "registry:ui",
-          "target": "@ui/sidebar-menu-flyout.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A nested list in the collapsed icon rail (Spaces and + New space), where an inline group has no room; railOnly keeps the expanded sidebar's own group.",
-        "whenNotToUse": "A row that goes somewhere on its own (SidebarMenuButton), a submenu inside the expanded sidebar (SidebarMenuSub), or the profile or workspace menu (DropdownMenu with a SidebarMenuButton trigger).",
         "version": "0.90.0"
       }
     },

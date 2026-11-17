@@ -47,6 +47,10 @@ export default function RootLayout({
 | **Tooltip coordination** (`TooltipProvider`, the registry item) | Tooltips lose shared-delay: hover across a toolbar and each tooltip re-waits the full open delay                 |
 | **Text direction** (Base UI `DirectionProvider`)                | RTL layouts break for direction-aware components                                                                 |
 
+## Anatomy
+
+<Anatomy name="provider" />
+
 ## Examples
 
 ### Theme choice
@@ -113,6 +117,23 @@ You can also hand it a customized element instead:
 </VegaStackProvider>
 ```
 
+### Toasts and tooltips per layout
+
+The root provider can leave toasts and tooltip delays to the layouts that use them:
+`toasts={false}` and `tooltips={false}` keep them out of the root, and `VegaStackToasts` and
+`VegaStackTooltips` mount them where they belong. A route group that never toasts (a docs site, a
+marketing page) then mounts no toast viewport. Still exactly one of each per tree.
+
+```tsx
+// app/layout.tsx
+<VegaStackProvider toasts={false} tooltips={false}>{children}</VegaStackProvider>
+
+// app/(app)/layout.tsx
+<VegaStackTooltips>
+  <VegaStackToasts toaster={<Toaster position="bottom-center" />}>{children}</VegaStackToasts>
+</VegaStackTooltips>
+```
+
 All remaining props pass through to next-themes — e.g. force a default:
 
 ```tsx
@@ -124,6 +145,11 @@ All remaining props pass through to next-themes — e.g. force a default:
 <ApiTable
   path="../../packages/ui/registry/ui/provider.tsx"
   name="VegaStackProviderProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/provider.tsx"
+  name="VegaStackToastsProps"
 />
 
 ## Accessibility

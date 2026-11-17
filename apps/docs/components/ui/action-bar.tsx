@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.90.0 sha256-QVB4UJbuyXw2h8s3xmIejbmOyJ5Wbrq9BoD9ggPIdF4=
+// @vegastack action-bar@0.90.0 sha256-eFXDSFs8NMYAffJBGzPRjD1cENY2BFu++GeLXMVDevg=
 
 "use client";
 
@@ -36,7 +36,7 @@ unitless CSS custom property (`--action-bar-x`, consumed as `calc(var(--action-b
 1px)`), so inline style stays custom-properties-only.
 
 Docking: the bar sits 16px above the bottom edge, plus `--dock-inset-bottom` when something else
-docks there — `GlobalAudioPlayer` sets it on the `AppShell` root while it is open — so the bar
+docks there — `GlobalAudioPlayer` sets it on the `Shell` root while it is open — so the bar
 floats over the player instead of on it.
 
 Stacking: `z-10` — the bar floats over page content and is correctly covered by any dialog

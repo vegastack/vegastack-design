@@ -37,13 +37,6 @@ import { DataListPager } from "../registry/ui/data-list-pager";
 import { ButtonGroup } from "../registry/ui/button-group";
 import { Input } from "../registry/ui/input";
 import {
-  AppShell,
-  AppShellContent,
-  AppShellHeader,
-  AppShellPage,
-  AppShellSection,
-} from "../registry/ui/app-shell";
-import {
   RecordLayout,
   RecordLayoutMain,
   RecordLayoutRail,
@@ -647,7 +640,7 @@ function tintCarriers(control: Element): Element[] {
   if (shapeLayer) carriers.push(shapeLayer);
   // An OTP field's tint lands on the ACTIVE SLOT, which is a SIBLING of the hidden input rather
   // than an ancestor of it: one input drives every slot, and the slot the caret is in carries
-  // `data-active` and with it `border-ring/50`. Walking ancestors can never see that, so the
+  // `data-active` and with it `border-input-focus`. Walking ancestors can never see that, so the
   // slots of the control's own container join the carrier set.
   if (control.matches('[data-slot="input-otp"]')) {
     const container =
@@ -2910,72 +2903,13 @@ for (const sort of [null, { key: "amount", direction: "desc" as const }])
   }
 
 /**
- * The AppShell previews frame a DESKTOP rail, which upstream pins with `position: fixed` and
- * `h-svh`. A docs frame is not the viewport: without `contain: paint` the rail resolves against the
- * viewport — the floating variant's bordered rail, its whole point, sat at the page edge while the
- * frame showed an empty 256px gap (review round 2) — and with it but at `h-svh` its bottom margin
- * and edge are cut off. Mounted wide, offset from the viewport origin, so both show.
- */
-for (const name of [
-  "appShellDemo",
-  "appShellInset",
-  "appShellFloating",
-  "appShellMobile",
-] as const) {
-  test(`${name}: the desktop rail is drawn inside its preview frame`, async () => {
-    await page.viewport(1280, 900);
-    try {
-      const fixture = (Preview as Record<string, () => React.ReactNode>)[name];
-      expect(
-        fixture,
-        `${name} is not exported by the preview barrel`,
-      ).toBeTypeOf("function");
-      const Fixture = () => <>{fixture!()}</>;
-      const screen = await render(
-        <div style={{ margin: "120px 0 0 200px", width: "900px" }}>
-          <Fixture />
-        </div>,
-      );
-      await settle();
-      const rail = screen.container.querySelector<HTMLElement>(
-        '[data-slot="sidebar-inner"]',
-      );
-      expect(rail, `${name} mounted no desktop rail`).not.toBeNull();
-      const frame = screen.container.firstElementChild!
-        .firstElementChild as HTMLElement;
-      const box = frame.getBoundingClientRect();
-      const edge = rail!.getBoundingClientRect();
-      expect(
-        {
-          left: edge.left >= box.left - 0.5,
-          right: edge.right <= box.right + 0.5,
-          top: edge.top >= box.top - 0.5,
-          bottom: edge.bottom <= box.bottom + 0.5,
-        },
-        `rail ${edge.left},${edge.top}..${edge.right},${edge.bottom} vs frame ` +
-          `${box.left},${box.top}..${box.right},${box.bottom}`,
-      ).toEqual({ left: true, right: true, top: true, bottom: true });
-      // And it is what a reader sees there: nothing paints over its middle.
-      const hit = document.elementFromPoint(
-        edge.left + edge.width / 2,
-        edge.top + edge.height / 2,
-      );
-      expect(rail!.contains(hit), `${name}: the rail is covered`).toBe(true);
-    } finally {
-      await page.viewport(320, 812);
-    }
-  });
-}
-
-/**
  * A docs preview must hydrate onto its own server HTML. Upstream `SidebarMenuSkeleton` picks its
  * bar width with `Math.random()` in a state initialiser, so the server's `--skeleton-width` and the
  * client's never matched and React logged a hydration mismatch on every load of the page (review
  * round 2). LAY-16 replaced the random width with an index cycle, so the sidebar preview now renders
- * its skeleton rows on the server like `AppShellSkeleton` (ours) always has.
+ * its skeleton rows on the server.
  */
 const HYDRATION_FIXTURES = {
-  appShellSkeletonDemo: "app-shell-skeleton-nav-row",
   sidebarMenuSkeleton: "sidebar-menu-skeleton",
 } as const;
 for (const [name, rowSlot] of Object.entries(HYDRATION_FIXTURES)) {
@@ -4420,148 +4354,6 @@ test("checkbox-mixed: the minus is painted centred in the box, and a disabled mi
     .element();
   expect(getComputedStyle(enabled).opacity).toBe("1");
   expect(getComputedStyle(disabled).opacity).toBe("0.5");
-});
-
-/**
- * app-shell-page-320 (DS-19): the page container caps its measure with real compiled CSS, keeps
- * its gutters, and never scrolls the page sideways at 320px — even around a long unbroken child.
- */
-test("app-shell-page-320: the page container caps its measure; a long wrapping child never scrolls the page sideways", async () => {
-  // This file runs at 320×812; widen only to read the two measures, then come back.
-  await page.viewport(1280, 900);
-  try {
-    const wide = await render(
-      <div style={{ width: "1400px" }}>
-        <AppShellPage size="prose">x</AppShellPage>
-        <AppShellPage>y</AppShellPage>
-      </div>,
-    );
-    const [prose, standard] = [
-      ...wide.container.querySelectorAll<HTMLElement>(
-        '[data-slot="app-shell-page"]',
-      ),
-    ] as [HTMLElement, HTMLElement];
-    // prose is 720px of content inside the 32px gutter; default caps the whole page at 1280px.
-    expect(prose.getBoundingClientRect().width).toBe(720 + 2 * 32);
-    expect(getComputedStyle(standard).maxWidth).toBe("1280px");
-    expect(getComputedStyle(standard).paddingInlineStart).toBe("32px");
-    expect(getComputedStyle(standard).paddingTop).toBe("32px");
-    await wide.unmount();
-  } finally {
-    await page.viewport(320, 812);
-  }
-
-  const narrowScreen = await render(
-    <AppShellPage size="prose">
-      <p className="wrap-break-word">
-        {"Supercalifragilisticexpialidocious".repeat(6)}
-      </p>
-    </AppShellPage>,
-  );
-  const container = narrowScreen.container.querySelector<HTMLElement>(
-    '[data-slot="app-shell-page"]',
-  )!;
-  expect(getComputedStyle(container).paddingInlineStart).toBe("16px");
-  expect(getComputedStyle(container).paddingTop).toBe("16px");
-  expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(320);
-});
-
-test("app-shell-section: a centred prose section shares the page's centre; start keeps its start edge", async () => {
-  await page.viewport(1280, 900);
-  try {
-    const screen = await render(
-      <div style={{ width: "1400px" }}>
-        <AppShellPage>
-          <AppShellSection measure="prose" align="center">
-            centre
-          </AppShellSection>
-          <AppShellSection measure="prose">start</AppShellSection>
-          <AppShellSection measure="full" align="center">
-            full
-          </AppShellSection>
-        </AppShellPage>
-      </div>,
-    );
-    const pageEl = screen.container.querySelector<HTMLElement>(
-      '[data-slot="app-shell-page"]',
-    )!;
-    const [centred, start, full] = [
-      ...screen.container.querySelectorAll<HTMLElement>(
-        '[data-slot="app-shell-section"]',
-      ),
-    ] as [HTMLElement, HTMLElement, HTMLElement];
-    const box = pageEl.getBoundingClientRect();
-    const gutter = Number.parseFloat(
-      getComputedStyle(pageEl).paddingInlineStart,
-    );
-    const mid = (r: DOMRect) => r.left + r.width / 2;
-    expect(centred.getBoundingClientRect().width).toBe(720);
-    expect(
-      Math.abs(mid(centred.getBoundingClientRect()) - mid(box)),
-    ).toBeLessThan(1);
-    expect(start.getBoundingClientRect().left).toBe(box.left + gutter);
-    // `align` is ignored at `full`: the section takes the page's whole content width.
-    expect(full.getBoundingClientRect().width).toBe(box.width - 2 * gutter);
-    await screen.unmount();
-  } finally {
-    await page.viewport(320, 812);
-  }
-});
-
-/**
- * page-gutter: the header, the page and the record rail's sticky offset read ONE gutter, so a
- * full page's content starts under the header's first item and the rail never moves when it sticks.
- */
-test("page-gutter: header, page and rail share the gutter at 320, 640 and 1280px", async () => {
-  try {
-    for (const [width, gutter] of [
-      [320, 16],
-      [640, 24],
-      [1280, 32],
-    ] as const) {
-      await page.viewport(width, 900);
-      const screen = await render(
-        <AppShell>
-          <div className="flex h-svh min-w-0 flex-1 flex-col">
-            <AppShellHeader>Title</AppShellHeader>
-            <AppShellContent>
-              <AppShellPage size="full">
-                <RecordLayout>
-                  <RecordLayoutMain>Main</RecordLayoutMain>
-                  <RecordLayoutRail aria-label="Details">Rail</RecordLayoutRail>
-                </RecordLayout>
-              </AppShellPage>
-            </AppShellContent>
-          </div>
-        </AppShell>,
-      );
-      const q = (slot: string) =>
-        screen.container.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!;
-      const px = `${gutter}px`;
-      expect(getComputedStyle(q("app-shell-header")).paddingInlineStart).toBe(
-        px,
-      );
-      expect(getComputedStyle(q("app-shell-page")).paddingInlineStart).toBe(px);
-      expect(getComputedStyle(q("app-shell-page")).paddingTop).toBe(px);
-      expect(getComputedStyle(q("record-layout-rail")).top).toBe(px);
-      await screen.unmount();
-    }
-  } finally {
-    await page.viewport(320, 812);
-  }
-});
-
-test("app-shell-page-320: size full fills a bounded height", async () => {
-  const screen = await render(
-    <div style={{ height: "500px", display: "flex", flexDirection: "column" }}>
-      <AppShellPage size="full">content</AppShellPage>
-    </div>,
-  );
-  const full = screen.container.querySelector<HTMLElement>(
-    '[data-slot="app-shell-page"]',
-  )!;
-  expect(full.getBoundingClientRect().height).toBe(500);
-  expect(getComputedStyle(full).maxWidth).toBe("none");
 });
 
 /**

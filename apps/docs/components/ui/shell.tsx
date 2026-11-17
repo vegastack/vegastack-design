@@ -1,4 +1,4 @@
-// @vegastack shell@0.98.1 sha256-C4U8Br4wbqEIFntV2plZjXzKvLTFHvuGO5JG6yGUPRA=
+// @vegastack shell@0.98.1 sha256-e5b3TrkluHu6DMrecfcuqF6sUvYnEIRhbAvzd/ZEl14=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -212,12 +212,12 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   border-inline-start: 1px solid var(--border);
   translate: 100% 0;
   visibility: hidden;
-  transition: translate var(--duration-state-exit) var(--motion-ease-exit), visibility 0s linear var(--duration-state-exit);
+  transition: translate var(--duration-quick-exit) var(--motion-ease-exit), visibility 0s linear var(--duration-quick-exit);
 }
 ${PANEL_OPEN} [data-slot="shell-panel-slot"] {
   translate: none;
   visibility: visible;
-  transition: translate var(--duration-layout) var(--motion-ease-standard), visibility 0s;
+  transition: translate var(--duration-panel) var(--motion-ease-enter), visibility 0s;
 }
 [data-slot="shell-panel-shadow"] {
   position: absolute;
@@ -369,7 +369,7 @@ ${pageMinRules(SHELL_PAGE_MIN.chat)}
 
 /* The page makes room for a panel that opens beside it (the controller marks the moment). */
 @keyframes vs-shell-make-room { from { margin-inline-end: calc(-1 * var(--shell-room-cut)); } }
-${S}[data-panel-anim="open"] [data-slot="shell-main-area"] { animation: vs-shell-make-room var(--duration-layout) var(--motion-ease-standard); }
+${S}[data-panel-anim="open"] [data-slot="shell-main-area"] { animation: vs-shell-make-room var(--duration-panel) var(--motion-ease-enter); }
 [dir="rtl"] [data-slot="shell-panel-slot"] { translate: -100% 0; }
 [dir="rtl"] ${PANEL_OPEN} [data-slot="shell-panel-slot"] { translate: none; }
 

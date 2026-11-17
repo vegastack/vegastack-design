@@ -198,7 +198,7 @@ for (const theme of ["light", "dark"]) {
 
     // ...and it keeps text entry's focus cue: the border darkens while the editor holds focus.
     const rest = resolved("border border-input", "borderTopColor");
-    const focused = resolved("border border-ring/50", "borderTopColor");
+    const focused = resolved("border border-input-focus", "borderTopColor");
     const editor = await vi.waitFor(() => {
       const node = field.querySelector<HTMLElement>("[contenteditable=true]");
       expect(node).not.toBeNull();

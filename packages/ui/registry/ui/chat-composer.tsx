@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.90.0 sha256-chACFbilDpGH4PFgajmj8qQEwK2HMeto7mFdq/pyvjQ=
+// @vegastack chat-composer@0.90.0 sha256-5HWVwCqtK7SS61W23T3eRjhYcsF/6+xR2bTQKRpU/4M=
 
 "use client";
 
@@ -490,7 +490,7 @@ export function ChatComposer({
           className={cn(
             // One radius; the hairline darkens a little while the text has focus (FOC-14's
             // text-entry cue). Nothing on it ever turns red: a failed send says so under it.
-            "relative flex min-w-0 flex-col overflow-hidden rounded-overlay border border-chat-hairline bg-background transition-[border-color] duration-quick ease-standard has-[[contenteditable=true]:focus]:border-ring/50",
+            "relative flex min-w-0 flex-col overflow-hidden rounded-overlay border border-chat-hairline bg-background transition-[border-color] duration-quick ease-standard has-[[contenteditable=true]:focus]:border-input-focus",
             disabled && "bg-muted/40",
           )}
           onMouseDown={(event) => {

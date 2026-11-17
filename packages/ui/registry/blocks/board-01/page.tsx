@@ -1,15 +1,15 @@
-// @vegastack board-01@0.90.0 sha256-ylk2jsLysA4JDG62V36XvevOYIMdlDYjh2MhghSQlnA=
+// @vegastack board-01@0.90.0 sha256-6JLPmWe+RedJTIRiA+Ji0gXhYXpzeu76XFl9+XcUh3s=
 
 import { Plus } from "lucide-react";
 
 import { BoardView } from "./components/board-view";
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/ui/page-header";
 
 /**
  * `board-01` — the board page: a `PageHeader` h1 with its create action over `BoardView`, the
- * filtered board. It fills the content region (`AppShellPage size="full"`), because a board uses
+ * filtered board. It fills the content region (`ShellPage size="full"`), because a board uses
  * the whole width and scrolls its lanes sideways inside it.
  *
  * Server-safe: the interactive half is the client leaf it imports.
@@ -20,7 +20,7 @@ import { PageHeader } from "@/components/ui/page-header";
  */
 export default function Page() {
   return (
-    <AppShellPage size="full">
+    <ShellPage size="full">
       <PageHeader
         title="Tasks"
         description="Drag a card, or press Space on a focused card to move it with the keyboard."
@@ -32,6 +32,6 @@ export default function Page() {
         }
       />
       <BoardView />
-    </AppShellPage>
+    </ShellPage>
   );
 }

@@ -1,7 +1,7 @@
-// @vegastack page-editor-01@0.90.0 sha256-9JLRaBOEraV8dsN+N70RRme9MvndGVpDM1Vq6l1YBm0=
+// @vegastack page-editor-01@0.90.0 sha256-usu0P58ZOPsvv/E7Ca9Vt92iU0n2LT/JdH/ywY8LMPI=
 
 import { PageEditor } from "./components/page-editor";
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 
 /**
  * `page-editor-01` — a document page (Notion style) with comments beside the text: a header with
@@ -17,8 +17,8 @@ import { AppShellPage } from "@/components/ui/app-shell";
  */
 export default function Page() {
   return (
-    <AppShellPage size="full">
+    <ShellPage size="full">
       <PageEditor />
-    </AppShellPage>
+    </ShellPage>
   );
 }

@@ -65,21 +65,21 @@ layout stays on-grid by construction. Prefer `gap` on flex/grid containers over 
 One recipe spaces every product page, on the stock scale above. These are defaults, not tokens:
 reach for them first, and depart only where a surface has a reason.
 
-| Between                                 | Spacing                                                                    |
-| --------------------------------------- | -------------------------------------------------------------------------- |
-| The page edge and its content (gutters) | `--page-gutter` — 16px, 24px from `sm`, 32px from `lg` (`AppShellPage`)    |
-| `PageHeader` and the first content      | `gap-6`                                                                    |
-| One section and the next                | `gap-8`                                                                    |
-| A section heading and its content       | `gap-3`                                                                    |
-| A card's edge and its content           | `--card-spacing`, set by `Card`'s `size` (`default` is 16px, `sm` is 12px) |
-| One field and the next                  | `FieldGroup`'s own gap — do not override it                                |
-| A field's label, control and message    | `Field`'s own gap — do not override it                                     |
-| A list's toolbar and the table under it | `gap-3`                                                                    |
-| Controls in one row                     | one height tier for the whole row (`h-6`, `h-7`, `h-8` or `h-9`)           |
+| Between                                 | Spacing                                                                        |
+| --------------------------------------- | ------------------------------------------------------------------------------ |
+| The page edge and its content (gutters) | `--page-gutter` — 16px, 24px and 32px as the content area widens (`ShellPage`) |
+| `PageHeader` and the first content      | `gap-6`                                                                        |
+| One section and the next                | `gap-8`                                                                        |
+| A section heading and its content       | `gap-3`                                                                        |
+| A card's edge and its content           | `--card-spacing`, set by `Card`'s `size` (`default` is 16px, `sm` is 12px)     |
+| One field and the next                  | `FieldGroup`'s own gap — do not override it                                    |
+| A field's label, control and message    | `Field`'s own gap — do not override it                                         |
+| A list's toolbar and the table under it | `gap-3`                                                                        |
+| Controls in one row                     | one height tier for the whole row (`h-6`, `h-7`, `h-8` or `h-9`)               |
 
 ```tsx
-<AppShellContent>
-  <AppShellPage>
+<ShellMain>
+  <ShellPage>
     <PageHeader title="Tasks" actions={<Button>New task</Button>} />
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
@@ -90,12 +90,12 @@ reach for them first, and depart only where a surface has a reason.
         <h2 className="font-heading text-base font-medium">Completed</h2>…
       </section>
     </div>
-  </AppShellPage>
-</AppShellContent>
+  </ShellPage>
+</ShellMain>
 ```
 
-`AppShellContent` is the scrolling region and carries no padding of its own, so the gutter is
-`AppShellPage`'s — see [Page layout](/docs/foundations/page-layout) for the widths and the gutter
+`ShellMain` is the scrolling region and carries no padding of its own, so the gutter is
+`ShellPage`'s — see [Page layout](/docs/foundations/page-layout) for the widths and the gutter
 scale. A card that holds a section wears its padding through `--card-spacing`, never a local
 `p-*`, so a `size="sm"` card tightens every part at once. `FieldGroup` and `Field` already space
 fields and their parts; an override on one form is the drift this recipe exists to prevent.

@@ -1,4 +1,4 @@
-// @vegastack inbox@0.92.0 sha256-OPJ8zSfrmTja2FK/DvrO/70ghIUA+995qtNn8PMK2B4=
+// @vegastack inbox@0.92.0 sha256-GpLABib4dScDA1N8M2SNe96yjCE1Qnu6NKnSCGH9zZ8=
 
 "use client";
 
@@ -886,6 +886,70 @@ const defaultCountLabel = (n: number) =>
 /** At most this many stacked avatars; the rest read "+n". */
 const ACTORS_SHOWN = 3;
 
+/**
+ * The text a node reads as, through elements' children. `strict` returns `null` for anything it
+ * cannot read in full (a component, which may render more than its children — a time, a link), so
+ * a meta line is only ever compared when all of it is plain text.
+ */
+function textOf(node: React.ReactNode, strict = false): string | null {
+  if (node == null || typeof node === "boolean") return "";
+  if (typeof node === "string" || typeof node === "number") return String(node);
+  if (Array.isArray(node)) {
+    let text = "";
+    for (const child of node) {
+      const part = textOf(child as React.ReactNode, strict);
+      if (part === null) return null;
+      text += part;
+    }
+    return text;
+  }
+  if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
+    if (
+      strict &&
+      (node.type === React.Fragment
+        ? false
+        : typeof node.type !== "string" ||
+          !PLAIN_TEXT_TAGS.has(node.type) ||
+          "dangerouslySetInnerHTML" in (node.props as object))
+    )
+      return null;
+    return textOf(node.props.children, strict);
+  }
+  return strict ? null : "";
+}
+
+// Inline formatting a meta line can hold and still be read in full as text.
+const PLAIN_TEXT_TAGS = new Set([
+  "span",
+  "strong",
+  "em",
+  "b",
+  "i",
+  "code",
+  "mark",
+  "small",
+]);
+
+/** The words of a text, folded: case, quotes and punctuation do not count; marks stay in words. */
+const wordsOf = (text: string) =>
+  text
+    .normalize("NFC")
+    .toLowerCase()
+    .split(/[^\p{L}\p{M}\p{N}]+/u)
+    .filter(Boolean);
+
+/** Whether the meta line only repeats the title: all plain text, its words a run of the title's. */
+function metaRepeatsTitle(title: React.ReactNode, meta: React.ReactNode) {
+  const metaText = textOf(meta, true);
+  if (metaText === null) return false;
+  const said = wordsOf(metaText);
+  const heading = wordsOf(textOf(title) ?? "");
+  if (said.length === 0 || said.length > heading.length) return false;
+  for (let start = 0; start + said.length <= heading.length; start++)
+    if (said.every((word, i) => heading[start + i] === word)) return true;
+  return false;
+}
+
 /** The click was on one of the row's own controls (a chip, the toggle, the ⋯ menu, a link). */
 const onControl = (event: React.SyntheticEvent) =>
   !!(event.target as HTMLElement).closest(
@@ -945,6 +1009,9 @@ export function InboxItem({
   const showCount = count > 1;
   const expandable = showCount && !!events?.length;
   const answered = status === "answered";
+  // A meta line that only repeats the title is dropped, so the row reads as one line.
+  const showMeta =
+    meta != null && meta !== false && !metaRepeatsTitle(title, meta);
 
   const open = () => {
     if (!tracked) return;
@@ -1027,6 +1094,8 @@ export function InboxItem({
   const moreActors = (actors?.length ?? 0) - shownActors.length;
   const countText = showCount ? countLabel(count) : null;
   const hasByline = shownActors.length > 0 || showCount;
+  // One line of text: the row is 52px and its parts centre on the avatar.
+  const singleLine = !showMeta && !hasByline;
 
   return (
     <li
@@ -1035,6 +1104,7 @@ export function InboxItem({
       data-unread={unread || undefined}
       data-active={active || undefined}
       data-status={status}
+      data-single-line={singleLine || undefined}
       // A row with no link and nothing to open is focused itself while J / K walk the list.
       tabIndex={tracked && !href && !inbox.open ? -1 : undefined}
       aria-current={active && !href && !inbox.open ? "true" : undefined}
@@ -1044,6 +1114,8 @@ export function InboxItem({
         // Three columns — the avatar, the text, the time and controls — and, under them, the
         // expanded events across the whole row, threaded from the avatar.
         "group/inbox-item relative grid scroll-mt-10 grid-cols-[auto_minmax(0,1fr)_auto] gap-x-3 rounded-item px-3 py-3 transition-colors state-layer",
+        // One line of text: 52px (12px + the 28px avatar + 12px), the text and time centred on it.
+        "data-single-line:items-center",
         // The active row (the one the peek shows): the selected step and a 2px start bar.
         "data-active:bg-state-selected data-active:before:absolute data-active:before:inset-y-2 data-active:before:start-0 data-active:before:w-0.5 data-active:before:rounded-full data-active:before:bg-primary",
         tracked && !href && inbox.open && "cursor-pointer",
@@ -1068,7 +1140,10 @@ export function InboxItem({
       }}
       {...props}
     >
-      <div className="relative shrink-0 pt-0.5" aria-hidden>
+      <div
+        className={cn("relative shrink-0", !singleLine && "pt-0.5")}
+        aria-hidden
+      >
         {avatar ? (
           <PersonAvatar
             person={{ name: avatar.name, image: avatar.src, hue: avatar.hue }}
@@ -1115,7 +1190,7 @@ export function InboxItem({
         >
           {titleContent}
         </p>
-        {meta ? (
+        {showMeta ? (
           <p className="truncate text-xs leading-5 text-muted-foreground">
             {meta}
           </p>
@@ -1186,11 +1261,19 @@ export function InboxItem({
           </div>
         ) : null}
       </div>
-      <div className="flex min-w-16 shrink-0 flex-col items-end gap-1">
-        {time !== undefined || unread ? (
+      <div className="relative flex min-w-16 shrink-0 flex-col items-end gap-1">
+        {time !== undefined || unread || hasControls ? (
+          // Held at one line even with no time, so the controls that overlay it on hover have a place.
           // Unread is a 6px dot just before the time (the title's ink says it too), so the row
           // keeps its normal start inset.
-          <div className="flex h-5 items-center gap-1.5">
+          <div
+            className={cn(
+              "flex h-5 items-center gap-1.5",
+              // With a pointer the controls take the time's place on hover, so they add no height.
+              hasControls &&
+                "pointer-fine:group-focus-within/inbox-item:invisible pointer-fine:group-hover/inbox-item:invisible pointer-fine:group-has-data-popup-open/inbox-item:invisible",
+            )}
+          >
             {unread ? (
               <span
                 data-slot="inbox-item-unread"
@@ -1208,7 +1291,7 @@ export function InboxItem({
           </div>
         ) : null}
         {hasControls ? (
-          <div className="relative z-10 -me-1 flex items-center gap-0.5 pointer-fine:opacity-0 pointer-fine:group-focus-within/inbox-item:opacity-100 pointer-fine:group-hover/inbox-item:opacity-100 pointer-fine:group-has-data-popup-open/inbox-item:opacity-100">
+          <div className="relative z-10 -me-1 flex items-center gap-0.5 pointer-fine:absolute pointer-fine:end-0 pointer-fine:-top-1 pointer-fine:opacity-0 pointer-fine:group-focus-within/inbox-item:opacity-100 pointer-fine:group-hover/inbox-item:opacity-100 pointer-fine:group-has-data-popup-open/inbox-item:opacity-100">
             {onToggleRead ? (
               <Tooltip>
                 <TooltipTrigger

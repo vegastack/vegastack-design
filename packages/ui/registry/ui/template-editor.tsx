@@ -1,4 +1,4 @@
-// @vegastack template-editor@0.90.0 sha256-8FNiTQktnEYnFK3UcEx9voCpcWqt+r6blgvVqoRVuU0=
+// @vegastack template-editor@0.90.0 sha256-QCpzjNdLRX5MY4BuZ9MERyeSo6kfsaHYVc5iDfrQ7bU=
 
 "use client";
 
@@ -852,7 +852,7 @@ function TemplateEditor({
         editor.commands.focus("end");
       }}
       className={cn(
-        "relative w-full min-w-0 cursor-text rounded-card border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-ring/50 data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 data-invalid:border-destructive data-single-line:min-h-8 data-single-line:rounded-control data-single-line:py-1 md:text-sm dark:bg-input/30 dark:data-disabled:bg-input/80 dark:data-invalid:border-destructive/50",
+        "relative w-full min-w-0 cursor-text rounded-card border border-input bg-transparent px-2.5 py-2 text-base transition-[color,background-color,border-color] duration-150 ease-out has-[[contenteditable=true]:focus]:not-data-invalid:border-input-focus data-disabled:cursor-not-allowed data-disabled:bg-input/50 data-disabled:opacity-50 data-invalid:border-destructive data-single-line:min-h-8 data-single-line:rounded-control data-single-line:py-1 md:text-sm dark:bg-input/30 dark:data-disabled:bg-input/80 dark:data-invalid:border-destructive/50",
         className,
       )}
     >

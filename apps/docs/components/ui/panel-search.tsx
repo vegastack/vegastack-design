@@ -1,4 +1,4 @@
-// @vegastack panel-search@0.90.0 sha256-dsRwxwxBvokNSxM2MrRTwqftjDCb0cAwmuAv5PJWxTU=
+// @vegastack panel-search@0.90.0 sha256-f9OYHNF/ASWi2KCGQNPL7q/GILInZBU+36rmUDr1ZxY=
 
 "use client";
 
@@ -24,7 +24,7 @@ import { cn } from "@vegastack/design";
  * across popups is not that: it is the exception itself, and an exception with two
  * implementations is an exception waiting to drift.
  *
- * Off the components nav, like `data-table-parts` and `table-scroll-region`: it is an internal
+ * Off the components nav, like `data-table-parts`: it is an internal
  * shared part, documented in the components guide, installed as a dependency of the popups that
  * use it rather than browsed on its own.
  * ----------------------------------------------------------------------------------------------*/

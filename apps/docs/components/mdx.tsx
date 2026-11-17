@@ -27,7 +27,6 @@ import {
 } from "@/components/foundations";
 import { RegistryInstallCallout } from "@/components/registry-install-callout";
 import { MermaidBlock } from "@/components/ui/mermaid-block";
-import { AnimatedNumberPlayground } from "@/components/animated-number-playground";
 import { AttachmentPlayground } from "@/components/attachment-playground";
 import { CheckboxPlayground } from "@/components/checkbox-playground";
 import { ComboboxPlayground } from "@/components/combobox-playground";
@@ -97,7 +96,6 @@ export function getMDXComponents(components?: MDXComponents) {
     MotionSpecimen,
     TypeScaleSizes,
     FocusRingSpecimen,
-    AnimatedNumberPlayground,
     AttachmentPlayground,
     CheckboxPlayground,
     ComboboxPlayground,

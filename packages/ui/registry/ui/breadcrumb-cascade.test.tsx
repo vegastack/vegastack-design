@@ -226,6 +226,14 @@ async function dragTo(source: HTMLElement, target: HTMLElement) {
 const rowOf = (id: string) =>
   document.querySelector<HTMLElement>(`[data-row-id="${id}"]`)!;
 const crumb = () => document.querySelector<HTMLElement>("[data-drop-target]")!;
+// The drag half loads on first mount; until then the crumb is the plain link (`data-drop-pending`).
+async function dropReady() {
+  await expect
+    .poll(() =>
+      document.querySelector("[data-drop-target]:not([data-drop-pending])"),
+    )
+    .not.toBeNull();
+}
 
 test("BreadcrumbDropTarget takes rows dragged from a DataList in the same scope", async () => {
   const onDropInto = vi.fn();
@@ -235,6 +243,7 @@ test("BreadcrumbDropTarget takes rows dragged from a DataList in the same scope"
     .toHaveAttribute("href", "#root");
   await expectNoA11yViolations(document.body);
 
+  await dropReady();
   await dragTo(rowOf("d1"), crumb());
   expect(onDropInto).toHaveBeenCalledWith({ ids: ["d1"], targetId: "root" });
 
@@ -258,9 +267,19 @@ test("BreadcrumbDropTarget takes rows dragged from a DataList in the same scope"
   });
 });
 
+test("BreadcrumbDropTarget keeps one link while its drag code loads, so focus stays on it", async () => {
+  await render(<Browser onDropInto={() => {}} />);
+  const link = crumb();
+  link.focus();
+  await dropReady();
+  expect(crumb()).toBe(link);
+  expect(document.activeElement).toBe(link);
+});
+
 test("BreadcrumbDropTarget refuses what canDropInto refuses", async () => {
   const onDropInto = vi.fn();
   await render(<Browser onDropInto={onDropInto} canDropInto={() => false} />);
+  await dropReady();
   await dragTo(rowOf("d1"), crumb());
   expect(onDropInto).not.toHaveBeenCalled();
 });
@@ -268,12 +287,14 @@ test("BreadcrumbDropTarget refuses what canDropInto refuses", async () => {
 test("BreadcrumbDropTarget ignores drags from another scope", async () => {
   const onDropInto = vi.fn();
   await render(<Browser scope="tasks" onDropInto={onDropInto} />);
+  await dropReady();
   await dragTo(rowOf("d1"), crumb());
   expect(onDropInto).not.toHaveBeenCalled();
 });
 
 test("BreadcrumbDropTarget shows the drop state while a drag is over it", async () => {
   await render(<Browser onDropInto={() => {}} canDropInto={() => false} />);
+  await dropReady();
   const dt = new DataTransfer();
   const t = crumb().getBoundingClientRect();
   const at = {

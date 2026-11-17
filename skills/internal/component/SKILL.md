@@ -20,8 +20,7 @@ fails it.
 Reference implementations — read the source, not a description of it. Upstream-backed:
 `packages/ui/registry/ui/button.tsx` with `packages/ui/upstream/patches/button.patch` beside it (six
 decision IDs, one hunk each). Ours: `date-picker.tsx` (a keeper that composes upstream's `calendar`,
-`popover` and `button`), `animated-number.tsx` (a client hook-driven primitive with a documented
-mechanism choice). The per-file rules are the sections below and `design-lint`.
+`popover` and `button`). The per-file rules are the sections below and `design-lint`.
 
 **What is authoritative, in order:** `vendor/shadcn/4.21.0/` and the `tooling/upstream/*` gates (they
 decide what a shared component may contain) → existing component source and `tooling/design-lint.mjs`
@@ -67,7 +66,7 @@ pnpm registry:build && pnpm check:component $N                     # 7. build an
    `packages/ui/upstream/exception-map.json` is the assignment: its `required` map lists, per
    decision ID, the components whose patch header must name it. In practice the recurring hunks are:
    strip the `ring-3 ring-ring/50` focus glow (FOC-1/FOC-6), strip every focus-variant border
-   colour so no border moves on focus or while open (FOC-14 — bar text entry's `…:border-ring/50`; invalid keeps
+   colour so no border moves on focus or while open (FOC-14 — bar text entry's `…:border-input-focus`; invalid keeps
    `aria-invalid:border-destructive` in every state, with no `not-focus:` guard), delete upstream's `cursor-default` (INT-1), drop
    `disabled:pointer-events-none` (FRM-4), add the theme scope inside the portal (OVL-13), move a
    tinted status surface onto the `-text` ink (A11Y-13), and swap the `cn` import (DOC-2).
@@ -137,7 +136,7 @@ Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full voc
 - **No focus-ring glow, anywhere** — no `ring-3`, no `ring-ring/NN`, no `focus-visible:ring-*`, no
   `shadow-[0_0_0_…]`. **No focus border either (FOC-14)**: no focus- or open-variant border
   colour; every control keeps its resting `border-border`/`border-input`. base.css owns the one cue,
-  an `accent`/50 tint — except text entry: no fill, an eased `border-ring/50` border (MK 2026-09-27).
+  an `accent`/50 tint — except text entry: no fill, an eased `border-input-focus` border (MK 2026-09-27).
   This is the rule that keeps the reset from unwinding on the next pull.
 - Corners are a **role** (BRD-12): `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile`
   and `row-fill` for table rows (`references/tokens.md` § Radius). Sizes, shadows, z-index, alpha and
@@ -161,7 +160,6 @@ Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full voc
 | **Docked presence**       | A control parked at a viewport edge that stays mounted and flips `data-active` (bottom action bar, floating scroll-to-edge button) | `data-[active=true]:motion-dock-in` + `data-[active=false]:motion-dock-out` — 150ms in on `emphasized`, 100ms out on `exit`, translate + fade, **no scale** (an exit is never slower than its enter). The pair owns the timing, the fade and the parked `pointer-events: none`; state the travel DISTANCE yourself as ordinary `translate-*` utilities, because it is per-dock geometry and a `translate` in the utility would clobber a centred bar's composed transform                                                                                                                                                                                                                |
 | **Replay APIs**           | Re-triggering without remounting, when focus/caret/value must survive (shaking an already-focused invalid input)                   | `useAnimationReplay(animationClassName)` is the primitive; `useShakeOnInvalid({ shakeSignal? })` wraps it, watching `aria-invalid`/`data-invalid` via `MutationObserver`. **No canonical component calls it as of Batch 3 of the shadcn reset**: `field.tsx` is upstream's file now and upstream's Field has no validation motion (FRM-9 is an **ours** row that `implementation.md` § 5.2 does not assign to any component, so the reset does not reintroduce it). The hook ships as a registry item for consumers; if a component ever shakes again, the shake belongs to ONE owner in a field — two owners make the field shake twice (audit D5).                                     |
 | **Animated-icon handles** | Stroke-draw / complex icon motion (a success check drawing in)                                                                     | The `lucide-animated` mirrors under `registry/ui/icons/**` are data modules over one factory (`@vegastack/design/create-animated-icon`); each exposes an imperative `startAnimation()`/`stopAnimation()` on a React 19 ref prop — call it from your own handler. Attaching a ref also stands the icon's own hover/focus triggers down, so your handler is the only driver                                                                                                                                                                                                                                                                                                                |
-| **`AnimatedNumber`**      | Tweening a displayed number on `value` change                                                                                      | `<AnimatedNumber value={n} format={intlOptions} />` — a `requestAnimationFrame` tween, reads `--duration-*`/`--motion-ease-standard` live via `getComputedStyle`, instant under reduced motion, `aria-hidden` ticking text plus a polite live region announcing only the settled value                                                                                                                                                                                                                                                                                                                                                                                                   |
 
 Do **not** hand-roll `pathLength` animation onto a plain `lucide-react` icon: it spreads props onto
 the SVG root only and never reaches the inner `<path>` (verified in its compiled source), and
@@ -236,7 +234,7 @@ decision tree in [references/conventions.md](references/conventions.md).
   is a lint guarantee rather than a type-level one. Every icon size is already a circle
   (`rounded-icon`, BRD-12) and every other size a pill (`rounded-control`).
 - **Chevron policy** — `ChevronsUpDown` marks combobox-style triggers that filter/search (Combobox,
-  CountrySelect, RegionSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
+  SearchableSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
   that open a fixed list (Select, DatePicker, ButtonGroup's menu trigger, Accordion — rotates
   180°). Never mix the two within one trigger family.
 - **Size names are upstream's** — `default` is the tier name, with `xs`, `sm` and `lg` around it, plus
@@ -262,7 +260,7 @@ decision tree in [references/conventions.md](references/conventions.md).
 - **Container queries, not viewport breakpoints**, whenever responsive behavior should follow the
   component's actual container — a settings row in a narrow sidebar card should stack even on a wide
   viewport. Name your own container (`@container/my-component`) and write `@sm/my-component:flex-row`
-  (see `settings-row.tsx`, `app-shell.tsx`, `field.tsx`). Reach for a `ResizeObserver` variant only
+  (see `settings-row.tsx`, `shell.tsx`, `field.tsx`). Reach for a `ResizeObserver` variant only
   if a container query genuinely cannot express it.
 - **CSS first, `useIsMobile` last.** The ladder is: a container query (follows the component's own
   width) → a viewport breakpoint (follows the page) → `useMediaQuery`/`useIsMobile` from
@@ -329,7 +327,7 @@ decision tree in [references/conventions.md](references/conventions.md).
   surface (Alert) is `role="status"` for every intent, and takes the assertive `alert` role only when
   the caller passes an explicit `live` prop AND the intent is `destructive`/`warning` — i.e. the
   message appeared after mount because of something the user did. **Page chrome present at load gets
-  no live role at all** (`AnnouncementBanner`): announcing it competes with the page's own heading.
+  no live role at all**: announcing it competes with the page's own heading.
   Test the policy, not the markup: a static banner must resolve to `status`, a live destructive one
   to `alert`.
 - **A role that requires a parent is licensed by a CONTEXT, never by a default.** `role="listitem"`
@@ -384,7 +382,7 @@ For component `<name>` (PascalCase `<Name>`), in dependency order:
    is a `registry:lib` instead: it lives in `packages/ui/registry/lib/<name>.ts`, targets
    `@lib/<name>.ts`, is imported as `@/lib/<name>`, and is modeled in the contract's `libs` bucket
    (family `lib`, wave `Libs`) with `docs: "shared-guide-only"` — no docs page, no preview, no VRT
-   route, but a test file is still required. `geo-data` and `drag-item` are the two. Reach for it
+   route, but a test file is still required. `drag-item` is one. Reach for it
    when two components would otherwise carry the same bulk data or the same class string.
    `'use client'` only if interactive. JSDoc every exported prop (`@default` where relevant) so
    `ApiTable` renders correctly; JSDoc the component with an `@example`. Export a named

@@ -365,8 +365,8 @@ select editors stay inline.
 `fill` makes the viewport as tall as the room from its top edge to the bottom of its nearest
 scrolling ancestor, so the grid's scroll bar rests at the bottom of the window even when the rows
 are few; it follows the window and anything above the grid that comes, goes or resizes, and is
-never under 240px. A `maxHeight` of its own wins. Inside an `AppShellPage`, wrap the grid in
-[`AppShellBleed`](/docs/components/app-shell) so it reaches the page's side edges and bottom.
+never under 240px. A `maxHeight` of its own wins. Inside a `ShellPage`, wrap the grid in
+[`ShellBleed`](/docs/components/shell) so it reaches the page's side edges and bottom.
 `fill` re-measures when anything above the grid moves it — a banner or a filter row that comes or
 goes changes the page's column, not the grid's own wrapper, so every ancestor up to the scroller is
 watched — and the viewport gives back or takes the height at once. The docked selection bar
@@ -383,17 +383,17 @@ scroll.
 parent leaves it, so a filter row or banner that comes or goes resizes the viewport in the same
 layout pass and its horizontal scroll bar never moves — a measured `fill` follows a frame later, so
 the bar jumps and settles back. The host owes it a bounded column: every wrapper between the
-scrolling region and the grid grows into the room (`AppShellPage size="full"`, then
-`AppShellBleed className="flex-1"`). Without one the viewport stays at its 240px floor, so a grid
+scrolling region and the grid grows into the room (`ShellPage size="full"`, then
+`ShellBleed className="flex-1"`). Without one the viewport stays at its 240px floor, so a grid
 inside a page that grows with its content keeps `fill`.
 
 ```tsx
-<AppShellPage size="full">
+<ShellPage size="full">
   <PageHeader title="Schedule" />
-  <AppShellBleed className="flex-1">
+  <ShellBleed className="flex-1">
     <DataGrid fill="flex" endSpacer … />
-  </AppShellBleed>
-</AppShellPage>
+  </ShellBleed>
+</ShellPage>
 ```
 
 `endSpacer` leaves a band (180px, or the pixels given) after the last row so the last rows scroll
@@ -402,12 +402,12 @@ columns too, drawn over their sticky background, and the frozen end through the 
 the `accent` tint.
 
 ```tsx
-<AppShellPage size="full">
+<ShellPage size="full">
   <PageHeader title="Schedule" />
-  <AppShellBleed>
+  <ShellBleed>
     <DataGrid fill endSpacer columnDividers editingTint headerAlign="start" … />
-  </AppShellBleed>
-</AppShellPage>
+  </ShellBleed>
+</ShellPage>
 ```
 
 `headerAlign="start"` (or a column's own `headerAlign`) starts a numeric column's header at the

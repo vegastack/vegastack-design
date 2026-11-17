@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.90.0 sha256-NzwOu9SUczsYi+DXM/t26Sigx/frRVEcd1PCG75O+ko=
+// @vegastack audio-player@0.90.0 sha256-TRd5gY2yKh5tPiXGEpXgh9mw3EsoQVadNMrt/GJISZU=
 
 "use client";
 
@@ -242,7 +242,7 @@ export interface GlobalAudioPlayerProps {
  * never play one.
  *
  * While it is open it sets `--dock-inset-bottom` (its height plus 8px) on the
- * enclosing `AppShell` root (the document root outside one), so what else docks
+ * enclosing `Shell` root (the document root outside one), so what else docks
  * at the bottom stacks above it: `ActionBar` floats 8px over the pill, and a
  * selecting `DataList` keeps its last row and Load more clear of both.
  *
@@ -270,7 +270,7 @@ export function GlobalAudioPlayer({
     const element = root;
     if (!track || !element) return;
     const host =
-      element.closest<HTMLElement>('[data-slot="app-shell"]') ??
+      element.closest<HTMLElement>('[data-slot="shell"]') ??
       document.documentElement;
     const measure = () =>
       host.style.setProperty(

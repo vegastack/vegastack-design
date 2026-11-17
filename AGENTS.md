@@ -65,7 +65,7 @@ Claude subagent review instead; never skip the review.
   the runtime token (`var(--foreground)`), never the `:root`-bound bridge `var(--color-foreground)`
   (`design-lint` `no-color-bridge`).
 - Focus: no focus rings anywhere (FOC-13); a background tint is the cue; a border never changes colour on
-  focus except text entry, which darkens to `border-ring/50` (FOC-14).
+  focus except text entry, which darkens to `border-input-focus` (FOC-14).
 - Corners are a role, never a size: `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile`
   (BRD-12, `design.md` § Corners; `design-lint` `no-radius-ramp`). Size, shadow, z-index, alpha, opacity are plain Tailwind; `z-50` is the one overlay band
   (toasts `z-60`, OVL-15).

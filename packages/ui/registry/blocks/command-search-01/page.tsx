@@ -1,4 +1,4 @@
-// @vegastack command-search-01@0.90.0 sha256-5OmyylFp8X+g0CMrcWbBVw4TwPleWEmGm+t19b3dK3E=
+// @vegastack command-search-01@0.90.0 sha256-kTy1rUMyWRPTWK0S4L/3h55Aspue0Mz11X1Oh6i0+Us=
 
 "use client";
 
@@ -7,7 +7,7 @@ import { Search } from "lucide-react";
 
 import { SearchPalette } from "./components/search-palette";
 import { RECENTS, sampleSearch } from "./components/sample-search";
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { PageHeader } from "@/components/ui/page-header";
@@ -43,7 +43,7 @@ export default function Page() {
   }, []);
 
   return (
-    <AppShellPage size="prose">
+    <ShellPage size="prose">
       <PageHeader
         title="Search"
         description="Find meetings, tasks, products, customers and pages."
@@ -66,6 +66,6 @@ export default function Page() {
         open={open}
         onOpenChange={setOpen}
       />
-    </AppShellPage>
+    </ShellPage>
   );
 }

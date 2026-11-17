@@ -84,7 +84,7 @@
      Components carry no focus ring of their own (FOC-6); `design-lint`'s `no-focus-ring-glow` and
      `no-focus-border` rules reject a ring anywhere and a focus border outside the text-entry set.
 
-     Programmatic focus targets (`tabindex="-1"`) take no tint: AppShell's skip-link `<main>`, Base UI
+     Programmatic focus targets (`tabindex="-1"`) take no tint: the shell's skip-link `<main>`, Base UI
      popups, a step heading focus is moved to. They are not tab stops, and each is a whole region.
      Clicking the empty part of `<main>` focuses it, and the next key press (Shift or ⌘ alone is
      enough) flips it to `:focus-visible` in Chromium. Before this exclusion that painted the entire

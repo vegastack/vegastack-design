@@ -724,9 +724,9 @@ export function createAffectedPlan({
   // A generated item is legal only alongside its source/contract seed. This catches hand edits to
   // copy-ins and public item JSON without requiring a full registry rebuild to discover them.
   for (const item of generatedItems) {
-    // A registry item is not always a contract RECORD. `table-scroll-region` and `terminal-body`
-    // are separate registry items whose canonical sources are listed under `table` and `terminal`
-    // respectively, so the seed their source adds is the parent's name. Resolve through the source
+    // A registry item is not always a contract RECORD. `terminal-body` is a separate registry
+    // file whose canonical source is listed under `terminal`, so the seed its source adds is the
+    // parent's name. Resolve through the source
     // index before reporting, or the gate fails on a correctly regenerated copy-in.
     const owner =
       indexes.source.get(`packages/ui/registry/ui/${item}.tsx`) ??
