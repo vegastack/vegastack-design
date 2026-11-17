@@ -492,5 +492,5 @@ test("a picked agent that can no longer take it is un-picked", async () => {
         .element()
         .getAttribute("data-checked"),
     )
-    .toBeNull();
+    .toBe("false");
 });
