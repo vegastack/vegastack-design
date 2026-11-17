@@ -10,7 +10,9 @@ import {
   AssistantCardContext,
   AssistantCardHeader,
 } from "./shell-assistant";
+import { Peek, PeekBody, PeekTitle } from "./peek";
 import { ToolGroupItem } from "./tool-group";
+import "../../test/geometry.css";
 
 function Host({
   onBody,
@@ -147,4 +149,40 @@ test("an autofocusing composer keeps focus, and closing still returns to the ope
     "[data-slot=assistant-card]",
   )!;
   expect(card.hasAttribute("inert")).toBe(true);
+});
+
+test("a card opened while a record is peeked sits above the peek", async () => {
+  await render(
+    <div style={{ position: "relative", width: 400, height: 600 }}>
+      <div style={{ position: "absolute", inset: 0 }}>
+        <Peek open onOpenChange={() => {}} layout="side">
+          <PeekBody>
+            <PeekTitle>Task 1</PeekTitle>
+          </PeekBody>
+        </Peek>
+      </div>
+      <AssistantCard open onOpenChange={() => {}}>
+        <AssistantCardHeader title="William" onClose={() => {}} />
+        <AssistantCardBody>
+          <p>How can I help?</p>
+        </AssistantCardBody>
+      </AssistantCard>
+    </div>,
+  );
+  const card = document.querySelector<HTMLElement>(
+    '[data-slot="assistant-card"]',
+  )!;
+  await expect
+    .poll(() => card.getBoundingClientRect().width)
+    .toBeGreaterThan(0);
+  await expect.poll(() => getComputedStyle(card).opacity).toBe("1");
+  const r = card.getBoundingClientRect();
+  const hit = document.elementFromPoint(
+    r.left + r.width / 2,
+    r.top + r.height / 2,
+  );
+  expect(
+    card.contains(hit),
+    `${hit?.outerHTML.slice(0, 80)} at ${r.left},${r.top} ${innerWidth}x${innerHeight}`,
+  ).toBe(true);
 });

@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.107.0 sha256-kzrwuREM8j2TuibZB7/6p5gR1PqCOkkZFvoQwLDp1fI=
+// @vegastack shell-assistant@0.107.0 sha256-qAEDf/23jzdi24sPaa8tHfdBlsWz/DA0mjHrTfLzc3c=
 
 "use client";
 
@@ -158,8 +158,10 @@ function AssistantCard({
           event.preventDefault();
           onOpenChange(false);
         }}
+        // z-30, the side peek's layer: it comes after the page (and a peek in it) in the frame, so
+        // a card opened while a record is peeked sits on top of it, under the column and scrims.
         className={cn(
-          "absolute end-4 bottom-4 z-10 flex h-130 print:hidden max-h-[calc(100%-2rem)] w-95 max-w-[calc(100%-2rem)] origin-bottom-right flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-overlay border border-border bg-popover text-popover-foreground shadow-lg outline-none rtl:origin-bottom-left",
+          "absolute end-4 bottom-4 z-30 flex h-130 print:hidden max-h-[calc(100%-2rem)] w-95 max-w-[calc(100%-2rem)] origin-bottom-right flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-overlay border border-border bg-popover text-popover-foreground shadow-lg outline-none rtl:origin-bottom-left",
           "transition-[scale,translate,opacity,visibility]",
           open
             ? "visible translate-y-0 scale-100 opacity-100 duration-state ease-enter starting:translate-y-2 starting:scale-95 starting:opacity-0"

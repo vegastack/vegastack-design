@@ -24475,7 +24475,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.107.0",
-        "integrity": "sha256-kzrwuREM8j2TuibZB7/6p5gR1PqCOkkZFvoQwLDp1fI="
+        "integrity": "sha256-qAEDf/23jzdi24sPaa8tHfdBlsWz/DA0mjHrTfLzc3c="
       }
     }
   ]
