@@ -58,12 +58,14 @@ line with a rounded elbow each, the way the Inbox threads a notification's event
 
 A parent with its own link (`href` or `render`) goes there on a click and folds from its chevron
 or the arrow keys. A parent with no link folds on a click. `defaultOpen` sets where it starts;
-`open` and `onOpenChange` control it. An active item opens its parent by default.
+`open` and `onOpenChange` control it. A parent that is itself `active` starts open; open the
+ancestors of an active child with `defaultOpen`, so the column paints open on the server.
 
 ### Counts and row actions
 
 `count` shows muted, tabular, at the row's end; 0 shows nothing. `action` (a ⋯ menu, a +) takes
-the count's place while the row is hovered or holds focus.
+the count's place while the row is hovered or holds focus, and always shows on touch, where
+nothing hovers.
 
 ### Touch size
 

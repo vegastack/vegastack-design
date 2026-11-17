@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.104.0 sha256-oifnyvtE3N0JZS+bCOfWtqu914ZZiGUhbfJ2Bc5QjuE=
+// @vegastack nav-tree@0.104.0 sha256-WKrZAx5sOEkl+8z0StqpqPnaiH7eyu7c3sBc2FyQB1g=
 
 "use client";
 
@@ -33,8 +33,11 @@ const DepthContext = React.createContext(0);
 const ROW = '[data-slot="nav-tree-item"]';
 
 function visibleRows(root: HTMLElement): HTMLElement[] {
+  // A row the keyboard can land on: shown (no folded ancestor) and not a disabled button.
   return Array.from(root.querySelectorAll<HTMLElement>(ROW)).filter(
-    (row) => !row.closest("[hidden]"),
+    (row) =>
+      !row.closest("[hidden]") &&
+      !row.matches(":disabled, [aria-disabled='true']"),
   );
 }
 
@@ -158,7 +161,7 @@ export function NavTreeSection({
       {...props}
     >
       {label ? (
-        <div className="flex h-8 items-center justify-between gap-2 ps-2 pe-1 pt-2">
+        <div className="flex h-9 items-center justify-between gap-2 ps-2 pe-1 pt-2">
           <h3
             id={id}
             className="min-w-0 truncate text-xs font-medium text-muted-foreground"
@@ -276,8 +279,10 @@ export function NavTreeItem({
         }
       : { onClick: onClick ?? own.onClick }),
     className: cn(
-      "state-layer relative flex h-(--nav-tree-row) w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-foreground no-underline outline-none data-active:layer-selected data-active:font-medium [&_svg:not([class*='size-'])]:size-4 [&>svg]:flex-none [&>svg]:text-muted-foreground",
+      "state-layer relative flex h-(--nav-tree-row) w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-foreground no-underline outline-none data-active:bg-state-selected data-active:font-medium [&_svg:not([class*='size-'])]:size-4 [&>svg]:flex-none [&>svg]:text-muted-foreground",
       parent && "pe-8",
+      // On touch the action always shows at the row's end: the label keeps clear of it.
+      action && (parent ? "pointer-coarse:pe-14" : "pointer-coarse:pe-8"),
       className,
       own.className,
     ),
@@ -291,7 +296,7 @@ export function NavTreeItem({
             className={cn(
               "flex-none text-xs font-normal text-muted-foreground tabular-nums",
               action &&
-                "group-focus-within/nav-tree-row:invisible group-hover/nav-tree-row:invisible",
+                "group-focus-within/nav-tree-row:invisible group-hover/nav-tree-row:invisible pointer-coarse:invisible",
             )}
           >
             {count}
@@ -319,7 +324,8 @@ export function NavTreeItem({
           <span
             data-slot="nav-tree-action"
             className={cn(
-              "absolute top-1/2 hidden -translate-y-1/2 items-center group-focus-within/nav-tree-row:flex group-hover/nav-tree-row:flex",
+              // Shown on hover and focus; always on touch, where there is no hover to reveal it.
+              "absolute top-1/2 hidden -translate-y-1/2 items-center group-focus-within/nav-tree-row:flex group-hover/nav-tree-row:flex pointer-coarse:flex",
               parent ? "end-7" : "end-1",
             )}
           >
@@ -334,13 +340,14 @@ export function NavTreeItem({
             aria-controls={groupId}
             tabIndex={-1}
             onClick={() => setOpen(!open)}
-            className="absolute end-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-icon text-muted-foreground outline-none state-layer pointer-coarse:after:absolute pointer-coarse:after:-inset-2.5"
+            className="absolute end-1 top-1/2 grid size-6 -translate-y-1/2 place-items-center rounded-icon text-muted-foreground outline-none state-layer after:absolute after:-inset-1 pointer-coarse:after:-inset-2.5"
           >
             <ChevronRight
               aria-hidden="true"
               className={cn(
                 "size-3.5 transition-transform duration-state rtl:-scale-x-100",
-                open && "rotate-90",
+                // Mirrored in RTL, so it turns the other way to point down.
+                open && "rotate-90 rtl:-rotate-90",
               )}
             />
           </ButtonPrimitive>

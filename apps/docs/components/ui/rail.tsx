@@ -1,4 +1,4 @@
-// @vegastack rail@0.104.0 sha256-fjh0N7G/qK7ud38DCtHzBAK+9mvbl1+S7RNrt6klp5Y=
+// @vegastack rail@0.104.0 sha256-FzB5orRXHqQ8NM6hKxe1E1/JLZI8qyNIlVXmpisH2gE=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -154,14 +154,17 @@ export function RailItem({
 }: RailItemProps) {
   const count = railBadgeText(badge);
   // An explicit name wins; else the label carries the count or the dot's meaning.
+  const own = (render?.props ?? {}) as { "aria-label"?: string };
+  // An explicit name wins, on the item or on its `render` element.
   const name =
     ariaLabel ??
+    own["aria-label"] ??
     (count ? `${label}, ${count}` : dot ? `${label} (${dot})` : undefined);
   const element = render ?? (href ? <a href={href} /> : <ButtonPrimitive />);
-  const own = element.props as ElementProps;
+  const ownProps = element.props as ElementProps;
   return React.cloneElement(element, {
     ...props,
-    ...own,
+    ...ownProps,
     "data-slot": "rail-item",
     "data-active": active ? "" : undefined,
     "aria-current": active ? "page" : undefined,
@@ -169,7 +172,7 @@ export function RailItem({
     className: cn(
       "group/rail-item flex w-full flex-none flex-col items-center gap-0.5 pt-1 pb-1.5 text-xs font-medium text-muted-foreground no-underline outline-none data-active:text-foreground",
       className,
-      own.className,
+      ownProps.className,
     ),
     children: (
       <>

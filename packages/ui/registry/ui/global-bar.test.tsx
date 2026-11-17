@@ -105,3 +105,29 @@ test("as the desktop title row it drags the window, keeps controls pressable and
     expect(getComputedStyle(trailing).paddingInlineEnd).toBe("146px"),
   );
 });
+
+test("in RTL the traffic lights' room stays on the left, at the trailing slot", async () => {
+  const html = document.documentElement;
+  html.setAttribute("data-desktop-titlebar", "macos");
+  html.style.setProperty("--shell-titlebar-mac-inset", "80px");
+  await render(
+    <div dir="rtl">
+      <Bar />
+    </div>,
+  );
+  const trailing = document.querySelector('[data-slot="global-bar-trailing"]')!;
+  expect(getComputedStyle(trailing).paddingInlineEnd).toBe("80px");
+});
+
+test("in a narrow bar the search trigger shrinks and the sides keep their room", async () => {
+  await render(
+    <div style={{ width: 640 }}>
+      <Bar />
+    </div>,
+  );
+  const bar = box('[data-slot="global-bar"]');
+  const search = box('[data-slot="global-bar-search"]');
+  const leading = box('[data-slot="global-bar-leading"] > :last-child');
+  expect(search.width).toBeLessThanOrEqual(bar.width * 0.36 + 1);
+  expect(leading.right).toBeLessThanOrEqual(search.left);
+});

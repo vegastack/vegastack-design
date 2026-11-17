@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.104.0 sha256-P0qK71hsfSBR9E10zQ8rqDVaoIqltKl8Hn2m7n+Z6ys=
+// @vegastack global-bar@0.104.0 sha256-3F3tWfOX9HGTVn2w53QHTIl5/UsYOzpmulHoLZP2xpE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -52,7 +52,7 @@ export function GlobalBar({ className, ...props }: GlobalBarProps) {
       tabIndex={-1}
       className={cn(
         // Equal side columns and no padding of its own, so the centre slot is the window's centre.
-        "grid h-(--shell-globalbar-height) min-w-0 flex-none grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 bg-sidebar text-sidebar-foreground outline-none @max-[40rem]/shell:hidden",
+        "@container/global-bar grid h-(--shell-globalbar-height) min-w-0 flex-none grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 bg-sidebar text-sidebar-foreground outline-none @max-[40rem]/shell:hidden",
         // The desktop title row drags the window; everything you can press stays pressable.
         "in-data-desktop-titlebar:[-webkit-app-region:drag] in-data-desktop-titlebar:[&_:is(button,a,input,[role=button],[role=combobox])]:[-webkit-app-region:no-drag]",
         className,
@@ -81,7 +81,10 @@ export function GlobalBarLeading({
         // In a browser the first control (28px) sits on the rail's centre line: half the rail,
         // less its 1px edge, less half the control. In the desktop app the traffic lights win.
         "ps-[calc((var(--shell-rail-width)-1px)/2-0.875rem)]",
-        "in-data-[desktop-titlebar=macos]:ps-[max(var(--shell-titlebar-mac-inset),calc((var(--shell-rail-width)-1px)/2-0.875rem))]",
+        // The window's buttons stay on their physical edge in either direction: the traffic lights
+        // on the left (the leading slot's side in LTR), Windows' captions on the right.
+        "in-data-[desktop-titlebar=macos]:ltr:ps-[max(var(--shell-titlebar-mac-inset),calc((var(--shell-rail-width)-1px)/2-0.875rem))]",
+        "in-data-[desktop-titlebar=windows]:rtl:ps-[max(calc(var(--shell-titlebar-win-inset)+0.5rem),calc((var(--shell-rail-width)-1px)/2-0.875rem))]",
         className,
       )}
       {...props}
@@ -124,7 +127,8 @@ export function GlobalBarTrailing({
       className={cn(
         "flex min-w-0 items-center justify-end gap-1 pe-2",
         // The Windows caption buttons sit over the bar's end.
-        "in-data-[desktop-titlebar=windows]:pe-[calc(var(--shell-titlebar-win-inset)+0.5rem)]",
+        "in-data-[desktop-titlebar=windows]:ltr:pe-[calc(var(--shell-titlebar-win-inset)+0.5rem)]",
+        "in-data-[desktop-titlebar=macos]:rtl:pe-[max(var(--shell-titlebar-mac-inset),0.5rem)]",
         className,
       )}
       {...props}

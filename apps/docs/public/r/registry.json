@@ -222,7 +222,7 @@
         "whenToUse": "The places in an app's module column — views, saved filters, spaces with their sections, folders, settings pages — in the shell's ShellColumn or a phone sheet.",
         "whenNotToUse": "A file browser with drag and drop (FolderTree), a page's own tabs (Tabs), or the module rail (Rail).",
         "version": "0.104.0",
-        "integrity": "sha256-oifnyvtE3N0JZS+bCOfWtqu914ZZiGUhbfJ2Bc5QjuE="
+        "integrity": "sha256-WKrZAx5sOEkl+8z0StqpqPnaiH7eyu7c3sBc2FyQB1g="
       }
     },
     {
@@ -260,7 +260,7 @@
         "whenToUse": "The shell's top row (Shell's globalBar), in the browser and as the desktop app's title row.",
         "whenNotToUse": "A page's own header and actions (ShellTopBar), or a phone's top row.",
         "version": "0.104.0",
-        "integrity": "sha256-P0qK71hsfSBR9E10zQ8rqDVaoIqltKl8Hn2m7n+Z6ys="
+        "integrity": "sha256-3F3tWfOX9HGTVn2w53QHTIl5/UsYOzpmulHoLZP2xpE="
       }
     },
     {
@@ -293,7 +293,7 @@
         "whenToUse": "The app's modules in the shell (Shell's rail).",
         "whenNotToUse": "A module's own places (NavTree in the column), search, help or the account (the global bar), or a phone (ShellBottomBar).",
         "version": "0.104.0",
-        "integrity": "sha256-fjh0N7G/qK7ud38DCtHzBAK+9mvbl1+S7RNrt6klp5Y="
+        "integrity": "sha256-FzB5orRXHqQ8NM6hKxe1E1/JLZI8qyNIlVXmpisH2gE="
       }
     },
     {

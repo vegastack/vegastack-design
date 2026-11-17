@@ -26,7 +26,8 @@ const history = {
 /** The whole bar: ▤, ‹ ›, the workspace · search (⌘K) · Ask (⌘J), Help, the account. */
 export function globalBar(): ReactNode {
   return (
-    <Wrapper className="block overflow-hidden p-0">
+    // A shell container, as in the app: under 40rem (a phone) the bar hides itself.
+    <Wrapper className="block overflow-hidden p-0 @container/shell">
       <GlobalBar className="border-b border-sidebar-border">
         <GlobalBarLeading>
           <Button

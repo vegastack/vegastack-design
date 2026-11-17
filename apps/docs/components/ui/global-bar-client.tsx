@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.104.0 sha256-P0qK71hsfSBR9E10zQ8rqDVaoIqltKl8Hn2m7n+Z6ys=
+// @vegastack global-bar@0.104.0 sha256-3F3tWfOX9HGTVn2w53QHTIl5/UsYOzpmulHoLZP2xpE=
 
 "use client";
 
@@ -44,13 +44,17 @@ export function GlobalBarSearch({
       size="sm"
       aria-keyshortcuts={os === "mac" ? "Meta+K" : "Control+K"}
       className={cn(
-        "w-[min(28rem,40vw)] justify-start gap-2 font-normal text-muted-foreground",
+        // Sized by the bar, not the window, so the sides keep room in a narrow shell; narrow, it
+        // keeps its icon and shortcut.
+        "w-[min(28rem,36cqw)] min-w-0 justify-start gap-2 font-normal text-muted-foreground",
         className,
       )}
       {...props}
     >
       <Search aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate text-start">{label}</span>
+      <span className="min-w-0 flex-1 truncate text-start @max-2xl/global-bar:sr-only">
+        {label}
+      </span>
       <Kbd aria-hidden="true">{formatShortcut(["mod", "K"], os)}</Kbd>
     </Button>
   );

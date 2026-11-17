@@ -102,6 +102,22 @@ test("an explicit aria-label wins over the label and its count", async () => {
     .toBeInTheDocument();
 });
 
+test("a render element's own aria-label is kept", async () => {
+  const screen = await render(
+    <nav aria-label="Modules">
+      <RailItem
+        icon={<Home />}
+        label="Tasks"
+        badge={4}
+        render={<a href="#tasks" aria-label="Tasks in Acme" />}
+      />
+    </nav>,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Tasks in Acme" }))
+    .toBeInTheDocument();
+});
+
 test("an animated rail icon paints static first, then swaps in at the same size once idle", async () => {
   const HomeIconLazy = lazyAnimatedIcon(() =>
     import("./icons/home").then((m) => m.HomeIcon),

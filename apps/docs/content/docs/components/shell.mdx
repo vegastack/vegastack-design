@@ -17,7 +17,7 @@ preview: shell
 
 ```tsx
 import { GlobalBar, GlobalBarLeading } from "@/components/ui/global-bar";
-import { NavTree, NavTreeItem } from "@/components/ui/nav-tree";
+import { NavTree, NavTreeItem, NavTreeSection } from "@/components/ui/nav-tree";
 import { Rail, RailItem } from "@/components/ui/rail";
 import {
   Shell,
@@ -54,7 +54,9 @@ import {
     <ShellColumn label="Home">
       <ShellColumnHeader title="Home" />
       <NavTree>
-        <NavTreeItem label="Tasks" render={<Link href="/tasks" />} active />
+        <NavTreeSection>
+          <NavTreeItem label="Tasks" render={<Link href="/tasks" />} active />
+        </NavTreeSection>
       </NavTree>
     </ShellColumn>
   }
