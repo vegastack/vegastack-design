@@ -1,4 +1,4 @@
-// @vegastack shell@0.107.0 sha256-7/i5pe0qqYQS2WvzKpNkmXuXH1cgMykbHOrczzmgjlk=
+// @vegastack shell@0.107.0 sha256-769hwtb/V6sttCYBlvzhSSIpqKwlkZnTVowYrkI11No=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -183,6 +183,8 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
     visibility: visible;
     transition: translate var(--duration-layout) var(--motion-ease-standard), visibility 0s;
   }
+  /* The sheet's list scrolls on its own: its ends never chain to the page behind. */
+  [data-slot="shell-column-area"] [data-slot="shell-column"] { overscroll-behavior-y: contain; }
   [data-slot="shell-column-area"]::before {
     content: "";
     flex: none;

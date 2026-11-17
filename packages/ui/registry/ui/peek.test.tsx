@@ -247,6 +247,44 @@ test("closing the phone sheet never sends focus back into a text field (no keybo
   expect(document.activeElement).not.toBe(search.element());
 });
 
+test("closing the phone sheet never focuses the first field of the box a tap focused", async () => {
+  function MainThenPeek() {
+    const [open, setOpen] = React.useState(false);
+    return (
+      <main tabIndex={-1} data-testid="main">
+        <input aria-label="Search" />
+        <button type="button" onClick={() => setOpen(true)}>
+          Row 1
+        </button>
+        <Peek open={open} onOpenChange={setOpen} layout="sheet">
+          <PeekHeader>
+            <PeekActions>
+              <PeekClose />
+            </PeekActions>
+          </PeekHeader>
+          <PeekBody>
+            <PeekTitle>Task 1</PeekTitle>
+          </PeekBody>
+        </Peek>
+      </main>
+    );
+  }
+  const screen = await render(<MainThenPeek />);
+  const main = screen.getByTestId("main").element() as HTMLElement;
+  // iOS Safari: a tap on a row focuses the nearest tabindex="-1" ancestor, the page's <main>.
+  main.focus();
+  (
+    screen.getByRole("button", { name: "Row 1" }).element() as HTMLElement
+  ).click();
+  await expect.poll(() => !!bySlot("peek-sheet")).toBe(true);
+  await screen.getByRole("button", { name: "Close" }).click();
+  await expect.poll(() => bySlot("peek-sheet")).toBeNull();
+  await new Promise((r) => setTimeout(r, 300));
+  expect(document.activeElement).not.toBe(
+    screen.getByRole("textbox", { name: "Search" }).element(),
+  );
+});
+
 test("a phone peek mounted already open hands focus back to the row that opened it", async () => {
   function MountOnSelect() {
     const [open, setOpen] = React.useState(false);

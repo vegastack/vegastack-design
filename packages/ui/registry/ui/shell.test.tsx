@@ -265,6 +265,51 @@ test("on a phone the title opens the column as a sheet", async () => {
   await expect.poll(() => shell().dataset.column).toBe("none");
 });
 
+test("on a phone a drag down the column sheet moves it, never the page, and closes it", async () => {
+  await render(<Frame width={390} />);
+  await settled();
+  await userEvent.click(columnSwitch());
+  await expect.poll(() => shell().dataset.column).toBe("over");
+  const sheet = document.querySelector<HTMLElement>(
+    '[data-slot="shell-column-area"]',
+  )!;
+  const top = sheet.getBoundingClientRect().top + 8;
+  const touch = (y: number) =>
+    new Touch({ identifier: 1, target: sheet, clientX: 100, clientY: y });
+  const send = (type: string, y: number) => {
+    const event = new TouchEvent(type, {
+      bubbles: true,
+      cancelable: true,
+      touches: type === "touchend" ? [] : [touch(y)],
+      changedTouches: [touch(y)],
+    });
+    sheet.dispatchEvent(event);
+    return event;
+  };
+  send("touchstart", top);
+  // A short drag moves the sheet with the finger and keeps the page (and pull-to-refresh) still.
+  expect(send("touchmove", top + 40).defaultPrevented).toBe(true);
+  expect(sheet.style.translate).toBe("0px 40px");
+  // Held, then let go short of the threshold: it settles back open.
+  await new Promise((r) => setTimeout(r, 250));
+  send("touchend", top + 40);
+  expect(shell().dataset.column).toBe("over");
+  expect(sheet.style.translate).toBe("");
+  // A cancelled touch (the browser took the gesture) puts the sheet back and leaves it open.
+  send("touchstart", top);
+  send("touchmove", top + 160);
+  send("touchcancel", top + 160);
+  expect(shell().dataset.column).toBe("over");
+  expect(sheet.style.translate).toBe("");
+  // Past the threshold it closes.
+  send("touchstart", top);
+  send("touchmove", top + 60);
+  send("touchmove", top + 160);
+  send("touchend", top + 160);
+  await expect.poll(() => shell().dataset.column).toBe("none");
+  expect(sheet.style.translate).toBe("");
+});
+
 test.each([
   [390, false],
   [820, true],

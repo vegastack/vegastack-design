@@ -194,7 +194,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.107.0",
-        "integrity": "sha256-7/i5pe0qqYQS2WvzKpNkmXuXH1cgMykbHOrczzmgjlk="
+        "integrity": "sha256-769hwtb/V6sttCYBlvzhSSIpqKwlkZnTVowYrkI11No="
       }
     },
     {
@@ -384,7 +384,7 @@
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
         "version": "0.107.0",
-        "integrity": "sha256-nGmvAAXc+Lj+tJMWX0PRZovoSzJ8PpB4z9UYnZXDzjc="
+        "integrity": "sha256-oOYOKZrryLSPEJiPnYsO5w9cnBC6lCVFwuLEuQdXLFY="
       }
     },
     {
@@ -24475,7 +24475,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.107.0",
-        "integrity": "sha256-kzrwuREM8j2TuibZB7/6p5gR1PqCOkkZFvoQwLDp1fI="
+        "integrity": "sha256-qAEDf/23jzdi24sPaa8tHfdBlsWz/DA0mjHrTfLzc3c="
       }
     }
   ]

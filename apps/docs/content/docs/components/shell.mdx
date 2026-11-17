@@ -156,7 +156,10 @@ alert with a retry in the page.
 
 There is no rail or ▤ on a phone: the page title opens the module's column as a sheet
 (`ShellColumnSwitch`, rendered by `ShellTopBarTitle` when the shell has a column; name it with
-`switchLabel`), and picking a place closes the sheet. The sheet's rows are 44px targets.
+`switchLabel`), and picking a place closes the sheet. The sheet's rows are 44px targets. Dragging
+the sheet down from its top, or pulling its list down once it is at the top, moves the sheet with
+the finger and closes it past a short distance or on a flick; the drag never scrolls the page behind
+or starts Safari's pull-to-refresh.
 
 The page scrolls the document, so Safari's and Chrome's own bars compact as you scroll. The bottom
 bar sits above the home indicator, steps aside while you scroll down and returns when you scroll
