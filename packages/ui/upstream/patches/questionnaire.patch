@@ -50,7 +50,7 @@
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 #   FOC-14 text-entry exception (MK 2026-09-27; supersedes the FOC-14 note above for text
 #     entry): text entry takes NO fill — base.css excludes text inputs and textarea from the
-#     tint — and shows focus as a subtle darker border that eases in: `focus:not-aria-invalid:border-ring/50` on the answer field (the choice card keeps the tint: it is not text entry),
+#     tint — and shows focus as a subtle darker border that eases in: `focus:not-aria-invalid:border-input-focus` on the answer field (the choice card keeps the tint: it is not text entry),
 #     with `transition-[color,background-color,border-color] duration-150 ease-out`. The
 #     `not-…invalid` guard keeps an invalid field's destructive border in every state.
 #   COL-24, INT-4: hover and press are the shared `state-layer` utility (translucent
@@ -60,7 +60,7 @@
 #   FOC-15: the choice card shows its radio's keyboard focus with the `layer-focus` tint
 #     (`--state-focus`), the same cue base.css paints.
 diff --git a/questionnaire.tsx b/questionnaire.tsx
-index 701ac1c..77c4515 100644
+index 701ac1c..2b9fe06 100644
 --- a/questionnaire.tsx
 +++ b/questionnaire.tsx
 @@ -1,11 +1,11 @@
@@ -231,7 +231,7 @@ index 701ac1c..77c4515 100644
 +          // An invalid answer keeps its destructive border in every state.
 +          // FRM-4: `disabled:pointer-events-none` is dropped, so a disabled answer field stays
 +          // hoverable and a Tooltip can explain it.
-+          "h-8 min-h-11 w-full min-w-0 rounded-control border border-input bg-transparent px-2.5 py-1 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden focus:not-aria-invalid:border-ring/50 disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
++          "h-8 min-h-11 w-full min-w-0 rounded-control border border-input bg-transparent px-2.5 py-1 text-base transition-[color,background-color,border-color] duration-150 ease-out outline-hidden focus:not-aria-invalid:border-input-focus disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50 aria-invalid:border-destructive sm:min-h-0 md:text-sm dark:bg-input/30 dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
            "selection:bg-primary selection:text-primary-foreground placeholder:text-muted-foreground",
 -          className
 +          className,

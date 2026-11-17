@@ -4527,7 +4527,10 @@
       "since": "0.23.74",
       "family": "navigation",
       "wave": "Navigation/layout",
-      "sourceFiles": ["packages/ui/registry/ui/breadcrumb-cascade.tsx"],
+      "sourceFiles": [
+        "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+        "packages/ui/registry/ui/breadcrumb-drop-target.tsx"
+      ],
       "publicSymbols": [
         {
           "name": "BreadcrumbDropTarget",
@@ -4610,6 +4613,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "BreadcrumbDropTargetLink",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],
@@ -4755,6 +4767,15 @@
                 "breadcrumb-trail-compact-menu",
                 "breadcrumb-trail-folded"
               ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "BreadcrumbDropTargetLink": {
+          "attributes": [
+            {
+              "name": "data-drop-target",
+              "values": [""]
             }
           ],
           "cssVariables": []
@@ -22036,6 +22057,10 @@
               "values": ["inline-start"]
             },
             {
+              "name": "data-single-line",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "inbox-item",
@@ -23883,6 +23908,33 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "VegaStackToasts",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "VegaStackToastsProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "VegaStackTooltips",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/provider.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

@@ -41,6 +41,43 @@ test("groups are named lists, rows are links, and the read toggle is reachable",
   await expectNoA11yViolations(screen.container, ["color-contrast"]);
 });
 
+test("a meta line that repeats the title is dropped, and the row is marked one-line", async () => {
+  const screen = await render(
+    <Inbox>
+      <InboxGroup label="Today">
+        <InboxItem
+          value="a"
+          avatar={{ name: "Asha Kumar" }}
+          title={
+            <>
+              <InboxEmphasis>Asha</InboxEmphasis> commented on Pricing
+            </>
+          }
+          meta="Asha commented"
+          time={new Date()}
+          onToggleRead={() => {}}
+        />
+        <InboxItem
+          value="b"
+          avatar={{ name: "Ravi Rao" }}
+          title="Ravi assigned you Pricing"
+          meta="Due tomorrow"
+        />
+      </InboxGroup>
+    </Inbox>,
+  );
+  const rows = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="inbox-item"]',
+  );
+  await expect.poll(() => rows.length).toBe(2);
+  // The title's line only: no meta line under it.
+  expect(rows[0]!.querySelectorAll("p").length).toBe(1);
+  expect(rows[0]!.hasAttribute("data-single-line")).toBe(true);
+  expect(rows[1]!.querySelectorAll("p").length).toBe(2);
+  expect(rows[1]!.textContent).toContain("Due tomorrow");
+  expect(rows[1]!.hasAttribute("data-single-line")).toBe(false);
+});
+
 test("an unread row shows a dot, a read row none; the badge sits on the avatar, hidden from the name", async () => {
   const screen = await render(
     <InboxGroup label="Today">

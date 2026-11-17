@@ -87,18 +87,9 @@ const STATUS_TINT_ALPHAS = [0.1, 0.2, 0.3];
 const NONTEXT = ["ring", "primary"];
 // Progress `tone` (API-41): a status fill on the bar's `muted` track is a non-text part too.
 const TRACK_FILLS = ["warning", "destructive"];
-// FOC-3: text entry tints its BORDER with the ring at its canonical opacity rather than painting the outline, because
-// a raw text field cannot tell a mouse click from a Tab. FOC-10 gates that composite.
-// Read the canonical utility instead of independently remembering its opacity. Browser tests
-// additionally check that the compiled focus state uses this utility in both themes.
-const focusSource = readFileSync(
-  new URL("../packages/ui/registry/ui/input.tsx", import.meta.url),
-  "utf8",
-);
-const focusAlpha = focusSource.match(/focus:[^"\s]*:border-ring\/(\d+)/)?.[1];
-if (!focusAlpha)
-  throw new Error("Cannot determine text-entry focus border opacity");
-const FOCUS_TINT_ALPHA = Number(focusAlpha) / 100;
+// FOC-3: text entry darkens its BORDER to `input-focus` rather than painting an outline, because a raw
+// text field cannot tell a mouse click from a Tab. FOC-10 gates that border, composited at the
+// token's own alpha, at 3:1 on every neutral surface; FOC-14 holds the three steps in order.
 
 // Markers only ever sit on resting surfaces — nobody draws a chart or a status dot on a hovered row.
 const MARKERS = ["brand", "chart-single"];
@@ -422,33 +413,42 @@ export function checkTheme(css) {
       }
     }
 
-    // 4b. TEXT-ENTRY FOCUS BORDER (FOC-3 + FOC-10, WCAG 1.4.11 >= 3:1).
-    //     No text-entry control ever renders the ring SOLID: a text field cannot tell mouse from
-    //     keyboard, so it carries `outline-hidden` and signals focus with `focus:border-ring/70` —
-    //     the ring COMPOSITED at the canonical utility opacity. That composite is the entire focus affordance of every Input,
-    //     Textarea, Field control, OTP slot, Select trigger, Combobox input, input group and
-    //     TextEdit in the system, so it is measured rather than inferred from the solid token.
+    // 4b. TEXT-ENTRY BORDER STEPS (FOC-3, FOC-10, FOC-14; WCAG 1.4.11 >= 3:1 at focus).
+    //     A text field cannot tell mouse from keyboard, so it signals focus with its border alone:
+    //     `input-focus`, composited at its own alpha. That is the whole focus affordance of every
+    //     Input, Textarea, OTP slot, Combobox, input group and boxed TextEdit, so it is measured, at
+    //     3:1, on every neutral surface. Rest (`input`) < hover (`input-hover`) < focus, so each
+    //     state is a step above the last rather than a jump.
     {
-      const ink = need(theme, vars, "ring", "the text-entry focus border");
-      if (ink) {
+      const steps = ["input", "input-hover", "input-focus"].map((name) => [
+        name,
+        need(theme, vars, name, "the text-entry border steps"),
+      ]);
+      if (steps.every(([, token]) => token)) {
         for (const name of NEUTRAL_SURFACES) {
           const surface = need(
             theme,
             vars,
             name,
-            "the text-entry focus border",
+            "the text-entry border steps",
           );
           if (!surface) continue;
           checked++;
-          const ratio = contrastCompositeBg(
-            surface,
-            compositeLinear(ink, FOCUS_TINT_ALPHA, surface),
+          const ratios = steps.map(([, token]) =>
+            contrastCompositeBg(
+              surface,
+              compositeLinear(token, token[3] ?? 1, surface),
+            ),
           );
-          if (ratio < AA_NONTEXT) {
+          const [rest, hover, focus] = ratios;
+          if (focus < AA_NONTEXT)
             fail(
-              `${theme}: text-entry focus border ring@${Math.round(FOCUS_TINT_ALPHA * 100)}% on ${name} = ${ratio.toFixed(2)}:1 (needs ${AA_NONTEXT}:1)`,
+              `${theme}: text-entry focus border input-focus on ${name} = ${focus.toFixed(2)}:1 (needs ${AA_NONTEXT}:1)`,
             );
-          }
+          if (!(rest < hover && hover < focus))
+            fail(
+              `${theme}: text-entry border steps on ${name} are out of order (rest ${rest.toFixed(2)}, hover ${hover.toFixed(2)}, focus ${focus.toFixed(2)})`,
+            );
         }
       }
     }
@@ -644,8 +644,12 @@ function selfTest(themePath) {
     failsWith(swap("ring", "oklch(0.95 0 0)")),
   );
   claim(
-    "a focus ring too pale to survive the 70% text-entry tint is rejected",
-    failsWith(swap("ring", "oklch(0.86 0 0)")),
+    "a text-entry focus border below 3:1 is rejected",
+    failsWith(swap("input-focus", "oklch(0.145 0 0 / 0.3)")),
+  );
+  claim(
+    "text-entry border steps out of order (hover above focus) are rejected",
+    failsWith(swap("input-hover", "oklch(0.145 0 0 / 0.5)")),
   );
   claim(
     "a chart hue below the 1.4.11 non-text floor is rejected",
@@ -703,7 +707,7 @@ function selfTest(themePath) {
     );
     return 1;
   }
-  console.log("✓ contrast-check:selftest: 19 claims observed");
+  console.log("✓ contrast-check:selftest: 20 claims observed");
   return 0;
 }
 

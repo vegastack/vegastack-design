@@ -14,20 +14,20 @@ generated:
       sha256: "6ecea2bf4a2bf6783d1f53da37057218b37d209be9d7aa6d69b569c813fd24d8"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3257
-      sha256: "01d9a03201611bacc7cd5f0394801410422b2685f76ac9ff2347576463169930"
+      bytes: 3261
+      sha256: "c286358b9be7c51acde436068509b2a2f8363d7624421e258d9023717259bbfc"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
       bytes: 3105
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 36554
-      sha256: "f11984d8286afb3245685e82680e7aee606f5ad0c2dca141f8885d2af28aa83d"
+      bytes: 37827
+      sha256: "59288a299b63e9ad68edfba0eb0649b1b0b243dfd744c4ddd8c853a45254dd3a"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 13441
-      sha256: "e72eb266c0b4551c34510f4348d1aed71186c148bfd62a269ebd30b5b036c2cf"
+      bytes: 13917
+      sha256: "c42d9093976e4a676d7452721d72eaa410f7afb597a160afb1eda776fac83dd5"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -185,6 +185,10 @@ themes:
       type: "duration"
       value: "80ms"
       description: "MOT-14: one frame of the TextSpinner's Strike (`working`: the bolt fills, holds and clears in 17 frames)."
+    duration-panel:
+      type: "duration"
+      value: "120ms"
+      description: "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -253,11 +257,16 @@ themes:
       value: "oklch(0.456 0.156 256)"
     input:
       type: "color"
-      value: "oklch(0.922 0 0)"
+      value: "oklch(0.88 0 0)"
+      description: "FOC-14 (ours, 2026-11-17): a text field's resting border, the first of three even steps (rest 1.44:1, hover 2.10:1, focus 3.26:1 on the page), so focus reads as the next step rather than a jump from a pale field. Was `neutral.200` (1.26:1). Also the unchecked Switch track and ButtonGroup separators."
+    input-focus:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.46)"
+      description: "FOC-14 (ours, 2026-11-17): text entry's focus border, the top of its three steps (rest 1.44:1, hover 2.10:1, focus 3.26:1 on the page; at least 3:1 on every neutral surface, FOC-10). Text entry only; every other control keeps its border on focus."
     input-hover:
       type: "color"
-      value: "oklch(0.145 0 0 / 0.22)"
-      description: "FOC-16 (ours, operator 2026-10-31): text entry's hover border — a visible step above `input` at rest."
+      value: "oklch(0.145 0 0 / 0.31)"
+      description: "FOC-16 (ours, operator 2026-10-31): text entry's hover border — the middle step between `input` at rest and `input-focus` (2.10:1 on the page)."
     media-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -671,6 +680,10 @@ themes:
       type: "duration"
       value: "80ms"
       description: "MOT-14: one frame of the TextSpinner's Strike (`working`: the bolt fills, holds and clears in 17 frames)."
+    duration-panel:
+      type: "duration"
+      value: "120ms"
+      description: "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
     duration-quick:
       type: "duration"
       value: "160ms"
@@ -736,9 +749,14 @@ themes:
     input:
       type: "color"
       value: "oklch(1 0 0 / 0.15)"
+    input-focus:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.37)"
+      description: "FOC-14 (ours, 2026-11-17): the dark half of text entry's focus border — the same three steps as light (rest 1.47:1, hover 2.10:1, focus 3.3:1 on the page; at least 3:1 on every neutral surface, FOC-10)."
     input-hover:
       type: "color"
       value: "oklch(0.985 0 0 / 0.25)"
+      description: "FOC-16: the dark half of text entry's hover border (2.10:1 on the page)."
     media-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -1027,7 +1045,7 @@ recipes:
     foreground: "{foreground}"
     border: "{input}"
     hoverBorder: "{input-hover}"
-    focusBorder: "{ring}/50"
+    focusBorder: "{input-focus}"
     readOnly: "{readonly}, transparent border"
     radius: "{radius}"
     typography: "text-sm"
@@ -1158,12 +1176,12 @@ every wrapper, keeps its resting `border-border`/`border-input` in every state �
 Input, Textarea, the Questionnaire answer, the InputOTP active slot, the bordered field groups that
 frame a text control (InputGroup and everything built on it: NumberField, ChipInput, Combobox,
 Command, the popup search rows; the combobox chips) and TextEdit's `boxed`
-variant (the comment composer) — shows focus as `border-ring/50` easing in over
+variant (the comment composer) — shows focus as `border-input-focus` easing in over
 `duration-150 ease-out`, on the element that draws the border (the group, never the control inside
 it), and no background change at all. Invalid shows its destructive border in every state, focused
 or not: the focus class carries a `not-…invalid` guard, so focus never replaces it; never a ring.
 `design-lint`'s **`no-focus-border`** rejects a focus-variant border colour in the registry except
-the one text-entry shape (`…:border-ring/50`) in the named text-entry files, and the geometry
+the one text-entry shape (`…:border-input-focus`) in the named text-entry files, and the geometry
 lane's focus sweep fails a non-text control whose border colour moves, a text-entry control whose
 background moves or whose border does not, and an invalid field whose border moves on focus. A forced-colours block restores
 `outline: 2px solid Highlight` on every focused element, because forced colours drop the tint and
@@ -1539,15 +1557,15 @@ moving the others.
 foreground layer over whatever is underneath, so the step reads the same on page, card, popover,
 sidebar and muted, in both themes:
 
-| state                              | token (light / dark)                                                                                                                              | how a part gets it                                                                           |
-| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| hover                              | `--state-hover` (5% / 4% foreground)                                                                                                              | `state-layer` (a background image over any rest fill)                                        |
-| pressed                            | `--state-pressed` (10% / 9%)                                                                                                                      | `state-layer`, on `:active`                                                                  |
-| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                      | `bg-state-selected`, or `layer-selected` over a filled part; it holds through hover          |
-| highlighted (menu / list cursor)   | `--state-hover`                                                                                                                                   | `data-highlighted:bg-state-hover`                                                            |
-| keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                             | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
-| inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                          | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |
-| text entry                         | `input` → `--input-hover` border on hover → `ring/50` border on focus (no ring or glow); `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
+| state                              | token (light / dark)                                                                                                                                    | how a part gets it                                                                           |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| hover                              | `--state-hover` (5% / 4% foreground)                                                                                                                    | `state-layer` (a background image over any rest fill)                                        |
+| pressed                            | `--state-pressed` (10% / 9%)                                                                                                                            | `state-layer`, on `:active`                                                                  |
+| selected · current · open          | `--state-selected` (8% / 7%) + weight 500 on the current row                                                                                            | `bg-state-selected`, or `layer-selected` over a filled part; it holds through hover          |
+| highlighted (menu / list cursor)   | `--state-hover`                                                                                                                                         | `data-highlighted:bg-state-hover`                                                            |
+| keyboard focus                     | `--state-focus` (info hue, 18% / 24%)                                                                                                                   | base.css, replacing the hover layer; `layer-focus` where a filled part shows a child's focus |
+| inner tile (icon tile, count chip) | `--state-tile` (6% / 7%)                                                                                                                                | `bg-state-tile` — it composes with the row, so it stays one step above it in every state     |
+| text entry                         | `input` → `--input-hover` border on hover → `--input-focus` border on focus (no ring or glow); `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
 
 **Status in agent UI is one quiet language (COL-25; operator 2026-11-13, agent chat ground up).**
 Every check — done, selected, approved, allowed, remembered, uploaded — is `primary`

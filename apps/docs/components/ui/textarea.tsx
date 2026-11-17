@@ -1,4 +1,4 @@
-// @vegastack textarea@0.90.0 sha256-ffcq5gFjw1Ty/tUMh1pa3wK43zzAdw0lVNO830aMl7A=
+// @vegastack textarea@0.90.0 sha256-8Hw4KlJtKs4ch2x1/91zcoGSWIf2zLS+LMc1YrNv4io=
 
 "use client";
 
@@ -13,7 +13,7 @@ const textareaVariants = cva(
     variants: {
       variant: {
         default:
-          "min-h-16 rounded-card border border-input bg-transparent px-2.5 py-2 hover:not-read-only:not-aria-invalid:border-input-hover focus:not-aria-invalid:not-read-only:border-ring/50 read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "min-h-16 rounded-card border border-input bg-transparent px-2.5 py-2 hover:not-read-only:not-aria-invalid:border-input-hover focus:not-aria-invalid:not-read-only:border-input-focus read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
         // A borderless, transparent field that grows with its text: a title typed straight onto
         // the page that may wrap (a task's title). No box and no fill in any state; the caret is
         // the focus cue. An invalid title turns its placeholder destructive.
@@ -68,7 +68,7 @@ function useAutoHeight(
 /**
  * `Textarea` — a multi-line text field that grows with its text (`field-sizing: content`).
  *
- * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-ring/50`,
+ * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-input-focus`,
  *   150ms ease-out) and paints no fill; an invalid field keeps its destructive border.
  * - `variant="ghost"`: borderless and transparent, one row to start, for a title typed straight
  *   onto the page that may wrap.

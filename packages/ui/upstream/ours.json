@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 147,
+    "total": 148,
     "fromExtras": 40
   },
   "items": {
@@ -59,6 +59,11 @@
       "family": "navigation",
       "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) — standing approval MK 2026-09-30",
       "rationale": "Upstream ships no sibling menu or drop-target crumb. breadcrumb.tsx is upstream's file plus a patch whose hunks each need a decision marked ours, so these compose its BreadcrumbLink, the DS DropdownMenu and useDragInto instead of patching it."
+    },
+    "breadcrumb-drop-target": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of breadcrumb-cascade: the lazily loaded drag half of BreadcrumbDropTarget, apart so a trail without a drop target never loads useDragInto (shell layout L22, operator 2026-11-16); not listed in extras.md"
     },
     "chip": {
       "disposition": "keep",

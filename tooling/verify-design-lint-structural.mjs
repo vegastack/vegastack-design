@@ -218,11 +218,11 @@ export function LiteralRules(_props: RenderlessProps) {
     `export function FocusBorder() {
   return <>
     <input className="border border-input focus:border-ring/70" />
-    <div className="focus-within:border-ring/50">a composer box</div>
+    <div className="focus-within:border-input-focus">a composer box</div>
     <div className="has-[[data-slot=input-group-control]:focus]:border-ring/70">a field group</div>
     <input className="not-focus:aria-invalid:border-destructive" />
     <button className="border-transparent data-popup-open:border-input">a ghost trigger</button>
-    <div className="has-[input:focus]:not-has-aria-invalid:border-ring/50">not a text-entry file</div>
+    <div className="has-[input:focus]:not-has-aria-invalid:border-input-focus">not a text-entry file</div>
   </>;
 }
 `,
@@ -243,13 +243,13 @@ export function LiteralRules(_props: RenderlessProps) {
   }
 
   // FOC-14's text-entry exception (MK 2026-09-27) is ONE class shape in the named files: the
-  // sanctioned `…:border-ring/50` passes in `ui/input.tsx`, and any other focus border colour in
+  // sanctioned `…:border-input-focus` passes in `ui/input.tsx`, and any other focus border colour in
   // that same file still fails — so the exemption cannot widen into a blanket file pass.
   writeFileSync(
     join(textEntryBorderDir, "input.tsx"),
     `export function Input() {
   return <>
-    <input className="border border-input focus:not-aria-invalid:border-ring/50" />
+    <input className="border border-input focus:not-aria-invalid:border-input-focus" />
     <input className="border border-input focus:border-ring/70" />
   </>;
 }
@@ -265,7 +265,7 @@ export function LiteralRules(_props: RenderlessProps) {
   ) {
     fail(
       "design-lint's text-entry focus-border exemption is wrong — it must pass exactly " +
-        "`…:border-ring/50` in the named text-entry files and reject every other focus border colour",
+        "`…:border-input-focus` in the named text-entry files and reject every other focus border colour",
       textEntryBorder.output,
     );
   }

@@ -195,7 +195,7 @@
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.98.1",
-        "integrity": "sha256-C4U8Br4wbqEIFntV2plZjXzKvLTFHvuGO5JG6yGUPRA="
+        "integrity": "sha256-e5b3TrkluHu6DMrecfcuqF6sUvYnEIRhbAvzd/ZEl14="
       }
     },
     {
@@ -1027,13 +1027,18 @@
           "path": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
           "type": "registry:ui",
           "target": "@ui/breadcrumb-cascade.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/breadcrumb-drop-target.tsx",
+          "type": "registry:ui",
+          "target": "@ui/breadcrumb-drop-target.tsx"
         }
       ],
       "meta": {
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
         "version": "0.90.0",
-        "integrity": "sha256-6+rn9M/x3sjqJZNHxJzN7Mo6CK5c/nJ6svubwS8bioQ="
+        "integrity": "sha256-IDGbAbNsSUgWB6XXpnRyuuNajq/5Sd8lcJK8LLpJKag="
       }
     },
     {
@@ -1485,7 +1490,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.90.0",
-        "integrity": "sha256-Qh2VdtbZfejWKvQ5Sudi9Vqy/TYV7w5Jz+khEPK1Hdo="
+        "integrity": "sha256-bjO105x/vQLYQWLKIZrWvq7x5jJJzirZ2RdXjoEzsCo="
       }
     },
     {
@@ -16612,7 +16617,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.90.0",
-        "integrity": "sha256-73RSmsdfCHxlePv7B5Zk+JenhNbB0fVSg/5lmfv1SWk="
+        "integrity": "sha256-/3jV4KO3ICVTbwfugsE180TEDkltW8pv/7kTzXXJ8oQ="
       }
     },
     {
@@ -16644,7 +16649,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.90.0",
-        "integrity": "sha256-pCg0VvU3+UmWx8LFOE1Gv2T1sLZXKV4utHfrwB1fTBQ="
+        "integrity": "sha256-CMntUlK76Swjtxl4r0CkQZG6FUZwncVN0OZkK5duvRw="
       }
     },
     {
@@ -16673,7 +16678,7 @@
         "whenToUse": "Entering a short verification code — 2FA, email confirmation, a device-pairing PIN.",
         "whenNotToUse": "Any value longer than a handful of characters, or one the user may not know the length of — use an Input.",
         "version": "0.90.0",
-        "integrity": "sha256-rwBPqZ3E8WcVr4W+z4yPoLxAmhfPf7Nxut/rJAgYorU="
+        "integrity": "sha256-PzlmXAeOQxKu9e0Xz35FMCoVusRPHYxM7BbaLDMVSwo="
       }
     },
     {
@@ -17467,7 +17472,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (Timeline), or a bare unread count (NotificationBell).",
         "version": "0.92.0",
-        "integrity": "sha256-OPJ8zSfrmTja2FK/DvrO/70ghIUA+995qtNn8PMK2B4="
+        "integrity": "sha256-lJltuCRItrWX8NU/1IL8oGq9tNqdNskClki8IqLnl8s="
       }
     },
     {
@@ -17681,7 +17686,7 @@
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.90.0",
-        "integrity": "sha256-SzOKjv2C+QFO7RfcOrSTbbn79uGsaGQEih1Jbt1ZYWA="
+        "integrity": "sha256-AElAXFZoijxkx72u9ole4qc5IvDgOsHwQL6GTRyOIaI="
       }
     },
     {
@@ -18172,7 +18177,7 @@
         "whenToUse": "Once, around your app root (layout.tsx) — every VegaStack component below it gets dark mode, working toast() calls, shared tooltip delays, and direction context.",
         "whenNotToUse": "Anywhere below the root, or a second time — the bundled Toaster is a mount-once portal; pass toaster={false} if you must render your own.",
         "version": "0.90.0",
-        "integrity": "sha256-hlCDFEBzxQ/VfIMN2RidtUc4J91g14LpiKID39nApHM="
+        "integrity": "sha256-96gEhus6YzaAUTGxB/e6dW1NWfoaiIAxWsj3vmKroa8="
       }
     },
     {
@@ -19113,7 +19118,7 @@
         "whenToUse": "Marketing or description text built from spec placeholders (\"Recessed @Power downlight with @Efficacy…\"), stored as {{id}} tokens a renderer fills in.",
         "whenNotToUse": "Formatted rich text (TextEdit), plain text with no placeholders (Textarea), or a single-line value (Input).",
         "version": "0.90.0",
-        "integrity": "sha256-8FNiTQktnEYnFK3UcEx9voCpcWqt+r6blgvVqoRVuU0="
+        "integrity": "sha256-QCpzjNdLRX5MY4BuZ9MERyeSo6kfsaHYVc5iDfrQ7bU="
       }
     },
     {
@@ -19200,7 +19205,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.90.0",
-        "integrity": "sha256-i3yjOPjkuuTjnn8lUzyumPnZAoLBfAgH7V3bEP0gkKw="
+        "integrity": "sha256-2S6k8JMyNebbEuB32BctmDDPFXDucmRQCTV2M3F/pZ8="
       }
     },
     {
@@ -19228,7 +19233,7 @@
         "whenToUse": "Multi-line free text — descriptions, comments, messages, notes.",
         "whenNotToUse": "Single-line entry (input), rich text (editor), or fixed options (select).",
         "version": "0.90.0",
-        "integrity": "sha256-ffcq5gFjw1Ty/tUMh1pa3wK43zzAdw0lVNO830aMl7A="
+        "integrity": "sha256-8Hw4KlJtKs4ch2x1/91zcoGSWIf2zLS+LMc1YrNv4io="
       }
     },
     {
@@ -20281,7 +20286,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.90.0",
-        "integrity": "sha256-chACFbilDpGH4PFgajmj8qQEwK2HMeto7mFdq/pyvjQ="
+        "integrity": "sha256-5HWVwCqtK7SS61W23T3eRjhYcsF/6+xR2bTQKRpU/4M="
       }
     },
     {
@@ -23506,7 +23511,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.89.0",
-        "integrity": "sha256-UAO6vZD5hXOm+AYkBOuD+tn+3AukMiy6q73dVyTwT0Q="
+        "integrity": "sha256-gIzE6IPmYH7f0E+u+M5sZQszlLIO03Ze8MotopWPH1Y="
       }
     },
     {

@@ -110,6 +110,10 @@ the active row gets a start bar, focus follows and `onActiveChange` reports it; 
 
 <ComponentPreview name="inbox" file="components/preview/inbox.tsx" />
 
+A `meta` that only repeats the title is dropped, so the row reads as one line: a one-line row is
+52px, its text and time centred on the avatar. With a pointer the read toggle and ⋯ menu take the
+time's place on hover rather than adding height.
+
 ### Grouped events
 
 `count` defaults to the number of `events`; `countLabel` words it ("9 updates" by default). Without

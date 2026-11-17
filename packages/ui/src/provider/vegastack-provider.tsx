@@ -29,6 +29,19 @@ export interface VegaStackProviderProps extends Omit<
    * the default. @default true
    */
   toaster?: boolean | React.ReactNode;
+  /**
+   * Mount the toast context here. `false` leaves toasts out of this provider, so the layouts that
+   * show them mount `VegaStackToasts` themselves and a route group without toasts mounts no toast
+   * viewport. `toaster` is ignored when it is `false`.
+   * @default true
+   */
+  toasts?: boolean;
+  /**
+   * Mount the shared tooltip delays here. `false` leaves them to a `VegaStackTooltips` in the
+   * layouts that show tooltips.
+   * @default true
+   */
+  tooltips?: boolean;
 }
 
 /**
@@ -48,8 +61,52 @@ export function VegaStackProvider({
   children,
   direction = "ltr",
   toaster = true,
+  toasts = true,
+  tooltips = true,
   ...themeProps
 }: VegaStackProviderProps) {
+  let content = children;
+  if (toasts)
+    content = <VegaStackToasts toaster={toaster}>{content}</VegaStackToasts>;
+  if (tooltips) content = <VegaStackTooltips>{content}</VegaStackTooltips>;
+  return (
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
+      {...themeProps}
+    >
+      <DirectionProvider direction={direction}>{content}</DirectionProvider>
+    </NextThemesProvider>
+  );
+}
+
+/** Props accepted by `VegaStackToasts`. */
+export interface VegaStackToastsProps {
+  /** The subtree whose `toast()` calls show. */
+  children: React.ReactNode;
+  /**
+   * The visible viewport: `true` the bundled `Toaster`, `false` none (a `<Toaster />` you render
+   * below reuses this store), or your own element.
+   * @default true
+   */
+  toaster?: boolean | React.ReactNode;
+}
+
+/**
+ * `VegaStackToasts` — the toast context on its own: the module `toast` manager's provider and one
+ * viewport. `VegaStackProvider` mounts it unless `toasts={false}`; mount it yourself in the
+ * layouts that toast, once per tree.
+ *
+ * @example
+ * // app/(app)/layout.tsx, under a root <VegaStackProvider toasts={false}>
+ * <VegaStackToasts toaster={<Toaster position="bottom-center" />}>{children}</VegaStackToasts>
+ */
+export function VegaStackToasts({
+  children,
+  toaster = true,
+}: VegaStackToastsProps) {
   const toasterNode =
     toaster === true ? <Toaster /> : toaster === false ? null : toaster;
   // A custom `<Toaster limit timeout />` renders into this provider's store, so its queue settings
@@ -61,26 +118,29 @@ export function VegaStackProvider({
     ? toaster.props
     : {};
   return (
-    <NextThemesProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-      {...themeProps}
+    // OVL-17: the provider carries the module `toast` manager, so `toast()` and
+    // `useToastManager()` feed one store, and the bundled `Toaster` renders into it.
+    <ToastProvider toastManager={toast} limit={limit} timeout={timeout}>
+      {children}
+      {toasterNode}
+    </ToastProvider>
+  );
+}
+
+/**
+ * `VegaStackTooltips` — the shared tooltip delays (`TIMINGS`) on their own, through
+ * `tooltip.tsx`'s `TooltipProvider`. `VegaStackProvider` mounts it unless `tooltips={false}`.
+ *
+ * @example
+ * <VegaStackTooltips>{children}</VegaStackTooltips>
+ */
+export function VegaStackTooltips({ children }: { children: React.ReactNode }) {
+  return (
+    <TooltipProvider
+      delay={TIMINGS.tooltipOpenDelayMs}
+      closeDelay={TIMINGS.tooltipCloseDelayMs}
     >
-      <DirectionProvider direction={direction}>
-        <TooltipProvider
-          delay={TIMINGS.tooltipOpenDelayMs}
-          closeDelay={TIMINGS.tooltipCloseDelayMs}
-        >
-          {/* OVL-17: the provider carries the module `toast` manager, so `toast()` and
-              `useToastManager()` feed one store, and the bundled `Toaster` renders into it. */}
-          <ToastProvider toastManager={toast} limit={limit} timeout={timeout}>
-            {children}
-            {toasterNode}
-          </ToastProvider>
-        </TooltipProvider>
-      </DirectionProvider>
-    </NextThemesProvider>
+      {children}
+    </TooltipProvider>
   );
 }

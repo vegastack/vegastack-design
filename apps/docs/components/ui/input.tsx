@@ -1,4 +1,4 @@
-// @vegastack input@0.90.0 sha256-73RSmsdfCHxlePv7B5Zk+JenhNbB0fVSg/5lmfv1SWk=
+// @vegastack input@0.90.0 sha256-/3jV4KO3ICVTbwfugsE180TEDkltW8pv/7kTzXXJ8oQ=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
@@ -11,7 +11,7 @@ const inputVariants = cva(
     variants: {
       variant: {
         default:
-          "rounded-control border border-input bg-transparent hover:not-read-only:not-aria-invalid:border-input-hover focus:not-aria-invalid:not-read-only:not-[[type=file]]:border-ring/50 read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
+          "rounded-control border border-input bg-transparent hover:not-read-only:not-aria-invalid:border-input-hover focus:not-aria-invalid:not-read-only:not-[[type=file]]:border-input-focus read-only:border-transparent read-only:bg-readonly disabled:bg-input/50 aria-invalid:border-destructive dark:bg-input/30 dark:read-only:bg-readonly dark:disabled:bg-input/80 dark:aria-invalid:border-destructive/50",
         // A borderless, transparent field for a big title (Linear's issue title). No box and no fill
         // in any state — rest, hover, focus (text entry takes no tint, FOC-3): the text cursor marks
         // it editable and the caret is the focus cue. An invalid title turns its placeholder
@@ -48,7 +48,7 @@ type InputProps = Omit<React.ComponentProps<"input">, "size"> &
 /**
  * `Input` — a single-line text field.
  *
- * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-ring/50`,
+ * - `variant="default"`: the bordered field; focus darkens the border subtly (`border-input-focus`,
  *   150ms ease-out) and paints no fill; an invalid field keeps its destructive border focused or not.
  * - `variant="ghost"`: borderless and transparent, for a title you type straight onto the page.
  * - `size`: `sm` (28px), `default` (32px), `lg` (heading size — pair with `ghost` for a big title).

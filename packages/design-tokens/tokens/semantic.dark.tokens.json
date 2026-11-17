@@ -229,7 +229,17 @@
       "colorSpace": "oklch",
       "components": [0.985, 0, 0],
       "alpha": 0.25
-    }
+    },
+    "$description": "FOC-16: the dark half of text entry's hover border (2.10:1 on the page)."
+  },
+  "input-focus": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.37
+    },
+    "$description": "FOC-14 (ours, 2026-11-17): the dark half of text entry's focus border — the same three steps as light (rest 1.47:1, hover 2.10:1, focus 3.3:1 on the page; at least 3:1 on every neutral surface, FOC-10)."
   },
   "readonly": {
     "$type": "color",

@@ -66,7 +66,7 @@ export const designMdConfig = {
       foreground: "{foreground}",
       border: "{input}",
       hoverBorder: "{input-hover}",
-      focusBorder: "{ring}/50",
+      focusBorder: "{input-focus}",
       readOnly: "{readonly}, transparent border",
       radius: "{radius}",
       typography: "text-sm",

@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.90.0 sha256-6+rn9M/x3sjqJZNHxJzN7Mo6CK5c/nJ6svubwS8bioQ=
+// @vegastack breadcrumb-cascade@0.90.0 sha256-IDGbAbNsSUgWB6XXpnRyuuNajq/5Sd8lcJK8LLpJKag=
 
 "use client";
 
@@ -26,7 +26,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useDragInto } from "@/components/ui/use-drag-reorder";
 
 /* ---
 `breadcrumb-cascade` adds three things to a breadcrumb trail that a file browser needs, without
@@ -62,13 +61,27 @@ export interface BreadcrumbDropTargetProps extends useRender.ComponentProps<"a">
   canDropInto?: (move: BreadcrumbDropMove) => boolean;
 }
 
+// The drop target's link classes, the same on the loading link and the loaded one.
+const dropTargetClasses =
+  // The drop wash needs a little room around the text, so the crumb carries it always: the -mx-1
+  // keeps the trail's spacing where it was.
+  "-mx-1 rounded-item px-1 data-drop-invalid:bg-destructive/10 data-drop-over:bg-primary/10 data-drop-over:text-foreground";
+
+// The drag half is its own chunk (`useDragInto`), loaded the first time a drop target mounts.
+const LazyDropTargetLink = React.lazy(() =>
+  import("@/components/ui/breadcrumb-drop-target").then((module) => ({
+    default: module.BreadcrumbDropTargetLink,
+  })),
+);
+
 /**
  * `BreadcrumbDropTarget` — a breadcrumb link that rows dragged from a `DataList` (or any
  * `useDragInto` source in the same `dragScope`) can be dropped on: moving items up to a parent
  * folder by dropping them on its crumb. It renders `BreadcrumbLink`, so it is still the link it
  * was; while a drag is over it, it washes in the primary tint (`data-drop-over`), or the
  * destructive tint when it refuses (`data-drop-invalid`). Pointer only — the keyboard path is the
- * host's "Move…" action.
+ * host's "Move…" action. The drag code loads the first time a drop target mounts; until then
+ * (and on the server) it renders the same link without the drop wiring.
  *
  * @example
  * <BreadcrumbItem>
@@ -88,37 +101,24 @@ export function BreadcrumbDropTarget({
   onDropInto,
   canDropInto,
   className,
-  ref,
   ...props
 }: BreadcrumbDropTargetProps) {
-  const into = useDragInto({
-    scope: dragScope,
-    canDrop: ({ ids, targetKey }) =>
-      canDropInto?.({ ids, targetId: targetKey }) ?? true,
-    onDrop: ({ ids, targetKey }) => {
-      void onDropInto({ ids, targetId: targetKey });
-    },
-  });
-  const { ref: dropRef, ...dropState } = into.getItemProps(targetId, {
-    drop: "whole",
-  });
-  const mergedRef = React.useMemo(
-    () => mergeRefs(dropRef, ref),
-    [dropRef, ref],
-  );
+  const classes = cn(dropTargetClasses, className);
   return (
-    <BreadcrumbLink
-      ref={mergedRef}
-      data-drop-target=""
-      {...dropState}
-      className={cn(
-        // The drop wash needs a little room around the text, so the crumb carries it always:
-        // the -mx-1 keeps the trail's spacing where it was.
-        "-mx-1 rounded-item px-1 data-drop-invalid:bg-destructive/10 data-drop-over:bg-primary/10 data-drop-over:text-foreground",
-        className,
-      )}
-      {...props}
-    />
+    <React.Suspense
+      fallback={
+        <BreadcrumbLink data-drop-target="" className={classes} {...props} />
+      }
+    >
+      <LazyDropTargetLink
+        targetId={targetId}
+        dragScope={dragScope}
+        onDropInto={onDropInto}
+        canDropInto={canDropInto}
+        className={classes}
+        {...props}
+      />
+    </React.Suspense>
   );
 }
 

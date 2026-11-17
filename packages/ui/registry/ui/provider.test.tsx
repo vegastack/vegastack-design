@@ -2,7 +2,12 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import { VegaStackProvider, useVegaStackTheme } from "./provider";
+import {
+  VegaStackProvider,
+  VegaStackToasts,
+  VegaStackTooltips,
+  useVegaStackTheme,
+} from "./provider";
 import * as React from "react";
 import { Toaster, toast, useToastManager } from "./toast";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./tooltip";
@@ -165,6 +170,47 @@ test("tooltips below the provider open on the shared TIMINGS delay", async () =>
         ?.textContent?.includes("Save the draft"),
     )
     .toBe(true);
+});
+
+test("toasts and tooltips placed per layout: the root leaves them out, a layout mounts them", async () => {
+  const screen = await render(
+    <VegaStackProvider toasts={false} tooltips={false}>
+      <VegaStackTooltips>
+        <VegaStackToasts>
+          <Tooltip>
+            <TooltipTrigger render={<button type="button">Save</button>} />
+            <TooltipContent>Save the draft</TooltipContent>
+          </Tooltip>
+        </VegaStackToasts>
+      </VegaStackTooltips>
+    </VegaStackProvider>,
+  );
+  // One viewport, the layout's, and toast() reaches it.
+  toast.add({ title: "Layout toast" });
+  await waitForToast("Layout toast");
+  expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
+    1,
+  );
+  await drainToasts();
+  await userEvent.hover(screen.getByRole("button", { name: "Save" }));
+  await expect
+    .poll(() =>
+      document
+        .querySelector('[data-slot="tooltip-content"]')
+        ?.textContent?.includes("Save the draft"),
+    )
+    .toBe(true);
+});
+
+test("toasts={false} mounts no toast viewport at the root", async () => {
+  await render(
+    <VegaStackProvider toasts={false}>
+      <div>app</div>
+    </VegaStackProvider>,
+  );
+  expect(document.querySelectorAll('[data-slot="toast-viewport"]').length).toBe(
+    0,
+  );
 });
 
 /* DS-64 / OVL-17 — one toast store for toast() and useToastManager() */

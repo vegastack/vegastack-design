@@ -103,7 +103,7 @@ test("FOC-3/FOC-14: focus darkens the border subtly with an ease, with outline-h
   );
   // Text entry's one focus cue: a subtle darker border, guarded so invalid wins, eased in.
   expect(classes.match(/\S*focus\S*:border-\S+/g)).toEqual([
-    "focus:not-aria-invalid:not-read-only:not-[[type=file]]:border-ring/50",
+    "focus:not-aria-invalid:not-read-only:not-[[type=file]]:border-input-focus",
   ]);
   expect(classes).toContain("duration-150");
   expect(classes).toContain("ease-out");

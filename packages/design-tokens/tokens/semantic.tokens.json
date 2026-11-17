@@ -63,7 +63,12 @@
   },
   "input": {
     "$type": "color",
-    "$value": "{color.neutral.200}"
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.88, 0, 0],
+      "alpha": 1
+    },
+    "$description": "FOC-14 (ours, 2026-11-17): a text field's resting border, the first of three even steps (rest 1.44:1, hover 2.10:1, focus 3.26:1 on the page), so focus reads as the next step rather than a jump from a pale field. Was `neutral.200` (1.26:1). Also the unchecked Switch track and ButtonGroup separators."
   },
   "ring": {
     "$type": "color",
@@ -284,9 +289,18 @@
     "$value": {
       "colorSpace": "oklch",
       "components": [0.145, 0, 0],
-      "alpha": 0.22
+      "alpha": 0.31
     },
-    "$description": "FOC-16 (ours, operator 2026-10-31): text entry's hover border — a visible step above `input` at rest."
+    "$description": "FOC-16 (ours, operator 2026-10-31): text entry's hover border — the middle step between `input` at rest and `input-focus` (2.10:1 on the page)."
+  },
+  "input-focus": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.46
+    },
+    "$description": "FOC-14 (ours, 2026-11-17): text entry's focus border, the top of its three steps (rest 1.44:1, hover 2.10:1, focus 3.26:1 on the page; at least 3:1 on every neutral surface, FOC-10). Text entry only; every other control keeps its border on focus."
   },
   "readonly": {
     "$type": "color",
@@ -784,6 +798,14 @@
       "unit": "ms"
     },
     "$description": "MOT-14: a new message or card arriving (opacity + 6px rise), a side sheet sliding in. Pairs with `ease-enter`."
+  },
+  "duration-panel": {
+    "$type": "duration",
+    "$value": {
+      "value": 120,
+      "unit": "ms"
+    },
+    "$description": "The shell panel opening: it slides in and the page makes room together, quick enough to read as a response to the click. Pairs with `ease-enter` (an ease-out curve); it closes on `duration-quick-exit` with `ease-exit`, never slower than it opened. Reduced motion drops both to none."
   },
   "duration-stream-word": {
     "$type": "duration",

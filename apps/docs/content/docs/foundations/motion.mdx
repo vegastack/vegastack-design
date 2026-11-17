@@ -30,6 +30,7 @@ Agent UI moves on one set (MOT-14), and no chat component sets its own duration 
 | `duration-quick` / `duration-quick-exit`   | 160ms / 120ms | `ease-enter` / `ease-exit` | menus, popovers, tooltips (opacity, scale .98→1, 4px from the trigger); a check appearing  |
 | `duration-state` / `duration-state-exit`   | 220ms / 160ms | `ease-enter` / `ease-exit` | a fold opening and closing, its chevron, Send↔Stop, a card settling to its line, Show more |
 | `duration-layout`                          | 280ms         | `ease-enter`               | a new message or card arriving (opacity + 6px rise), a side sheet sliding in               |
+| `duration-panel`                           | 120ms         | `ease-enter`               | the shell panel opening (it closes on `duration-quick-exit`)                               |
 | `--duration-stream-word`                   | 180ms         | `ease-enter`               | a streamed word fading in, prose only (never code, tables or maths)                        |
 | `--duration-loader-frame` / `-loader-dots` | 80ms / 300ms  | steps                      | one frame of the [`TextSpinner`](/docs/components/text-spinner) bolt: Strike / Pulse       |
 

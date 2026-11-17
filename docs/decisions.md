@@ -84,7 +84,7 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   `focus:`/`focus-visible:`/`focus-within:`/`data-focused:`/`data-popup-open:` border change.
   **Except text entry** (MK 2026-09-27): Input, Textarea, the bordered field groups framing a text
   control (InputGroup and its dependents, the combobox chips, the PanelSearch row), the Questionnaire
-  answer, the InputOTP active slot and TextEdit `boxed` darken their border to `border-ring/50`
+  answer, the InputOTP active slot and TextEdit `boxed` darken their border to `border-input-focus`
   with `duration-150 ease-out`, with no fill. Invalid keeps its destructive border focused or not
   (a `not-…invalid` guard on the focus class). `design-lint`'s `no-focus-border` rejects a focus
   border class outside that one shape in those files, and the geometry lane's focus sweep holds
