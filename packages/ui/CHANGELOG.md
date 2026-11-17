@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.109.0
+
+### Minor Changes
+
+- [#1023](https://github.com/vegastack/vegastack-design/pull/1023) [`9aaf794`](https://github.com/vegastack/vegastack-design/commit/9aaf7941c1a97659de9d756855c8cde7fe21a433) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 `DataList`'s `rowOpenGestures` is removed, with `RowOpenDetails`' `background` and `keep`: they served the retired panel tabs (a ⌘/Ctrl or middle click opened a background tab, a double-click kept a preview tab). With layout v2 a row opens in a peek on a plain click, and ⌘/Ctrl, Shift, Alt and middle clicks are the row link's own, opening the record's page in a new tab or window (D6).
+
 ## 0.108.0
 
 ### Minor Changes
