@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.103.1
+
+### Patch Changes
+
+- [#1016](https://github.com/vegastack/vegastack-design/pull/1016) [`e2c800c`](https://github.com/vegastack/vegastack-design/commit/e2c800ccb9f96dc51378fdd0f20d7a30c024922d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **The docs site deploys again**: an angle-bracketed placeholder in the 0.103.0 changelog entry read as an MDX tag and broke the changelog page's build; it now names an example. No component changes.
+
 ## 0.103.0
 
 ### Minor Changes
