@@ -173,7 +173,7 @@
       "meta": {
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.107.0"
+        "version": "0.109.1"
       }
     },
     {
@@ -346,7 +346,7 @@
       "meta": {
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
-        "version": "0.107.0"
+        "version": "0.109.1"
       }
     },
     {
@@ -20130,7 +20130,7 @@
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
-        "version": "0.107.0"
+        "version": "0.109.1"
       }
     }
   ]

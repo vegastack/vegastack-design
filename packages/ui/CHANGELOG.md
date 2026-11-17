@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.109.1
+
+### Patch Changes
+
+- [#1024](https://github.com/vegastack/vegastack-design/pull/1024) [`a144404`](https://github.com/vegastack/vegastack-design/commit/a14440463256671cda5a014d7d40dcb6fb8a0c11) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Phone sheets: closing a peek sheet no longer sends focus to the list's search field when iOS Safari had focused the page's `<main>` on the tap (no keyboard pops up), and the shell's column sheet follows a downward drag and closes past a short distance or on a flick, without scrolling the page behind or starting Safari's pull-to-refresh. The assistant's card now stacks above a side peek instead of opening hidden behind it.
+
 ## 0.109.0
 
 ### Minor Changes

@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.109.1] — November 17, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.109.0 → 0.109.1.
+
+### 🐛 Fixed
+
+- Phone sheets: closing a peek sheet no longer sends focus to the list's search field when iOS Safari had focused the page's `<main>` on the tap (no keyboard pops up), and the shell's column sheet follows a downward drag and closes past a short distance or on a flick, without scrolling the page behind or starting Safari's pull-to-refresh. The assistant's card now stacks above a side peek instead of opening hidden behind it.
+  [`a144404`](https://github.com/VegaStack/vegastack-design/commit/a144404)
+
 ## [0.109.0] — November 17, 2026
 
 ### 🗑 Removed / renamed

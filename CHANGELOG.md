@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.109.1] — November 17, 2026
+
+<!-- assembled from 1 changeset: 31c6029d56b2 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.109.0 → 0.109.1.
+
+### 🐛 Fixed
+
+- Phone sheets: closing a peek sheet no longer sends focus to the list's search field when iOS Safari had focused the page's `<main>` on the tap (no keyboard pops up), and the shell's column sheet follows a downward drag and closes past a short distance or on a flick, without scrolling the page behind or starting Safari's pull-to-refresh. The assistant's card now stacks above a side peek instead of opening hidden behind it.
+  [`a144404`](https://github.com/VegaStack/vegastack-design/commit/a144404)
+
 ## [0.109.0] — November 17, 2026
 
 <!-- assembled from 1 changeset: eb4df7cb1311 -->
