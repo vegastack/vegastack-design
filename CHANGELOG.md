@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.110.1] — November 17, 2026
+
+<!-- assembled from 1 changeset: 407ab2527be0 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.110.0 → 0.110.1.
+
+### 📚 Docs
+
+- Docs: the 0.110.0 changelog entry wrote its placeholders as tags, which stopped the docs site building; they are code now, and the docs (with the Members Stack page) deploy again.
+  [`b8555f2`](https://github.com/VegaStack/vegastack-design/commit/b8555f2)
+
 ## [0.110.0] — November 17, 2026
 
 <!-- assembled from 1 changeset: 63d8b7077641 -->

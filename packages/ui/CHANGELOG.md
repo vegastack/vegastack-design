@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.110.1
+
+### Patch Changes
+
+- [#1029](https://github.com/vegastack/vegastack-design/pull/1029) [`b8555f2`](https://github.com/vegastack/vegastack-design/commit/b8555f2dadfa2a3fe90bfc7f1d73a2fb83f75271) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 Docs: the 0.110.0 changelog entry wrote its placeholders as tags, which stopped the docs site building; they are code now, and the docs (with the Members Stack page) deploy again.
+
 ## 0.110.0
 
 ### Minor Changes
