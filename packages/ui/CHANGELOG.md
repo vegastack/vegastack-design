@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.110.0
+
+### Minor Changes
+
+- [#1028](https://github.com/vegastack/vegastack-design/pull/1028) [`e52d551`](https://github.com/vegastack/vegastack-design/commit/e52d551fbca97ed056f74d9c6917891d931e5c7c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 UI ground rules (P1, P1a, P3, M1–M5): the page bar and the members stack. **Breaking:** the top bar's end holds five slots in one fixed order — `ShellTopBarMembers` · `ShellTopBarShare` · `ShellTopBarWatch` · `ShellTopBarFavorite` · `ShellTopBarMore` — and nothing else: `ShellTopBarTools` and `ShellTopBarPrimary` are removed, `ShellTopBarPresence` is now `ShellTopBarMembers`, and the new `ShellTopBarWatch` puts the Watch bell beside ☆. Every bar control is ghost and 28px (Share is a ghost button with its icon and label; the Watch and ☆ toggles share one 28px circle), and ⋯ is documented as rendering only with two or more actions. A list's primary button moves to `ListToolbar`'s new `primary` slot, the row's last control after the tools, measured with the rest so the row never wraps. New `MembersStack` replaces `AvatarStack` (removed from `person-hover-card`): 24px faces overlapped by 6px with a 2px surface ring, at most three, then a "+N" pill of the same 24px height (11px semibold tabular, capped at "99+"); people active now first with a green dot, the viewer never first unless alone (`orderMembers`); "Only you", "Everyone in <space>" and "<team> · <count>" forms; names in a tooltip (ten, then "and N more"), one members popover with a host `footer`, and `count` for a list row's Members cell ("23 members", 8px on).
+
 ## 0.109.4
 
 ### Patch Changes

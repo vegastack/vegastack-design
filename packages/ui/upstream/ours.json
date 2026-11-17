@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 147,
+    "total": 148,
     "fromExtras": 40
   },
   "items": {
@@ -327,7 +327,13 @@
       "disposition": "keep",
       "family": "data",
       "source": "Operator brief 2026-09-25 (meeting participants) — approved by MK 2026-09-25",
-      "rationale": "Upstream ships no person preview. A fixed composition of upstream avatar (group), hover-card, popover and button; no patch."
+      "rationale": "Upstream ships no person preview. A fixed composition of upstream hover-card and button; no patch. Stacks of people moved to members-stack."
+    },
+    "members-stack": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent UI ground rules M1–M5 (operator approved 18-11-2026: \"Approve, start\")",
+      "rationale": "Upstream's AvatarGroup count is a 32px circle with no cap and no access forms; the one members stack (24px faces, 6px overlap, a +N pill the faces' height, presence order, only-you/everyone/team forms, one popover) composes person-avatar, tooltip, popover and button; no patch."
     },
     "picker-panel": {
       "disposition": "keep",

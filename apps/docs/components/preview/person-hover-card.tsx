@@ -2,7 +2,6 @@
 
 import type { ReactNode } from "react";
 import { Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Wrapper } from "./wrapper";
 import {
   PersonAvatar,
@@ -11,11 +10,8 @@ import {
   type PersonAvatarSize,
 } from "@/components/ui/person-avatar";
 import { AgentStateBadge, AgentStateRing } from "@/components/ui/agent-panel";
-import {
-  AvatarStack,
-  PersonCard,
-  PersonHoverCard,
-} from "@/components/ui/person-hover-card";
+import { MembersStack } from "@/components/ui/members-stack";
+import { PersonCard, PersonHoverCard } from "@/components/ui/person-hover-card";
 
 const PEOPLE: Person[] = [
   { name: "Asha Rao", email: "asha@acme.com", hue: "blue" },
@@ -35,7 +31,13 @@ const PEOPLE: Person[] = [
 export function personHoverCard(): ReactNode {
   return (
     <Wrapper>
-      <AvatarStack people={PEOPLE} label="Participants" />
+      <div className="flex items-center gap-1">
+        {PEOPLE.slice(0, 4).map((person) => (
+          <PersonHoverCard key={person.name} person={person}>
+            <PersonAvatar person={person} />
+          </PersonHoverCard>
+        ))}
+      </div>
     </Wrapper>
   );
 }
@@ -130,28 +132,9 @@ export function personHoverCardTeam(): ReactNode {
   ];
   return (
     <Wrapper>
-      <AvatarStack people={shared} label="Shared with" />
+      <MembersStack people={shared} label="Shared with" />
       <PersonAvatar size="lg" person={shared[2]!} />
       <PersonCard person={shared[3]!} />
-    </Wrapper>
-  );
-}
-
-/** Five of fourteen members loaded: `total` keeps "+N" honest; `footer` ends the list with an action. */
-export function personHoverCardTotal(): ReactNode {
-  return (
-    <Wrapper>
-      <AvatarStack
-        people={PEOPLE.slice(0, 5)}
-        total={14}
-        max={3}
-        label="Members"
-        footer={
-          <Button variant="ghost" size="sm" className="w-full justify-start">
-            Manage access
-          </Button>
-        }
-      />
     </Wrapper>
   );
 }
@@ -307,7 +290,7 @@ export function personHoverCardMixed(): ReactNode {
   ];
   return (
     <Wrapper>
-      <AvatarStack people={collaborators} max={6} label="Collaborators" />
+      <MembersStack people={collaborators} label="Collaborators" />
     </Wrapper>
   );
 }

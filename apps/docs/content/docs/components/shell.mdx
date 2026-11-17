@@ -132,27 +132,29 @@ fixed while the column scrolls. Its places are a [`NavTree`](/docs/components/na
 ### The top bar's order
 
 The page's top bar keeps one order whatever order its slots are written in: the title, then at the
-end **presence · icon tools · primary · Share · ☆ · ⋯**, with ⋯ always last and ☆ right before
-it.
+end **members · Share · Watch · ☆ · ⋯**, with ⋯ always last and ☆ right before it. Nothing else
+goes in the bar: a list's primary button is the last control of its
+[`ListToolbar`](/docs/components/list-toolbar) (`primary`), and a record's or a form's main action
+sits in the content, beside the work.
 
-| Slot                  | Holds                                               |
-| --------------------- | --------------------------------------------------- |
-| `ShellTopBarTitle`    | The breadcrumb and the page's `<h1>`                |
-| `ShellTopBarPresence` | Who else is here: one `AvatarGroup`, always first   |
-| `ShellTopBarTools`    | The page's icon tools                               |
-| `ShellTopBarPrimary`  | The one primary action, if the page has one         |
-| `ShellTopBarShare`    | Share, an outline button                            |
-| `ShellTopBarFavorite` | ☆                                                   |
-| `ShellTopBarMore`     | ⋯, the page's menu; it also holds every folded tool |
-| `ShellTopBarPanel`    | A record page's ▥, after ⋯ and a divider            |
+| Slot                  | Holds                                                                       |
+| --------------------- | --------------------------------------------------------------------------- |
+| `ShellTopBarTitle`    | The breadcrumb and the page's `<h1>`                                        |
+| `ShellTopBarMembers`  | Who has access: one [`MembersStack`](/docs/components/members-stack), first |
+| `ShellTopBarShare`    | Share, a ghost button with its icon and label                               |
+| `ShellTopBarWatch`    | The Watch bell, where the record has one                                    |
+| `ShellTopBarFavorite` | ☆                                                                           |
+| `ShellTopBarMore`     | ⋯, the page's menu, only with two or more actions                           |
+| `ShellTopBarPanel`    | A record page's ▥, after ⋯ and a divider                                    |
 
 A record page adds one control after ⋯: ▥ (`RecordPanelToggle` in `ShellTopBarPanel`, behind a
 hairline divider), which shows and hides its side panel ([Record Layout](/docs/components/record-layout)).
 
-The tools, Share, ☆ and ⋯ are one button shape: 28px, round, with the same hover. Narrow, Share
-shows its icon alone (`ShellTopBarLabel`), presence leaves, and tools marked `data-shell-fold` go
-to the ⋯ menu. There is no save status in the bar: saving is silent, and a failed save shows an
-alert with a retry in the page.
+Every control in the bar is ghost and 28px: Share, the Watch and ☆ toggles (the same 28px
+circle) and ⋯. Nothing in the bar is filled or outlined. A ⋯ with one action is that action's own
+button instead, and Copy link lives in Share, never alone in ⋯. Narrow, Share shows its icon alone
+(`ShellTopBarLabel`) and the members leave. There is no save status in the bar: saving is silent,
+and a failed save shows an alert with a retry in the page.
 
 <ComponentPreview name="shellTopBar" file="components/preview/shell.tsx" />
 

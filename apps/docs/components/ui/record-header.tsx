@@ -1,4 +1,4 @@
-// @vegastack record-header@0.107.0 sha256-+zPoAQioZ3jAM4byGLU7nX38hJftLhBYinLDHEVpowM=
+// @vegastack record-header@0.110.0 sha256-ToJUD6baKTCMluuIXIs39PjKoFS4G8k26+VGpF/lup8=
 
 "use client";
 
@@ -89,7 +89,7 @@ export interface RecordHeaderProps extends Omit<
    */
   status?: React.ReactNode;
   /**
-   * Who else is here (an `AvatarStack`), at the end of the eyebrow line.
+   * Who else is here (a `MembersStack`), at the end of the eyebrow line.
    * @default undefined
    */
   presence?: React.ReactNode;
@@ -128,7 +128,7 @@ export interface RecordHeaderProps extends Omit<
  *   title={task.title}
  *   onRename={(title) => updateTask({ title })}
  *   status={<StatusBadge status={task.status} />}
- *   presence={<AvatarStack people={here} max={3} />}
+ *   presence={<MembersStack people={here} />}
  *   actions={<TaskActionsMenu task={task} />}
  *   meta={
  *     <MetaLine>

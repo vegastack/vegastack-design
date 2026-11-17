@@ -66,28 +66,20 @@ const STATUSES: Opt[] = [
 const PRIORITIES = ["High", "Medium", "Low"];
 
 /**
- * The page around a toolbar: the app's top bar (breadcrumb, then the page's main button at its
- * right end — never in the toolbar), the title, then the toolbar.
+ * The page around a toolbar: the app's top bar (the breadcrumb; no primary there, P1a), the
+ * title, then the toolbar, whose last control is the page's primary button.
  */
 function PageFrame({
   title,
-  action,
   children,
 }: {
   title: string;
-  action?: string;
   children: ReactNode;
 }) {
   return (
     <div className="flex w-full min-w-0 flex-col gap-4">
-      <div className="flex h-10 items-center justify-between gap-2 border-b border-border pb-2">
+      <div className="flex h-10 items-center gap-2 border-b border-border pb-2">
         <span className="truncate text-sm text-muted-foreground">{title}</span>
-        {action ? (
-          <Button size="sm">
-            <Plus aria-hidden />
-            {action}
-          </Button>
-        ) : null}
       </div>
       <h2 className="m-0 text-xl font-semibold">{title}</h2>
       {children}
@@ -179,6 +171,12 @@ function TasksToolbar({ width }: { width?: number }) {
       className="w-full"
     >
       <ListToolbar
+        primary={
+          <Button size="sm">
+            <Plus aria-hidden />
+            New task
+          </Button>
+        }
         tabs={
           <Tabs value={scope} onValueChange={(next) => setScope(String(next))}>
             <TabsList overflow="menu" aria-label="Whose tasks">
@@ -374,7 +372,7 @@ function TasksToolbar({ width }: { width?: number }) {
 export function listToolbar(): ReactNode {
   return (
     <Wrapper className="block p-4">
-      <PageFrame title="Tasks" action="New task">
+      <PageFrame title="Tasks">
         <TasksToolbar />
       </PageFrame>
     </Wrapper>
@@ -418,8 +416,14 @@ export function listToolbarTable(): ReactNode {
   const [dirty, setDirty] = React.useState(true);
   return (
     <Wrapper className="block p-4">
-      <PageFrame title="Requests" action="New row">
+      <PageFrame title="Requests">
         <ListToolbar
+          primary={
+            <Button size="sm">
+              <Plus aria-hidden />
+              New row
+            </Button>
+          }
           tabs={
             <ViewTabs
               views={[
@@ -563,8 +567,14 @@ export function listToolbarSettings(): ReactNode {
   const [role, setRole] = React.useState<Opt[]>([]);
   return (
     <Wrapper className="block p-4">
-      <PageFrame title="Members" action="Invite member">
+      <PageFrame title="Members">
         <ListToolbar
+          primary={
+            <Button size="sm">
+              <Plus aria-hidden />
+              Invite member
+            </Button>
+          }
           search={{
             value: query,
             onValueChange: setQuery,

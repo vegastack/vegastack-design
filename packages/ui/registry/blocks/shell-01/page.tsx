@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.107.0 sha256-xjwKXhQZhMsMThC/5gXYxEs7ABYiMAKOaVLy8hsfmIY=
+// @vegastack shell-01@0.110.0 sha256-Y2tKy3ynZT40QzyIUBODwdsTq3K3qV2ZNfu83WQVzuc=
 
 "use client";
 
@@ -19,7 +19,7 @@ import {
   LayoutDashboard,
   Library,
   ListChecks,
-  MessageSquare,
+  Bell,
   MoreHorizontal,
   Plus,
   Settings2,
@@ -27,8 +27,9 @@ import {
   Sparkles,
   Star,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarGroup } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { MembersStack } from "@/components/ui/members-stack";
 import {
   GlobalBar,
   GlobalBarAsk,
@@ -63,18 +64,17 @@ import {
   ShellTopBarFavorite,
   ShellTopBarLabel,
   ShellTopBarMore,
-  ShellTopBarPresence,
-  ShellTopBarPrimary,
+  ShellTopBarMembers,
   ShellTopBarShare,
   ShellTopBarTitle,
-  ShellTopBarTools,
+  ShellTopBarWatch,
 } from "@/components/ui/shell";
 import { TASKS, type Task } from "./components/tasks";
 
 const people = [
-  { initials: "AC", name: "Asha Chen" },
-  { initials: "MK", name: "Manoj Kumar" },
-  { initials: "RS", name: "Ravi Shah" },
+  { name: "Asha Chen", hue: "blue" as const, active: true },
+  { name: "Manoj Kumar", hue: "green" as const, you: true },
+  { name: "Ravi Shah", hue: "orange" as const },
 ];
 
 function StatusIcon({ status }: { status: Task["status"] }) {
@@ -244,49 +244,40 @@ export default function Shell01Page({
         <ShellTopBarTitle parents={<a href="#home">Home</a>}>
           My tasks
         </ShellTopBarTitle>
-        <ShellTopBarPresence>
-          <AvatarGroup>
-            {people.map((p) => (
-              <Avatar key={p.initials} size="sm">
-                <AvatarFallback aria-label={p.name}>
-                  {p.initials}
-                </AvatarFallback>
-              </Avatar>
-            ))}
-          </AvatarGroup>
-        </ShellTopBarPresence>
+        <ShellTopBarMembers>
+          <MembersStack people={people} total={5} />
+        </ShellTopBarMembers>
         <ShellTopBarMore>
           <Button variant="ghost" size="icon-sm" aria-label="More">
             <MoreHorizontal />
           </Button>
         </ShellTopBarMore>
         <ShellTopBarFavorite>
-          <Button variant="ghost" size="icon-sm" aria-label="Favourite">
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Favourite"
+            aria-pressed={false}
+          >
             <Star />
           </Button>
         </ShellTopBarFavorite>
+        <ShellTopBarWatch>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Watch"
+            aria-pressed={false}
+          >
+            <Bell />
+          </Button>
+        </ShellTopBarWatch>
         <ShellTopBarShare>
-          <Button variant="outline" size="sm">
+          <Button variant="ghost" size="sm">
             <Share2 />
             <ShellTopBarLabel>Share</ShellTopBarLabel>
           </Button>
         </ShellTopBarShare>
-        <ShellTopBarPrimary>
-          <Button size="sm">
-            <Plus />
-            <ShellTopBarLabel>New task</ShellTopBarLabel>
-          </Button>
-        </ShellTopBarPrimary>
-        <ShellTopBarTools>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Comments"
-            data-shell-fold
-          >
-            <MessageSquare />
-          </Button>
-        </ShellTopBarTools>
       </ShellTopBar>
       <ShellMain>
         <ShellPage>

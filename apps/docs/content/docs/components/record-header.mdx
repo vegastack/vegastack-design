@@ -24,7 +24,7 @@ import { RecordHeader } from "@/components/ui/record-header";
   title={task.title}
   onRename={(title) => updateTask({ title })}
   status={<StatusBadge status={task.status} />}
-  presence={<AvatarStack people={here} max={3} />}
+  presence={<MembersStack people={here} />}
   actions={<TaskActionsMenu task={task} />}
   meta={<MetaLine>…</MetaLine>}
   chips={<TaskChips task={task} />}
