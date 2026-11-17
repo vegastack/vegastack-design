@@ -153,7 +153,7 @@
       "name": "shell",
       "type": "registry:ui",
       "title": "Shell",
-      "description": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over; with the cookie state script and the floating area.",
+      "description": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, and a phone bottom bar — laid out in CSS before hydration, with the cookie state script and the floating area.",
       "categories": [
         "layout",
         "navigation"
@@ -191,10 +191,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
+        "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.106.1",
-        "integrity": "sha256-FYuHmyrA0TG5XBQxfAtt9QXo8Bo07k7DeMKN5aFI9+Q="
+        "integrity": "sha256-T30rxH4I9RFJtEN+povRIv40gF3dK3pXphjEQxFuqSs="
       }
     },
     {

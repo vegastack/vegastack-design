@@ -199,7 +199,7 @@ starts with `icon-` is a component and never an icon.
 - **`scroll-area`** — Augments native scroll functionality for custom, cross-browser styling — a viewport, an auto-hiding scrollbar, and a corner.
 - **`separator`** — A thin rule dividing content — horizontal or vertical, built on Base UI.
 - **`settings-row`** — A borders-only settings layout — titled sections, bordered cards, label-plus-control rows whose controls share one width and right edge (controlSize), and a settings × channels switch matrix with its column names once.
-- **`shell`** — The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over.
+- **`shell`** — The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, and a phone bottom bar — laid out in CSS before hydration.
 
 ## Media
 

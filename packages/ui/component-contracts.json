@@ -1305,7 +1305,7 @@
       "name": "shell",
       "registryType": "registry:ui",
       "title": "Shell",
-      "summary": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over.",
+      "summary": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, and a phone bottom bar — laid out in CSS before hydration.",
       "status": "stable",
       "since": "0.90.0",
       "family": "layout",
@@ -1791,12 +1791,7 @@
           "values": [
             "column-shown",
             "column-folded",
-            "column-auto-folded",
             "column-over",
-            "panel-closed",
-            "panel-dock",
-            "panel-overlay",
-            "panel-full",
             "bottom-bar-hidden",
             "print",
             "global-bar-row"
