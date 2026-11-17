@@ -173,7 +173,7 @@
       "meta": {
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.109.1"
+        "version": "0.110.0"
       }
     },
     {
@@ -1981,7 +1981,7 @@
       "meta": {
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
-        "version": "0.107.0"
+        "version": "0.110.0"
       }
     },
     {
@@ -14549,7 +14549,7 @@
       "meta": {
         "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
         "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
-        "version": "0.107.0"
+        "version": "0.110.0"
       }
     },
     {
@@ -14579,7 +14579,7 @@
       "meta": {
         "whenToUse": "Preview a person behind their avatar or name (a comment's author, an activity's actor, a participant). Stacks of people are MembersStack.",
         "whenNotToUse": "A picker of people (SearchableSelect) or a full member list (DataList).",
-        "version": "0.107.0"
+        "version": "0.110.0"
       }
     },
     {
@@ -14866,7 +14866,7 @@
       "meta": {
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
-        "version": "0.107.0"
+        "version": "0.110.0"
       }
     },
     {
@@ -14901,7 +14901,7 @@
       "meta": {
         "whenToUse": "A record's details (the record page's Details panel, a peek, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
-        "version": "0.107.0"
+        "version": "0.110.0"
       }
     },
     {
@@ -14930,7 +14930,7 @@
       "meta": {
         "whenToUse": "The top of every record page and every record peek: task, meeting, row, page, customer, project.",
         "whenNotToUse": "A list page header with tabs and a primary action (PageHeader), or a section title inside a record (SectionHeading).",
-        "version": "0.107.0"
+        "version": "0.110.0"
       }
     },
     {
@@ -17254,7 +17254,7 @@
       "meta": {
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
-        "version": "0.107.0"
+        "version": "0.110.0"
       }
     },
     {
