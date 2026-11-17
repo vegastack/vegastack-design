@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.22.1
+
+### Patch Changes
+
+- [#1031](https://github.com/vegastack/vegastack-design/pull/1031) [`8ab5d6a`](https://github.com/vegastack/vegastack-design/commit/8ab5d6a4b11b97277634ed94a89fbd8ae3ef9ca4) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 The `--panel` token's description names the record width the side panel floats below (68rem).
+
 ## 0.22.0
 
 ### Minor Changes

@@ -9,6 +9,25 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.111.1] — November 17, 2026
+
+<!-- assembled from 2 changesets: 1ece97067d4e -->
+
+### 🔧 Changed components
+
+- The `--panel` token's description names the record width the side panel floats below (68rem).
+  [`8ab5d6a`](https://github.com/VegaStack/vegastack-design/commit/8ab5d6a)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.22.1`** (was `0.22.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.111.0 → 0.111.1.
+
+### 🐛 Fixed
+
+- Record Layout: `useRecordPanel().reveal` asked before the record is measured (a `#comment-` link on load) waits for the panel's mode, so on a record too narrow to dock it opens floating instead of a docked panel that never shows.
+  [`8ab5d6a`](https://github.com/VegaStack/vegastack-design/commit/8ab5d6a)
+
 ## [0.111.0] — November 17, 2026
 
 <!-- assembled from 1 changeset: 2d7ada66fad2 -->

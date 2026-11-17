@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.111.1
+
+### Patch Changes
+
+- [#1031](https://github.com/vegastack/vegastack-design/pull/1031) [`8ab5d6a`](https://github.com/vegastack/vegastack-design/commit/8ab5d6a4b11b97277634ed94a89fbd8ae3ef9ca4) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Record Layout: `useRecordPanel().reveal` asked before the record is measured (a `#comment-` link on load) waits for the panel's mode, so on a record too narrow to dock it opens floating instead of a docked panel that never shows.
+
+- Updated dependencies [[`8ab5d6a`](https://github.com/vegastack/vegastack-design/commit/8ab5d6a4b11b97277634ed94a89fbd8ae3ef9ca4)]:
+  - @vegastack/design-tokens@0.22.1
+
 ## 0.111.0
 
 ### Minor Changes
