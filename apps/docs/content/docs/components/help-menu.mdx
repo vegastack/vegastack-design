@@ -1,6 +1,6 @@
 ---
 title: Help Menu
-description: The Help item in the shell's rail footer — What's new with an unread dot, Docs, Keyboard shortcuts, support and the version, in one menu.
+description: The Help button in the global bar — What's new with an unread dot, Docs, Keyboard shortcuts, support and the version, in one menu.
 audience: public
 registry: help-menu
 status: stable
@@ -20,20 +20,27 @@ preview: helpMenu
 
 import Link from "next/link";
 import { CircleHelp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { GlobalBarTrailing } from "@/components/ui/global-bar";
 import { HelpMenu } from "@/components/ui/help-menu";
-import { ShellRailFooter, ShellRailItem } from "@/components/ui/shell";
+import { NotificationDot } from "@/components/ui/notification-dot";
 
-export function RailFooter({ unread, openShortcuts }: Props) {
+export function BarEnd({ unread, openShortcuts }: Props) {
   return (
-    <ShellRailFooter>
+    <GlobalBarTrailing>
       <HelpMenu
-        side="right"
         trigger={
-          <ShellRailItem
-            icon={<CircleHelp />}
-            label="Help"
-            dot={unread ? "new updates" : undefined}
-          />
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label={unread ? "Help (new updates)" : "Help"}
+            className="relative"
+          >
+            <CircleHelp />
+            {unread ? (
+              <NotificationDot className="absolute top-0.5 end-0.5" />
+            ) : null}
+          </Button>
         }
         whatsNewUnread={unread}
         version="v1.8.21"
@@ -45,24 +52,24 @@ export function RailFooter({ unread, openShortcuts }: Props) {
           support: { href: "mailto:support@example.com", external: true },
         }}
       />
-    </ShellRailFooter>
+    </GlobalBarTrailing>
   );
 }
 ```
 
 Learning the product is one job — what changed, how something works, which keys do what, who to
-ask — so it gets one item, at the foot of the shell's rail. A dot on "Docs" does not say
-"something changed"; here What's new carries the dot, and so does the Help item itself until it is
+ask — so it gets one button, at the end of the global bar. A dot on "Docs" does not say
+"something changed"; here What's new carries the dot, and so does the Help button itself until it is
 read.
 
 ## Scope
 
 - Owns: the four entries in a fixed order, their icons and default labels, the What's new dot,
   the shortcut hint and the version line.
-- Does not own: the trigger — a `ShellRailItem` you pass, with its icon, label and dot — routing
+- Does not own: the trigger — the global bar's Help button you pass, with its icon, name and dot — routing
   (link entries render through `linkRender`), the unread state, which the host computes, or the
   shortcuts overlay, which an action entry opens (`ShortcutOverlay`).
-- Compose with: [`Shell`](/docs/components/shell)'s `ShellRailFooter`; extra `DropdownMenuItem`s go
+- Compose with: [`GlobalBar`](/docs/components/global-bar)'s `GlobalBarTrailing`; extra `DropdownMenuItem`s go
   in as children, after Contact support.
 
 ## Examples

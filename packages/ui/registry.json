@@ -136,7 +136,7 @@
       "name": "shell",
       "type": "registry:ui",
       "title": "Shell",
-      "description": "The frame every screen sits in — a 64px labelled module rail, the module's resizable column, a 48px top bar with fixed slots, the page, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over; with the desktop app's one title row, the cookie state script and the floating area.",
+      "description": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over; with the cookie state script and the floating area.",
       "categories": ["layout", "navigation"],
       "dependencies": [
         "@base-ui/react@^1.6.0",
@@ -146,13 +146,12 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/collapsible",
-        "@vegastack/dropdown-menu",
         "@vegastack/input-group",
         "@vegastack/use-platform",
         "@vegastack/page-layout",
         "@vegastack/shell-layout",
-        "@vegastack/date-time"
+        "@vegastack/date-time",
+        "@vegastack/rail"
       ],
       "files": [
         {
@@ -172,9 +171,97 @@
         }
       ],
       "meta": {
-        "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
+        "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.103.0"
+      }
+    },
+    {
+      "name": "nav-tree",
+      "type": "registry:ui",
+      "title": "Nav Tree",
+      "description": "A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step and threaded to their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.",
+      "categories": ["navigation"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.19.0",
+        "@vegastack/design-tokens@^0.19.0"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/nav-tree.tsx",
+          "type": "registry:ui",
+          "target": "@ui/nav-tree.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The places in an app's module column — views, saved filters, spaces with their sections, folders, settings pages — in the shell's ShellColumn or a phone sheet.",
+        "whenNotToUse": "A file browser with drag and drop (FolderTree), a page's own tabs (Tabs), or the module rail (Rail).",
+        "version": "0.104.0"
+      }
+    },
+    {
+      "name": "global-bar",
+      "type": "registry:ui",
+      "title": "Global Bar",
+      "description": "The app's 44px bar across the top of every page: leading (column toggle, back and forward, workspace switcher), a centred search trigger with ⌘K, and trailing (Ask with ⌘J, Help, account). It is the desktop app's draggable title row, clears the window's own buttons, and hides on phones.",
+      "categories": ["layout", "navigation"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.19.0",
+        "@vegastack/design-tokens@^0.19.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/kbd",
+        "@vegastack/use-platform"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/global-bar.tsx",
+          "type": "registry:ui",
+          "target": "@ui/global-bar.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/global-bar-client.tsx",
+          "type": "registry:ui",
+          "target": "@ui/global-bar-client.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The shell's top row (Shell's globalBar), in the browser and as the desktop app's title row.",
+        "whenNotToUse": "A page's own header and actions (ShellTopBar), or a phone's top row.",
+        "version": "0.104.0"
+      }
+    },
+    {
+      "name": "rail",
+      "type": "registry:ui",
+      "title": "Rail",
+      "description": "The module rail down the app's start edge: about seven modules, each an icon over a short label with a compact count badge or a dot, and a bottom group. Server-rendered; an item's animated icon loads when the browser is idle.",
+      "categories": ["navigation", "layout"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.19.0",
+        "@vegastack/design-tokens@^0.19.0"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/rail.tsx",
+          "type": "registry:ui",
+          "target": "@ui/rail.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/rail-client.tsx",
+          "type": "registry:ui",
+          "target": "@ui/rail-client.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The app's modules in the shell (Shell's rail).",
+        "whenNotToUse": "A module's own places (NavTree in the column), search, help or the account (the global bar), or a phone (ShellBottomBar).",
+        "version": "0.104.0"
       }
     },
     {
@@ -17116,7 +17203,9 @@
       "registryDependencies": [
         "@vegastack/avatar",
         "@vegastack/button",
-        "@vegastack/dropdown-menu",
+        "@vegastack/global-bar",
+        "@vegastack/nav-tree",
+        "@vegastack/rail",
         "@vegastack/shell"
       ],
       "files": [
@@ -19391,6 +19480,7 @@
         "@vegastack/dropdown-menu",
         "@vegastack/inbox",
         "@vegastack/page-header",
+        "@vegastack/rail",
         "@vegastack/sheet",
         "@vegastack/shell",
         "@vegastack/tooltip",
@@ -19849,7 +19939,7 @@
       "name": "help-menu",
       "type": "registry:ui",
       "title": "Help Menu",
-      "description": "The Help menu behind the shell rail's Help item — What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version. Links render through your router's link.",
+      "description": "The Help menu behind the global bar's Help button — What's new (an unread dot), Docs, Keyboard shortcuts and Contact support, and the build version. Links render through your router's link.",
       "categories": ["navigation", "layout"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -19868,7 +19958,7 @@
         }
       ],
       "meta": {
-        "whenToUse": "An app's one place to learn the product, behind the Help item at the foot of the shell rail: what changed, the docs, the shortcuts, support and the version.",
+        "whenToUse": "An app's one place to learn the product, behind the Help button at the end of the global bar: what changed, the docs, the shortcuts, support and the version.",
         "whenNotToUse": "The account menu (profile, theme, sign out) or a page's own help hint (InfoHint).",
         "version": "0.101.0"
       }

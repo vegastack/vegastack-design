@@ -1,15 +1,13 @@
 "use client";
 
 import { type ReactNode, useState } from "react";
-import { CircleHelp, House, ListChecks } from "lucide-react";
+import { CircleHelp } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/help-menu` (dogfoods the registry) → auto-scanned.
 import { HelpMenu } from "@/components/ui/help-menu";
-import {
-  ShellRail,
-  ShellRailFooter,
-  ShellRailItem,
-} from "@/components/ui/shell";
+import { Button } from "@/components/ui/button";
+import { GlobalBar, GlobalBarTrailing } from "@/components/ui/global-bar";
+import { NotificationDot } from "@/components/ui/notification-dot";
 import { ShortcutOverlay } from "@/components/ui/shortcut-overlay";
 
 function Demo(): ReactNode {
@@ -19,18 +17,21 @@ function Demo(): ReactNode {
       className="block h-96 overflow-hidden p-0"
       style={{ contain: "paint" }}
     >
-      <ShellRail className="h-full">
-        <ShellRailItem icon={<House />} label="Home" href="#home" active />
-        <ShellRailItem icon={<ListChecks />} label="Tasks" href="#tasks" />
-        <ShellRailFooter>
+      <GlobalBar className="border-b border-border">
+        <span />
+        <span />
+        <GlobalBarTrailing>
           <HelpMenu
-            side="right"
             trigger={
-              <ShellRailItem
-                icon={<CircleHelp />}
-                label="Help"
-                dot="new updates"
-              />
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label="Help (new updates)"
+                className="relative"
+              >
+                <CircleHelp />
+                <NotificationDot className="absolute top-0.5 end-0.5" />
+              </Button>
             }
             whatsNewUnread
             version="v1.8.21"
@@ -41,8 +42,8 @@ function Demo(): ReactNode {
               support: { href: "mailto:support@example.com", external: true },
             }}
           />
-        </ShellRailFooter>
-      </ShellRail>
+        </GlobalBarTrailing>
+      </GlobalBar>
       <ShortcutOverlay
         open={shortcuts}
         onOpenChange={setShortcuts}
@@ -60,7 +61,7 @@ function Demo(): ReactNode {
   );
 }
 
-/** The Help item at the foot of the shell's rail, with something new to read. */
+/** The Help button at the end of the global bar, with something new to read. */
 export function helpMenu(): ReactNode {
   return <Demo />;
 }

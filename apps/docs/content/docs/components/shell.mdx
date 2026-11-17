@@ -1,6 +1,6 @@
 ---
 title: Shell
-description: The frame every screen sits in — the module rail, the module's column, a 48px top bar, the page and a right panel, laid out in CSS before hydration.
+description: The frame every screen sits in — the global bar, then the module rail, the column, the page under its top bar and a right panel, laid out in CSS.
 audience: public
 registry: shell
 status: stable
@@ -16,50 +16,57 @@ preview: shell
 ## Usage
 
 ```tsx
+import { GlobalBar, GlobalBarLeading } from "@/components/ui/global-bar";
+import { NavTree, NavTreeItem, NavTreeSection } from "@/components/ui/nav-tree";
+import { Rail, RailItem } from "@/components/ui/rail";
 import {
   Shell,
   ShellColumn,
   ShellColumnHeader,
-  ShellColumnItem,
+  ShellColumnToggle,
   ShellMain,
   ShellPage,
-  ShellPanelToggle,
-  ShellRail,
-  ShellRailItem,
-  ShellTitleBarControls,
   ShellTopBar,
+  ShellTopBarMore,
   ShellTopBarTitle,
 } from "@/components/ui/shell";
 
 <Shell
+  globalBar={
+    <GlobalBar>
+      <GlobalBarLeading>
+        <ShellColumnToggle />
+      </GlobalBarLeading>
+      …
+    </GlobalBar>
+  }
   rail={
-    <ShellRail>
-      <ShellRailItem
-        icon={<ListChecks />}
-        label="Tasks"
-        render={<Link href="/tasks" />}
+    <Rail>
+      <RailItem
+        icon={<Home />}
+        label="Home"
+        render={<Link href="/" />}
         active
       />
-    </ShellRail>
+    </Rail>
   }
   column={
-    <ShellColumn label="Tasks">
-      <ShellColumnHeader title="Tasks" />
-      <ShellColumnItem
-        label="My tasks"
-        render={<Link href="/tasks" />}
-        active
-      />
+    <ShellColumn label="Home">
+      <ShellColumnHeader title="Home" />
+      <NavTree>
+        <NavTreeSection>
+          <NavTreeItem label="Tasks" render={<Link href="/tasks" />} active />
+        </NavTreeSection>
+      </NavTree>
     </ShellColumn>
   }
-  titleBarControls={<ShellTitleBarControls />}
-  panel={<ShellPanel />}
-  panelOpen={tabs.length > 0}
   pageMin={640}
 >
   <ShellTopBar>
     <ShellTopBarTitle>My tasks</ShellTopBarTitle>
-    <ShellPanelToggle pressed={open} onClick={toggle} />
+    <ShellTopBarMore>
+      <MoreMenu />
+    </ShellTopBarMore>
   </ShellTopBar>
   <ShellMain>
     <ShellPage>…</ShellPage>
@@ -94,11 +101,11 @@ import {
 
 One rule places the column and the panel, at every width ([Shell layout](/docs/foundations/shell)):
 
-| Width                   | Rail    | Column                                     | Panel                                    |
-| ----------------------- | ------- | ------------------------------------------ | ---------------------------------------- |
-| Phone (under 640)       | Tab bar | A sheet, from the page title               | Full screen                              |
-| Tablet (640–1024)       | 64px    | Slides over from ▤, an edge swipe or hover | Beside the page if it fits, else over it |
-| Laptop and wide (1024+) | 64px    | 240px in the flow while kept open          | Beside the page; the column folds first  |
+| Width                   | Global bar | Rail    | Column                                     | Panel                                    |
+| ----------------------- | ---------- | ------- | ------------------------------------------ | ---------------------------------------- |
+| Phone (under 640)       | Hidden     | Tab bar | A sheet, from the page title               | Full screen                              |
+| Tablet (640–1024)       | 44px       | 64px    | Slides over from ▤, an edge swipe or hover | Beside the page if it fits, else over it |
+| Laptop and wide (1024+) | 44px       | 64px    | 240px in the flow while kept open          | Beside the page; the column folds first  |
 
 The panel docks beside the page while the page keeps its minimum (`pageMin`: a list 640, a
 document 560, a chat 520). When it would not, the column folds by itself; when even that is not
@@ -113,21 +120,43 @@ person opened it: `ShellPanelToggle`'s click marks itself, and the app calls
 `requestShellPanelOpen(element)` where someone opens a tab (a row, a link, ⌘.). The first paint
 and opens the app makes by itself — a restored tab, an automatic Details tab — dock at once.
 
+### The global bar
+
+`globalBar` takes a [`GlobalBar`](/docs/components/global-bar): 44px across the whole window,
+above the rail, the column, the page and the panel. It holds the app's own controls: ▤
+(`ShellColumnToggle`, ⌘\\, hidden on a screen with no column), back and forward in the desktop app,
+the workspace switcher, search (⌘K), Ask (⌘J), Help and the account. In the desktop app it is the
+window's title row: it drags the window and clears the window's own buttons, so nothing below it
+does.
+
+### The column
+
+A column is a `ShellColumn` (the navigation landmark) that starts with a 48px
+`ShellColumnHeader`, the module's name and one or two actions, level with the page's top bar and
+fixed while the column scrolls. Its places are a [`NavTree`](/docs/components/nav-tree).
+
 ### The top bar's order
 
-The slots sit in one order whatever order they are written in: title, presence, tools, actions,
-primary, panel toggle. Narrow, button words become icons (`ShellTopBarLabel`), presence leaves, and
-tools marked `data-shell-fold` go to the ⋯ menu.
+The page's top bar keeps one order whatever order its slots are written in: the title, then at the
+end **presence · icon tools · primary · Share · ☆ · ⋯**, with ⋯ always last and ☆ right before
+it.
+
+| Slot                  | Holds                                               |
+| --------------------- | --------------------------------------------------- |
+| `ShellTopBarTitle`    | The breadcrumb and the page's `<h1>`                |
+| `ShellTopBarPresence` | Who else is here: one `AvatarGroup`, always first   |
+| `ShellTopBarTools`    | The page's icon tools                               |
+| `ShellTopBarPrimary`  | The one primary action, if the page has one         |
+| `ShellTopBarShare`    | Share, an outline button                            |
+| `ShellTopBarFavorite` | ☆                                                   |
+| `ShellTopBarMore`     | ⋯, the page's menu; it also holds every folded tool |
+
+The tools, Share, ☆ and ⋯ are one button shape: 28px, round, with the same hover. Narrow, Share
+shows its icon alone (`ShellTopBarLabel`), presence leaves, and tools marked `data-shell-fold` go
+to the ⋯ menu. There is no save status in the bar: saving is silent, and a failed save shows an
+alert with a retry in the page.
 
 <ComponentPreview name="shellTopBar" file="components/preview/shell.tsx" />
-
-### The desktop app's title row
-
-In the desktop app, `data-desktop-titlebar="macos"` or `"windows"` on `<html>` turns the first row
-into one draggable title row: on macOS the traffic lights sit in the rail's head and the column's
-head and the top bar clear them; on Windows the rightmost header (the panel's, or else the top
-bar) clears the caption buttons. Controls in the row stay clickable. Pass `history` to
-`ShellTitleBarControls` there for ‹ ›; browsers have their own.
 
 ### Phones
 
@@ -160,30 +189,6 @@ gutter.
 </ShellPage>
 ```
 
-### Animated rail icons
-
-A rail item can carry the same icon animated (L23). The static `icon` paints with the page; the
-animated one — a DS animated icon wrapped in `lazyAnimatedIcon`, so its module and Motion are not in
-the first bundle — loads once the browser is idle, takes the static icon's place at the same 18px,
-and plays when the item is hovered or becomes the current module. With reduced motion it stays
-still.
-
-```tsx
-"use client";
-import { lazyAnimatedIcon } from "@/components/ui/shell";
-export const HomeIconLazy = lazyAnimatedIcon(() =>
-  import("@/components/ui/icons/home").then((m) => m.HomeIcon),
-);
-
-// in the rail (a server component is fine):
-<ShellRailItem
-  icon={<Home />}
-  animatedIcon={<HomeIconLazy />}
-  label="Home"
-  href="/"
-/>;
-```
-
 ### Floating items
 
 `ShellFloatingArea`, passed as `floating`, stacks the assistant pill, the audio player and upload
@@ -193,20 +198,6 @@ home indicator, and is left out of print. Toasts stay bottom-centre.
 ## API Reference
 
 <ApiTable path="../../packages/ui/registry/ui/shell.tsx" name="ShellProps" />
-
-### ShellRailItem
-
-<ApiTable
-  path="../../packages/ui/registry/ui/shell.tsx"
-  name="ShellRailItemProps"
-/>
-
-### ShellColumnItem
-
-<ApiTable
-  path="../../packages/ui/registry/ui/shell.tsx"
-  name="ShellColumnItemProps"
-/>
 
 ### ShellPage
 
@@ -218,19 +209,19 @@ home indicator, and is left out of print. Toasts stay bottom-centre.
 ## Accessibility
 
 - A skip link is the first stop; it moves focus to the page (`ShellMain`, the document's
-  `<main>`). The rail and the column are named navigation landmarks, the top bar is the page's
-  header, and the title is its `<h1>`, rendered with the page.
+  `<main>`). The global bar is the app's header, the rail and the column are named navigation
+  landmarks, the top bar is the page's header, and the title is its `<h1>`, rendered with the page.
 - The current module and view carry `aria-current="page"`; a count is part of the item's name
   ("Tasks, 17").
 - The column's resize edge is a separator: drag it, or focus it and use the arrow keys.
 - Everything that hovers has a key or button: the column's peek opens from ▤ and ⌘\ too.
 
-| Key                                   | Action                                                 |
-| ------------------------------------- | ------------------------------------------------------ |
-| <kbd>F6</kbd> / <kbd>Shift+F6</kbd>   | Move between the rail, column, top bar, page and panel |
-| <kbd>⌘</kbd> <kbd>\\</kbd>            | Fold or unfold the column (slide it over on a tablet)  |
-| <kbd>Escape</kbd>                     | Put away a column that slid over the page              |
-| <kbd>←</kbd> <kbd>→</kbd> on the edge | Resize the column; Home and End for its ends           |
+| Key                                   | Action                                                             |
+| ------------------------------------- | ------------------------------------------------------------------ |
+| <kbd>F6</kbd> / <kbd>Shift+F6</kbd>   | Move between the global bar, rail, column, top bar, page and panel |
+| <kbd>⌘</kbd> <kbd>\\</kbd>            | Fold or unfold the column (slide it over on a tablet)              |
+| <kbd>Escape</kbd>                     | Put away a column that slid over the page                          |
+| <kbd>←</kbd> <kbd>→</kbd> on the edge | Resize the column; Home and End for its ends                       |
 
 <StatesTested name="shell" />
 

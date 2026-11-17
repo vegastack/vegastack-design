@@ -24,14 +24,14 @@ test("shell-01 has landmarks, a skip link and one h1", async () => {
     .toBeInTheDocument();
   expect(document.querySelectorAll("h1")).toHaveLength(1);
   expect(document.querySelector('nav[aria-label="Modules"]')).not.toBeNull();
-  expect(document.querySelector('nav[aria-label="Tasks"]')).not.toBeNull();
+  expect(document.querySelector('nav[aria-label="Home"]')).not.toBeNull();
   expect(document.querySelector("main#shell-main")).not.toBeNull();
   expect(document.querySelector('a[href="#shell-main"]')).not.toBeNull();
   expect(document.querySelector('a[href="#"]')).toBeNull();
   const current = [...document.querySelectorAll('[aria-current="page"]')];
   expect(
     current.map((a) => a.getAttribute("aria-label") ?? a.textContent),
-  ).toEqual(expect.arrayContaining(["Tasks, 17", "My tasks12"]));
+  ).toEqual(expect.arrayContaining(["Home", "My tasks12"]));
   await expectNoA11yViolations(screen.container);
 });
 

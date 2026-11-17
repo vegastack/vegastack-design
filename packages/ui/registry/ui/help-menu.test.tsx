@@ -4,14 +4,24 @@ import { expect, test, vi } from "vitest";
 import { CircleHelp } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { HelpMenu } from "./help-menu";
-import { ShellRailItem } from "./shell";
+import { Button } from "./button";
+import { NotificationDot } from "./notification-dot";
 
 function Rail({ children }: { children: React.ReactNode }) {
-  return <nav aria-label="Modules">{children}</nav>;
+  return <header aria-label="App">{children}</header>;
 }
 
+// The global bar's Help button, with the dot while something is unread.
 const helpTrigger = (dot?: string) => (
-  <ShellRailItem icon={<CircleHelp />} label="Help" dot={dot} />
+  <Button
+    variant="ghost"
+    size="icon-sm"
+    aria-label={dot ? `Help (${dot})` : "Help"}
+    className="relative"
+  >
+    <CircleHelp />
+    {dot ? <NotificationDot className="absolute top-0.5 end-0.5" /> : null}
+  </Button>
 );
 
 const LINKS = {
@@ -33,7 +43,7 @@ async function openMenu() {
     .not.toBeNull();
 }
 
-test("the rail trigger is named Help and opens the menu in order", async () => {
+test("the Help trigger is named Help and opens the menu in order", async () => {
   const screen = await render(
     <Rail>
       <HelpMenu trigger={helpTrigger()} links={LINKS} version="v1.8.21" />

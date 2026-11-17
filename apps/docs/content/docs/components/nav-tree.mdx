@@ -1,0 +1,120 @@
+---
+title: Nav Tree
+description: A column's navigation — titled sections, children one 12px step in and threaded to their parent, counts, an active state, arrow keys and a touch size.
+audience: public
+registry: nav-tree
+status: stable
+since: 0.106.0
+a11y: aria-current, aria-expanded, arrow-key navigation
+preview: navTree
+---
+
+## Install
+
+<InstallSteps name="nav-tree" />
+
+## Usage
+
+```tsx
+import { NavTree, NavTreeItem, NavTreeSection } from "@/components/ui/nav-tree";
+
+<ShellColumn label="Home">
+  <ShellColumnHeader title="Home" />
+  <NavTree>
+    <NavTreeSection label="Work">
+      <NavTreeItem
+        icon={<ListChecks />}
+        label="Tasks"
+        count={17}
+        render={<Link href="/tasks" />}
+        defaultOpen
+      >
+        <NavTreeItem
+          label="My tasks"
+          render={<Link href="/tasks/mine" />}
+          active
+        />
+      </NavTreeItem>
+    </NavTreeSection>
+  </NavTree>
+</ShellColumn>;
+```
+
+Every module's column lists its places with this one component: Home, Spaces, Library, Settings
+and the rest. Items sit level with their section's title. A child is indented one step of the
+spacing scale (12px), not by a chevron's width: a parent's fold control sits at the END of its
+row, so a parent and its siblings keep their labels on one line. Children hang from a thin thread
+line with a rounded elbow each, the way the Inbox threads a notification's events.
+
+<ComponentPreview name="navTree" file="components/preview/nav-tree.tsx" />
+
+## Anatomy
+
+<Anatomy name="nav-tree" />
+
+## Examples
+
+### Parents and children
+
+A parent with its own link (`href` or `render`) goes there on a click and folds from its chevron
+or the arrow keys. A parent with no link folds on a click. `defaultOpen` sets where it starts;
+`open` and `onOpenChange` control it. A parent that is itself `active` starts open; open the
+ancestors of an active child with `defaultOpen`, so the column paints open on the server.
+
+### Counts and row actions
+
+`count` shows muted, tabular, at the row's end; 0 shows nothing. `action` (a ⋯ menu, a +) takes
+the count's place while the row is hovered or holds focus, and always shows on touch, where
+nothing hovers.
+
+### Touch size
+
+Rows are 32px, and 44px with `size="touch"`. Inside a shell narrower than 40rem, where the column
+is a phone sheet, rows grow to 44px by themselves.
+
+<ComponentPreview name="navTreeTouch" file="components/preview/nav-tree.tsx" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/nav-tree.tsx"
+  name="NavTreeProps"
+/>
+
+### NavTreeSection
+
+<ApiTable
+  path="../../packages/ui/registry/ui/nav-tree.tsx"
+  name="NavTreeSectionProps"
+/>
+
+### NavTreeItem
+
+<ApiTable
+  path="../../packages/ui/registry/ui/nav-tree.tsx"
+  name="NavTreeItemProps"
+/>
+
+## Accessibility
+
+- The current item carries `aria-current="page"`. A parent's fold control (and a parent with no
+  link) carries `aria-expanded` and `aria-controls` for its group.
+- Every row is a link or a button, so Tab reaches each one.
+- The section title is a heading that names its list.
+
+| Key                              | Action                                                   |
+| -------------------------------- | -------------------------------------------------------- |
+| <kbd>↓</kbd> / <kbd>↑</kbd>      | Next or previous visible row                             |
+| <kbd>Home</kbd> / <kbd>End</kbd> | First or last visible row                                |
+| <kbd>→</kbd>                     | Open a folded parent; on an open parent, its first child |
+| <kbd>←</kbd>                     | Fold an open parent; on a child, back to its parent      |
+| <kbd>Enter</kbd>                 | Follow the row's link or press its button                |
+
+<StatesTested name="nav-tree" />
+
+## Do / Don't
+
+<DoDont
+  do="Keep children one step in and let the thread show what belongs to what."
+  dont="Indent by a reserved chevron gutter or put a chevron before the label: siblings then lose their shared edge."
+/>

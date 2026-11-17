@@ -1,0 +1,119 @@
+---
+title: Global Bar
+description: The 44px bar across the top of every page — column toggle, history and workspace, search (⌘K), then Ask (⌘J), Help and account. The desktop title row.
+audience: public
+registry: global-bar
+status: stable
+since: 0.106.0
+a11y: banner, aria-keyshortcuts, F6 region
+preview: globalBar
+---
+
+## Install
+
+<InstallSteps name="global-bar" />
+
+## Usage
+
+```tsx
+import {
+  GlobalBar,
+  GlobalBarAsk,
+  GlobalBarCenter,
+  GlobalBarHistory,
+  GlobalBarLeading,
+  GlobalBarSearch,
+  GlobalBarTrailing,
+} from "@/components/ui/global-bar";
+import { ShellColumnToggle } from "@/components/ui/shell";
+
+<Shell
+  globalBar={
+    <GlobalBar>
+      <GlobalBarLeading>
+        <ShellColumnToggle />
+        {desktopHistory ? <GlobalBarHistory history={desktopHistory} /> : null}
+        <WorkspaceSwitcher />
+      </GlobalBarLeading>
+      <GlobalBarCenter>
+        <GlobalBarSearch onClick={openSearch} />
+      </GlobalBarCenter>
+      <GlobalBarTrailing>
+        <GlobalBarAsk onClick={openAsk} />
+        <HelpMenu trigger={helpButton} … />
+        <AccountMenu />
+      </GlobalBarTrailing>
+    </GlobalBar>
+  }
+  …
+/>;
+```
+
+One bar runs the full width of the window above the rail, the column and the page, on every page.
+The centre slot stays centred on the window whatever the two sides hold. In a browser, the leading
+slot's first control sits on the rail's centre line, so the bar and the rail share one axis. The
+column toggle hides itself on a screen with no column.
+
+<ComponentPreview name="globalBar" file="components/preview/global-bar.tsx" />
+
+## Anatomy
+
+<Anatomy name="global-bar" />
+
+## Examples
+
+### The desktop app's title row
+
+With `data-desktop-titlebar="macos"` or `"windows"` on `<html>`, the bar is the window's title row
+(LAY-24): it drags the window and every control in it stays clickable. On macOS the leading slot
+clears the traffic lights (`--shell-titlebar-mac-inset`); on Windows the trailing slot clears the
+caption buttons (`--shell-titlebar-win-inset`). The desktop app writes both from its
+`titleBarGeometry`, 0 in full screen. Pass `GlobalBarHistory` there for ‹ ›; a browser has its own.
+
+### Phones
+
+Under 40rem of shell the bar is hidden: a phone has its own one-row top bar and the bottom bar.
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/global-bar.tsx"
+  name="GlobalBarProps"
+/>
+
+### GlobalBarHistory
+
+<ApiTable
+  path="../../packages/ui/registry/ui/global-bar.tsx"
+  name="GlobalBarHistoryProps"
+/>
+
+### GlobalBarSearch
+
+<ApiTable
+  path="../../packages/ui/registry/ui/global-bar-client.tsx"
+  name="GlobalBarSearchProps"
+/>
+
+### GlobalBarAsk
+
+<ApiTable
+  path="../../packages/ui/registry/ui/global-bar-client.tsx"
+  name="GlobalBarAskProps"
+/>
+
+## Accessibility
+
+- The bar is the app's `<header>`; F6 reaches it first, before the rail, column, top bar and page.
+- The search and Ask triggers name their shortcut with `aria-keyshortcuts` (⌘K and ⌘J on a Mac,
+  Ctrl+K and Ctrl+J elsewhere); the printed key is hidden from screen readers.
+- Back and Forward are disabled when the window cannot go there.
+
+<StatesTested name="global-bar" />
+
+## Do / Don't
+
+<DoDont
+  do="Put the app's own controls here: the column, history, workspace, search, Ask, Help and the account."
+  dont="Put a page's actions in the global bar; they belong in the page's top bar (ShellTopBar)."
+/>

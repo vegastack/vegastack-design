@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 815,
-    "components": 225,
+    "totalRegistryItems": 818,
+    "components": 228,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -23,7 +23,7 @@
   "expectedWaveCounts": {
     "Core controls": 24,
     "Forms/editing": 39,
-    "Navigation/layout": 25,
+    "Navigation/layout": 28,
     "Overlays": 23,
     "Data display": 48,
     "Content/marketing": 14,
@@ -126,7 +126,10 @@
       "shell-panel",
       "stepper",
       "table-of-contents",
-      "tabs"
+      "tabs",
+      "nav-tree",
+      "global-bar",
+      "rail"
     ],
     "Overlays": [
       "action-bar",
@@ -1303,7 +1306,7 @@
       "name": "shell",
       "registryType": "registry:ui",
       "title": "Shell",
-      "summary": "The frame every screen sits in — a 64px labelled module rail, the module's resizable column, a 48px top bar with fixed slots, the page, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over.",
+      "summary": "The frame every screen sits in — a 44px global bar across the top, then a 64px module rail, the module's resizable column, the page under its 48px top bar with fixed slots, a right panel slot and a phone bottom bar — laid out in CSS before hydration by one rule: the panel docks beside the page while the page keeps its minimum width, else the column folds, else the panel slides over.",
       "status": "stable",
       "since": "0.90.0",
       "family": "layout",
@@ -1387,24 +1390,6 @@
           }
         },
         {
-          "name": "ShellColumnItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellColumnItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ShellColumnProps",
           "kind": "interface",
           "source": "packages/ui/registry/ui/shell.tsx",
@@ -1441,35 +1426,8 @@
           }
         },
         {
-          "name": "ShellColumnSection",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellColumnSectionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ShellColumnState",
           "kind": "type",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellColumnTree",
-          "kind": "component",
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
@@ -1488,15 +1446,6 @@
         {
           "name": "ShellFloatingArea",
           "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellHistory",
-          "kind": "interface",
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
@@ -1585,69 +1534,6 @@
           }
         },
         {
-          "name": "ShellRail",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellRailFooter",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellRailItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellRailItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellRailMore",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellRailMoreProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellRailProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ShellSkipLink",
           "kind": "component",
           "source": "packages/ui/registry/ui/shell.tsx",
@@ -1666,35 +1552,8 @@
           }
         },
         {
-          "name": "ShellTitleBarControls",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellTitleBarControlsProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ShellTopBar",
           "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellTopBarActions",
-          "kind": "component-constant",
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
@@ -1810,15 +1669,6 @@
           }
         },
         {
-          "name": "lazyAnimatedIcon",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ShellBleed",
           "kind": "component",
           "source": "packages/ui/registry/ui/shell.tsx",
@@ -1839,24 +1689,6 @@
         {
           "name": "shellGutterClasses",
           "kind": "constant",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellRailIcon",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellRailIconProps",
-          "kind": "interface",
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
@@ -1907,6 +1739,51 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ShellColumnToggle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellColumnToggleProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarFavorite",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarMore",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ShellTopBarShare",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -1949,9 +1826,8 @@
             "panel-overlay",
             "panel-full",
             "bottom-bar-hidden",
-            "desktop-titlebar-macos",
-            "desktop-titlebar-windows",
-            "print"
+            "print",
+            "global-bar-row"
           ],
           "evidence": "packages/ui/registry/ui/shell.tsx + packages/ui/registry/ui/shell.test.tsx"
         },
@@ -2006,13 +1882,12 @@
       "docsSlug": "/docs/components/shell",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/dropdown-menu",
         "@vegastack/page-layout",
-        "@vegastack/collapsible",
         "@vegastack/input-group",
         "@vegastack/use-platform",
         "@vegastack/shell-layout",
-        "@vegastack/date-time"
+        "@vegastack/date-time",
+        "@vegastack/rail"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.19.0",
@@ -2050,6 +1925,10 @@
               "values": [""]
             },
             {
+              "name": "data-has-global-bar",
+              "values": [""]
+            },
+            {
               "name": "data-page-min",
               "values": []
             },
@@ -2066,49 +1945,14 @@
               "values": [
                 "shell",
                 "shell-column-area",
-                "shell-column-head",
                 "shell-fit",
                 "shell-main-area",
                 "shell-panel-shadow",
                 "shell-panel-slot",
                 "shell-rail-area",
-                "shell-rail-head",
-                "shell-rail-header-below",
                 "shell-room",
-                "shell-scrim",
-                "shell-topbar-lead"
+                "shell-scrim"
               ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellRail": {
-          "attributes": [
-            {
-              "name": "data-shell-region",
-              "values": ["rail"]
-            },
-            {
-              "name": "data-slot",
-              "values": ["shell-rail"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellRailItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-rail-badge", "shell-rail-dot"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellRailFooter": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-rail-footer"]
             }
           ],
           "cssVariables": []
@@ -2136,33 +1980,6 @@
             {
               "name": "data-slot",
               "values": ["shell-column-search"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellColumnSection": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-column-section"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellColumnItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-column-row"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ShellColumnTree": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-column-tree"]
             }
           ],
           "cssVariables": []
@@ -2303,11 +2120,11 @@
           ],
           "cssVariables": []
         },
-        "ShellTitleBarControls": {
+        "ShellColumnToggle": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["shell-titlebar-controls", "shell-titlebar-toggle"]
+              "values": ["shell-column-toggle"]
             }
           ],
           "cssVariables": []
@@ -2330,15 +2147,6 @@
           ],
           "cssVariables": []
         },
-        "ShellRailIcon": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["shell-rail-icon"]
-            }
-          ],
-          "cssVariables": []
-        },
         "ShellStateScript": {
           "attributes": [
             {
@@ -2353,6 +2161,701 @@
             {
               "name": "data-slot",
               "values": ["time-zone-script"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "nav-tree",
+      "registryType": "registry:ui",
+      "title": "Nav Tree",
+      "summary": "A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step and threaded to their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.",
+      "status": "stable",
+      "since": "0.106.0",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": ["packages/ui/registry/ui/nav-tree.tsx"],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["default", "touch"]
+          }
+        ],
+        "rationale": "Row height: 32px, or 44px for fingers (and by itself in a phone-width shell)."
+      },
+      "sizes": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "size",
+            "values": ["default", "touch"]
+          }
+        ],
+        "rationale": "--nav-tree-row: 2rem or 2.75rem."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "hover",
+            "active",
+            "open",
+            "folded",
+            "with-count",
+            "with-action"
+          ],
+          "evidence": "packages/ui/registry/ui/nav-tree.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "aria-current",
+            "aria-expanded",
+            "keyboard-navigation",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/nav-tree.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["light", "dark", "rtl"],
+          "evidence": "packages/ui/registry/ui/nav-tree.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "text-truncation-and-flex-shrink",
+          "responsive-or-container-layout"
+        ],
+        "rationale": "Labels truncate; rows grow to 44px in a shell narrower than 40rem."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["tokenized CSS transition (fold chevron)"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The global reset (MOT-5) zeroes the chevron's transition."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/nav-tree",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.19.0",
+        "@vegastack/design-tokens@^0.19.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/nav-tree.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "nav-tree",
+      "publicSymbols": [
+        {
+          "name": "NavTree",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/nav-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "NavTreeItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/nav-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "NavTreeItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/nav-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "NavTreeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/nav-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "NavTreeSection",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/nav-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "NavTreeSectionProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/nav-tree.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "dataAttributes": {
+        "NavTree": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["nav-tree"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavTreeSection": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["nav-tree-section"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "NavTreeItem": {
+          "attributes": [
+            {
+              "name": "data-parent",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "nav-tree-action",
+                "nav-tree-count",
+                "nav-tree-fold",
+                "nav-tree-group",
+                "nav-tree-row"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "global-bar",
+      "registryType": "registry:ui",
+      "title": "Global Bar",
+      "summary": "The app's 44px bar across the top of every page: leading (column toggle, back and forward, workspace switcher), a centred search trigger with ⌘K, and trailing (Ask with ⌘J, Help, account); the desktop app's draggable title row; hidden on phones.",
+      "status": "stable",
+      "since": "0.106.0",
+      "family": "layout",
+      "wave": "Navigation/layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/global-bar.tsx",
+        "packages/ui/registry/ui/global-bar-client.tsx"
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant axis; the parts are slots."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Its height is --shell-globalbar-height."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "desktop-titlebar-macos",
+            "desktop-titlebar-windows",
+            "history-disabled",
+            "phone-hidden"
+          ],
+          "evidence": "packages/ui/registry/ui/global-bar.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["aria-keyshortcuts", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/global-bar.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["light", "dark", "rtl"],
+          "evidence": "packages/ui/registry/ui/global-bar.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Hidden in a shell under 40rem; the centre stays centred; the sides truncate."
+      },
+      "motion": {
+        "status": "none-observed",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "The bar does not animate."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/global-bar",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/kbd",
+        "@vegastack/use-platform"
+      ],
+      "npmDependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.19.0",
+        "@vegastack/design-tokens@^0.19.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/global-bar.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "global-bar",
+      "publicSymbols": [
+        {
+          "name": "GlobalBar",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarAsk",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarAskProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarCenter",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarHistory",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarHistoryProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarHistoryState",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarLeading",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarSearch",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarSearchProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarTrailing",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "dataAttributes": {
+        "GlobalBar": {
+          "attributes": [
+            {
+              "name": "data-shell-region",
+              "values": ["global-bar"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["global-bar"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "GlobalBarLeading": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["global-bar-leading"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "GlobalBarCenter": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["global-bar-center"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "GlobalBarTrailing": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["global-bar-trailing"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "GlobalBarHistory": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["global-bar-history"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "GlobalBarSearch": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["global-bar-search"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "GlobalBarAsk": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["global-bar-ask"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "rail",
+      "registryType": "registry:ui",
+      "title": "Rail",
+      "summary": "The module rail down the app's start edge: about seven modules, each an icon over a short label with a compact count badge or a dot, and a bottom group.",
+      "status": "stable",
+      "since": "0.106.0",
+      "family": "navigation",
+      "wave": "Navigation/layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/rail.tsx",
+        "packages/ui/registry/ui/rail-client.tsx"
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "No variant axis; the parts are slots."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Its width is --shell-rail-width."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "default",
+            "hover",
+            "active",
+            "badge",
+            "badge-overflow",
+            "dot",
+            "animated-icon"
+          ],
+          "evidence": "packages/ui/registry/ui/rail.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "aria-current",
+            "count-in-name",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/rail.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["light", "dark"],
+          "evidence": "packages/ui/registry/ui/rail.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "Labels truncate; a short window scrolls the rail."
+      },
+      "motion": {
+        "status": "observed",
+        "mechanisms": ["animated-icon handles (lazy, idle)"],
+        "reducedMotion": {
+          "status": "covered",
+          "rationale": "The animated icons honour reduced motion; the global reset (MOT-5) applies."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/rail",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "@vegastack/design@^0.19.0",
+        "@vegastack/design-tokens@^0.19.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/rail.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "rail",
+      "publicSymbols": [
+        {
+          "name": "lazyAnimatedIcon",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "Rail",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailBadge",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailBadgeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "railBadgeText",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailBottom",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailItem",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailItemProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "dataAttributes": {
+        "RailBadge": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["rail-badge"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "Rail": {
+          "attributes": [
+            {
+              "name": "data-shell-region",
+              "values": ["rail"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["rail"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RailItem": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["rail-dot"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RailBottom": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["rail-bottom"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RailIcon": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["rail-icon"]
             }
           ],
           "cssVariables": []
@@ -56327,9 +56830,11 @@
       "docsSlug": "/docs/blocks/shell-01",
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/dropdown-menu",
         "@vegastack/avatar",
-        "@vegastack/shell"
+        "@vegastack/shell",
+        "@vegastack/global-bar",
+        "@vegastack/nav-tree",
+        "@vegastack/rail"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -57407,7 +57912,8 @@
         "@vegastack/sheet",
         "@vegastack/tooltip",
         "@vegastack/use-announcer",
-        "@vegastack/shell"
+        "@vegastack/shell",
+        "@vegastack/rail"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",

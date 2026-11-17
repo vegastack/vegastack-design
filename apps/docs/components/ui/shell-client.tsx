@@ -1,22 +1,12 @@
-// @vegastack shell@0.103.0 sha256-UQPG0RwpcIhYoOQu5qlf6Dtk+Wr+BeKYeNu0XPOgcY8=
+// @vegastack shell@0.103.0 sha256-jLQnnJGNOtqc92vTVJvWE72tucBtpyr68fsf4NMfgas=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  PanelLeft,
-} from "lucide-react";
+import { ChevronDown, PanelLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { isEditableTarget } from "@/components/ui/use-platform";
-import type {
-  AnimatedIconComponentType,
-  AnimatedIconHandle,
-  AnimatedIconOwnProps,
-} from "@vegastack/design/create-animated-icon";
 import { layoutTierOf, type LayoutTier } from "@/lib/page-layout";
 import {
   SHELL_COOKIES,
@@ -33,7 +23,7 @@ is here only adds behaviour on top of a layout that is already right:
 - `ShellController` mirrors the CSS outcome into `data-tier`, `data-column` and `data-panel-mode`
   on the shell for scripts (`useShellLayout`), keeps the cookies, and owns ⌘\, F6, Escape, the
   hover-peek of a folded column and the tablet slide-over (L14).
-- `ShellColumnResize`, `ShellSkipLink`, `ShellTitleBarControls`, `ShellColumnSwitch` and
+- `ShellColumnResize`, `ShellSkipLink`, `ShellColumnToggle`, `ShellColumnSwitch` and
   `ShellBottomBar` are the interactive leaves.
 
 Nothing here re-renders React per pointer move: drags and scrolls write attributes and CSS
@@ -219,9 +209,7 @@ export function ShellController() {
 
     const visibleToggle = () =>
       Array.from(
-        root.querySelectorAll<HTMLElement>(
-          '[data-slot="shell-titlebar-toggle"]',
-        ),
+        root.querySelectorAll<HTMLElement>('[data-slot="shell-column-toggle"]'),
       ).find(visible);
 
     const setFloat = (open: boolean, source?: "peek" | "user") => {
@@ -425,7 +413,7 @@ export function ShellController() {
       ) {
         if (
           columnArea?.contains(target) ||
-          target.closest('[data-slot="shell-rail-item"][data-active]')
+          target.closest('[data-slot="rail-item"][data-active]')
         )
           window.clearTimeout(peekTimer);
         else {
@@ -434,7 +422,7 @@ export function ShellController() {
         }
         return;
       }
-      const item = target.closest('[data-slot="shell-rail-item"][data-active]');
+      const item = target.closest('[data-slot="rail-item"][data-active]');
       window.clearTimeout(peekTimer);
       if (!item || root.dataset.column !== "folded") return;
       peekTimer = window.setTimeout(() => {
@@ -445,7 +433,7 @@ export function ShellController() {
     };
     const onPointerLeave = (event?: PointerEvent) => {
       const to = event?.relatedTarget as Element | null | undefined;
-      if (to?.closest?.('[data-slot="shell-rail-item"][data-active]')) return;
+      if (to?.closest?.('[data-slot="rail-item"][data-active]')) return;
       window.clearTimeout(peekTimer);
       if (root.dataset.colFloatSource === "peek") setFloat(false);
     };
@@ -461,7 +449,7 @@ export function ShellController() {
       if (columnArea?.contains(target)) return;
       if (
         target.closest(
-          '[data-slot="shell-titlebar-toggle"], [data-slot="shell-column-switch"]',
+          '[data-slot="shell-column-toggle"], [data-slot="shell-column-switch"]',
         )
       )
         return;
@@ -705,72 +693,46 @@ export function ShellSkipLink() {
   );
 }
 
-/** Back and forward for the desktop app's title row (L12); browsers have their own. */
-export interface ShellHistory {
-  canGoBack: boolean;
-  canGoForward: boolean;
-  back: () => void;
-  forward: () => void;
-}
-
-/** Props accepted by `ShellTitleBarControls`. */
-export interface ShellTitleBarControlsProps extends React.ComponentProps<"div"> {
-  /** ‹ › beside ▤ — pass it only in the desktop app. @default undefined */
-  history?: ShellHistory;
-}
+/** Props accepted by `ShellColumnToggle`. */
+export type ShellColumnToggleProps = Omit<
+  React.ComponentProps<typeof Button>,
+  "children" | "variant" | "size"
+>;
 
 /**
- * `ShellTitleBarControls` — ▤ (show or hide the column, ⌘\) and, in the desktop app, ‹ ›. Pass
- * it to `Shell`, which places it: in the column's head while the column is open, at the start of
- * the top bar while it is folded (L10).
+ * `ShellColumnToggle` — ▤: shows or hides the module's column (⌘\), and hides itself on a screen
+ * with no column. It lives in the global bar's leading slot; on a laptop it keeps or folds the
+ * column, where the column cannot take room (a tablet, or folded for the panel) it slides the
+ * column over the page.
  *
  * @example
- * <Shell titleBarControls={<ShellTitleBarControls history={desktopHistory} />} …>
+ * <GlobalBarLeading><ShellColumnToggle /></GlobalBarLeading>
  */
-export function ShellTitleBarControls({
-  history,
+export function ShellColumnToggle({
   className,
+  onClick,
   ...props
-}: ShellTitleBarControlsProps) {
+}: ShellColumnToggleProps) {
   return (
-    <div
-      data-slot="shell-titlebar-controls"
-      className={cn("flex flex-none items-center gap-0.5", className)}
+    <Button
+      data-slot="shell-column-toggle"
+      variant="ghost"
+      size="icon-sm"
+      aria-label="Show or hide the column"
+      aria-keyshortcuts="Meta+Backslash"
+      // A screen with no column (Home, Search, Trash) has nothing to show or hide.
+      className={cn(
+        "in-[[data-slot=shell]:not([data-has-column])]:hidden",
+        className,
+      )}
+      onClick={(event) => {
+        onClick?.(event);
+        if (!event.defaultPrevented) toggleShellColumn(event.currentTarget);
+      }}
       {...props}
     >
-      <Button
-        data-slot="shell-titlebar-toggle"
-        variant="ghost"
-        size="icon-sm"
-        aria-label="Show or hide the column"
-        aria-keyshortcuts="Meta+Backslash"
-        onClick={(event) => toggleShellColumn(event.currentTarget)}
-      >
-        <PanelLeft aria-hidden="true" />
-      </Button>
-      {history ? (
-        <>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Back"
-            disabled={!history.canGoBack}
-            onClick={history.back}
-          >
-            <ChevronLeft aria-hidden="true" className="rtl:-scale-x-100" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            aria-label="Forward"
-            disabled={!history.canGoForward}
-            onClick={history.forward}
-          >
-            <ChevronRight aria-hidden="true" className="rtl:-scale-x-100" />
-          </Button>
-        </>
-      ) : null}
-    </div>
+      <PanelLeft aria-hidden="true" />
+    </Button>
   );
 }
 
@@ -944,147 +906,4 @@ export function ShellBottomBar({
       {...props}
     />
   );
-}
-
-/**
- * A DS animated icon (`@/components/ui/icons/*`) that loads only when it first renders, for a
- * rail item's `animatedIcon`: its module and Motion stay out of the first bundle. Call it at the
- * top level of a client module.
- *
- * @example
- * "use client";
- * export const HomeIconLazy = lazyAnimatedIcon(() =>
- *   import("@/components/ui/icons/home").then((m) => m.HomeIcon),
- * );
- * // in the rail: <ShellRailItem icon={<Home />} animatedIcon={<HomeIconLazy />} label="Home" … />
- */
-export function lazyAnimatedIcon(
-  load: () => Promise<AnimatedIconComponentType>,
-): React.LazyExoticComponent<AnimatedIconComponentType> {
-  return React.lazy(() => load().then((Icon) => ({ default: Icon })));
-}
-
-/** Waits for the browser to be idle (or a second, whichever is first). */
-function whenIdle(task: () => void): () => void {
-  if (typeof window.requestIdleCallback === "function") {
-    const id = window.requestIdleCallback(task, { timeout: 1000 });
-    return () => window.cancelIdleCallback(id);
-  }
-  const id = window.setTimeout(task, 200);
-  return () => window.clearTimeout(id);
-}
-
-/** Props accepted by `ShellRailIcon`. */
-export interface ShellRailIconProps {
-  /** The static icon, painted first and kept until the animated one has loaded. */
-  icon: React.ReactNode;
-  /** The animated icon's element (`lazyAnimatedIcon`), swapped in once the browser is idle. */
-  animated: React.ReactElement;
-}
-
-/**
- * A rail item's icon that upgrades itself (L23): the static icon paints with the page; once the
- * browser is idle the animated one loads and takes its place at the same 18px, then plays when
- * the item is hovered or becomes the current module. The animation itself honours reduced
- * motion. Rendered by `ShellRailItem` when it has an `animatedIcon`.
- *
- * @example
- * <ShellRailIcon icon={<Home />} animated={<HomeIconLazy />} />
- */
-export function ShellRailIcon({ icon, animated }: ShellRailIconProps) {
-  const [ready, setReady] = React.useState(false);
-  const anchor = React.useRef<HTMLSpanElement>(null);
-  const handle = React.useRef<AnimatedIconHandle | null>(null);
-  // A play asked for while the icon was still loading; honoured when it attaches.
-  const pending = React.useRef(false);
-
-  const play = React.useCallback(() => {
-    if (!handle.current) {
-      pending.current = true;
-      return;
-    }
-    handle.current.stopAnimation();
-    handle.current.startAnimation();
-  }, []);
-  const rest = React.useCallback(() => {
-    pending.current = false;
-    handle.current?.stopAnimation();
-  }, []);
-  const attach = React.useCallback((next: AnimatedIconHandle | null) => {
-    handle.current = next;
-    if (next && pending.current) {
-      pending.current = false;
-      next.startAnimation();
-    }
-  }, []);
-
-  React.useEffect(() => whenIdle(() => setReady(true)), []);
-
-  React.useEffect(() => {
-    const item = anchor.current?.closest<HTMLElement>(
-      '[data-slot="shell-rail-item"]',
-    );
-    if (!ready || !item) return;
-    const onEnter = (event: PointerEvent) => {
-      if (event.pointerType === "mouse") play();
-    };
-    // Becoming the current module plays it once; leaving it rearms it.
-    const active = new MutationObserver(() => {
-      if (item.hasAttribute("data-active")) play();
-      else rest();
-    });
-    active.observe(item, {
-      attributes: true,
-      attributeFilter: ["data-active"],
-    });
-    item.addEventListener("pointerenter", onEnter);
-    item.addEventListener("pointerleave", rest);
-    item.addEventListener("focus", play);
-    item.addEventListener("blur", rest);
-    return () => {
-      active.disconnect();
-      item.removeEventListener("pointerenter", onEnter);
-      item.removeEventListener("pointerleave", rest);
-      item.removeEventListener("focus", play);
-      item.removeEventListener("blur", rest);
-    };
-  }, [ready, play, rest]);
-
-  return (
-    <span
-      ref={anchor}
-      data-slot="shell-rail-icon"
-      className="grid size-4.5 place-items-center [&>*]:col-start-1 [&>*]:row-start-1"
-    >
-      {ready ? (
-        <IconFallback fallback={icon}>
-          <React.Suspense fallback={icon}>
-            {React.cloneElement(animated, {
-              ref: attach,
-              size: "1.125rem",
-              "aria-hidden": true,
-            } as AnimatedIconOwnProps & {
-              ref: React.Ref<AnimatedIconHandle>;
-            })}
-          </React.Suspense>
-        </IconFallback>
-      ) : (
-        icon
-      )}
-    </span>
-  );
-}
-
-/** Keeps the static icon if the animated one's chunk fails to load: it is only an upgrade. */
-class IconFallback extends React.Component<
-  { fallback: React.ReactNode; children: React.ReactNode },
-  { failed: boolean }
-> {
-  state = { failed: false };
-  static getDerivedStateFromError() {
-    return { failed: true };
-  }
-  render() {
-    return this.state.failed ? this.props.fallback : this.props.children;
-  }
 }

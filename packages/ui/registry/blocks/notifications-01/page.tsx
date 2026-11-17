@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.101.0 sha256-Ic0LYzW84oUivteqQ8u0nT+kaWz1PUYVfi1Of0MtKU8=
+// @vegastack notifications-01@0.101.0 sha256-kv0Q+tlpX/1LFz95vyJUGeLP0lhVnjTcNGQAy26IZ7o=
 
 "use client";
 
@@ -18,11 +18,10 @@ import {
   ShellBottomBarItem,
   ShellMain,
   ShellPage,
-  ShellRail,
-  ShellRailItem,
   ShellTopBar,
   ShellTopBarTitle,
 } from "@/components/ui/shell";
+import { Rail, RailItem } from "@/components/ui/rail";
 
 /**
  * `notifications-01` — the Inbox: an "Inbox" item on the shell's rail (desktop) and in its phone
@@ -66,15 +65,15 @@ export default function Page() {
   return (
     <Shell
       rail={
-        <ShellRail>
-          <ShellRailItem icon={<Home />} label="Home" href="/" active />
-          <ShellRailItem
+        <Rail>
+          <RailItem icon={<Home />} label="Home" href="/" active />
+          <RailItem
             icon={<Inbox />}
             label="Inbox"
             badge={unread}
             onClick={() => setOpen(true)}
           />
-        </ShellRail>
+        </Rail>
       }
       bottomBar={
         <ShellBottomBar>

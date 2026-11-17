@@ -964,6 +964,14 @@
     },
     "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 48px: one row height for the top bar, the column title row, the panel head and the desktop title row (L9, L10)."
   },
+  "shell-globalbar-height": {
+    "$type": "dimension",
+    "$value": {
+      "value": 2.75,
+      "unit": "rem"
+    },
+    "$description": "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
+  },
   "shell-panel-width": {
     "$type": "dimension",
     "$value": {
