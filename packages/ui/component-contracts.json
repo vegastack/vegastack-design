@@ -2119,7 +2119,7 @@
       "name": "nav-tree",
       "registryType": "registry:ui",
       "title": "Nav Tree",
-      "summary": "A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step and threaded to their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.",
+      "summary": "A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step under their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.",
       "status": "stable",
       "since": "0.106.0",
       "family": "navigation",

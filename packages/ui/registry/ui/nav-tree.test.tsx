@@ -66,10 +66,9 @@ test("items sit level with their section title; children indent one 12px step", 
     '[data-slot="nav-tree-fold"]',
   )!;
   expect(box(fold).left).toBeGreaterThan(box(parent).left + 120);
-  // A child hangs from a thread: its elbow is drawn in the indent.
-  const elbow = getComputedStyle(child.closest("li")!, "::before");
-  expect(elbow.borderInlineStartWidth).toBe("1px");
-  expect(elbow.borderBottomWidth).toBe("1px");
+  // No thread lines: the small indent alone groups a parent's children.
+  const before = getComputedStyle(child.closest("li")!, "::before");
+  expect(before.borderInlineStartWidth).toBe("0px");
   await expectNoA11yViolations(screen.container);
 });
 

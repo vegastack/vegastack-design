@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.107.0 sha256-/C0GBcM2bwY/ufA8qjOIHliYj2AHjjrZnH2bxz8PjiY=
+// @vegastack nav-tree@0.107.0 sha256-1RbPjBh6YV0/YDOWMlW+ochGFgHBXRK3Y5zA9xLTyw8=
 
 "use client";
 
@@ -13,13 +13,12 @@ WHY THIS SHAPE — one tree for every column (Layout v2, D9).
 Every module column (Home, Spaces, Library, Settings, Tasks…) lists its places the same way:
 sections with a title, items left-aligned with that title, and children indented by one step of
 the spacing scale (12px). There is no chevron gutter at the start of a row: a parent's fold
-control sits at its END, so a parent and its siblings keep their labels on one line. Children hang
-from a thin thread line with a rounded elbow per child, the visual the Inbox uses for a
-notification's threaded events.
+control sits at its END, so a parent and its siblings keep their labels on one line. The small
+indent alone shows what belongs to what: no thread lines (operator, 17-11-2026: keep the
+indentation close, without the lines).
 
 Rows are 32px, and 44px (`size="touch"`, or by themselves in a shell narrower than 40rem, where
-the column is a phone sheet). The height is one variable (`--nav-tree-row`), so the elbows meet
-each row's middle at either size.
+the column is a phone sheet). The height is one variable (`--nav-tree-row`).
 
 Keyboard (on top of Tab, which reaches every row): ↑ ↓ move between visible rows, Home and End
 jump to the ends, → opens a folded parent or moves into it, ← folds an open parent or moves to
@@ -205,7 +204,7 @@ export interface NavTreeItemProps extends Omit<
   active?: boolean;
   /** An action shown on hover and focus in the count's place (a ⋯ menu). @default undefined */
   action?: React.ReactNode;
-  /** Child items: the item becomes a parent that folds, its children threaded under it. @default undefined */
+  /** Child items: the item becomes a parent that folds, its children one step in under it. @default undefined */
   children?: React.ReactNode;
   /** Whether a parent starts open (uncontrolled). @default true when `active`, else false */
   defaultOpen?: boolean;
@@ -238,7 +237,7 @@ function hasCount(count: number | string | undefined): boolean {
 /**
  * `NavTreeItem` — one row: icon, name and count, on an inset rounded fill. With children it is a
  * parent: its fold control sits at the row's end (never before the label), and its children are
- * indented one 12px step and threaded to it. A parent with no link of its own folds on a click.
+ * indented one 12px step under it. A parent with no link of its own folds on a click.
  *
  * @example
  * <NavTreeItem icon={<Hexagon />} label="General" defaultOpen>
@@ -322,13 +321,7 @@ export function NavTreeItem({
     <li
       data-slot="nav-tree-row"
       data-parent={parent ? "" : undefined}
-      className={cn(
-        "relative",
-        // A child hangs from its parent's thread: an elbow to its row's middle, and the line
-        // running on past it to the next sibling (Inbox's threaded events).
-        depth > 0 &&
-          "before:pointer-events-none before:absolute before:-start-1.5 before:-top-px before:h-[calc(var(--nav-tree-row)/2+1px)] before:w-1.5 before:rounded-es-item before:border-s before:border-b before:border-border not-last:after:pointer-events-none not-last:after:absolute not-last:after:-start-1.5 not-last:after:top-0 not-last:after:-bottom-px not-last:after:border-s not-last:after:border-border",
-      )}
+      className="relative"
     >
       <div className="group/nav-tree-row relative flex items-center">
         {row}

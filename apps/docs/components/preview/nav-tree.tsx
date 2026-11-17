@@ -79,7 +79,7 @@ function HomeColumn({ size }: { size?: "default" | "touch" }) {
   );
 }
 
-/** Home's column: sections, a parent threaded to its views, counts and the current view. */
+/** Home's column: sections, a parent with its views one step in, counts and the current view. */
 export function navTree(): ReactNode {
   return (
     <Wrapper className="items-start">
