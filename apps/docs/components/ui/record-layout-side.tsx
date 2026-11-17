@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.107.0 sha256-NWHYbRmwrGzYVfiQjj7939Yuc5l/5B9XV/zltpMKJG4=
+// @vegastack record-layout@0.107.0 sha256-kvQK6++jpwgY9b3G+plWR1FLp9Rz3HVyzp1gnAFemX8=
 
 "use client";
 
@@ -266,11 +266,11 @@ export function RecordPanelProvider({
   const pendingReveal = React.useRef<string | null>(null);
   const reveal = React.useCallback(
     (value: string) => {
-      setSection(value, true);
       if (mode !== "sheet" && docked === null) {
         pendingReveal.current = value;
         return;
       }
+      setSection(value, true);
       if (mode === "sheet") setSheet(true);
       else if (mode === "overlay") {
         setMotion(true);
@@ -294,11 +294,11 @@ export function RecordPanelProvider({
     [id, mode, docked, open, setSection],
   );
   React.useEffect(() => {
-    if (docked === null || !pendingReveal.current) return;
+    if ((docked === null && mode !== "sheet") || !pendingReveal.current) return;
     const value = pendingReveal.current;
     pendingReveal.current = null;
     reveal(value);
-  }, [docked, reveal]);
+  }, [docked, mode, reveal]);
 
   // ⌘. (Ctrl+. elsewhere) shows and hides it, from anywhere on the page, text fields included:
   // the chord types nothing.
