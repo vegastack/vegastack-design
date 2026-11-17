@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "f5886e2d088616def9e5e2be8b9e8c1f4e0467b55622e39996c63e8977d675dd",
+  "contractSha256": "c26dcd5880d2d7a0006be5fc372552e807cce8979fb1e7205d6fe8d29eb260ce",
   "expectedCounts": {
     "totalRegistryItems": 817,
     "components": 228,

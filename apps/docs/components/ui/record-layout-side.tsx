@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.107.0 sha256-Qq5ANtleba7cZbhfnXZNDMjnVjYuxRE7VOQaVHmijxA=
+// @vegastack record-layout@0.107.0 sha256-1Jct6o6O8eqosHK6RKn1P6Upa/+XqN4c1dhsUlHTN1g=
 
 "use client";
 
@@ -171,9 +171,46 @@ export function RecordPanelProvider({
 
   // A floating panel and a sheet belong to their mode: leaving it (the record grows wide enough to
   // dock, the window leaves a phone's width) drops them, so neither comes back on its own later.
+  // Whether the last focus was in the panel: a panel CSS hides drops its focus to the body before
+  // the mode change below runs.
+  const focusedIn = React.useRef(false);
   React.useEffect(() => {
+    const onFocus = (event: FocusEvent) => {
+      focusedIn.current = !!document
+        .getElementById(id)
+        ?.contains(event.target as Node);
+    };
+    document.addEventListener("focusin", onFocus);
+    return () => document.removeEventListener("focusin", onFocus);
+  }, [id]);
+
+  // Focus inside a panel a mode change hides goes back to ▥ (or the page's Details button).
+  React.useEffect(() => {
+    const panel = document.getElementById(id);
+    const active = document.activeElement;
+    const inside =
+      !!panel &&
+      (panel.contains(active) ||
+        ((active === document.body || active === null) && focusedIn.current));
     if (mode !== "overlay") setOverlay(false);
     if (mode !== "sheet") setSheet(false);
+    if (!inside) return;
+    requestAnimationFrame(() => {
+      const still = document.getElementById(id);
+      if (
+        still &&
+        still.contains(document.activeElement) &&
+        still.checkVisibility()
+      )
+        return;
+      document
+        .querySelector<HTMLElement>(
+          `${toggleSelector(id)}, [data-slot='record-panel-trigger'][data-panel='${id}']`,
+        )
+        ?.focus({ preventScroll: true });
+    });
+    // Only a change of mode: the panel's id is fixed for the provider's life.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
   /**
@@ -417,6 +454,7 @@ export function RecordPanelTrigger({
       aria-haspopup="dialog"
       aria-expanded={ctx.mode === "sheet" && ctx.sheet}
       data-slot="record-panel-trigger"
+      data-panel={ctx.id}
       className={cn("self-start sm:hidden", className)}
       onClick={(event) => {
         onClick?.(event);
@@ -435,7 +473,8 @@ export function RecordPanelTrigger({
  * ----------------------------------------------------------------------------------------------*/
 
 /** Props for `RecordPanel`. */
-export type RecordPanelProps = React.ComponentPropsWithRef<"aside">;
+/** Native `aside` props for `RecordPanel`, less its `id` (the provider's, which ▥ points at). */
+export type RecordPanelProps = Omit<React.ComponentPropsWithRef<"aside">, "id">;
 
 /**
  * `RecordPanel` — the side panel itself, after `RecordLayoutMain` inside `RecordLayout`: an
@@ -531,6 +570,8 @@ export function RecordPanel({
         labelledBy={titleId}
       >
         <div
+          {...(props as React.HTMLAttributes<HTMLDivElement>)}
+          ref={refs as React.Ref<HTMLDivElement>}
           id={ctx.id}
           data-slot="record-panel"
           data-surface="sheet"
@@ -564,6 +605,7 @@ export function RecordPanel({
   const rendered = ctx.overlay || (ctx.open && ctx.docked !== false);
   return (
     <aside
+      {...props}
       ref={refs}
       id={ctx.id}
       aria-label={ctx.label}
@@ -589,7 +631,6 @@ export function RecordPanel({
         "@min-[75rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[75rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[75rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
         className,
       )}
-      {...props}
     >
       {rendered ? body : null}
     </aside>

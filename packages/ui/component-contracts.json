@@ -40187,6 +40187,10 @@
         "RecordPanelTrigger": {
           "attributes": [
             {
+              "name": "data-panel",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": ["record-panel-trigger"]
             }

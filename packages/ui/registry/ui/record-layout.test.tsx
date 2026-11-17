@@ -266,3 +266,19 @@ test("a page's reveal shows a hidden panel and opens a folded section, rememberi
   expect(opens).toEqual([true]);
   expect(folds).toEqual([["files", true]]);
 });
+
+test("focus in a floating panel goes back to ▥ when the record grows wide enough to dock", async () => {
+  await page.viewport(1440, 900);
+  const screen = await render(<Record width={1100} defaultOpen={false} />);
+  await screen.getByRole("button", { name: "Show details" }).click();
+  expect(document.activeElement?.getAttribute("data-slot")).toBe(
+    "record-panel",
+  );
+  await screen.rerender(<Record width={1300} defaultOpen={false} />);
+  await frames();
+  await frames();
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
+  expect(document.activeElement?.getAttribute("data-slot")).toBe(
+    "record-panel-toggle",
+  );
+});

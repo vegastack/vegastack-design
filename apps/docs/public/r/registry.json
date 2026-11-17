@@ -426,7 +426,7 @@
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
         "version": "0.107.0",
-        "integrity": "sha256-Qq5ANtleba7cZbhfnXZNDMjnVjYuxRE7VOQaVHmijxA="
+        "integrity": "sha256-1Jct6o6O8eqosHK6RKn1P6Upa/+XqN4c1dhsUlHTN1g="
       }
     },
     {
