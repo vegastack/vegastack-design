@@ -531,9 +531,10 @@ test("picking a place in a column that slid over closes it; folding a parent doe
     [
       ...document.querySelectorAll<HTMLElement>('[data-slot="nav-tree-item"]'),
     ].find((el) => el.textContent === name)!;
-  row("Design").click();
-  await new Promise((resolve) => setTimeout(resolve, 50));
+  await userEvent.click(row("Design"));
+  expect(row("Design").getAttribute("aria-expanded")).toBe("true");
+  expect(row("Board").checkVisibility()).toBe(true);
   expect(shell().dataset.column).toBe("over");
-  row("Board").click();
+  await userEvent.click(row("Board"));
   await expect.poll(() => shell().dataset.column).toBe("folded");
 });
