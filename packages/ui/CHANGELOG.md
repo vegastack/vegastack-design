@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.102.0
+
+### Minor Changes
+
+- [#1013](https://github.com/vegastack/vegastack-design/pull/1013) [`6b4b34e`](https://github.com/vegastack/vegastack-design/commit/6b4b34eae449e938d48c3ab17ca0aedc9f470d40) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **The shell panel's open motion plays only for a person's open** (`shell`). `ShellPanelToggle`'s click marks itself, and the new `requestShellPanelOpen(element)` marks an open the app makes on someone's behalf (a row, a link, ⌘.). The first paint and opens the app makes by itself — a restored tab, an automatic Details tab — dock at once, without moving the page.
+
 ## 0.101.0
 
 ### Minor Changes

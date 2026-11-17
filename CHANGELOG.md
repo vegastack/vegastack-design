@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.102.0] — November 17, 2026
+
+<!-- assembled from 1 changeset: 2330cb25e778 -->
+
+### 🔧 Changed components
+
+- **The shell panel's open motion plays only for a person's open** (`shell`). `ShellPanelToggle`'s click marks itself, and the new `requestShellPanelOpen(element)` marks an open the app makes on someone's behalf (a row, a link, ⌘.). The first paint and opens the app makes by itself — a restored tab, an automatic Details tab — dock at once, without moving the page.
+  [`6b4b34e`](https://github.com/VegaStack/vegastack-design/commit/6b4b34e)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.101.0 → 0.102.0.
+
 ## [0.101.0] — November 17, 2026
 
 <!-- assembled from 1 changeset: 4ec28e3085b7 -->

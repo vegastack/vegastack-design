@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.102.0] — November 17, 2026
+
+### 🔧 Changed components
+
+- **The shell panel's open motion plays only for a person's open** (`shell`). `ShellPanelToggle`'s click marks itself, and the new `requestShellPanelOpen(element)` marks an open the app makes on someone's behalf (a row, a link, ⌘.). The first paint and opens the app makes by itself — a restored tab, an automatic Details tab — dock at once, without moving the page.
+  [`6b4b34e`](https://github.com/VegaStack/vegastack-design/commit/6b4b34e)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.101.0 → 0.102.0.
+
 ## [0.101.0] — November 17, 2026
 
 ### 🗑 Removed / renamed
