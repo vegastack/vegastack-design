@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.107.0 sha256-69tudVau+HNwJxYiaerex6fQYOiOFEX22eSb2EphaWs=
+// @vegastack record-layout@0.107.0 sha256-L1s+AkGdZ3Bfhv52kMB2/ZXhA4yHda4fUFO7jH6xs5c=
 
 "use client";
 
@@ -116,6 +116,7 @@ export interface RecordPanelProviderProps {
   sections?: Readonly<Record<string, boolean>>;
   /** Called when a person folds or opens a section. @default undefined */
   onSectionOpenChange?: (value: string, open: boolean) => void;
+  /** The record page: its `RecordLayout` and the page bar's `RecordPanelToggle`. @default undefined */
   children?: React.ReactNode;
 }
 
@@ -762,7 +763,7 @@ export interface RecordPanelItemProps extends Omit<
   icon?: React.ReactNode;
   /** The muted trailing detail: a size, a relation, a role, a time. @default undefined */
   detail?: React.ReactNode;
-  /** The row's text; it truncates. */
+  /** The row's text; it truncates. @default undefined */
   children?: React.ReactNode;
 }
 
