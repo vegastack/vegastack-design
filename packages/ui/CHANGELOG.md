@@ -1,5 +1,15 @@
 # @vegastack/ui
 
+## 0.103.0
+
+### Minor Changes
+
+- [#1014](https://github.com/vegastack/vegastack-design/pull/1014) [`732af62`](https://github.com/vegastack/vegastack-design/commit/732af623fe10cd292576cb9472a9825533de8df5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 **Deprecated props are removed**, with no compatibility aliases (shell layout L22): `RelativeTime`'s `unitStyle` (use `format`), `ActivityEvent`'s and `CommentData`'s `agent` (give the actor or author `kind: "agent"`), `PickerPanel`'s `searchAction`, `SortableList`'s `menuItems` (use `getItemActions`), a board column's `collapsed` (use `defaultCollapsed`), `FilterChip`'s `anyLabel`, `RecordListMore`'s and `LoadMore`'s ignored `label`, `SpacePickerItem`'s `secondary`, the `DataGridLoadMore` type (use `LoadMoreState`), `TranscriptSpeakers` (rename speakers in place), and `PageHeader`'s `favorite` with `FavoriteStar` and `PageHeaderFavorite`.
+
+### Patch Changes
+
+- [#1014](https://github.com/vegastack/vegastack-design/pull/1014) [`732af62`](https://github.com/vegastack/vegastack-design/commit/732af623fe10cd292576cb9472a9825533de8df5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **A rail item keeps the name you give it** (`shell`). `ShellRailItem` used to replace a caller's `aria-label` with its own; an explicit `aria-label` now wins (the account item reads "<name>, account"), and the label with its count or dot is the name only when none is given.
+
 ## 0.102.0
 
 ### Minor Changes

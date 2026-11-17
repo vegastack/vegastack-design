@@ -174,7 +174,7 @@
       "meta": {
         "whenToUse": "The app's frame: rail of modules, a module's column, the top bar, the page and the panel, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.102.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -296,7 +296,7 @@
       "meta": {
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -329,7 +329,7 @@
       "meta": {
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox).",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -827,7 +827,7 @@
       "meta": {
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -1452,7 +1452,7 @@
       "meta": {
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -1711,7 +1711,7 @@
       "meta": {
         "whenToUse": "The footer of a keyset (cursor) list — DataList's or DataGrid's loadMore, a board lane, a feed: load the next batch, retry a failed one, optionally say the list has ended.",
         "whenNotToUse": "Numbered pages with a known total (DataListPager); loading on scroll with no button.",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -1888,7 +1888,7 @@
       "meta": {
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -13824,7 +13824,7 @@
       "meta": {
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -14051,7 +14051,7 @@
       "meta": {
         "whenToUse": "The records a change will touch, listed in a confirmation dialog (the products a save affects, the products a delete leaves), each with a link to open it in a new tab.",
         "whenNotToUse": "Navigable or selectable lists (Item, DataList), pickers (Combobox), or a single linked record (RecordChip).",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -14261,7 +14261,7 @@
       "meta": {
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -14632,7 +14632,7 @@
       "meta": {
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -14848,7 +14848,7 @@
       "meta": {
         "whenToUse": "Any date, time, duration, due label or day grouping shown in UI — pick the function per the Dates & times page's where-to-use table.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -15206,7 +15206,7 @@
       "meta": {
         "whenToUse": "User-orderable single lists and tile grids — settings sections, pipeline stages, attribute values with locked built-ins, editable rows with inline actions, ordered product photos and attachments — where the host persists (and may refuse) the order.",
         "whenNotToUse": "Cross-container card movement (board), selectable data tables (DataList — never mix selection with reordering), or read-only lists (ItemGroup).",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {
@@ -19563,7 +19563,7 @@
       "meta": {
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
-        "version": "0.100.0"
+        "version": "0.103.0"
       }
     },
     {

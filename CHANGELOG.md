@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.103.0] — November 17, 2026
+
+<!-- assembled from 2 changesets: e861949bdb2b -->
+
+### 🗑 Removed / renamed
+
+- **Deprecated props are removed**, with no compatibility aliases (shell layout L22): `RelativeTime`'s `unitStyle` (use `format`), `ActivityEvent`'s and `CommentData`'s `agent` (give the actor or author `kind: "agent"`), `PickerPanel`'s `searchAction`, `SortableList`'s `menuItems` (use `getItemActions`), a board column's `collapsed` (use `defaultCollapsed`), `FilterChip`'s `anyLabel`, `RecordListMore`'s and `LoadMore`'s ignored `label`, `SpacePickerItem`'s `secondary`, the `DataGridLoadMore` type (use `LoadMoreState`), `TranscriptSpeakers` (rename speakers in place), and `PageHeader`'s `favorite` with `FavoriteStar` and `PageHeaderFavorite`.
+  [`732af62`](https://github.com/VegaStack/vegastack-design/commit/732af62)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.102.0 → 0.103.0.
+
+### 🐛 Fixed
+
+- **A rail item keeps the name you give it** (`shell`). `ShellRailItem` used to replace a caller's `aria-label` with its own; an explicit `aria-label` now wins (the account item reads "<name>, account"), and the label with its count or dot is the name only when none is given.
+  [`732af62`](https://github.com/VegaStack/vegastack-design/commit/732af62)
+
 ## [0.102.0] — November 17, 2026
 
 <!-- assembled from 1 changeset: 2330cb25e778 -->
