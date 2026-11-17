@@ -22183,8 +22183,8 @@
       "docsSlug": "/docs/components/notification-dot",
       "registryDependencies": [],
       "npmDependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
+        "@vegastack/design@^0.19.1",
+        "@vegastack/design-tokens@^0.19.0"
       ],
       "testFiles": ["packages/ui/registry/ui/notification-dot.test.tsx"],
       "coverage": {

@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.101.0] — November 17, 2026
+
+<!-- assembled from 1 changeset: 4ec28e3085b7 -->
+
+### 🗑 Removed / renamed
+
+- **The shell's last predecessors are removed**, with no compatibility aliases (shell layout L22). `sidebar` (upstream; now in `excluded.json`, its patch gone) and `page-layout`'s `RAIL_COLLAPSED_QUERY`; `notification-bell`'s bell and its `use-animation-replay` hook (`useAnimationReplay`, `useShakeOnInvalid`); `RecordLayoutRail`, `RecordDetailsSheet`, `useRecordLayoutWide` and `RecordLayout`'s `stack`, so a record page is one column and its details open in the shell panel; `DocumentLayoutAside` and `DocumentLayout`'s `aside`; `SheetContent`'s `beside`; `AudioPlayer`'s `--audio-player-inset-end`, which only cleared a rail. `NotificationDot` moves to its own item, `notification-dot`. `HelpMenu` no longer builds on the sidebar: its `trigger` is required and is the shell's rail item (`ShellRailItem`). No consuming app uses any removed part; a consumer deletes its copies of `sidebar`, `notification-bell` and `use-animation-replay` before `ds:pull`.
+  [`2b463c1`](https://github.com/VegaStack/vegastack-design/commit/2b463c1)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.19.1`** (was `0.19.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.100.0 → 0.101.0.
+
 ## [0.100.0] — November 17, 2026
 
 <!-- assembled from 6 changesets: 17e28129cd22 -->

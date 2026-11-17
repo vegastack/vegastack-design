@@ -250,8 +250,8 @@
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
-        "version": "0.100.0",
-        "integrity": "sha256-Wgf/uWQyZVIP78ZjumWXZQmWKjCxs9j5FHRPEFrRk40="
+        "version": "0.101.0",
+        "integrity": "sha256-v8XulqcPuCYrhPpj6FtfGzPc4PwU4k6F1bdFs1VaCqc="
       }
     },
     {
@@ -280,8 +280,8 @@
       "meta": {
         "whenToUse": "A record's page (a meeting, a customer, a deal): one main column with the title, status and tabs; the record's facts open in the shell panel's Details tab.",
         "whenNotToUse": "A list page (DataList), or a page with no per-record facts — use ShellPage alone.",
-        "version": "0.100.0",
-        "integrity": "sha256-U85ZgGZZbrMTnEycmbtWiHHKQoXL6YS4oaN9g4KASd4="
+        "version": "0.101.0",
+        "integrity": "sha256-qxoDGtOMKFtP5lHIBduw9u4S1Zfxe3JTff00QfBbqXU="
       }
     },
     {
@@ -752,8 +752,8 @@
       "meta": {
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, `actionsRef` seeks it from a transcript or chapter list, and `peaks` draws a stored waveform without downloading the file.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
-        "version": "0.100.0",
-        "integrity": "sha256-Rx7ASjjE2h0txos2t6bp4shL0+U/4kUKBFYG7mpSEfc="
+        "version": "0.101.0",
+        "integrity": "sha256-25FL3FZJD82gXn5XO5a+l9qR1beKmjryNsJpTX0b3w4="
       }
     },
     {
@@ -2798,8 +2798,8 @@
       "meta": {
         "whenToUse": "Choosing how wide a page is — declare every route's width once with definePageWidths and read it from the page's ShellPage, its loading skeleton and a route test.",
         "whenNotToUse": "A page outside the Shell (sign-in, a marketing page) — it owns its own layout.",
-        "version": "0.100.0",
-        "integrity": "sha256-VKFEgWyzMgXFk6ZjyLqutciRklr+0+c9IODr1J9M7cA="
+        "version": "0.101.0",
+        "integrity": "sha256-Bd8nVjQS7DIEOvWiKlzSFaQQ6SChkFMwMbpEH4tmVJE="
       }
     },
     {
@@ -16518,8 +16518,8 @@
       "meta": {
         "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
         "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
-        "version": "0.100.0",
-        "integrity": "sha256-ftTT6d+6X8K7vB6lUx164jvqRScs6BKJuwZ6IsZjXl8="
+        "version": "0.101.0",
+        "integrity": "sha256-Lptm1mb37jPGYDwv6rJ8SDpcQ61CNlZBtZQYD0ihB28="
       }
     },
     {
@@ -17462,8 +17462,8 @@
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread marker (NotificationDot).",
-        "version": "0.100.0",
-        "integrity": "sha256-F2Rywi7jaKPZuf54TwLkK72VMIhP0iDDjFzzJWQ93t0="
+        "version": "0.101.0",
+        "integrity": "sha256-yqgBYa5phJXKm3tJ0vQCmPxJUJPaDCqMZ9YJz3B01IQ="
       }
     },
     {
@@ -17475,8 +17475,8 @@
         "media"
       ],
       "dependencies": [
-        "@vegastack/design@^0.18.0",
-        "@vegastack/design-tokens@^0.18.0"
+        "@vegastack/design@^0.19.1",
+        "@vegastack/design-tokens@^0.19.0"
       ],
       "files": [
         {
@@ -17488,8 +17488,8 @@
       "meta": {
         "whenToUse": "Marking something unread — a row in a list, an inbox item, a nav or rail item. The row says \"unread\" in its own accessible name.",
         "whenNotToUse": "A count (use Badge) or a status (use StatusIcon).",
-        "version": "0.90.0",
-        "integrity": "sha256-z3/su4nMtK4TPDUHGmLTXtsXfSauNm9DZ4fQ2+HztqY="
+        "version": "0.101.0",
+        "integrity": "sha256-uFvYHDpUSpUDNUMBUPBqxHp9GLZ4qBXOUkJRMqTeUJU="
       }
     },
     {
@@ -18098,8 +18098,8 @@
       "meta": {
         "whenToUse": "A record's details (the shell panel's Details tab, or a sheet): a Details section of inline properties, people and linked records, then sections of full-width rows for the record's tasks and suggestions.",
         "whenNotToUse": "A full list page (DataList) or a settings form (Field).",
-        "version": "0.100.0",
-        "integrity": "sha256-HlIzGaUJ6gfKZg351l9ZUunMH/2TaaOmiNQ2PgUneCk="
+        "version": "0.101.0",
+        "integrity": "sha256-Oe87K3iM+wuV/dPx5Tzj4IsMvDWl3aYHAHa8uS5J5Ps="
       }
     },
     {
@@ -18501,8 +18501,8 @@
       "meta": {
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
-        "version": "0.100.0",
-        "integrity": "sha256-GCM0zyTFYx1E4CaDcd93onvoE8nmwG4E18TXaMfRBP8="
+        "version": "0.101.0",
+        "integrity": "sha256-xvRxVEPYmb2vhChYlHX0df1UMXm6ank5urFA2p1NHhk="
       }
     },
     {
@@ -20861,8 +20861,8 @@
       "meta": {
         "whenToUse": "A task or issue page — title, properties, description and comments in one column; compose the same components in your app.",
         "whenNotToUse": "A meeting or media record with tabs — use RecordLayout with Tabs.",
-        "version": "0.100.0",
-        "integrity": "sha256-cbespDOjlUFLe6jdlL9NHzQC7KmzmpowNaGHELXqgmc="
+        "version": "0.101.0",
+        "integrity": "sha256-npEsEi0xo0VMLsUjE5l/3GeXu0tHi916VzV7yZz7MLs="
       }
     },
     {
@@ -23629,8 +23629,8 @@
       "meta": {
         "whenToUse": "Your app's notification inbox, opened from the shell — copy it once and wire the rows, Mark all read and paging to your API.",
         "whenNotToUse": "A single transient message — use a toast; an activity history on a record — use ActivityFeed.",
-        "version": "0.100.0",
-        "integrity": "sha256-Sgvglfp8j+DdPpiFywumIj5Kz7gN5n4EnMKJAwItOC0="
+        "version": "0.101.0",
+        "integrity": "sha256-Ic0LYzW84oUivteqQ8u0nT+kaWz1PUYVfi1Of0MtKU8="
       }
     },
     {
@@ -24134,8 +24134,8 @@
       "meta": {
         "whenToUse": "An app's one place to learn the product, behind the Help item at the foot of the shell rail: what changed, the docs, the shortcuts, support and the version.",
         "whenNotToUse": "The account menu (profile, theme, sign out) or a page's own help hint (InfoHint).",
-        "version": "0.100.0",
-        "integrity": "sha256-bQlnHl01Bba2TXjlwhP1K9UQ4pVUfAfAjzxHLZmSzW8="
+        "version": "0.101.0",
+        "integrity": "sha256-1jcb0Ip8RZfmvhL7RrQKDl5hZ4gqNheS3fKYy0eFxIo="
       }
     },
     {
@@ -24203,8 +24203,8 @@
       "meta": {
         "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
         "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (ListToolbar's search).",
-        "version": "0.100.0",
-        "integrity": "sha256-vW2kZs7NoAgt9OhU1zuDw6dHN2yeR9NHPolONkIybO0="
+        "version": "0.101.0",
+        "integrity": "sha256-4HC8KFtdcDNn8QzcUbzTHvpKJ1M9Epuafoy2jc7keUI="
       }
     },
     {
