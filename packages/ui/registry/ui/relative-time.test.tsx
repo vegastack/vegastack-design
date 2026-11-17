@@ -132,18 +132,6 @@ test('format="minimal" drops the suffix; format="long" spells the unit', async (
   await expect.element(long.getByText("19 minutes ago")).toBeInTheDocument();
 });
 
-test('the deprecated unitStyle="short" no longer prints "min."', async () => {
-  const screen = await render(
-    <RelativeTime
-      date={new Date(ms(-19 * 60_000))}
-      now={NOW}
-      title={false}
-      unitStyle="short"
-    />,
-  );
-  await expect.element(screen.getByText("19m ago")).toBeInTheDocument();
-});
-
 test('renders a future instant as "in …" copy', async () => {
   const date = new Date(ms(3 * 86_400_000)); // 3 days after NOW
   const screen = await render(

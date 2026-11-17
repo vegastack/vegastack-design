@@ -1,6 +1,6 @@
 ---
 title: Page Header
-description: The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star.
+description: The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and a secondary menu.
 audience: public
 registry: page-header
 status: stable
@@ -28,16 +28,15 @@ import { Button } from "@/components/ui/button";
 
 `PageHeader` is **presentational** — it owns layout, not behavior. You pass navigation
 (`backHref` / `onBack`), the `breadcrumb` node, right-side `actions` and `secondaryMenu`
-slots, and a `favorite` config; the host owns routing and persistence.
+slots; the host owns routing.
 
-The registry component is client-rendered because it includes the optional favorite toggle and
-imperative `onBack` button path. Prefer `backHref` for URL-backed navigation; use `onBack` only for
+The registry component is client-rendered because of the imperative `onBack` button path. Prefer `backHref` for URL-backed navigation; use `onBack` only for
 app-local behavior such as closing a picker or returning to a non-URL state.
 
 ## Anatomy
 
 `PageHeader` lays out, top to bottom, an optional breadcrumb row, then a title row split into a
-left **title block** (back button, `<h1>`, favorite star, description) and a right **actions block**
+left **title block** (back button, `<h1>`, description) and a right **actions block**
 (actions + secondary menu), then the **tabs row** (`tabs`), followed by any `children`. Every region exposes a
 `data-slot` for styling and testing:
 
@@ -49,7 +48,6 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
   breadcrumb={<Breadcrumb>…</Breadcrumb>} // ← page-header-breadcrumb
   title="API Keys" // ← page-header-title  (<h1>)
   description="Manage keys." // ← page-header-description
-  favorite={{ defaultActive: true }} // ← page-header-favorite (Star toggle)
   actions={<Button>Create key</Button>} // ← page-header-actions
   secondaryMenu={<DropdownMenu>…</DropdownMenu>}
 >
@@ -67,7 +65,6 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
   clips with an ellipsis instead of overflowing the header row, and reveals in full via a tooltip
   on hover/focus. The `<h1>` stays the accessible heading — `TruncatedText` composes inside it,
   never replaces it.
-- `page-header-favorite` — the star toggle. Sets `aria-pressed` and `data-active`. Omitted when no `favorite`.
 - `page-header-description` — the muted description under the title. Omitted when no `description`.
 - `page-header-meta` — the muted metadata row under the description, a `<div>` that can hold controls. Omitted when no `meta`.
 - `page-header-actions` — the right-aligned slot holding `actions` then `secondaryMenu`. Omitted when both are empty.
@@ -78,7 +75,7 @@ left **title block** (back button, `<h1>`, favorite star, description) and a rig
 ### Minimal
 
 The only required prop is `title`. With nothing else, `PageHeader` renders just the `<h1>` —
-every other slot (back button, breadcrumb, description, favorite, actions) is opt-in:
+every other slot (back button, breadcrumb, description, actions) is opt-in:
 
 <ComponentPreview
   name="pageHeaderMinimal"
@@ -215,33 +212,6 @@ owners, dates and inline pickers in `meta` instead: a muted, wrapping `<div>` ro
   file="components/preview/page-header.tsx"
 />
 
-### Favorite star
-
-The star is controlled when you pass `active`, or uncontrolled when you pass `defaultActive`. It
-reports the next state through `onToggle`. Pass `disabled` to remove it from the tab order.
-
-The active star fills with **neutral ink**, not warning yellow. The status hues are rationed to
-actual status, and a favourite is a user's own mark rather than a caution — the fill is what carries
-the on/off read, so the colour was never doing that work.
-
-The preview shows a controlled star (click to toggle) above a disabled one:
-
-<ComponentPreview
-  name="pageHeaderFavoriteControlled"
-  file="components/preview/page-header.tsx"
-/>
-
-```tsx
-// Uncontrolled — seeds initial state, host persists on toggle
-<PageHeader title="Doc" favorite={{ defaultActive: true, onToggle: (next) => persist(next) }} />
-
-// Controlled — host owns the state
-<PageHeader title="Doc" favorite={{ active: isStarred, onToggle: setStarred }} />
-
-// Disabled — non-interactive, out of the tab order
-<PageHeader title="Doc" favorite={{ defaultActive: true, disabled: true }} />
-```
-
 ### Secondary menu
 
 Compose your own overflow menu (e.g. a `DropdownMenu` with an icon-only `Button` trigger) and pass
@@ -304,19 +274,6 @@ import { SectionHeading } from "@/components/ui/page-header";
   name="SectionHeadingProps"
 />
 
-### PageHeaderFavorite
-
-<ApiTable
-  path="../../packages/ui/registry/ui/page-header.tsx"
-  name="PageHeaderFavorite"
-/>
-
-### FavoriteStar
-
-`FavoriteStar` renders the controlled star toggle used by `PageHeader`'s `favorite` slot. Prefer the
-`favorite` prop for ordinary page headers; export-level composition is available when the same toggle
-must be placed elsewhere.
-
 ## Accessibility
 
 - The root renders `<header>`, a banner landmark when `PageHeader` sits at the top of the page
@@ -328,15 +285,13 @@ font-semibold`) — one per page — so assistive tech announces the page's prim
   so the full title is reachable via `Tab` and a focus-triggered tooltip — not hover-only.
 - The back affordance is a real link (`backRender` or `backHref`) or button (`onBack`) with an accessible
   `backLabel` (default `"Go back"`), and shows a visible `:focus-visible` ring.
-- The favorite star is a toggle button: it carries `aria-pressed` reflecting the starred state and a
-  `label` (default `"Favorite"`); the visual fill is decorative.
 - All interactive parts are keyboard reachable and operable; the visual order matches the DOM order.
 
-| Key              | Action                                                          |
-| ---------------- | --------------------------------------------------------------- |
-| <kbd>Tab</kbd>   | Move focus through the back button, favorite star, and actions. |
-| <kbd>Enter</kbd> | Follow the back link, or activate the focused button.           |
-| <kbd>Space</kbd> | Activate the focused button (back / favorite / action).         |
+| Key              | Action                                                |
+| ---------------- | ----------------------------------------------------- |
+| <kbd>Tab</kbd>   | Move focus through the back button and actions.       |
+| <kbd>Enter</kbd> | Follow the back link, or activate the focused button. |
+| <kbd>Space</kbd> | Activate the focused button (back / action).          |
 
 <StatesTested name="page-header" />
 

@@ -272,6 +272,27 @@ test("on a tablet ▤ slides the column over the page, and Escape puts it away",
   await expect.poll(() => shell().dataset.column).toBe("folded");
 });
 
+test("a rail item's explicit aria-label wins over the label and its count", async () => {
+  const screen = await render(
+    <nav aria-label="Modules">
+      <ShellRailItem
+        icon={<Home />}
+        label="You"
+        aria-label="Asha Kumar, account"
+        badge={3}
+        render={<button type="button" />}
+      />
+      <ShellRailItem icon={<Home />} label="Inbox" badge={3} href="#inbox" />
+    </nav>,
+  );
+  await expect
+    .element(screen.getByRole("button", { name: "Asha Kumar, account" }))
+    .toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("link", { name: "Inbox, 3" }))
+    .toBeInTheDocument();
+});
+
 test("F6 moves between the rail, the column, the top bar and the page", async () => {
   await render(<Frame width={1440} />);
   await settled();

@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.100.0 sha256-fnqdH9lcCa3O+hyIx+eN4HP4IM9v7XM+0uXqY2r6f9I=
+// @vegastack sortable-list@0.100.0 sha256-lpppMXTHlhGqU0a8WXuYtN2hTAi+RyPFFQOpcZTjFqw=
 
 "use client";
 
@@ -156,11 +156,6 @@ export interface SortableListProps<
    * @default undefined
    */
   getItemActions?: (item: T) => RowAction[];
-  /**
-   * @deprecated Use `getItemActions`, the same accessor under the collection name.
-   * @default undefined
-   */
-  menuItems?: (item: T) => RowAction[];
   /**
    * Accessible name of a row's menu trigger, from the row's label.
    * @default (label) => `Actions for ${label}`
@@ -320,7 +315,6 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
   removeLabel = (label) => `Remove ${label}`,
   renderActions,
   getItemActions,
-  menuItems,
   actionsLabel = defaultActionsLabel,
   lockedReason,
   layout = "list",
@@ -506,9 +500,7 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
           const label = item.label ?? item.id;
           const locked = !disabled && item.disabled === true;
           const actions = renderActions?.(item);
-          const rowMenuItems = disabled
-            ? []
-            : ((getItemActions ?? menuItems)?.(item) ?? []);
+          const rowMenuItems = disabled ? [] : (getItemActions?.(item) ?? []);
           const removable = onRemove !== undefined && !disabled && !locked;
           const touchEdge =
             touchDrag?.over?.id === item.id ? touchDrag.over.edge : undefined;
@@ -693,15 +685,11 @@ export function SortableList<T extends SortableListItem = SortableListItem>({
           <div className="flex min-w-0 flex-1 items-center gap-2">{footer}</div>
           {disabled ||
           loneFooter ||
-          (onRemove === undefined &&
-            getItemActions === undefined &&
-            menuItems === undefined) ? null : (
+          (onRemove === undefined && getItemActions === undefined) ? null : (
             // The rows' `ItemActions` column: × (icon-xs) and ⋯ (icon-sm), `gap-1` between.
             <span aria-hidden="true" className="flex shrink-0 gap-1">
               {onRemove !== undefined ? <span className="w-6" /> : null}
-              {getItemActions !== undefined || menuItems !== undefined ? (
-                <span className="w-7" />
-              ) : null}
+              {getItemActions !== undefined ? <span className="w-7" /> : null}
             </span>
           )}
         </div>

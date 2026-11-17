@@ -149,44 +149,10 @@ test("renders the secondary menu slot after the actions", async () => {
     .toBeInTheDocument();
 });
 
-test("favorite star toggles (uncontrolled) and fires onToggle", async () => {
-  const onToggle = vi.fn();
-  const screen = await render(
-    <PageHeader title="Doc" favorite={{ label: "Favorite", onToggle }} />,
-  );
-  const star = screen.getByRole("button", { name: "Favorite" });
-  await expect.element(star).toHaveAttribute("aria-pressed", "false");
-  await star.click();
-  expect(onToggle).toHaveBeenCalledWith(true);
-  await expect.element(star).toHaveAttribute("aria-pressed", "true");
-  await star.click();
-  expect(onToggle).toHaveBeenLastCalledWith(false);
-  await expect.element(star).toHaveAttribute("aria-pressed", "false");
-});
-
-test("favorite star is controlled when active is provided", async () => {
-  const onToggle = vi.fn();
-  const screen = await render(
-    <PageHeader
-      title="Doc"
-      favorite={{ active: true, label: "Favorite", onToggle }}
-    />,
-  );
-  const star = screen.getByRole("button", { name: "Favorite" });
-  await expect.element(star).toHaveAttribute("aria-pressed", "true");
-  await star.click();
-  // Controlled: state does not change locally; host owns it via onToggle.
-  expect(onToggle).toHaveBeenCalledWith(false);
-  await expect.element(star).toHaveAttribute("aria-pressed", "true");
-});
-
-test("omits the back, favorite, and actions slots when not configured", async () => {
+test("omits the back and actions slots when not configured", async () => {
   const screen = await render(<PageHeader title="Plain" />);
   expect(
     screen.container.querySelector('[data-slot="page-header-back"]'),
-  ).toBeNull();
-  expect(
-    screen.container.querySelector('[data-slot="page-header-favorite"]'),
   ).toBeNull();
   expect(
     screen.container.querySelector('[data-slot="page-header-actions"]'),
@@ -210,16 +176,8 @@ test("no a11y violations", async () => {
       description="Manage keys for this workspace."
       backHref="/settings"
       breadcrumb={<nav aria-label="breadcrumb">Settings</nav>}
-      favorite={{ defaultActive: true, label: "Favorite" }}
       actions={<button type="button">New key</button>}
     />,
-  );
-  await expectNoA11yViolations(screen.container);
-});
-
-test("no a11y violations — disabled favorite", async () => {
-  const screen = await render(
-    <PageHeader title="Doc" favorite={{ label: "Favorite", disabled: true }} />,
   );
   await expectNoA11yViolations(screen.container);
 });

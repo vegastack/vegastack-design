@@ -1,46 +1,14 @@
-// @vegastack page-header@0.100.0 sha256-xJxUhwhnrFh62/jApsHt6aKj8kbGHnTnFLz5A0QI2iY=
+// @vegastack page-header@0.100.0 sha256-1muEWrr0V+s4BTJFAdfK89nuuBECU/9N58lQuWqg6G0=
 
 "use client";
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";
 import { useRender } from "@base-ui/react/use-render";
-import { ChevronLeft, Star } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { TruncatedText } from "@/components/ui/truncated-text";
-
-/**
- * Controls the optional favorite-star toggle next to the title. Supports both
- * controlled (`active` + `onToggle`) and uncontrolled (`defaultActive`) use.
- */
-export interface PageHeaderFavorite {
-  /**
-   * Controlled active (starred) state. When provided, the host owns the state
-   * and must update it from `onToggle`. Omit to run uncontrolled.
-   */
-  active?: boolean;
-  /**
-   * Initial active state when uncontrolled (no `active` prop).
-   * @default false
-   */
-  defaultActive?: boolean;
-  /**
-   * Called with the next active state whenever the star is toggled.
-   */
-  onToggle?: (active: boolean) => void;
-  /**
-   * Accessible name for the toggle. The current state is announced via
-   * `aria-pressed`, so pass the action label only.
-   * @default 'Favorite'
-   */
-  label?: string;
-  /**
-   * Disables the toggle and removes it from the tab order.
-   * @default false
-   */
-  disabled?: boolean;
-}
 
 /** Props accepted by `PageHeader`. */
 export interface PageHeaderProps extends Omit<
@@ -130,12 +98,6 @@ export interface PageHeaderProps extends Omit<
    */
   secondaryMenu?: React.ReactNode;
   /**
-   * Optional favorite-star toggle rendered after the title. Omit to hide it.
-
-   * @default undefined
-   */
-  favorite?: PageHeaderFavorite;
-  /**
    * The page's scope tabs, on their own row 24px under the title (12px above the page below in a
    * `ShellPage`: the `ListToolbar` tabs rhythm) — a default (pill) `Tabs`
    * such as "My tasks | Created by me | Team" that switches whose records a list page shows.
@@ -149,59 +111,13 @@ export interface PageHeaderProps extends Omit<
 }
 
 /**
- * `FavoriteStar` — the star toggle rendered next to the title. Controlled when
- * `active` is supplied, otherwise tracks its own state seeded by `defaultActive`.
-
- *
- * @example
- * <FavoriteStar />
- */
-function FavoriteStar({
-  active,
-  defaultActive = false,
-  onToggle,
-  label = "Favorite",
-  disabled = false,
-}: PageHeaderFavorite) {
-  const isControlled = active !== undefined;
-  const [internal, setInternal] = React.useState(defaultActive);
-  const isActive = isControlled ? active : internal;
-
-  function handleToggle() {
-    const next = !isActive;
-    if (!isControlled) setInternal(next);
-    onToggle?.(next);
-  }
-
-  return (
-    <Button
-      variant="ghost"
-      size="icon-sm"
-      onClick={handleToggle}
-      disabled={disabled}
-      aria-label={label}
-      aria-pressed={isActive}
-      data-slot="page-header-favorite"
-      data-active={isActive ? "" : undefined}
-      className="shrink-0 text-muted-foreground"
-    >
-      {/* Neutral ink, not warning yellow (D21). Doctrine rations the status hues to actual
-          status; a favourite is a user's own mark, not a caution — Linear and Vercel both fill
-          the star with the foreground ink, and the FILL alone already carries the on/off read. */}
-      <Star className={cn(isActive && "fill-current text-foreground")} />
-    </Button>
-  );
-}
-
-/**
  * `PageHeader` — the standardized header at the top of a page: an optional back
- * button, breadcrumb trail, the title (plus optional description and favorite
- * star), and a right-aligned actions row with an optional secondary menu.
+ * button, breadcrumb trail, the title (plus optional description), and a
+ * right-aligned actions row with an optional secondary menu.
  *
- * **Presentational only** — navigation and favorite persistence are owned by the
- * host. Pass `backHref`/`onBack` for back navigation, a `breadcrumb` node for the
- * trail, `actions`/`secondaryMenu` nodes for the right side, and a `favorite`
- * config for the star toggle.
+ * **Presentational only** — navigation is owned by the host. Pass
+ * `backHref`/`onBack` for back navigation, a `breadcrumb` node for the trail,
+ * and `actions`/`secondaryMenu` nodes for the right side.
  *
  * Renders a `<header>` — a banner landmark when `PageHeader` sits at the top of
  * the page (not nested inside `<article>`/`<aside>`/`<main>`/`<nav>`/`<section>`).
@@ -233,13 +149,12 @@ function FavoriteStar({
  * />
  *
  * @example
- * // With breadcrumb, back button, actions, and a favorite star
+ * // With breadcrumb, back button and actions
  * <PageHeader
  *   breadcrumb={<Breadcrumb>…</Breadcrumb>}
  *   backHref="/settings"
  *   title="API Keys"
  *   description="Manage keys for this workspace."
- *   favorite={{ defaultActive: true, onToggle: (next) => persist(next) }}
  *   actions={<Button>New key</Button>}
  * />
  */
@@ -255,7 +170,6 @@ export function PageHeader({
   meta,
   actions,
   secondaryMenu,
-  favorite,
   tabs,
   className,
   children,
@@ -341,7 +255,6 @@ export function PageHeader({
                 <TruncatedText lines={titleLines}>{title}</TruncatedText>
               )}
             </h1>
-            {favorite ? <FavoriteStar {...favorite} /> : null}
           </div>
           {description ? (
             <p
@@ -467,5 +380,3 @@ export function SectionHeading({
     </div>
   );
 }
-
-export { FavoriteStar };
