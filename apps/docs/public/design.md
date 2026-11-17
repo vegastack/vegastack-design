@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 37791
-      sha256: "ada8d51b9bc6c1490119e4ef8f90780f522221882c75152f5d953887b0202bab"
+      bytes: 37806
+      sha256: "0780538527a14ce9815b1f307ea7d9f4dfeb887ea95650c9e13a2ef2d85064a7"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 14060
@@ -305,7 +305,7 @@ themes:
     panel:
       type: "color"
       value: "oklch(0.985 0 0)"
-      description: "COL-26 (ours, operator 2026-11-18, record side panel): the record page's side panel surface, a hair off the page so the panel reads as reference beside the work — the sidebar's tint in light; in dark one step DOWN from the page (the sidebar there is a step up). Opaque, because below 1200px the panel floats over the page. Read it as `bg-panel`."
+      description: "COL-26 (ours, operator 2026-11-18, record side panel): the record page's side panel surface, a hair off the page so the panel reads as reference beside the work — the sidebar's tint in light; in dark one step DOWN from the page (the sidebar there is a step up). Opaque, because below 68rem of record width the panel floats over the page. Read it as `bg-panel`."
     popover:
       type: "color"
       value: "oklch(1 0 0)"
