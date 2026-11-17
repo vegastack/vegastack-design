@@ -1,60 +1,68 @@
-// @vegastack record-layout@0.107.0 sha256-vRTlaw1ciwyp5Aprj942L0iFzYZYs9qFOBrNsK/vpj4=
+// @vegastack record-layout@0.107.0 sha256-O07PFFA+yHF5xzI6+2tUJTIpD33ZVt82qeVQ7Dp5qKk=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// The reference panels and their strip are the one client part; they live in their own file so
-// this one stays server-safe.
+// The side panel is the one client part; it lives in its own file so this one stays server-safe.
 export {
-  RECORD_PANEL_DEFAULT_WIDTH,
-  RECORD_PANEL_MAX_RATIO,
-  RECORD_PANEL_MIN_WIDTH,
-  RecordLayoutPanel,
-  RecordLayoutSide,
-  RecordLayoutStrip,
-  RecordLayoutStripItem,
-  RecordLayoutStripSlot,
-  type RecordLayoutPanelProps,
-  type RecordLayoutSideProps,
-  type RecordLayoutStripItemProps,
-  type RecordLayoutStripProps,
-  type RecordLayoutStripSlotProps,
+  RecordPanel,
+  RecordPanelAction,
+  RecordPanelEmpty,
+  RecordPanelItem,
+  RecordPanelList,
+  RecordPanelProvider,
+  RecordPanelSection,
+  RecordPanelToggle,
+  RecordPanelTrigger,
+  useRecordPanel,
+  type RecordPanelActionProps,
+  type RecordPanelControls,
+  type RecordPanelEmptyProps,
+  type RecordPanelItemProps,
+  type RecordPanelListProps,
+  type RecordPanelProps,
+  type RecordPanelProviderProps,
+  type RecordPanelSectionProps,
+  type RecordPanelToggleProps,
+  type RecordPanelTriggerProps,
 } from "@/components/ui/record-layout-side";
 
 /* ------------------------------------------------------------------------------------------------
- * RecordLayout — a record page: the main column (the work, in reading order: description,
- * subtasks, comments and activity) and, after it, `RecordLayoutSide`: the strip of icons on the
- * right edge that opens one reference panel at a time (layout v2, D7–D8).
+ * RecordLayout — a record page: the main column (the work, in reading order: title, description,
+ * subtasks or decisions, activity and comments) and, after it, `RecordPanel`: one 320px side panel
+ * of stacked sections, flush to the page's right edge (record side panel R1–R5).
  *
- * One layout model for every page with a reading width (layout v2, D14):
+ * In the shell it fills the page edge to edge — under the page bar, to the page's right and bottom
+ * edges, past the page gutter — so the panel's divider runs the page's full height; the main
+ * column takes the gutter back as its padding and scrolls on its own, as the panel does.
  *
- *   record width     side panel                     content
- *   ≥ 75rem (1200)   docks beside the main column   re-centres in the room that is left
- *   40–75rem         floats over the main column    stays where it was (the panel covers part)
- *   < 40rem (phone)  a bottom sheet; strip → a row   full width
+ *   record width     side panel                                    content
+ *   ≥ 68rem (1088)   docks beside the main column (remembered)    keeps its width, re-centred
+ *   40–68rem         ▥ floats it over the page, edge to edge      stays where it was
+ *   < 640px window   a bottom sheet from the "Details" button     full width
  *
- * The content keeps its own width and centres itself in the main column (`ShellPage` prose/form,
- * 720px; `DocumentLayout` for a page read as a document, with the contents rail in the start
- * gutter and the comment margin in the end gutter). A docked panel narrows the main column, so
- * the content slides to the start to stay centred in what remains, animated with the panel's
- * width on a person's click; nothing overlays the text unless the record is narrower than the
- * content plus the panel (75rem ≈ 45rem of text + gutters + the 380px panel + the 44px strip).
- * Server-safe; the side panel's parts are client leaves in `record-layout-side`.
+ * The content keeps its own width and centres itself in the main column (`ShellSection`
+ * `measure="prose"`, 720px; `DocumentLayout` for a page read as a document). A docked panel narrows
+ * the main column, so the content slides to stay centred in what remains, animated with the
+ * panel's width on a person's click. Server-safe; the panel's parts are client leaves in
+ * `record-layout-side`.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Native container props for `RecordLayout`. */
 export type RecordLayoutProps = React.ComponentPropsWithRef<"div">;
 
 /**
- * `RecordLayout` — the record page's frame. Put `RecordLayoutMain` inside it.
+ * `RecordLayout` — the record page's frame: `RecordLayoutMain`, then `RecordPanel`. Inside a
+ * `ShellPage` it reaches past the page gutter to the page's edges.
  *
  * @example
  * <RecordLayout>
  *   <RecordLayoutMain>
  *     <PageHeader title="Weekly sync" />
- *     <Tabs>…</Tabs>
+ *     <RecordPanelTrigger />
  *   </RecordLayoutMain>
+ *   <RecordPanel>…</RecordPanel>
  * </RecordLayout>
  */
 export function RecordLayout({ className, ...props }: RecordLayoutProps) {
@@ -62,7 +70,9 @@ export function RecordLayout({ className, ...props }: RecordLayoutProps) {
     <div
       data-slot="record-layout"
       className={cn(
-        "@container/record-layout relative flex min-w-0 max-sm:flex-col",
+        // Past the shell page's gutter on every side (outside a shell the gutter is unset: no
+        // margin), as tall as the page, so the panel runs from the bar to the page's bottom.
+        "@container/record-layout relative -m-(--page-gutter) flex min-h-0 min-w-0 flex-1 max-sm:flex-col",
         className,
       )}
       {...props}
@@ -73,7 +83,13 @@ export function RecordLayout({ className, ...props }: RecordLayoutProps) {
 /** Native container props for `RecordLayoutMain`. */
 export type RecordLayoutMainProps = React.ComponentPropsWithRef<"div">;
 
-/** `RecordLayoutMain` — the main column; it takes the whole width. @example <RecordLayoutMain>…</RecordLayoutMain> */
+/**
+ * `RecordLayoutMain` — the main column: it takes the width the panel leaves, pads itself with the
+ * page gutter and, from 640px, scrolls on its own.
+ *
+ * @example
+ * <RecordLayoutMain>…</RecordLayoutMain>
+ */
 export function RecordLayoutMain({
   className,
   ...props
@@ -81,7 +97,10 @@ export function RecordLayoutMain({
   return (
     <div
       data-slot="record-layout-main"
-      className={cn("flex min-w-0 flex-1 flex-col gap-6", className)}
+      className={cn(
+        "flex min-w-0 flex-1 flex-col gap-6 p-(--page-gutter) sm:min-h-0 sm:overflow-y-auto sm:overscroll-contain",
+        className,
+      )}
       {...props}
     />
   );

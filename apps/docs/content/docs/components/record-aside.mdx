@@ -33,8 +33,10 @@ import {
 </RecordAsideCard>;
 ```
 
-Record Aside is the block a record page's Details panel shows
-([`RecordLayout`](/docs/components/record-layout)'s side panel). A `RecordAsideCard` holds
+Record Aside is the block for a record's facts outside its page's side panel — a public share
+page's card, a peek's body. (A record page's own side panel is
+[`RecordLayout`](/docs/components/record-layout)'s `RecordPanel`, whose sections replace these
+cards.) A `RecordAsideCard` holds
 `RecordAsideSection`s; each has a small header — the title, a muted count, and an icon action with a
 tooltip (`RecordAsideAction`) or a small Button — above its content:
 

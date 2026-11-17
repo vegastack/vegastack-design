@@ -1,4 +1,4 @@
-// @vegastack shell@0.110.0 sha256-Eg1GoTEfC+FAYXwrCWXgONiZx4SIoInJXCm5XS0hFz8=
+// @vegastack shell@0.110.0 sha256-SprSoxMka3OZUSJ43TbcnEASr3GtAyEKMTJyaqanNZ0=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -521,7 +521,8 @@ export type ShellTopBarProps = React.ComponentProps<"header">;
 /**
  * `ShellTopBar` — the 48px bar over the page. Its slots keep one order whatever order a page
  * writes them in (UI ground rules P1): the title, then at the end `[members] · [Share] ·
- * [Watch] · [☆] · [⋯]`, with ⋯ always last. Every control is ghost and 28px: no primary, no
+ * [Watch] · [☆] · [⋯]`, with ⋯ last but for a record page's ▥ (`ShellTopBarPanel`). Every
+ * control is ghost and 28px: no primary, no
  * outline, no other tools — a list's primary is its toolbar's last control. Narrow, Share shows
  * its icon alone and the members leave. There is no save status: saving is silent, and a failed
  * save is an alert in the page.
@@ -731,6 +732,23 @@ export const ShellTopBarMore = topBarSlot(
   "shell-topbar-more",
   "order-6",
   BUTTON_SHAPE,
+);
+
+/**
+ * `ShellTopBarPanel` — a record page's ▥ (`RecordPanelToggle`), after ⋯ and a hairline divider:
+ * the one control that follows the record's menu (record side panel R2). Empty, it takes no room.
+ *
+ * @example
+ * <ShellTopBarPanel><RecordPanelToggle /></ShellTopBarPanel>
+ */
+export const ShellTopBarPanel = topBarSlot(
+  "shell-topbar-panel",
+  "order-7",
+  cn(
+    // A phone's bar has no ▥ (the page's Details button opens the panel), so no divider either.
+    "gap-1 empty:hidden has-[>:only-child:empty]:hidden max-sm:hidden before:mx-1 before:h-4.5 before:w-px before:bg-border",
+    BUTTON_SHAPE,
+  ),
 );
 
 /**

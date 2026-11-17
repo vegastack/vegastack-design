@@ -120,6 +120,15 @@ three lines — are in [Record Aside](/docs/components/record-aside).
   file="components/preview/property-list.tsx"
 />
 
+### Panel rows
+
+`variant="panel"` is the row of a record page's side panel, inside a `RecordPanelSection`
+([Record Layout](/docs/components/record-layout)): a 92px muted key at the value's size and weight,
+no icon, and rows at least 30px tall with the key and value centred on one line, 2px apart. A
+plain-text value stays on its line and truncates; a value made of controls — a ghost Record Chip, a
+quiet picker — hangs into the gutter as in `inline` and keeps its own truncation. The panel's
+preview is on the Record Layout page.
+
 ### Two columns
 
 `columns={2}` flows the rows into two columns, left to right, once the list's own container is
