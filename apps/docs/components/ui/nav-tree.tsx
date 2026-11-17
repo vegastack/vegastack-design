@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.109.2 sha256-ZXzkUrFrNLcpSXhem62G+ESecdeh+z1OWXL8Uhb36Yo=
+// @vegastack nav-tree@0.109.2 sha256-tTHM0IeUhagVJxo6hfJ8kbSgyAqcCMfR99cZJQHIjts=
 
 "use client";
 
@@ -206,7 +206,7 @@ export interface NavTreeItemProps extends Omit<
   label: React.ReactNode;
   /** Its icon, 16px. First-level rows only: a child row never draws one (rule N3). @default undefined */
   icon?: React.ReactNode;
-  /** A count at the end, muted and tabular; a number over 99 shows "99+". Zero or empty shows nothing. @default undefined */
+  /** A count at the end, muted and tabular; a number (or digits) over 99 shows "99+". Zero or empty shows nothing. @default undefined */
   count?: number | string;
   /** Whether this is the current place. @default false */
   active?: boolean;
@@ -244,7 +244,13 @@ function hasCount(count: number | string | undefined): boolean {
 
 /** A count as the row shows it: numbers cap at "99+" (rule N6). */
 function countText(count: number | string): string | number {
-  return typeof count === "number" && count > 99 ? "99+" : count;
+  const n =
+    typeof count === "number"
+      ? count
+      : /^\d+$/.test(count)
+        ? Number(count)
+        : NaN;
+  return n > 99 ? "99+" : count;
 }
 
 /**

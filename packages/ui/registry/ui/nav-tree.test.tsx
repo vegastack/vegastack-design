@@ -175,6 +175,7 @@ test("a child row draws no icon (two levels, N3) and a count over 99 shows 99+",
               label="Overdue"
               href="#overdue"
             />
+            <NavTreeItem label="Mentions" count="250" href="#mentions" />
           </NavTreeItem>
         </NavTreeSection>
       </NavTree>
@@ -186,5 +187,8 @@ test("a child row draws no icon (two levels, N3) and a count over 99 shows 99+",
   expect(row("Overdue").querySelector('[data-testid="child-icon"]')).toBeNull();
   expect(
     row("Tasks").querySelector('[data-slot="nav-tree-count"]')?.textContent,
+  ).toBe("99+");
+  expect(
+    row("Mentions").querySelector('[data-slot="nav-tree-count"]')?.textContent,
   ).toBe("99+");
 });
