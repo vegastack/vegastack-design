@@ -1,4 +1,4 @@
-// @vegastack inbox@0.92.0 sha256-LH4ITtjneb8lOSXJ59BAqfXGk6Cd/Go9V650ZKWECUs=
+// @vegastack inbox@0.92.0 sha256-GpLABib4dScDA1N8M2SNe96yjCE1Qnu6NKnSCGH9zZ8=
 
 "use client";
 
@@ -904,18 +904,38 @@ function textOf(node: React.ReactNode, strict = false): string | null {
     return text;
   }
   if (React.isValidElement<{ children?: React.ReactNode }>(node)) {
-    if (strict && typeof node.type !== "string" && node.type !== React.Fragment)
+    if (
+      strict &&
+      (node.type === React.Fragment
+        ? false
+        : typeof node.type !== "string" ||
+          !PLAIN_TEXT_TAGS.has(node.type) ||
+          "dangerouslySetInnerHTML" in (node.props as object))
+    )
       return null;
     return textOf(node.props.children, strict);
   }
   return strict ? null : "";
 }
 
-/** The words of a text, folded: case, quotes and punctuation do not count. */
+// Inline formatting a meta line can hold and still be read in full as text.
+const PLAIN_TEXT_TAGS = new Set([
+  "span",
+  "strong",
+  "em",
+  "b",
+  "i",
+  "code",
+  "mark",
+  "small",
+]);
+
+/** The words of a text, folded: case, quotes and punctuation do not count; marks stay in words. */
 const wordsOf = (text: string) =>
   text
+    .normalize("NFC")
     .toLowerCase()
-    .split(/[^\p{L}\p{N}]+/u)
+    .split(/[^\p{L}\p{M}\p{N}]+/u)
     .filter(Boolean);
 
 /** Whether the meta line only repeats the title: all plain text, its words a run of the title's. */
