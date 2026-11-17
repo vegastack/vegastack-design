@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.108.0
+
+### Minor Changes
+
+- [#1022](https://github.com/vegastack/vegastack-design/pull/1022) [`a9a01a0`](https://github.com/vegastack/vegastack-design/commit/a9a01a06cda7571cfe505f6e07cee9070acd3bf1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `DocumentLayout`'s text column is a fixed 720px (45rem) reading width at every tier, the same as a prose page or a settings form (`ShellPage size="prose"`/`"form"`), centred in the room the layout has (operator, 17-11-2026: "Fix at 720 px"). It was fluid between 36rem and 64rem by tier. The text sits centred in the room the comment margin leaves (opening comments slides it to the start by half the margin, instead of holding it in place), and inside a record page whose side panel docks the layout narrows and the text re-centres the same way; the contents rail keeps its fixed gap in the start gutter. `measure="wide"` is unchanged.
+
 ## 0.107.0
 
 ### Minor Changes

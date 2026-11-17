@@ -314,7 +314,7 @@
       "meta": {
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
-        "version": "0.107.0"
+        "version": "0.108.0"
       }
     },
     {
