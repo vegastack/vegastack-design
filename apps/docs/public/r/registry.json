@@ -194,7 +194,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.110.0",
-        "integrity": "sha256-Cua/TN72af4O10MaJQOdUacmEP/Bb+m+PxOhbLZCwp0="
+        "integrity": "sha256-SprSoxMka3OZUSJ43TbcnEASr3GtAyEKMTJyaqanNZ0="
       }
     },
     {
@@ -426,7 +426,7 @@
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
         "version": "0.107.0",
-        "integrity": "sha256-1Jct6o6O8eqosHK6RKn1P6Upa/+XqN4c1dhsUlHTN1g="
+        "integrity": "sha256-O07PFFA+yHF5xzI6+2tUJTIpD33ZVt82qeVQ7Dp5qKk="
       }
     },
     {

@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.107.0 sha256-1Jct6o6O8eqosHK6RKn1P6Upa/+XqN4c1dhsUlHTN1g=
+// @vegastack record-layout@0.107.0 sha256-O07PFFA+yHF5xzI6+2tUJTIpD33ZVt82qeVQ7Dp5qKk=
 
 "use client";
 
@@ -36,8 +36,8 @@ import {
  * Where it sits follows the record layout's own width, not the window's:
  *
  *   record width     panel                                             open on load
- *   ≥ 75rem (1200)   docks beside the main column                     the person's remembered choice
- *   40–75rem         opens over the page, edge to edge, on ▥ (Esc)     closed
+ *   ≥ 68rem (1088)   docks beside the main column                     the person's remembered choice
+ *   40–68rem         opens over the page, edge to edge, on ▥ (Esc)     closed
  *   < 640px window   a bottom sheet the "Details" button opens         closed
  *
  * `RecordPanelProvider` holds the state the toggle, the phone button and the panel share; the app
@@ -49,7 +49,11 @@ import {
 
 const PHONE_QUERY = "(max-width: 639px)";
 /** The record width, in rem, from which the panel docks beside the page. */
-const DOCK_REM = 75;
+/**
+ * The record width, in rem, from which the panel docks: the 720px reading column, its gutters and the
+ * 320px panel side by side (a 1440px window with the column open docks; a 1024px tablet floats).
+ */
+const DOCK_REM = 68;
 /** Popups a panel row may open, which a press in never counts as outside the panel. */
 const POPUPS =
   "[role='menu'], [role='listbox'], [role='dialog'], [role='alertdialog'], [data-slot='popover-content'], [data-slot='tooltip-content'], [data-base-ui-portal]";
@@ -478,7 +482,7 @@ export type RecordPanelProps = Omit<React.ComponentPropsWithRef<"aside">, "id">;
 
 /**
  * `RecordPanel` — the side panel itself, after `RecordLayoutMain` inside `RecordLayout`: an
- * `aside` of stacked `RecordPanelSection`s on the `panel` surface. It docks from 1200px of record
+ * `aside` of stacked `RecordPanelSection`s on the `panel` surface. It docks from 1088px (68rem) of record
  * width, floats over the page below that (Escape or a click on the page closes it, and focus
  * returns to ▥), and is a bottom sheet on a phone. Never on a list page: rows open in `Peek`.
  *
@@ -621,14 +625,14 @@ export function RecordPanel({
       }}
       className={cn(
         "hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-panel text-foreground outline-none",
-        // From 1200px of record width it docks: in the flow, as tall as the record, while open.
-        "@min-[75rem]/record-layout:data-open:flex",
+        // From 68rem (1088px) of record width it docks: in the flow, as tall as the record, while open.
+        "@min-[68rem]/record-layout:data-open:flex",
         // Narrower, ▥ floats it over the page, edge to edge under the bar, with a shadow.
-        "@max-[75rem]/record-layout:absolute @max-[75rem]/record-layout:inset-y-0 @max-[75rem]/record-layout:end-0 @max-[75rem]/record-layout:z-20 @max-[75rem]/record-layout:max-w-full @max-[75rem]/record-layout:shadow-xl @max-[75rem]/record-layout:data-overlay:flex",
+        "@max-[68rem]/record-layout:absolute @max-[68rem]/record-layout:inset-y-0 @max-[68rem]/record-layout:end-0 @max-[68rem]/record-layout:z-20 @max-[68rem]/record-layout:max-w-full @max-[68rem]/record-layout:shadow-xl @max-[68rem]/record-layout:data-overlay:flex",
         // A person's open: docked, it grows from nothing so the work beside it slides to stay
         // centred; floating, it slides in from the edge. Never on load; reduced motion: none.
         "data-[motion=enter]:transition-[width,translate,opacity] data-[motion=enter]:duration-panel data-[motion=enter]:ease-enter data-[motion=enter]:starting:opacity-0",
-        "@min-[75rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[75rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[75rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
+        "@min-[68rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[68rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[68rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
         className,
       )}
     >

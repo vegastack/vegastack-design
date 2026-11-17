@@ -184,7 +184,7 @@ export function recordLayout(): ReactNode {
 }
 
 /**
- * The same page at 1440 and 1024: docked and open on load from 1200px of record width; below it,
+ * The same page at 1440 and 1024: docked and open on load from 1088px of record width; below it,
  * closed, and ▥ floats the panel over the page edge to edge. At a phone's width the Details
  * button opens the sections as a sheet.
  */

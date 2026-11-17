@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.107.0 sha256-1Jct6o6O8eqosHK6RKn1P6Upa/+XqN4c1dhsUlHTN1g=
+// @vegastack record-layout@0.107.0 sha256-O07PFFA+yHF5xzI6+2tUJTIpD33ZVt82qeVQ7Dp5qKk=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -38,8 +38,8 @@ export {
  * column takes the gutter back as its padding and scrolls on its own, as the panel does.
  *
  *   record width     side panel                                    content
- *   ≥ 75rem (1200)   docks beside the main column (remembered)    keeps its width, re-centred
- *   40–75rem         ▥ floats it over the page, edge to edge      stays where it was
+ *   ≥ 68rem (1088)   docks beside the main column (remembered)    keeps its width, re-centred
+ *   40–68rem         ▥ floats it over the page, edge to edge      stays where it was
  *   < 640px window   a bottom sheet from the "Details" button     full width
  *
  * The content keeps its own width and centres itself in the main column (`ShellSection`

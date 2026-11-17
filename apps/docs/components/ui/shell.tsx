@@ -1,4 +1,4 @@
-// @vegastack shell@0.110.0 sha256-Cua/TN72af4O10MaJQOdUacmEP/Bb+m+PxOhbLZCwp0=
+// @vegastack shell@0.110.0 sha256-SprSoxMka3OZUSJ43TbcnEASr3GtAyEKMTJyaqanNZ0=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -746,7 +746,7 @@ export const ShellTopBarPanel = topBarSlot(
   "order-7",
   cn(
     // A phone's bar has no ▥ (the page's Details button opens the panel), so no divider either.
-    "gap-1 empty:hidden max-sm:hidden before:mx-1 before:h-4.5 before:w-px before:bg-border",
+    "gap-1 empty:hidden has-[>:only-child:empty]:hidden max-sm:hidden before:mx-1 before:h-4.5 before:w-px before:bg-border",
     BUTTON_SHAPE,
   ),
 );

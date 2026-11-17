@@ -100,7 +100,7 @@ function Record({
   );
 }
 
-test("from 1200px the panel docks, 320px wide, open on first render, and the main column takes the rest", async () => {
+test("from 68rem the panel docks, 320px wide, open on first render, and the main column takes the rest", async () => {
   await page.viewport(1440, 900);
   const screen = await render(<Record width={1300} />);
   const panel = slot("record-panel")!;
@@ -136,11 +136,11 @@ test("▥ hides and shows the docked panel, reporting each choice, and ⌘. does
   expect(changes).toEqual([false, true, false]);
 });
 
-test("below 1200px it starts closed even when remembered open, ▥ floats it over the page, and Escape closes it with focus back on ▥", async () => {
+test("below 68rem it starts closed even when remembered open, ▥ floats it over the page, and Escape closes it with focus back on ▥", async () => {
   await page.viewport(1440, 900);
   const changes: boolean[] = [];
   const screen = await render(
-    <Record width={1100} open onOpenChange={(o) => changes.push(o)} />,
+    <Record width={1000} open onOpenChange={(o) => changes.push(o)} />,
   );
   await frames();
   expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
@@ -156,7 +156,7 @@ test("below 1200px it starts closed even when remembered open, ▥ floats it ove
   // It floats: the main column keeps the whole width.
   expect(
     Math.round(slot("record-layout-main")!.getBoundingClientRect().width),
-  ).toBe(1100);
+  ).toBe(1000);
   expect(document.activeElement).toBe(panel);
   await userEvent.keyboard("{Escape}");
   await frames();
@@ -170,7 +170,7 @@ test("below 1200px it starts closed even when remembered open, ▥ floats it ove
 
 test("a floating panel closes on a click in the page", async () => {
   await page.viewport(1440, 900);
-  const screen = await render(<Record width={1100} defaultOpen={false} />);
+  const screen = await render(<Record width={1000} defaultOpen={false} />);
   await screen.getByRole("button", { name: "Show details" }).click();
   await screen.getByText("Description").click();
   expect(getComputedStyle(slot("record-panel")!).display).toBe("none");
@@ -269,7 +269,7 @@ test("a page's reveal shows a hidden panel and opens a folded section, rememberi
 
 test("focus in a floating panel goes back to ▥ when the record grows wide enough to dock", async () => {
   await page.viewport(1440, 900);
-  const screen = await render(<Record width={1100} defaultOpen={false} />);
+  const screen = await render(<Record width={1000} defaultOpen={false} />);
   await screen.getByRole("button", { name: "Show details" }).click();
   expect(document.activeElement?.getAttribute("data-slot")).toBe(
     "record-panel",
