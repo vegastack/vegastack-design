@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.111.0] — November 17, 2026
+
+<!-- assembled from 1 changeset: 2d7ada66fad2 -->
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.22.0`** (was `0.21.0`).
+- **`@vegastack/design`** → **`0.22.0`** (was `0.21.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.110.1 → 0.111.0.
+
+### ⚠️ Breaking
+
+- Record Layout: one side panel of stacked sections replaces the strip of icons (record side panel R1–R5). `RecordPanelProvider`, `RecordPanel`, `RecordPanelSection`, `RecordPanelAction`, `RecordPanelList`, `RecordPanelItem`, `RecordPanelEmpty`, `RecordPanelToggle` (▥, ⌘.) and `RecordPanelTrigger` (the phone's Details button) are new. The panel is 320px, flush to the page's right edge, docked from 1088px (68rem) of record width and open as the person last left it, floating over the page below that, and a bottom sheet on a phone. `RecordLayout` now fills the shell page edge to edge and `RecordLayoutMain` pads and scrolls itself. **Breaking:** `RecordLayoutSide`, `RecordLayoutStrip`, `RecordLayoutStripItem`, `RecordLayoutStripSlot`, `RecordLayoutPanel` and the `RECORD_PANEL_*` width constants are removed, with no compatibility exports (the panel no longer resizes). `PropertyList` gains `variant="panel"` (a 92px key, 30px rows), `ShellTopBarPanel` holds ▥ after ⋯, and the new `--panel` token (`bg-panel`, COL-26) is the panel's surface.
+  [`46877c8`](https://github.com/VegaStack/vegastack-design/commit/46877c8)
+
 ## [0.110.1] — November 17, 2026
 
 <!-- assembled from 1 changeset: 407ab2527be0 -->

@@ -1,4 +1,4 @@
-// @vegastack recurrence-picker@0.107.0 sha256-fMfHjl2YbLNQlWhZWfBG/2MY1RjpbnNYJpw89Jx35rs=
+// @vegastack recurrence-picker@0.111.0 sha256-2BCiIzU9GXuWJMt+meJJ0RYPbgBNYlhP19iv6b+Sf2Y=
 
 "use client";
 

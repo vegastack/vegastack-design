@@ -1,4 +1,4 @@
-// @vegastack chat-chip@0.107.0 sha256-BSJbrEv8ni48iqyAViBBab8Pl3e3BL8PF6+qiNUWj8U=
+// @vegastack chat-chip@0.111.0 sha256-R0IEpP2PCBTao0tQddgYF9XWRjKA7Kzy85/7d6E41Sk=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
