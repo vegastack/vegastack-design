@@ -1,4 +1,4 @@
-// @vegastack shell@0.106.0 sha256-/YuceH1lUlHBWIVEBkN6+03is+9wCE9AMf7dd07EyLI=
+// @vegastack shell@0.106.1 sha256-3T0Y0kMiMbB1nOAvwrlkT/GekNFeE/QbSlegpkYm0gY=
 
 "use client";
 
@@ -462,7 +462,10 @@ export function ShellController() {
       if (root.dataset.colFloat !== "open") return;
       if (
         columnArea?.contains(target) &&
-        target.closest('a[href], [data-slot="shell-column-item"]')
+        // Picking a place (a link, or a nav-tree row that is not a parent folding open).
+        target.closest(
+          'a[href], [data-slot="nav-tree-item"]:not([aria-expanded])',
+        )
       )
         setFloat(false);
     };

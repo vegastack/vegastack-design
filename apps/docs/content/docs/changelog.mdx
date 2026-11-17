@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.106.1] — November 17, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.106.0 → 0.106.1.
+
+### 🐛 Fixed
+
+- **A column that slid over the page closes when you pick a place in it, again** (`shell`): the controller still looked for the retired column item, so a `NavTreeItem` that is a button (not a link) left the column open. A parent that folds open keeps it open.
+  [`e187f88`](https://github.com/VegaStack/vegastack-design/commit/e187f88)
+
 ## [0.106.0] — November 17, 2026
 
 ### 🧩 New components

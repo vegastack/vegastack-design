@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.106.1] — November 17, 2026
+
+<!-- assembled from 1 changeset: 365bd62b2431 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.106.0 → 0.106.1.
+
+### 🐛 Fixed
+
+- **A column that slid over the page closes when you pick a place in it, again** (`shell`): the controller still looked for the retired column item, so a `NavTreeItem` that is a button (not a link) left the column open. A parent that folds open keeps it open.
+  [`e187f88`](https://github.com/VegaStack/vegastack-design/commit/e187f88)
+
 ## [0.106.0] — November 17, 2026
 
 <!-- assembled from 3 changesets: a928a54ea8dc -->

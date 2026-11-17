@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.106.1
+
+### Patch Changes
+
+- [#1021](https://github.com/vegastack/vegastack-design/pull/1021) [`e187f88`](https://github.com/vegastack/vegastack-design/commit/e187f883933602eff6cf3fccafcf856a5e570fda) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 **A column that slid over the page closes when you pick a place in it, again** (`shell`): the controller still looked for the retired column item, so a `NavTreeItem` that is a button (not a link) left the column open. A parent that folds open keeps it open.
+
 ## 0.106.0
 
 ### Minor Changes
