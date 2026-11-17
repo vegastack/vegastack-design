@@ -1,6 +1,6 @@
 ---
 title: Document Layout
-description: A page read as a document — title, a fluid text column, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width.
+description: A page read as a document — title, a 720px text column, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width.
 audience: public
 registry: document-layout
 status: stable
@@ -81,18 +81,16 @@ the contents rail keeps its gap before the text and the comment margin its place
 The tier bounds are the system's layout tiers — `tablet` 40rem, `laptop` 64rem, `wide` 90rem
 (`LAYOUT_TIERS` in `page-layout`) — plus a document-only 120rem step.
 
-The rail, the text and the margin are one block, centred, and the text **stays in the middle when
-the comment margin shows**: the start side widens to mirror the margin, so wherever the width can
-hold the margin on both sides the text sits exactly where it sat without comments. With less room
-the start side gives way first, and the margin shifts the block towards the start only by what is
-missing; the text narrows only when the width cannot hold the text, the margin and the gutters at
-once.
+The rail's gutter, the text and the margin are one block, centred, so the text **sits in the
+middle of the room the comment margin leaves**: opening comments slides it to the start by half the
+margin's width, the same way a record page's side panel moves it. The contents rail keeps its fixed
+gap before the text. The text narrows only when the width cannot hold the text, the margin and the
+gutters at once.
 
 It is one subtree at every width: a column with no room is `display: none`, never unmounted, so
 an editor inside never remounts when the window resizes. `margin` shows the comment column from
 L up; set it only while the column holds something (open threads beside the text, or a comment
-being written), decided with the text so the first paint is right. A page's first comment keeps
-its text in place while there is room for the margin on both sides.
+being written), decided with the text so the first paint is right.
 From M up the grid keeps its start gutter whether or not a page has headings, and
 `DocumentLayoutContents` sits in it, stacked above the text and the margin: a
 `TableOfContents variant="rail" side="start"` there is a slim column of dashes that opens into the

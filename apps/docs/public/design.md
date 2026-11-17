@@ -1337,8 +1337,9 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   `proseDocument` overlay (`typeScale="document"` on `MarkdownView` and `TextEdit`): 14/24 text,
   16/26 on a coarse pointer or a narrow window (where INT-13 already makes editing 16px, so reading
   and editing never jump), 12px between paragraphs, `#` 24 · `##` 20 · `###` 16, inline code in the
-  body's ink, in `DocumentLayout`'s fluid column (about three quarters of the layout within each
-  tier's bounds, MK 2026-10-21: 94 characters a line at 36rem up to about 160 at 64rem). Compact
+  body's ink, in `DocumentLayout`'s fixed 720px column (operator 17-11-2026, "Fix at 720 px": the
+  same width as prose pages and forms, centred in the room a side panel or the comment margin
+  leaves). Compact
   prose stays the app's own 14px scale everywhere else.
 - **Reading type scale** (TYP-20's reading overlay, operator 2026-11-10, "Agent chat, ground up") —
   long-form text an agent or an AI wrote, read beside the work (a chat answer, an Ask AI answer, a

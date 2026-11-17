@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.107.0 sha256-Uh3cSIt3TkT5G0XxaBHRJsdms3xJPgrttr7sZLj1Fqk=
+// @vegastack document-layout@0.107.0 sha256-lQ6Q5jkb+ofP85mNyxko76IaLVfAasNTv2nvKykFMKo=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -99,13 +99,11 @@ export {
  * or a form (operator 17-11-2026); a narrower layout gives it what there is. Inside a record page
  * whose side panel docks, the layout narrows and the text re-centres in the room left (it slides to
  * the start). Wide (`measure="wide"`) is the whole width less the gutters (and the margin), up to 75rem
- * (1200px) — past that a line is too long to read. The rail, text
- * and margin are one block, centred, and the text stays in the middle when the comment margin
- * shows: the start track mirrors the end side (`--document-layout-start`, between the gutter
- * and the margin plus the gutter), so with room for both the text sits exactly where it sat without
- * comments. With less room the start track gives way first — down to the gutter, where the margin
- * shifts the block to the start — and the text gives way only when the width cannot hold text,
- * margin and gutters at once (the text track is `minmax(0, …)`).
+ * (1200px) — past that a line is too long to read. The rail's gutter, the text, the margin and the
+ * end gutter are one block, centred, so the text sits in the middle of the room the comment margin
+ * leaves: opening comments slides it to the start by half the margin's width. The text gives way
+ * only when the width cannot hold text, margin and gutters at once (the text track is
+ * `minmax(0, …)`).
  *
  * The contents rail sits in the start gutter, beside the text, from the M tier — whether or not a
  * document has headings, so a contents list that arrives (or goes) never moves the text. It
@@ -131,15 +129,13 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
   /**
    * Show the comment margin (from the L tier): set it only while the margin holds something —
    * open threads beside the text or a comment being written — and decide it with the text (on
-   * the server, from the thread count), so the first paint is right. The text stays centred
-   * either way while the width holds the margin on both sides; below that the margin shifts the
-   * block towards the start.
+   * the server, from the thread count), so the first paint is right. The text stays centred in
+   * the room the margin leaves, so opening it slides the text to the start by half its width.
    * @default false
    */
   margin?: boolean;
   /**
-   * The text column: `document` (fluid, about three quarters of the layout within each tier's
-   * bounds) or `wide` (the whole width less the gutters and the margin, up to 75rem — 1200px;
+   * The text column: `document` (a fixed 720px reading width, or what the layout has) or `wide` (the whole width less the gutters and the margin, up to 75rem — 1200px;
    * each reader's own choice, never the document's).
    * @default "document"
    */
@@ -167,9 +163,10 @@ const GRID = cn(
   // margin leave.
   "[--document-layout-text:min(100cqw,45rem)] data-[measure=wide]:[--document-layout-text:min(100cqw,75rem)]",
   "[--document-layout-margin:0rem] data-margin:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-margin:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
-  // The start track mirrors the end side (margin + gutter) while the width holds both, so the text
-  // stays centred with comments; with less room it narrows towards the gutter (asymmetric).
-  "[--document-layout-start:clamp(var(--document-layout-gutter),calc(100cqw-var(--document-layout-text)-var(--document-layout-margin)-var(--document-layout-gutter)),calc(var(--document-layout-gutter)+var(--document-layout-margin)))]",
+  // The start track is the gutter (the contents rail's room, a fixed gap before the text). The
+  // tracks are centred as one group, so the text sits centred in the room the comment margin
+  // leaves: opening comments slides it to the start by half the margin (operator 17-11-2026).
+  "[--document-layout-start:var(--document-layout-gutter)]",
   // Print: one column, the text at the page's width, the side columns gone (`DocumentLayout`'s own
   // named page sets the paper margins in `base.css`).
   "print:block print:px-0 print:text-sm/6",

@@ -40245,7 +40245,7 @@
       "name": "document-layout",
       "registryType": "registry:ui",
       "title": "Document Layout",
-      "summary": "A page read as a document — the title area and its meta lines, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
+      "summary": "A page read as a document — the title area and its meta lines, a 720px text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
       "status": "stable",
       "since": "0.25.35",
       "family": "layout",

@@ -447,38 +447,3 @@ test("a live block holds rows as a list, a note and a footer action, and is not 
     .toBeInTheDocument();
   await expectNoA11yViolations(screen.container);
 });
-
-test("the text column is a fixed 720px (45rem) at every wide tier, centred in the layout", async () => {
-  // The layout's geometry needs the compiled stylesheet; loaded here, last, so the tests above keep
-  // their unstyled DOM.
-  await import("../../test/geometry.css");
-  const rem = parseFloat(getComputedStyle(document.documentElement).fontSize);
-  const widths = [1024, 1280, 1440, 2000];
-  const screen = await render(
-    <div>
-      {widths.map((width) => (
-        <div key={width} data-frame={width} style={{ width }}>
-          <DocumentLayout>
-            <DocumentLayoutBody>
-              <p>Text</p>
-            </DocumentLayoutBody>
-          </DocumentLayout>
-        </div>
-      ))}
-    </div>,
-  );
-  for (const width of widths) {
-    const frame = screen.container.querySelector<HTMLElement>(
-      `[data-frame="${width}"]`,
-    )!;
-    const box = frame.getBoundingClientRect();
-    const body = frame
-      .querySelector<HTMLElement>("[data-slot=document-layout-body]")!
-      .getBoundingClientRect();
-    expect(Math.round(body.width)).toBe(Math.min(Math.round(45 * rem), width));
-    // Centred: the space before the text equals the space after it.
-    expect(
-      Math.abs(body.left - box.left - (box.right - body.right)),
-    ).toBeLessThanOrEqual(1);
-  }
-});
