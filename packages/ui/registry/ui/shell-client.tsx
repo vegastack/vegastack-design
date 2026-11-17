@@ -1,4 +1,4 @@
-// @vegastack shell@0.100.0 sha256-tx/4A+srr/TBqQYMp2laoAQgZoXS9YTFrDuoVkiLiEI=
+// @vegastack shell@0.100.0 sha256-tNLFQPUZSZTyQQVUvfNuUqXedmsyrsY3pwjPrbs6Oko=
 
 "use client";
 
@@ -42,6 +42,9 @@ variables on the shell element directly.
 
 const LAYOUT_EVENT = "vegastack:shell-layout";
 const COLUMN_EVENT = "vegastack:shell-column";
+const PANEL_OPEN_EVENT = "vegastack:shell-panel-open";
+// How long a person's open request waits for the panel to open before it lapses.
+const PANEL_OPEN_REQUEST_MS = 1000;
 const PEEK_DELAY_MS = 220;
 const PEEK_LEAVE_MS = 180;
 
@@ -60,6 +63,19 @@ type ColumnAction = "toggle" | "open" | "close";
 function shellOf(from?: Element | null): HTMLElement | null {
   const own = from?.closest<HTMLElement>('[data-slot="shell"]');
   return own ?? document.querySelector<HTMLElement>('[data-slot="shell"]');
+}
+
+/**
+ * Marks the next opening of the panel in the shell `from` sits in as a person's: the page makes
+ * room on the open motion instead of jumping. Call it where someone opens a panel tab (a row, a
+ * link, a menu entry); `ShellPanelToggle`'s click marks itself. The first paint and opens the app
+ * makes by itself (restoring a tab, an automatic Details tab) never animate.
+ *
+ * @example
+ * <button onClick={(e) => { requestShellPanelOpen(e.currentTarget); openTab(record); }}>Open</button>
+ */
+export function requestShellPanelOpen(from?: Element | null) {
+  shellOf(from)?.dispatchEvent(new CustomEvent(PANEL_OPEN_EVENT));
 }
 
 /**
@@ -236,6 +252,14 @@ export function ShellController() {
     };
 
     let lastPanelOpen: boolean | undefined;
+    // When a person last asked for the panel to open; `null` when nothing is pending. Only a
+    // closed panel can be asked to open, so a closing click or a tab opened beside an open
+    // panel arms nothing.
+    let panelOpenRequested: number | null = null;
+    const onPanelOpenRequest = () => {
+      if (root.dataset.panelMode === "closed")
+        panelOpenRequested = performance.now();
+    };
     const sync = () => {
       const style = getComputedStyle(mainArea);
       const tier = layoutTierOf(root.clientWidth);
@@ -276,7 +300,19 @@ export function ShellController() {
       root.dataset.panelMode = panelMode;
 
       const panelOpen = panelMode !== "closed";
-      if (lastPanelOpen === false && panelOpen && panelMode === "dock") {
+      // Only a person's open moves the page: a fresh request (the toggle's click, or
+      // `requestShellPanelOpen`), never the first reading or an open the app makes by itself.
+      const requested =
+        panelOpenRequested !== null &&
+        performance.now() - panelOpenRequested < PANEL_OPEN_REQUEST_MS;
+      // A request is spent by the open it asked for, and lapses on any change of open state.
+      if (panelOpen !== lastPanelOpen) panelOpenRequested = null;
+      if (
+        lastPanelOpen === false &&
+        panelOpen &&
+        panelMode === "dock" &&
+        requested
+      ) {
         root.dataset.panelAnim = "open";
         window.clearTimeout(animTimer);
         animTimer = window.setTimeout(() => delete root.dataset.panelAnim, 400);
@@ -432,8 +468,10 @@ export function ShellController() {
       setFloat(false);
     };
     const onClick = (event: MouseEvent) => {
-      if (root.dataset.colFloat !== "open") return;
       const target = event.target as Element;
+      if (target.closest('[data-slot="shell-panel-toggle"]'))
+        onPanelOpenRequest();
+      if (root.dataset.colFloat !== "open") return;
       if (
         columnArea?.contains(target) &&
         target.closest('a[href], [data-slot="shell-column-item"]')
@@ -484,6 +522,7 @@ export function ShellController() {
       attributeFilter: ["data-shell-col", "data-shell-panel", "style"],
     });
     root.addEventListener(COLUMN_EVENT, onColumn);
+    root.addEventListener(PANEL_OPEN_EVENT, onPanelOpenRequest);
     window.addEventListener("keydown", onKeyDown);
     root.addEventListener("pointerover", onPointerOver);
     columnArea?.addEventListener("pointerleave", onPointerLeave);
@@ -498,6 +537,7 @@ export function ShellController() {
       resize.disconnect();
       mutations.disconnect();
       root.removeEventListener(COLUMN_EVENT, onColumn);
+      root.removeEventListener(PANEL_OPEN_EVENT, onPanelOpenRequest);
       window.removeEventListener("keydown", onKeyDown);
       root.removeEventListener("pointerover", onPointerOver);
       columnArea?.removeEventListener("pointerleave", onPointerLeave);

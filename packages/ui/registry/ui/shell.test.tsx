@@ -17,6 +17,7 @@ import {
   ShellTopBar,
   ShellTopBarTitle,
   ShellTitleBarControls,
+  requestShellPanelOpen,
 } from "./shell";
 import { ShellStateScript } from "./shell-scripts";
 import "../../test/geometry.css";
@@ -183,6 +184,50 @@ test("panelOpen auto follows the device's saved panel before the app decides", a
   await render(<Frame width={1440} panelOpen="auto" />);
   await settled();
   expect(shell().dataset.panelMode).toBe("dock");
+});
+
+test("the page makes room on the open motion only for a person's open", async () => {
+  let animated = 0;
+  const watch = new MutationObserver(() => {
+    if (shell()?.dataset.panelAnim === "open") animated++;
+  });
+  const screen = await render(<Frame width={1440} panelOpen={false} />);
+  await settled();
+  watch.observe(shell(), { attributeFilter: ["data-panel-anim"] });
+  // An open the app makes by itself docks at once.
+  await screen.rerender(<Frame width={1440} panelOpen />);
+  await expect.poll(() => shell().dataset.panelMode).toBe("dock");
+  expect(animated).toBe(0);
+  await screen.rerender(<Frame width={1440} panelOpen={false} />);
+  await expect.poll(() => shell().dataset.panelMode).toBe("closed");
+  // A person's open (the app marks it) moves the page.
+  requestShellPanelOpen(shell());
+  await screen.rerender(<Frame width={1440} panelOpen />);
+  await expect.poll(() => animated).toBeGreaterThan(0);
+  watch.disconnect();
+});
+
+test("a click on the toggle while the panel is open arms nothing for a later automatic open", async () => {
+  let animated = 0;
+  const screen = await render(<Frame width={1440} panelOpen />);
+  await settled();
+  await expect.poll(() => shell().dataset.panelMode).toBe("dock");
+  const watch = new MutationObserver(() => {
+    if (shell()?.dataset.panelAnim === "open") animated++;
+  });
+  watch.observe(shell(), { attributeFilter: ["data-panel-anim"] });
+  // The closing click, then a request beside the open panel: neither is an open.
+  document
+    .querySelector<HTMLElement>('[data-slot="shell-panel-toggle"]')!
+    .click();
+  requestShellPanelOpen(shell());
+  await screen.rerender(<Frame width={1440} panelOpen={false} />);
+  await expect.poll(() => shell().dataset.panelMode).toBe("closed");
+  await screen.rerender(<Frame width={1440} panelOpen />);
+  await expect.poll(() => shell().dataset.panelMode).toBe("dock");
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(animated).toBe(0);
+  watch.disconnect();
 });
 
 test("landmarks: the rail and column are named navigation, the page is main, the title is h1", async () => {
