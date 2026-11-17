@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.100.0 sha256-7+yp5bwQZFAU1sFJNDvkFlI1M8OXX3HJBT/5gU3lsg4=
+// @vegastack filter-row@0.103.0 sha256-tdAW74mC10ani5WWxsEGhFPiN6XEakFl7lPPOfM0ENU=
 
 "use client";
 
@@ -845,11 +845,6 @@ export interface ListFacetOwnProps<Item> {
    */
   moreGroupLabel?: string;
   /**
-   * @deprecated An unset facet reads just its label. Accepted and ignored.
-   * @default undefined
-   */
-  anyLabel?: string;
-  /**
    * Show the search box in the panel. Unset, it shows only when the list is worth searching: more
    * than 7 options, or a `remote` (server-searched) list. Pass `true` or `false` to override.
    * @default undefined
@@ -910,7 +905,6 @@ export function ListFacet<Item, Multiple extends boolean | undefined = false>({
   pinSelected = false,
   selectedGroupLabel = "Selected",
   moreGroupLabel = "More",
-  anyLabel: _anyLabel,
   countLabel,
   clearLabel = `Clear ${label}`,
   searchable,

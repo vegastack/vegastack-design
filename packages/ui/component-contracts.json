@@ -8323,15 +8323,6 @@
           }
         },
         {
-          "name": "DataGridLoadMore",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/data-grid.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
           "name": "DataGridLoadMoreProps",
           "kind": "type",
           "source": "packages/ui/registry/ui/data-grid.tsx",
@@ -21067,7 +21058,7 @@
       "name": "transcript",
       "registryType": "registry:ui",
       "title": "Transcript",
-      "summary": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, speaker chips with rename, and progressive mounting of long transcripts.",
+      "summary": "A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, renaming a speaker from any turn, and progressive mounting of long transcripts.",
       "status": "stable",
       "since": "0.18.0",
       "family": "communication",
@@ -21135,24 +21126,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TranscriptSpeakersProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/transcript.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "TranscriptSpeakers",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/transcript.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "TranscriptSpeakers does not forward a stable public ref; its root node is incidental."
           }
         }
       ],
@@ -21281,15 +21254,6 @@
             {
               "name": "data-slot",
               "values": ["transcript-search"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "TranscriptSpeakers": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["transcript-speakers"]
             }
           ],
           "cssVariables": []
@@ -22349,22 +22313,13 @@
       "name": "page-header",
       "registryType": "registry:ui",
       "title": "Page Header",
-      "summary": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
+      "summary": "The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).",
       "status": "stable",
       "since": "0.1.0",
       "family": "navigation",
       "wave": "Content/marketing",
       "sourceFiles": ["packages/ui/registry/ui/page-header.tsx"],
       "publicSymbols": [
-        {
-          "name": "FavoriteStar",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/page-header.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by FavoriteStar in packages/ui/registry/ui/page-header.tsx; incidental internal nodes are not part of its API."
-          }
-        },
         {
           "name": "PageHeader",
           "kind": "component",
@@ -22373,15 +22328,6 @@
             "status": "observed",
             "target": "header",
             "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/page-header.tsx."
-          }
-        },
-        {
-          "name": "PageHeaderFavorite",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/page-header.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -22476,19 +22422,6 @@
       },
       "previewModule": "page-header",
       "dataAttributes": {
-        "FavoriteStar": {
-          "attributes": [
-            {
-              "name": "data-active",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": ["page-header-favorite"]
-            }
-          ],
-          "cssVariables": []
-        },
         "PageHeader": {
           "attributes": [
             {

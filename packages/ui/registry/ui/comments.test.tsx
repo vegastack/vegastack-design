@@ -1215,28 +1215,6 @@ test("an agent's comment carries data-agent, its hexagon and its owner, with no 
   await expectNoA11yViolations(screen.container);
 });
 
-test("the deprecated agent flag still reads as an agent", async () => {
-  const screen = await render(
-    <ul>
-      <CommentItem
-        comment={{
-          id: "a",
-          author: { name: "Assistant" },
-          body: "Done.",
-          createdAt: Date.now(),
-          agent: true,
-        }}
-      />
-    </ul>,
-  );
-  expect(
-    screen.container.querySelector("[data-slot=comment-item][data-agent]"),
-  ).not.toBeNull();
-  expect(
-    screen.container.querySelector("[data-slot=avatar][data-kind=agent]"),
-  ).not.toBeNull();
-});
-
 test("a question has an amber bar, Needs your reply, and choices that answer it", async () => {
   let resolve!: () => void;
   const onChoose = vi.fn(() => new Promise<void>((done) => (resolve = done)));
@@ -1869,22 +1847,6 @@ test("a body an agent wrote stays untrusted while its author shows as a person",
     .element(screen.getByRole("button", { name: /^Show/ }))
     .toBeVisible();
   expect(screen.container.querySelector("[data-agent]")).toBeNull();
-});
-
-test("the deprecated agent flag counts as an agent", async () => {
-  const screen = await render(
-    <ul>
-      <CommentItem
-        comment={{
-          ...bodyBy({ name: "Bot" }, "[Datasheet](https://evil.example/a)"),
-          agent: true,
-        }}
-      />
-    </ul>,
-  );
-  expect(
-    screen.container.querySelector('[data-slot="markdown-link-domain"]'),
-  ).not.toBeNull();
 });
 
 test("with no proxy an agent's relative image still can't call this site", async () => {

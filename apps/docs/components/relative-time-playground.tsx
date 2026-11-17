@@ -10,7 +10,7 @@ import {
   type PlaygroundConfig,
 } from "@/components/playground";
 
-type RelativeTimePlaygroundKey = "date" | "mode" | "unitStyle";
+type RelativeTimePlaygroundKey = "date" | "mode" | "format";
 
 /**
  * Deterministic offsets from the live clock — each renders a stable string
@@ -49,10 +49,10 @@ const MODE_OPTIONS = [
   { value: "day", label: "Day (calendar)" },
 ] as const;
 
-const UNIT_STYLE_OPTIONS = [
+const FORMAT_OPTIONS = [
+  { value: "suffix", label: 'Suffix — "2h ago"' },
+  { value: "minimal", label: 'Minimal — "2h"' },
   { value: "long", label: 'Long — "2 hours ago"' },
-  { value: "short", label: 'Short — "2 hr. ago"' },
-  { value: "narrow", label: 'Narrow — "2h ago"' },
 ] as const;
 
 function dateOption(value: string | boolean) {
@@ -80,24 +80,23 @@ const relativeTimePlaygroundConfig: PlaygroundConfig<RelativeTimePlaygroundKey> 
       },
       {
         type: "select",
-        key: "unitStyle",
-        label: "Unit style",
-        options: UNIT_STYLE_OPTIONS,
-        defaultValue: "long",
+        key: "format",
+        label: "Format",
+        options: FORMAT_OPTIONS,
+        defaultValue: "suffix",
       },
     ],
     render: (state): ReactNode => (
       <RelativeTime
         date={new Date(Date.now() - dateOption(state.date).offsetMs)}
         mode={state.mode as RelativeTimeProps["mode"]}
-        unitStyle={state.unitStyle as RelativeTimeProps["unitStyle"]}
+        format={state.format as RelativeTimeProps["format"]}
       />
     ),
     toCode: (state) => {
       const props: string[] = [`date={${dateOption(state.date).code}}`];
       if (state.mode !== "ago") props.push(`mode="${state.mode}"`);
-      if (state.unitStyle !== "long")
-        props.push(`unitStyle="${state.unitStyle}"`);
+      if (state.format !== "suffix") props.push(`format="${state.format}"`);
       return `<RelativeTime ${props.join(" ")} />`;
     },
   };

@@ -1,4 +1,4 @@
-// @vegastack transcript@0.100.0 sha256-RNjB2I5EOXGEUsa6qVf2jK8ge8ThoW/ARpoJEJAotlc=
+// @vegastack transcript@0.103.0 sha256-HXlG62lEdYPXHbDfjzEe9MSi1bezmrhJvV3zWCNLWwI=
 
 "use client";
 
@@ -79,8 +79,7 @@ export interface TranscriptProps extends Omit<
   segments: TranscriptSegment[];
   /**
    * Called when a speaker is renamed — by clicking the name in any turn of `TranscriptList`
-   * (every turn with that id takes the new name). Without it, names are read-only and the chips have no
-   * rename button.
+   * (every turn with that id takes the new name). Without it, names are read-only.
    * @default undefined
    */
   onSpeakerRename?: (id: string, name: string) => void;
@@ -209,25 +208,6 @@ export interface TranscriptListProps {
    * @default "Speaker name"
    */
   speakerInputLabel?: string;
-}
-
-/** Props accepted by `TranscriptSpeakers`. */
-export interface TranscriptSpeakersProps {
-  /**
-   * Accessible name of a chip's rename button, given the speaker's name.
-   * @default (name) => `Rename ${name}`
-   */
-  renameLabel?: (name: string) => string;
-  /**
-   * Accessible name of the rename field.
-   * @default "Speaker name"
-   */
-  inputLabel?: string;
-  /**
-   * Classes for the chip row.
-   * @default undefined
-   */
-  className?: string;
 }
 
 /** Props accepted by `TranscriptSearch`. */
@@ -1301,174 +1281,5 @@ export function TranscriptSearch({
         <ChevronDown aria-hidden />
       </Button>
     </PanelSearch>
-  );
-}
-
-// ── TranscriptSpeakers ────────────────────────────────────────────────────────────────────────
-
-function SpeakerChip({
-  id,
-  name,
-  dot,
-  onRename,
-  renameLabel,
-  inputLabel,
-  maxLength,
-  maxLengthMessage,
-}: {
-  id: string;
-  name: string;
-  dot: string;
-  onRename: ((id: string, name: string) => void) | null;
-  renameLabel: (name: string) => string;
-  inputLabel: string;
-  maxLength: number | undefined;
-  maxLengthMessage: ((excess: number) => string) | undefined;
-}) {
-  const overId = React.useId();
-  const [editing, setEditing] = React.useState(false);
-  const [draft, setDraft] = React.useState(name);
-  const buttonRef = React.useRef<HTMLButtonElement>(null);
-
-  // How far the name is past `maxLength` (0 within it): it doesn't save until shorter.
-  const over =
-    maxLength !== undefined ? Math.max(0, draft.trim().length - maxLength) : 0;
-  const finish = (commit: boolean) => {
-    const next = draft.trim();
-    // A name past the limit (seeded, or the limit lowered) is not saved; the field stays.
-    if (commit && maxLength !== undefined && next.length > maxLength) return;
-    if (commit && next && next !== name) onRename?.(id, next);
-    setEditing(false);
-    requestAnimationFrame(() => buttonRef.current?.focus());
-  };
-
-  if (editing) {
-    return (
-      <span
-        role="listitem"
-        data-slot="transcript-speaker"
-        data-editing=""
-        data-over-limit={over > 0 ? "" : undefined}
-        className="inline-flex h-7 items-center gap-1.5 rounded-control border border-ring ps-2.5 pe-1 data-over-limit:border-destructive"
-      >
-        <SpeakerDot className={dot} />
-        <Input
-          autoFocus
-          aria-label={inputLabel}
-          aria-invalid={over > 0 || undefined}
-          aria-describedby={over > 0 ? overId : undefined}
-          value={draft}
-          onChange={(event) => setDraft(event.currentTarget.value)}
-          onFocus={(event) => event.currentTarget.select()}
-          onBlur={() => finish(true)}
-          onKeyDown={(event) => {
-            if (event.nativeEvent.isComposing || event.keyCode === 229) return;
-            if (event.key === "Enter") {
-              event.preventDefault();
-              finish(true);
-            } else if (event.key === "Escape") {
-              event.preventDefault();
-              event.stopPropagation();
-              finish(false);
-            }
-          }}
-          className="h-6 w-32 border-0 bg-transparent px-0 text-xs shadow-none dark:bg-transparent"
-        />
-        {over > 0 ? (
-          <span id={overId} className="sr-only">
-            {(maxLengthMessage ?? defaultExcessMessage)(over)}
-          </span>
-        ) : null}
-      </span>
-    );
-  }
-
-  return (
-    <span
-      role="listitem"
-      data-slot="transcript-speaker"
-      className={cn(
-        "inline-flex h-7 max-w-full items-center gap-1.5 rounded-chip border border-border ps-2.5 text-xs font-medium text-foreground",
-        onRename ? "pe-0.5" : "pe-2.5",
-      )}
-    >
-      <SpeakerDot className={dot} />
-      <span className="min-w-0 truncate">{name}</span>
-      {onRename ? (
-        <Button
-          ref={buttonRef}
-          variant="ghost"
-          size="icon-xs"
-          aria-label={renameLabel(name)}
-          className="text-muted-foreground"
-          onClick={() => {
-            setDraft(name);
-            setEditing(true);
-          }}
-        >
-          <Pencil aria-hidden />
-        </Button>
-      ) : null}
-    </span>
-  );
-}
-
-const defaultRenameLabel = (name: string) => `Rename ${name}`;
-/** What a speaker's name says past its limit when the host gave no words. */
-const defaultExcessMessage = (excess: number) =>
-  `Remove ${excess} ${excess === 1 ? "character" : "characters"}`;
-
-/**
- * @deprecated Rename speakers in place: each turn's speaker name in `TranscriptList` is
- * inline-editable when the Transcript has `onSpeakerRename`. Kept for existing hosts.
- *
- * `TranscriptSpeakers` — one chip per speaker, in order of first appearance, with the speaker's
- * dot colour and name. When the Transcript has `onSpeakerRename`, each chip carries a rename
- * button that turns it into a field: Enter or leaving the field saves, Escape cancels.
- *
- * @example
- * <Transcript aria-label="Transcript" segments={segments} onSpeakerRename={rename}>
- *   <div className="flex flex-wrap items-center gap-2">
- *     <TranscriptSearch className="flex-1" />
- *     <TranscriptSpeakers />
- *   </div>
- *   <TranscriptList />
- * </Transcript>
- */
-export function TranscriptSpeakers({
-  renameLabel = defaultRenameLabel,
-  inputLabel = "Speaker name",
-  className,
-}: TranscriptSpeakersProps) {
-  const {
-    speakers,
-    speakerName,
-    speakerDot,
-    onSpeakerRename,
-    speakerNameMaxLength,
-    speakerNameMaxLengthMessage,
-  } = useTranscript("TranscriptSpeakers");
-  if (speakers.length === 0) return null;
-  return (
-    <div
-      role="list"
-      aria-label="Speakers"
-      data-slot="transcript-speakers"
-      className={cn("flex flex-wrap items-center gap-1.5", className)}
-    >
-      {speakers.map((id) => (
-        <SpeakerChip
-          key={id}
-          id={id}
-          name={speakerName(id)}
-          dot={speakerDot(id)}
-          onRename={onSpeakerRename}
-          renameLabel={renameLabel}
-          inputLabel={inputLabel}
-          maxLength={speakerNameMaxLength}
-          maxLengthMessage={speakerNameMaxLengthMessage}
-        />
-      ))}
-    </div>
   );
 }

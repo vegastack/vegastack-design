@@ -178,7 +178,7 @@ test("board: the collapsed column strip names count, title and action", async ()
       id: "won",
       title: "Won",
       items: [{ id: "d3", name: "Initech" }],
-      collapsed: true,
+      defaultCollapsed: true,
     },
   ];
   await render(

@@ -50,7 +50,7 @@ Pass `speakerNameMaxLength` (with `speakerNameMaxLengthMessage`) with the limit 
 ## Scope
 
 - **Owns:** the current line, following it, pausing on a user scroll, seek buttons, search with
-  `<mark>` highlights, speaker colours and chips, progressive mounting, and the empty and loading
+  `<mark>` highlights, speaker colours, renaming a speaker in place, progressive mounting, and the empty and loading
   states.
 - **Does not own:** playback or the clock. Pass `currentTime` from your player, and seek it in
   `onSeek`.
@@ -116,7 +116,7 @@ Pass `onSpeakerRename(id, name)` to the Transcript and the speaker name in every
 an inline `EditableCell`: click the name to edit it, Enter or leaving the field saves, Escape
 cancels. The rename is by speaker id, so every turn with that speaker takes the new name. Store the
 name and return it from `speakerName`. The search field is capped at `max-w-sm`, so it never
-stretches across the toolbar. `TranscriptSpeakers` (the old chip row) is deprecated.
+stretches across the toolbar.
 
 ```tsx
 <Transcript
@@ -169,13 +169,6 @@ the list shows `emptyState` ("No transcript yet" by default).
   name="TranscriptSearchProps"
 />
 
-### TranscriptSpeakers
-
-<ApiTable
-  path="../../packages/ui/registry/ui/transcript.tsx"
-  name="TranscriptSpeakersProps"
-/>
-
 ### TranscriptList
 
 <ApiTable
@@ -197,8 +190,8 @@ the list shows `emptyState` ("No transcript yet" by default).
   from assistive technology and out of the tab order.
 - When "Back to current line" scrolls back, focus moves to the list so it does not fall to the
   page.
-- Speaker chips are a `list` named "Speakers"; each rename button is named `Rename {name}`, and the
-  rename field returns focus to it when it closes. Speaker colour is never the only cue: every turn
+- A turn's speaker name, when renamable, is a field named by `speakerInputLabel` ("Speaker name").
+  Speaker colour is never the only cue: every turn
   names its speaker.
 - Follow and search scroll smoothly, and instantly under `prefers-reduced-motion`.
 

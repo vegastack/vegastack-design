@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.100.0 sha256-ZDSFJhdBgufU/dW/vz+hGizI99qqGJbcsGmQGvgDxxE=
+// @vegastack picker-panel@0.103.0 sha256-JoMHY6lu1rF6PDofJ3g4CXzXNNpjnzEPu6vKKVdEpSk=
 
 "use client";
 import * as React from "react";
@@ -77,9 +77,6 @@ export interface PickerPanelProps {
   emptyText: string;
   /** Singular accessible result noun. @default "item" */
   resultLabel?: string;
-  /** Search-row trailing action. @default undefined
-   * @deprecated The identity picker moved colour into its footer; kept for compatibility. */
-  searchAction?: React.ReactNode;
 }
 /** Search, recents, category navigation and shared cells.
  * @example <PickerPanel entries={entries} onSelect={select} searchPlaceholder="Search icons" emptyText="No icons found" />
@@ -95,7 +92,6 @@ export function PickerPanel({
   size = "default",
   searchPlaceholder,
   emptyText,
-  searchAction,
   resultLabel = "item",
 }: PickerPanelProps) {
   const [query, setQuery] = React.useState("");
@@ -208,7 +204,6 @@ export function PickerPanel({
             placeholder={searchPlaceholder}
             aria-label={searchPlaceholder}
           />
-          {searchAction}
         </PanelSearch>
       </Field>
       {!query.trim() && categories.length > 1 ? (

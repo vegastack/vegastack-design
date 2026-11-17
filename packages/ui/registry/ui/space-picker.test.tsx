@@ -70,21 +70,12 @@ test("placement=title is an outlined, rounded chip", async () => {
   expect(chip.element().className).toContain("rounded-control");
 });
 
-test("each space is one line: no second line, even when `secondary` is given", async () => {
-  const screen = await render(
-    <SpacePicker
-      spaces={SPACES.map((item) => ({
-        ...item,
-        secondary: "Everyone · 14 members",
-      }))}
-      value="general"
-    />,
-  );
+test("each space is one line: no second line", async () => {
+  const screen = await render(<SpacePicker spaces={SPACES} value="general" />);
   await screen.getByRole("button", { name: "Space: General" }).click();
   await expect
     .element(screen.getByText("You can view, not add, here"))
     .toBeVisible();
-  expect(document.body.textContent).not.toContain("Everyone · 14 members");
   expect(
     document.querySelector(
       '[data-slot="space-picker"] [data-slot="item-description"]',

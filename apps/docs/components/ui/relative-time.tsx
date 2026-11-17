@@ -1,4 +1,4 @@
-// @vegastack relative-time@0.100.0 sha256-Lz2LGKfjdylicTsCbHLPQihzX2kjsIC/QU01b0zOa5M=
+// @vegastack relative-time@0.103.0 sha256-qHk6+r3FjbksVmeZjbpIcp7DrG/kLO0yGC4b6j6qVsg=
 
 "use client";
 
@@ -378,12 +378,6 @@ export interface RelativeTimeProps extends Omit<
    */
   mode?: "ago" | "day";
   /**
-   * @deprecated Use `format`. `"long"` maps to `format="long"`; `"short"` and `"narrow"` map to
-   * the default compact form — the Intl short style with its periods (`"19 min. ago"`) is gone.
-   * @default undefined
-   */
-  unitStyle?: "long" | "short" | "narrow";
-  /**
    * Reference instant the relative string is measured against, as epoch ms.
    * Defaults to the live clock (`Date.now()`); pass a fixed value to render
    * deterministically (tests, SSR snapshots, storybook).
@@ -498,7 +492,6 @@ export interface RelativeTimeProps extends Omit<
 export function RelativeTime({
   date,
   mode = "ago",
-  unitStyle,
   now,
   refresh = true,
   locale = DEFAULT_LOCALE,
@@ -551,7 +544,7 @@ export function RelativeTime({
     () => new Intl.RelativeTimeFormat(locale, { numeric: "auto" }),
     [localeKey], // eslint-disable-line react-hooks/exhaustive-deps -- locale array compared by joined key
   );
-  const agoStyle = format ?? (unitStyle === "long" ? "long" : "suffix");
+  const agoStyle = format ?? "suffix";
 
   const nowMs = isControlled
     ? now

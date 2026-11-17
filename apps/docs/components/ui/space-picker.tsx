@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.100.0 sha256-FbFMnZPJBu2eJwEVqrS4KQ43QXJkRLJGhuClq+6DYXo=
+// @vegastack space-picker@0.103.0 sha256-cdanX28aoD2o4D2OD+s5yyz24sAKVjH27fUzyCWLuxg=
 
 "use client";
 
@@ -209,11 +209,6 @@ export interface SpacePickerItem {
   id: string;
   /** The space, drawn with `IconGlyph`. `access: "personal"` lists it under "My space". */
   space: Space;
-  /**
-   * @deprecated Rows are one line — the tile and the name; this is no longer shown.
-   * @default undefined
-   */
-  secondary?: React.ReactNode;
   /**
    * Shown but not choosable. A string says why, muted at the row's end: "You can't add here".
    * @default false

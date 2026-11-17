@@ -1,4 +1,4 @@
-// @vegastack comments@0.100.0 sha256-OcCUt7bcRT0ReqpzP2GHmQ5yyveAHkAyukAXfKT6r7Q=
+// @vegastack comments@0.103.0 sha256-9bq/GkhZVHSQ1Ek3GnxMxshBcTQ3UUbArtM/Mr49QvU=
 
 "use client";
 
@@ -104,11 +104,6 @@ export interface CommentData {
   canEdit?: boolean;
   /** The viewer may delete it (the menu shows Delete). @default false */
   canDelete?: boolean;
-  /**
-   * @deprecated Give the author `kind: "agent"` (and `for`) instead; kept for one release. Written by
-   * an agent: read as if `author.kind` were `"agent"`. @default false
-   */
-  agent?: boolean;
   /**
    * An agent wrote the body, whoever the author shows as (the app hides agents while its Agents
    * module is off): it renders as an agent's does, `untrusted` with `showLinkDomains` and the
@@ -395,11 +390,9 @@ export function CommentItem({
   const coarse = useMediaQuery("(pointer: coarse)");
   const timeZone = useTimeZone();
   const dateFormat = useDateFormat();
-  // An agent is its author's `kind`; the `agent` flag is the deprecated spelling of the same.
-  const agent = comment.agent === true || comment.author.kind === "agent";
-  const author: Person = agent
-    ? { ...comment.author, kind: "agent" }
-    : comment.author;
+  // An agent is its author's `kind`.
+  const agent = comment.author.kind === "agent";
+  const author = comment.author;
   const agentWritten = agent || comment.agentWritten === true;
   const question = comment.tone === "question";
   const [choosing, setChoosing] = React.useState<string | null>(null);

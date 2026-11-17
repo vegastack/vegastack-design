@@ -166,7 +166,7 @@ starts with `icon-` is a component and never an icon.
 - **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
 - **`multi-step-form`** — A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.
 - **`navigation-menu`** — A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.
-- **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions, secondary menu, and a favorite star — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).
+- **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
 - **`route-tabs`** — Tabs whose panels are pages — a named nav of links drawn as the pill tabs, one URL per tab, with counts, an optimistic current tab while the next page loads, a panel that dims meanwhile, and a sideways-scrolling strip that keeps the current tab in view.
 - **`stepper`** — A bounded linear process as an ordered list — seven step states on a numbered rail that fills in behind you, aria-current=step, orientation chosen from the step count, and a compact summary below a container width.
@@ -264,7 +264,7 @@ starts with `icon-` is a component and never an icon.
 - **`message`** — Layout primitives for a conversation row - avatar anchoring, content column, header/footer slots, start/end alignment. Server-safe.
 - **`message-scroller`** — An auto-scrolling conversation viewport (not virtualised) - pins to the latest message, preserves position on prepend, tracks the anchor, and a floating scroll-to-end button.
 - **`questionnaire`** — A guided one-question-at-a-time form — choices, freeform answers, skip, shortcuts, validation, resume and conditional items, built on the @shadcn/react questionnaire state machine.
-- **`transcript`** — A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, speaker chips with rename, and progressive mounting of long transcripts.
+- **`transcript`** — A timestamped, speaker-labelled transcript on MessageScroller's primitive - turns with a coloured speaker dot, the line playing at currentTime followed with a Back to current line button, seek from each timestamp, highlighted announced search, renaming a speaker from any turn, and progressive mounting of long transcripts.
 
 ## Marketing
 

@@ -32,7 +32,6 @@ export function pageHeader(): ReactNode {
       <PageHeader
         title="Spaces"
         description="Organize work into shared spaces."
-        favorite={{ defaultActive: true }}
         actions={<Button>New space</Button>}
       />
     </Wrapper>
@@ -196,28 +195,6 @@ export function pageHeaderMeta(): ReactNode {
         }
         actions={<Button>Share</Button>}
       />
-    </Wrapper>
-  );
-}
-
-export function pageHeaderFavoriteControlled(): ReactNode {
-  const [starred, setStarred] = useState(false);
-  return (
-    <Wrapper className="block">
-      <div className="flex flex-col gap-6">
-        {/* Controlled — the host owns the starred state */}
-        <PageHeader
-          title="Q3 Roadmap"
-          description={`Controlled star — currently ${starred ? "starred" : "not starred"}.`}
-          favorite={{ active: starred, onToggle: setStarred }}
-        />
-        {/* Disabled — toggle removed from the tab order */}
-        <PageHeader
-          title="Archived doc"
-          description="Disabled star — non-interactive and out of the tab order."
-          favorite={{ defaultActive: true, disabled: true }}
-        />
-      </div>
     </Wrapper>
   );
 }

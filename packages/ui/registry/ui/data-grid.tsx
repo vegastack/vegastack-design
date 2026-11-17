@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.100.0 sha256-M86uGN4hA8b2PSg7AkONPVySnDSpz8Jd1PJDrF9kW38=
+// @vegastack data-grid@0.103.0 sha256-CB2NbvGnSuOLZ8hqlcpTQWWlb23wKykUzjltCrP+mQg=
 
 "use client";
 
@@ -523,13 +523,6 @@ export interface DataGridFocusProps {
 
 /** Row height preset; each is an exact height, so the virtualiser never measures. */
 export type DataGridRowHeight = "short" | "medium" | "tall";
-
-/**
- * Keyboard-continuous load-more contract for the last row boundary.
- * @deprecated Use `LoadMoreState` from `load-more` — the same shape, shared by
- * DataList, board lanes and `useAsyncSearch`.
- */
-export type DataGridLoadMore = LoadMoreState;
 
 /** The `loadMore` prop: the paging state plus the footer's own labels. */
 export type DataGridLoadMoreProps = Omit<LoadMoreProps, "className" | "ref">;
