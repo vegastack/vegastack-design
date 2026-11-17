@@ -6,7 +6,6 @@ import {
   layoutTierQuery,
   matchRoute,
   PAGE_WIDTHS,
-  RAIL_COLLAPSED_QUERY,
 } from "./page-layout";
 
 test("the four widths, and nothing else", () => {
@@ -114,7 +113,4 @@ test("layoutTierOf, layoutTierQuery", () => {
   );
   expect(layoutTierQuery(undefined, "tablet")).toBe("(max-width: 39.99rem)");
   expect(layoutTierQuery("phone")).toBe("all");
-  expect(RAIL_COLLAPSED_QUERY).toBe(
-    "(min-width: 48rem) and (max-width: 63.99rem)",
-  );
 });

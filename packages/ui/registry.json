@@ -195,9 +195,7 @@
         "@vegastack/input-group",
         "@vegastack/skeleton",
         "@vegastack/item",
-        "@vegastack/use-overflow",
-        "@vegastack/sheet",
-        "@vegastack/tabs"
+        "@vegastack/use-overflow"
       ],
       "files": [
         {
@@ -224,11 +222,6 @@
           "path": "packages/ui/registry/ui/document-layout-sections.tsx",
           "type": "registry:ui",
           "target": "@ui/document-layout-sections.tsx"
-        },
-        {
-          "path": "packages/ui/registry/ui/document-layout-aside.tsx",
-          "type": "registry:ui",
-          "target": "@ui/document-layout-aside.tsx"
         }
       ],
       "meta": {
@@ -248,11 +241,7 @@
         "@vegastack/design-tokens@^0.19.0",
         "lucide-react@^1.47.0"
       ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/sheet",
-        "@vegastack/skeleton"
-      ],
+      "registryDependencies": ["@vegastack/skeleton"],
       "files": [
         {
           "path": "packages/ui/registry/ui/record-layout.tsx",
@@ -14192,37 +14181,31 @@
       ],
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
-        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread count (NotificationBell).",
+        "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread marker (NotificationDot).",
         "version": "0.100.0"
       }
     },
     {
-      "name": "notification-bell",
+      "name": "notification-dot",
       "type": "registry:ui",
-      "title": "Notification Bell",
-      "description": "A bell icon button with an unread-count badge overlay. Presentational — the app supplies the count.",
+      "title": "Notification Dot",
+      "description": "The one unread dot: an 8px solid circle, decorative, for unread rows, inbox items and nav items.",
       "categories": ["media"],
       "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.19.0",
-        "@vegastack/design-tokens@^0.19.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/badge",
-        "@vegastack/button",
-        "@vegastack/use-animation-replay"
+        "@vegastack/design@^0.18.0",
+        "@vegastack/design-tokens@^0.18.0"
       ],
       "files": [
         {
-          "path": "packages/ui/registry/ui/notification-bell.tsx",
+          "path": "packages/ui/registry/ui/notification-dot.tsx",
           "type": "registry:ui",
-          "target": "@ui/notification-bell.tsx"
+          "target": "@ui/notification-dot.tsx"
         }
       ],
       "meta": {
-        "whenToUse": "A bell trigger surfacing an unread count in app chrome — app owns the count and handler. Its NotificationDot is the one unread marker for rows, inbox items and nav items.",
-        "whenNotToUse": "The notifications panel itself, or a generic count badge (Badge).",
-        "version": "0.100.0"
+        "whenToUse": "Marking something unread — a row in a list, an inbox item, a nav or rail item. The row says \"unread\" in its own accessible name.",
+        "whenNotToUse": "A count (use Badge) or a status (use StatusIcon).",
+        "version": "0.90.0"
       }
     },
     {
@@ -15141,43 +15124,6 @@
       "meta": {
         "whenToUse": "Any app with keyboard shortcuts — declare each binding once (keys, label, category) and get the ?-dialog for free; the same data can feed tooltips and Command rows.",
         "whenNotToUse": "Inline shortcut hints (Kbd in a Tooltip, CommandShortcut) or executing bindings — the app's key handler owns dispatch.",
-        "version": "0.100.0"
-      }
-    },
-    {
-      "name": "sidebar",
-      "type": "registry:ui",
-      "title": "Sidebar",
-      "description": "A collapsible app navigation rail — header/content/footer, labelled groups, menu items with active and open (menu-trigger) states, and an expand/collapse trigger.",
-      "categories": ["navigation"],
-      "dependencies": [
-        "@base-ui/react@^1.6.0",
-        "class-variance-authority@^0.7.1",
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.19.0",
-        "@vegastack/design-tokens@^0.19.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/input",
-        "@vegastack/page-layout",
-        "@vegastack/separator",
-        "@vegastack/sheet",
-        "@vegastack/skeleton",
-        "@vegastack/tooltip",
-        "@vegastack/use-mobile",
-        "@vegastack/use-platform"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/sidebar.tsx",
-          "type": "registry:ui",
-          "target": "@ui/sidebar.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Primary app navigation in a dashboard/console shell — collapsible rail with grouped items.",
-        "whenNotToUse": "A few top-level links (horizontal nav) or transient small-viewport nav (Sheet).",
         "version": "0.100.0"
       }
     },
@@ -16827,27 +16773,6 @@
         "whenToUse": "Long values in constrained layouts — table cells, nav labels, IDs/paths.",
         "whenNotToUse": "Essential action text or content that must be fully visible.",
         "version": "0.100.0"
-      }
-    },
-    {
-      "name": "use-animation-replay",
-      "type": "registry:hook",
-      "title": "useAnimationReplay / useShakeOnInvalid",
-      "description": "Replay a mount-style CSS animation (e.g. motion-shake) on demand via class-toggle, without remounting the element — preserves focus/caret/selection on form controls. Includes useShakeOnInvalid, the auto-shake-on-invalid-transition convenience built on it.",
-      "categories": ["hook", "motion"],
-      "dependencies": [],
-      "registryDependencies": [],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/use-animation-replay.ts",
-          "type": "registry:hook",
-          "target": "@ui/use-animation-replay.ts"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Replaying a motion-* utility on a user action (error shake, retry pop, etc.), especially on an element that might be focused (form controls) where a key-remount would steal focus.",
-        "whenNotToUse": "One-shot mount animations that never need to replay — just apply the motion-* class directly.",
-        "version": "0.89.0"
       }
     },
     {
@@ -19889,8 +19814,7 @@
       ],
       "registryDependencies": [
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
-        "@vegastack/sidebar"
+        "@vegastack/notification-dot"
       ],
       "files": [
         {
@@ -19949,7 +19873,7 @@
       "registryDependencies": [
         "@vegastack/command",
         "@vegastack/dropdown-menu",
-        "@vegastack/notification-bell",
+        "@vegastack/notification-dot",
         "@vegastack/toggle",
         "@vegastack/toggle-group"
       ],

@@ -1,4 +1,4 @@
-// @vegastack page-layout@0.100.0 sha256-tNLHGJOByUrSIFBuQ/H6WbxSqo1dhTwGtVV3PAnzf9g=
+// @vegastack page-layout@0.100.0 sha256-VKFEgWyzMgXFk6ZjyLqutciRklr+0+c9IODr1J9M7cA=
 
 /**
  * The page-layout contract — how wide each route's page is, declared once. `ShellPage` takes a
@@ -7,7 +7,7 @@
  * pages, client skeletons and tests all import it.
  *
  * - `prose` — 720px of content, centred: forms, settings, a create or edit flow.
- * - `default` — 1280px, centred: lists, dashboards, record pages with a rail.
+ * - `default` — 1280px, centred: lists, dashboards, record pages.
  * - `full` — edge to edge, fills the height: boards, canvases, chat.
  *
  * Route keys are the app's route patterns in Next.js spelling — `[id]` one segment, `[...rest]`
@@ -89,13 +89,6 @@ export function layoutTierQuery(from?: LayoutTier, to?: LayoutTier): string {
   if (to) parts.push(`(max-width: ${LAYOUT_TIERS[to] - 0.01}rem)`);
   return parts.join(" and ") || "all";
 }
-
-/**
- * Where the app sidebar rests as an icon rail rather than open: from the sidebar's own off-canvas
- * breakpoint (48rem, upstream's 768px) up to the `laptop` tier. Pass it to `SidebarStateScript
- * collapsedWhen` so a rail nobody has opened or closed starts collapsed there.
- */
-export const RAIL_COLLAPSED_QUERY = `(min-width: 48rem) and (max-width: ${LAYOUT_TIERS.laptop - 0.01}rem)`;
 
 type Segment =
   | { kind: "static"; value: string }

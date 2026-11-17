@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.100.0 sha256-Db0kY4BjrTOCboL8+kb/oM1yj8wUICpnm9J7+BhMVxk=
+// @vegastack issue-detail-01@0.100.0 sha256-RbIQoVOKvaggiyo5Ph+8mzgylg9Y07n1YITm8gBXuLA=
 
 "use client";
 
@@ -27,18 +27,9 @@ import {
   PropertySection,
   PropertyValue,
 } from "@/components/ui/property-list";
-import {
-  PropertyPerson,
-  RecordAsideCard,
-  RecordAsideSection,
-} from "@/components/ui/record-aside";
+import { PropertyPerson } from "@/components/ui/record-aside";
 import { RecordChip } from "@/components/ui/record-chip";
-import {
-  RecordDetailsSheet,
-  RecordLayout,
-  RecordLayoutMain,
-  RecordLayoutRail,
-} from "@/components/ui/record-layout";
+import { RecordLayout, RecordLayoutMain } from "@/components/ui/record-layout";
 import { DateTime, DueLabel } from "@/components/ui/relative-time";
 import { Separator } from "@/components/ui/separator";
 import { StatusIcon } from "@/components/ui/status-icon";
@@ -284,8 +275,8 @@ function Properties({ due: initialDue }: { due: number }) {
 }
 
 /**
- * `IssueDetail` — the issue page's client half: title and status, description, comments, and the
- * Properties rail. Replace the sample state with your data and persistence.
+ * `IssueDetail` — the issue page's client half: title and status, properties, description and
+ * comments. Replace the sample state with your data and persistence.
  *
  * @example
  * <IssueDetail />
@@ -321,10 +312,8 @@ export function IssueDetail() {
               onSave={setTitle}
             />
           </h1>
-          <RecordDetailsSheet>
-            <Properties due={now + 2 * 24 * HOUR} />
-          </RecordDetailsSheet>
         </div>
+        <Properties due={now + 2 * 24 * HOUR} />
         <TextEdit
           format="markdown"
           aria-label="Description"
@@ -382,13 +371,6 @@ export function IssueDetail() {
           }
         />
       </RecordLayoutMain>
-      <RecordLayoutRail aria-label="Issue details">
-        <RecordAsideCard>
-          <RecordAsideSection title="Properties">
-            <Properties due={now + 2 * 24 * HOUR} />
-          </RecordAsideSection>
-        </RecordAsideCard>
-      </RecordLayoutRail>
     </RecordLayout>
   );
 }

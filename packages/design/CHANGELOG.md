@@ -1469,7 +1469,7 @@
   [docs](https://design.vegastack.com/docs/components/audio-player)
 
 - [#208](https://github.com/vegastack/vegastack-design/pull/208) [`10f8d06`](https://github.com/vegastack/vegastack-design/commit/10f8d06129151232c554e448278847198dad4132) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **NotificationBell** exports `NotificationDot`, the one unread dot for rows, inbox items and nav items (`intent` `default` or `destructive`, decorative), and its dot mode now draws it: **the dot's default intent changes from destructive to primary**, and its `data-slot` is `notification-bell-dot` (the count pill keeps `notification-bell-badge`). A new `countLabel` words the count in the accessible name ("Notifications, 3 unread" by default). **usePlatform** now exports `formatShortcutKey` and `formatShortcut`, which turn `"mod"` into ⌘ on macOS and Ctrl elsewhere; **ShortcutOverlay** uses them and renders the same key labels as before.
-  [docs](https://design.vegastack.com/docs/components/notification-bell) · [docs](https://design.vegastack.com/docs/components/shortcut-overlay)
+  [docs](https://design.vegastack.com/docs/components/shortcut-overlay)
 
 - [#199](https://github.com/vegastack/vegastack-design/pull/199) [`88b7a1e`](https://github.com/vegastack/vegastack-design/commit/88b7a1e909c86d0de8042a891a6cfcfaedca03ee) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Board lanes show their total as a muted count, lanes and cards have names, and cards can be links. The lane count is now muted `tabular-nums` text instead of a `Badge`, and it shows `count` (the lane's total) when the lane has loaded only some of its cards. [docs](https://design.vegastack.com/docs/components/board)
 

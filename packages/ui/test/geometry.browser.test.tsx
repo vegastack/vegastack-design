@@ -36,11 +36,6 @@ import { DataList, type DataListColumn } from "../registry/ui/data-list";
 import { DataListPager } from "../registry/ui/data-list-pager";
 import { ButtonGroup } from "../registry/ui/button-group";
 import { Input } from "../registry/ui/input";
-import {
-  RecordLayout,
-  RecordLayoutMain,
-  RecordLayoutRail,
-} from "../registry/ui/record-layout";
 import { DatePicker } from "../registry/ui/date-picker";
 import { preloadTextEdit } from "../registry/ui/text-edit";
 import { SearchableSelect } from "../registry/ui/searchable-select";
@@ -2903,55 +2898,6 @@ for (const sort of [null, { key: "amount", direction: "desc" as const }])
   }
 
 /**
- * A docs preview must hydrate onto its own server HTML. Upstream `SidebarMenuSkeleton` picks its
- * bar width with `Math.random()` in a state initialiser, so the server's `--skeleton-width` and the
- * client's never matched and React logged a hydration mismatch on every load of the page (review
- * round 2). LAY-16 replaced the random width with an index cycle, so the sidebar preview now renders
- * its skeleton rows on the server.
- */
-const HYDRATION_FIXTURES = {
-  sidebarMenuSkeleton: "sidebar-menu-skeleton",
-} as const;
-for (const [name, rowSlot] of Object.entries(HYDRATION_FIXTURES)) {
-  test(`${name}: the docs preview hydrates without a mismatch`, async () => {
-    const { renderToString } = await import("react-dom/server");
-    const { hydrateRoot } = await import("react-dom/client");
-    const fixture = (Preview as Record<string, () => React.ReactNode>)[name];
-    expect(fixture, `${name} is not exported by the preview barrel`).toBeTypeOf(
-      "function",
-    );
-    const Fixture = () => <>{fixture!()}</>;
-    const host = document.createElement("div");
-    host.innerHTML = renderToString(<Fixture />);
-    document.body.append(host);
-    const errors: string[] = [];
-    const spy = vi
-      .spyOn(console, "error")
-      .mockImplementation((...args: unknown[]) => {
-        errors.push(args.map(String).join(" "));
-      });
-    const root = hydrateRoot(host, <Fixture />, {
-      onRecoverableError: (error) => errors.push(String(error)),
-    });
-    try {
-      await settle();
-      await settle();
-      expect(
-        errors.filter((line) => /hydrat|didn't match/i.test(line)),
-      ).toEqual([]);
-      // And the skeleton rows do arrive once hydrated.
-      expect(
-        host.querySelectorAll(`[data-slot="${rowSlot}"]`).length,
-      ).toBeGreaterThan(0);
-    } finally {
-      root.unmount();
-      host.remove();
-      spy.mockRestore();
-    }
-  });
-}
-
-/**
  * Fill and fit (VegaStack web app, 14-10-2026). One unbroken 170-character product name squeezed EVERY cell
  * and header, so the headers read "Prod" / "ucts", "Un" / "it", "famil" / "y". The primary column
  * is the fill column now — it takes the leftover width, wraps anywhere and clamps at two lines —
@@ -4151,56 +4097,6 @@ for (const dir of ["ltr", "rtl"] as const) {
     }
   });
 }
-
-/**
- * sidebar-badge-long-label (A11Y-17). `sidebarCounts` puts a label far longer than its row beside
- * a two-digit count and a five-character one. The row reserves `pe-8` for a badge and `pe-12` for a
- * wide one, so the truncated label must end before the badge begins, at the narrow sweep width and
- * on a desktop one.
- */
-test("sidebarCounts: a long label stops short of its count (sidebar-badge-long-label)", async () => {
-  const fixture = (Preview as Record<string, () => React.ReactNode>)
-    .sidebarCounts;
-  expect(
-    fixture,
-    "sidebarCounts is not exported by the preview barrel",
-  ).toBeTypeOf("function");
-  const Fixture = () => <>{fixture!()}</>;
-  for (const [width, height] of [
-    [320, 812],
-    [1280, 900],
-  ] as const) {
-    await page.viewport(width, height);
-    const screen = await render(<Fixture />);
-    await settle();
-    const rows = [
-      ...screen.container.querySelectorAll<HTMLElement>(
-        '[data-slot="sidebar-menu-item"]',
-      ),
-    ];
-    expect(rows.length).toBe(3);
-    for (const row of rows) {
-      const button = row.querySelector<HTMLElement>(
-        '[data-slot="sidebar-menu-button"]',
-      )!;
-      const badge = row.querySelector<HTMLElement>(
-        '[data-slot="sidebar-menu-badge"]',
-      )!;
-      const label = [...button.querySelectorAll(":scope > span")].find(
-        (span) => !span.classList.contains("sr-only"),
-      ) as HTMLElement;
-      const labelEnd = label.getBoundingClientRect().right;
-      const badgeStart = badge.getBoundingClientRect().left;
-      expect(
-        labelEnd <= badgeStart + 0.5,
-        `${width}px, "${label.textContent}": label ends at ${labelEnd.toFixed(1)}px, ` +
-          `badge "${badge.textContent}" starts at ${badgeStart.toFixed(1)}px`,
-      ).toBe(true);
-    }
-    await screen.unmount();
-  }
-  await page.viewport(320, 812);
-});
 
 /**
  * dropzone-upload-queue (DS-45). The docs recipe's branches, on the real preview: an upload in

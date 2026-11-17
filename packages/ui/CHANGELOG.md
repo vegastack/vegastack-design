@@ -3591,7 +3591,7 @@
   [docs](https://design.vegastack.com/docs/components/audio-player)
 
 - [#208](https://github.com/vegastack/vegastack-design/pull/208) [`10f8d06`](https://github.com/vegastack/vegastack-design/commit/10f8d06129151232c554e448278847198dad4132) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **NotificationBell** exports `NotificationDot`, the one unread dot for rows, inbox items and nav items (`intent` `default` or `destructive`, decorative), and its dot mode now draws it: **the dot's default intent changes from destructive to primary**, and its `data-slot` is `notification-bell-dot` (the count pill keeps `notification-bell-badge`). A new `countLabel` words the count in the accessible name ("Notifications, 3 unread" by default). **usePlatform** now exports `formatShortcutKey` and `formatShortcut`, which turn `"mod"` into ⌘ on macOS and Ctrl elsewhere; **ShortcutOverlay** uses them and renders the same key labels as before.
-  [docs](https://design.vegastack.com/docs/components/notification-bell) · [docs](https://design.vegastack.com/docs/components/shortcut-overlay)
+  [docs](https://design.vegastack.com/docs/components/shortcut-overlay)
 
 - [#199](https://github.com/vegastack/vegastack-design/pull/199) [`88b7a1e`](https://github.com/vegastack/vegastack-design/commit/88b7a1e909c86d0de8042a891a6cfcfaedca03ee) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Board lanes show their total as a muted count, lanes and cards have names, and cards can be links. The lane count is now muted `tabular-nums` text instead of a `Badge`, and it shows `count` (the lane's total) when the lane has loaded only some of its cards. [docs](https://design.vegastack.com/docs/components/board)
 
@@ -3627,7 +3627,7 @@
 
 - [#207](https://github.com/vegastack/vegastack-design/pull/207) [`1ae9f5b`](https://github.com/vegastack/vegastack-design/commit/1ae9f5b8b3bdead93c0700e862097290168c932c) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Sixteen upstream-backed components gain the facelift fixes: counts and current page read correctly in the sidebar, two-line rows link their description, overlays get sizes and scrolling bodies, and built-in copy is sentence case.
 
-  - **Sidebar**: `SidebarMenuButton` takes `badge`/`badgeLabel`, so the count is part of the item's name and the visual badge is `aria-hidden`. An active link carries `aria-current="page"`. The trigger reads "Toggle sidebar" (`triggerLabel`). Mod+B ignores text fields and takes `keyboardShortcut` (`false` turns it off). Skeleton widths are deterministic. `SidebarStateScript` and `useSidebarCookieOpen` keep a collapsed sidebar collapsed on a static shell's first paint, and a controlled provider writes no cookie. [docs](https://design.vegastack.com/docs/components/sidebar)
+  - **Sidebar**: `SidebarMenuButton` takes `badge`/`badgeLabel`, so the count is part of the item's name and the visual badge is `aria-hidden`. An active link carries `aria-current="page"`. The trigger reads "Toggle sidebar" (`triggerLabel`). Mod+B ignores text fields and takes `keyboardShortcut` (`false` turns it off). Skeleton widths are deterministic. `SidebarStateScript` and `useSidebarCookieOpen` keep a collapsed sidebar collapsed on a static shell's first paint, and a controlled provider writes no cookie.
   - **Item**: a link or button row inside `ItemGroup` keeps its own role, and a `listitem` wrapper takes the list role. New `ItemGroupLabel` names the group. [docs](https://design.vegastack.com/docs/components/item)
   - **Command**: `CommandDialog` takes `size`; new `CommandLoading` and `CommandFooter`; two-line results; `resultsLabel`. Default copy is "Command palette" and "Search for a command…". [docs](https://design.vegastack.com/docs/components/command)
   - **Select**, **Combobox**, **DropdownMenu**, **ContextMenu** and **Menubar**: a two-line row (`ItemTitle` + `ItemDescription`) reads its second line as the row's description, which is where a disabled row gives its reason. [docs](https://design.vegastack.com/docs/components/dropdown-menu)
@@ -4243,7 +4243,6 @@ uppercase tracking-wide` eyebrows had survived across the docs shell, plus the `
   `useAnimationReplay` when the count rises after mount **and** the badge visibly changes — so it never
   fires on mount, never on a re-render, and never for 100 → 101 (both read `"99+"`). The `Timeline`
   hero fixture, which sat under the 24px pointer-target floor, is lifted off it.
-  [docs](https://design.vegastack.com/docs/components/notification-bell)
 
 - [#72](https://github.com/vegastack/vegastack-design/pull/72) [`5b03e3b`](https://github.com/vegastack/vegastack-design/commit/5b03e3b80dd102a01a6aeb99eee6048c6b6301d3) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Base UI 1.6.0 → 1.8.0, `@shadcn/react` 0.2.1 → 0.3.1.** Fifteen upgrade deltas were executed and
   observed in a browser rather than assumed from a green suite; only MessageScroller needed a source

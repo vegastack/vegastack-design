@@ -35,7 +35,6 @@ import { DialogPlayground } from "@/components/dialog-playground";
 import { FieldPlayground } from "@/components/field-playground";
 import { ImagePlayground } from "@/components/image-playground";
 import { InputPlayground } from "@/components/input-playground";
-import { NotificationBellPlayground } from "@/components/notification-bell-playground";
 import { PaginationPlayground } from "@/components/pagination-playground";
 import { PopoverPlayground } from "@/components/popover-playground";
 import { ProgressPlayground } from "@/components/progress-playground";
@@ -104,7 +103,6 @@ export function getMDXComponents(components?: MDXComponents) {
     FieldPlayground,
     ImagePlayground,
     InputPlayground,
-    NotificationBellPlayground,
     PaginationPlayground,
     PopoverPlayground,
     ProgressPlayground,

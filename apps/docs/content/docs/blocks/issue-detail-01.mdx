@@ -11,8 +11,8 @@ preview: issueDetail01Demo
 An issue's page in the Linear style. The main column holds the status circle beside a large title
 that edits in place, the description as a Notion-style `TextEdit`, a `Separator`, then the
 `CommentList` — each comment in its own card, with the add-reaction and ⋯ buttons on hover at its
-top-right — and its `CommentComposer`. The Properties card sits in the sticky right rail. On small
-screens a Details button (`RecordDetailsSheet`) beside the title shows the same properties. It is a **block**:
+top-right — and its `CommentComposer`. The properties sit under the title, so the page reads the
+same as the record's tab in the shell panel. It is a **block**:
 you pull it once with `shadcn add`, and then you own it.
 
 Your app composes the same components directly. The block shows how they fit together, so don't
@@ -36,14 +36,13 @@ This installs the block's own files plus the components it composes: `comments`,
 
 ## Anatomy
 
-- `RecordLayout` › `RecordLayoutMain` (centred, `max-w-3xl`) and `RecordLayoutRail`.
-- **Title row**: `StatusIcon size="lg"`, then the `h1` holding `EditableCell variant="heading"`,
-  then `RecordDetailsSheet` (hidden while the rail shows).
+- `ShellPage size="full"` › `RecordLayout` › `RecordLayoutMain` (centred, `max-w-3xl`).
+- **Title row**: `StatusIcon size="lg"`, then the `h1` holding `EditableCell variant="heading"`.
+- **Properties**: an inline `PropertyList` (status, priority, assignee, due, customer, project,
+  created by).
 - **Description**: a `TextEdit` with `format="markdown"` that commits on blur (`onCommit`).
 - `Separator`, then **Comments**: `CommentList` with the Oldest / Newest first toggle
   (`order`, `onOrderChange`) and a `CommentComposer` at the end.
-- **Rail**: `RecordAsideCard` › `RecordAsideSection` "Properties" › an inline `PropertyList`
-  (status, priority, assignee, due, customer, project, created by).
 
 ## Files
 

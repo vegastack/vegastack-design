@@ -1193,7 +1193,7 @@ likely to creep back on a future pull, so it has a machine check:
 `design-lint`'s **`no-focus-ring-glow`** rejects `ring-3`, `ring-[3px]`, `ring-ring/NN`,
 `focus:`/`focus-visible:ring-*`, `focus-visible:outline-*`, `aria-invalid:ring-*` and a focus-variant
 `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`, so no ring creeps back.
-A **resting** `0 0 0 1px` hairline — upstream's outline `SidebarMenuButton` draws one — is not a
+A **resting** `0 0 0 1px` hairline — a border technique — is not a
 glow and is accepted; the structural self-test observes both halves.
 
 ### 2. Cursor and touch
@@ -1230,8 +1230,8 @@ FRM-4 · FRM-15`
   fail-closed gate (`tooling/contrast-check.mjs`, with its own `--self-test`).
 - **A11Y-2** — target size ≥24px through an **invisible** hit area, verified with a real
   `elementFromPoint` probe rather than `getComputedStyle`. Measured per case, at every width:
-  upstream grows `SidebarMenuAction` with `after:-inset-2` and then switches it off again at `md`,
-  which a 320px-only sweep cannot see.
+  an upstream part that grows its hit area at one width and switches it off at another is only
+  caught by a sweep at every width.
 - **A11Y-24** (MK, 2026-10-14) — on a touch pointer every `Button` size answers a tap 44×44: a
   `pointer-coarse:` `::after` hit area, inset per size from the padding box, so nothing moves
   visually. It never grows into an interactive neighbour — beside a sibling control that side stays
@@ -1284,12 +1284,8 @@ FRM-4 · FRM-15`
   does not — Base UI's Slider keeps the real `<input type=range>` visually hidden, so `role="slider"`
   is anonymous in every composition; Combobox's toggle, clear and chip-remove are icon-only buttons —
   the patch supplies it.
-- **A11Y-17** — a sidebar count is part of its control's name: `SidebarMenuButton` takes
-  `badge`/`badgeLabel`, the name reads "{label} {badgeLabel}" through a comma-free `sr-only` suffix
-  (in the collapsed tooltip too), and the visual `SidebarMenuBadge` is `aria-hidden`. The A11Y-5
-  separator is not used here, because accname would read "{label} , {badgeLabel}".
-- **A11Y-18** — an active nav link carries `aria-current="page"`: `SidebarMenuButton` sets it when
-  `isActive` and it renders a link; a button never gets it.
+- **A11Y-17**, **A11Y-18** — superseded with `sidebar` (2026-11-17): a rail item's count is part of
+  its name and the current module carries `aria-current="page"` (`ShellRailItem`, LAY-22).
 - **A11Y-19** — Checkbox's mixed state has its own glyph: a minus replaces the check.
 - **A11Y-20** — `orientation` reaches the Base UI root on Tabs and ToggleGroup, so
   `aria-orientation` and the arrow keys follow a vertical list.
@@ -1340,8 +1336,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
 - **Motion.** The global reduced-motion reset in `base.css` is the one sanctioned `!important`, and a
   `motion-reduce:` restatement of it is a violation (MOT-5). Keyed-presence utilities
-  `motion-pop-in` / `motion-enter-up` / `motion-shake` / `motion-flash` plus `useAnimationReplay`
-  (MOT-6); docked-presence `motion-dock-in` / `motion-dock-out`, 150ms in on `emphasized` and 100ms
+  `motion-pop-in` / `motion-enter-up` / `motion-shake` / `motion-flash` (MOT-6); docked-presence `motion-dock-in` / `motion-dock-out`, 150ms in on `emphasized` and 100ms
   out on `exit`, no scale, an exit never slower than its enter (MOT-7). Excluded by design and not to
   be added speculatively: avatar hover-lift, card tilt, FAB morph (MOT-13). The chat motion set
   (MOT-14) is the one cadence for agent UI — `instant` 100, `quick` 160/120, `state` 220/160,
@@ -1383,14 +1378,10 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   to the bot. In a stack or an `AgentStateRing`, a hexagon's gap and ring follow the hexagon.
 - **Layout** (LAY-9…LAY-16) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
-  edge-pinned surfaces, `dvh` over `vh`, `svh` only for the sidebar; truncation is `min-w-0` on the
-  flex child with `truncate` on an inner span, never both on one element; `Shell` owns the landmarks,
-  the skip link and the content container. **The `<nav>` landmark lives inside the rail**:
-  upstream's `Sidebar` is divs by design and renders two different trees, so there is no single
-  element a role can ride through both. The collapsed state survives a static first paint:
-  `SidebarStateScript` in `<head>` reads the cookie, marks `<html>` with `data-sidebar-state` and
-  gives the desktop panel its collapsed `data-state` before hydration, and `useSidebarCookieOpen`
-  reads and writes the cookie for a controlled provider (LAY-13). A line tab list scrolls inside
+  edge-pinned surfaces, `dvh` over `vh`; truncation is `min-w-0` on the flex child with `truncate`
+  on an inner span, never both on one element; `Shell` owns the landmarks, the skip link and the
+  content container, and `ShellStateScript` sets the column and panel state before the first paint
+  (LAY-22). A line tab list scrolls inside
   itself, with edge fades and the active trigger kept in view — `TabsList overflow="scroll"`, the
   default for `variant="line"` (LAY-14). `AlertAction` takes its own top-aligned grid column and
   drops below the text under `@md`, so it never overlaps the title (LAY-15). Skeleton widths cycle by
@@ -1518,7 +1509,7 @@ async-write status (→ one shared shape).
 
 **Differences in upstream components** do not follow this table — each would need its own decision
 row, so they are listed only so nobody copies them into a component we own: `md` on
-`SidebarMenuSubButton`, a physical `side` on `Sheet` and `Sidebar`, three option-row recipes across
+a physical `side` on `Sheet`, three option-row recipes across
 `Select`, `Combobox` and `Command`, and `ComboboxChip` rendering Base UI's own chip rather than
 `Chip`.
 

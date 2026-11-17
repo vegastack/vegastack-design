@@ -109,8 +109,7 @@ info`, each an ink on the `card` surface with a required icon.
   render ONE `Announcer` element per component, mounted for its life. It keeps the region observed from first paint
   and re-keys it per call, so repeating an identical string still announces. Do not hand-roll a
   `role="status"` node with a `{text, seq}` counter.
-- **The user menu is one standard**: the footer trigger shows avatar, name
-  and role; the menu header repeats avatar + name with the email instead of the role; then Profile
+- **The user menu is one standard**: the rail footer's avatar opens it; the menu header shows the avatar and name with the email; then Profile
   and Settings, a Theme `DropdownMenuSub` whose `DropdownMenuRadioGroup` (Light · Dark · System, with
   Sun · Moon · Monitor icons) is bound to `theme`/`setTheme` from `useVegaStackTheme()`, Keyboard
   shortcuts, a separator, and Sign out. Every item has an icon. Do not hand-roll a theme toggle button.
@@ -216,8 +215,8 @@ source })}` — never a hand-rolled card. The board fills the viewport below the
 A block is a page you copy once and then own (`shadcn add @vegastack/<name>`). Start from the
 closest one rather than composing the page from nothing:
 
-- **`shell-01`** — the shell: the module rail, a column, the top bar, a list, and a record opening
-  in the panel beside it.
+- **`shell-01`** — the shell: the module rail, a column, the top bar in its fixed order, a list,
+  and a record opening in the panel beside it.
 - **`list-page-01`** — one kind of record: a `DataList` with a `ListToolbar` (search, a `FilterRow`
   of facets, the Grid | List Layout tool), Mine | Team scope tabs, grouped by industry, Load more and three
   empty tiers.
