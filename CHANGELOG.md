@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.106.2] — November 17, 2026
+
+<!-- assembled from 1 changeset: 04b7899aee19 -->
+
+### 🔧 Changed components
+
+- **AgentCard** and **AgentHoverCard**: the lanyard `badges` doc comment's example now reads ("Beta"). Nothing else changes.
+  [`b72b514`](https://github.com/VegaStack/vegastack-design/commit/b72b514)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.106.1 → 0.106.2.
+
 ## [0.106.1] — November 17, 2026
 
 <!-- assembled from 1 changeset: 365bd62b2431 -->

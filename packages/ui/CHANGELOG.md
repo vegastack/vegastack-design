@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.106.2
+
+### Patch Changes
+
+- [#1020](https://github.com/vegastack/vegastack-design/pull/1020) [`b72b514`](https://github.com/vegastack/vegastack-design/commit/b72b5147a41deb10adeee56780a5fe52bf49f19f) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **AgentCard** and **AgentHoverCard**: the lanyard `badges` doc comment's example now reads ("Beta"). Nothing else changes.
+
 ## 0.106.1
 
 ### Patch Changes
