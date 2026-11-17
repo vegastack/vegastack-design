@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.90.0 sha256-LeDgB9Ime5o94d1OHLsVYLZxdtCHRGT0fOHIxwXUb/I=
+// @vegastack data-grid@0.90.0 sha256-Bn+LbX88djrxgwoWY0nhrTnXYzdghnULweXyMHM2fzc=
 
 "use client";
 
@@ -731,14 +731,14 @@ export interface DataGridProps<T> {
    * a filter row, a wrapped toolbar). The docked selection bar never changes its height: its room
    * is a band after the last row, inside the scroll. At least 240px: with less room than that the
    * page scrolls to reach the grid (rows are windowed, so the grid cannot grow to its rows). A
-   * `maxHeight` of its own wins over it. Pair it with `AppShellBleed` for a grid that reaches the
+   * `maxHeight` of its own wins over it. Pair it with `ShellBleed` for a grid that reaches the
    * page's edges.
    *
    * `"flex"` fills the same room without measuring: the grid takes the height its flex-column
    * parent leaves it, so a filter row or banner that comes or goes resizes it in the same layout
    * pass and its scroll bar never moves. The host owes it a bounded chain — every wrapper between
-   * the scrolling region and the grid a `flex-1` column (`AppShellPage size="full"`, then an
-   * `AppShellBleed className="flex-1"`). Without one the viewport stays at its 240px floor; use
+   * the scrolling region and the grid a `flex-1` column (`ShellPage size="full"`, then a
+   * `ShellBleed className="flex-1"`). Without one the viewport stays at its 240px floor; use
    * `true` there.
    * @default false
    */

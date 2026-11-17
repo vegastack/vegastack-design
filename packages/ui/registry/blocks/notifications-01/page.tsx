@@ -1,4 +1,4 @@
-// @vegastack notifications-01@0.90.0 sha256-jzB/Quu4YACCw4jciyz0WDGKgplxory/t9gUwoBKJ3w=
+// @vegastack notifications-01@0.90.0 sha256-PHOWFY26h9fCUbZsOXCn9Qy7ARA+N3mPOZoERH+yBpg=
 
 "use client";
 
@@ -11,33 +11,27 @@ import {
   OLDER_NOTIFICATIONS,
   SAMPLE_NOW,
 } from "./components/sample-notifications";
-import {
-  AppShell,
-  AppShellContent,
-  AppShellHeader,
-  AppShellPage,
-  AppShellSidebar,
-} from "@/components/ui/app-shell";
-import { NotificationBell } from "@/components/ui/notification-bell";
 import { PageHeader } from "@/components/ui/page-header";
 import {
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
-
-const unreadLabel = (n: number) => `${n} unread`;
+  Shell,
+  ShellBottomBar,
+  ShellBottomBarItem,
+  ShellMain,
+  ShellPage,
+  ShellRail,
+  ShellRailItem,
+  ShellTopBar,
+  ShellTopBarTitle,
+} from "@/components/ui/shell";
 
 /**
- * `notifications-01` — the Inbox: an "Inbox" row in the rail (desktop) and a bell in the header
- * (phone), both carrying the unread count in their names, opening one `InboxSheet`.
+ * `notifications-01` — the Inbox: an "Inbox" item on the shell's rail (desktop) and in its phone
+ * bar, both carrying the unread count in their names, opening one `InboxSheet`.
  *
  * Replace the sample notifications with your API, and "Mark all read" and the infinite-scroll
- * `loadOlder` (15 rows a page) with its calls. The app this mirrors docks the sheet beside the sidebar (`side="left"`, non-modal on
- * desktop, full screen on a phone). In an app with more pages, the triggers live in your shell layout.
+ * `loadOlder` (15 rows a page) with its calls. The sheet docks beside the rail (`side="left"`,
+ * non-modal on desktop, full screen on a phone). In an app with more pages, the triggers live in
+ * your shell layout.
  *
  * @example
  * // app/inbox-demo/page.tsx, straight after `shadcn add @vegastack/notifications-01`
@@ -70,61 +64,41 @@ export default function Page() {
   }
 
   return (
-    <AppShell>
-      <AppShellSidebar collapsible="icon">
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    tooltip="Home"
-                    isActive
-                    render={<a href="/" />}
-                  >
-                    <Home />
-                    <span>Home</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    tooltip="Inbox"
-                    badge={unread || undefined}
-                    badgeLabel={unread ? unreadLabel(unread) : undefined}
-                    onClick={() => setOpen(true)}
-                  >
-                    <Inbox />
-                    <span>Inbox</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-      </AppShellSidebar>
-      <div className="flex h-svh min-w-0 flex-1 flex-col">
-        <AppShellHeader
-          actions={
-            <NotificationBell
-              aria-label="Inbox"
-              count={unread}
-              countLabel={unreadLabel}
-              className="md:hidden"
-              onClick={() => setOpen(true)}
-            />
-          }
-        >
-          <span className="text-sm font-medium">Acme</span>
-        </AppShellHeader>
-        <AppShellContent>
-          <AppShellPage>
-            <PageHeader
-              title="Home"
-              description="Open the Inbox from the rail, or the bell on a phone."
-            />
-          </AppShellPage>
-        </AppShellContent>
-      </div>
+    <Shell
+      rail={
+        <ShellRail>
+          <ShellRailItem icon={<Home />} label="Home" href="/" active />
+          <ShellRailItem
+            icon={<Inbox />}
+            label="Inbox"
+            badge={unread}
+            onClick={() => setOpen(true)}
+          />
+        </ShellRail>
+      }
+      bottomBar={
+        <ShellBottomBar>
+          <ShellBottomBarItem icon={<Home />} label="Home" href="/" active />
+          <ShellBottomBarItem
+            icon={<Inbox />}
+            label="Inbox"
+            badge={unread}
+            onClick={() => setOpen(true)}
+          />
+        </ShellBottomBar>
+      }
+    >
+      <ShellTopBar>
+        <ShellTopBarTitle>Home</ShellTopBarTitle>
+      </ShellTopBar>
+      <ShellMain>
+        <ShellPage>
+          <PageHeader
+            title="Home"
+            description="Open the Inbox from the rail, or from the bar on a phone."
+          />
+        </ShellPage>
+      </ShellMain>
       <InboxSheet
         open={open}
         onOpenChange={setOpen}
@@ -143,6 +117,6 @@ export default function Page() {
         loadingMore={loadingOlder}
         loadMoreError={olderFailed}
       />
-    </AppShell>
+    </Shell>
   );
 }

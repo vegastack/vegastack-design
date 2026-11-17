@@ -73,7 +73,8 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   what they compose. Four keepers still carry a small private axis over something that is not a
   control height — `Chip` (`sm`/`md`, the inline and control pill scales), `StatusIcon`, `Stat` and
   `Image`'s corner — and they say so on their own pages.
-- **Compose `app-shell`** for a sidebar + header + main layout — never hand-roll the landmark trio.
+- **Compose `shell`** for the rail, column, top bar, main region and panel — never hand-roll the
+  landmarks.
 - **Space a page with the page-rhythm recipe** — gutters `px-4 py-6` / `md:px-8 md:py-8`,
   `gap-6` under `PageHeader`, `gap-8` between sections, `gap-3` from a section heading or a list
   toolbar to its content, `--card-spacing` inside a card, and `FieldGroup`'s own gaps in a form
@@ -108,7 +109,7 @@ info`, each an ink on the `card` surface with a required icon.
   render ONE `Announcer` element per component, mounted for its life. It keeps the region observed from first paint
   and re-keys it per call, so repeating an identical string still announces. Do not hand-roll a
   `role="status"` node with a `{text, seq}` counter.
-- **The user menu is one standard** (as in `app-shell-01`): the footer trigger shows avatar, name
+- **The user menu is one standard**: the footer trigger shows avatar, name
   and role; the menu header repeats avatar + name with the email instead of the role; then Profile
   and Settings, a Theme `DropdownMenuSub` whose `DropdownMenuRadioGroup` (Light · Dark · System, with
   Sun · Moon · Monitor icons) is bound to `theme`/`setTheme` from `useVegaStackTheme()`, Keyboard
@@ -149,7 +150,7 @@ A component's name undersells it. Before composing something by hand, check this
 
 ### Which component for X
 
-- **A page** → `AppShell` › `AppShellContent` › `AppShellPage` (`size`: `prose` for forms and
+- **A page** → `Shell` › `ShellMain` › `ShellPage` (`size`: `prose` for forms and
   settings, `default` for lists and record pages, `full` for boards and canvases — picked per route
   from one `definePageWidths` map, never a `max-w-*` or padding class; see
   <https://design.vegastack.com/docs/foundations/page-layout>) › `PageHeader` › `ListToolbar` (with its `FilterRow`) › `DataList` (or
@@ -215,8 +216,8 @@ source })}` — never a hand-rolled card. The board fills the viewport below the
 A block is a page you copy once and then own (`shadcn add @vegastack/<name>`). Start from the
 closest one rather than composing the page from nothing:
 
-- **`app-shell-01`** — the shell: landmarks, skip link, a rail with search, inbox count and a user
-  menu.
+- **`shell-01`** — the shell: the module rail, a column, the top bar, a list, and a record opening
+  in the panel beside it.
 - **`list-page-01`** — one kind of record: a `DataList` with a `ListToolbar` (search, a `FilterRow`
   of facets, the Grid | List Layout tool), Mine | Team scope tabs, grouped by industry, Load more and three
   empty tiers.

@@ -363,18 +363,17 @@ test("`doctor` fails with file:line when retired vocabulary is present, passes w
   );
 });
 
-test("page layout: an AppShellPage that sets its own width or gutter is reported; narrow is a warning", () => {
+test("page layout: a ShellPage that sets its own width or gutter is reported", () => {
   const root = project({
     "src/app/a/page.tsx": [
-      `<AppShellPage size="prose">ok</AppShellPage>`,
-      `<AppShellPage className="max-w-2xl px-0 md:px-10">bad</AppShellPage>`,
-      `<AppShellPage size="prose" className="pb-24 gap-4">ok</AppShellPage>`,
-      `<AppShellPage className={cn("mx-auto", x && "p-0")} size="full">bad</AppShellPage>`,
-      `<AppShellPage size="narrow">old</AppShellPage>`,
+      `<ShellPage size="prose">ok</ShellPage>`,
+      `<ShellPage className="max-w-2xl px-0 md:px-10">bad</ShellPage>`,
+      `<ShellPage size="prose" className="pb-24 gap-4">ok</ShellPage>`,
+      `<ShellPage className={cn("mx-auto", x && "p-0")} size="full">bad</ShellPage>`,
     ].join("\n"),
-    "src/components/ui/app-shell.tsx": `<AppShellPage className="max-w-3xl" />`,
+    "src/components/ui/shell.tsx": `<ShellPage className="max-w-3xl" />`,
   });
-  const { findings, deprecated } = scanPageLayout(root, {
+  const { findings } = scanPageLayout(root, {
     skipDirs: [join(root, "src/components/ui")],
   });
   assert.deepEqual(
@@ -386,10 +385,6 @@ test("page layout: an AppShellPage that sets its own width or gutter is reported
       "src/app/a/page.tsx:4 mx-auto",
       "src/app/a/page.tsx:4 p-0",
     ],
-  );
-  assert.deepEqual(
-    deprecated.map((f) => `${f.file}:${f.line}`),
-    ["src/app/a/page.tsx:5"],
   );
 });
 
@@ -583,21 +578,21 @@ const WIDTH_MAP = {
   ].join("\n"),
 };
 
-test("AppShellPage size is compared with the route map, most specific row first", () => {
+test("ShellPage size is compared with the route map, most specific row first", () => {
   const root = project({
     ...UI,
     ...WIDTH_MAP,
-    "src/app/(app)/page.tsx": `<AppShellPage>home</AppShellPage>`,
-    "src/app/(app)/settings/profile/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
-    "src/app/(app)/tasks/board/page.tsx": `<AppShellPage size="default">bad</AppShellPage>`,
-    "src/app/(app)/tasks/new/page.tsx": `\n<AppShellPage>bad</AppShellPage>`,
-    "src/app/(app)/tasks/[taskId]/layout.tsx": `<AppShellPage size={"default"}>ok</AppShellPage>`,
-    "src/app/(app)/tasks/page.tsx": `<AppShellPage size={board ? "full" : "default"}>skip</AppShellPage>`,
-    "src/app/(app)/@modal/(.)tasks/new/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
-    "src/app/(app)/reports/page.tsx": `<AppShellPage size="full">unlisted</AppShellPage>`,
+    "src/app/(app)/page.tsx": `<ShellPage>home</ShellPage>`,
+    "src/app/(app)/settings/profile/page.tsx": `<ShellPage size="prose">ok</ShellPage>`,
+    "src/app/(app)/tasks/board/page.tsx": `<ShellPage size="default">bad</ShellPage>`,
+    "src/app/(app)/tasks/new/page.tsx": `\n<ShellPage>bad</ShellPage>`,
+    "src/app/(app)/tasks/[taskId]/layout.tsx": `<ShellPage size={"default"}>ok</ShellPage>`,
+    "src/app/(app)/tasks/page.tsx": `<ShellPage size={board ? "full" : "default"}>skip</ShellPage>`,
+    "src/app/(app)/@modal/(.)tasks/new/page.tsx": `<ShellPage size="prose">ok</ShellPage>`,
+    "src/app/(app)/reports/page.tsx": `<ShellPage size="full">unlisted</ShellPage>`,
     // `/docs/intro` is served by both `[id]` and `[[...slug]]`; the more specific `[id]` wins.
-    "src/app/(app)/docs/intro/page.tsx": `<AppShellPage size="prose">ok</AppShellPage>`,
-    "src/modules/tasks/tasks-page.tsx": `<AppShellPage size="full">not a route file</AppShellPage>`,
+    "src/app/(app)/docs/intro/page.tsx": `<ShellPage size="prose">ok</ShellPage>`,
+    "src/modules/tasks/tasks-page.tsx": `<ShellPage size="full">not a route file</ShellPage>`,
   });
   const { routeMap } = compositionOf(root);
   assert.equal(routeMap.rows, 8, JSON.stringify(routeMap));
@@ -638,7 +633,7 @@ test("`doctor` warns on composition findings, fails under --strict, and skips th
     "--dir",
     project({
       ...base,
-      "src/app/page.tsx": `import { ItemGroup } from "@/components/ui/item";\n<AppShellPage><ItemGroup /></AppShellPage>`,
+      "src/app/page.tsx": `import { ItemGroup } from "@/components/ui/item";\n<ShellPage><ItemGroup /></ShellPage>`,
     }),
     "--strict",
   ]);
@@ -656,11 +651,11 @@ test("`doctor` warns on composition findings, fails under --strict, and skips th
       `import { ItemGroup } from "@/components/ui/item";`,
       `import { PopoverContent } from "@/components/ui/popover";`,
       `import { SheetContent } from "@/components/ui/sheet";`,
-      `<AppShellPage>`,
+      `<ShellPage>`,
       `  <ItemGroup className="gap-0!" />`,
       `  <PopoverContent className="w-80" />`,
       `  <SheetContent><header /></SheetContent>`,
-      `</AppShellPage>`,
+      `</ShellPage>`,
     ].join("\n"),
   });
   const warned = run(["--dir", dirty]);
@@ -822,7 +817,7 @@ test("strings, JSX text, generics and nested attributes never confuse the tag sc
       `import { PopoverContent } from "@/components/ui/popover";`,
       `import { DataGrid } from "@/components/ui/data-grid";`,
       `import { Button } from "@/components/ui/button";`,
-      `import { AppShellPage } from "@/components/ui/app-shell";`,
+      `import { ShellPage } from "@/components/ui/shell";`,
       // a closing tag in a string does not close the content
       `<SheetContent><div data-x="</SheetContent>" /><header /></SheetContent>`,
       // an opening tag in a string opens nothing
@@ -863,13 +858,13 @@ test("the route map takes only map rows, outside tests, and reports a conflictin
     ].join("\n"),
     "src/shell/page-widths.test.ts": `definePageWidths({ "/": "full" });`,
     "src/modules/a.ts": `export const a = { widths: { "/docs/[id]": "prose" } };`,
-    "src/app/page.tsx": `<AppShellPage size="prose" />`,
+    "src/app/page.tsx": `<ShellPage size="prose" />`,
     // an optional catch-all serves `/docs` (no row: `default`) AND `/docs/x` (`[id]`): no one size fits
-    "src/app/docs/[[...slug]]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/[[...slug]]/page.tsx": `<ShellPage />`,
     // intercepting routes render the route they intercept
-    "src/app/feed/@modal/(..)photo/[id]/page.tsx": `<AppShellPage size="prose" />`,
+    "src/app/feed/@modal/(..)photo/[id]/page.tsx": `<ShellPage size="prose" />`,
     // (the first row wins a conflict: files are read in path order, so a.ts's "prose")
-    "src/app/feed/@modal/(...)docs/[id]/layout.tsx": `<AppShellPage size="prose" />`,
+    "src/app/feed/@modal/(...)docs/[id]/layout.tsx": `<ShellPage size="prose" />`,
   });
   const { routeMap } = compositionOf(root);
   assert.equal(routeMap.rows, 2);
@@ -944,10 +939,10 @@ test("nested templates, object type arguments and string-borne map syntax (revie
       `  "/settings": "prose",`,
       `});`,
     ].join("\n"),
-    "src/app/settings/page.tsx": `<AppShellPage size="prose" />`,
-    "src/app/page.tsx": `<AppShellPage />`,
+    "src/app/settings/page.tsx": `<ShellPage size="prose" />`,
+    "src/app/page.tsx": `<ShellPage />`,
     // a catch-all serves `/docs/a` AND `/docs/a/b`: one sample is not enough
-    "src/app/docs/[...slug]/page.tsx": `<AppShellPage size="full" />`,
+    "src/app/docs/[...slug]/page.tsx": `<ShellPage size="full" />`,
     "src/modules/docs.ts": `export const m = { widths: { "/docs/[id]": "full" } };`,
   });
   const found = compositionOf(root);
@@ -966,10 +961,10 @@ test("spread props make a size dynamic; a dynamic page is held to the static row
   const root = project({
     ...UI,
     "src/shell/page-widths.ts": `definePageWidths({ "/docs": "full", "/docs/new": "prose", "/docs/edit": "prose" });`,
-    "src/app/docs/page.tsx": `const p = { size: "full" }; <AppShellPage {...p} />; <AppShellPage size="prose" {...p} />;`,
+    "src/app/docs/page.tsx": `const p = { size: "full" }; <ShellPage {...p} />; <ShellPage size="prose" {...p} />;`,
     // `[id]` also renders `/docs/new` (no page of its own) — prose — but not `/docs/edit`
-    "src/app/docs/[id]/page.tsx": `<AppShellPage />`,
-    "src/app/docs/edit/page.tsx": `<AppShellPage size="prose" />`,
+    "src/app/docs/[id]/page.tsx": `<ShellPage />`,
+    "src/app/docs/edit/page.tsx": `<ShellPage size="prose" />`,
   });
   const { routeMap } = compositionOf(root);
   assert.equal(routeMap.dynamic, 2);
@@ -1004,11 +999,11 @@ test("a layout answers for the pages it wraps, not its folder's own URL (review 
   const root = project({
     ...UI,
     "src/shell/page-widths.ts": `definePageWidths({ "/settings/profile": "prose", "/settings/password": "prose", "/settings/members": "default", "/settings/members/invite": "prose" });`,
-    "src/app/settings/(forms)/layout.tsx": `<AppShellPage size="prose">{children}</AppShellPage>`,
+    "src/app/settings/(forms)/layout.tsx": `<ShellPage size="prose">{children}</ShellPage>`,
     "src/app/settings/(forms)/profile/page.tsx": `export default () => null;`,
     "src/app/settings/(forms)/password/page.tsx": `export default () => null;`,
     // this group's layout wraps a prose page and a default one: no one size fits
-    "src/app/settings/(lists)/layout.tsx": `<AppShellPage>{children}</AppShellPage>`,
+    "src/app/settings/(lists)/layout.tsx": `<ShellPage>{children}</ShellPage>`,
     "src/app/settings/(lists)/members/page.tsx": `export default () => null;`,
     "src/app/settings/(lists)/members/invite/page.tsx": `export default () => null;`,
   });
@@ -1024,8 +1019,8 @@ test("a dynamic route's own row does not hide a more specific static row it serv
   const root = project({
     ...UI,
     "src/shell/page-widths.ts": `definePageWidths({ "/docs/[id]": "default", "/docs/new": "prose" });`,
-    "src/app/docs/[id]/page.tsx": `<AppShellPage />`,
-    "src/app/docs/layout.tsx": `<AppShellPage>{children}</AppShellPage>`,
+    "src/app/docs/[id]/page.tsx": `<ShellPage />`,
+    "src/app/docs/layout.tsx": `<ShellPage>{children}</ShellPage>`,
   });
   assert.deepEqual(lines(compositionOf(root).routeMap.mismatches), [
     'src/app/docs/[id]/page.tsx:1 size="default" on /docs/[id]',
@@ -1037,7 +1032,7 @@ test("a catch-all page is held to the dynamic rows it serves too (review round 6
   const root = project({
     ...UI,
     "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[id]": "prose" });`,
-    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/[...slug]/page.tsx": `<ShellPage />`,
   });
   assert.deepEqual(lines(compositionOf(root).routeMap.mismatches), [
     'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',
@@ -1070,7 +1065,7 @@ test("catch-all rows are sampled at length, and a more specific page takes the p
   const longer = project({
     ...UI,
     "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[...rest]": "prose", "/docs/new/[id]": "default" });`,
-    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
+    "src/app/docs/[...slug]/page.tsx": `<ShellPage />`,
   });
   assert.deepEqual(lines(compositionOf(longer).routeMap.mismatches), [
     'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',
@@ -1078,8 +1073,8 @@ test("catch-all rows are sampled at length, and a more specific page takes the p
   const shadowed = project({
     ...UI,
     "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "default", "/docs/new/[id]": "prose" });`,
-    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
-    "src/app/docs/[category]/[id]/page.tsx": `<AppShellPage size={size} />`,
+    "src/app/docs/[...slug]/page.tsx": `<ShellPage />`,
+    "src/app/docs/[category]/[id]/page.tsx": `<ShellPage size={size} />`,
   });
   assert.deepEqual(compositionOf(shadowed).routeMap.mismatches, []);
 });
@@ -1108,7 +1103,7 @@ test("intersecting patterns and deep catch-alls are compared (review round 8)", 
   const crossed = project({
     ...UI,
     "src/shell/page-widths.ts": `definePageWidths({ "/[lang]/settings": "prose" });`,
-    "src/app/en/[slug]/page.tsx": `<AppShellPage />`,
+    "src/app/en/[slug]/page.tsx": `<ShellPage />`,
   });
   assert.deepEqual(lines(compositionOf(crossed).routeMap.mismatches), [
     'src/app/en/[slug]/page.tsx:1 size="default" on /en/[slug]',
@@ -1116,10 +1111,10 @@ test("intersecting patterns and deep catch-alls are compared (review round 8)", 
   const deep = project({
     ...UI,
     "src/shell/page-widths.ts": `definePageWidths({ "/docs/[...slug]": "prose" });`,
-    "src/app/docs/[...slug]/page.tsx": `<AppShellPage />`,
-    "src/app/docs/[a]/page.tsx": `<AppShellPage size={s} />`,
-    "src/app/docs/[a]/[b]/page.tsx": `<AppShellPage size={s} />`,
-    "src/app/docs/[a]/[b]/[c]/page.tsx": `<AppShellPage size={s} />`,
+    "src/app/docs/[...slug]/page.tsx": `<ShellPage />`,
+    "src/app/docs/[a]/page.tsx": `<ShellPage size={s} />`,
+    "src/app/docs/[a]/[b]/page.tsx": `<ShellPage size={s} />`,
+    "src/app/docs/[a]/[b]/[c]/page.tsx": `<ShellPage size={s} />`,
   });
   assert.deepEqual(lines(compositionOf(deep).routeMap.mismatches), [
     'src/app/docs/[...slug]/page.tsx:1 size="default" on /docs/[...slug]',

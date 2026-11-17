@@ -419,7 +419,7 @@ test("controlSize: sm, md and lg are 160, 256 and 320px, and every control ends 
         <Switch aria-label="Digest" />
       </SettingsRow>
       <SettingsRow label="Country">
-        <div data-slot="country-select">
+        <div data-slot="searchable-select">
           <button type="button">India</button>
         </div>
       </SettingsRow>
@@ -429,7 +429,7 @@ test("controlSize: sm, md and lg are 160, 256 and 320px, and every control ends 
     ...screen.container.querySelectorAll('[data-slot="settings-row"]'),
   ];
   const [sm, md, lg, auto, country] = rows.map(controlBox);
-  // The searchable selects (country, region) count as field controls too.
+  // A searchable select counts as a field control too.
   expect(Math.round(country!.width)).toBe(256);
   expect(Math.round(sm!.width)).toBe(160);
   // No controlSize: a field control takes md.

@@ -1,9 +1,9 @@
-// @vegastack list-page-01@0.90.0 sha256-BBsx0vicI+e8shafpK+3XvMn1zwXxTXuSMva9woAth8=
+// @vegastack list-page-01@0.90.0 sha256-Id6+eoqVXW85SuWSqDf6oJV7GxXwRKKGgxOBvvjMFMg=
 
 import { Plus } from "lucide-react";
 
 import { CustomerList } from "./components/customer-list";
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 import { buttonVariants } from "@/components/ui/button";
 
 /**
@@ -19,7 +19,7 @@ import { buttonVariants } from "@/components/ui/button";
  */
 export default function Page() {
   return (
-    <AppShellPage>
+    <ShellPage>
       <CustomerList
         actions={
           <a href="/customers/new" className={buttonVariants()}>
@@ -28,6 +28,6 @@ export default function Page() {
           </a>
         }
       />
-    </AppShellPage>
+    </ShellPage>
   );
 }

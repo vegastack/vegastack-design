@@ -21,7 +21,7 @@ npx shadcn@latest add @vegastack/notifications-01
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `app-shell`, `date-time`, `dropdown-menu`, `inbox`, `notification-bell`, `page-header`, `sheet`, `sidebar`, `tooltip`, `use-announcer`.
+This installs the block's own files plus the components it composes: `date-time`, `dropdown-menu`, `inbox`, `page-header`, `sheet`, `shell`, `tooltip`, `use-announcer`.
 
 ## Preview
 
@@ -29,15 +29,15 @@ This installs the block's own files plus the components it composes: `app-shell`
 
 ## Triggers
 
-On a desktop the rail's **Inbox** row opens it; on a phone the header's `NotificationBell` does.
-Both carry the unread count in their accessible names — `badge` + `badgeLabel` on the row,
-`countLabel` on the bell — so the visual count is decoration. When the sheet closes, focus returns
+On a desktop the shell rail's **Inbox** item opens it; on a phone the bar's **Inbox** tab does.
+Both carry the unread count in their accessible names ("Inbox, 3"), so the visual count is
+decoration. When the sheet closes, focus returns
 to whichever trigger opened it.
 
 ## The panel
 
 - `SheetContent showCloseButton={false}` holds `Inbox`, whose `title` is the `SheetTitle` and whose
-  ✕ closes the sheet. In the VegaStack web app the sheet docks beside the sidebar (`side="left"`, non-modal with
+  ✕ closes the sheet. In the VegaStack web app the sheet docks beside the rail (`side="left"`, non-modal with
   `showOverlay={false}` on desktop, full screen on a phone); the block uses a plain right sheet.
 - **Header** — `InboxMarkAllRead` (✓✓, shown while anything is unread) and `InboxMenuAction` (⋯)
   for settings. "Mark all read" is announced once through `useAnnouncer`: "Marked all read".

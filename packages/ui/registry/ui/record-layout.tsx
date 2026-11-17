@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.90.0 sha256-XnqzaxAW0oAJCkXpiA+Qfsa9Z1kuX0jpEsvDUVMLp5Q=
+// @vegastack record-layout@0.90.0 sha256-2/LtfBEp+2G21LE49wQ2KC70IaA7gAp0vBJmBxu1xzI=
 
 "use client";
 
@@ -112,10 +112,10 @@ export type RecordLayoutRailProps = React.ComponentPropsWithRef<"aside">;
 /**
  * `RecordLayoutRail` — the sticky right rail (320px), shown from 1024px of the layout's own width
  * (a container query, not the viewport). It sticks `--record-rail-gap` below the top of the scroll
- * container — by default `--page-gutter`, the gutter `AppShellPage` pads with (32px outside one),
+ * container — by default `--page-gutter`, the gutter `ShellPage` pads with (32px outside one),
  * which is the same gap it has at rest, so it never slides under the header —
  * and scrolls on its own when taller than the viewport minus that gap above and below. Set
- * `--record-rail-offset` (default `--spacing(14)`, `AppShellHeader`'s height) to the height of the
+ * `--record-rail-offset` (default `--spacing(14)`, a 56px top bar) to the height of the
  * chrome above the scroll container. Name it with `aria-label`. In a `RecordLayout stack` it is
  * shown at every width: below 64rem it flows under the main column, full width, in ordinary flow.
  *

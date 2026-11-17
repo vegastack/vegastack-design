@@ -231,8 +231,7 @@ search field.
 ### SidebarFooter
 
 `SidebarFooter` is the sticky bottom of the panel — the account row, settings, a sign-out. The
-standard account menu (the one the VegaStack web app ships) is in
-[app-shell-01](/docs/blocks/app-shell-01): the avatar row opens a menu with Profile and Settings, a
+standard account menu (the one the VegaStack web app ships) is this: the avatar row opens a menu with Profile and Settings, a
 **Theme** submenu (Light · Dark · System), Keyboard shortcuts and Sign out, every item with an icon.
 Leading icons in menu buttons are muted until their row is hovered, focused or active — the
 component does this, so add no colour classes (see [Icons](/docs/foundations/icons)).
@@ -761,8 +760,7 @@ collapsed in a window it matches, and writes that start to the cookie. It is dec
 first paint, never by collapsing the panel after hydration, which would slide it shut and move the
 whole page. A person's own choice (the cookie) always wins. With `collapsible="icon"` it defaults
 to the tablet span — `RAIL_COLLAPSED_QUERY` from `page-layout`, 768–1023px — where the rail rests
-as icons; pass `collapsedWhen={null}` to turn it off. `AppShell` folds an open rail when the window
-narrows into that span and reopens it on the way out.
+as icons; pass `collapsedWhen={null}` to turn it off.
 
 For a controlled provider, `useSidebarCookieOpen` returns `[open, setOpen]`: it starts from the
 same mark, reads the cookie after hydration when there is no mark, and its setter writes the cookie

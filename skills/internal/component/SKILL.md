@@ -260,7 +260,7 @@ decision tree in [references/conventions.md](references/conventions.md).
 - **Container queries, not viewport breakpoints**, whenever responsive behavior should follow the
   component's actual container — a settings row in a narrow sidebar card should stack even on a wide
   viewport. Name your own container (`@container/my-component`) and write `@sm/my-component:flex-row`
-  (see `settings-row.tsx`, `app-shell.tsx`, `field.tsx`). Reach for a `ResizeObserver` variant only
+  (see `settings-row.tsx`, `shell.tsx`, `field.tsx`). Reach for a `ResizeObserver` variant only
   if a container query genuinely cannot express it.
 - **CSS first, `useIsMobile` last.** The ladder is: a container query (follows the component's own
   width) → a viewport breakpoint (follows the page) → `useMediaQuery`/`useIsMobile` from

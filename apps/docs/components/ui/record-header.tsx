@@ -1,4 +1,4 @@
-// @vegastack record-header@0.90.0 sha256-TI7reAwtq2dcYr6QRay9PQ5zlK5CBFAaVcR8mj2R5VE=
+// @vegastack record-header@0.90.0 sha256-oP27FdbQatruqb5QT2lfJwf+LHpdNmcC+hrK+XKVsog=
 
 "use client";
 
@@ -10,7 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { TruncatedText } from "@/components/ui/truncated-text";
 
 /* ------------------------------------------------------------------------------------------------
- * RecordHeader — the head of any record, the same on its full page and inside `RecordPeek`: an
+ * RecordHeader — the head of any record, the same on its full page and inside a shell panel: an
  * eyebrow line (where it lives · its key), the icon and the title (renamed in place), the status
  * beside the title, a meta line and a chip row, with presence and the record's actions at the end.
  * It knows no record kinds: the app fills the slots.
@@ -114,7 +114,7 @@ export interface RecordHeaderProps extends Omit<
 
 /**
  * `RecordHeader` — the head of a record, one anatomy for every kind and both places a record
- * opens: its full page and `RecordPeek`. An eyebrow line holds where it lives and its key
+ * opens: its full page and a shell panel. An eyebrow line holds where it lives and its key
  * (`eyebrow`, `keyBadge`) with `presence` and `actions` at the end; then a `leading` control,
  * the `icon` and the `title` — renamed in place with `onRename` (an `EditableCell` heading) — with its `status`
  * beside it; then the `meta` line and the `chips` row. Every slot is optional except the title,

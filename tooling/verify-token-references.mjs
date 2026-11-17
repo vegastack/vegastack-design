@@ -125,17 +125,15 @@ const RUNTIME_VARIABLES = new Set([
   // host whose scroll container runs under a fixed top bar sets that bar's height on the layout),
   // read by `DocumentLayoutDecisionBar` in `document-layout-tools`.
   "--document-layout-bar-top",
-  // The page gutter: `AppShell` declares it on its root (and `AppShellHeader`/`AppShellPage` on
-  // themselves) from `pageGutterClasses`, and `RecordLayoutRail` — a descendant of the page —
-  // reads it with its own fallback to stick one gutter below the header. Viewport-responsive, so
-  // it is a shell variable rather than a theme token.
+  // The page gutter: `ShellPage` declares it on itself from `shellGutterClasses`, by the page's own
+  // width, and `RecordLayoutRail` — a descendant of the page — reads it with its own fallback to
+  // stick one gutter below the header. Container-responsive, so it is a shell variable rather
+  // than a theme token.
   "--page-gutter",
-  // The bottom dock inset: `GlobalAudioPlayer` writes it onto the `AppShell` root (inline style,
+  // The bottom dock inset: `GlobalAudioPlayer` writes it onto the `Shell` root (inline style,
   // the measured pill height plus 8px) while it is open, and `ActionBar` and a selecting
   // `DataList` read it with a `0px` fallback to stack above the player.
   "--dock-inset-bottom",
-  // `AppShellAside` sets it on the shell while open; `UploadPanel` reads it to stay clear.
-  "--app-shell-aside-inset",
   // The upload panel inset: `UploadPanel` writes it onto the document root (inline style, the
   // room the panel takes above the toast stack's own 16px) while it is on screen, and the Toast
   // viewport's bottom positions read it with a `0px` fallback to rise above the panel.

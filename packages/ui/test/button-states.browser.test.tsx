@@ -308,7 +308,7 @@ test("FOC-13: a keyboard-focused button paints the background tint, no ring and 
 });
 
 test("FOC-13: a programmatic focus target (tabindex=-1) never paints the tint over its region", async () => {
-  // Clicking the empty part of AppShell's `<main tabIndex={-1}>` focuses it; the next key press
+  // Clicking the empty part of the shell's `<main tabIndex={-1}>` focuses it; the next key press
   // (Shift or ⌘ alone) flips it to :focus-visible in Chromium. The tint painted the whole page grey.
   const screen = await render(
     <div>

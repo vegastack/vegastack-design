@@ -40,7 +40,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 import { PageHeader } from "@/components/ui/page-header";
 import {
   Item,
@@ -477,7 +477,7 @@ function MultiStepFormFullPageDemo(): ReactNode {
   );
 
   return (
-    <AppShellPage size="default" className="px-0 py-0 md:px-0 md:py-0">
+    <ShellPage size="default" className="px-0 py-0 md:px-0 md:py-0">
       <PageHeader
         title="New product"
         backRender={<a href="/products" />}
@@ -581,7 +581,7 @@ function MultiStepFormFullPageDemo(): ReactNode {
           />
         </div>
       </MultiStepForm>
-    </AppShellPage>
+    </ShellPage>
   );
 }
 

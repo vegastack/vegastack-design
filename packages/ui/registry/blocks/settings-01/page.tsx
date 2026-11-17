@@ -1,4 +1,4 @@
-// @vegastack settings-01@0.90.0 sha256-tb1QQh56aiDTweHc14V88/PpJ73rQ01Ru+ZgD179epc=
+// @vegastack settings-01@0.90.0 sha256-7QguiOvSUa10VA8uXGuDhl1dK98MLAb0RNxFcySoiPQ=
 
 "use client";
 
@@ -15,7 +15,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 import {
   AutoSaveIndicator,
   AutoSaveInput,
@@ -42,7 +42,7 @@ const save = () => new Promise<void>((resolve) => setTimeout(resolve, 400));
 
 /**
  * `settings-01` — the settings starter page and the conforming reference for a settings screen:
- * an `AppShellPage size="prose"` with a `PageHeader` and three `SettingsSection` groups of
+ * a `ShellPage size="prose"` with a `PageHeader` and three `SettingsSection` groups of
  * `SettingsRow`s. **Every field autosaves** — text after a short debounce (`AutoSaveInput`,
  * `useAutoSave`), pickers and switches at once — each with its own quiet status; there is no save
  * bar. A consequential action (delete) confirms in an `AlertDialog` whose confirm button repeats
@@ -68,7 +68,7 @@ export default function Page() {
   const roleSave = useAutoSave({ value: { role }, onSave: save, delay: 0 });
 
   return (
-    <AppShellPage size="prose">
+    <ShellPage size="prose">
       <PageHeader
         title="Settings"
         description="Workspace preferences for everyone on the Acme team. Changes save as you go."
@@ -217,6 +217,6 @@ export default function Page() {
           </SettingsRow>
         </SettingsCard>
       </SettingsSection>
-    </AppShellPage>
+    </ShellPage>
   );
 }

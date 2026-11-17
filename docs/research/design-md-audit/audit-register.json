@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8192f9c9cf7f6a08dcff15f66ab4149d18bea267ba4fa32099b349f7a05b14f2",
+  "contractSha256": "14d4127c463bee721736ab4cf04d1c738ea681db506a4d824ccaa08f3b07cf1f",
   "expectedCounts": {
-    "totalRegistryItems": 822,
-    "components": 229,
+    "totalRegistryItems": 816,
+    "components": 225,
     "animatedIcons": 467,
-    "hooks": 18,
-    "blocks": 16,
+    "hooks": 17,
+    "blocks": 15,
     "libs": 24,
     "chartBlocks": 68
   },
@@ -55,17 +55,6 @@
         "packages/ui/registry/ui/alert-dialog.tsx"
       ],
       "docsSlug": "/docs/components/alert-dialog",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "app-shell",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "layout",
-      "sourceFiles": [
-        "packages/ui/registry/ui/app-shell.tsx"
-      ],
-      "docsSlug": "/docs/components/app-shell",
       "contractStatus": "reconciled"
     },
     {
@@ -1198,17 +1187,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "settings-layout",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "layout",
-      "sourceFiles": [
-        "packages/ui/registry/ui/settings-layout.tsx"
-      ],
-      "docsSlug": "/docs/components/settings-layout",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "sheet",
       "inventoryClass": "component",
       "wave": "Overlays",
@@ -2239,17 +2217,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "record-peek",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/record-peek.tsx"
-      ],
-      "docsSlug": "/docs/components/record-peek",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "record-header",
       "inventoryClass": "component",
       "wave": "Data display",
@@ -2379,17 +2346,6 @@
         "packages/ui/registry/ui/recent-strip.tsx"
       ],
       "docsSlug": "/docs/components/recent-strip",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "sidebar-menu-flyout",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "navigation",
-      "sourceFiles": [
-        "packages/ui/registry/ui/sidebar-menu-flyout.tsx"
-      ],
-      "docsSlug": "/docs/components/sidebar-menu-flyout",
       "contractStatus": "reconciled"
     },
     {
@@ -7860,17 +7816,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "use-record-peek-row",
-      "inventoryClass": "hook",
-      "wave": "Hooks",
-      "family": "hook",
-      "sourceFiles": [
-        "packages/ui/registry/ui/use-record-peek-row.ts"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "use-stick-to-bottom",
       "inventoryClass": "hook",
       "wave": "Hooks",
@@ -7879,18 +7824,6 @@
         "packages/ui/registry/ui/use-stick-to-bottom.ts"
       ],
       "docsSlug": "/docs/components/message-scroller",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "app-shell-01",
-      "inventoryClass": "block",
-      "wave": "Block",
-      "family": "starter-block",
-      "sourceFiles": [
-        "packages/ui/registry/blocks/app-shell-01/components/app-sidebar.tsx",
-        "packages/ui/registry/blocks/app-shell-01/page.tsx"
-      ],
-      "docsSlug": "/docs/blocks/app-shell-01",
       "contractStatus": "reconciled"
     },
     {

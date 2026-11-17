@@ -1,4 +1,4 @@
-// @vegastack auto-save-input@0.90.0 sha256-jqzG1rQZTKoh+pvVHZplpV2CxJQ82lgGDDzJ5w4GJys=
+// @vegastack auto-save-input@0.90.0 sha256-n7uzfKKSyEMinNAs1YYawFajkBDcQAWVdRlhDCInba4=
 
 "use client";
 
@@ -745,7 +745,7 @@ export interface AutoSaveIndicatorProps extends Omit<
   variant?: "text" | "icon";
   /**
    * `text` only: where the wording yields to the icon alone (still read out). `narrow` — below
-   * `sm` and in a narrow `AppShellHeader` (under 40rem), for a status in a top bar's actions.
+   * `sm` and in a narrow `ShellTopBar` (under 40rem), for a status in a top bar's actions.
    * @default undefined
    */
   compact?: "narrow";
@@ -897,7 +897,7 @@ export function AutoSaveIndicator({
         "inline-flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground",
         // In a top bar: one line, the words read out but not shown where the bar is narrow.
         compact === "narrow" &&
-          "shrink-0 whitespace-nowrap max-sm:[&>[data-slot=auto-save-indicator-text]]:sr-only @max-[40rem]/app-shell-header:[&>[data-slot=auto-save-indicator-text]]:sr-only",
+          "shrink-0 whitespace-nowrap max-sm:[&>[data-slot=auto-save-indicator-text]]:sr-only @max-[40rem]/shell-topbar:[&>[data-slot=auto-save-indicator-text]]:sr-only",
         status === "error" && "text-warning-text",
         status === "conflict" && "text-warning-text",
         status === "offline" && "text-warning-text",

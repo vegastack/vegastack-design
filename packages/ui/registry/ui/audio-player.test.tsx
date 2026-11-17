@@ -982,7 +982,7 @@ test("exclusive: starting one player pauses the other playing one; exclusive={fa
   expect(pauses.map((pause) => pause.mock.calls.length)).toEqual([1, 1, 0]);
 });
 
-test("GlobalAudioPlayer sets --dock-inset-bottom (its height + 8px) on the AppShell root while open", async () => {
+test("GlobalAudioPlayer sets --dock-inset-bottom (its height + 8px) on the Shell root while open", async () => {
   function Controls() {
     const player = useGlobalPlayer();
     return (
@@ -1005,7 +1005,7 @@ test("GlobalAudioPlayer sets --dock-inset-bottom (its height + 8px) on the AppSh
     );
   }
   const screen = await render(
-    <div data-slot="app-shell">
+    <div data-slot="shell">
       <AudioPlayerProvider>
         <Controls />
         <GlobalAudioPlayer />
@@ -1013,7 +1013,7 @@ test("GlobalAudioPlayer sets --dock-inset-bottom (its height + 8px) on the AppSh
     </div>,
   );
   const shell = screen.container.querySelector<HTMLElement>(
-    '[data-slot="app-shell"]',
+    '[data-slot="shell"]',
   )!;
   const inset = () => shell.style.getPropertyValue("--dock-inset-bottom");
   expect(inset()).toBe("");

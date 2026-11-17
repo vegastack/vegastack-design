@@ -207,8 +207,6 @@ describe("affected component closure", () => {
     ]);
     expect(result.seedItems).toEqual(["code-block", "provider"]);
     expect(result.affectedItems).toEqual([
-      // app-shell-01's user menu reads the theme through the provider (DS-80).
-      "app-shell-01",
       "attachment",
       "block-view",
       "chat-composer",

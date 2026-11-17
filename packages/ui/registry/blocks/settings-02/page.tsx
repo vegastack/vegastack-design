@@ -1,8 +1,8 @@
-// @vegastack settings-02@0.90.0 sha256-bDY0Vi7hkBimgfwegmdSxd5WdMNDL+/19mH84RJNl68=
+// @vegastack settings-02@0.90.0 sha256-aRFZYDRIgb1zZUiRva5siBUCZ6/eSsGm2q6P3D5U9FQ=
 
 import { ChevronRight } from "lucide-react";
 
-import { AppShellPage } from "@/components/ui/app-shell";
+import { ShellPage } from "@/components/ui/shell";
 import { Badge } from "@/components/ui/badge";
 import {
   Item,
@@ -159,7 +159,7 @@ function SettingsTileItem({ tile }: { tile: SettingsTile }) {
  */
 export default function Page() {
   return (
-    <AppShellPage>
+    <ShellPage>
       <PageHeader
         title="Settings"
         description="Your account, your workspace and how your catalogue is set up."
@@ -183,6 +183,6 @@ export default function Page() {
           </SettingsSection>
         ))}
       </div>
-    </AppShellPage>
+    </ShellPage>
   );
 }

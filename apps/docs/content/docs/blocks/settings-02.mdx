@@ -21,7 +21,7 @@ npx shadcn@latest add @vegastack/settings-02
 
 <RegistryInstallCallout />
 
-This installs the block's own files plus the components it composes: `app-shell`, `badge`, `item`, `page-header`, `settings-row`.
+This installs the block's own files plus the components it composes: `badge`, `item`, `page-header`, `settings-row`, `shell`.
 
 ## Preview
 
@@ -29,7 +29,7 @@ This installs the block's own files plus the components it composes: `app-shell`
 
 ## Anatomy
 
-- `AppShellPage` › `PageHeader title="Settings"` — the page's one `h1`.
+- `ShellPage` › `PageHeader title="Settings"` — the page's one `h1`.
 - One `SettingsSection titleAs="h2"` per area, with a one-line description.
 - In each section, an `ItemGroup` laid out as a container-query grid —
   `grid gap-3 @sm:grid-cols-2 @4xl:grid-cols-3` — so it is one column in a narrow content region and

@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "8192f9c9cf7f6a08dcff15f66ab4149d18bea267ba4fa32099b349f7a05b14f2",
+  "contractSha256": "14d4127c463bee721736ab4cf04d1c738ea681db506a4d824ccaa08f3b07cf1f",
   "inventory": {
-    "expected": 822,
-    "actual": 822,
-    "unique": 822
+    "expected": 816,
+    "actual": 816,
+    "unique": 816
   },
   "classes": {
-    "components": 229,
+    "components": 225,
     "animatedIcons": 467,
-    "hooks": 18,
-    "blocks": 16,
+    "hooks": 17,
+    "blocks": 15,
     "chartBlocks": 68,
     "libs": 24
   },
@@ -92,11 +92,10 @@
       ]
     },
     "Navigation/layout": {
-      "expected": 29,
-      "actual": 29,
+      "expected": 26,
+      "actual": 26,
       "members": [
         "accordion",
-        "app-shell",
         "aspect-ratio",
         "board",
         "breadcrumb",
@@ -116,19 +115,17 @@
         "resizable",
         "route-tabs",
         "scroll-area",
-        "settings-layout",
         "shell",
         "shell-panel",
         "sidebar",
-        "sidebar-menu-flyout",
         "stepper",
         "table-of-contents",
         "tabs"
       ]
     },
     "Overlays": {
-      "expected": 23,
-      "actual": 23,
+      "expected": 22,
+      "actual": 22,
       "members": [
         "action-bar",
         "alert-dialog",
@@ -146,7 +143,6 @@
         "permission-menu",
         "popover",
         "provider",
-        "record-peek",
         "responsive-dialog",
         "share-dialog",
         "sheet",
@@ -294,8 +290,8 @@
       ]
     },
     "Hooks": {
-      "expected": 18,
-      "actual": 18,
+      "expected": 17,
+      "actual": 17,
       "members": [
         "use-animation-replay",
         "use-announcer",
@@ -311,17 +307,15 @@
         "use-overflow",
         "use-overflow-fold",
         "use-platform",
-        "use-record-peek-row",
         "use-stick-to-bottom",
         "use-tabs-swipe",
         "use-view-transition"
       ]
     },
     "Block": {
-      "expected": 16,
-      "actual": 84,
+      "expected": 15,
+      "actual": 83,
       "members": [
-        "app-shell-01",
         "board-01",
         "chart-area-axes",
         "chart-area-default",
@@ -881,7 +875,7 @@
       ]
     }
   },
-  "componentRoutes": 223,
-  "blockRoutes": 23,
+  "componentRoutes": 219,
+  "blockRoutes": 22,
   "modeledExemptions": 3
 }
