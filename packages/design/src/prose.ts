@@ -167,8 +167,8 @@ export const proseClassName: string = Object.values(prose).join(" ");
  * `cn` (tailwind-merge resolves each `[&_h1]:text-lg` against its `[&_h1]:text-2xl/8`), or use
  * `proseDocumentClassName`, which is that composition done once.
  *
- * The column's width is the layout's, not the recipe's: `DocumentLayout` sizes its fluid text
- * column by tier, in the same font size this recipe sets.
+ * The column's width is the layout's, not the recipe's: `DocumentLayout` gives the text a fixed
+ * 720px column, in the same font size this recipe sets.
  *
  * @example
  * <div className={cn(proseClassName, proseDocument.root, proseDocument.h1)} />

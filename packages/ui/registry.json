@@ -268,7 +268,7 @@
       "name": "document-layout",
       "type": "registry:ui",
       "title": "Document Layout",
-      "description": "A page read as a document — the title area and its meta lines, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
+      "description": "A page read as a document — the title area and its meta lines, a 720px text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
       "categories": ["layout"],
       "dependencies": [
         "@base-ui/react@^1.6.0",

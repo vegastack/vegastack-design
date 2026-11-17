@@ -35,7 +35,7 @@ import { TextEdit, preloadTextEdit } from "../registry/ui/text-edit";
 import geistVariable from "../../../apps/docs/node_modules/geist/dist/fonts/geist-sans/Geist-Variable.woff2?url";
 
 /**
- * The document type scale (TYP-20), `DocumentLayout`'s fluid column and tiers, and Button's
+ * The document type scale (TYP-20), `DocumentLayout`'s 720px column and tiers, and Button's
  * coarse hit area (A11Y-24), measured in compiled CSS: the 14/24 and 16/26 metrics, the text
  * column each width gets, the tier it lands in, no shift from the read view into the editor,
  * and a 44px target on a coarse pointer (emulated through CDP touch emulation, which makes
@@ -224,24 +224,24 @@ async function measure(
   return result;
 }
 
-test("the text is fluid — about three quarters of the layout — within each tier's bounds", async () => {
+test("the text is a fixed 720px at every tier, or what the layout has", async () => {
   await page.viewport(2400, 900);
   const text = async (width: number) =>
     (await measure(width, { margin: false })).body.width;
-  // M: max(36rem, 75%); L: clamp(40rem, 75%, 52rem); XL 60rem; 2XL 64rem.
-  expect(await text(700)).toBe(576);
-  expect(await text(900)).toBe(675);
-  expect(await text(1100)).toBe(825);
-  expect(await text(1300)).toBe(832);
-  expect(await text(1600)).toBe(960);
-  expect(await text(2200)).toBe(1024);
+  // M at 700: 700 − 2 × 48 leaves 604; from 816 on, the column is 45rem (operator 17-11-2026).
+  expect(await text(700)).toBe(604);
+  expect(await text(900)).toBe(720);
+  expect(await text(1100)).toBe(720);
+  expect(await text(1300)).toBe(720);
+  expect(await text(1600)).toBe(720);
+  expect(await text(2200)).toBe(720);
 });
 
-test("characters a line at each tier's text width, in Geist at 14px", async () => {
+test("characters a line are the same at every tier, in Geist at 14px", async () => {
   await page.viewport(2400, 900);
   const perTier: Record<string, number> = {};
   for (const [tier, width] of [
-    ["m", 800],
+    ["m", 900],
     ["l", 1300],
     ["xl", 1600],
     ["2xl", 2200],
@@ -255,10 +255,11 @@ test("characters a line at each tier's text width, in Geist at 14px", async () =
     );
     await screen.unmount();
   }
-  // About 88 a line at M's 36rem, rising to about 160 at 2XL's 64rem (0.663em a character).
-  expect(perTier.m).toBeGreaterThanOrEqual(80);
-  expect(perTier["2xl"]).toBeLessThanOrEqual(170);
-  expect(perTier.m! < perTier.l! && perTier.l! < perTier.xl!).toBe(true);
+  // One 720px measure: about 110 a line at the document scale, at every tier.
+  const values = Object.values(perTier);
+  expect(Math.max(...values) - Math.min(...values)).toBeLessThanOrEqual(3);
+  expect(perTier.l).toBeGreaterThanOrEqual(90);
+  expect(perTier.l).toBeLessThanOrEqual(130);
   console.info("characters a line", JSON.stringify(perTier));
 });
 
@@ -280,38 +281,38 @@ test("the contents rail sits in the gutter before the text and never moves it", 
   }
 });
 
-test("a comment margin keeps the text's width and centre while the width holds it on both sides", async () => {
+test("opening the comment margin re-centres the text in the room it leaves", async () => {
   await page.viewport(2400, 900);
-  // 2XL at 2200: room for the margin on both sides, so the text does not move at all.
-  const plain = await measure(2200, { margin: false });
-  const roomy = await measure(2200);
-  expect(roomy.body.width).toBe(plain.body.width);
-  expect(roomy.body.left).toBe(plain.body.left);
-  expect(roomy.margin.left).toBe(roomy.body.right);
-  expect(roomy.margin.width).toBe(384);
-  // XL at 1600: 960 + 384 + 64 leaves 192 before the text — less than the end side's 448, so the
-  // start track takes all of it and the text moves to the start by what is missing, no more.
-  const plainXl = await measure(1600, { margin: false });
-  const xl = await measure(1600);
-  expect(xl.body.width).toBe(plainXl.body.width);
-  expect(xl.body.left - xl.layout.left).toBe(192);
-  expect(xl.layout.right - xl.margin.right).toBe(64);
-  expect(plainXl.body.left - xl.body.left).toBe(128);
+  for (const width of [1600, 2200]) {
+    const plain = await measure(width, { margin: false });
+    const open = await measure(width);
+    const w = plain.layout.width;
+    // Without comments the text is centred in the layout.
+    expect(plain.body.left - plain.layout.left, `${width}`).toBe((w - 720) / 2);
+    // With them it keeps its width and sits centred in what the margin leaves, the margin beside it.
+    expect(open.body.width, `${width}`).toBe(720);
+    expect(open.margin.left, `${width}`).toBe(open.body.right);
+    expect(open.margin.width, `${width}`).toBe(384);
+    expect(open.body.left - open.layout.left, `${width}`).toBe(
+      (w - 384 - 720) / 2,
+    );
+    expect(plain.body.left - open.body.left, `${width}`).toBe(384 / 2);
+  }
 });
 
 test("the text gives way only when the width can't hold text, margin and gutters", async () => {
   await page.viewport(2400, 900);
   // L from 64rem: at 1040 the margin shows and the text takes what is left, 1040 − 2 × 48 − 320.
   expect((await measure(1040)).body.width).toBe(624);
-  expect((await measure(1040, { margin: false })).body.width).toBe(780);
-  // L at 1120: 75% is 840 (52rem caps it at 832), but 1120 − 2 × 48 − 320 leaves 704.
+  expect((await measure(1040, { margin: false })).body.width).toBe(720);
+  // L at 1120: 1120 − 2 × 48 − 320 leaves 704, less than the 720px column.
   const tight = await measure(1120);
   expect(tight.body.width).toBe(704);
   expect(tight.margin.width).toBe(320);
   expect(tight.body.left - tight.layout.left).toBe(48);
   expect(tight.layout.right - tight.margin.right).toBe(48);
-  // Without the margin the same width keeps the tier's text.
-  expect((await measure(1120, { margin: false })).body.width).toBe(832);
+  // Without the margin the same width keeps the 720px column.
+  expect((await measure(1120, { margin: false })).body.width).toBe(720);
 });
 
 test("Wide is the whole width less the gutters and the margin, up to 1200px", async () => {
@@ -330,7 +331,9 @@ test("Wide is the whole width less the gutters and the margin, up to 1200px", as
   );
   expect(
     (await measure(800, { measure: "wide", margin: false })).body.width,
-  ).toBe(800 - 2 * 48);
+  ).toBe(800 - 2 * 48); // Wide follows the same placement: centred in the room the comment margin leaves.
+  const wide = await measure(2200, { measure: "wide" });
+  expect(wide.body.left - wide.layout.left).toBe((2200 - 384 - 1200) / 2);
 });
 
 test("the open contents panel takes the pointer over the text, and its frame bridges the gap from the rail", async () => {

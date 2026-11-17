@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.107.0 sha256-ZQ7NEzjIRvQDAvCtrYbPsNY5jQlztvcunYiUHQ90ihw=
+// @vegastack document-layout@0.107.0 sha256-DaUS4sUSw5WrmSAvayuUy14gRAws7Bd9NNheecgqr/w=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -87,23 +87,23 @@ export {
  *
  *   tier  width        gutters  text column                    rail  margin
  *   s     < 40rem      0        the full width                 —     — (the host's sheet)
- *   m     40–64rem     3rem     max(36rem, 75%)                ✓     — (a popover)
- *   l     64–90rem     3rem     clamp(40rem, 75%, 52rem)       ✓     20rem
- *   xl    90–120rem    4rem     60rem                          ✓     24rem
- *   2xl   ≥ 120rem     4rem     64rem                          ✓     24rem
+ *   m     40–64rem     3rem     45rem (720px), or less         ✓     — (a popover)
+ *   l     64–90rem     3rem     45rem (720px)                  ✓     20rem
+ *   xl    90–120rem    4rem     45rem (720px)                  ✓     24rem
+ *   2xl   ≥ 120rem     4rem     45rem (720px)                  ✓     24rem
  *
  * The tier bounds are the system's layout tiers (`tablet` 40rem, `laptop` 64rem, `wide` 90rem —
  * `LAYOUT_TIERS` in `page-layout`), plus a document-only 120rem step.
  *
- * The text column is fluid — about three quarters of the layout — between each tier's bounds;
- * Wide (`measure="wide"`) is the whole width less the gutters (and the margin), up to 75rem
- * (1200px) — past that a line is too long to read. The rail, text
- * and margin are one block, centred, and the text stays in the middle when the comment margin
- * shows: the start track mirrors the end side (`--document-layout-start`, between the gutter
- * and the margin plus the gutter), so with room for both the text sits exactly where it sat without
- * comments. With less room the start track gives way first — down to the gutter, where the margin
- * shifts the block to the start — and the text gives way only when the width cannot hold text,
- * margin and gutters at once (the text track is `minmax(0, …)`).
+ * The text column is a fixed 720px (45rem) reading width at every tier, the same as a prose page
+ * or a form (operator 17-11-2026); a narrower layout gives it what there is. Inside a record page
+ * whose side panel docks, the layout narrows and the text re-centres in the room left (it slides to
+ * the start). Wide (`measure="wide"`) is the whole width less the gutters (and the margin), up to 75rem
+ * (1200px) — past that a line is too long to read; it follows the same placement. The rail's gutter, the text, the margin and the
+ * end gutter are one block, centred, so the text sits in the middle of the room the comment margin
+ * leaves: opening comments slides it to the start by half the margin's width. The text gives way
+ * only when the width cannot hold text, margin and gutters at once (the text track is
+ * `minmax(0, …)`).
  *
  * The contents rail sits in the start gutter, beside the text, from the M tier — whether or not a
  * document has headings, so a contents list that arrives (or goes) never moves the text. It
@@ -129,15 +129,13 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
   /**
    * Show the comment margin (from the L tier): set it only while the margin holds something —
    * open threads beside the text or a comment being written — and decide it with the text (on
-   * the server, from the thread count), so the first paint is right. The text stays centred
-   * either way while the width holds the margin on both sides; below that the margin shifts the
-   * block towards the start.
+   * the server, from the thread count), so the first paint is right. The text stays centred in
+   * the room the margin leaves, so opening it slides the text to the start by half its width.
    * @default false
    */
   margin?: boolean;
   /**
-   * The text column: `document` (fluid, about three quarters of the layout within each tier's
-   * bounds) or `wide` (the whole width less the gutters and the margin, up to 75rem — 1200px;
+   * The text column: `document` (a fixed 720px reading width, or what the layout has) or `wide` (the whole width less the gutters and the margin, up to 75rem — 1200px;
    * each reader's own choice, never the document's).
    * @default "document"
    */
@@ -150,8 +148,7 @@ export interface DocumentLayoutProps extends React.ComponentPropsWithRef<"div"> 
   focusable?: boolean;
 }
 
-// The grid: four tracks — the start track (the rail's: the gutter, widened to mirror the margin
-// while there is room), the text, the margin (its 2rem gap inside it, so a zero track costs no
+// The grid: four tracks — the start track (the rail's: the gutter), the text, the margin (its 2rem gap inside it, so a zero track costs no
 // gap) and the end gutter — centred as one block. Every width is a custom property the tiers set,
 // so the hook, the skeleton and the page share one geometry.
 const GRID = cn(
@@ -159,13 +156,16 @@ const GRID = cn(
   "text-sm pointer-coarse:text-base max-sm:text-base",
   "[--document-layout-tier:s] @min-[40rem]/document-layout:[--document-layout-tier:m] @min-[64rem]/document-layout:[--document-layout-tier:l] @min-[90rem]/document-layout:[--document-layout-tier:xl] @min-[120rem]/document-layout:[--document-layout-tier:2xl]",
   "[--document-layout-gutter:0rem] @min-[40rem]/document-layout:[--document-layout-gutter:3rem] @min-[90rem]/document-layout:[--document-layout-gutter:4rem]",
-  // The text: fluid within each tier's bounds (`cqw` is the layout's own width). Wide asks for the
-  // whole width, which the `minmax(0, …)` track caps at what the gutters and margin leave.
-  "[--document-layout-text:100cqw] @min-[40rem]/document-layout:[--document-layout-text:max(36rem,75cqw)] @min-[64rem]/document-layout:[--document-layout-text:clamp(40rem,75cqw,52rem)] @min-[90rem]/document-layout:[--document-layout-text:60rem] @min-[120rem]/document-layout:[--document-layout-text:64rem] data-[measure=wide]:[--document-layout-text:min(100cqw,75rem)]",
+  // The text: one fixed reading width, 720px (45rem), at every tier (operator 17-11-2026, layout v2
+  // "Fix at 720 px"); narrower layouts give it the whole width (`cqw` is the layout's own width).
+  // Wide asks for the whole width, which the `minmax(0, …)` track caps at what the gutters and
+  // margin leave.
+  "[--document-layout-text:min(100cqw,45rem)] data-[measure=wide]:[--document-layout-text:min(100cqw,75rem)]",
   "[--document-layout-margin:0rem] data-margin:@min-[64rem]/document-layout:[--document-layout-margin:20rem] data-margin:@min-[90rem]/document-layout:[--document-layout-margin:24rem]",
-  // The start track mirrors the end side (margin + gutter) while the width holds both, so the text
-  // stays centred with comments; with less room it narrows towards the gutter (asymmetric).
-  "[--document-layout-start:clamp(var(--document-layout-gutter),calc(100cqw-var(--document-layout-text)-var(--document-layout-margin)-var(--document-layout-gutter)),calc(var(--document-layout-gutter)+var(--document-layout-margin)))]",
+  // The start track is the gutter (the contents rail's room, a fixed gap before the text). The
+  // tracks are centred as one group, so the text sits centred in the room the comment margin
+  // leaves: opening comments slides it to the start by half the margin (operator 17-11-2026).
+  "[--document-layout-start:var(--document-layout-gutter)]",
   // Print: one column, the text at the page's width, the side columns gone (`DocumentLayout`'s own
   // named page sets the paper margins in `base.css`).
   "print:block print:px-0 print:text-sm/6",
@@ -173,7 +173,7 @@ const GRID = cn(
 
 /**
  * `DocumentLayout` — the frame of a page read as a document: `DocumentLayoutHeader` (icon, title,
- * meta), `DocumentLayoutBody` (the text), `DocumentLayoutFoot` (what follows it) in one fluid
+ * meta), `DocumentLayoutBody` (the text), `DocumentLayoutFoot` (what follows it) in one 720px
  * column, `DocumentLayoutContents` (the contents rail) in the gutter before it and
  * `DocumentLayoutMargin` (the comment margin) after it. Put the parts in reading order: header,
  * contents, body, foot, margin. Prints as one column of header, body and foot.
@@ -359,7 +359,7 @@ export function DocumentLayoutTitle({
 }
 
 /**
- * `DocumentLayoutBody` — the fluid text column: a `MarkdownView` or `TextEdit`
+ * `DocumentLayoutBody` — the 720px text column: a `MarkdownView` or `TextEdit`
  * at `typeScale="document"`.
  *
  * @example

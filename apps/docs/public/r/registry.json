@@ -300,7 +300,7 @@
       "name": "document-layout",
       "type": "registry:ui",
       "title": "Document Layout",
-      "description": "A page read as a document — the title area and its meta lines, a fluid text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
+      "description": "A page read as a document — the title area and its meta lines, a 720px text column, what follows it, a contents rail before it and a comment margin after it — on one grid with five tiers by its own width, plus its skeleton and a tier hook.",
       "categories": [
         "layout"
       ],
@@ -349,7 +349,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
         "version": "0.107.0",
-        "integrity": "sha256-ZQ7NEzjIRvQDAvCtrYbPsNY5jQlztvcunYiUHQ90ihw="
+        "integrity": "sha256-DaUS4sUSw5WrmSAvayuUy14gRAws7Bd9NNheecgqr/w="
       }
     },
     {
