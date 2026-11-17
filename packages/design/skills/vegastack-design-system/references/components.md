@@ -166,7 +166,7 @@ starts with `icon-` is a component and never an icon.
 - **`link-provider`** — One rule for every link, set once at the app root: an in-app link opens in place through the host router, a modified click stays the browser's, another origin opens a new tab.
 - **`menubar`** — A persistent horizontal bar of menus — application-style File / Edit / View navigation.
 - **`multi-step-form`** — A guarded, branching flow around a Stepper — conditional steps, sync and async advance guards, locking, reachability-derived deep links and resume, and a phone layout chosen from the same predicate. Owns no fields and no validator.
-- **`nav-tree`** — A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step and threaded to their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.
+- **`nav-tree`** — A column's navigation: titled sections of items left-aligned with their title, children indented one 12px step under their parent, counts, an inset rounded active state, a fold control at a parent's end, arrow-key navigation and a 44px touch size.
 - **`navigation-menu`** — A collection of links for navigating websites — triggers that open one shared panel, and plain links styled to match.
 - **`page-header`** — The standardized header at the top of a page — back button, breadcrumb trail, title, description, actions and secondary menu — plus SectionHeading for in-page section titles (sm and md sizes, a muted eyebrow variant, trailing actions).
 - **`pagination`** — Page navigation — previous/next, numbered page links, an ellipsis for long ranges, and the active page.
