@@ -1,6 +1,6 @@
 ---
 title: Nav Tree
-description: A column's navigation — titled sections, children one 12px step in and threaded to their parent, counts, an active state, arrow keys and a touch size.
+description: A column's navigation — titled sections, children one 12px step in under their parent, counts, an active state, arrow keys and a touch size.
 audience: public
 registry: nav-tree
 status: stable
@@ -43,8 +43,8 @@ import { NavTree, NavTreeItem, NavTreeSection } from "@/components/ui/nav-tree";
 Every module's column lists its places with this one component: Home, Spaces, Library, Settings
 and the rest. Items sit level with their section's title. A child is indented one step of the
 spacing scale (12px), not by a chevron's width: a parent's fold control sits at the END of its
-row, so a parent and its siblings keep their labels on one line. Children hang from a thin thread
-line with a rounded elbow each, the way the Inbox threads a notification's events.
+row, so a parent and its siblings keep their labels on one line. The small indent alone shows
+what belongs to what: there are no thread lines.
 
 <ComponentPreview name="navTree" file="components/preview/nav-tree.tsx" />
 
@@ -115,6 +115,6 @@ is a phone sheet, rows grow to 44px by themselves.
 ## Do / Don't
 
 <DoDont
-  do="Keep children one step in and let the thread show what belongs to what."
+  do="Keep children one small step in, with no lines, so the column stays quiet."
   dont="Indent by a reserved chevron gutter or put a chevron before the label: siblings then lose their shared edge."
 />
