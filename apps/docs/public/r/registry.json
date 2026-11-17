@@ -127,7 +127,7 @@
       "name": "shell-layout",
       "type": "registry:lib",
       "title": "Shell Layout",
-      "description": "The shell's layout rule as one pure function — resolveShellLayout decides, for a width, whether the column takes room and whether the panel docks beside the page, folds the column, slides over the page or goes full screen — plus the shell's sizes, page minimums, cookies and width clamps.",
+      "description": "The shell's layout rule as one pure function — resolveShellLayout decides, for a width, whether the rail shows and whether the column takes room or slides over — plus the shell's sizes, the column cookie and its width clamp.",
       "categories": [
         "layout"
       ],
@@ -143,10 +143,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Code that must know where the shell puts the column and panel without a DOM — a server deciding how a record opens, a test, a docs table — or the shell's sizes and cookie format.",
+        "whenToUse": "Code that must know where the shell puts the column without a DOM — a server render, a test, a docs table — or the shell's sizes and cookie format.",
         "whenNotToUse": "Laying the shell out: Shell does that in CSS before hydration; read the live outcome with useShellLayout.",
         "version": "0.93.0",
-        "integrity": "sha256-r2Ul1SdbMOeNWuVTRCbFlwoz0MpoJRDt9cuLcSkIBVg="
+        "integrity": "sha256-oP6GUILBM9bvzYmrUtMtmx6TT6JeQ7fC4bosK4rQYRU="
       }
     },
     {
@@ -20915,10 +20915,10 @@
         }
       ],
       "meta": {
-        "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout and feed its rail, column and panel from your routes.",
+        "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.106.0",
-        "integrity": "sha256-OYbiIZ61vawcfbq8FsNdPeKB4/3n33VDkD/T/A72nEs="
+        "integrity": "sha256-hDCd5ESCvH2S1mHrb1lYB5us46jcgSkPK3mY6y6s8Qc="
       }
     },
     {

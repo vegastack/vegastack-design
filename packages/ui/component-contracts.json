@@ -60363,7 +60363,7 @@
       "name": "shell-layout",
       "registryType": "registry:lib",
       "title": "Shell Layout",
-      "summary": "The shell's layout rule as one pure function — resolveShellLayout — plus the shell's sizes, page minimums, cookies and width clamps.",
+      "summary": "The shell's layout rule as one pure function — resolveShellLayout — plus the shell's sizes, the column cookie and its width clamp.",
       "family": "lib",
       "wave": "Libs",
       "sourceFiles": ["packages/ui/registry/lib/shell-layout.ts"],

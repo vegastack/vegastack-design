@@ -1365,7 +1365,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
   edge-pinned surfaces, `dvh` over `vh`; truncation is `min-w-0` on the flex child with `truncate`
   on an inner span, never both on one element; `Shell` owns the landmarks, the skip link and the
-  content container, and `ShellStateScript` sets the column and panel state before the first paint
+  content container, and `ShellStateScript` sets the column state before the first paint
   (LAY-22). A line tab list scrolls inside
   itself, with edge fades and the active trigger kept in view — `TabsList overflow="scroll"`, the
   default for `variant="line"` (LAY-14). `AlertAction` takes its own top-aligned grid column and
@@ -1374,9 +1374,10 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   row in a grid or narrow column truncates its label (LAY-18) — a deliberate deviation MK approved
   (31-10-2026) so an app needs no class on these shadcn-copied parts; a shadcn refresh keeps it
   (LAY-19 and LAY-21, the sidebar's icon-rail row and scroll cues, went with `sidebar`). The app shell's regions — a 44px global bar across the top, a 64px labelled rail, a 240px module
-  column that opens on a 48px title row level with the page's 48px top bar, the page, a 420px right panel
-  and a 56px phone bar — take their sizes from the `--shell-*` tokens, and one rule places the panel: beside the page while the page keeps its minimum width, else the
-  column folds first, else the panel slides over the page, full screen on phones (LAY-22). The
+  column that opens on a 48px title row level with the page's 48px top bar, the page, and a 56px phone
+  bar — take their sizes from the `--shell-*` tokens (LAY-22). The frame has no right panel (layout v2,
+  D11): a record opens in `Peek` over the page area, or on its page, where `RecordLayout`'s side panel
+  docks beside the main column from 1200px of record width and floats over it below. The
   phone bar steps aside as the browser's own bars compact and while the keyboard is open (LAY-23), the
   desktop app's title row is the global bar, which drags the window and clears the traffic lights or
   caption buttons (LAY-24), and on a tablet the column slides over the page (LAY-25).
