@@ -1,4 +1,4 @@
-// @vegastack inbox@0.101.0 sha256-oQlz0XDKPc3scH82U8TMFxXbHdlVxRHj4KWWFAvWuTI=
+// @vegastack inbox@0.101.0 sha256-ivuTkXhAoDMSzjCwLmeQBAi5/xaplJyQNkWV71JDCEA=
 
 "use client";
 
@@ -874,14 +874,21 @@ export interface InboxItemProps extends Omit<
    */
   actions?: InboxItemAction[];
   /**
-   * Called by the hover Mark read / Mark unread toggle; omit to hide it. On a touch screen it shows
-   * only when the row has no `menu` (put Mark read / Mark unread in the menu too).
+   * Called by the hover Mark read / Mark unread toggle; omit to hide it.
    * @default undefined
    */
   onToggleRead?: () => void;
   /**
+   * The `menu` carries Mark read / Mark unread too. On a touch screen the row then shows no buttons
+   * (only the unread dot and the time), so the title keeps its width; a long press opens the menu.
+   * Without it a touch row keeps the toggle in view.
+   * @default false
+   */
+  readInMenu?: boolean;
+  /**
    * `DropdownMenuItem`s for the row's ⋯ menu (Archive, Mark unread, Unwatch, Mute this type);
-   * omit to hide it. On a touch screen a long press on the row opens it, and the row shows no buttons.
+   * omit to hide it. On a touch screen a long press on the row opens it; with `readInMenu` (or no
+   * `onToggleRead`) the row shows no buttons there.
    * @default undefined
    */
   menu?: React.ReactNode;
@@ -1004,33 +1011,47 @@ function useLongPressMenu(enabled: boolean): {
   } | null>(null);
   const fired = React.useRef(false);
   const touch = React.useRef(false);
+  // Takes down the window listeners of the last long press (the gesture's end, or unmount).
+  const unswallow = React.useRef<(() => void) | null>(null);
   const cancel = () => {
     if (press.current) clearTimeout(press.current.timer);
     press.current = null;
   };
-  React.useEffect(() => cancel, []);
+  React.useEffect(
+    () => () => {
+      cancel();
+      unswallow.current?.();
+    },
+    [],
+  );
   const fire = () => {
     cancel();
     fired.current = true;
     // The mouse events a touch's release may still send (the compatibility mousedown and click)
     // would land outside the menu it just opened and close it: the window's capture phase swallows
-    // them before the menu hears them. They come, if at all, before the next touch; from that touch
-    // on, the events are the person's again.
+    // them before the menu hears them. Only a pointer's events (`detail` > 0): a keyboard's or an
+    // assistive technology's click on a menu item is never one. The gesture ends at its click or at
+    // the next touch, whichever comes first.
     const swallow = (event: MouseEvent) => {
+      if (event.detail === 0) return;
       event.preventDefault();
       event.stopPropagation();
-      if (event.type === "click") fired.current = false;
+      if (event.type === "click") {
+        fired.current = false;
+        done();
+      }
     };
+    const done = () => {
+      for (const type of SWALLOWED)
+        window.removeEventListener(type, swallow, { capture: true });
+      window.removeEventListener("pointerdown", done, { capture: true });
+      unswallow.current = null;
+    };
+    unswallow.current?.();
     for (const type of SWALLOWED)
       window.addEventListener(type, swallow, { capture: true });
-    window.addEventListener(
-      "pointerdown",
-      () => {
-        for (const type of SWALLOWED)
-          window.removeEventListener(type, swallow, { capture: true });
-      },
-      { capture: true, once: true },
-    );
+    window.addEventListener("pointerdown", done, { capture: true });
+    unswallow.current = done;
     setOpen(true);
   };
   const ownControl = (event: React.SyntheticEvent) => {
@@ -1072,7 +1093,7 @@ function useLongPressMenu(enabled: boolean): {
         if (!fired.current) fire();
       },
       onClickCapture: (event: React.MouseEvent<HTMLElement>) => {
-        if (!fired.current) return;
+        if (!fired.current || event.detail === 0) return;
         fired.current = false;
         event.preventDefault();
         event.stopPropagation();
@@ -1091,8 +1112,9 @@ function useLongPressMenu(enabled: boolean): {
  * Unread rows get a dot just before the time; the {@link Inbox}'s active row a start bar. A right
  * column holds the time; with a pointer, Mark read / Mark unread and the ⋯ menu take its place on
  * hover or keyboard focus (64px at least, so they fit). On a touch screen the row keeps its width for
- * the title: only the dot and the time show, and a long press opens the ⋯ menu (which carries Mark
- * read / Mark unread), as a touch list's row does; without a `menu` the toggle stays in view.
+ * the title when its `menu` carries Mark read / Mark unread (`readInMenu`): only the dot and the time
+ * show, and a long press opens the ⋯ menu, as a touch list's row does. Otherwise the toggle stays in
+ * view (and a long press still opens the menu).
  *
  * @example
  * <InboxItem value="task-39" unread icon={<SquareCheck />} title="#39 Agent link RCA test"
@@ -1120,6 +1142,7 @@ export function InboxItem({
   answeredLabel,
   actions,
   onToggleRead,
+  readInMenu = false,
   menu,
   menuLabel = "More actions",
   className,
@@ -1133,8 +1156,10 @@ export function InboxItem({
   const [expanded, setExpanded] = React.useState(defaultExpanded);
   const eventsId = React.useId();
   const hasControls = Boolean(onToggleRead || menu);
-  // On a touch screen a row with a ⋯ menu shows no buttons: a long press opens the menu.
+  // On a touch screen a long press opens the ⋯ menu; a row whose menu holds everything its buttons
+  // do shows none of them there, so the title keeps its width.
   const longPress = useLongPressMenu(Boolean(menu));
+  const touchMenuOnly = Boolean(menu) && (readInMenu || !onToggleRead);
   const count = countProp ?? events?.length ?? 0;
   const showCount = count > 1;
   const expandable = showCount && !!events?.length;
@@ -1400,8 +1425,8 @@ export function InboxItem({
       <div
         className={cn(
           "relative flex min-w-16 shrink-0 flex-col items-end gap-1",
-          // Touch, with a menu: the time's own width, so the title gets the rest.
-          menu && "pointer-coarse:min-w-0",
+          // Touch, with only the menu: the time's own width, so the title gets the rest.
+          touchMenuOnly && "pointer-coarse:min-w-0",
         )}
       >
         {time !== undefined || unread || hasControls ? (
@@ -1416,7 +1441,7 @@ export function InboxItem({
                 "pointer-fine:group-focus-within/inbox-item:invisible pointer-fine:group-hover/inbox-item:invisible pointer-fine:group-has-data-popup-open/inbox-item:invisible",
               // Touch: the ⋯ shows in the time's place only while its menu is open or a keyboard
               // focuses it.
-              menu &&
+              touchMenuOnly &&
                 "pointer-coarse:group-has-focus-visible/inbox-item:invisible pointer-coarse:group-has-data-popup-open/inbox-item:invisible",
             )}
           >
@@ -1442,7 +1467,7 @@ export function InboxItem({
               "relative z-10 -me-1 flex items-center gap-0.5 pointer-fine:absolute pointer-fine:end-0 pointer-fine:-top-1 pointer-fine:opacity-0 pointer-fine:group-focus-within/inbox-item:opacity-100 pointer-fine:group-hover/inbox-item:opacity-100 pointer-fine:group-has-data-popup-open/inbox-item:opacity-100",
               // Touch, with a menu: out of sight and out of the finger's way (the row's long press
               // opens the menu); in the time's place while it is open, or for a keyboard's focus.
-              menu &&
+              touchMenuOnly &&
                 "pointer-coarse:pointer-events-none pointer-coarse:absolute pointer-coarse:end-0 pointer-coarse:-top-1 pointer-coarse:opacity-0 pointer-coarse:group-has-focus-visible/inbox-item:pointer-events-auto pointer-coarse:group-has-focus-visible/inbox-item:opacity-100 pointer-coarse:group-has-data-popup-open/inbox-item:opacity-100",
             )}
           >
@@ -1455,8 +1480,8 @@ export function InboxItem({
                       size="icon-sm"
                       aria-label={unread ? "Mark read" : "Mark unread"}
                       onClick={onToggleRead}
-                      // Touch, with a menu: the menu carries it, so the row keeps its width.
-                      className={cn(menu && "pointer-coarse:hidden")}
+                      // Touch, with `readInMenu`: the menu carries it, so the row keeps its width.
+                      className={cn(touchMenuOnly && "pointer-coarse:hidden")}
                     >
                       {unread ? <MailOpen /> : <Mail />}
                     </Button>

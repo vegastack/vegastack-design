@@ -3734,7 +3734,7 @@ async function touchRow(name: string, ms: number) {
   await new Promise((r) => setTimeout(r, ms));
   link.dispatchEvent(new PointerEvent("pointerup", init));
   link.dispatchEvent(
-    new MouseEvent("click", { bubbles: true, cancelable: true }),
+    new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 }),
   );
   await new Promise((r) => setTimeout(r, 0));
 }
@@ -3752,5 +3752,23 @@ test("on touch, a long press selects a row without opening it, and a tap toggles
   expect(onRowOpen).not.toHaveBeenCalled();
   // Nothing selected: a tap is the row's own again.
   await touchRow("Clients", 50);
+  expect(onRowOpen).toHaveBeenCalledOnce();
+});
+
+test("after a touch selection, a keyboard's Enter on a row opens it instead of toggling it", async () => {
+  const onRowOpen = vi.fn();
+  await render(<Files onRowOpen={onRowOpen} />);
+  await touchRow("Projects", 600);
+  await expect.poll(checkedNames).toEqual(["Projects"]);
+  const link = [
+    ...document.querySelectorAll<HTMLElement>(
+      '[data-slot="data-list-row-link"]',
+    ),
+  ].find((el) => el.textContent === "notes.md")!;
+  link.dispatchEvent(
+    new MouseEvent("click", { bubbles: true, cancelable: true, detail: 0 }),
+  );
+  await new Promise((r) => setTimeout(r, 0));
+  expect(checkedNames()).toEqual(["Projects"]);
   expect(onRowOpen).toHaveBeenCalledOnce();
 });

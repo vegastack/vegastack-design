@@ -495,14 +495,17 @@ async function longPress(target: Element, ms = 600, drift = 0) {
   if (drift) fire("pointermove", drift);
   await new Promise((resolve) => setTimeout(resolve, ms));
   fire("pointerup", drift);
-  target.dispatchEvent(new MouseEvent("mousedown", { bubbles: true }));
   target.dispatchEvent(
-    new MouseEvent("click", { bubbles: true, cancelable: true }),
+    new MouseEvent("mousedown", { bubbles: true, detail: 1 }),
+  );
+  target.dispatchEvent(
+    new MouseEvent("click", { bubbles: true, cancelable: true, detail: 1 }),
   );
 }
 
 test("on touch, a long press opens the row's menu and its trailing click neither opens the row nor closes the menu", async () => {
   const onOpen = vi.fn();
+  const onArchive = vi.fn();
   const screen = await render(
     <Inbox onOpen={onOpen}>
       <InboxGroup label="Today">
@@ -510,17 +513,25 @@ test("on touch, a long press opens the row's menu and its trailing click neither
           value="one"
           title="Asha assigned you a task"
           href="/tasks/1"
-          menu={<DropdownMenuItem>Archive</DropdownMenuItem>}
+          menu={
+            <DropdownMenuItem onClick={onArchive}>Archive</DropdownMenuItem>
+          }
         />
       </InboxGroup>
     </Inbox>,
   );
   const link = screen.getByRole("link", { name: /Asha assigned you/ });
   await longPress(link.element());
-  await expect
-    .element(screen.getByRole("menuitem", { name: "Archive" }))
-    .toBeVisible();
+  const archive = screen.getByRole("menuitem", { name: "Archive" });
+  await expect.element(archive).toBeVisible();
   expect(onOpen).not.toHaveBeenCalled();
+  // A keyboard's activation (a click with no pointer behind it) is never swallowed.
+  archive
+    .element()
+    .dispatchEvent(
+      new MouseEvent("click", { bubbles: true, cancelable: true, detail: 0 }),
+    );
+  expect(onArchive).toHaveBeenCalledOnce();
 });
 
 test("on touch, a press that moves is a scroll, not a long press", async () => {

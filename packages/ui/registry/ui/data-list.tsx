@@ -1,4 +1,4 @@
-// @vegastack data-list@0.100.0 sha256-ZKVDptiRV3ayZfuUZ6ICgMUt7pVCg/OAfnrHINFkxho=
+// @vegastack data-list@0.100.0 sha256-Xnx7LMNRQsw9YkFGxlezpuNWb+FI6njdHywZJzDGLXo=
 
 "use client";
 
@@ -1335,14 +1335,16 @@ const LONG_PRESS_SLOP = 10;
 
 /**
  * The list's phone posture (a touch screen, the list under 30rem): rows are a title and one meta
- * line, with no column header and no checkboxes until a long press starts a selection; both come
- * back while anything is selected (Select all, and each row's tick). Sorting stays the toolbar's.
+ * line, with no column header and no checkboxes in sight until a long press starts a selection;
+ * both come back while anything is selected (Select all, and each row's tick). They are visually
+ * hidden, not removed: a screen reader still reads the column names and reaches every checkbox,
+ * and a keyboard tabs to them. Sorting stays the toolbar's (a header that is the list's only sort
+ * control stays, `headerSorts`).
  */
-const PHONE_ROWS_CLASS =
-  "pointer-coarse:@max-[30rem]/data-list:[&>thead]:hidden pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-table-selection-cell]]:hidden pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-list-skeleton-row]>td:first-child]:hidden";
-/** Same, for a list without selection: only the header goes (its first cells are columns). */
 const PHONE_HEADER_CLASS =
-  "pointer-coarse:@max-[30rem]/data-list:[&>thead]:hidden";
+  "pointer-coarse:@max-[30rem]/data-list:[&>thead]:sr-only";
+const PHONE_BOXES_CLASS =
+  "pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-table-selection-cell]]:sr-only pointer-coarse:@max-[30rem]/data-list:[&_[data-slot=data-list-skeleton-row]>td:first-child]:hidden";
 
 /**
  * Touch selection for a selectable list: a long press on a row selects it (the phone posture shows
@@ -1424,13 +1426,14 @@ function useTouchRowSelect({
       if (touch.current && rowOf(event) !== null) event.preventDefault();
     },
     onClickCapture: (event: React.MouseEvent<HTMLElement>) => {
-      if (fired.current) {
+      if (fired.current && event.detail > 0) {
         fired.current = false;
         event.preventDefault();
         event.stopPropagation();
         return;
       }
-      if (!touch.current || !selecting) return;
+      // A keyboard's or an assistive technology's click (`detail` 0) is never the touch's.
+      if (!touch.current || !selecting || event.detail === 0) return;
       const id = rowOf(event);
       if (id === null) return;
       event.preventDefault();
@@ -2950,6 +2953,11 @@ export function DataList<T>({
       ? React.cloneElement(rowLinkRender ?? <AppLink />, { draggable: false })
       : rowLinkRender;
 
+  // The header is the only way to sort: sortable columns it sorts, and no toolbar beside them.
+  const headerSorts =
+    !sortLocked &&
+    visibleColumns.some((col) => col.sortable) &&
+    toolbar == null;
   const table = (
     // DS-68: a list owns its keyboard model — a row link or a row click, not one tab stop per
     // clipped value or timestamp — so truncated text and RelativeTime in the cells are not tab
@@ -2967,10 +2975,12 @@ export function DataList<T>({
             density === "compact"
               ? "[&_[data-slot=table-cell]]:py-1 [&_[data-slot=table-head]]:h-8 [&_[data-slot=data-list-row]]:h-8 [&_[data-slot=data-list-skeleton-row]]:h-8 [&_[data-slot=data-list-secondary]]:hidden"
               : "[&_[data-slot=data-list-row]]:h-10 [&_[data-slot=data-list-skeleton-row]]:h-10",
-            // The phone posture: no header, and no checkboxes until a long press selects a row.
-            selectable
-              ? selected.size === 0 && PHONE_ROWS_CLASS
-              : PHONE_HEADER_CLASS,
+            // The phone posture: no header in sight (unless it is the only way to sort), and no
+            // checkboxes until a long press selects a row.
+            !(selectable && selected.size > 0) &&
+              !headerSorts &&
+              PHONE_HEADER_CLASS,
+            selectable && selected.size === 0 && PHONE_BOXES_CLASS,
             // A long press selects: no text selection or link callout under the finger.
             selectable &&
               "pointer-coarse:[&_[data-slot=data-list-row]]:[-webkit-touch-callout:none] pointer-coarse:[&_[data-slot=data-list-row]]:select-none",
