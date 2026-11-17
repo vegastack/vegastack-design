@@ -1,4 +1,4 @@
-// @vegastack command@0.107.0 sha256-stl4YCJ3hqD7mSliECxRUD9SD/ku4FkQJg6v1KZO17A=
+// @vegastack command@0.107.0 sha256-GKLOvl9jy35kpGIP4pYtSKsfVJey3AZ+JjCiDrmYgTs=
 
 "use client";
 
@@ -662,10 +662,10 @@ function CommandItem({
         {children}
       </ItemDescriptionContext.Provider>
       {/* The check's room is opt-in: only a row that passes `data-checked` ("true" or "false", a
-          checkable list) keeps it, so a plain row's trailing text reaches the row's end. */}
+          checkable list) without a shortcut keeps it, so a plain row's trailing text reaches the row's end. */}
       <CheckIcon
         data-slot="command-item-check"
-        className="ms-auto hidden opacity-0 group-data-checked/command-item:block group-data-[checked=true]/command-item:opacity-100 group-has-data-[slot=command-shortcut]/command-item:hidden"
+        className="ms-auto hidden opacity-0 group-data-[checked=true]/command-item:opacity-100 [[data-slot=command-item][data-checked]:not(:has([data-slot=command-shortcut]))>&]:block"
       />
     </CommandPrimitive.Item>
   );
