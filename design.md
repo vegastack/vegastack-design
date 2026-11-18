@@ -1613,7 +1613,7 @@ utilities: `h-8`, `size-4`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50
 above. Type SIZES are Tailwind's stock scale —
 `text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell. One named step
 sits on top of it: `text-page-title`, 26/32 at the heading tier's −0.04em, the size of a page's
-title in `PageHeader` and of nothing else (TYP-21, Regent UI ground rules T1, 2026-11-18).
+title (`PageHeader` wears it) and of nothing else (TYP-21, Regent UI ground rules T1, 2026-11-18).
 
 **Type metrics are the one exception, and they are global** (TYP-15/16/17/18, MK 2026-09-22).
 Geist's own spec splits a COPY tier from a HEADING tier, and so does this system:

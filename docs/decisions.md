@@ -106,7 +106,7 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   that proves the ordering; a second `z-60` anywhere is a new MK decision, not a precedent to copy.
 - **Type SIZES are Tailwind's stock scale; the METRICS on top of them are ours and global** — a
   `text-sm` is 14px and `text-base` 16px everywhere, including the docs shell (one named step on
-  top: `text-page-title`, 26/32, `PageHeader`'s title only, TYP-21), and the role
+  top: `text-page-title`, 26/32, a page's title only, TYP-21), and the role
   utilities (`text-h1`…`h4`, `text-label*`, `text-code*`, `text-mono-label`, `text-display-*`) and
   the 400/500 weight ladder are gone, so `font-semibold` and `text-4xl` are ordinary utilities.
   **`tracking-tight` is NOT** (TYP-15, MK 2026-09-22): the `@theme` bridge declares per-size

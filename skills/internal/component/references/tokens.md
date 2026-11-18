@@ -152,8 +152,8 @@ at 14px — is real and is kept; its `sm` half-step resolves down onto the ramp.
 `body` and never on `html`: `rem` resolves against the root, so an `html` size would rescale every
 token and override the reader's browser preference.
 
-There are no role utilities but one: `text-page-title` (26/32, TYP-21), the size of `PageHeader`'s
-title and of nothing else. For the rest, write the two or three stock utilities each one stood for:
+There are no role utilities but one: `text-page-title` (26/32, TYP-21), the size of a page's title
+(`PageHeader`'s) and of nothing else. For the rest, write the two or three stock utilities each one stood for:
 
 | was               | write                                                                      |
 | ----------------- | -------------------------------------------------------------------------- |
