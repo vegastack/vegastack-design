@@ -393,3 +393,30 @@ export function inputGhost(): ReactNode {
     </Wrapper>
   );
 }
+
+/** Shapes from props, never ad-hoc classes: `shape="pill"` on Button, Input and InputGroup. */
+export function shapeProps(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-start">
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          aria-label="In-page field"
+          placeholder="In-page field"
+          className="w-48"
+        />
+        <Input
+          shape="pill"
+          aria-label="Field in the frame"
+          placeholder="Field in the frame"
+          className="w-48"
+        />
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Button variant="outline">In the page</Button>
+        <Button variant="outline" shape="pill">
+          In a row of pills
+        </Button>
+      </div>
+    </Wrapper>
+  );
+}

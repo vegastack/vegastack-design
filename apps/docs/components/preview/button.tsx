@@ -8,12 +8,17 @@ import {
   ArrowUpIcon,
   ArrowUpRightIcon,
   CircleFadingArrowUpIcon,
+  Copy,
   GitBranchIcon,
   GitForkIcon,
+  MoreHorizontal,
   MoreHorizontalIcon,
+  Plus,
   PlusIcon,
+  Share,
+  Trash2,
 } from "lucide-react";
-import { Wrapper } from "./wrapper";
+import { Verdict, Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/button` (dogfoods the registry) → auto-scanned.
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -24,6 +29,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Chip } from "@/components/ui/chip";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export function button(): ReactNode {
   return (
@@ -275,6 +283,72 @@ export function buttonLoading(): ReactNode {
       <Button variant="secondary" disabled>
         Disabled
       </Button>
+    </Wrapper>
+  );
+}
+
+/** One shape per row: the button that adds a chip is a pill too. */
+export function shapeOneRow(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch sm:flex-row">
+      <Verdict good label="the add button takes the row's shape">
+        <Chip>Status: Open</Chip>
+        <Chip>Assignee: Me</Chip>
+        <Button variant="outline" size="sm" shape="pill">
+          <Plus aria-hidden />
+          Filter
+        </Button>
+      </Verdict>
+      <Verdict good={false} label="a rectangle beside pills">
+        <Chip>Status: Open</Chip>
+        <Chip>Assignee: Me</Chip>
+        <Button variant="outline">
+          <Plus aria-hidden />
+          Filter
+        </Button>
+      </Verdict>
+    </Wrapper>
+  );
+}
+
+/** Actions and inputs in the page are rounded rectangles: 10px, and 8px at 24px. */
+export function shapeInPage(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-start">
+      <div className="flex flex-wrap items-center gap-2">
+        <Input
+          aria-label="Search tasks"
+          placeholder="Search tasks"
+          className="w-56"
+        />
+        <Button variant="outline">
+          <Share aria-hidden />
+          Share
+        </Button>
+        <Button>
+          <Plus aria-hidden />
+          New task
+        </Button>
+        <Button variant="outline" size="icon" aria-label="More actions">
+          <MoreHorizontal aria-hidden />
+        </Button>
+      </div>
+      <div className="flex flex-wrap items-center gap-2">
+        <Tabs defaultValue="mine">
+          <TabsList>
+            <TabsTrigger value="mine">My meetings</TabsTrigger>
+            <TabsTrigger value="shared">Shared with me</TabsTrigger>
+            <TabsTrigger value="all">All</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <Button variant="outline" size="xs">
+          <Copy aria-hidden />
+          Copy
+        </Button>
+        <Button variant="ghost" size="icon-xs" aria-label="Remove">
+          <Trash2 aria-hidden />
+        </Button>
+      </div>
     </Wrapper>
   );
 }

@@ -55,3 +55,37 @@ export function globalBar(): ReactNode {
     </Wrapper>
   );
 }
+
+/**
+ * The app's frame is a capsule zone: `GlobalBar` carries `capsule-scope`, so its search, Ask, Help
+ * and History are pills and circles, and the search's fills sit 3px in on every side.
+ */
+export function shapeFrame(): ReactNode {
+  return (
+    <Wrapper className="block overflow-hidden bg-shell-canvas p-0 @container/shell">
+      <GlobalBar>
+        <GlobalBarLeading>
+          <Button
+            variant="ghost"
+            size="icon-sm"
+            aria-label="Show or hide the column"
+          >
+            <PanelLeft aria-hidden />
+          </Button>
+        </GlobalBarLeading>
+        <GlobalBarCenter>
+          <Button variant="ghost" size="icon-sm" aria-label="Recent">
+            <History aria-hidden />
+          </Button>
+          <GlobalBarSearch
+            label="Search or ask anything…"
+            ask={{ label: "Ask William", onClick: () => {} }}
+          />
+        </GlobalBarCenter>
+        <GlobalBarTrailing>
+          <GlobalBarHelp />
+        </GlobalBarTrailing>
+      </GlobalBar>
+    </Wrapper>
+  );
+}
