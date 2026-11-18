@@ -1,4 +1,4 @@
-// @vegastack members-stack@0.116.0 sha256-kAtUaEw7tWk8aos/6FIPed+5zoWTz8XP785gNWLgYyY=
+// @vegastack members-stack@0.116.0 sha256-F9f974F1W1JKnq2oNLvzSAOX2rd1pynkZdgGIwhwnLI=
 
 "use client";
 
@@ -280,7 +280,7 @@ export function MembersStack({
         {ordered.length > 0 ? (
           <ul
             aria-label={label}
-            className="flex max-h-80 flex-col gap-2 overflow-y-auto"
+            className="relative flex max-h-80 flex-col gap-2 overflow-y-auto"
           >
             {ordered.map((person, i) => (
               <li key={`${person.id ?? person.name}-${i}`}>

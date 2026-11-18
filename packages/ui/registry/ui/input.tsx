@@ -1,4 +1,4 @@
-// @vegastack input@0.116.0 sha256-dJiIcJuVz8pobfizVkPAKrTfcWCNUKBaWm/S6YD8e58=
+// @vegastack input@0.116.0 sha256-9UQDsmvSr/7N+P/QZC1DoFBUJRhsJlYRdE3xWaQUrd4=
 
 import * as React from "react";
 import { Input as InputPrimitive } from "@base-ui/react/input";
@@ -24,13 +24,21 @@ const inputVariants = cva(
         default: "h-8 px-2.5 py-1 text-base md:text-sm",
         lg: "h-auto py-1 font-heading text-xl font-semibold md:text-xl",
       },
+      /**
+       * BRD-12 (corner shapes round 2): `rect` is the in-page field (`control`); `pill` is a
+       * field in the app's frame or in a row of pills (the top bar's search). Never per taste.
+       */
+      shape: {
+        rect: "",
+        pill: "rounded-capsule",
+      },
     },
     compoundVariants: [
       { variant: "ghost", size: "sm", className: "px-0" },
       { variant: "ghost", size: "default", className: "px-0" },
       { variant: "default", size: "lg", className: "px-2.5" },
     ],
-    defaultVariants: { variant: "default", size: "default" },
+    defaultVariants: { variant: "default", size: "default", shape: "rect" },
   },
 );
 
@@ -62,6 +70,7 @@ function Input({
   type,
   variant,
   size,
+  shape,
   credential = true,
   ...props
 }: InputProps) {
@@ -79,7 +88,7 @@ function Input({
       data-slot="input"
       data-variant={variant ?? "default"}
       data-size={size ?? "default"}
-      className={cn(inputVariants({ variant, size }), className)}
+      className={cn(inputVariants({ variant, size, shape }), className)}
       {...props}
     />
   );

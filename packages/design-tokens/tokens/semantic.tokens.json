@@ -866,26 +866,26 @@
   "corner-control": {
     "$type": "dimension",
     "$value": {
-      "value": 0.5,
+      "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px, a quarter of the 32px control: every in-page control is a rounded rectangle — Button at every size, Input, Select, NativeSelect, Combobox, single-line InputGroup, page and header search fields, Toggle, ToggleGroup, TabsList, Menubar. Apple keeps compact desktop controls rounded rectangles and reserves capsules for standout or touch layouts (WWDC25 356). Read it as `rounded-control`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 10px, the same corner as a row: an action or input in the page content is a rounded rectangle — Button, Input, Select, NativeSelect, Combobox, single-line InputGroup, in-page search fields, Toggle, ToggleGroup, TabsList, Menubar, table-cell editors. 8px read as sharp on a 32px control (operator, 2026-11-19: “10px, same as rows”). A 24px compact control takes `segment`. Read it as `rounded-control`."
   },
   "corner-segment": {
     "$type": "dimension",
     "$value": {
-      "value": 0.375,
+      "value": 0.5,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 6px, the control corner minus its 2px inset: a control nested in a control — TabsList triggers, Menubar items, buttons inside an InputGroup or a search box, toggle-group segments — so the corners stay concentric. Read it as `rounded-segment`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 8px, the control corner minus its 2px inset: a control nested in a control — TabsList triggers, Menubar items, buttons inside an InputGroup — so the corners stay concentric; also the 24px compact controls (Button `xs`, `icon-xs`), where 10px would read as a pill. Read it as `rounded-segment`."
   },
   "corner-icon": {
     "$type": "dimension",
     "$value": {
-      "value": 0.5,
+      "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px: an icon-only button is a rounded square with the same corner as a labelled control, so a toolbar reads as one family. Inside a capsule it is a circle (`rounded-capsule`). Read it as `rounded-icon`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 10px: an icon-only button is a rounded square with the same corner as a labelled control, so a toolbar reads as one family; at 24px it takes `segment`. Inside a capsule it is a circle (`rounded-capsule`). Read it as `rounded-icon`."
   },
   "corner-capsule": {
     "$type": "dimension",

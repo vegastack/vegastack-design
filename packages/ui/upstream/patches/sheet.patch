@@ -47,7 +47,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/sheet.tsx b/sheet.tsx
-index 1972cc1..fac3184 100644
+index 1972cc1..b3f8782 100644
 --- a/sheet.tsx
 +++ b/sheet.tsx
 @@ -1,26 +1,41 @@
@@ -241,7 +241,7 @@ index 1972cc1..fac3184 100644
 +  return (
 +    <div
 +      data-slot="sheet-body"
-+      className={cn("min-h-0 flex-1 overflow-y-auto px-4", className)}
++      className={cn("relative min-h-0 flex-1 overflow-y-auto px-4", className)}
 +      {...props}
 +    />
 +  );

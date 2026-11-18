@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.116.0 sha256-BaoZ5T5WdxkEnzN+53MSZoL2l1KYYtuosFQNxKEyeFA=
+// @vegastack markdown-view@0.116.0 sha256-7vylfN0ZYeasH04e8QWKkumP8H7Nos6Vrs8VsUvyESw=
 
 "use client";
 
@@ -141,7 +141,7 @@ export function MarkdownTableScroll({
       aria-label={scrollable ? label : undefined}
       tabIndex={scrollable ? 0 : undefined}
       className={cn(
-        "my-2 w-full overflow-x-auto focus-visible:-outline-offset-2",
+        "relative my-2 w-full overflow-x-auto focus-visible:-outline-offset-2",
         scrollEdgeFadeClassName,
         className,
       )}
@@ -1977,7 +1977,7 @@ export function MarkdownBlockView({
         data-slot="block-view-fallback"
         // Inline: the prose recipe's `pre` margins (a root rule) would beat a class and pad the box.
         style={{ margin: 0 }}
-        className="min-h-48 overflow-x-auto px-4 py-3 font-mono text-xs text-muted-foreground"
+        className="relative min-h-48 overflow-x-auto px-4 py-3 font-mono text-xs text-muted-foreground"
       >
         <code>{source}</code>
       </pre>

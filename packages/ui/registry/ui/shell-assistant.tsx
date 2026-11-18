@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.116.0 sha256-uqVLGa1zr9I/1YFGs0tROLXF0Yzq+8EVVvBZnJ5CfcM=
+// @vegastack shell-assistant@0.116.0 sha256-CBcZhkdmMgSvoNTp9TBpRVam0U6oVEMEQP3XMwXNQuo=
 
 "use client";
 
@@ -567,7 +567,7 @@ function AssistantCardBody({
       data-slot="assistant-card-body"
       className={cn(
         // Below its minimum the card scrolls as a whole, so a short page area never clips the composer.
-        "flex min-h-24 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 py-2 text-sm",
+        "relative flex min-h-24 flex-1 flex-col gap-3 overflow-y-auto overscroll-contain px-4 py-2 text-sm",
         className,
       )}
       {...props}

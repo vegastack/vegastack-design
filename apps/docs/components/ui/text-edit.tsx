@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.116.0 sha256-3ZsntOQ3TxatOudmQ+uord0ELj4DalbOFp60ge22kks=
+// @vegastack text-edit@0.116.0 sha256-bADS/iCjsyrYrTvrpoUxhWcp3epVSzbftwwfNp9qmq8=
 
 "use client";
 
@@ -816,7 +816,7 @@ const COMPOSER_ROOT = "grid min-h-8 items-end gap-x-1 bg-muted/30 p-[3px]";
 const COMPOSER_LEADING =
   "col-start-1 row-start-1 flex shrink-0 items-center gap-1 self-end";
 const COMPOSER_CONTENT =
-  "row-start-1 max-h-[calc(10*1.5rem)] overflow-y-auto md:max-h-[calc(10*1.25rem+0.25rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0 [&_[data-slot=inline-chip]]:before:hidden";
+  "relative row-start-1 max-h-[calc(10*1.5rem)] overflow-y-auto md:max-h-[calc(10*1.25rem+0.25rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0 [&_[data-slot=inline-chip]]:before:hidden";
 const COMPOSER_ACTIONS =
   "row-start-1 flex shrink-0 items-center gap-1 self-end";
 // An empty footer (a host passing a wrapper with no files in it) takes no room.
@@ -2540,7 +2540,7 @@ export function TextEdit(props: TextEditProps) {
     // and end at the same place.
     "relative flow-root min-w-0 max-w-full",
     minCss != null && "min-h-[var(--te-min-h)]",
-    maxCss != null && "max-h-[var(--te-max-h)] overflow-y-auto",
+    maxCss != null && "relative max-h-[var(--te-max-h)] overflow-y-auto",
     composer && COMPOSER_CONTENT,
     composer && (leading ? "col-start-2" : "col-start-1"),
   );

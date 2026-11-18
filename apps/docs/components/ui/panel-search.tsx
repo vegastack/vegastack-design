@@ -1,4 +1,4 @@
-// @vegastack panel-search@0.116.0 sha256-cZJ1pmxUpU5OHkYRY/YNcEJ8dNZcuFq6lOG0uEptd3w=
+// @vegastack panel-search@0.116.0 sha256-v8kKMtaUCTKIZ6/laWOP0Nzt1dEMNcmxH3phhYJdrCk=
 
 "use client";
 
@@ -125,7 +125,7 @@ export function PanelList({ className, ...props }: PanelListProps) {
     <div
       data-slot="panel-list"
       className={cn(
-        "max-h-64 min-h-0 overflow-y-auto overscroll-contain py-1",
+        "relative max-h-64 min-h-0 overflow-y-auto overscroll-contain py-1",
         className,
       )}
       {...props}

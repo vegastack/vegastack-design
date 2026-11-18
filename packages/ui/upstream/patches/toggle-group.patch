@@ -30,7 +30,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/toggle-group.tsx b/toggle-group.tsx
-index 1910ec8..9d25a1b 100644
+index 1910ec8..0563c94 100644
 --- a/toggle-group.tsx
 +++ b/toggle-group.tsx
 @@ -1,24 +1,69 @@
@@ -113,12 +113,13 @@ index 1910ec8..9d25a1b 100644
  
  function ToggleGroup({
    className,
-@@ -26,13 +71,26 @@ function ToggleGroup({
+@@ -26,13 +71,34 @@ function ToggleGroup({
    size,
    spacing = 2,
    orientation = "horizontal",
 +  deselectable = true,
 +  wrap = false,
++  shape = "rect",
 +  multiple,
 +  onValueChange,
 +  ref,
@@ -132,6 +133,13 @@ index 1910ec8..9d25a1b 100644
 +    orientation?: "horizontal" | "vertical";
 +    deselectable?: boolean;
 +    wrap?: boolean;
++    /**
++     * BRD-12 (corner shapes round 2): `rect` is a segmented control or a toolbar's toggles
++     * (`control`); `pill` is a row of quick filters that read as chips (Home's All · Overdue ·
++     * Today) — every item, and a joined group's ends, become capsules.
++     * @default 'rect'
++     */
++    shape?: "rect" | "pill";
    }) {
 +  const [group, setGroup] = React.useState<HTMLDivElement | null>(null);
 +  const mergedRef = React.useMemo(() => mergeRefs(setGroup, ref), [ref]);
@@ -142,18 +150,20 @@ index 1910ec8..9d25a1b 100644
    return (
      <ToggleGroupPrimitive
        data-slot="toggle-group"
-@@ -40,11 +98,25 @@ function ToggleGroup({
+@@ -40,11 +106,27 @@ function ToggleGroup({
        data-size={size}
        data-spacing={spacing}
        data-orientation={orientation}
 +      orientation={orientation}
 +      data-wrap={wrap ? "" : undefined}
++      data-shape={shape === "pill" ? "pill" : undefined}
        style={{ "--gap": spacing } as React.CSSProperties}
        className={cn(
 -        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-lg data-[size=sm]:rounded-[min(var(--radius-md),10px)] data-vertical:flex-col data-vertical:items-stretch",
 -        className
 +        "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-control data-vertical:rounded-card data-vertical:flex-col data-vertical:items-stretch",
 +        "data-wrap:flex-wrap data-wrap:data-[spacing=0]:gap-y-2",
++        shape === "pill" && "capsule-scope",
 +        className,
        )}
 +      ref={mergedRef}
@@ -170,7 +180,7 @@ index 1910ec8..9d25a1b 100644
        {...props}
      >
        <ToggleGroupContext.Provider
-@@ -53,7 +125,7 @@ function ToggleGroup({
+@@ -53,7 +135,7 @@ function ToggleGroup({
          {children}
        </ToggleGroupContext.Provider>
      </ToggleGroupPrimitive>
@@ -179,7 +189,7 @@ index 1910ec8..9d25a1b 100644
  }
  
  function ToggleGroupItem({
-@@ -63,7 +135,7 @@ function ToggleGroupItem({
+@@ -63,7 +145,7 @@ function ToggleGroupItem({
    size = "default",
    ...props
  }: TogglePrimitive.Props & VariantProps<typeof toggleVariants>) {
@@ -188,7 +198,7 @@ index 1910ec8..9d25a1b 100644
  
    return (
      <TogglePrimitive
-@@ -72,18 +144,19 @@ function ToggleGroupItem({
+@@ -72,18 +154,19 @@ function ToggleGroupItem({
        data-size={context.size || size}
        data-spacing={context.spacing}
        className={cn(

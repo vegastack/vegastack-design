@@ -26,6 +26,11 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 `ScrollArea` renders the viewport, one vertical `ScrollBar` and the corner itself, so a vertical
 scroll area is a single element. Give it a bounded height — a container that can grow never scrolls.
 
+Its bar is an overlay: it takes no width, shows while the pointer is over the area or it scrolls,
+and its thumb is the global scrollbar's colour (`--scrollbar-thumb`), so an overlay scroller and a
+native one look the same. The viewport is `relative`, so what it scrolls stays inside it
+([Scrolling](/docs/foundations/scrolling)).
+
 <ComponentPreview name="scrollArea" file="components/preview/scroll-area.tsx" />
 
 ## Anatomy
@@ -122,16 +127,19 @@ vertical area is `ScrollArea` alone, and either horizontal setting adds the `Scr
 ## API Reference
 
 `ScrollArea` accepts everything the [Base UI Scroll Area](https://base-ui.com/react/components/scroll-area)
-`Root` accepts, plus `className`, `ref` and `render`, and adds one prop of its own: `viewportRef`
-(`React.Ref<HTMLDivElement>`), a ref to the scrolling viewport. `aria-label`, `aria-labelledby`
+`Root` accepts, plus `className`, `ref` and `render`, and adds props for the scrolling element: `viewportRef`, `viewportClassName`, `viewportRender` and
+`viewportProps`. `aria-label`, `aria-labelledby`
 and `tabIndex` are forwarded to the viewport rather than the root. `ScrollBar` adds no props: it
 accepts Base UI's `Scrollbar` props, and its `orientation` is `"vertical"` by default and takes
 `"horizontal"` for the other axis.
 
-| Prop          | Component    | Type                         | Default      | Description                      |
-| ------------- | ------------ | ---------------------------- | ------------ | -------------------------------- |
-| `viewportRef` | `ScrollArea` | `React.Ref<HTMLDivElement>`  | —            | A ref to the scrolling viewport. |
-| `orientation` | `ScrollBar`  | `"vertical" \| "horizontal"` | `"vertical"` | The axis the scrollbar tracks.   |
+| Prop                | Component    | Type                                | Default      | Description                                                                                                                                         |
+| ------------------- | ------------ | ----------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `viewportRef`       | `ScrollArea` | `React.Ref<HTMLDivElement>`         | —            | A ref to the scrolling viewport.                                                                                                                    |
+| `viewportClassName` | `ScrollArea` | `string`                            | —            | Classes for the scrolling element (padding, `flex-col`, overscroll).                                                                                |
+| `viewportRender`    | `ScrollArea` | `React.ReactElement`                | a `<div>`    | The element the viewport renders as — a `<nav>` for a navigation column, so the scroller is the landmark itself (it then takes no `role="region"`). |
+| `viewportProps`     | `ScrollArea` | `React.HTMLAttributes<HTMLElement>` | —            | Attributes for the scrolling element (`data-slot`, `aria-*`), spread after the defaults.                                                            |
+| `orientation`       | `ScrollBar`  | `"vertical" \| "horizontal"`        | `"vertical"` | The axis the scrollbar tracks.                                                                                                                      |
 
 ## Accessibility
 
@@ -154,8 +162,8 @@ accepts Base UI's `Scrollbar` props, and its `orientation` is `"vertical"` by de
 ## Do / Don't
 
 <DoDont
-  do="Use a ScrollArea for a bounded region with its own overflow — a list, a log, a code block — and give it an accessible name."
-  dont="Wrap the page or a document in one; the browser's own scrollbar is what readers and assistive tech expect at that level."
+  do="Use a ScrollArea for a shell region or a bounded region with its own overflow — the secondary sidebar, a list, a log — and give it an accessible name."
+  dont="Wrap the page or a document in one; the page scrolls in the shell's content area with the global thin scrollbar."
 />
 
 ## Deviations

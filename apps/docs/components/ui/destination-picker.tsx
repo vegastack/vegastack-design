@@ -1,4 +1,4 @@
-// @vegastack destination-picker@0.116.0 sha256-7PM8+vnDC5eXzDjnyWSZJ76rBa0fMSnj9208TG9qOLk=
+// @vegastack destination-picker@0.116.0 sha256-bMudX0LVpL6OROGDOhWoYQmR7urIg8vpMfbxSQg0RuM=
 
 "use client";
 
@@ -284,7 +284,7 @@ export function DestinationPicker({
       {querying ? (
         <div
           data-slot="destination-picker-results"
-          className="flex min-h-0 flex-col overflow-y-auto"
+          className="relative flex min-h-0 flex-col overflow-y-auto"
         >
           {results.loading && results.items.length === 0 ? (
             <div aria-hidden className="flex flex-col gap-2 p-2">
@@ -304,7 +304,7 @@ export function DestinationPicker({
           )}
         </div>
       ) : (
-        <div className="flex min-h-0 flex-col gap-2 overflow-y-auto">
+        <div className="relative flex min-h-0 flex-col gap-2 overflow-y-auto">
           {recents && recents.length > 0 ? (
             <section
               data-slot="destination-picker-recents"

@@ -1,4 +1,4 @@
-// @vegastack mermaid-block@0.116.0 sha256-gkTMSJgWtZCEfEibhsJa0qxN4DFcf/6VQRzZvI5+R/Y=
+// @vegastack mermaid-block@0.116.0 sha256-ZkCkN5juBFqi2cNiSPdlLvEQg3ViRtca9TLXROP7gEc=
 
 "use client";
 
@@ -844,7 +844,7 @@ export function MermaidBlock({
           aria-label={scrollable ? "Diagram, scrolls sideways" : undefined}
           tabIndex={scrollable ? 0 : undefined}
           className={cn(
-            "min-w-0 max-w-full overflow-x-auto overscroll-x-contain focus-visible:-outline-offset-2",
+            "relative min-w-0 max-w-full overflow-x-auto overscroll-x-contain focus-visible:-outline-offset-2",
             scrollEdgeFadeClassName,
           )}
         >
@@ -896,7 +896,7 @@ export function MermaidBlock({
         <pre
           data-slot="mermaid-block-source"
           className={cn(
-            "m-0 overflow-x-auto px-4 pt-3 pb-1 font-mono text-xs text-muted-foreground print:whitespace-pre-wrap",
+            "relative m-0 overflow-x-auto px-4 pt-3 pb-1 font-mono text-xs text-muted-foreground print:whitespace-pre-wrap",
             !failed && "hidden print:block",
           )}
         >

@@ -1,0 +1,52 @@
+---
+title: Scrolling
+description: One scrollbar everywhere, one scroller per axis per region, and scrollers that keep what they scroll.
+audience: public
+---
+
+A page has **one** vertical scroller and every scroller looks the same: a thin pill thumb in the
+ink's own colour on a clear track, stronger while the pointer is over it. Two scrollbars side by
+side, a page that scrolls under a board that also scrolls, or a scrollbar that appears for no
+visible reason are bugs, not styles (BRD-SCR).
+
+## The rules
+
+1. **One scrollbar everywhere.** `base.css` sets
+   `:where(*) { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) transparent }`, with
+   `--scrollbar-thumb-hover` while the pointer is over the scroller. No component styles its own
+   scrollbar. Two utilities are the only exceptions: `scrollbar-none` for a strip that shows edge
+   fades or arrows instead, and `scrollbar-gutter-stable` when content must not shift as the bar
+   appears.
+2. **`ScrollArea` for the shell's regions.** The shell's own columns scroll in a `ScrollArea`, whose
+   bar is an overlay: it takes no width, shows on hover and while scrolling, and its thumb uses the
+   same `--scrollbar-thumb`. The secondary sidebar (`ShellColumn`) is one: its viewport is the
+   `<nav data-slot="shell-column">` itself (`viewportRender`, `viewportProps`).
+3. **One scroller per axis per region.** The shell's content area (`shell-content`) is a page's only
+   vertical scroller. A view that scrolls inside it — a record layout, a `Board` with
+   `height="fill"` — takes exactly the remaining height, so the page never scrolls as well. A fill
+   board measures the real scroll area, less what the page lays out after it; `fillOffset`
+   (default `0px`) is only extra room.
+4. **A scroller is positioned.** Every `overflow-*-auto` or `overflow-*-scroll` element carries
+   `relative` (or is itself `absolute`, `fixed` or `sticky`). Otherwise an absolute descendant — a
+   screen-reader-only label — escapes to the next scroller up and gives it a second scrollbar; that
+   was the task page's double scroll. `shell-content` and RecordLayout's main are positioned.
+5. **Sideways scrollers always show something.** A horizontal strip shows an edge fade
+   (`scroll-fade-x`) or arrows where it has more; never a hidden bar with nothing in its place.
+
+| Need                                       | Use                                                      |
+| ------------------------------------------ | -------------------------------------------------------- |
+| A page's content                           | The shell's content area — nothing of your own           |
+| A shell column, a bounded list or log      | `ScrollArea` (overlay bar)                               |
+| Any other native scroller                  | `relative overflow-y-auto` — the global thin bar applies |
+| A sideways strip of chips, tabs or lanes   | `relative overflow-x-auto scroll-fade-x scrollbar-none`  |
+| A view that fills what is left of the page | `RecordLayout`, `Board height="fill"` — they measure it  |
+| Content that must not shift as a bar shows | `scrollbar-gutter-stable`                                |
+
+**Enforced by:** `base.css` (rule 1, one place, zero specificity); `ScrollArea` and `ShellColumn`
+(rule 2); `shell-content`, `RecordLayout` and `Board height="fill"` (rule 3); design-lint
+`scroller-positioned` on registry source (rule 4); `scroll-fade-x` (rule 5).
+
+<DoDont
+  do="Let the page scroll in the shell's content area, give every scroller relative, and fade the edges of a sideways strip."
+  dont="Style a scrollbar per component ([scrollbar-width:thin], ::-webkit-scrollbar), nest a vertical scroller in a page that also scrolls, or hide a sideways bar with nothing in its place."
+/>

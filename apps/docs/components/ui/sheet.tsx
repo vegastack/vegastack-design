@@ -1,4 +1,4 @@
-// @vegastack sheet@0.116.0 sha256-TfF8u6Lkk6XhBQdNAf5pXTsCBmrBW/MJpAHKDEvgVaM=
+// @vegastack sheet@0.116.0 sha256-RrGiO2Mzox+2AUBYiG+DsuyAVL84bf8MroA8L9tNVH8=
 
 "use client";
 
@@ -166,7 +166,7 @@ function SheetBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="sheet-body"
-      className={cn("min-h-0 flex-1 overflow-y-auto px-4", className)}
+      className={cn("relative min-h-0 flex-1 overflow-y-auto px-4", className)}
       {...props}
     />
   );

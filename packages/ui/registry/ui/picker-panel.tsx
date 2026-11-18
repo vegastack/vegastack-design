@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.116.0 sha256-RwvYrSyU7wXnpLuySw/HzaEFNxaKlMTP1B1MrSySsdM=
+// @vegastack picker-panel@0.116.0 sha256-BmON8G24bj+OYaqdNDo3yBDiknOO70bMTU+52Y7bqyA=
 
 "use client";
 import * as React from "react";
@@ -163,7 +163,7 @@ export function PickerPanel({
           role="group"
           aria-label="Quick reactions"
           onKeyDown={quickNav.handleKeyDown}
-          className="flex items-center gap-0.5 overflow-x-auto border-b border-border p-1.5"
+          className="relative flex items-center gap-0.5 overflow-x-auto border-b border-border p-1.5"
         >
           {quick.map((key, index) => (
             <Button
@@ -212,7 +212,7 @@ export function PickerPanel({
           role="toolbar"
           aria-label="Categories"
           onKeyDown={categoryNav.handleKeyDown}
-          className="flex shrink-0 items-center justify-between gap-0.5 overflow-x-auto border-b border-border px-1.5 py-1"
+          className="relative flex shrink-0 items-center justify-between gap-0.5 overflow-x-auto border-b border-border px-1.5 py-1"
         >
           {categories.map((section, index) => (
             <Button

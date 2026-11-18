@@ -1,4 +1,4 @@
-// @vegastack suggestion-menu@0.116.0 sha256-1Kbh3CS1nHRAj3k+vHDYlpsSnPe4H2bL/Aj6f3767+A=
+// @vegastack suggestion-menu@0.116.0 sha256-bTyoVucxJtuUm6KM9KRpDjwZh8VLXPbjjBwU9EnuS7Q=
 
 "use client";
 
@@ -199,7 +199,7 @@ export interface SuggestionMenuProps extends Omit<
 
 /** The popup surface: the combobox popup's chrome (border, radius, shadow, padding). */
 const SURFACE =
-  "z-50 rounded-card border border-border bg-popover p-1.25 text-popover-foreground shadow-md overflow-y-auto overscroll-contain scroll-py-1 no-scrollbar";
+  "relative z-50 rounded-card border border-border bg-popover p-1.25 text-popover-foreground shadow-md overflow-y-auto overscroll-contain scroll-py-1 no-scrollbar";
 
 /**
  * `ComboboxItem`'s row, verbatim apart from `pe-8` → `pe-2`: a suggestion row has no check

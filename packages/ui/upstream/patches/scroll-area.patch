@@ -19,10 +19,10 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/scroll-area.tsx b/scroll-area.tsx
-index 7cf529c..caeeae6 100644
+index 7cf529c..7091821 100644
 --- a/scroll-area.tsx
 +++ b/scroll-area.tsx
-@@ -1,14 +1,21 @@
+@@ -1,14 +1,35 @@
 -"use client"
 +"use client";
  
@@ -40,27 +40,47 @@ index 7cf529c..caeeae6 100644
 +  "aria-labelledby": ariaLabelledBy,
 +  tabIndex,
 +  viewportRef,
++  viewportClassName,
++  viewportRender,
++  viewportProps,
    ...props
 -}: ScrollAreaPrimitive.Root.Props) {
 +}: ScrollAreaPrimitive.Root.Props & {
 +  viewportRef?: React.Ref<HTMLDivElement>;
++  /** Classes for the scrolling element (padding, `flex-col`, overscroll). */
++  viewportClassName?: string;
++  /**
++   * The element the viewport renders as — a `<nav>` for a navigation column — so the scroller is
++   * the landmark itself. @default a `<div>`
++   */
++  viewportRender?: React.ReactElement;
++  /** Attributes for the scrolling element (`data-slot`, `aria-*`), spread after the defaults. */
++  viewportProps?: React.HTMLAttributes<HTMLElement> & {
++    [key: `data-${string}`]: string | undefined;
++  };
 +}) {
 +  const named = ariaLabel !== undefined || ariaLabelledBy !== undefined;
    return (
      <ScrollAreaPrimitive.Root
        data-slot="scroll-area"
-@@ -16,15 +23,20 @@ function ScrollArea({
+@@ -16,15 +37,26 @@ function ScrollArea({
        {...props}
      >
        <ScrollAreaPrimitive.Viewport
 +        ref={viewportRef}
          data-slot="scroll-area-viewport"
 -        className="size-full rounded-[inherit] transition-[color,box-shadow] outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-1"
-+        className="size-full rounded-[inherit] transition-[color,box-shadow]"
++        render={viewportRender}
++        className={cn(
++          // `relative`: the scroller is the containing block of what it scrolls (BRD-SCR).
++          "relative size-full rounded-[inherit] transition-[color,box-shadow]",
++          viewportClassName,
++        )}
 +        aria-label={ariaLabel}
 +        aria-labelledby={ariaLabelledBy}
-+        {...(named ? { role: "region" } : {})}
++        {...(named && !viewportRender ? { role: "region" } : {})}
 +        {...(tabIndex !== undefined ? { tabIndex } : {})}
++        {...viewportProps}
        >
          {children}
        </ScrollAreaPrimitive.Viewport>
@@ -72,17 +92,24 @@ index 7cf529c..caeeae6 100644
  }
  
  function ScrollBar({
-@@ -39,7 +51,7 @@ function ScrollBar({
+@@ -38,17 +70,20 @@ function ScrollBar({
+       data-orientation={orientation}
        orientation={orientation}
        className={cn(
-         "flex touch-none p-px transition-colors select-none data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-s data-vertical:border-s-transparent",
+-        "flex touch-none p-px transition-colors select-none data-horizontal:h-2.5 data-horizontal:flex-col data-horizontal:border-t data-horizontal:border-t-transparent data-vertical:h-full data-vertical:w-2.5 data-vertical:border-s data-vertical:border-s-transparent",
 -        className
++        // BRD-SCR: an overlay bar — it takes no room, shows while the pointer is over the area or it
++        // scrolls, and its thumb is the global scrollbar's colour (`--scrollbar-thumb`), so an
++        // overlay scroller and a native one look the same.
++        "flex touch-none p-0.5 opacity-0 transition-opacity duration-quick select-none data-hovering:opacity-100 data-scrolling:opacity-100 data-horizontal:h-2 data-horizontal:flex-col data-vertical:h-full data-vertical:w-2",
 +        className,
        )}
        {...props}
      >
-@@ -48,7 +60,7 @@ function ScrollBar({
-         className="relative flex-1 rounded-full bg-border"
+       <ScrollAreaPrimitive.Thumb
+         data-slot="scroll-area-thumb"
+-        className="relative flex-1 rounded-full bg-border"
++        className="relative flex-1 rounded-full bg-(--scrollbar-thumb) hover:bg-(--scrollbar-thumb-hover)"
        />
      </ScrollAreaPrimitive.Scrollbar>
 -  )

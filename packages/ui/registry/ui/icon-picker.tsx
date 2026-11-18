@@ -1,4 +1,4 @@
-// @vegastack icon-picker@0.116.0 sha256-ftGJbv34wtD42g3JwmKNutdYtu8XwCzShF3oZmgm5zQ=
+// @vegastack icon-picker@0.116.0 sha256-MNiujuLoupSjwfNppP9nsgnvT7wrw6Z1f1jpfCh1QYE=
 
 "use client";
 import * as React from "react";
@@ -237,7 +237,7 @@ export function IconPicker({
         data-slot="icon-picker-colours"
         onKeyDown={onSwatchKeyDown}
         // One row, always: at the default width every swatch fits; the compact size scrolls.
-        className="flex min-w-0 flex-nowrap items-center overflow-x-auto"
+        className="relative flex min-w-0 flex-nowrap items-center overflow-x-auto"
       >
         {hueOptions.map((option, index) => {
           const checked = option.name === (effectiveHue ?? null);

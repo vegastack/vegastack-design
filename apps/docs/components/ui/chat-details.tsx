@@ -1,4 +1,4 @@
-// @vegastack chat-details@0.116.0 sha256-9N4dWkbqsk6SuLq1C5AD4DqND2sD0fVES+8mOfvWiKM=
+// @vegastack chat-details@0.116.0 sha256-rMk6ttJKzdjJl5s7wWCRM/CPIWO5CYSsdnLxz4ikBTI=
 
 "use client";
 
@@ -42,7 +42,7 @@ function ChatDetails({
       data-slot="chat-details"
       aria-label={label}
       className={cn(
-        "flex h-full min-h-0 w-full min-w-0 flex-col gap-6 overflow-y-auto p-4 text-sm",
+        "relative flex h-full min-h-0 w-full min-w-0 flex-col gap-6 overflow-y-auto p-4 text-sm",
         className,
       )}
       {...props}

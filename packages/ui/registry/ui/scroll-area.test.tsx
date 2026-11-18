@@ -204,8 +204,8 @@ test("RTL: the vertical scrollbar uses a logical border side (RTL)", async () =>
     .poll(() => slot("scroll-area-scrollbar", screen.container))
     .not.toBeNull();
   const bar = slot("scroll-area-scrollbar", screen.container) as HTMLElement;
-  expect(bar.className).toContain("data-vertical:border-s");
-  expect(bar.className).not.toContain("border-l");
+  // An overlay bar draws no border at all, so it has no physical side to get wrong.
+  expect(bar.className).not.toMatch(/border-[lr]\b/);
 });
 
 test("FOC-1/FOC-6: no focus glow and no outline suppression on the viewport", async () => {

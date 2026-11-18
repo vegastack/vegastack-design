@@ -261,6 +261,11 @@ that catch bugs nobody can see in review.
     **`floating-capsule`** (BRD-12, **new 2026-11-18**) — in registry source, a class string that
     floats (`fixed`, `sticky`, or `absolute` with a `shadow-*`) yet wears `rounded-control`: a floating
     bar is `rounded-capsule`, and its buttons follow (`[&_[data-slot=button]]:rounded-capsule`).
+    **`scroller-positioned`** (BRD-SCR, **new 2026-11-19**) — in registry source, a class string
+    with `overflow-*-auto|scroll` (any variant) that names no `relative`, `absolute`, `fixed` or
+    `sticky`. An unpositioned scroller lets an absolute descendant (a screen-reader-only label)
+    escape to the next scroller up and give it a second scrollbar — the task page's double scroll.
+    Add `relative` beside the overflow.
 30. **`no-color-bridge`** (OVL-13 theme scopes, **new 2026-11-16**) — in registry source, a read of the
     `@theme inline` colour bridge: `var(--color-<semantic>)` (any spacing, across lines), Tailwind's
     `bg-(--color-x)` and `bg-(color:--color-x)` shorthands, or such a read as a fallback. The bridge

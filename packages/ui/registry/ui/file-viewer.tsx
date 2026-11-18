@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.116.0 sha256-mXnLInjswMLaAT4YSlvZtSRzrK9vJ8ycQRbnguuEMxM=
+// @vegastack file-viewer@0.116.0 sha256-nuCfYqMA05cVo6wRP2x1fby2OErwfGiESd/cA454NbI=
 
 "use client";
 
@@ -1176,7 +1176,7 @@ function SheetStage({
         aria-label={`${item.name} preview`}
         tabIndex={0}
         className={cn(
-          "min-h-0 w-full max-w-5xl overflow-auto rounded-card border border-border bg-card text-card-foreground focus-visible:-outline-offset-2",
+          "relative min-h-0 w-full max-w-5xl overflow-auto rounded-card border border-border bg-card text-card-foreground focus-visible:-outline-offset-2",
           sheetClassName,
           side && "max-w-none flex-1 rounded-none border-0 bg-transparent",
         )}
@@ -1253,7 +1253,7 @@ function TableStage({
         role="region"
         aria-label={`${item.name} preview`}
         tabIndex={0}
-        className="max-h-full min-h-0 w-auto max-w-full shrink overflow-auto rounded-card border border-border bg-card text-card-foreground focus-visible:-outline-offset-2"
+        className="relative max-h-full min-h-0 w-auto max-w-full shrink overflow-auto rounded-card border border-border bg-card text-card-foreground focus-visible:-outline-offset-2"
       >
         <table className="w-max min-w-full caption-bottom text-sm">
           <TableHeader className="sticky top-0 z-10 bg-card">
@@ -1315,7 +1315,7 @@ function WorkbookStage({
         <TabsList
           data-slot="file-viewer-sheets"
           aria-label={`Sheets in ${item.name}`}
-          className="max-w-full overflow-x-auto"
+          className="relative max-w-full overflow-x-auto"
         >
           {preview.sheets.map((entry, index) => (
             <TabsTrigger key={index} value={index}>
@@ -1907,7 +1907,7 @@ export function FileViewer({
           key={key}
           value={key}
           data-slot="file-viewer-rail-panel"
-          className="min-h-0 overflow-y-auto p-4"
+          className="relative min-h-0 overflow-y-auto p-4"
         >
           {resolveSlot(rail?.[key], item)}
         </TabsContent>
@@ -2011,7 +2011,7 @@ export function FileViewer({
             header past the edge, so each stays reachable and the name keeps some room. */}
         <div
           data-slot="file-viewer-controls"
-          className="flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-none"
+          className="relative flex min-w-0 items-center gap-2 overflow-x-auto scrollbar-none"
         >
           {actions ? (
             <div

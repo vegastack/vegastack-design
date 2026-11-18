@@ -190,6 +190,28 @@ separate component: this is the whole pattern.
 </ToggleGroup>
 ```
 
+### Pill
+
+`shape="pill"` is for quick filters that read as chips — Home's All · Overdue · Today. Every item,
+and a joined group's ends, become capsules (the group carries `capsule-scope`, and
+`data-shape="pill"`). The default, `rect`, is a segmented control or a toolbar's toggles
+(`rounded-control`). Pick it by what the group is, never per taste
+([Radius](/docs/foundations/radius#choosing-a-shape)).
+
+```tsx
+<ToggleGroup
+  shape="pill"
+  variant="outline"
+  size="sm"
+  value={[when]}
+  onValueChange={setWhen}
+>
+  <ToggleGroupItem value="all">All</ToggleGroupItem>
+  <ToggleGroupItem value="overdue">Overdue</ToggleGroupItem>
+  <ToggleGroupItem value="today">Today</ToggleGroupItem>
+</ToggleGroup>
+```
+
 ## API Reference
 
 ### ToggleGroup

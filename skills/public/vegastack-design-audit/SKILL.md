@@ -66,12 +66,25 @@ rg -n 'style=\{\{' --glob '!components/ui/**'
   expresses is not a finding; upstream writes several itself. **warning**
 - **off-role corner** — a corner that is not a role (BRD-12): `rounded-sm|md|lg|xl|2xl|3xl|4xl`,
   bare `rounded`, `rounded-[…]`, `rounded-(--…)` or the retired `rounded-chat-card`. Name the role
-  the element plays: `rounded-control` (in-page control, 8px), `-icon` (icon-only button, 8px
-  square), `-segment` (control inside a control), `-capsule` (floating bar or media control, and its
-  buttons), `-chip`,
-  `-inline` (token in text), `-mark`, `-item` (row with a fill, tooltip), `-block`, `-card`,
-  `-bubble`, `-overlay`, `-tile` (square media); `row-fill` on a table row. A square hover fill on
-  an inset row is the same finding. **error**
+  the element plays: `rounded-control` (action or input in the page, 10px), `-icon` (icon-only
+  button, 10px square), `-segment` (control inside a control, and every 24px control, 8px),
+  `-capsule` (the top bar, a floating bar or media control, and its buttons), `-chip` (token or
+  state), `-inline` (token in text), `-mark`, `-item` (list row with a fill, tooltip), `-block`,
+  `-card`, `-bubble`, `-overlay`, `-tile` (square media); `row-fill` on a table row. **error**
+- **wrong shape for what it is** (BRD-12: the shape says what the thing is) — mixed shapes in one
+  row (a rectangle `+ Filter` or button beside pill chips, a capsule button beside a rectangular
+  field); a pill (`rounded-full`, `rounded-capsule`, `shape="pill"`) on an in-page action or input
+  that is not in a row of pills; a rectangle on a chip, badge, reaction or quick-filter toggle; an
+  ad-hoc `rounded-*` that reshapes a VegaStack control in app code (use its `shape` prop or
+  `capsule-scope`); a table row whose hover or selected fill is an inset rounded shape (table rows
+  are a square band, `row-fill`); a square hover fill on a list row without dividers (`rounded-item`,
+  inset). **warning**
+- **scrolling** (BRD-SCR, Foundations › Scrolling) — per-component scrollbar styling
+  (`[scrollbar-width:…]`, `::-webkit-scrollbar`, `scrollbar-thin` plugins) outside `scrollbar-none`
+  on a strip that shows fades or arrows; an `overflow-*-auto|scroll` element with no `relative` (or
+  `absolute`/`fixed`/`sticky`); a vertical scroller nested in a page region that also scrolls
+  vertically (a board or record view not filling the remaining height, `h-screen`/`100dvh` inside the
+  shell); a sideways scroller with a hidden bar and no `scroll-fade-x` or arrows. **warning**
 - **inline style** — allowed only when every key is a `--*` custom property. Any direct visual
   property is a finding. **error**
 

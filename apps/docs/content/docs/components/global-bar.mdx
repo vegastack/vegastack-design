@@ -68,15 +68,21 @@ column toggle hides itself on a screen with no column.
 
 ### One box to search or ask
 
-With `ask`, `GlobalBarSearch` is a 32px search field (`rounded-control`) with an `Ask {name}` button
-and its shortcut (⌘J) at its end, both nested in it at `rounded-segment`. The box opens the app's search palette (open `CommandSearch` with `placement="bar"` so the
+The top bar is the app's frame, not page content, so it is a capsule zone: `GlobalBar` carries
+`capsule-scope`, and every button in it is a capsule or a circle
+([Radius](/docs/foundations/radius#choosing-a-shape)).
+
+With `ask`, `GlobalBarSearch` is a 32px capsule search field with an `Ask {name}` button and its
+shortcut (⌘J) at its end. A 1px border and `p-0.5` put the search and Ask fills exactly 3px in on
+every side, so their hover fills are concentric pills with an even gap all round
+(`geometry.browser.test.tsx` checks it). The box opens the app's search palette (open `CommandSearch` with `placement="bar"` so the
 palette grows from the box); the chip opens the assistant. Give the chip the assistant's element in
 `controls` and its open state in `expanded`. As the bar narrows the words fold to icons, the box
 first.
 
 ### ? Help
 
-`GlobalBarHelp` is the trailing slot's ghost button (`rounded-control`): the help icon and "Help", with a brand-blue dot
+`GlobalBarHelp` is the trailing slot's ghost button (a capsule, like everything in the bar): the help icon and "Help", with a brand-blue dot
 while there is something new the person hasn't seen. Pass the words the dot means as `dot` ("new
 updates"); they are read after the label. Use it as a `HelpMenu`'s trigger.
 

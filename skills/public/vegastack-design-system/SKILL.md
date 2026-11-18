@@ -98,8 +98,9 @@ overflow="menu"`) left; the search, then the tools — Filter (n), Sort (`SortMe
   (List | Board | Grid icons), Display (`DisplayMenu`: row height, columns, group) and ⋯ — right;
   it measures itself and folds tools into Display and ⋯ when tight. The Filter tool opens a
   `FilterRow`: `+ Filter` (`AddFilterMenu`), the pinned `ListFacet` / `PeopleFacet` /
-  `DateRangeFilter` chips (compact pills, dashed while unset, tinted when set), the other
-  chips, Clear; people facets take `itemToSecondaryLabel={(p) => p.email}`. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
+  `DateRangeFilter` chips (28px pills with 12px text, dashed while unset, tinted when set), the
+  other chips, Clear — one chip tier and one shape: `+ Filter` and Clear are ghost 28px pills
+  (`FILTER_ROW_ACTION`); people facets take `itemToSecondaryLabel={(p) => p.email}`. Tables are `DataList` with `sortable` columns (`compare`, `sortFirst`,
   `sortMode="client"`) and `rowActions` (the ⋯ column, always last); row links are never underlined.
 - **`alert`** for an in-content notice — `variant` is `default · destructive · success · warning ·
 info`, each an ink on the `card` surface with a required icon.
@@ -415,13 +416,23 @@ contract.
   right-align a numeric column. `font-mono` is for code and identifiers (`SYS-1042`) only.
 - Title a page with `PageHeader` (`font-heading text-page-title font-semibold`, 26/600); a section heading is
   `font-heading text-base font-medium`, a group label `text-xs font-medium text-muted-foreground`.
-- Give every corner its ROLE, never a size (BRD-12): `rounded-control` (8px rectangle) for an in-page
-  control, `rounded-segment` for a control nested in a control (tab triggers, buttons inside a field),
-  `rounded-icon` for an icon-only button, `rounded-capsule` only for what floats or stands alone (floating
-  bars, hover toolbars, controls over media, and the buttons inside them), `rounded-chip`, `rounded-inline` for a token inside text,
-  `rounded-mark`, `rounded-item` for a row with a fill or a tooltip, `rounded-block`,
-  `rounded-card`, `rounded-bubble`, `rounded-overlay`, `rounded-tile` for square media; `row-fill`
-  on a table row. Never `rounded-sm|md|lg|xl…`, bare `rounded` or `rounded-[…]`.
+- Let the shape say WHAT a thing is (BRD-12), never where it sits or how tall it is: a token or
+  state (chip, badge, tag, count, reaction, filter chip, quick-filter toggle, switch) is a pill
+  (`rounded-chip`, `ToggleGroup shape="pill"`); the app frame and anything floating (the top bar,
+  floating bars, controls over media) are `rounded-capsule capsule-scope`, their buttons circles; an
+  action or input in the page is `rounded-control` (10px) — `rounded-segment` (8px) at 24px and for a
+  control inside a control; a list row is `rounded-item` (inset); a table row is `row-fill` (square,
+  full width); anything inside anything is concentric. One shape per row: a button in a row of chips
+  is `Button shape="pill"` (the filter row's + Filter and Clear use `FILTER_ROW_ACTION`). Take shape
+  from the component (`shape` on Button, Input, InputGroup, ToggleGroup) — never `rounded-*` on a
+  VegaStack control, never `rounded-sm|md|lg|xl…`, bare `rounded` or `rounded-[…]`. Other roles:
+  `rounded-inline` (token in text), `rounded-mark`, `rounded-block`, `rounded-card`, `rounded-bubble`,
+  `rounded-overlay`, `rounded-tile` (square media).
+- Scroll the way the shell does (BRD-SCR): the page scrolls in the shell's content area — add no
+  page-level scroller; a view inside it (`RecordLayout`, `Board height="fill"`) fills what is left.
+  Give every `overflow-*-auto` element `relative`; never style its scrollbar (the global thin bar
+  applies); use `ScrollArea` for a bounded region; fade a sideways strip with `scroll-fade-x
+scrollbar-none`.
 - Reach for a plain Tailwind utility for size, shadow, z-index, alpha, weight and motion:
   `h-8`, `size-4`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
   `font-semibold`, `transition-colors duration-100 ease-in-out` are all on-system now.

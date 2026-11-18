@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.116.0 sha256-3BpH/3Fn2e89AZbjw9k7A+NdzZJz15VNWWXb99qqFgk=
+// @vegastack audio-player@0.116.0 sha256-cB0NWB2hqrgj5UUD3sy6uFpkUJaTvuAyUtX2xJvUTx0=
 
 "use client";
 
@@ -120,7 +120,7 @@ const defaultRenderLink: NonNullable<AudioPlayerProviderProps["renderLink"]> = (
  *
  * @example
  * <AudioPlayerProvider renderLink={(props) => <Link {...props} />}>
- *   <main className="flex min-h-0 flex-1 flex-col overflow-auto">
+ *   <main className="relative flex min-h-0 flex-1 flex-col overflow-auto">
  *     {children}
  *     <GlobalAudioPlayer />
  *   </main>

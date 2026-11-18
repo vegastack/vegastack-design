@@ -1,4 +1,4 @@
-// @vegastack command-search@0.116.0 sha256-9XPI4nUjJQLUIW2MdWo5/zxY2IdgzYaHATkBl2qfPw0=
+// @vegastack command-search@0.116.0 sha256-NAJ2/iGsEN/F9rFUGs2+AGgopy2PYQoyhsteWgGzUIQ=
 
 "use client";
 
@@ -533,7 +533,7 @@ export function CommandSearchResults({
         <aside
           data-slot="command-search-preview"
           aria-label="Preview"
-          className="hidden max-h-[min(60dvh,32.5rem)] w-80 shrink-0 overflow-y-auto border-s border-border p-3 xl:block"
+          className="relative hidden max-h-[min(60dvh,32.5rem)] w-80 shrink-0 overflow-y-auto border-s border-border p-3 xl:block"
         >
           {preview}
         </aside>

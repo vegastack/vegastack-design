@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.116.0 sha256-zXLmy0EFrvxRQQZIMC4PVN4aPEwoc/e6NKpjLWhU0Xg=
+// @vegastack global-bar@0.116.0 sha256-6p2SEwyIF8vvOjXDF8AUVvxmgOvF6io1RmTzQ23ICBQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -56,7 +56,9 @@ export function GlobalBar({ className, ...props }: GlobalBarProps) {
       tabIndex={-1}
       className={cn(
         // Equal side columns and no padding of its own, so the centre slot is the window's centre.
-        "@container/global-bar grid h-(--shell-globalbar-height) min-w-0 flex-none grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 bg-shell-canvas text-sidebar-foreground outline-none @max-[40rem]/shell:hidden",
+        // The top bar is the app's frame, not page content: everything in it is a capsule
+        // (`capsule-scope` re-points control, segment and icon), its icon buttons circles (BRD-12).
+        "capsule-scope @container/global-bar grid h-(--shell-globalbar-height) min-w-0 flex-none grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-2 bg-shell-canvas text-sidebar-foreground outline-none @max-[40rem]/shell:hidden",
         // The desktop title row drags the window; everything you can press stays pressable.
         "in-data-desktop-titlebar:[-webkit-app-region:drag] in-data-desktop-titlebar:[&_:is(button,a,input,[role=button],[role=combobox])]:[-webkit-app-region:no-drag]",
         className,
@@ -240,7 +242,7 @@ export function GlobalBarHelp({
       size="sm"
       aria-label={ariaLabel ?? (dot ? `${label} (${dot})` : undefined)}
       className={cn(
-        "gap-1.5 rounded-control ps-2 pe-3 text-sm font-medium [&_svg:not([class*='size-'])]:size-4.5",
+        "gap-1.5 rounded-capsule ps-2 pe-3 text-sm font-medium [&_svg:not([class*='size-'])]:size-4.5",
         className,
       )}
       {...props}

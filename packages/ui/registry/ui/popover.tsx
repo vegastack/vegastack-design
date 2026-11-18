@@ -1,4 +1,4 @@
-// @vegastack popover@0.116.0 sha256-lwoFXY9OdiFiJ+EUctOVUGDeKxckWZ+PF190YOd9qdo=
+// @vegastack popover@0.116.0 sha256-b2b9rWN2WaGRGDvgCmi56v3uARX3AcZfgz6repKQthY=
 
 "use client";
 
@@ -79,7 +79,7 @@ function PopoverBody({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="popover-body"
       className={cn(
-        "flex max-h-[70vh] min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain",
+        "relative flex max-h-[70vh] min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain",
         className,
       )}
       {...props}

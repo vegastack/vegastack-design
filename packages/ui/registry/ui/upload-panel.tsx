@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.116.0 sha256-SFdZjT4AAzKs7FY3Ut5FZcZkZSpzlFEVhMKYNcVq/Tk=
+// @vegastack upload-panel@0.116.0 sha256-B05H9GMk4MKJi1iIGekonHdAux8gSNpFcEKwW4x/6ZY=
 
 "use client";
 
@@ -1216,7 +1216,9 @@ export function UploadPanel({
         ) : null}
         {!mobile && !doneCard && !collapsed ? (
           <>
-            <div className="max-h-[60dvh] overflow-y-auto border-t">{list}</div>
+            <div className="relative max-h-[60dvh] overflow-y-auto border-t">
+              {list}
+            </div>
             {footerActions ? (
               <div
                 data-slot="upload-panel-footer"

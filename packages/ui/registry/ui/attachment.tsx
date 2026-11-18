@@ -1,4 +1,4 @@
-// @vegastack attachment@0.116.0 sha256-miAybuPf/QkLGeWJUqWW9AmjC/Pl3MEMC267yuoRnr8=
+// @vegastack attachment@0.116.0 sha256-RlElPGAZ9h5lvcNFVmE1c9KJqrW/1D7AyQ85vMaABxI=
 
 "use client";
 
@@ -534,7 +534,7 @@ function AttachmentGroup({
                       "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
                     )
                   : cn(
-                      "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
+                      "relative flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
                       // Sized to the row: `columns` tiles fit, the rest scroll.
                       count && tileScrollRowClasses,
                     ),

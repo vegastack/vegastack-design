@@ -1,4 +1,4 @@
-// @vegastack add-filter-menu@0.116.0 sha256-WccwqbEox203piQwhykgaCGsGssvCfUfPjvKl4dsLSQ=
+// @vegastack add-filter-menu@0.116.0 sha256-fmBuWtVK8Fx/kBasN72Ur5Pmesf43uGwIQgHqCSEv8M=
 
 "use client";
 
@@ -14,10 +14,16 @@ import {
 import {
   ListToolbarDrillHeader,
   ListToolbarPopover,
-  useListToolbar,
 } from "@/components/ui/list-toolbar";
 import { FieldCounter } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
+
+/**
+ * + Filter and Clear: the row's ghost chips — the same 28px pill and 12px type as the facets, no
+ * border, so the row is one family (a rectangle beside pills read as a different control).
+ */
+export const FILTER_ROW_ACTION =
+  "h-7 shrink-0 gap-1 rounded-chip ps-2 pe-2.5 text-xs font-medium text-muted-foreground [&_svg:not([class*='size-'])]:size-3.5";
 
 /* ---
 `AddFilterMenu` is `+ Filter`, at the end of a `FilterRow`. Its popover opens on one input,
@@ -234,7 +240,6 @@ export function AddFilterMenu({
   labels: labelsProp,
 }: AddFilterMenuProps) {
   const labels = { ...DEFAULT_LABELS, ...labelsProp };
-  const toolbar = useListToolbar();
   const [openState, setOpenState] = React.useState(false);
   const open = openProp ?? openState;
   const setOpen = React.useCallback(
@@ -409,7 +414,7 @@ export function AddFilterMenu({
           // A long condition builder scrolls inside the popover, never past the viewport.
           <div
             data-slot="add-filter-menu-advanced-body"
-            className="max-h-[min(28rem,60dvh)] min-h-0 overflow-y-auto overscroll-contain"
+            className="relative max-h-[min(28rem,60dvh)] min-h-0 overflow-y-auto overscroll-contain"
           >
             {drilledContent}
           </div>
@@ -598,10 +603,12 @@ export function AddFilterMenu({
       trigger={
         <Button
           variant="ghost"
-          // The toolbar's tool height: 32px, 28px in a compact toolbar.
-          size={toolbar?.compact ? "sm" : "default"}
+          size="sm"
           data-slot="add-filter-menu-trigger"
-          className="shrink-0 font-normal text-muted-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground"
+          className={cn(
+            FILTER_ROW_ACTION,
+            "aria-expanded:bg-state-selected aria-expanded:text-foreground",
+          )}
         >
           <Plus aria-hidden />
           {labels.filter}

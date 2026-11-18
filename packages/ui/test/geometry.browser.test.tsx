@@ -59,6 +59,8 @@ import {
   MultiStepFormStep,
 } from "../registry/ui/multi-step-form";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
+import { GlobalBar, GlobalBarCenter } from "../registry/ui/global-bar";
+import { GlobalBarSearch } from "../registry/ui/global-bar-client";
 import { SortableList } from "../registry/ui/sortable-list";
 import {
   Select,
@@ -5153,4 +5155,36 @@ test("concentric corners: menu, select and command rows, and the dialog's close 
     "x",
   );
   await command.unmount();
+});
+
+test("the top bar's search: a capsule whose search and Ask sit 3px in on every side (BRD-12, 2026-11-19)", async () => {
+  await page.viewport(1280, 768);
+  const bar = await render(
+    <GlobalBar>
+      <GlobalBarCenter>
+        <GlobalBarSearch
+          label="Search or ask anything…"
+          ask={{ label: "Ask William", onClick: () => undefined }}
+        />
+      </GlobalBarCenter>
+    </GlobalBar>,
+  );
+  const box = document.querySelector('[data-slot="global-bar-search"]')!;
+  const search = box.querySelector("button")!;
+  const ask = box.querySelector('[data-slot="global-bar-search-ask"]')!;
+  await expect.element(search).toBeVisible();
+  const o = box.getBoundingClientRect();
+  const insets = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return { top: r.top - o.top, bottom: o.bottom - r.bottom };
+  };
+  // Even top and bottom on both fills, the search's start and Ask's end too: no fill touches
+  // the ring while its sides keep a gap (the operator's report).
+  expect(insets(search)).toEqual({ top: 3, bottom: 3 });
+  expect(insets(ask)).toEqual({ top: 3, bottom: 3 });
+  expect(search.getBoundingClientRect().left - o.left).toBe(3);
+  expect(o.right - ask.getBoundingClientRect().right).toBe(3);
+  expectConcentric(box, search);
+  expectConcentric(box, ask);
+  await bar.unmount();
 });

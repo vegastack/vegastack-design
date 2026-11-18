@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.116.0 sha256-ZLH3vNbRcEQGTNFuGISOrR0zyakVJkDhXpGvv5ZSRGA=
+// @vegastack chat-composer@0.116.0 sha256-MZVBW7x6zqHZaLkv76WZtAfHCKRaIaUx5Nz7Eq1eIps=
 
 "use client";
 
@@ -1076,7 +1076,7 @@ export function ChatComposerAttachments({
       data-fade-end={edges.end ? "" : undefined}
       onScroll={measure}
       className={cn(
-        "flex min-w-0 items-center gap-1.5 overflow-x-auto px-2.5 pt-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+        "relative flex min-w-0 items-center gap-1.5 overflow-x-auto px-2.5 pt-2.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
         edges.end &&
           !edges.start &&
           "[mask-image:linear-gradient(to_right,black_calc(100%-2rem),transparent)] rtl:[mask-image:linear-gradient(to_left,black_calc(100%-2rem),transparent)]",

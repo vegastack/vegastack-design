@@ -1,4 +1,4 @@
-// @vegastack data-list@0.116.0 sha256-GqWEMhAg3xejAqBDoQPVfb0/Sdba0RUVxWSnuft4rus=
+// @vegastack data-list@0.116.0 sha256-GhtZKxIdWRNYvDONhvEeC5hMh8QbKqP0EtA35FT2Ifk=
 
 "use client";
 
@@ -1208,7 +1208,7 @@ const DROP_EDGE_ROW_CLASS =
  * A row with keyboard focus inside it. `accent`/50 on a small link measured barely above 1:1, so
  * the whole row carries the cue: the hover wash (`muted`/50; a stronger fill drops muted text
  * under AA in light) plus a 2px start-edge bar in `foreground`, painted as an extra layer of the
- * first cell's `row-fill` shape — a tint inside the row's rounded `item` shape, not a ring or an
+ * first cell's `row-fill` band — a tint across the row's square band, not a ring or an
  * outline (FOC-13).
  */
 const FOCUS_ROW_CLASS =

@@ -87,6 +87,22 @@ that added filters, the popover closes and `ai.onApplied(result, text)` fires: t
   name="AddFilterMenuProps"
 />
 
+### `FILTER_ROW_ACTION`
+
+The class string of the filter row's own actions — `+ Filter` and Clear: a ghost 28px pill
+(`rounded-chip`) with 12px medium text, the same tier as the row's chips, so the row is one shape.
+`AddFilterMenu`'s trigger and `FilterRow`'s Clear use it; use it for any other action you add to the
+row.
+
+```tsx
+import { FILTER_ROW_ACTION } from "@/components/ui/add-filter-menu";
+
+<Button variant="ghost" size="sm" className={FILTER_ROW_ACTION}>
+  <RotateCcw data-icon="inline-start" />
+  Reset
+</Button>;
+```
+
 ### Field
 
 <ApiTable

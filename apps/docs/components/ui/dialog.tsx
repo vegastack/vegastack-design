@@ -1,4 +1,4 @@
-// @vegastack dialog@0.116.0 sha256-HZ//Slj+zc+VSCrhZhD+CkyJ+o/NpQzR8fdTYfRltp8=
+// @vegastack dialog@0.116.0 sha256-xAx24o0fSfgfz7TpfnxgYuVFsQlrtcu1LjpDSWY0z1I=
 
 "use client";
 
@@ -150,7 +150,10 @@ function DialogBody({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="dialog-body"
-      className={cn("-mx-4 min-h-0 flex-1 overflow-y-auto px-4", className)}
+      className={cn(
+        "relative -mx-4 min-h-0 flex-1 overflow-y-auto px-4",
+        className,
+      )}
       {...props}
     />
   );

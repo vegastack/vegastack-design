@@ -170,14 +170,34 @@ keeps its destructive border while focused.
   file="components/preview/input-group.tsx"
 />
 
+### Shape
+
+A single-line group is an in-page field: `rounded-control` (10px), its buttons concentric at
+`rounded-segment` (8px). `shape="pill"` is a field in the app's frame or in a row of pills — the top
+bar's search: the group becomes `rounded-capsule capsule-scope`, so the buttons inside are circles
+and pills, concentric with it. A multi-line group (with a Textarea) stays `rounded-card`. See
+[Radius](/docs/foundations/radius#choosing-a-shape).
+
+```tsx
+<InputGroup shape="pill">
+  <InputGroupInput placeholder="Search" />
+  <InputGroupAddon align="inline-end">
+    <InputGroupButton size="icon-xs" aria-label="Clear">
+      <XIcon />
+    </InputGroupButton>
+  </InputGroupAddon>
+</InputGroup>
+```
+
 ## API Reference
 
 <ApiTable path="lib/api-props.ts" name="InputGroupAddonProps" />
 
 <ApiTable path="lib/api-props.ts" name="InputGroupButtonProps" />
 
-`InputGroup`, `InputGroupInput`, `InputGroupTextarea` and `InputGroupText` add no props of their
-own — each accepts everything the underlying element accepts.
+`InputGroup` adds one prop, `shape` (`"rect" | "pill"`, default `"rect"`; see Shape above).
+`InputGroupInput`, `InputGroupTextarea` and `InputGroupText` add no props of their own — each
+accepts everything the underlying element accepts.
 
 ## Accessibility
 

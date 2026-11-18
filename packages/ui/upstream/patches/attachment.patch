@@ -82,7 +82,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/attachment.tsx b/attachment.tsx
-index f8ca4a8..c48acdc 100644
+index f8ca4a8..8eb9a91 100644
 --- a/attachment.tsx
 +++ b/attachment.tsx
 @@ -1,66 +1,287 @@
@@ -641,7 +641,7 @@ index f8ca4a8..c48acdc 100644
 +                      "min-w-0 py-1 *:data-[slot=attachment]:w-full *:data-[slot=attachment]:min-w-0 *:data-[slot=attachment]:data-[orientation=vertical]:flex-nowrap",
 +                    )
 +                  : cn(
-+                      "flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
++                      "relative flex min-w-0 scroll-fade-x snap-x snap-mandatory scroll-px-1 scrollbar-none gap-3 overflow-x-auto overscroll-x-contain py-1 *:data-[slot=attachment]:flex-none *:data-[slot=attachment]:snap-start",
 +                      // Sized to the row: `columns` tiles fit, the rest scroll.
 +                      count && tileScrollRowClasses,
 +                    ),

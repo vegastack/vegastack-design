@@ -149,7 +149,12 @@ does.
 
 A column is a `ShellColumn` (the navigation landmark) that starts with a 48px
 `ShellColumnHeader`, the module's name and one or two actions, level with the page's top bar and
-fixed while the column scrolls. Its places are a [`NavTree`](/docs/components/nav-tree).
+fixed while the column scrolls. Its places are a [`NavTree`](/docs/components/nav-tree). The
+column scrolls in a [`ScrollArea`](/docs/components/scroll-area) whose viewport is the
+`<nav data-slot="shell-column">` itself: an overlay bar that takes no width and shows while the
+pointer is over the list. The content area (`shell-content`) is the page's one vertical scroller and
+is positioned, so nothing inside it can give the page a second scrollbar
+([Scrolling](/docs/foundations/scrolling)).
 
 ### The top bar's order
 

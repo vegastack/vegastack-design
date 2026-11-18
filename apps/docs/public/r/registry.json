@@ -61,7 +61,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.116.0",
-        "integrity": "sha256-RdF6dg+6JKMZUQMcTiK3m94fgv2miAmQ59cIFqxDSCQ="
+        "integrity": "sha256-TC3wA7JH+lRSPP6lN5cRW8oOl7ca78Awwws7yjKmshk="
       }
     },
     {
@@ -171,7 +171,8 @@
         "@vegastack/page-layout",
         "@vegastack/shell-layout",
         "@vegastack/date-time",
-        "@vegastack/rail"
+        "@vegastack/rail",
+        "@vegastack/scroll-area"
       ],
       "files": [
         {
@@ -194,7 +195,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.116.1",
-        "integrity": "sha256-fNccn9jPlEyDM0xuCSWvDKncQrdU8JDy/sDLDv2Fvfw="
+        "integrity": "sha256-NqwnMME5wVQCHdoFCN6wiGRbWpGA1DvRyrx/2kv5t+M="
       }
     },
     {
@@ -260,7 +261,7 @@
         "whenToUse": "The shell's top row (Shell's globalBar), in the browser and as the desktop app's title row.",
         "whenNotToUse": "A page's own header and actions (ShellTopBar), or a phone's top row.",
         "version": "0.116.0",
-        "integrity": "sha256-zXLmy0EFrvxRQQZIMC4PVN4aPEwoc/e6NKpjLWhU0Xg="
+        "integrity": "sha256-6p2SEwyIF8vvOjXDF8AUVvxmgOvF6io1RmTzQ23ICBQ="
       }
     },
     {
@@ -293,7 +294,7 @@
         "whenToUse": "The app's modules in the shell (Shell's rail).",
         "whenNotToUse": "A module's own places (NavTree in the column), search, help or the account (the global bar), or a phone (ShellBottomBar).",
         "version": "0.116.0",
-        "integrity": "sha256-grHaMK5CKTIm/cavA3ld+afNlJcbELGkvN90h1kp5SI="
+        "integrity": "sha256-qQpiKhOLOAH0o5vdXDKFoZUE3MZwsc4/durme8I2Wf8="
       }
     },
     {
@@ -349,7 +350,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
         "version": "0.116.0",
-        "integrity": "sha256-8xCnfhVTJ9AsABSnOJ0a2BgGG0zhgWlIl8LpbbvxM3w="
+        "integrity": "sha256-AAKpKdI+0G6ZoiaXjl7hsTbEmXusL0BnJiJ/e03QMQw="
       }
     },
     {
@@ -384,7 +385,7 @@
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
         "version": "0.116.0",
-        "integrity": "sha256-pv/Z+W49FF06svL9LVyLuK82cm3sPslz+qbhtV07oCI="
+        "integrity": "sha256-9H0hl8fvZXMR4E15SE2kHTxN+GSaSWf8YEUeeewKrwI="
       }
     },
     {
@@ -426,7 +427,7 @@
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
         "version": "0.116.0",
-        "integrity": "sha256-qolzOZVkPnVud34uejbDD6zZqomf2toWFytpYDy+u0I="
+        "integrity": "sha256-Vjk/k2C4zeq/VIE4in3oL7l8maP9/0dVHncGHiKU8eM="
       }
     },
     {
@@ -473,7 +474,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.116.0",
-        "integrity": "sha256-vzgotvzr3hS0UDlH1knrTBCi3kLzQDOv4bPOgY4JyWM="
+        "integrity": "sha256-FAqHms/QakfvJVVptTPoY+9tklfZaWtxsZS07aKr9nI="
       }
     },
     {
@@ -509,7 +510,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox).",
         "version": "0.116.0",
-        "integrity": "sha256-uw5ip3SuB4TJoEEhUefMZxox/aD0+Bcbrq3z5Efqxzc="
+        "integrity": "sha256-ozyDGpt9EzmJ92CgxkS8SHb3GsXj4CFrR/fqE6QNnKY="
       }
     },
     {
@@ -609,7 +610,7 @@
         "whenToUse": "A document's full history in DialogContent size=\"fullscreen\": read a version or its changes beside the list, and restore or copy it.",
         "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (ActivityFeed), or comparing two arbitrary texts (DiffView).",
         "version": "0.116.3",
-        "integrity": "sha256-R5nqvrri1NgQIi1D6suvwUzBfkXWmy1Opsli+5Nt4Zs="
+        "integrity": "sha256-96hh7hu3qUSA4vjHjGckMkqFSO++aj34VwU9KPK9jNc="
       }
     },
     {
@@ -706,7 +707,7 @@
         "whenToUse": "Diagrams written as ```mermaid fences — in a TextEdit or MarkdownView (blockViews={{ mermaid: mermaidBlockView }}) or on their own (MermaidBlock, renderMermaid).",
         "whenNotToUse": "Charts of data (Chart), or an image someone uploaded (FileViewer).",
         "version": "0.116.0",
-        "integrity": "sha256-gkTMSJgWtZCEfEibhsJa0qxN4DFcf/6VQRzZvI5+R/Y="
+        "integrity": "sha256-ZkCkN5juBFqi2cNiSPdlLvEQg3ViRtca9TLXROP7gEc="
       }
     },
     {
@@ -793,7 +794,7 @@
         "whenToUse": "Letting people react to a comment, message or post with emoji.",
         "whenNotToUse": "A single like or rating — use a toggle button.",
         "version": "0.116.0",
-        "integrity": "sha256-HYRwGf/BA4+BU4zxHT6U6I7khl+rGAly1lNJHE2fk08="
+        "integrity": "sha256-dGvCjmCskaTMlK0WKIPWzTfymosLHyNqe/CuU7S8oFE="
       }
     },
     {
@@ -856,7 +857,7 @@
         "whenToUse": "File and media tiles on any surface: chat attachments, record files, upload queues — a chip or thumbnail with name, size, lifecycle state, determinate upload progress (AttachmentProgress), a muted tile for a file no longer in use, and remove or download actions; AttachmentGroup lays them out as a scrolling row or a grid.",
         "whenNotToUse": "Acquiring files (drop, browse, paste) - that is Dropzone; Attachment renders the files after acquisition.",
         "version": "0.116.0",
-        "integrity": "sha256-miAybuPf/QkLGeWJUqWW9AmjC/Pl3MEMC267yuoRnr8="
+        "integrity": "sha256-RlElPGAZ9h5lvcNFVmE1c9KJqrW/1D7AyQ85vMaABxI="
       }
     },
     {
@@ -898,7 +899,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, `actionsRef` seeks it from a transcript or chapter list, and `peaks` draws a stored waveform without downloading the file.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.116.0",
-        "integrity": "sha256-3BpH/3Fn2e89AZbjw9k7A+NdzZJz15VNWWXb99qqFgk="
+        "integrity": "sha256-cB0NWB2hqrgj5UUD3sy6uFpkUJaTvuAyUtX2xJvUTx0="
       }
     },
     {
@@ -1066,7 +1067,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.116.0",
-        "integrity": "sha256-Vatoj0mM6sO01HD9DqRqEd9VZTGgZ1wPezZkqRpdnUc="
+        "integrity": "sha256-XIVvq1IrW/51tN9Hluo+cjJvGzUDk4k9JIjOZDdcBek="
       }
     },
     {
@@ -1234,7 +1235,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.116.0",
-        "integrity": "sha256-/s5oygpkNDdnarnixfrQK85wqBcwReJuqXwpcjp12MM="
+        "integrity": "sha256-X9BGm9jS5+gC8CJL3TTseCK+7/zFVMX0+K9LQGacVgk="
       }
     },
     {
@@ -1533,7 +1534,7 @@
         "whenToUse": "Fenced/source code that deserves a labelled, copyable panel.",
         "whenNotToUse": "Inline code (a mono chip) or terminal output theatre (Terminal).",
         "version": "0.116.0",
-        "integrity": "sha256-tyTWcgxw31xxMzFWd7d5ndFDVuCBXWKWQOfozWoUtNs="
+        "integrity": "sha256-udHKVkpxypLcftnonnA3D/jCoOtdpMHyQYU3UpBGI6M="
       }
     },
     {
@@ -1626,7 +1627,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.116.0",
-        "integrity": "sha256-kX00tBk4AmKnWFR7eQLAKTPabCsl/PDNltEoH2U9ZW4="
+        "integrity": "sha256-0DNl8XH+vS5JvWCh02irxMkIRwz4Hnal7dtjeOMHEbM="
       }
     },
     {
@@ -1662,7 +1663,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.116.0",
-        "integrity": "sha256-DXozyjErFfaJYhz33/X3r4FUSkr4CiZQCqwG1Ut6Oms="
+        "integrity": "sha256-ofm5bDeEXKJCSZtq3CAylMNKJElxzkAuv7uQSmawZO8="
       }
     },
     {
@@ -1693,7 +1694,7 @@
         "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.116.0",
-        "integrity": "sha256-jb7d9wrs5bBeVvV+3qq+lS5bF4yxYarlfTDso/G6Gks="
+        "integrity": "sha256-t6kQ9hAIKb/1YoqWeTshWKyffC6oRnT/uJwpyK/39nY="
       }
     },
     {
@@ -1774,7 +1775,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.116.0",
-        "integrity": "sha256-8s79sv+0O1wY4otUwIAiuJYCFQc7INabCbUdHop4ds4="
+        "integrity": "sha256-ULo7auVlRrtqbzov5eIVf9xqlPjZM4+RW7g5kfG2i48="
       }
     },
     {
@@ -1948,7 +1949,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.116.0",
-        "integrity": "sha256-GqWEMhAg3xejAqBDoQPVfb0/Sdba0RUVxWSnuft4rus="
+        "integrity": "sha256-GhtZKxIdWRNYvDONhvEeC5hMh8QbKqP0EtA35FT2Ifk="
       }
     },
     {
@@ -2256,7 +2257,8 @@
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/toast",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/add-filter-menu"
       ],
       "files": [
         {
@@ -2269,7 +2271,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.116.0",
-        "integrity": "sha256-ldruOeEb9x73QPsuimvxjqi3o030DpdYywL9psN6VGM="
+        "integrity": "sha256-r2sCqAS+9+7R8yuyjdN16gcvC1mbVxOwTuG06GiYj+w="
       }
     },
     {
@@ -2303,7 +2305,7 @@
         "whenToUse": "Adding a filter to a FilterRow — by field or, with the page's AI filter, in plain language.",
         "whenNotToUse": "Choosing a value for one known field (a facet), or a free-text search (SearchInput).",
         "version": "0.116.0",
-        "integrity": "sha256-WccwqbEox203piQwhykgaCGsGssvCfUfPjvKl4dsLSQ="
+        "integrity": "sha256-fmBuWtVK8Fx/kBasN72Ur5Pmesf43uGwIQgHqCSEv8M="
       }
     },
     {
@@ -2368,7 +2370,7 @@
         "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
         "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
         "version": "0.116.0",
-        "integrity": "sha256-aOB5EoQVCfEMmGc8329kH3xJMX7IBUzswhT5EbDQ5Bc="
+        "integrity": "sha256-WxEQZ2L/KeOYHQR6xFIDc/kHuC5iYCeDCKSaEFkqxmo="
       }
     },
     {
@@ -2408,7 +2410,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.116.0",
-        "integrity": "sha256-FZIyqRRZhtdF3QBJIqytT+Er3Kb6XokUohfhlTw2/vo="
+        "integrity": "sha256-B66FvLHZHTRFn3OB3KylvP7gNLZaG3vTToIukWEQd/g="
       }
     },
     {
@@ -2446,7 +2448,7 @@
         "whenToUse": "Selecting a single date, a date with a time of day (DateTimePicker: the calendar and the time in one popup, on the reader's clock), or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.116.0",
-        "integrity": "sha256-FoCEvHN/SJyOibPDNp/Bt6dsQ+avVqYHaDATAya2gtY="
+        "integrity": "sha256-3Wq8FI6bOkvWZ9qlFIT6xRyr+B7iZpji2HSz8rWdLMQ="
       }
     },
     {
@@ -2549,7 +2551,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.116.0",
-        "integrity": "sha256-HZ//Slj+zc+VSCrhZhD+CkyJ+o/NpQzR8fdTYfRltp8="
+        "integrity": "sha256-xAx24o0fSfgfz7TpfnxgYuVFsQlrtcu1LjpDSWY0z1I="
       }
     },
     {
@@ -3053,7 +3055,7 @@
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.116.0",
-        "integrity": "sha256-UvCAW4GfsAU1mJRUtD0/+WRj0ig6DIPlcklWocKi6aA="
+        "integrity": "sha256-n/m/czI/rdpQNRzVekFnOoFADWg5CQo04uU2yGcbhnI="
       }
     },
     {
@@ -3120,7 +3122,7 @@
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
         "version": "0.116.0",
-        "integrity": "sha256-SFdZjT4AAzKs7FY3Ut5FZcZkZSpzlFEVhMKYNcVq/Tk="
+        "integrity": "sha256-B05H9GMk4MKJi1iIGekonHdAux8gSNpFcEKwW4x/6ZY="
       }
     },
     {
@@ -3159,7 +3161,7 @@
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
         "version": "0.116.0",
-        "integrity": "sha256-SfhDGF5Rr/h5Eg8sRy+ECnpagm2Z0G1g3NUput0p33M="
+        "integrity": "sha256-ThqO7wF85hfFFe4tNMMJcspMs377YjBtmXYambFX7Ws="
       }
     },
     {
@@ -3216,7 +3218,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.116.0",
-        "integrity": "sha256-IFCNGG3V2TNIOpruMt3h6vyza3d8H2cvd1cGIA6K2+o="
+        "integrity": "sha256-pI7c5tqDYHITMNnm6Vbing+iO3pfgnpfLRn6fZJwcVk="
       }
     },
     {
@@ -3279,7 +3281,7 @@
         "whenToUse": "Installed automatically with EmojiPicker or ShortcutOverlay; import it directly when building another popup that filters its own contents.",
         "whenNotToUse": "A standalone search field on a page — that is Input, or InputGroup with a leading addon. A command palette is Command, which brings its own input.",
         "version": "0.116.0",
-        "integrity": "sha256-cZJ1pmxUpU5OHkYRY/YNcEJ8dNZcuFq6lOG0uEptd3w="
+        "integrity": "sha256-v8kKMtaUCTKIZ6/laWOP0Nzt1dEMNcmxH3phhYJdrCk="
       }
     },
     {
@@ -3313,7 +3315,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.116.0",
-        "integrity": "sha256-1Kbh3CS1nHRAj3k+vHDYlpsSnPe4H2bL/Aj6f3767+A="
+        "integrity": "sha256-bTyoVucxJtuUm6KM9KRpDjwZh8VLXPbjjBwU9EnuS7Q="
       }
     },
     {
@@ -16628,7 +16630,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.116.0",
-        "integrity": "sha256-mXnLInjswMLaAT4YSlvZtSRzrK9vJ8ycQRbnguuEMxM="
+        "integrity": "sha256-nuCfYqMA05cVo6wRP2x1fby2OErwfGiESd/cA454NbI="
       }
     },
     {
@@ -16697,7 +16699,7 @@
         "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
         "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
         "version": "0.116.0",
-        "integrity": "sha256-+epC47BsRYdsv0TxImd6Es7UTNWw8MY1sehJ0KOsxdU="
+        "integrity": "sha256-2yhMEZc6zunDtAIAjrJ0kydUcALL23G73Iya6S9Rqxg="
       }
     },
     {
@@ -16753,7 +16755,7 @@
         "whenToUse": "Single-line text entry — email, password, search, URL/slug with a domain prefix, numbers, etc.",
         "whenNotToUse": "Multi-line text (use a textarea) or choosing from fixed options (use a select/radio).",
         "version": "0.116.0",
-        "integrity": "sha256-dJiIcJuVz8pobfizVkPAKrTfcWCNUKBaWm/S6YD8e58="
+        "integrity": "sha256-9UQDsmvSr/7N+P/QZC1DoFBUJRhsJlYRdE3xWaQUrd4="
       }
     },
     {
@@ -16785,7 +16787,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.116.0",
-        "integrity": "sha256-b7rcJyqTCAynrsBOWYt5MDUcRFNSSgDFr9FWyk5xAVY="
+        "integrity": "sha256-sfKtmxWnjGTYYX5VkKNg0IxXzxZYu34S9z5AgGq8Ig4="
       }
     },
     {
@@ -16991,7 +16993,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.116.0",
-        "integrity": "sha256-BaoZ5T5WdxkEnzN+53MSZoL2l1KYYtuosFQNxKEyeFA="
+        "integrity": "sha256-7vylfN0ZYeasH04e8QWKkumP8H7Nos6Vrs8VsUvyESw="
       }
     },
     {
@@ -17145,7 +17147,7 @@
         "whenToUse": "A live chat/AI thread that must auto-scroll, keep its place when older messages load, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.116.0",
-        "integrity": "sha256-Fj0oqKzUBwoZVgi0yTeKYX/Wvynyzx84oxq86ZpGGZg="
+        "integrity": "sha256-XLvf1PaTDrztXyyzsuyaBMbC0NfKmvYvSXggeAhUABI="
       }
     },
     {
@@ -17425,7 +17427,7 @@
         "whenToUse": "A checklist line linked to a task, or a task named in running text, where the reader ticks it, opens it and sees who and when; MakeTaskPopover to make one from a line.",
         "whenNotToUse": "A task row in a list or board (DataList, BoardCard) or a plain reference to a task in a sentence (InlineChip).",
         "version": "0.116.0",
-        "integrity": "sha256-VVARr3wyhg1krAKv8/cFY1+2Er1iyLvh2CTia2a6l5I="
+        "integrity": "sha256-yr1anMN0WQ5ss7xHu7LSKK4oTJ8kR44qRDZHNknAHNU="
       }
     },
     {
@@ -17608,7 +17610,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread marker (NotificationDot).",
         "version": "0.116.0",
-        "integrity": "sha256-sSC0AQWXhU46SliuVdwBoK3u2vjR4+fTXoIiG/CF5GI="
+        "integrity": "sha256-jf3IDT4k1TjbOCnUL2ecxRP/mY0q7nxwnsKpOdnG0Es="
       }
     },
     {
@@ -17756,7 +17758,7 @@
         "whenToUse": "Rich, interactive content anchored to a control — a small form, a picker, a details card.",
         "whenNotToUse": "A short label (Tooltip), a list of actions (DropdownMenu), or anything that must block the page (Dialog).",
         "version": "0.116.0",
-        "integrity": "sha256-lwoFXY9OdiFiJ+EUctOVUGDeKxckWZ+PF190YOd9qdo="
+        "integrity": "sha256-b2b9rWN2WaGRGDvgCmi56v3uARX3AcZfgz6repKQthY="
       }
     },
     {
@@ -17877,7 +17879,7 @@
         "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
         "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
         "version": "0.116.0",
-        "integrity": "sha256-kAtUaEw7tWk8aos/6FIPed+5zoWTz8XP785gNWLgYyY="
+        "integrity": "sha256-F9f974F1W1JKnq2oNLvzSAOX2rd1pynkZdgGIwhwnLI="
       }
     },
     {
@@ -18018,7 +18020,7 @@
         "whenToUse": "A Move to… dialog: moving a page, file, folder, table, task or meeting into a space or folder.",
         "whenNotToUse": "Picking a record to link (RecordPicker) or a space alone (SpacePicker).",
         "version": "0.116.0",
-        "integrity": "sha256-7PM8+vnDC5eXzDjnyWSZJ76rBa0fMSnj9208TG9qOLk="
+        "integrity": "sha256-bMudX0LVpL6OROGDOhWoYQmR7urIg8vpMfbxSQg0RuM="
       }
     },
     {
@@ -18147,7 +18149,7 @@
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.116.0",
-        "integrity": "sha256-JNe5zpsyVqBeJpEtjLonpPiMYorpv5Nsk7n8suflIZw="
+        "integrity": "sha256-xcbsdj9c57bx7fpb8DBcvPwemxjiRmeWLg87P8yw8xA="
       }
     },
     {
@@ -18456,7 +18458,7 @@
         "whenToUse": "Bounded panels whose content overflows — sidebars, log viewers, modal bodies, chat histories.",
         "whenNotToUse": "Whole-page scrolling, or content that already fits.",
         "version": "0.116.0",
-        "integrity": "sha256-1XLhozETBT8pKO9vMayjvDvAhJz3PRue+80u0Vt0Ne4="
+        "integrity": "sha256-yM1xcP2csB10rmJlBIynDhaeNH2f56KvVf3lQEsZ3Fs="
       }
     },
     {
@@ -18679,7 +18681,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.116.0",
-        "integrity": "sha256-TfF8u6Lkk6XhBQdNAf5pXTsCBmrBW/MJpAHKDEvgVaM="
+        "integrity": "sha256-RrGiO2Mzox+2AUBYiG+DsuyAVL84bf8MroA8L9tNVH8="
       }
     },
     {
@@ -19050,7 +19052,7 @@
         "whenToUse": "A process a person drives across several screens — signup, checkout, an import wizard, a multi-section record editor — where steps can branch, an advance can be refused, and a committed step must not be walked back into.",
         "whenNotToUse": "Progress the system drives and a person only reads (Stepper alone), free navigation between peer views (Tabs), or one question at a time (Questionnaire).",
         "version": "0.116.0",
-        "integrity": "sha256-fPzCOT46F6RIfWvSH4Y3qFSJY8NcvXjimnlXLb/jxKc="
+        "integrity": "sha256-gjqk2nkAg9BUbgGJnl3pBxBoItv0Jp5lyqj5RWWxMJE="
       }
     },
     {
@@ -19205,7 +19207,7 @@
         "whenToUse": "Install snippets and short, copyable command sequences on a marketing surface.",
         "whenNotToUse": "Long-form code samples — use a standard code block.",
         "version": "0.116.0",
-        "integrity": "sha256-7fbJ1C5Exz9YJzDYCVTzQoxrW396yM/gUrwua2AiFuA="
+        "integrity": "sha256-WS9dM04KXc0btFaU1BRYxmQut2Rsyh9xenqDG9GPMgc="
       }
     },
     {
@@ -19327,7 +19329,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.116.0",
-        "integrity": "sha256-3ZsntOQ3TxatOudmQ+uord0ELj4DalbOFp60ge22kks="
+        "integrity": "sha256-bADS/iCjsyrYrTvrpoUxhWcp3epVSzbftwwfNp9qmq8="
       }
     },
     {
@@ -19448,7 +19450,7 @@
         "whenToUse": "An immediate view or scope switch over the same content (Mine | Team, Grid | List) — pass deselectable={false} so one item always stays pressed — or related toggle buttons such as formatting; wrap lets a long option set fall onto rows on a narrow screen.",
         "whenNotToUse": "A form value (RadioGroup), swapping page regions (Tabs), moving between URLs (links), or a single on/off control (Toggle/Switch).",
         "version": "0.116.0",
-        "integrity": "sha256-7mSAuRoomjTp1YZKC0HgHISq+sWaZrt47qA3/s9i1TA="
+        "integrity": "sha256-GCo1ZLoiyEN4wLp1KiChizagYljeW1zy6P9dXov+HOI="
       }
     },
     {
@@ -19910,7 +19912,7 @@
         "whenToUse": "The details rail beside an agent chat (≥1280px) or its phone sheet.",
         "whenNotToUse": "Record detail asides (RecordAside).",
         "version": "0.116.0",
-        "integrity": "sha256-9N4dWkbqsk6SuLq1C5AD4DqND2sD0fVES+8mOfvWiKM="
+        "integrity": "sha256-rMk6ttJKzdjJl5s7wWCRM/CPIWO5CYSsdnLxz4ikBTI="
       }
     },
     {
@@ -20075,7 +20077,7 @@
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
         "version": "0.116.0",
-        "integrity": "sha256-byfEP2UNsgeppgAKj+XCl/7fIQvftNeOS6GwCpfRnxU="
+        "integrity": "sha256-j/ipiWNnkO/3iusMmJhP6CBpvncggFtsEhwQLD9Qvn4="
       }
     },
     {
@@ -20238,7 +20240,7 @@
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
         "version": "0.116.0",
-        "integrity": "sha256-f2RYFQGvwcwR0Ku4zolfNPdX/bFSvMdfCpTa9TQwFOc="
+        "integrity": "sha256-51nJU7vCMrjjTtNBgPOqbYRS3vBIci6ryZrZ7qLFeIA="
       }
     },
     {
@@ -20408,7 +20410,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.116.0",
-        "integrity": "sha256-ZLH3vNbRcEQGTNFuGISOrR0zyakVJkDhXpGvv5ZSRGA="
+        "integrity": "sha256-MZVBW7x6zqHZaLkv76WZtAfHCKRaIaUx5Nz7Eq1eIps="
       }
     },
     {
@@ -23613,7 +23615,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.115.0",
-        "integrity": "sha256-95o/ZKq9S6f8irFn1q7GCfpPU3xlQ8hxCfx0Z12swIA="
+        "integrity": "sha256-IYcUTLvmplyUbfTJA0eoDgbBE1BhtodN17P0O2TCaoM="
       }
     },
     {
@@ -23765,7 +23767,7 @@
         "whenToUse": "A page for a team's files and pages — folders in Shared and Private, uploads, a list or grid of a folder's contents, a viewer and moves; copy it once and wire it to your storage API.",
         "whenNotToUse": "A few files on a record (AttachmentGroup) or a single upload form (Dropzone).",
         "version": "0.116.0",
-        "integrity": "sha256-eU/B7Xe6Pgpkn5DsHjbSPKrt4rRaneJDBRg5B67YeTU="
+        "integrity": "sha256-nx+j+TjjzTYK1KpxiYAejjJOR1/u4XhaYvcGeWQxZOU="
       }
     },
     {
@@ -24030,7 +24032,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.116.0",
-        "integrity": "sha256-RwvYrSyU7wXnpLuySw/HzaEFNxaKlMTP1B1MrSySsdM="
+        "integrity": "sha256-BmON8G24bj+OYaqdNDo3yBDiknOO70bMTU+52Y7bqyA="
       }
     },
     {
@@ -24070,7 +24072,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.116.0",
-        "integrity": "sha256-ftGJbv34wtD42g3JwmKNutdYtu8XwCzShF3oZmgm5zQ="
+        "integrity": "sha256-MNiujuLoupSjwfNppP9nsgnvT7wrw6Z1f1jpfCh1QYE="
       }
     },
     {
@@ -24130,7 +24132,7 @@
         "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
         "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
         "version": "0.116.0",
-        "integrity": "sha256-ZyWSxcEe70CGHr3WdfybPMAqqTaZ7TzNS2ku7QL2Ig4="
+        "integrity": "sha256-po8C7ZYYdM3MVe7GRmbSQdDY4TI7Ap0n/vFV+9ZOWmk="
       }
     },
     {
@@ -24164,7 +24166,7 @@
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (RequestCard), a transient result after the viewer's own action (Toast), or a page-wide notice (Alert).",
         "version": "0.116.0",
-        "integrity": "sha256-5b2koQ8XRDgJhYu0vubIQgRwsTeIO6jf92htCneIBDc="
+        "integrity": "sha256-7LzGObznzxdl3xDmjTsekUu2ixyAqksv4ZHvuLBQ4V0="
       }
     },
     {
@@ -24244,7 +24246,7 @@
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (RequestCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
         "version": "0.116.0",
-        "integrity": "sha256-aVFz2Y5zYsV0H+4umNZ1N48WBCfHsSaWMOjOLXiXUGg="
+        "integrity": "sha256-d5Ek3B5VfvKMCIzv5lEtwUyReaBWHUxjAKiHQzC91xM="
       }
     },
     {
@@ -24387,7 +24389,7 @@
         "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
         "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (ListToolbar's search).",
         "version": "0.116.0",
-        "integrity": "sha256-9XPI4nUjJQLUIW2MdWo5/zxY2IdgzYaHATkBl2qfPw0="
+        "integrity": "sha256-NAJ2/iGsEN/F9rFUGs2+AGgopy2PYQoyhsteWgGzUIQ="
       }
     },
     {
@@ -24424,7 +24426,7 @@
         "whenToUse": "A Recent row above a list (the Library home) or Home's Jump back in: up to six records to return to, one tap away, without pushing the main list down.",
         "whenNotToUse": "The main list of records (DataList), a grid of every item (DataList view=\"grid\"), or a record's own links (RecordChip).",
         "version": "0.116.0",
-        "integrity": "sha256-3rcSYrR7ZE9nXwD8liiEzZ/Y3HuXT27yXfibaYmzIt4="
+        "integrity": "sha256-HqVkh14Zxkxl10o2OuVfLERb5vG7s7BYNVsj7nShd/s="
       }
     },
     {
@@ -24511,7 +24513,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.116.0",
-        "integrity": "sha256-uqVLGa1zr9I/1YFGs0tROLXF0Yzq+8EVVvBZnJ5CfcM="
+        "integrity": "sha256-CBcZhkdmMgSvoNTp9TBpRVam0U6oVEMEQP3XMwXNQuo="
       }
     }
   ]

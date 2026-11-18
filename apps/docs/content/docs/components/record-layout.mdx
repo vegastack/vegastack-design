@@ -116,7 +116,10 @@ The page bar's **▥** (`RecordPanelToggle`) is its last control, after ⋯ and 
 - The breakpoints follow the record layout's own width (a container query), not the window's,
   so a collapsed column or a split window picks the right one.
 - In the shell, `RecordLayout` reaches past the page gutter to the page's edges; the main column
-  takes the gutter back as its padding and scrolls on its own, as the panel does.
+  takes the gutter back as its padding and scrolls on its own, as the panel does. The layout takes
+  exactly the height the content area leaves, so the page itself never scrolls as well, and the
+  main column is positioned (`relative`), so an absolute child can't escape to the page's scroller
+  ([Scrolling](/docs/foundations/scrolling)).
 
 <ComponentPreview
   name="recordLayoutWidths"

@@ -1336,6 +1336,23 @@ for (const root of ROOTS) {
         );
       }
 
+      // (k) BRD-SCR (ours, operator 2026-11-19): a scroller is the containing block of what it
+      // scrolls. An `overflow-*-auto|scroll` element that is not positioned lets an absolute
+      // descendant (a screen-reader-only label) escape to the next scroller up and give it a
+      // second scrollbar — the task page's double scroll. Name `relative` (or the element's own
+      // `absolute`/`fixed`/`sticky`) beside the overflow.
+      if (
+        /(^|\/)packages\/ui\/registry\//.test(
+          resolve(file).replace(/\\/g, "/"),
+        ) &&
+        unpositionedScroller(lit)
+      ) {
+        report(
+          "scroller-positioned",
+          "a scroller (`overflow-*-auto`/`scroll`) is positioned: add `relative` beside it, so absolute descendants stay inside it and never give the page a second scrollbar (BRD-SCR, Foundations › Scrolling).",
+        );
+      }
+
       // (g) Tailwind's `!` modifier — the class-string half of the `important` rule. Counted per
       // file against IMPORTANT_MODIFIER_EXEMPTIONS after the loop.
       for (const token of importantModifierTokens(lit)) {
@@ -2164,6 +2181,21 @@ function bareRingClass(text, classPosition) {
   );
   const beside = tokens.some((token) => token !== bare && /[-:/[]/.test(token));
   return classShaped && beside ? bare : null;
+}
+
+/** BRD-SCR (k): a class string that scrolls (any variant) but names no position. */
+function unpositionedScroller(text) {
+  const utilities = text
+    .split(/\s+/)
+    .map((token) => token.slice(token.lastIndexOf(":") + 1));
+  if (
+    !utilities.some((u) => /^overflow-(?:[xy]-)?(?:auto|scroll)$/.test(u)) ||
+    text.includes("[&_")
+  )
+    return false;
+  return !utilities.some((u) =>
+    ["relative", "absolute", "fixed", "sticky"].includes(u),
+  );
 }
 
 /** BRD-12 (j): a class string that floats (fixed/sticky, or absolute + shadow) yet wears `rounded-control`. */

@@ -1,4 +1,4 @@
-// @vegastack request-card@0.116.0 sha256-ZyWSxcEe70CGHr3WdfybPMAqqTaZ7TzNS2ku7QL2Ig4=
+// @vegastack request-card@0.116.0 sha256-po8C7ZYYdM3MVe7GRmbSQdDY4TI7Ap0n/vFV+9ZOWmk=
 
 "use client";
 
@@ -359,7 +359,7 @@ function PreviewBlock({
           tabIndex={0}
           aria-label="What it would send"
           className={cn(
-            "max-h-48 overflow-y-auto rounded-block bg-muted px-3 py-2 whitespace-pre-line wrap-anywhere",
+            "relative max-h-48 overflow-y-auto rounded-block bg-muted px-3 py-2 whitespace-pre-line wrap-anywhere",
             className,
           )}
         >

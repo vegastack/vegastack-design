@@ -1,4 +1,4 @@
-// @vegastack chat-request-card@0.116.0 sha256-f2RYFQGvwcwR0Ku4zolfNPdX/bFSvMdfCpTa9TQwFOc=
+// @vegastack chat-request-card@0.116.0 sha256-51nJU7vCMrjjTtNBgPOqbYRS3vBIci6ryZrZ7qLFeIA=
 
 "use client";
 
@@ -164,7 +164,7 @@ function RequestSubject({
             // A long quote scrolls: a stop of its own, so a keyboard can read it all before answering.
             tabIndex={0}
             aria-label="What it would send"
-            className="mt-1.5 max-h-48 overflow-y-auto rounded-block bg-muted px-3 py-2 text-sm whitespace-pre-wrap wrap-anywhere text-foreground"
+            className="relative mt-1.5 max-h-48 overflow-y-auto rounded-block bg-muted px-3 py-2 text-sm whitespace-pre-wrap wrap-anywhere text-foreground"
           >
             {data.quote}
           </blockquote>

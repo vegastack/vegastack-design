@@ -1,4 +1,4 @@
-// @vegastack board@0.116.0 sha256-Vatoj0mM6sO01HD9DqRqEd9VZTGgZ1wPezZkqRpdnUc=
+// @vegastack board@0.116.0 sha256-XIVvq1IrW/51tN9Hluo+cjJvGzUDk4k9JIjOZDdcBek=
 
 "use client";
 
@@ -377,15 +377,16 @@ export interface BoardProps<T> {
    */
   moveErrorToast?: false | ((label: string, error: unknown) => React.ReactNode);
   /**
-   * The board's height: `"fill"` runs the lanes from where the board starts to the bottom of the
-   * viewport (cards scroll inside each lane, the page does not scroll); `"auto"` sizes lanes to
+   * The board's height: `"fill"` runs the lanes from where the board starts to the bottom of its
+   * page's scroll area (cards scroll inside each lane, the page does not scroll); `"auto"` sizes lanes to
    * their cards up to `columnMaxHeight`; any other value is a CSS length.
    * @default "fill", or "auto" when `columnMaxHeight` is set
    */
   height?: "fill" | "auto" | (string & {});
   /**
-   * Space kept below a `"fill"` board, as a CSS length — the page's bottom padding.
-   * @default "1rem"
+   * Extra space kept below a `"fill"` board, as a CSS length. The page's own bottom padding and
+   * anything laid out after the board are measured already; this is only for room on top of that.
+   * @default "0px"
    */
   fillOffset?: string;
   /**
@@ -613,7 +614,7 @@ export function Board<T>({
   getColumnActions,
   moveErrorToast = (label) => `Couldn't move ${label}`,
   height,
-  fillOffset = "1rem",
+  fillOffset = "0px",
   columnWidth = "20rem",
   columnMaxHeight,
   renderColumnAction,
@@ -1323,18 +1324,31 @@ export function Board<T>({
     }
   };
 
-  // ---- layout: fill the viewport, edge fades, the phone's lane strip ---------------------------
+  // ---- layout: fill the scroll area, edge fades, the phone's lane strip ------------------------
+  // A "fill" board ends where its page's scroll area ends, so the page itself never scrolls and the
+  // lanes are the only vertical scrollers (one scroller per axis, BRD-SCR). The height is measured
+  // against the nearest vertical scroller (the shell's content area), less whatever the page lays
+  // out after the board (its bottom padding, a footer) — never guessed from the viewport, which
+  // left the board ~25px taller than the framed card and gave the page a second scrollbar.
   const rootRef = React.useRef<HTMLDivElement>(null);
-  const [fillTop, setFillTop] = React.useState<number | null>(null);
+  const [fillHeight, setFillHeight] = React.useState<number | null>(null);
   React.useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root || resolvedHeight !== "fill") return;
+    const scroller = scrollParent(root);
     const measure = () => {
-      const top = Math.max(
+      const rootTop = root.getBoundingClientRect().top;
+      // Inside a scroller, the board's top within its visible area; on the document, its top on
+      // the page (the phone, where the document scrolls).
+      const offset = scroller
+        ? rootTop - scroller.getBoundingClientRect().top - scroller.clientTop
+        : rootTop + window.scrollY;
+      const area = scroller ? scroller.clientHeight : window.innerHeight;
+      const next = Math.max(
         0,
-        Math.round(root.getBoundingClientRect().top + window.scrollY),
+        Math.floor(area - offset - contentAfter(root, scroller)),
       );
-      setFillTop((prev) => (prev === top ? prev : top));
+      setFillHeight((prev) => (prev === next ? prev : next));
     };
     measure();
     window.addEventListener("resize", measure);
@@ -1343,6 +1357,7 @@ export function Board<T>({
         ? null
         : new ResizeObserver(measure);
     if (root.parentElement) observer?.observe(root.parentElement);
+    if (scroller) observer?.observe(scroller);
     return () => {
       window.removeEventListener("resize", measure);
       observer?.disconnect();
@@ -1350,7 +1365,9 @@ export function Board<T>({
   }, [resolvedHeight]);
   const boardHeight =
     resolvedHeight === "fill"
-      ? `max(20rem, calc(100dvh - ${fillTop ?? 0}px - ${fillOffset}))`
+      ? fillHeight == null
+        ? `max(20rem, calc(100dvh - 16rem - ${fillOffset}))`
+        : `max(20rem, calc(${fillHeight}px - ${fillOffset}))`
       : resolvedHeight;
 
   const [fades, setFades] = React.useState({ start: false, end: false });
@@ -1977,7 +1994,7 @@ export function Board<T>({
       {isMobile && !boardLoading && laneColumns.length > 1 ? (
         <div
           data-slot="board-lane-tabs"
-          className="flex shrink-0 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="relative flex shrink-0 gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {laneColumns.map((column, index) => (
             <Button
@@ -2013,7 +2030,7 @@ export function Board<T>({
           className={cn(
             // touch-pan-x + touch-pan-y: a horizontal swipe that starts on a lane or card pans
             // the board; vertical stays with the lane body.
-            "flex w-full max-w-full min-w-0 touch-pan-x touch-pan-y gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
+            "relative flex w-full max-w-full min-w-0 touch-pan-x touch-pan-y gap-3 overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden",
             "max-md:snap-x max-md:snap-mandatory",
             fill ? "h-full items-stretch" : "items-start",
           )}
@@ -2181,4 +2198,59 @@ export function Board<T>({
       ) : null}
     </div>
   );
+}
+
+/** The nearest ancestor that scrolls vertically, or null when the document does. */
+function scrollParent(node: HTMLElement): HTMLElement | null {
+  for (let el = node.parentElement; el; el = el.parentElement) {
+    const overflow = getComputedStyle(el).overflowY;
+    if (overflow === "auto" || overflow === "scroll") return el;
+  }
+  return null;
+}
+
+/**
+ * The height a page lays out after `node` inside `scroller`: every ancestor's bottom padding and
+ * border, every following sibling's box and the margins between — measured from the boxes, so free
+ * space inside the scroller never counts.
+ */
+function contentAfter(node: HTMLElement, scroller: HTMLElement | null): number {
+  let total = 0;
+  for (let el: HTMLElement = node; ;) {
+    const parent = el.parentElement;
+    total += parseFloat(getComputedStyle(el).marginBottom) || 0;
+    if (!parent) break;
+    const ps = getComputedStyle(parent);
+    // In a flex row or a grid, siblings sit beside `el`, not below it.
+    const stacked =
+      ps.display === "block" ||
+      ps.display === "flow-root" ||
+      (ps.display.includes("flex") && ps.flexDirection.startsWith("column"));
+    if (stacked)
+      for (
+        let sib = el.nextElementSibling as HTMLElement | null;
+        sib;
+        sib = sib.nextElementSibling as HTMLElement | null
+      ) {
+        const sibStyle = getComputedStyle(sib);
+        if (
+          sibStyle.display === "none" ||
+          sibStyle.position === "absolute" ||
+          sibStyle.position === "fixed"
+        )
+          continue;
+        total +=
+          sib.getBoundingClientRect().height +
+          (parseFloat(sibStyle.marginTop) || 0) +
+          (parseFloat(sibStyle.marginBottom) || 0) +
+          // A flex column's gap before each following item (`gap-*`, not a margin).
+          (ps.display.includes("flex") ? parseFloat(ps.rowGap) || 0 : 0);
+      }
+    total +=
+      (parseFloat(ps.paddingBottom) || 0) +
+      (parseFloat(ps.borderBottomWidth) || 0);
+    if (parent === scroller || parent === document.body) break;
+    el = parent;
+  }
+  return total;
 }

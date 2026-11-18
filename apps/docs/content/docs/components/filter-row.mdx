@@ -68,8 +68,8 @@ The order never changes, so chips never jump:
 2. **Other chips** (`chips`), in the order they were added — from + Filter, a preset or the AI.
    A preset resolves to ordinary chips; there is no separate preset chip.
 3. **`+ Filter`** (`addFilter`), right after the last chip, inside the scrolling line.
-4. **Clear**, right beside `+ Filter` and styled exactly like it (ghost, the tool height, a leading
-   icon), only while a filter differs from the list's defaults. It clears every filter back to the
+4. **Clear**, right beside `+ Filter` and styled exactly like it (a ghost 28px pill with a leading
+   icon, `FILTER_ROW_ACTION`), only while a filter differs from the list's defaults. It clears every filter back to the
    defaults and closes the toolbar's filter row.
 
 Nothing on the row opens by itself: opening the row moves focus to its first control, and a filter
@@ -86,8 +86,12 @@ suggestion. Unknown words are listed, never guessed.
 
 The facets, chips, `+ Filter` and Clear are **one line at every width**: it scrolls sideways with an
 edge fade and never wraps to a second line. When a chip's picker opens (or a chip takes focus), the
-line scrolls that chip into view — only the row moves, never the page. Every control on the row — facets, chips, `+ Filter`, Clear — is the
-toolbar's tool height: 32px, or 28px in a `size="compact"` toolbar. The row counts what is applied
+line scrolls that chip into view — only the row moves, never the page. Every control on the row — facets, chips, `+ Filter`, Clear — is one
+chip tier: a 28px pill with 12px medium text, in every toolbar size. The row stands on its own line
+under the toolbar, so it doesn't take the toolbar's 32px height, and it is one shape: + Filter and
+Clear are ghost pills (`FILTER_ROW_ACTION`, exported from `add-filter-menu`), never rectangles
+beside pills ([Radius](/docs/foundations/radius#choosing-a-shape)). A facet's label starts 10px in;
+its ▾ is a 12px glyph in a 16px box 8px from the end. The row counts what is applied
 (its chips plus its set facets) and tells the enclosing
 [`ListToolbar`](/docs/components/list-toolbar), whose Filter tool shows the count.
 

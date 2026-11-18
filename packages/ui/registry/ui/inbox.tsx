@@ -1,4 +1,4 @@
-// @vegastack inbox@0.116.0 sha256-sSC0AQWXhU46SliuVdwBoK3u2vjR4+fTXoIiG/CF5GI=
+// @vegastack inbox@0.116.0 sha256-jf3IDT4k1TjbOCnUL2ecxRP/mY0q7nxwnsKpOdnG0Es=
 
 "use client";
 
@@ -353,7 +353,7 @@ export function Inbox({
       <div
         ref={bodyRef}
         data-slot="inbox-body"
-        className={cn(!page && "min-h-0 flex-1 overflow-y-auto")}
+        className={cn(!page && "relative min-h-0 flex-1 overflow-y-auto")}
       >
         <InboxContext.Provider value={context}>
           {children}

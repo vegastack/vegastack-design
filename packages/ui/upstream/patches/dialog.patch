@@ -59,7 +59,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..cbf45ed 100644
+index 0b42f3f..a815fd1 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -219,7 +219,7 @@ index 0b42f3f..cbf45ed 100644
  }
  
  function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -87,34 +141,46 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -87,34 +141,49 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("flex flex-col gap-2", className)}
        {...props}
      />
@@ -231,7 +231,10 @@ index 0b42f3f..cbf45ed 100644
 +  return (
 +    <div
 +      data-slot="dialog-body"
-+      className={cn("-mx-4 min-h-0 flex-1 overflow-y-auto px-4", className)}
++      className={cn(
++        "relative -mx-4 min-h-0 flex-1 overflow-y-auto px-4",
++        className,
++      )}
 +      {...props}
 +    />
 +  );
@@ -273,7 +276,7 @@ index 0b42f3f..cbf45ed 100644
  }
  
  function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-@@ -122,12 +188,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
+@@ -122,12 +191,12 @@ function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
      <DialogPrimitive.Title
        data-slot="dialog-title"
        className={cn(
@@ -289,7 +292,7 @@ index 0b42f3f..cbf45ed 100644
  }
  
  function DialogDescription({
-@@ -139,15 +205,16 @@ function DialogDescription({
+@@ -139,15 +208,16 @@ function DialogDescription({
        data-slot="dialog-description"
        className={cn(
          "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
@@ -308,7 +311,7 @@ index 0b42f3f..cbf45ed 100644
    DialogClose,
    DialogContent,
    DialogDescription,
-@@ -157,4 +224,4 @@ export {
+@@ -157,4 +227,4 @@ export {
    DialogPortal,
    DialogTitle,
    DialogTrigger,

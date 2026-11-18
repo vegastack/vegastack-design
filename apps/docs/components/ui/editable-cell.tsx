@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.116.0 sha256-SfhDGF5Rr/h5Eg8sRy+ECnpagm2Z0G1g3NUput0p33M=
+// @vegastack editable-cell@0.116.0 sha256-ThqO7wF85hfFFe4tNMMJcspMs377YjBtmXYambFX7Ws=
 
 "use client";
 
@@ -119,7 +119,7 @@ export function InlineEditTrigger({
       size="xs"
       type={type}
       className={cn(
-        "min-w-0 justify-start gap-1.5 rounded-item px-1.5 font-normal text-inherit active:not-aria-[haspopup]:translate-y-0 [&>span]:min-w-0 [&>span]:truncate",
+        "min-w-0 justify-start gap-1.5 px-1.5 font-normal text-inherit active:not-aria-[haspopup]:translate-y-0 [&>span]:min-w-0 [&>span]:truncate",
         INLINE_EDIT_TINT,
         layout === "cell"
           ? // Block-level, so a table cell's `vertical-align: middle` centres it on the row

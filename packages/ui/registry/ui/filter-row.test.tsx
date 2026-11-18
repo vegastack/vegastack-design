@@ -286,11 +286,11 @@ test("active chip keeps the muted label / emphasized value hierarchy", async () 
   expect(icon.className).toContain("text-muted-foreground");
   const value = screen.getByText("In Progress").element() as HTMLElement;
   expect(value.className).not.toContain("text-muted-foreground");
-  // The hierarchy is carried by INK — muted key, foreground value — on the compact chip's quiet
-  // regular weight.
+  // The hierarchy is carried by INK — muted key, foreground value — never by a weight of its own.
   expect(value.className).not.toContain("font-medium");
   const chip = value.closest('[data-slot="filter-chip"]') as HTMLElement;
-  expect(chip.className).toContain("text-sm font-normal");
+  // The filter row's one chip tier: Chip's 28px `sm` (12px type), never the 32px toolbar tier.
+  expect(chip.getAttribute("data-size")).toBe("sm");
 });
 
 test("chip value truncates within max-w-xs — the value span carries min-w-0 alongside its shrink-0 label sibling", async () => {

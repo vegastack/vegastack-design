@@ -1,4 +1,4 @@
-// @vegastack chat-work-log@0.116.0 sha256-byfEP2UNsgeppgAKj+XCl/7fIQvftNeOS6GwCpfRnxU=
+// @vegastack chat-work-log@0.116.0 sha256-j/ipiWNnkO/3iusMmJhP6CBpvncggFtsEhwQLD9Qvn4=
 
 "use client";
 
@@ -573,7 +573,7 @@ function WorkToolRow({
       {input ? (
         <pre
           data-slot="work-row-input"
-          className="-mx-2 mb-1 max-h-40 overflow-auto rounded-block bg-chat-card px-2 py-1 font-mono text-xs whitespace-pre-wrap text-muted-foreground"
+          className="relative -mx-2 mb-1 max-h-40 overflow-auto rounded-block bg-chat-card px-2 py-1 font-mono text-xs whitespace-pre-wrap text-muted-foreground"
         >
           {input}
         </pre>
