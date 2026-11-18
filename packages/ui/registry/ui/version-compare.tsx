@@ -1,4 +1,4 @@
-// @vegastack version-compare@0.116.0 sha256-Pw3HZD+VlgXFp9gcHwt7BEQI3e4ep1t8zxeK7iXCvvY=
+// @vegastack version-compare@0.116.0 sha256-3hgsZIKc2ccaNdMiePz3gfkYQUtTYIYtsc4pdFxRFAk=
 
 "use client";
 
@@ -214,8 +214,8 @@ export function VersionCompare({
         )
         ?.focus();
   }, [view, requests]);
-  // A flip between the layouts (the box resized) keeps focus inside: on the selected version, or
-  // on Back when only the preview shows.
+  // A flip between the layouts (the box resized) keeps focus inside: on the selected version (else
+  // the first), or on Back when only the preview shows.
   React.useLayoutEffect(() => {
     if (!refocus.current) return;
     refocus.current = false;
@@ -224,7 +224,9 @@ export function VersionCompare({
     (
       root.querySelector<HTMLElement>(
         "[data-slot=version-list-item][data-selected]",
-      ) ?? back.current
+      ) ??
+      root.querySelector<HTMLElement>("[data-slot=version-list-item]") ??
+      back.current
     )?.focus();
   }, [wide]);
 

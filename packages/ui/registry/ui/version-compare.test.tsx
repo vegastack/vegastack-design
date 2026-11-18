@@ -44,7 +44,9 @@ function Harness({
   const [selected, setSelected] = React.useState("v3");
   const [showChanges, setShowChanges] = React.useState(false);
   return (
-    <div style={{ height: 600, display: "flex", width }}>
+    <div
+      style={{ height: 600, display: "flex", flexDirection: "column", width }}
+    >
       <VersionCompare
         versions={versions}
         selectedId={selected}
@@ -181,6 +183,44 @@ test("the box resizing flips the layout and keeps focus; so does a root font-siz
     ),
   );
   await screen.unmount();
+
+  // With nothing selected, focus lands on the first version.
+  function Unselected() {
+    const [width, setWidth] = React.useState(800);
+    return (
+      <>
+        <Button onClick={() => setWidth(320)}>Shrink</Button>
+        <div
+          style={{
+            height: 600,
+            display: "flex",
+            flexDirection: "column",
+            width,
+          }}
+        >
+          <VersionCompare versions={versions} currentId="v3" now={now} />
+        </div>
+      </>
+    );
+  }
+  const unselected = await render(<Unselected />);
+  const first = await vi.waitFor(() => {
+    const item = unselected.container.querySelector<HTMLElement>(
+      "[data-slot=version-compare-panels] [data-slot=version-list-item]",
+    );
+    expect(item).not.toBeNull();
+    return item!;
+  });
+  first.focus();
+  (
+    unselected.container.querySelector("button") as HTMLButtonElement
+  ).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  await vi.waitFor(() =>
+    expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
+      "version-list-item",
+    ),
+  );
+  await unselected.unmount();
 
   // 40rem grows past a 700px box when the root font goes from 16px to 20px.
   const html = document.documentElement;
