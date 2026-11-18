@@ -1,6 +1,11 @@
 # component: drawer
-# decisions: A11Y-9, DOC-1, DOC-2, OVL-13, OVL-21, LAY-17, OVL-25, BRD-12
+# decisions: A11Y-9, DOC-1, DOC-2, OVL-13, OVL-21, LAY-17, OVL-25, BRD-12, LAY-24
 # hunks:
+#   LAY-24 (operator, 2026-11-19, "go ahead with the robust fix for both mac and windows"): with
+#     `data-desktop-titlebar` on `<html>` (the desktop app), a side (x-axis) or top (`up`) drawer
+#     starts at `--shell-globalbar-height`, so it never sits under the window's own buttons; a top
+#     drawer's viewport is clipped at that row (`clip-path`), so its bleed, snap points and swipe
+#     never paint over it, while the backdrop (outside the viewport) still covers the window.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   OVL-25 (operator, 2026-11-13, agent chat ground up §4.1 "no blur behind dialogs"): the backdrop
@@ -24,7 +29,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/drawer.tsx b/drawer.tsx
-index 42d7186..6bd6289 100644
+index 42d7186..f9f66e3 100644
 --- a/drawer.tsx
 +++ b/drawer.tsx
 @@ -1,42 +1,47 @@
@@ -172,8 +177,12 @@ index 42d7186..6bd6289 100644
  
    return (
      <DrawerPortal data-slot="drawer-portal">
-@@ -116,16 +133,22 @@ function DrawerContent({
-         className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto"
+@@ -113,19 +130,25 @@ function DrawerContent({
+       <DrawerPrimitive.Viewport
+         data-slot="drawer-viewport"
+         data-modal={modal}
+-        className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto"
++        className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto in-data-desktop-titlebar:has-data-[swipe-direction=up]:[clip-path:inset(var(--shell-globalbar-height)_0_0_0)]"
        >
          <DrawerPrimitive.Popup
 +          ref={popupRef}
@@ -197,7 +206,18 @@ index 42d7186..6bd6289 100644
              // Sizing.
              "[--drawer-content-height:var(--drawer-height,auto)] data-[swipe-axis=x]:[--drawer-content-width:75%] data-[swipe-axis=y]:[--drawer-content-max-height:calc(100dvh-6rem)] data-[swipe-axis=y]:data-snap-points:[--drawer-content-height:100dvh] data-[swipe-axis=x]:sm:[--drawer-content-width:24rem]",
              // Stack.
-@@ -144,7 +167,7 @@ function DrawerContent({
+@@ -136,6 +159,10 @@ function DrawerContent({
+             "data-[swipe-axis=y]:inset-x-0 data-[swipe-axis=y]:data-nested-drawer-open:h-(--stack-height)",
+             // Axis: x.
+             "data-[swipe-axis=x]:inset-y-0 data-[swipe-axis=x]:flex-row",
++            // LAY-24: in the desktop app a side or top drawer starts below the window's title row; a
++            // top drawer's viewport is also clipped there, so its bleed, snap points and swipe never
++            // paint over the row (the backdrop sits outside the viewport and still covers it).
++            "in-data-desktop-titlebar:data-[swipe-axis=x]:top-(--shell-globalbar-height) in-data-desktop-titlebar:data-[swipe-direction=up]:top-(--shell-globalbar-height)",
+             // Direction: down.
+             "data-[swipe-direction=down]:bottom-0 data-[swipe-direction=down]:origin-bottom data-[swipe-direction=down]:[--closed-transform:translate3d(0,calc(100%+var(--drawer-inset,0px)+2px),0)] data-[swipe-direction=down]:[--translate-y:calc(var(--drawer-snap-point-offset,0px)+var(--drawer-swipe-movement-y)-var(--stack-peek-offset)-(var(--stack-shrink)*var(--stack-height)))]",
+             // Direction: up.
+@@ -144,7 +171,7 @@ function DrawerContent({
              "data-[swipe-direction=left]:start-0 data-[swipe-direction=left]:origin-start data-[swipe-direction=left]:[--closed-transform:translate3d(calc(-100%-var(--drawer-inset,0px)-2px),0,0)] data-[swipe-direction=left]:[--translate-x:calc(var(--drawer-swipe-movement-x)+var(--stack-peek-offset)+(var(--stack-shrink)*100%))]",
              // Direction: right.
              "data-[swipe-direction=right]:end-0 data-[swipe-direction=right]:origin-end data-[swipe-direction=right]:[--closed-transform:translate3d(calc(100%+var(--drawer-inset,0px)+2px),0,0)] data-[swipe-direction=right]:[--translate-x:calc(var(--drawer-swipe-movement-x)-var(--stack-peek-offset)-(var(--stack-shrink)*100%))]",
@@ -206,7 +226,7 @@ index 42d7186..6bd6289 100644
            )}
            {...props}
          >
-@@ -152,7 +175,7 @@ function DrawerContent({
+@@ -152,7 +179,7 @@ function DrawerContent({
            <DrawerPrimitive.Content
              data-slot="drawer-content"
              className={cn(
@@ -215,7 +235,7 @@ index 42d7186..6bd6289 100644
              )}
            >
              {children}
-@@ -160,7 +183,7 @@ function DrawerContent({
+@@ -160,7 +187,7 @@ function DrawerContent({
          </DrawerPrimitive.Popup>
        </DrawerPrimitive.Viewport>
      </DrawerPortal>
@@ -224,7 +244,7 @@ index 42d7186..6bd6289 100644
  }
  
  function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
-@@ -169,11 +192,11 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
+@@ -169,11 +196,11 @@ function DrawerHeader({ className, ...props }: React.ComponentProps<"div">) {
        data-slot="drawer-header"
        className={cn(
          "flex shrink-0 flex-col gap-0.5 p-4 pb-0 group-data-[swipe-axis=y]/drawer-popup:text-center md:gap-0.5 md:text-start",
@@ -238,7 +258,7 @@ index 42d7186..6bd6289 100644
  }
  
  function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
-@@ -183,7 +206,7 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
+@@ -183,7 +210,7 @@ function DrawerFooter({ className, ...props }: React.ComponentProps<"div">) {
        className={cn("mt-auto flex shrink-0 flex-col gap-2 p-4 pt-0", className)}
        {...props}
      />
@@ -247,7 +267,7 @@ index 42d7186..6bd6289 100644
  }
  
  function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
-@@ -192,11 +215,11 @@ function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
+@@ -192,11 +219,11 @@ function DrawerTitle({ className, ...props }: DrawerPrimitive.Title.Props) {
        data-slot="drawer-title"
        className={cn(
          "font-heading text-base font-medium text-foreground",
@@ -261,7 +281,7 @@ index 42d7186..6bd6289 100644
  }
  
  function DrawerDescription({
-@@ -209,7 +232,7 @@ function DrawerDescription({
+@@ -209,7 +236,7 @@ function DrawerDescription({
        className={cn("text-sm text-balance text-muted-foreground", className)}
        {...props}
      />
@@ -270,7 +290,7 @@ index 42d7186..6bd6289 100644
  }
  
  export {
-@@ -224,4 +247,4 @@ export {
+@@ -224,4 +251,4 @@ export {
    DrawerFooter,
    DrawerTitle,
    DrawerDescription,
