@@ -1,4 +1,4 @@
-// @vegastack use-async-search@0.114.0 sha256-JrdZLNu2hdUxEh4aVsFWbMb1hDGGFXH39TQ8tSvBb2U=
+// @vegastack use-async-search@0.115.0 sha256-lzij6cJOO+RPfMNfuDldks05jDT60SUEuLaV7VFTYWQ=
 
 "use client";
 
