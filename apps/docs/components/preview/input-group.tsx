@@ -45,7 +45,7 @@ import {
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export function inputGroup(): ReactNode {
   return (
@@ -535,10 +535,16 @@ export function shapeConcentric(): ReactNode {
         </InputGroupAddon>
       </InputGroup>
       <Tabs defaultValue="list">
-        <TabsList>
+        <TabsList aria-label="Layout">
           <TabsTrigger value="list">List</TabsTrigger>
           <TabsTrigger value="board">Board</TabsTrigger>
         </TabsList>
+        <TabsContent value="list" className="text-xs text-muted-foreground">
+          Rows, one per task.
+        </TabsContent>
+        <TabsContent value="board" className="text-xs text-muted-foreground">
+          Lanes, one per status.
+        </TabsContent>
       </Tabs>
       <div
         role="toolbar"

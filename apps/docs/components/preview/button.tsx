@@ -7,6 +7,7 @@ import {
   ArrowRightIcon,
   ArrowUpIcon,
   ArrowUpRightIcon,
+  Check,
   CircleFadingArrowUpIcon,
   Copy,
   GitBranchIcon,
@@ -17,8 +18,9 @@ import {
   PlusIcon,
   Share,
   Trash2,
+  X,
 } from "lucide-react";
-import { Verdict, Wrapper } from "./wrapper";
+import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/button` (dogfoods the registry) → auto-scanned.
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -31,7 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export function button(): ReactNode {
   return (
@@ -291,22 +293,34 @@ export function buttonLoading(): ReactNode {
 export function shapeOneRow(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch sm:flex-row">
-      <Verdict good label="the add button takes the row's shape">
-        <Chip>Status: Open</Chip>
-        <Chip>Assignee: Me</Chip>
-        <Button variant="outline" size="sm" shape="pill">
-          <Plus aria-hidden />
-          Filter
-        </Button>
-      </Verdict>
-      <Verdict good={false} label="a rectangle beside pills">
-        <Chip>Status: Open</Chip>
-        <Chip>Assignee: Me</Chip>
-        <Button variant="outline">
-          <Plus aria-hidden />
-          Filter
-        </Button>
-      </Verdict>
+      <figure className="flex min-w-0 flex-1 flex-col gap-3 rounded-block border border-border p-4">
+        <figcaption className="flex items-center gap-1.5 text-sm font-medium text-success-text">
+          <Check aria-hidden className="size-4" />
+          Do — the add button takes the row&apos;s shape
+        </figcaption>
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip>Status: Open</Chip>
+          <Chip>Assignee: Me</Chip>
+          <Button variant="outline" size="sm" shape="pill">
+            <Plus aria-hidden />
+            Filter
+          </Button>
+        </div>
+      </figure>
+      <figure className="flex min-w-0 flex-1 flex-col gap-3 rounded-block border border-border p-4">
+        <figcaption className="flex items-center gap-1.5 text-sm font-medium text-destructive-text">
+          <X aria-hidden className="size-4" />
+          Don&apos;t — a rectangle beside pills
+        </figcaption>
+        <div className="flex flex-wrap items-center gap-2">
+          <Chip>Status: Open</Chip>
+          <Chip>Assignee: Me</Chip>
+          <Button variant="outline">
+            <Plus aria-hidden />
+            Filter
+          </Button>
+        </div>
+      </figure>
     </Wrapper>
   );
 }
@@ -335,11 +349,20 @@ export function shapeInPage(): ReactNode {
       </div>
       <div className="flex flex-wrap items-center gap-2">
         <Tabs defaultValue="mine">
-          <TabsList>
+          <TabsList aria-label="Meetings">
             <TabsTrigger value="mine">My meetings</TabsTrigger>
             <TabsTrigger value="shared">Shared with me</TabsTrigger>
             <TabsTrigger value="all">All</TabsTrigger>
           </TabsList>
+          <TabsContent value="mine" className="text-xs text-muted-foreground">
+            Meetings you recorded.
+          </TabsContent>
+          <TabsContent value="shared" className="text-xs text-muted-foreground">
+            Meetings shared with you.
+          </TabsContent>
+          <TabsContent value="all" className="text-xs text-muted-foreground">
+            Every meeting you can see.
+          </TabsContent>
         </Tabs>
         <Button variant="outline" size="xs">
           <Copy aria-hidden />
