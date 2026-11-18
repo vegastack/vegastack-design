@@ -1,4 +1,4 @@
-// @vegastack notification-dot@0.116.0 sha256-1X7OG+eu19rUayD/U+w2Ac9eo7t1UdgMRObXU5bKLGI=
+// @vegastack notification-dot@0.117.0 sha256-uvCRMrKe9RV7ExOKde8a53vTRwsLKNMK3FCHlAEHo5M=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

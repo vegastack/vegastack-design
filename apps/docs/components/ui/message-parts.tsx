@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.116.0 sha256-V0CLPeqLFrupKsELx2LhwjpeJ+lb7eX76J9AONosf34=
+// @vegastack message-parts@0.117.0 sha256-yNc83a+H3XVSV/xuqR+exAvfX8TyIO1nv+o+hf2EdRY=
 
 "use client";
 

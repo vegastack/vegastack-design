@@ -1,4 +1,4 @@
-// @vegastack issue-detail-01@0.116.0 sha256-UNnohgH4grEdu4+Jo0RMQ+vWdso+rGr+SyZlIRbCv6s=
+// @vegastack issue-detail-01@0.117.0 sha256-7lGGjz3fFqI04Nb006sWqsUjBPlTPfsI5D4Xv4Awv9c=
 
 import { IssueDetail } from "./components/issue-detail";
 import { ShellPage } from "@/components/ui/shell";

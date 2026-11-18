@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.117.0
+
+### Minor Changes
+
+- [#1045](https://github.com/vegastack/vegastack-design/pull/1045) [`17acb08`](https://github.com/vegastack/vegastack-design/commit/17acb0842e4b2ea3cf1e946a2b7201ccd967fe43) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠️ Corners: the shape says what the thing is (BRD-12, round 2), and one scrollbar everywhere (BRD-SCR). Tokens and states are pills (chips, badges, reactions, filter chips, quick-filter toggles); the app frame and anything floating are capsules — `GlobalBar` now carries `capsule-scope`, and its search is a capsule whose search and Ask fills sit 3px in on every side; actions and inputs in the page are rounded rectangles. `--corner-control` and `--corner-icon` move from 8px to 10px (the same corner as a row), `--corner-segment` from 6px to 8px, and the 24px compact tier (Button `xs`, `icon-xs`, inline cell editors) takes `rounded-segment`; touch keeps `segment` at 6px. Table rows (`row-fill`: Table, DataList, DataGrid) fill as a square band, edge to edge and hairline to hairline, instead of an inset rounded shape. New `shape="rect" | "pill"` on `Button`, `Input`, `InputGroup` (`pill` → `rounded-capsule capsule-scope`) and `ToggleGroup` (quick filters that read as chips), for one shape per row. The filter row is one chip tier: every facet, chip, + Filter and Clear is a 28px pill with 12px medium text (new `FILTER_ROW_ACTION` export from `add-filter-menu`); filter chips no longer follow the toolbar's 32px height. Scrolling: `base.css` gives every scroller one thin scrollbar (`--scrollbar-thumb`, `--scrollbar-thumb-hover`); `ScrollArea`'s bar is an overlay and it gains `viewportClassName`, `viewportRender` and `viewportProps`; `ShellColumn` scrolls in a `ScrollArea`; `shell-content` and RecordLayout's main are positioned, ending the task page's double scroll; `Board height="fill"` measures its page's real scroll area and `fillOffset` defaults to `0px`. design-lint gains `scroller-positioned`. New page [Foundations › Scrolling](/docs/foundations/scrolling); [Foundations › Radius](/docs/foundations/radius) leads with "Choosing a shape".
+
+### Patch Changes
+
+- Updated dependencies [[`17acb08`](https://github.com/vegastack/vegastack-design/commit/17acb0842e4b2ea3cf1e946a2b7201ccd967fe43)]:
+  - @vegastack/design-tokens@0.27.0
+  - @vegastack/design@0.27.0
+
 ## 0.116.4
 
 ### Patch Changes
