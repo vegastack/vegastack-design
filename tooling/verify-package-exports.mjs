@@ -16,6 +16,7 @@ import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { caretAdmits } from "./lib/contract-dependency-ranges.mjs";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -124,12 +125,14 @@ function assertSiblingRangeMatches() {
     readFileSync(join(root, "packages/design-tokens/package.json"), "utf8"),
   );
   const declared = design.dependencies?.["@vegastack/design-tokens"];
-  assert.equal(
-    declared,
-    `^${tokens.version}`,
-    `@vegastack/design depends on @vegastack/design-tokens ${declared}, but the version being ` +
-      `shipped beside it is ${tokens.version}. version-sync.mjs writes this range as ` +
-      `\`^<version>\`; a mismatch means it did not run, or ran before the bump.`,
+  // Admits, not equals: a tokens-only patch release (0.24.1) leaves `@vegastack/design` unreleased
+  // at `^0.24.0`, which Changesets keeps because the range still admits it (updateInternalDependents
+  // "out-of-range"); an exact match failed every PR after such a release.
+  assert.ok(
+    typeof declared === "string" && caretAdmits(declared, tokens.version),
+    `@vegastack/design depends on @vegastack/design-tokens ${declared}, which does not admit the ` +
+      `version being shipped beside it, ${tokens.version}. Changesets rewrites the range when the ` +
+      `new tokens version falls outside it; a mismatch means the version step did not run.`,
   );
 }
 

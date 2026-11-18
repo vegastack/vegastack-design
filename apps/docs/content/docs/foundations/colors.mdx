@@ -82,20 +82,25 @@ in dark — where the page's own `--card` is white on white in light and a lift 
 ### The record side panel
 
 `--panel` (`bg-panel`) is a record page's side panel ([`RecordLayout`](/docs/components/record-layout)'s
-`RecordPanel`), a hair off the page so the reference beside the work sits back: the sidebar's tint
-(`neutral.50`) in light, and one step **below** the page in dark (`oklch(0.125 0 0)`), where the
-sidebar is a step above it. It is opaque, because below 1088px the panel floats over the page
+`RecordPanel`), one notch off the page so the reference beside the work sits back: the sidebar's
+tint (`neutral.50`) in light, and `oklch(0.165 0 0)` in dark, the same step as the frame's column
+(LAY-26). It is opaque, because below 1088px the panel floats over the page
 (COL-26).
 
 ### The frame's canvas and card
 
-The rounded-card frame (LAY-26) has three grounds. `--shell-canvas` (`bg-shell-canvas`) is the
-window's ground under the global bar and the rail: about `#F3F3F3` in light and `oklch(0.235 0 0)`
-(about `#1E1E1E`) in dark. `--shell-card` (`bg-shell-card`) is the page card — white in light, one
-step above the canvas; `oklch(0.185 0 0)` in dark, one step below it, so in dark the ground is the
-lighter of the two (Regent operator, 2026-11-18) — and the shell re-points `--background` to it
-inside the card. `--shell-column` (`bg-shell-column`) is the module column inside the card: between
-the two in light, a step under the card in dark. Only
+The rounded-card frame (LAY-26) follows one rule: the page is the extreme — white in light,
+near-black in dark — and each step out from the work moves one notch toward the middle (Regent
+operator, 2026-11-18).
+
+| Step                                                        | Token                                | Light              | Dark                                                  |
+| ----------------------------------------------------------- | ------------------------------------ | ------------------ | ----------------------------------------------------- |
+| The page card and the docked assistant                      | `--shell-card` (`bg-shell-card`)     | white              | `oklch(0.145 0 0)`, the value of `background`         |
+| The side surfaces: the module column, the record side panel | `--shell-column`, `--panel`          | `oklch(0.985 0 0)` | `oklch(0.165 0 0)`                                    |
+| The window's ground under the global bar and the rail       | `--shell-canvas` (`bg-shell-canvas`) | about `#F3F3F3`    | `oklch(0.205 0 0)`, the value of `card` and `sidebar` |
+
+The shell re-points `--background` to the card inside it and `--sidebar` to the column, so cards and
+menus (`card`, `popover`, `oklch(0.205 0 0)` in dark) sit lifted on the near-black page. Only
 `Shell` and the global bar paint them; components keep reading `background` and `sidebar`.
 
 ### Desktop glass
