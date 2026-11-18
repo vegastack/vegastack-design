@@ -14,6 +14,7 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
+import { Chip } from "@/components/ui/chip";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
@@ -390,6 +391,44 @@ export function inputGhost(): ReactNode {
           aria-invalid
         />
       </div>
+    </Wrapper>
+  );
+}
+
+/** Shapes from props, never ad-hoc classes: `shape="pill"` on Button, Input and InputGroup. */
+export function shapeProps(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch sm:flex-row">
+      <figure className="flex min-w-0 flex-1 flex-col gap-3">
+        <figcaption className="text-sm text-muted-foreground">
+          In the page — rectangles (the default)
+        </figcaption>
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            aria-label="Search tasks"
+            placeholder="Search tasks"
+            className="w-40"
+          />
+          <Button variant="outline">Export</Button>
+        </div>
+      </figure>
+      <figure className="flex min-w-0 flex-1 flex-col gap-3">
+        <figcaption className="text-sm text-muted-foreground">
+          In a row of pills — shape=&quot;pill&quot;
+        </figcaption>
+        <div className="flex flex-wrap items-center gap-2">
+          <Input
+            shape="pill"
+            aria-label="Filter values"
+            placeholder="Filter values"
+            className="w-40"
+          />
+          <Chip>Lighting</Chip>
+          <Button variant="outline" size="sm" shape="pill">
+            Add
+          </Button>
+        </div>
+      </figure>
     </Wrapper>
   );
 }

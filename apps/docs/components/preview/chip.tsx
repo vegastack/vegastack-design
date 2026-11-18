@@ -5,6 +5,9 @@ import * as React from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/chip` (dogfoods the registry) → auto-scanned.
 import { Chip } from "@/components/ui/chip";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 
 export function chip(): ReactNode {
   return (
@@ -97,6 +100,22 @@ function ChipRemovableExample() {
       {labels.length === 0 ? (
         <p className="text-xs text-muted-foreground">No labels</p>
       ) : null}
+    </Wrapper>
+  );
+}
+
+/** Tokens and states are pills: chips, badges, counts, a switch, a person. */
+export function shapeTokens(): ReactNode {
+  return (
+    <Wrapper>
+      <Chip>Lighting</Chip>
+      <Chip hue="blue">Downlights</Chip>
+      <Badge>Processed</Badge>
+      <Badge variant="outline">Invited</Badge>
+      <Switch aria-label="Record what I open" defaultChecked />
+      <Avatar>
+        <AvatarFallback>MK</AvatarFallback>
+      </Avatar>
     </Wrapper>
   );
 }

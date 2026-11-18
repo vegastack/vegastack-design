@@ -443,3 +443,58 @@ export function tableRtl(): ReactNode {
     </DirectionProvider>
   );
 }
+
+/** Rows follow their container: an inset rounded fill in a list, a square band in a table. */
+export function shapeRows(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch sm:flex-row">
+      <figure className="flex min-w-0 flex-1 flex-col gap-2">
+        <figcaption className="text-sm text-muted-foreground">
+          A list without dividers — the inset item fill
+        </figcaption>
+        <nav
+          aria-label="Views"
+          className="flex flex-col rounded-card border border-border p-1.25"
+        >
+          {["Overview", "Tasks", "Meetings"].map((label) => (
+            <a
+              key={label}
+              href="#rows"
+              aria-current={label === "Tasks" ? "page" : undefined}
+              className="flex h-8 items-center rounded-item px-2 text-sm state-layer aria-[current=page]:bg-state-selected"
+            >
+              {label}
+            </a>
+          ))}
+        </nav>
+      </figure>
+      <figure className="flex min-w-0 flex-1 flex-col gap-2">
+        <figcaption className="text-sm text-muted-foreground">
+          A table with hairlines — the square, full-width band
+        </figcaption>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Meeting</TableHead>
+              <TableHead>Status</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <TableRow>
+              <TableCell>Site visit</TableCell>
+              <TableCell>Processed</TableCell>
+            </TableRow>
+            <TableRow data-state="selected">
+              <TableCell>Pricing review</TableCell>
+              <TableCell>Processed</TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>Kick-off</TableCell>
+              <TableCell>Needs review</TableCell>
+            </TableRow>
+          </TableBody>
+        </Table>
+      </figure>
+    </Wrapper>
+  );
+}

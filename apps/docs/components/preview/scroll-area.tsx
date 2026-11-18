@@ -8,6 +8,7 @@ import { DirectionProvider } from "@/components/ui/direction";
 import { usePrefersReducedMotion } from "@/components/ui/use-media-query";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { Chip } from "@/components/ui/chip";
 
 /*
  * Upstream's own examples. Two adaptations: the Horizontal figures use plain blocks rather than
@@ -188,6 +189,79 @@ export function scrollAreaProgrammatic(): ReactNode {
             Newest
           </Button>
         </div>
+      </div>
+    </Wrapper>
+  );
+}
+
+const ROWS = Array.from({ length: 24 }, (_, i) => `Task ${i + 1}`);
+
+/**
+ * One scroller per region: a fixed header and a list that scrolls in a `ScrollArea` — an overlay
+ * bar that shows while the pointer is over it and takes no width.
+ */
+export function scrollRegion(): ReactNode {
+  return (
+    <Wrapper className="block p-0">
+      <div className="flex h-64 flex-col">
+        <div className="flex h-11 flex-none items-center border-b border-border px-4 text-sm font-medium">
+          Tasks
+        </div>
+        <ScrollArea
+          aria-label="Tasks"
+          className="min-h-0 flex-1"
+          viewportClassName="px-2 py-1"
+        >
+          {ROWS.map((row) => (
+            <div
+              key={row}
+              className="flex h-8 items-center rounded-item px-2 text-sm"
+            >
+              {row}
+            </div>
+          ))}
+        </ScrollArea>
+      </div>
+    </Wrapper>
+  );
+}
+
+/** A native scroller: the global thin bar, and `relative` so what it holds stays inside it. */
+export function scrollNative(): ReactNode {
+  return (
+    <Wrapper className="block p-0">
+      <div
+        role="region"
+        aria-label="Activity"
+        tabIndex={0}
+        className="relative h-48 overflow-y-auto overscroll-contain p-4 text-sm"
+      >
+        {ROWS.map((row) => (
+          <p key={row} className="py-1">
+            {row} was updated
+            <span className="sr-only"> by Manoj Kumar</span>
+          </p>
+        ))}
+      </div>
+    </Wrapper>
+  );
+}
+
+/** A sideways strip shows an edge fade where there is more, never a hidden bar with no cue. */
+export function scrollStrip(): ReactNode {
+  return (
+    <Wrapper className="block">
+      <div
+        role="region"
+        aria-label="Recent"
+        tabIndex={0}
+        className="relative flex gap-2 overflow-x-auto overscroll-x-contain scroll-fade-x scrollbar-none"
+      >
+        {ROWS.map((row) => (
+          <Chip key={row} className="shrink-0">
+            {row}
+          </Chip>
+        ))}
       </div>
     </Wrapper>
   );

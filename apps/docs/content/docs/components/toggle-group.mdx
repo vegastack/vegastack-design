@@ -198,6 +198,11 @@ and a joined group's ends, become capsules (the group carries `capsule-scope`, a
 (`rounded-control`). Pick it by what the group is, never per taste
 ([Radius](/docs/foundations/radius#choosing-a-shape)).
 
+<ComponentPreview
+  name="shapeToggles"
+  file="components/preview/toggle-group.tsx"
+/>
+
 ```tsx
 <ToggleGroup
   shape="pill"
@@ -234,8 +239,9 @@ and a joined group's ends, become capsules (the group carries `capsule-scope`, a
 - Icon-only items have no visible text — give each one an `aria-label`, as every example here does.
 - The group itself has no implicit name. Point `aria-label` or `aria-labelledby` at the visible
   label when one exists, as the Custom example does.
-- Items keep the `toggle` recipe's focus behaviour: the global 2px `:focus-visible` outline from
-  `base.css`, raised over its neighbours by `focus:z-10` so a joined group never clips it.
+- Items keep the `toggle` recipe's focus behaviour: the focus tint (FOC-13), with the 2px outline
+  only as the forced-colours fallback from `base.css`, raised over its neighbours by `focus:z-10`
+  so a joined group never clips it.
 
 | Key                                 | Action                                                        |
 | ----------------------------------- | ------------------------------------------------------------- |

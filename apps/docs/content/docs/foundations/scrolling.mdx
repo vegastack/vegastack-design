@@ -34,6 +34,31 @@ visible reason are bugs, not styles (BRD-SCR).
 5. **Sideways scrollers always show something.** A horizontal strip shows an edge fade
    (`scroll-fade-x`) or arrows where it has more; never a hidden bar with nothing in its place.
 
+### Live
+
+**A region with a fixed header and a list in a `ScrollArea`** — the overlay bar shows while the
+pointer is over the list and takes no width (rule 2).
+
+<ComponentPreview
+  name="scrollRegion"
+  file="components/preview/scroll-area.tsx"
+/>
+
+**A native scroller** — the global thin bar (rule 1), and `relative`, so the screen-reader-only text
+inside each row stays inside it (rule 4).
+
+<ComponentPreview
+  name="scrollNative"
+  file="components/preview/scroll-area.tsx"
+/>
+
+**A sideways strip** — an edge fade where there is more, no bar (rule 5).
+
+<ComponentPreview
+  name="scrollStrip"
+  file="components/preview/scroll-area.tsx"
+/>
+
 | Need                                       | Use                                                      |
 | ------------------------------------------ | -------------------------------------------------------- |
 | A page's content                           | The shell's content area — nothing of your own           |

@@ -3,6 +3,7 @@
 import * as React from "react";
 import type { ReactNode } from "react";
 import {
+  ArrowUp,
   CheckIcon,
   ChevronDownIcon,
   CopyIcon,
@@ -16,6 +17,7 @@ import {
   RefreshCwIcon,
   SearchIcon,
   StarIcon,
+  X,
 } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/input-group` (dogfoods the registry) → auto-scanned.
@@ -42,6 +44,8 @@ import {
 } from "@/components/ui/input-group";
 import { Kbd } from "@/components/ui/kbd";
 import { Spinner } from "@/components/ui/spinner";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export function inputGroup(): ReactNode {
   return (
@@ -514,6 +518,67 @@ export function inputGroupStates(): ReactNode {
           </InputGroupAddon>
         </InputGroup>
       </div>
+    </Wrapper>
+  );
+}
+
+/** Inside something, concentric: inner corner = outer corner − (border + padding). */
+export function shapeConcentric(): ReactNode {
+  return (
+    <Wrapper>
+      <InputGroup className="w-64">
+        <InputGroupInput aria-label="Message" placeholder="Write a message" />
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton variant="default" size="icon-xs" aria-label="Send">
+            <ArrowUp aria-hidden />
+          </InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+      <Tabs defaultValue="list">
+        <TabsList aria-label="Layout">
+          <TabsTrigger value="list">List</TabsTrigger>
+          <TabsTrigger value="board">Board</TabsTrigger>
+        </TabsList>
+        <TabsContent value="list" className="text-xs text-muted-foreground">
+          Rows, one per task.
+        </TabsContent>
+        <TabsContent value="board" className="text-xs text-muted-foreground">
+          Lanes, one per status.
+        </TabsContent>
+      </Tabs>
+      <div
+        role="toolbar"
+        aria-label="Selection"
+        className="flex items-center gap-1 rounded-capsule border border-border bg-popover p-1 shadow-md capsule-scope"
+      >
+        <span className="px-2 text-sm">2 selected</span>
+        <Button variant="ghost" size="sm">
+          Move to…
+        </Button>
+        <Button variant="outline" size="icon-sm" aria-label="Clear selection">
+          <X aria-hidden />
+        </Button>
+      </div>
+    </Wrapper>
+  );
+}
+
+/** InputGroup `shape="pill"`: a capsule field whose buttons are pills and circles, concentric. */
+export function shapeInputGroup(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-start">
+      <InputGroup className="w-full max-w-80">
+        <InputGroupInput aria-label="In the page" placeholder="In the page" />
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton variant="secondary">Find</InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
+      <InputGroup shape="pill" className="w-full max-w-80">
+        <InputGroupInput aria-label="In the frame" placeholder="In the frame" />
+        <InputGroupAddon align="inline-end">
+          <InputGroupButton variant="secondary">Find</InputGroupButton>
+        </InputGroupAddon>
+      </InputGroup>
     </Wrapper>
   );
 }
