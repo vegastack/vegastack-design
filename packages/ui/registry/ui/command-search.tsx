@@ -1,4 +1,4 @@
-// @vegastack command-search@0.117.0 sha256-2ZC5XnNdJJdI0M+nVEvTyWqxZogv7xa2OJyygm8XSbA=
+// @vegastack command-search@0.117.0 sha256-32Hizy3edOeUkyN5xj4vyT5JFN5MjERN4dKkhKeI1FA=
 
 "use client";
 
@@ -127,7 +127,9 @@ const BAR_GUTTER = 16;
 const BAR_FIELD = 32;
 
 /** Where the `bar` palette sits, from the box's rect: its surface's inline style. */
-function barPlacement(box: HTMLElement): React.CSSProperties | null {
+function barPlacement(
+  box: HTMLElement,
+): (React.CSSProperties & { "--command-search-from": string }) | null {
   const b = box.getBoundingClientRect();
   if (b.width === 0 || b.height === 0) return null;
   const vw = document.documentElement.clientWidth;
@@ -158,7 +160,7 @@ function barPlacement(box: HTMLElement): React.CSSProperties | null {
     // DialogContent's keyframe zoom and fade would run beside the grow and win the class order;
     // the palette moves only by its transitions (below).
     animation: "none",
-    ["--command-search-from" as string]: clip,
+    "--command-search-from": clip,
   };
 }
 

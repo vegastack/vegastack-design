@@ -24389,7 +24389,7 @@
         "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
         "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (ListToolbar's search).",
         "version": "0.117.0",
-        "integrity": "sha256-2ZC5XnNdJJdI0M+nVEvTyWqxZogv7xa2OJyygm8XSbA="
+        "integrity": "sha256-32Hizy3edOeUkyN5xj4vyT5JFN5MjERN4dKkhKeI1FA="
       }
     },
     {
