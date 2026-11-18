@@ -52103,7 +52103,7 @@
             },
             {
               "name": "data-slot",
-              "values": ["assistant-card"]
+              "values": ["assistant-card", "assistant-card-resize"]
             }
           ],
           "cssVariables": []

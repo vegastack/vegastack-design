@@ -213,34 +213,34 @@ function Places() {
   );
 }
 
-test("the header offers the other places, and the card moves without losing its content", async () => {
+test("the header offers the other place, and the card moves without losing its content", async () => {
   const screen = await render(<Places />);
   const card = () =>
     document.querySelector<HTMLElement>('[data-slot="assistant-card"]')!;
   expect(card().dataset.place).toBe("float");
-  await expect
-    .element(screen.getByRole("button", { name: "Dock beside the page" }))
-    .toBeVisible();
-  await screen.getByRole("button", { name: "Pop out" }).click();
-  expect(card().dataset.place).toBe("popout");
-  expect(card().getAttribute("role")).toBe("dialog");
+  await screen.getByRole("button", { name: "Dock beside the page" }).click();
+  expect(card().dataset.place).toBe("dock");
+  expect(card().getAttribute("role")).toBe("region");
   // The button that moved it is gone: focus stays in the card, not on the page.
   await expect.poll(() => card().contains(document.activeElement)).toBe(true);
-  // Popped out, "Back into the app" floats it again.
-  await screen.getByRole("button", { name: "Back into the app" }).click();
+  // Docked, "Float over the page" floats it again; one move is offered from each place.
+  await screen.getByRole("button", { name: "Float over the page" }).click();
   expect(card().dataset.place).toBe("float");
+  expect(card().getAttribute("role")).toBe("dialog");
+  expect(
+    screen.getByRole("button", { name: "Float over the page" }).query(),
+  ).toBeNull();
   await expect.element(screen.getByText("How can I help?")).toBeVisible();
   await expectNoA11yViolations(screen.container);
 });
 
-test("popped out, the card drags by its header and stays inside the window", async () => {
+test("floating, the card drags by its header and stays inside the window", async () => {
   await page.viewport(1280, 800);
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;
   document.head.append(sheet);
   onTestFinished(() => sheet.remove());
-  const screen = await render(<Places />);
-  await screen.getByRole("button", { name: "Pop out" }).click();
+  await render(<Places />);
   const card = document.querySelector<HTMLElement>(
     '[data-slot="assistant-card"]',
   )!;
@@ -263,30 +263,85 @@ test("popped out, the card drags by its header and stays inside the window", asy
     new PointerEvent("pointermove", { clientX: x - 5000, clientY: y - 5000 }),
   );
   window.dispatchEvent(new PointerEvent("pointerup", {}));
-  await expect
-    .poll(() => card.getBoundingClientRect().left)
-    .not.toBe(start.left);
-  expect(card.getBoundingClientRect().left).toBe(0);
+  await expect.poll(() => card.getBoundingClientRect().left).toBe(0);
   expect(card.getBoundingClientRect().top).toBe(0);
+  expect(start.left).toBeGreaterThan(0);
 });
 
-test("popped out, Alt and an arrow key move the card", async () => {
+test("floating, Alt and an arrow key move the card", async () => {
+  await page.viewport(1280, 800);
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  await render(<Places />);
+  const card = document.querySelector<HTMLElement>(
+    '[data-slot="assistant-card"]',
+  )!;
+  card.focus();
+  // Once it has finished opening (its scale is part of the box).
+  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
+  const before = card.getBoundingClientRect().left;
+  await userEvent.keyboard("{Alt>}{ArrowRight}{/Alt}");
+  await expect
+    .poll(() => Math.round(card.getBoundingClientRect().left))
+    .toBe(Math.round(before + 16));
+});
+
+test("floating, the corner grip resizes the card from the keyboard, never under 320px", async () => {
   await page.viewport(1280, 800);
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;
   document.head.append(sheet);
   onTestFinished(() => sheet.remove());
   const screen = await render(<Places />);
-  await screen.getByRole("button", { name: "Pop out" }).click();
   const card = document.querySelector<HTMLElement>(
     '[data-slot="assistant-card"]',
   )!;
-  card.focus();
-  const before = card.getBoundingClientRect().left;
-  await userEvent.keyboard("{Alt>}{ArrowRight}{/Alt}");
+  const grip = screen.getByRole("separator", { name: "Resize" });
+  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
+  const before = card.getBoundingClientRect();
+  (grip.element() as HTMLElement).focus();
+  await userEvent.keyboard("{ArrowUp}{ArrowLeft}");
   await expect
-    .poll(() => Math.round(card.getBoundingClientRect().left))
-    .toBe(Math.round(before + 16));
+    .poll(() => Math.round(card.getBoundingClientRect().height))
+    .toBe(Math.round(before.height + 16));
+  expect(Math.round(card.getBoundingClientRect().width)).toBe(
+    Math.round(before.width + 16),
+  );
+  // Its bottom-end corner stays where it was.
+  expect(Math.round(card.getBoundingClientRect().right)).toBe(
+    Math.round(before.right),
+  );
+  for (let i = 0; i < 30; i++) await userEvent.keyboard("{ArrowDown}");
+  expect(Math.round(card.getBoundingClientRect().height)).toBe(320);
+});
+
+test("floating in a short container, the first move keeps the card's size", async () => {
+  await page.viewport(1280, 800);
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  await render(
+    <div style={{ position: "relative", width: 600, height: 220 }}>
+      <AssistantCard open onOpenChange={() => {}} place="float">
+        <AssistantCardHeader title="William" onClose={() => {}} />
+        <AssistantCardBody>
+          <p>How can I help?</p>
+        </AssistantCardBody>
+      </AssistantCard>
+    </div>,
+  );
+  const card = document.querySelector<HTMLElement>(
+    '[data-slot="assistant-card"]',
+  )!;
+  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
+  const height = card.offsetHeight;
+  card.focus();
+  await userEvent.keyboard("{Alt>}{ArrowLeft}{/Alt}");
+  await expect.poll(() => card.style.top).not.toBe("");
+  expect(card.offsetHeight).toBe(height);
 });
 
 test("Escape closes the card from content portalled in from another React tree", async () => {
