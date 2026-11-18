@@ -1345,6 +1345,7 @@ for (const root of ROOTS) {
         /(^|\/)packages\/ui\/registry\//.test(
           resolve(file).replace(/\\/g, "/"),
         ) &&
+        classPosition &&
         unpositionedScroller(lit)
       ) {
         report(
@@ -2187,13 +2188,16 @@ function bareRingClass(text, classPosition) {
  * BRD-SCR: a class string with a scroller that names no position for it. Each
  * `overflow-*-auto|scroll` on the element ITSELF needs `relative`/`absolute`/`fixed`/`sticky` under
  * the same variant chain or none (`md:relative` positions only from `md`, so it does not cover a
- * bare `overflow-auto`). A variant chain that reaches another box — a descendant or sibling
- * selector (`[&_pre]:`, `[&>li]:`, `*:`), a pseudo-element (`before:`, `[&::after]:`) — is not
- * the element; a self-targeting one (`[&]:`, `[&:hover]:`, `[@media(...)]:`, `hover:`) is.
+ * bare `overflow-auto`; a bare `relative` undone by `md:static` does not cover `md:overflow-auto`).
+ * A variant chain that reaches another box — a top-level descendant or sibling combinator
+ * (`[&_pre]:`, `[&>li]:`, `*:`), a pseudo-element (`before:`, `[&::after]:`) — is not the
+ * element; a self-targeting one (`[&]:`, `[&:hover]:`, `[&:has(>img)]:`, `[@media(...)]:`,
+ * `hover:`) is. Name the position in the same class string as the overflow.
  */
 function unpositionedScroller(text) {
   const PSEUDO_ELEMENT =
     /^(?:before|after|placeholder|file|marker|selection|backdrop|first-letter|first-line)$/;
+  const POSITIONS = ["relative", "absolute", "fixed", "sticky"];
   const splitVariants = (token) => {
     const parts = [];
     let depth = 0;
@@ -2214,9 +2218,16 @@ function unpositionedScroller(text) {
     if (PSEUDO_ELEMENT.test(variant) || variant === "*" || variant === "**")
       return true;
     if (!variant.startsWith("[") || variant.startsWith("[@")) return false;
-    // An arbitrary selector variant: another box when it combines (`_` is a space) or names a
-    // pseudo-element.
-    return /&\s*[_>+~]|&[^\]]*[_>+~][^\]]*\]|::/.test(variant);
+    // An arbitrary selector variant, read at its top level only: what sits inside a functional
+    // pseudo-class (`:has(>img)`) or a quoted value doesn't change which element is styled.
+    let top = "";
+    let depth = 0;
+    for (const c of variant.slice(1, -1)) {
+      if (c === "(" || c === "[") depth++;
+      else if (c === ")" || c === "]") depth--;
+      else if (depth === 0) top += c;
+    }
+    return /[_>+~]|::/.test(top.replace(/^&/, "").replace(/&/g, ""));
   };
   const parsed = text
     .split(/\s+/)
@@ -2229,10 +2240,11 @@ function unpositionedScroller(text) {
     .filter(({ chain }) => !chain.some(otherBox));
   const positioned = (variant) =>
     parsed.some(
-      (p) =>
-        ["relative", "absolute", "fixed", "sticky"].includes(p.utility) &&
-        (p.variant === "" || p.variant === variant),
-    );
+      (p) => POSITIONS.includes(p.utility) && p.variant === variant,
+    ) ||
+    (variant !== "" &&
+      parsed.some((p) => POSITIONS.includes(p.utility) && p.variant === "") &&
+      !parsed.some((p) => p.utility === "static" && p.variant === variant));
   return parsed.some(
     (p) =>
       /^overflow-(?:[xy]-)?(?:auto|scroll)$/.test(p.utility) &&
