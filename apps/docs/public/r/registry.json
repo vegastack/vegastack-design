@@ -425,8 +425,8 @@
       "meta": {
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
-        "version": "0.114.0",
-        "integrity": "sha256-16D3kguouBqRLjw1nxkZ45N0+TqFZM0EcYV4Yud/n5A="
+        "version": "0.114.3",
+        "integrity": "sha256-GH/PMHg7wtuTxVFAIuV4Rz4KdiyDNa7F1dNgogGq8Aw="
       }
     },
     {

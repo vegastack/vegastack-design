@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.114.3
+
+### Patch Changes
+
+- [#1040](https://github.com/vegastack/vegastack-design/pull/1040) [`3f6b4ac`](https://github.com/vegastack/vegastack-design/commit/3f6b4ac8e5df4e6d43d0086725c685da9e4cb930) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Record Layout: on a phone the side panel's bottom sheet paints `--panel`, the side surface it has where it docks, instead of the popover lift (LAY-26, COL-26).
+
 ## 0.114.2
 
 ### Patch Changes
