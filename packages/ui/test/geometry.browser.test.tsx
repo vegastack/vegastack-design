@@ -5203,37 +5203,43 @@ test("the top bar's search: a capsule whose search and Ask sit 3px in on every s
 test("the bar's search palette opens on its box: same left edge and width at every size (LAY-26, 2026-11-19)", async () => {
   // History sits before the box, so the box is right of the window's centre (the operator's
   // report: the palette, centred on the window, opened 40-80px left of it).
-  for (const [width, ask] of [
-    [1512, true],
-    [1512, false],
-    [1280, true],
-    [1024, true],
-    [800, true],
+  // 600px: the box shrinks to its icon, so the palette is wider and centred on it. `rtl`: the bar
+  // alone is right-to-left while the palette is portalled into a left-to-right body.
+  for (const [width, ask, rtl] of [
+    [1512, true, false],
+    [1512, false, false],
+    [1280, true, false],
+    [1024, true, false],
+    [800, true, false],
+    [600, true, false],
+    [1280, true, true],
   ] as const) {
     await page.viewport(width, 800);
     const screen = await render(
       <>
-        <GlobalBar>
-          <GlobalBarLeading>
-            <Button size="icon-sm" aria-label="Columns">
-              C
-            </Button>
-          </GlobalBarLeading>
-          <GlobalBarCenter>
-            <Button size="sm">History</Button>
-            <GlobalBarSearch
-              label="Search or ask anything…"
-              ask={
-                ask
-                  ? { label: "Ask William", onClick: () => undefined }
-                  : undefined
-              }
-            />
-          </GlobalBarCenter>
-          <GlobalBarTrailing>
-            <Button size="sm">Help</Button>
-          </GlobalBarTrailing>
-        </GlobalBar>
+        <div dir={rtl ? "rtl" : undefined}>
+          <GlobalBar>
+            <GlobalBarLeading>
+              <Button size="icon-sm" aria-label="Columns">
+                C
+              </Button>
+            </GlobalBarLeading>
+            <GlobalBarCenter>
+              <Button size="sm">History</Button>
+              <GlobalBarSearch
+                label="Search or ask anything…"
+                ask={
+                  ask
+                    ? { label: "Ask William", onClick: () => undefined }
+                    : undefined
+                }
+              />
+            </GlobalBarCenter>
+            <GlobalBarTrailing>
+              <Button size="sm">Help</Button>
+            </GlobalBarTrailing>
+          </GlobalBar>
+        </div>
         <CommandSearch open onOpenChange={() => undefined} placement="bar">
           <CommandSearchInput />
           <CommandSearchResults>
@@ -5246,7 +5252,7 @@ test("the bar's search palette opens on its box: same left edge and width at eve
     );
     await expect.element(screen.getByText("Home")).toBeVisible();
     await settled();
-    const label = `${width}px${ask ? ", ask" : ""}`;
+    const label = `${width}px${ask ? ", ask" : ""}${rtl ? ", rtl" : ""}`;
     const box = document
       .querySelector('[data-slot="global-bar-search"]')!
       .getBoundingClientRect();
@@ -5269,14 +5275,17 @@ test("the bar's search palette opens on its box: same left edge and width at eve
       });
       expectConcentric(palette, field, "x");
     } else {
-      // A box too narrow for results: a wider palette centred on it, inside the window.
-      expect({ label, centre: p.left + p.width / 2 }).toEqual({
-        label,
-        centre: box.left + box.width / 2,
-      });
+      // A box too narrow for results: a wider palette centred on it, unless that would cross
+      // the window's 16px gutter.
+      expect(p.width, label).toBeGreaterThan(box.width + 8);
+      if (p.left > 16 && p.right < width - 16)
+        expect({ label, centre: p.left + p.width / 2 }).toEqual({
+          label,
+          centre: box.left + box.width / 2,
+        });
     }
-    expect(p.left, label).toBeGreaterThanOrEqual(0);
-    expect(p.right, label).toBeLessThanOrEqual(width);
+    expect(p.left, label).toBeGreaterThanOrEqual(16);
+    expect(p.right, label).toBeLessThanOrEqual(width - 16);
     await screen.unmount();
   }
 });

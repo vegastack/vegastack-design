@@ -1,4 +1,4 @@
-// @vegastack command-search@0.117.0 sha256-pnh4O+xyjEuqxhJyHGCHFO961EphDp5AQd5rpOd5fg0=
+// @vegastack command-search@0.117.0 sha256-GGQIs8oZMFbX0DFX4aUizkebykVlE5Od5CIRXUfrC1o=
 
 "use client";
 
@@ -142,17 +142,22 @@ function barPlacement(box: HTMLElement): React.CSSProperties | null {
     vw - BAR_GUTTER - width,
   );
   const top = b.top + (b.height - BAR_FIELD) / 2 - BAR_INSET;
-  const rtl = getComputedStyle(box).direction === "rtl";
   // The box's shape inside the palette: the palette opens from it and closes back into it.
   const clip = `inset(${b.top - top}px ${left + width - b.right}px calc(100% - ${
     b.bottom - top
   }px) ${b.left - left}px round ${b.height / 2}px)`;
   return {
     top,
-    insetInlineStart: rtl ? vw - left - width : left,
+    // Physical, not logical: the palette is portalled to the body, whose direction need not be
+    // the box's; `right: auto` frees the right edge DialogContent's `start-1/2` sets in RTL.
+    left,
+    right: "auto",
     width,
     maxWidth: "none",
     translate: "none",
+    // DialogContent's keyframe zoom and fade would run beside the grow and win the class order;
+    // the palette moves only by its transitions (below).
+    animation: "none",
     ["--command-search-from" as string]: clip,
   };
 }
@@ -178,7 +183,10 @@ function useBarPlacement(
     const measure = () => setStyle(barPlacement(box));
     measure();
     const observer = new ResizeObserver(measure);
+    // The box moves without resizing when a control beside it does (the bar centres its group),
+    // so its group is watched as well as the box and the window.
     observer.observe(box);
+    if (box.parentElement) observer.observe(box.parentElement);
     observer.observe(document.documentElement);
     window.addEventListener("resize", measure);
     return () => {
@@ -245,7 +253,7 @@ export function CommandSearch({
         // Placed on the box (inline style), it grows out of the box's shape and closes back into it.
         bar &&
           anchored &&
-          "[clip-path:inset(0_round_var(--radius-bubble))] [transition:clip-path_var(--duration-state)_var(--ease-enter),opacity_var(--duration-quick)_var(--ease-enter)] data-open:animate-none data-closed:animate-none data-starting-style:opacity-0 data-starting-style:[clip-path:var(--command-search-from)] data-ending-style:opacity-0 data-ending-style:[clip-path:var(--command-search-from)] data-ending-style:[transition:clip-path_var(--duration-state-exit)_var(--ease-exit),opacity_var(--duration-quick-exit)_var(--ease-exit)] motion-reduce:[transition:opacity_var(--duration-quick)_var(--ease-enter)]",
+          "[clip-path:inset(0_round_var(--radius-bubble))] [transition:clip-path_var(--duration-state)_var(--ease-enter),opacity_var(--duration-quick)_var(--ease-enter)] data-starting-style:opacity-0 data-starting-style:[clip-path:var(--command-search-from)] data-ending-style:opacity-0 data-ending-style:[clip-path:var(--command-search-from)] data-ending-style:[transition:clip-path_var(--duration-state-exit)_var(--ease-exit),opacity_var(--duration-quick-exit)_var(--ease-exit)] motion-reduce:[transition:opacity_var(--duration-quick)_var(--ease-enter)]",
         // No box on screen: the window's top centre, 580px at most.
         bar &&
           !anchored &&
@@ -323,14 +331,14 @@ export function CommandSearchInput({
           aria-hidden
           data-slot="command-search-progress"
           className={cn(
-            "pointer-events-none absolute bottom-0 h-0.5 overflow-hidden rounded-full",
+            "pointer-events-none absolute bottom-0 h-px overflow-hidden rounded-full",
             // Inside the field's corners (the pill's 16px curve over the bar's box), and short of
             // a trailing control: it runs under the text being searched, never under Ask.
             bar ? "start-4" : "start-3",
             trailing ? "end-32" : bar ? "end-4" : "end-3",
           )}
         >
-          {/* Quiet, not primary (operator, 2026-11-19): `muted-foreground` at 80%, 3.6:1 on the
+          {/* Quiet, not primary (operator, 2026-11-19): a 1px line in `muted-foreground` at 80%, 3.6:1 on the
               field in light and 4.5:1 in dark — seen, but never the loudest thing in the palette. */}
           <span className="absolute inset-y-0 w-1/3 rounded-full bg-muted-foreground/80 motion-indeterminate" />
         </div>
