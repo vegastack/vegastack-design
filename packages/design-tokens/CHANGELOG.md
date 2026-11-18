@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.24.1
+
+### Patch Changes
+
+- [#1036](https://github.com/vegastack/vegastack-design/pull/1036) [`3ca59b6`](https://github.com/vegastack/vegastack-design/commit/3ca59b6f8cd31fba83c4b1492812ba2ba38f5f8b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Shell: in dark the rounded-card frame's canvas is lighter than its page card (LAY-26). `--shell-canvas` moves from `oklch(0.145 0 0)` to `oklch(0.235 0 0)` (about `#1E1E1E`) under the global bar and the rail, one step above the card's `oklch(0.185 0 0)`; light is unchanged.
+
 ## 0.24.0
 
 ### Minor Changes
