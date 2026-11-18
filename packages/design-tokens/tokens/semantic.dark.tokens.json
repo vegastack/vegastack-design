@@ -253,7 +253,7 @@
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.125, 0, 0],
+      "components": [0.165, 0, 0],
       "alpha": 1
     }
   },
@@ -625,7 +625,7 @@
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.235, 0, 0],
+      "components": [0.205, 0, 0],
       "alpha": 1
     }
   },
@@ -633,7 +633,7 @@
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.185, 0, 0],
+      "components": [0.145, 0, 0],
       "alpha": 1
     }
   },
