@@ -665,10 +665,12 @@ export function NamedByItsOwnChildren() {
     `<div className="[&]:overflow-auto">a self-targeting arbitrary variant</div>`,
     `<div className="[&:hover]:overflow-auto">a self-targeting state</div>`,
     `<div className="[@media(min-width:40rem)]:overflow-auto">an arbitrary media variant</div>`,
+    `<div className="[&:has(>img)]:overflow-auto">a combinator inside :has() is still this element</div>`,
+    `<div className="relative md:static md:overflow-auto">positioned, then reset where it scrolls</div>`,
   ];
   writeFileSync(
     join(scrollerDir, "scroller.tsx"),
-    `export function Scrollers() {\n  return <>\n${scrollerForms.map((form) => `    ${form}`).join("\n")}\n    <div className="relative overflow-y-auto">positioned</div>\n    <div className="sticky top-0 overflow-x-auto">its own position</div>\n    <div className="overflow-hidden">not a scroller</div>\n    <div className="md:relative md:overflow-auto">scrolls and is positioned from md</div>\n    <div className="relative [&_pre]:overflow-x-auto">the pre is another box</div>\n    <div className="before:hover:overflow-auto">a pseudo-element is another box</div>\n    <div className="[&>li]:overflow-auto *:overflow-auto">children are other boxes</div>\n  </>;\n}\n`,
+    `export function Scrollers() {\n  return <>\n${scrollerForms.map((form) => `    ${form}`).join("\n")}\n    <div className="relative overflow-y-auto">positioned</div>\n    <div className="sticky top-0 overflow-x-auto">its own position</div>\n    <div className="overflow-hidden">not a scroller</div>\n    <div className="md:relative md:overflow-auto">scrolls and is positioned from md</div>\n    <div className="relative [&_pre]:overflow-x-auto">the pre is another box</div>\n    <div className="before:hover:overflow-auto">a pseudo-element is another box</div>\n    <div className="[&>li]:overflow-auto *:overflow-auto">children are other boxes</div>\n    <div className="relative md:overflow-auto">positioned at every width</div>\n    <div title="overflow-auto">not a class</div>\n  </>;\n}\n`,
   );
   const scroller = run(scrollerDir);
   const scrollerReported = new Set(
