@@ -120,8 +120,10 @@ floating panel that wraps or holds a form is `rounded-card`),
 a fill, tooltips), `rounded-block` (12px: blocks in content, nested cards), `rounded-card` (16px),
 `rounded-bubble` (20px), `rounded-overlay` (24px), `rounded-tile` (25%: square media). Side forms
 (`rounded-t-overlay`, `rounded-s-item`) are fine; `none`, `full` (dots, people) and `[inherit]`
-are structural. A table row with a fill takes `row-fill`. A menu is `rounded-card p-1.5` around
-`rounded-item` rows — a row is its container's corner minus the padding.
+are structural. A table row with a fill takes `row-fill`. A bordered menu is `rounded-card border p-1.25`
+around `rounded-item` rows — a part in a corner is the container's corner minus the inset from its
+outer edge (border plus padding): 16 − (1 + 5) = 10. A part whose result reaches half its height is
+round (the dialog's close: 24 − 9 = 15 on 28px). `foundations/radius.mdx` § The arithmetic.
 
 `--radius` (0.625rem) and the ramp derived from it (`sm`…`4xl`) exist only so upstream's math holds;
 `design-lint` `no-radius-ramp` rejects a ramp step, bare `rounded`, an arbitrary length, a radius

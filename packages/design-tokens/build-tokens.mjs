@@ -164,6 +164,74 @@ writeFileSync("dist/utilities.css", readFileSync("src/utilities.css", "utf8")); 
   (f) => rmSync(`dist/${f}`),
 );
 
+// 5. BRD-12 (amended 2026-11-18): the corner roles for every platform, from one source. Web reads
+// the CSS variables; the desktop app reads `corner-*` from this package; the Flutter app pulls
+// dist/corners.dart (scripts/pull-design-corners.sh in the mobile repo). A capsule is 999 (any
+// control is fully round at it) and a tile is a fraction of its size.
+const pkgVersion = JSON.parse(readFileSync("package.json", "utf8")).version;
+const platforms = JSON.parse(
+  readFileSync("tokens/corner-platforms.json", "utf8"),
+);
+const CAPSULE = 999;
+const cornerValue = (raw) => {
+  if (raw === "9999px") return CAPSULE;
+  const rem = /^([\d.]+)rem$/.exec(raw);
+  if (rem) return Number(rem[1]) * 16;
+  const px = /^([\d.]+)px$/.exec(raw);
+  if (px) return Number(px[1]);
+  const pct = /^([\d.]+)%$/.exec(raw);
+  if (pct) return Number(pct[1]) / 100;
+  throw new Error(`corner value not understood: ${raw}`);
+};
+const base = Object.fromEntries(
+  Object.entries(light)
+    .filter(([k]) => k.startsWith("corner-"))
+    .map(([k, v]) => [k.slice("corner-".length), cornerValue(v)]),
+);
+const resolveRole = (table, value) =>
+  typeof value === "number"
+    ? value
+    : value === "capsule"
+      ? CAPSULE
+      : table[value];
+const corners = {};
+for (const platform of ["pointer", "touch"]) {
+  const table = { ...base };
+  for (const [role, value] of Object.entries(platforms[platform])) {
+    const resolved = resolveRole(table, value);
+    if (typeof resolved !== "number")
+      throw new Error(`corner ${platform}.${role}: ${value}`);
+    table[role] = resolved;
+  }
+  corners[platform] = table;
+}
+writeFileSync(
+  "dist/corners.json",
+  JSON.stringify(
+    { version: pkgVersion, capsule: CAPSULE, ...corners },
+    null,
+    2,
+  ) + "\n",
+);
+const camel = (role) => role.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
+const dartTable = (name, table) =>
+  `abstract final class ${name} {\n` +
+  Object.entries(table)
+    .map(([role, value]) =>
+      role === "tile"
+        ? `  /// A square tile is rounded at this fraction of its size.\n  static const double tileFraction = ${value};`
+        : `  static const double ${camel(role)} = ${Number.isInteger(value) ? value.toFixed(1) : value};`,
+    )
+    .join("\n") +
+  `\n}\n`;
+writeFileSync(
+  "dist/corners.dart",
+  `// GENERATED from @vegastack/design-tokens ${pkgVersion} (BRD-12) — do not edit.\n` +
+    `// Pull a release with scripts/pull-design-corners.sh; change a value in the design system.\n\n` +
+    `/// The corner roles on a touch platform, in logical pixels. A capsule is ${CAPSULE}.\n` +
+    dartTable("DesignCorners", corners.touch),
+);
+
 console.log(
-  "tokens built: dist/theme.css, dist/base.css, dist/tokens.json, src/tokens.ts",
+  "tokens built: dist/theme.css, dist/base.css, dist/tokens.json, dist/corners.json, dist/corners.dart, src/tokens.ts",
 );

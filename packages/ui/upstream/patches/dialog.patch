@@ -59,7 +59,7 @@
 #               reflows the file, and `registry-stamp.mjs` writes the provenance header the
 #               three-copy model needs (DOC-1); those hunks carry no decision of their own.
 diff --git a/dialog.tsx b/dialog.tsx
-index 0b42f3f..f5f6a87 100644
+index 0b42f3f..cbf45ed 100644
 --- a/dialog.tsx
 +++ b/dialog.tsx
 @@ -1,26 +1,41 @@
@@ -200,7 +200,7 @@ index 0b42f3f..f5f6a87 100644
                <Button
                  variant="ghost"
 -                className="absolute top-2 end-2"
-+                className="absolute top-2 end-2 active:not-aria-[haspopup]:translate-y-0 in-data-[size=fullscreen]:max-sm:top-[calc(--spacing(2)+env(safe-area-inset-top))]"
++                className="absolute top-2 end-2 rounded-capsule active:not-aria-[haspopup]:translate-y-0 in-data-[size=fullscreen]:max-sm:top-[calc(--spacing(2)+env(safe-area-inset-top))]"
                  size="icon-sm"
                />
              }

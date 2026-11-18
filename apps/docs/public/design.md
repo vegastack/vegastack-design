@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 41762
-      sha256: "eaaadd0bee8d7e4983d52f8b5a0bebb476b9f0935fd2cd760c86edbe36863700"
+      bytes: 41802
+      sha256: "079902ee504159c9d6780735feda4b229d1f014f95a543184b8895f21e211047"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 14508
@@ -139,7 +139,7 @@ themes:
     corner-item:
       type: "dimension"
       value: "0.625rem"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the container's padding (a 16px menu with 6px padding). Read it as `rounded-item`."
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
     corner-mark:
       type: "dimension"
       value: "0.25rem"
@@ -663,7 +663,7 @@ themes:
     corner-item:
       type: "dimension"
       value: "0.625rem"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the container's padding (a 16px menu with 6px padding). Read it as `rounded-item`."
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
     corner-mark:
       type: "dimension"
       value: "0.25rem"
@@ -1663,7 +1663,8 @@ same thirteen names exist on web (`rounded-<role>`, from `--corner-<role>`), in 
 | `tile`    | 25%   | square media: icon tiles, thumbnails, logos, team and workspace avatars                                                              |
 
 Three rules follow from the table. **Rows follow their container**: a row's corner is its
-container's corner minus the container's padding, so menus are `rounded-card p-1.5` around
+container's corner minus the inset from its outer edge (border plus padding), so bordered menus are
+`rounded-card border p-1.25` (16 − 1 − 5 = 10) around
 `rounded-item` rows, and a fill always shows its corners — table rows take the `row-fill` utility,
 which draws their hover, pressed, selected and focus fills as an inset `item` shape like a select
 option. **Every hover has a shape**: no fill relies on a parent's `overflow-hidden` to look rounded.

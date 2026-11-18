@@ -40,6 +40,19 @@ import { DatePicker } from "../registry/ui/date-picker";
 import { preloadTextEdit } from "../registry/ui/text-edit";
 import { SearchableSelect } from "../registry/ui/searchable-select";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../registry/ui/dropdown-menu";
+import {
+  CommandDialog,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../registry/ui/command";
+import {
   MultiStepForm,
   MultiStepFormActions,
   MultiStepFormStep,
@@ -5010,3 +5023,101 @@ for (const [width, tracks] of [
     }
   });
 }
+
+/**
+ * BRD-12 (amended 2026-11-18): a part that sits in a rounded corner is concentric with it. Its
+ * corner is the container's minus the inset measured from the container's OUTER edge (border plus
+ * padding), and a part that reaches half its own height is simply round. Measured on the painted
+ * boxes, so a padding or border change that breaks the arithmetic fails here.
+ */
+function expectConcentric(outer: Element, inner: Element) {
+  const o = outer.getBoundingClientRect();
+  const i = inner.getBoundingClientRect();
+  // The nearest corner: the smaller inset on each axis, then the smaller of the two.
+  const inset = Math.min(
+    Math.min(i.top - o.top, o.bottom - i.bottom),
+    Math.min(i.left - o.left, o.right - i.right),
+  );
+  const outerRadius = parseFloat(getComputedStyle(outer).borderTopLeftRadius);
+  const want = Math.min(outerRadius - inset, i.height / 2);
+  const got = Math.min(
+    parseFloat(getComputedStyle(inner).borderTopLeftRadius),
+    i.height / 2,
+  );
+  expect({ inset, got }).toEqual({ inset, got: want });
+}
+
+test("concentric corners: menu, select and command rows, and the dialog's close (BRD-12)", async () => {
+  await page.viewport(1024, 768);
+  const screen = await render(
+    <>
+      <DropdownMenu open>
+        <DropdownMenuTrigger>Menu</DropdownMenuTrigger>
+        <DropdownMenuContent data-testid="menu">
+          <DropdownMenuItem data-testid="menu-row">First</DropdownMenuItem>
+          <DropdownMenuItem>Second</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </>,
+  );
+  const menu = await screen.getByTestId("menu").element();
+  expectConcentric(menu, screen.getByTestId("menu-row").element());
+  await screen.unmount();
+
+  const select = await render(
+    <Select open defaultValue="a">
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent data-testid="select">
+        <SelectItem value="a" data-testid="select-row">
+          A
+        </SelectItem>
+        <SelectItem value="b">B</SelectItem>
+      </SelectContent>
+    </Select>,
+  );
+  await expect.element(select.getByTestId("select-row")).toBeVisible();
+  expectConcentric(
+    select.getByTestId("select").element(),
+    select.getByTestId("select-row").element(),
+  );
+  await select.unmount();
+
+  const dialog = await render(
+    <Dialog open>
+      <DialogContent data-testid="dialog">
+        <DialogTitle>Title</DialogTitle>
+      </DialogContent>
+    </Dialog>,
+  );
+  const close = document.querySelector('[data-slot="dialog-close"]')!;
+  expectConcentric(dialog.getByTestId("dialog").element(), close);
+  await dialog.unmount();
+
+  const command = await render(
+    <CommandDialog open>
+      <CommandInput placeholder="Search" />
+      <CommandList>
+        <CommandGroup heading="Go">
+          <CommandItem>Home</CommandItem>
+        </CommandGroup>
+      </CommandList>
+    </CommandDialog>,
+  );
+  await expect.element(command.getByText("Home")).toBeVisible();
+  const palette = document.querySelector('[data-slot="dialog-content"]')!;
+  expectConcentric(
+    palette,
+    document.querySelector('[data-slot="input-group"]')!,
+  );
+  const row = document.querySelector('[data-slot="command-item"]')!;
+  const p = palette.getBoundingClientRect();
+  const r = row.getBoundingClientRect();
+  // A row is not in the corner vertically (the input sits above it); horizontally it is.
+  expect(parseFloat(getComputedStyle(row).borderTopLeftRadius)).toBe(
+    parseFloat(getComputedStyle(palette).borderTopLeftRadius) -
+      (r.left - p.left),
+  );
+  await command.unmount();
+});

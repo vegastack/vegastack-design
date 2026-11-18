@@ -65,7 +65,7 @@ supports CSS `corner-shape`, so Chrome and Safari never show different corners.
    control 2–4px inside another takes `segment` (6px = 8px − 2px; at a 4px inset it errs one step
    round, Apple's fallback radius, so an inner button never looks sharper than its field).
    Containers that hold segments use a 2px inset. Inside a capsule everything is a capsule, and so
-   it is inside a 24px card whose controls sit 6px in (the chat composer: 24 − 6 leaves a full
+   it is inside a 24px card whose controls sit 7px in (the chat composer: 24 − (1 + 6) leaves a full
    circle on a 32px button), which takes `capsule-scope` too.
 3. **The capsule is for what floats or stands alone** — floating and sticky bars, hover toolbars,
    controls over media — and for the buttons inside them, which are circles. Give the bar
@@ -79,9 +79,9 @@ supports CSS `corner-shape`, so Chrome and Safari never show different corners.
 5. **Labels are pills** (`chip`). **Tokens inside running text stay medium** (`inline`, 6px), so a
    mention never reads as a button. Highlights and marks are smaller still (`mark`, 4px).
 6. **Rows follow their container.** A row's fill is `item` (10px), inset from the container edge
-   so its corners show — the shape you see when you hover a Select option. Row radius is the
-   container's radius minus its padding: a menu is `card` (16px) with `p-1.5` (6px), so its rows
-   are 10px.
+   so its corners show — the shape you see when you hover a Select option. The inset is measured
+   from the container's **outer** edge, border included: a menu is `card` (16px) with a 1px border
+   and `p-1.25` (5px), 16 − (1 + 5) = 10. A borderless container takes the whole 6px as padding.
 7. **Bigger surfaces, bigger corners:** `block` 12 → `card` 16 → `bubble` 20 → `overlay` 24.
 8. **Every hover has a shape.** A fill never relies on a parent's `overflow-hidden` to look
    rounded. Only cells inside a spreadsheet selection rectangle are square.
@@ -90,6 +90,37 @@ supports CSS `corner-shape`, so Chrome and Safari never show different corners.
 10. **Indicators have pill ends** — switches, progress, sliders, meters, scrollbar thumbs, resize
     grips, step connectors, underline indicators. Chart swatches stay `mark`.
 11. **Skeletons copy the radius** of what they stand in for.
+
+## The arithmetic
+
+A part that sits in a rounded corner is **concentric** with it: its corner is the container's corner
+minus the inset, and the inset is everything between the two outer edges — the container's border
+plus its padding (plus any wrapper's padding). When the result reaches half the part's height, the
+part is simply round. When the inset is larger than the container's corner, the part is free and
+takes its own role.
+
+| Part                       | Container    | Inset (border + padding) | Corner                                          |
+| -------------------------- | ------------ | ------------------------ | ----------------------------------------------- |
+| Menu, Select, Combobox row | `card` 16    | 1 + 5 = 6                | 16 − 6 = **10** (`item`)                        |
+| Command palette row        | `bubble` 20  | 1 + 4 + 5 = 10           | 20 − 10 = **10** (`item`)                       |
+| Command palette search box | `bubble` 20  | 1 + 4 + 5 = 10           | 20 − 10 = **10** (`item`)                       |
+| Dialog close (28px)        | `overlay` 24 | 1 + 8 = 9                | 24 − 9 = 15 ≥ 14 → **circle** (`capsule`)       |
+| Composer +, @, Send (32px) | `overlay` 24 | 1 + 6 = 7                | 24 − 7 = 17 ≥ 16 → **circle** (`capsule-scope`) |
+| Tab trigger                | `control` 8  | 2                        | 8 − 2 = **6** (`segment`)                       |
+| Card action, toast ×       | `card` 16    | 17, or centred           | free → `icon` 8                                 |
+
+`geometry.browser.test.tsx` measures the painted boxes of a menu, a select, the dialog's close and
+the command palette against this rule, so a padding or border change that breaks it fails the build.
+
+## One source on every platform
+
+Every number above lives once, in `@vegastack/design-tokens` (`tokens/semantic.tokens.json` and
+`tokens/corner-platforms.json`). The web reads the CSS variables (`--corner-*`), the desktop app
+reads `corner-*` from the package (its floating windows' native glass corners), and the Flutter app
+pulls `corners.dart` (generated as `DesignCorners`) with `scripts/pull-design-corners.sh`.
+`corners.json` lists both tables: **pointer** (web, desktop) and **touch** (mobile), where touch
+overrides only `control`, `icon` (capsules) and `field` (12px). Change a corner in the design
+system, release, and pull it; never type a radius in an app.
 
 ## Table rows
 
@@ -107,7 +138,7 @@ Each role is one variable — `--corner-control`, `--corner-segment`, `--corner-
 `--corner-inline`, `--corner-mark`, `--corner-item`, `--corner-block`, `--corner-card`,
 `--corner-bubble`, `--corner-overlay`, `--corner-tile` — so re-theming a role in your global CSS
 changes every element that plays it. Keep the order (`inline` < `item` < `block` < `card` <
-`bubble` < `overlay`) and the row rule (row = container − padding) intact.
+`bubble` < `overlay`) and the row rule (inner = outer − border − padding) intact.
 
 `--radius` (0.625rem) and the derived `rounded-sm` … `rounded-4xl` ramp still exist so pasted
 upstream snippets compile, but VegaStack components never use them: design-lint's

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.114.0 sha256-86C9O409fZJNm//zcYs871MKofpR5WJApGV7Cw7Usnw=
+// @vegastack text-edit@0.114.0 sha256-897ijRKbBMVr443BEBoICRG9+ZrvT1glXxAu7A4M7yY=
 
 "use client";
 
@@ -7347,7 +7347,7 @@ function TurnIntoPanel({
         const step = event.key === "ArrowDown" ? 1 : -1;
         items[(at + step + items.length) % items.length]?.focus();
       }}
-      className={cn(MENU_SURFACE, "flex w-52 flex-col p-1.5")}
+      className={cn(MENU_SURFACE, "flex w-52 flex-col p-1.25")}
     >
       {BLOCK_TYPES.filter(
         (type) =>
@@ -8955,7 +8955,7 @@ function FindBar({
             findRef.current?.select();
           }
         }}
-        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-card border bg-popover p-1.5 text-popover-foreground shadow-md print:hidden"
+        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-card border bg-popover p-1.25 text-popover-foreground shadow-md print:hidden"
       >
         <div className="flex flex-wrap items-center gap-1">
           <label htmlFor={inputId} className="sr-only">

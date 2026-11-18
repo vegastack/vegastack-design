@@ -61,7 +61,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..2b9b12d 100644
+index e8a22e1..d2296a1 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,20 +1,52 @@
@@ -117,7 +117,7 @@ index e8a22e1..2b9b12d 100644
      <SelectPrimitive.Group
        data-slot="select-group"
 -      className={cn("scroll-my-1 p-1", className)}
-+      className={cn("scroll-my-1.5 p-1.5", className)}
++      className={cn("scroll-my-1.25 p-1.25", className)}
        {...props}
      />
 -  )

@@ -1,4 +1,4 @@
-// @vegastack command@0.114.0 sha256-Rfr/L//bHJ8gs6CiIjsUzvR6z12+jWuwLgurxUdeiXs=
+// @vegastack command@0.114.0 sha256-+PDS2RrunPFRQdhfTIsImukgTfOufeCT/8Pr7N9Qyaw=
 
 "use client";
 
@@ -304,8 +304,8 @@ function CommandInput({
   ...props
 }: React.ComponentProps<typeof CommandPrimitive.Input>) {
   return (
-    <div data-slot="command-input-wrapper" className="p-1 pb-0">
-      <InputGroup className="h-8! rounded-control! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:ps-2!">
+    <div data-slot="command-input-wrapper" className="p-1.25 pb-0">
+      <InputGroup className="h-8! rounded-item! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:ps-2!">
         <CommandPrimitive.Input
           data-slot="command-input"
           className={cn(
@@ -608,7 +608,7 @@ function CommandGroup({
     <CommandPrimitive.Group
       data-slot="command-group"
       className={cn(
-        "overflow-hidden p-1 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
+        "overflow-hidden p-1.25 text-foreground **:[[cmdk-group-heading]]:px-2 **:[[cmdk-group-heading]]:py-1.5 **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:font-medium **:[[cmdk-group-heading]]:text-muted-foreground",
         className,
       )}
       {...props}
@@ -653,7 +653,7 @@ function CommandItem({
       keywords={keywords}
       aria-describedby={description.id || undefined}
       className={cn(
-        "group/command-item relative flex items-center gap-2 rounded-block px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-state-hover data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-selected:**:[svg:not([data-icon-tone])]:text-foreground",
+        "group/command-item relative flex items-center gap-2 rounded-item px-2 py-1.5 text-sm outline-hidden select-none data-[disabled=true]:pointer-events-none data-[disabled=true]:opacity-50 data-selected:bg-state-hover data-selected:text-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground data-selected:**:[svg:not([data-icon-tone])]:text-foreground",
         className,
       )}
       {...props}

@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.114.0 sha256-stnZk6PtpqH9u8Nt/kVzDSHir3X98BEjWQhj4+rYmGY=
+// @vegastack table-of-contents@0.114.0 sha256-X+HmY/unl0Xo6ktbZgh3bDYzlq4PfQiJKwvTd02UKgs=
 
 "use client";
 
@@ -811,7 +811,7 @@ const RAIL_TRIGGER =
 // The panel floats over the page beside the rail, from its top corner (its frame places it);
 // closed, it is transparent and inert. Long outlines scroll inside it.
 const RAIL_PANEL =
-  "pointer-events-none flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-card border border-border bg-popover p-1.5 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
+  "pointer-events-none flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-card border border-border bg-popover p-1.25 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
 
 interface TableOfContentsSheetProps extends Omit<
   TableOfContentsProps,

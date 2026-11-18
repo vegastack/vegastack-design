@@ -1,4 +1,4 @@
-// @vegastack combobox@0.114.0 sha256-DAKmZwsMFiMzpG8TZuvgQ9pWfLErGPoEj6CHTOURADA=
+// @vegastack combobox@0.114.0 sha256-X0k3MMDxFLf+8f38DuAlP36URBt5wo9w4qmnkh22Ywg=
 
 "use client";
 
@@ -244,7 +244,7 @@ function ComboboxList({ className, ...props }: ComboboxPrimitive.List.Props) {
     <ComboboxPrimitive.List
       data-slot="combobox-list"
       className={cn(
-        "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1.5 data-empty:p-0",
+        "no-scrollbar max-h-[min(calc(--spacing(72)---spacing(9)),calc(var(--available-height)---spacing(9)))] scroll-py-1 overflow-y-auto overscroll-contain p-1.25 data-empty:p-0",
         className,
       )}
       {...props}

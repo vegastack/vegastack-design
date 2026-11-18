@@ -1626,7 +1626,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.114.0",
-        "integrity": "sha256-DAKmZwsMFiMzpG8TZuvgQ9pWfLErGPoEj6CHTOURADA="
+        "integrity": "sha256-X0k3MMDxFLf+8f38DuAlP36URBt5wo9w4qmnkh22Ywg="
       }
     },
     {
@@ -1662,7 +1662,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.114.0",
-        "integrity": "sha256-Rfr/L//bHJ8gs6CiIjsUzvR6z12+jWuwLgurxUdeiXs="
+        "integrity": "sha256-+PDS2RrunPFRQdhfTIsImukgTfOufeCT/8Pr7N9Qyaw="
       }
     },
     {
@@ -1693,7 +1693,7 @@
         "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.114.0",
-        "integrity": "sha256-xXeY1hd6+Ssp4YNBZ3z0ZVF7AhXqFk0i1r6vHXrM1Jk="
+        "integrity": "sha256-z5w2By+mBeZwJZ2RCHJETpsnbGGp5na+aU/BNM0vrqA="
       }
     },
     {
@@ -2549,7 +2549,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.114.0",
-        "integrity": "sha256-VL+BQWfy/BImAo9Hg8Tm5uiJ9Q/L++zMkKvDqFZmZj8="
+        "integrity": "sha256-1SwjW5tMdiOfsDHIpKZEywOoWkOJjcJe+alOOCzI808="
       }
     },
     {
@@ -3053,7 +3053,7 @@
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.114.0",
-        "integrity": "sha256-TQELCNfpbohbH57u63SKBZ7LP31vTpcLXgMFszFSDNI="
+        "integrity": "sha256-OYpFa8gOhMAe+HFbFAF8RZ4SirmPEfRN+2ZDknLePjU="
       }
     },
     {
@@ -3313,7 +3313,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.114.0",
-        "integrity": "sha256-i3Sv7gFmhH/sqfGzfDPBiWIELXY+BgcndmqEameg+nE="
+        "integrity": "sha256-TVGbd4qzi041h8AVW/5yKX2cFdepjX+ZA8h6rqu8NAo="
       }
     },
     {
@@ -16697,7 +16697,7 @@
         "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
         "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
         "version": "0.114.0",
-        "integrity": "sha256-stnZk6PtpqH9u8Nt/kVzDSHir3X98BEjWQhj4+rYmGY="
+        "integrity": "sha256-X+HmY/unl0Xo6ktbZgh3bDYzlq4PfQiJKwvTd02UKgs="
       }
     },
     {
@@ -17086,7 +17086,7 @@
         "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
         "version": "0.114.0",
-        "integrity": "sha256-r45jWo2jKmmt+BfWaiDsngdB5ntJLTIlZLWGo8tcPEE="
+        "integrity": "sha256-/Rs9Oy7Ninb/H5IU1a2MkTuym0+GYVZI/OXgW1XWXtw="
       }
     },
     {
@@ -17571,7 +17571,7 @@
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.114.0",
-        "integrity": "sha256-AlF5QmsVmAvPOOhBys8x3oXYJDuBc+1M3QXjHUfGu2E="
+        "integrity": "sha256-CVFMxcgIqMy8gDW7BTLNvVFgNDvTZg474LkTBsL9kIk="
       },
       "registryDependencies": []
     },
@@ -18589,7 +18589,7 @@
         "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.114.0",
-        "integrity": "sha256-VBeMHs3Wk2ndsTj1huwydClLgjIg+IYalCFx9LQslJs="
+        "integrity": "sha256-QQ2sdcmtG3IJnzZK+oTOv0lj0au5o3EowcsjWwxeJC8="
       }
     },
     {
@@ -19327,7 +19327,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.114.0",
-        "integrity": "sha256-86C9O409fZJNm//zcYs871MKofpR5WJApGV7Cw7Usnw="
+        "integrity": "sha256-897ijRKbBMVr443BEBoICRG9+ZrvT1glXxAu7A4M7yY="
       }
     },
     {
@@ -20408,7 +20408,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.114.0",
-        "integrity": "sha256-piP0q5ccP5MAXXgT70ey7H2VJQQw7mZG27KuP8xNMFI="
+        "integrity": "sha256-GE7wMBajZU7m9CdM8vJjsSB+lSvSm+vLsbBgtLTQPPU="
       }
     },
     {

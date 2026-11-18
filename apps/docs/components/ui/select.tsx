@@ -1,4 +1,4 @@
-// @vegastack select@0.114.0 sha256-VBeMHs3Wk2ndsTj1huwydClLgjIg+IYalCFx9LQslJs=
+// @vegastack select@0.114.0 sha256-QQ2sdcmtG3IJnzZK+oTOv0lj0au5o3EowcsjWwxeJC8=
 
 "use client";
 
@@ -45,7 +45,7 @@ function SelectGroup({ className, ...props }: SelectPrimitive.Group.Props) {
   return (
     <SelectPrimitive.Group
       data-slot="select-group"
-      className={cn("scroll-my-1.5 p-1.5", className)}
+      className={cn("scroll-my-1.25 p-1.25", className)}
       {...props}
     />
   );

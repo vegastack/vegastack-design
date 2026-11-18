@@ -1,4 +1,4 @@
-// @vegastack dialog@0.114.0 sha256-VL+BQWfy/BImAo9Hg8Tm5uiJ9Q/L++zMkKvDqFZmZj8=
+// @vegastack dialog@0.114.0 sha256-1SwjW5tMdiOfsDHIpKZEywOoWkOJjcJe+alOOCzI808=
 
 "use client";
 
@@ -122,7 +122,7 @@ function DialogContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-2 end-2 active:not-aria-[haspopup]:translate-y-0 in-data-[size=fullscreen]:max-sm:top-[calc(--spacing(2)+env(safe-area-inset-top))]"
+                className="absolute top-2 end-2 rounded-capsule active:not-aria-[haspopup]:translate-y-0 in-data-[size=fullscreen]:max-sm:top-[calc(--spacing(2)+env(safe-area-inset-top))]"
                 size="icon-sm"
               />
             }

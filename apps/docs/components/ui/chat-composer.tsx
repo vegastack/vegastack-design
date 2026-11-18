@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.114.0 sha256-piP0q5ccP5MAXXgT70ey7H2VJQQw7mZG27KuP8xNMFI=
+// @vegastack chat-composer@0.114.0 sha256-GE7wMBajZU7m9CdM8vJjsSB+lSvSm+vLsbBgtLTQPPU=
 
 "use client";
 
@@ -49,7 +49,7 @@ import {
  *   ╰──────────────────────────────────────────────────────╯
  *
  * One radius: the card is `rounded-overlay` (24px, the grown composer). Everything inside is
- * concentric with it: the header and the actions row sit 6px in, so 24 − 6 leaves a full circle on
+ * concentric with it: the header and the actions row sit 7px in (1px border + 6px padding), so 24 − 7 leaves a full circle on
  * their 32px controls (`capsule-scope`: pills and circles),
  * the attachments 10px in with `rounded-tile` thumbnails and pill (`rounded-chip`) file chips. A
  * `ChatComposerNotice` runs edge to edge on the top edge. Steers wait above the card, a failed send says so under it.
