@@ -216,9 +216,16 @@ test("the box resizing flips the layout and keeps focus; so does a root font-siz
     unselected.container.querySelector("button") as HTMLButtonElement
   ).dispatchEvent(new MouseEvent("click", { bubbles: true }));
   await vi.waitFor(() =>
-    expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
-      "version-list-item",
-    ),
+    expect(
+      unselected.container.querySelector<HTMLElement>(
+        "[data-slot=version-compare]",
+      )!.dataset.view,
+    ).toBe("list"),
+  );
+  // The flip remounted the list: focus is on its new first row, not the removed one.
+  expect(first.isConnected).toBe(false);
+  expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
+    "version-list-item",
   );
   await unselected.unmount();
 
