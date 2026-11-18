@@ -1,5 +1,12 @@
 # @vegastack/design
 
+## 0.24.0
+
+### Patch Changes
+
+- Updated dependencies [[`2ebda20`](https://github.com/vegastack/vegastack-design/commit/2ebda20c4260a9bfb4c1272f3450064f282bfeac)]:
+  - @vegastack/design-tokens@0.24.0
+
 ## 0.23.0
 
 ### Minor Changes

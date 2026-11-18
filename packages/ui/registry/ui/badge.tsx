@@ -1,4 +1,4 @@
-// @vegastack badge@0.112.0 sha256-3gxWSTZIxShqpVhplyobr/nFmw0rQjZhSQq9CQypL2A=
+// @vegastack badge@0.114.0 sha256-+MvDWdBNYzvX5QXC3KeZIUuWLNiGplNEPFrK+iW7Jy4=
 
 "use client";
 

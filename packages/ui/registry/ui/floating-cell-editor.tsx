@@ -1,4 +1,4 @@
-// @vegastack floating-cell-editor@0.112.0 sha256-5fKT/xdXNK8BuqoGj2Jl5N6dkNTEzhNNlzwtW8oJe94=
+// @vegastack floating-cell-editor@0.114.0 sha256-f+IdxAuR+XrEuLN8YV/w+MvRsk0TfNXS9oChN2DGr00=
 
 "use client";
 

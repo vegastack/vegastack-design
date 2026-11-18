@@ -1,4 +1,4 @@
-// @vegastack shell-layout@0.107.0 sha256-fEjIl9WmSDhiEbsupT+DRxL8oUaAA0MKwLYHkftBCAs=
+// @vegastack shell-layout@0.114.0 sha256-2O16utvjPrfG6aUYkp/VUN8cGUgv8DBE+jGDb7pkEVQ=
 
 /**
  * The shell's layout rule (LAY-22) as one pure function, plus the sizes, cookie and clamp the
