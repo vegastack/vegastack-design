@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.116.0 sha256-FoCEvHN/SJyOibPDNp/Bt6dsQ+avVqYHaDATAya2gtY=
+// @vegastack date-picker@0.116.0 sha256-3Wq8FI6bOkvWZ9qlFIT6xRyr+B7iZpji2HSz8rWdLMQ=
 
 "use client";
 
@@ -396,7 +396,7 @@ function PresetRail({ children }: { children: React.ReactNode }) {
       // sits at the inline start, `border-b` once it stacks above it. Below sm the rail becomes a
       // horizontally scrollable chip row — side-by-side rail+calendar exceeds the popup's
       // viewport-width clamp on narrow phones.
-      className="flex shrink-0 flex-col gap-0.5 border-e border-border p-2 max-sm:flex-row max-sm:overflow-x-auto max-sm:border-e-0 max-sm:border-b"
+      className="relative flex shrink-0 flex-col gap-0.5 border-e border-border p-2 max-sm:flex-row max-sm:overflow-x-auto max-sm:border-e-0 max-sm:border-b"
     >
       {children}
     </div>
@@ -1216,7 +1216,7 @@ export function DateTimePicker({
                 <div
                   ref={scrollToCurrent}
                   data-slot="date-time-picker-times"
-                  className="h-64 overflow-y-auto overscroll-contain p-1 pt-0 max-sm:h-40"
+                  className="relative h-64 overflow-y-auto overscroll-contain p-1 pt-0 max-sm:h-40"
                 >
                   <ToggleGroup
                     aria-label={labels.times}

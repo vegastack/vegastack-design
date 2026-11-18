@@ -1864,7 +1864,8 @@
         "@vegastack/use-platform",
         "@vegastack/shell-layout",
         "@vegastack/date-time",
-        "@vegastack/rail"
+        "@vegastack/rail",
+        "@vegastack/scroll-area"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.26.0",
@@ -1930,7 +1931,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["shell-column"]
+              "values": ["shell-column-scroll"]
             }
           ],
           "cssVariables": []
@@ -5639,6 +5640,10 @@
             {
               "name": "data-loading",
               "values": [""]
+            },
+            {
+              "name": "data-shape",
+              "values": ["pill"]
             },
             {
               "name": "data-slot",
@@ -11296,7 +11301,8 @@
         "@vegastack/searchable-select",
         "@vegastack/toast",
         "@vegastack/use-media-query",
-        "@vegastack/relative-time"
+        "@vegastack/relative-time",
+        "@vegastack/add-filter-menu"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -11477,6 +11483,15 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "FILTER_ROW_ACTION",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/add-filter-menu.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],
@@ -18457,6 +18472,10 @@
             {
               "name": "data-field-group",
               "values": [""]
+            },
+            {
+              "name": "data-shape",
+              "values": ["pill"]
             },
             {
               "name": "data-slot",
@@ -31137,6 +31156,10 @@
             {
               "name": "data-orientation",
               "values": []
+            },
+            {
+              "name": "data-shape",
+              "values": ["pill"]
             },
             {
               "name": "data-size",

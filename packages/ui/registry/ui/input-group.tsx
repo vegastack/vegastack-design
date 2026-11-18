@@ -1,4 +1,4 @@
-// @vegastack input-group@0.116.0 sha256-b7rcJyqTCAynrsBOWYt5MDUcRFNSSgDFr9FWyk5xAVY=
+// @vegastack input-group@0.116.0 sha256-sfKtmxWnjGTYYX5VkKNg0IxXzxZYu34S9z5AgGq8Ig4=
 
 "use client";
 
@@ -10,14 +10,28 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
+function InputGroup({
+  className,
+  shape = "rect",
+  ...props
+}: React.ComponentProps<"div"> & {
+  /**
+   * BRD-12 (corner shapes round 2): `rect` is the in-page field (`control`, its buttons `segment`);
+   * `pill` is a single-line field in the app's frame or in a row of pills — the group becomes a
+   * capsule and `capsule-scope` makes its buttons circles and pills, concentric with it.
+   * @default 'rect'
+   */
+  shape?: "rect" | "pill";
+}) {
   return (
     <div
       data-slot="input-group"
       data-field-group=""
+      data-shape={shape === "pill" ? "pill" : undefined}
       role="group"
       className={cn(
         "group/input-group relative flex h-8 w-full min-w-0 items-center rounded-control border border-input transition-[color,background-color,border-color] duration-150 ease-out outline-none hover:border-input-hover has-[input:focus,textarea:focus]:not-has-aria-invalid:border-input-focus has-disabled:bg-input/50 has-disabled:opacity-50 has-[[data-slot][aria-invalid=true]]:border-destructive has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto has-[>textarea]:rounded-card has-[>[data-align=block-start]]:rounded-card has-[>[data-align=block-end]]:rounded-card dark:bg-input/30 dark:has-disabled:bg-input/80 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pe-1.5 has-[>[data-align=inline-start]]:[&>input]:ps-1.5",
+        shape === "pill" && "rounded-capsule capsule-scope",
         className,
       )}
       {...props}

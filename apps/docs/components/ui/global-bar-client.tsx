@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.116.0 sha256-zXLmy0EFrvxRQQZIMC4PVN4aPEwoc/e6NKpjLWhU0Xg=
+// @vegastack global-bar@0.116.0 sha256-6p2SEwyIF8vvOjXDF8AUVvxmgOvF6io1RmTzQ23ICBQ=
 
 "use client";
 
@@ -69,7 +69,10 @@ export function GlobalBarSearch({
         className={cn(
           // 580px at most (the bar's own width decides under that); a field on the canvas, so its
           // ground is the card's. The pill's ring darkens on hover like a text field's border.
-          "flex h-8 w-[min(36.25rem,42cqw)] min-w-0 items-center gap-1 rounded-control border border-input bg-shell-card ps-1 pe-1 text-sm text-muted-foreground transition-colors duration-instant hover:border-input-hover @max-2xl/global-bar:w-auto",
+          // A capsule (the top bar is the app's frame, BRD-12): the search and Ask sit 3px in on
+          // every side (1px border + `p-0.5`), so their hover fills are concentric pills with an even
+          // gap all round (operator, 2026-11-19).
+          "flex h-8 w-[min(36.25rem,42cqw)] min-w-0 items-center gap-0.5 rounded-capsule border border-input bg-shell-card p-0.5 text-sm text-muted-foreground transition-colors duration-instant hover:border-input-hover @max-2xl/global-bar:w-auto",
           className,
         )}
       >
@@ -77,7 +80,7 @@ export function GlobalBarSearch({
           variant="ghost"
           size="sm"
           aria-keyshortcuts={os === "mac" ? "Meta+K" : "Control+K"}
-          className="h-7 min-w-0 flex-1 justify-start gap-2 rounded-segment px-2 text-sm font-normal text-muted-foreground [&_svg:not([class*='size-'])]:size-4 hover:bg-transparent aria-expanded:bg-transparent"
+          className="h-6.5 min-w-0 flex-1 justify-start gap-2 rounded-capsule ps-2.5 pe-2 text-sm font-normal text-muted-foreground [&_svg:not([class*='size-'])]:size-4 hover:bg-transparent aria-expanded:bg-transparent"
           {...props}
         >
           <Search aria-hidden="true" />
@@ -97,7 +100,7 @@ export function GlobalBarSearch({
           aria-controls={ask.controls}
           aria-expanded={ask.expanded}
           onClick={ask.onClick}
-          className="h-6 flex-none gap-1.5 rounded-segment bg-info/10 px-2.5 text-xs font-semibold text-info-text hover:bg-info/15 hover:text-info-text aria-expanded:bg-info/15"
+          className="h-6.5 flex-none gap-1.5 rounded-capsule bg-info/10 px-2.5 text-xs font-semibold text-info-text hover:bg-info/15 hover:text-info-text aria-expanded:bg-info/15"
         >
           <Sparkles aria-hidden="true" />
           <span className="@max-2xl/global-bar:sr-only">{ask.label}</span>
@@ -119,7 +122,7 @@ export function GlobalBarSearch({
       className={cn(
         // Sized by the bar, not the window, so the sides keep room in a narrow shell; under 42rem it
         // shrinks to its icon and shortcut.
-        "w-[min(28rem,30cqw)] min-w-0 @max-2xl/global-bar:w-auto justify-start gap-2 font-normal text-muted-foreground",
+        "w-[min(28rem,30cqw)] min-w-0 @max-2xl/global-bar:w-auto justify-start gap-2 rounded-capsule font-normal text-muted-foreground",
         className,
       )}
       {...props}

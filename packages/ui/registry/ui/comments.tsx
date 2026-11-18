@@ -1,4 +1,4 @@
-// @vegastack comments@0.116.0 sha256-vzgotvzr3hS0UDlH1knrTBCi3kLzQDOv4bPOgY4JyWM=
+// @vegastack comments@0.116.0 sha256-FAqHms/QakfvJVVptTPoY+9tklfZaWtxsZS07aKr9nI=
 
 "use client";
 
@@ -2889,8 +2889,8 @@ export function CommentListSkeleton() {
       <div className="flex flex-col rounded-card border border-border px-4 pt-3 pb-2">
         <Skeleton className="h-3.5 w-32" />
         <div className="flex justify-end gap-1 pt-5">
-          <Skeleton className="size-6 rounded-icon" />
-          <Skeleton className="size-6 rounded-icon" />
+          <Skeleton className="size-6 rounded-segment" />
+          <Skeleton className="size-6 rounded-segment" />
         </div>
       </div>
     </div>

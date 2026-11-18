@@ -109,18 +109,31 @@ AA-gated rather than eyeballed.
 
 ## Radius
 
-**A corner is a role** (BRD-12, `design.md` § Corners). Write the role the element plays:
-`rounded-control` (8px: every in-page control — Button at every size, Input, Select, search fields,
-Toggle, TabsList), `rounded-icon` (8px rounded square: icon-only buttons), `rounded-segment` (6px: a
-control nested in a control — tab triggers, buttons inside a field), `rounded-capsule` (pill: only what
-floats or sits on media, and every button inside it — `capsule-scope` turns them into circles; a
-floating panel that wraps or holds a form is `rounded-card`),
-`rounded-chip` (pill: chips, badges, counts), `rounded-inline` (6px: tokens in running text),
-`rounded-mark` (4px: highlights, the checkbox, chart swatches), `rounded-item` (10px: every row with
-a fill, tooltips), `rounded-block` (12px: blocks in content, nested cards), `rounded-card` (16px),
-`rounded-bubble` (20px), `rounded-overlay` (24px), `rounded-tile` (25%: square media). Side forms
-(`rounded-t-overlay`, `rounded-s-item`) are fine; `none`, `full` (dots, people) and `[inherit]`
-are structural. A table row with a fill takes `row-fill`. A bordered menu is `rounded-card border p-1.25`
+**A corner is a role, and the shape says what the thing is** (BRD-12, round 2 2026-11-19,
+`design.md` § Corners). Decide in order: a token or state (chip, badge, tag, count, reaction, filter
+chip and the filter row's + Filter / Clear, quick-filter toggle, switch) → pill (`rounded-chip`);
+the app frame or anything floating (the top bar, floating bars, controls over media) → `rounded-capsule
+capsule-scope`, its buttons circles; an action or input in the page → `rounded-control` (10px), or
+`rounded-segment` (8px) at the 24px compact tier (Button `xs`, `icon-xs`, inline cell editors); a row
+in a list without dividers → `rounded-item` (10px, inset); a row in a table → `row-fill` (a square
+band, edge to edge, hairline to hairline); inside anything → concentric, erring round.
+
+The roles: `rounded-control` (10px), `rounded-icon` (10px rounded square: icon-only buttons),
+`rounded-segment` (8px: a control nested in a control, 2px inset — tab triggers, Menubar items,
+buttons inside a field — and every 24px control), `rounded-capsule` (pill: the frame and what
+floats; a floating panel that wraps or holds a form is `rounded-card`), `rounded-chip` (pill),
+`rounded-inline` (6px: tokens in running text), `rounded-mark` (4px: highlights, the checkbox, chart
+swatches), `rounded-item` (10px: list rows, tooltips), `rounded-block` (12px: blocks in content,
+nested cards), `rounded-card` (16px), `rounded-bubble` (20px), `rounded-overlay` (24px),
+`rounded-tile` (25%: square media). Side forms (`rounded-t-overlay`, `rounded-s-item`) are fine;
+`none`, `full` (dots, people) and `[inherit]` are structural.
+
+**One shape per row; shape comes from the component.** A button in a row of chips is a pill
+(`Button shape="pill"`, or `FILTER_ROW_ACTION` on the filter row); a field in the frame or a row of
+pills is `Input`/`InputGroup shape="pill"`; quick-filter toggles are `ToggleGroup shape="pill"`; a
+subtree that is all capsules carries `capsule-scope`. A component never lets app code reshape it with
+`rounded-*`, and height never picks the shape except the 24px tier. The filter row is one tier:
+28px pills, 12px medium text. A bordered menu is `rounded-card border p-1.25`
 around `rounded-item` rows — a part in a corner is the container's corner minus the inset from its
 outer edge (border plus padding): 16 − (1 + 5) = 10. A part whose result reaches half its height is
 round (the dialog's close: 24 − 9 = 15 on 28px). `foundations/radius.mdx` § The arithmetic.

@@ -1,4 +1,4 @@
-// @vegastack task-inline@0.116.0 sha256-VVARr3wyhg1krAKv8/cFY1+2Er1iyLvh2CTia2a6l5I=
+// @vegastack task-inline@0.116.0 sha256-yr1anMN0WQ5ss7xHu7LSKK4oTJ8kR44qRDZHNknAHNU=
 
 "use client";
 
@@ -490,7 +490,7 @@ export function MakeTaskPopover({
         {several ? (
           <ul
             data-slot="make-task-popover-lines"
-            className="-mx-1 grid min-h-0 gap-1.5 overflow-y-auto overscroll-contain px-1 py-0.5"
+            className="relative -mx-1 grid min-h-0 gap-1.5 overflow-y-auto overscroll-contain px-1 py-0.5"
           >
             {rows.map((row, index) => (
               <li

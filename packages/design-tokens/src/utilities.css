@@ -198,17 +198,17 @@
   --corner-icon: var(--corner-capsule);
 }
 
-/* BRD-12 (ours, operator 2026-11-16: "table hover bg for rows also should be following these
-   standards like how select dropdown options hover"): a table row draws its hover, pressed,
-   selected and keyboard-focus fills as one `rounded-item` (10px) shape inset 2px from its hairlines
-   and 4px from the table's sides, exactly like a menu option, instead of a square band. A `<tr>`
-   background cannot be rounded, so each cell paints its slice of the fill on a `::before` behind
-   its content: the first cell carries the start corners, the last the end corners. The fill is two
-   inherited custom properties (`--row-fill-color` for selected, `--row-fill-layer` for the hover,
-   pressed and focus layers), so a component with its own state (a peeked row, a drop target) sets
-   `--row-fill-color` instead of painting the row; a row that is not interactive (an empty-state or
-   summary row) carries `data-row-static` and takes no hover or pressed layer. Every selector sits in `:where()`, so a cell's
-   own `sticky` or `absolute` still wins. */
+/* BRD-12 (ours, operator 2026-11-16; amended 2026-11-19, corner shapes round 2: "Square, full
+   width"): a table row draws its hover, pressed, selected and keyboard-focus fills as one square
+   band, edge to edge and hairline to hairline, so the fill meets the row's divider lines. A rounded,
+   inset shape floating between straight hairlines read as broken; lists without dividers (menus,
+   the sidebar, nav trees) keep the inset `item` fill. A `<tr>` background cannot carry a layer per
+   state, so each cell paints its slice of the fill on a `::before` behind its content. The fill is
+   two inherited custom properties (`--row-fill-color` for selected, `--row-fill-layer` for the
+   hover, pressed and focus layers), so a component with its own state (a peeked row, a drop target)
+   sets `--row-fill-color` instead of painting the row; a row that is not interactive (an empty-state
+   or summary row) carries `data-row-static` and takes no hover or pressed layer. Every selector sits
+   in `:where()`, so a cell's own `sticky` or `absolute` still wins. */
 @utility row-fill {
   & > :where(td, th) {
     position: relative;
@@ -225,34 +225,11 @@
   & > :where(td, th)::before {
     content: "";
     position: absolute;
-    inset-block: 2px;
-    inset-inline: 0;
+    inset: 0;
     z-index: -1;
     pointer-events: none;
     background-color: var(--row-fill-color, transparent);
     background-image: var(--row-fill-layer, none);
-  }
-  & > :where(td, th):first-child::before {
-    inset-inline-start: 4px;
-    border-start-start-radius: var(--radius-item);
-    border-end-start-radius: var(--radius-item);
-  }
-  & > :where(td, th):last-child::before {
-    inset-inline-end: 4px;
-    border-start-end-radius: var(--radius-item);
-    border-end-end-radius: var(--radius-item);
-  }
-  /* A component whose first or last child is not a real column (a windowing spacer, a filler)
-     marks the real end cells and the cells outside the shape. */
-  & > :where([data-row-start])::before {
-    inset-inline-start: 4px;
-    border-start-start-radius: var(--radius-item);
-    border-end-start-radius: var(--radius-item);
-  }
-  & > :where([data-row-end])::before {
-    inset-inline-end: 4px;
-    border-start-end-radius: var(--radius-item);
-    border-end-end-radius: var(--radius-item);
   }
   & > :where([data-row-fill-skip])::before {
     content: none;

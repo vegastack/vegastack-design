@@ -1,4 +1,4 @@
-// @vegastack shell@0.116.1 sha256-fNccn9jPlEyDM0xuCSWvDKncQrdU8JDy/sDLDv2Fvfw=
+// @vegastack shell@0.116.1 sha256-NqwnMME5wVQCHdoFCN6wiGRbWpGA1DvRyrx/2kv5t+M=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -16,6 +16,7 @@ import {
   ShellSkipLink,
 } from "@/components/ui/shell-client";
 import { RailBadge, railBadgeText } from "@/components/ui/rail";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import type { PageWidth } from "@/lib/page-layout";
 import { clampColumnWidth } from "@/lib/shell-layout";
 
@@ -148,7 +149,9 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   visibility: hidden;
   transition: opacity var(--duration-state) var(--motion-ease-standard), visibility 0s linear var(--duration-state);
 }
-[data-slot="shell-content"] { min-height: 0; }
+/* The page's one vertical scroller, and the containing block of everything in it: an absolute
+   descendant (a screen-reader-only label) can't reach past it to the document (BRD-SCR). */
+[data-slot="shell-content"] { min-height: 0; position: relative; }
 
 /* Phone (under 40rem): no rail, no column in the flow, the page scrolls the document so the
    browser's own toolbars can compact, the bar sits at the bottom. */
@@ -485,17 +488,32 @@ export interface ShellColumnProps extends React.ComponentProps<"nav"> {
  *   <NavTree><NavTreeSection label="Views">…</NavTreeSection></NavTree>
  * </ShellColumn>
  */
-export function ShellColumn({ label, className, ...props }: ShellColumnProps) {
+export function ShellColumn({
+  label,
+  className,
+  children,
+  ...props
+}: ShellColumnProps) {
+  // The column scrolls in a `ScrollArea` (BRD-SCR): an overlay bar that takes no width and shows
+  // while the pointer is over the list. The `<nav>` is the scroller itself, so it keeps the
+  // `shell-column` slot the shell's sheet and focus code read.
   return (
-    <nav
-      data-slot="shell-column"
-      aria-label={label}
-      className={cn(
-        "flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-3.5 [scrollbar-width:thin]",
+    <ScrollArea
+      data-slot="shell-column-scroll"
+      className="flex min-h-0 flex-1 flex-col"
+      viewportRender={<nav />}
+      viewportProps={{
+        "data-slot": "shell-column",
+        "aria-label": label,
+        ...props,
+      }}
+      viewportClassName={cn(
+        "flex min-h-0 flex-1 flex-col px-2 pb-3.5",
         className,
       )}
-      {...props}
-    />
+    >
+      {children}
+    </ScrollArea>
   );
 }
 

@@ -80,13 +80,18 @@ correct spacing.
 
 ### Rounded
 
-In the page every button is a rounded rectangle (`rounded-control`, 8px) at every size, and an
+A button is an action in the page, so it is a rounded rectangle (`rounded-control`, 10px), and an
 icon-only button (`size="icon*"`) is a rounded square with the same corner (`rounded-icon`), so a
-toolbar reads as one family. The container decides the exceptions, never the button: inside a
-floating bar or over media a button is a circle or capsule (the bar sets `rounded-capsule` on its
-buttons), inside a field it is concentric (`rounded-segment`), and a Button acting as a full-width row
-in a list or menu takes the row's `rounded-item`. Don't add `rounded-full` to a Button. See
-[Radius](/docs/foundations/radius#capsule-or-rounded-rectangle).
+toolbar reads as one family. The 24px compact tier (`xs`, `icon-xs`) takes `rounded-segment` (8px):
+10px on 24px reads as a pill. The context decides the rest: inside a `capsule-scope` — the top bar,
+a floating bar, controls over media — a button is a capsule or a circle; inside a field it is
+concentric (`rounded-segment`); a Button acting as a full-width row in a list or menu takes the row's
+`rounded-item`.
+
+`shape="pill"` makes one button a capsule where its row is pills — the add button at the end of a
+row of chips — and sets `data-shape="pill"`. It is never a way to pick a look button by button
+(one shape per row). Don't add `rounded-full` or any `rounded-*` to a Button. See
+[Radius](/docs/foundations/radius#choosing-a-shape).
 
 <ComponentPreview name="buttonRounded" file="components/preview/button.tsx" />
 

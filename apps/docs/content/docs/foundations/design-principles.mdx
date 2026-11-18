@@ -64,9 +64,12 @@ is Tailwind's own step at the weight upstream gives that component — `shadow-s
 
 <ShadowScale />
 
-Corners are roles, not a ramp: a control in the page is a rounded rectangle (`rounded-control`,
-8px) and so is an icon button (`rounded-icon`); only what floats or stands alone is a capsule
-(`rounded-capsule`); a control inside a control is concentric (`rounded-segment`); a row with a fill `rounded-item` (10px), a block in the content
+Corners are roles, not a ramp, and the shape says what a thing is: a token or state is a pill
+(`rounded-chip`); the app's frame and anything floating is a capsule (`rounded-capsule`,
+`capsule-scope`); an action or input in the page is a rounded rectangle (`rounded-control`, 10px)
+and so is an icon button (`rounded-icon`); a control inside a control, or a 24px compact one, is
+`rounded-segment` (8px); one shape per row; a row in a list `rounded-item` (10px), a row in a table a
+square band (`row-fill`), a block in the content
 `rounded-block` (12px), a card or menu `rounded-card` (16px), a dialog `rounded-overlay` (24px). A
 part in a corner is the container's corner minus the inset from its outer edge (border plus padding). See
 [Radius](/docs/foundations/radius#the-arithmetic).

@@ -67,7 +67,7 @@ test("placement=title is an outlined, rounded chip", async () => {
   const chip = screen.getByRole("button", { name: "Space: General" });
   await expect.element(chip).toHaveAttribute("data-size", "title");
   await expect.element(chip).toHaveAttribute("data-variant", "outline");
-  expect(chip.element().className).toContain("rounded-control");
+  expect(chip.element().className).toContain("rounded-chip");
 });
 
 test("each space is one line: no second line", async () => {

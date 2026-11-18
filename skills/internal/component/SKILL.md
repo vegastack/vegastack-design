@@ -139,7 +139,13 @@ Zero hardcoded visual values — enforced by `tooling/design-lint.mjs`. Full voc
   an `accent`/50 tint — except text entry: no fill, an eased `border-input-focus` border (MK 2026-09-27).
   This is the rule that keeps the reset from unwinding on the next pull.
 - Corners are a **role** (BRD-12): `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile`
-  and `row-fill` for table rows (`references/tokens.md` § Radius). Sizes, shadows, z-index, alpha and
+  and `row-fill` (a square band) for table rows; the shape says what the thing is, one shape per row
+  (`references/tokens.md` § Radius).
+- Scrolling (BRD-SCR, Foundations › Scrolling): never style a scrollbar per component (`base.css`
+  styles them all; `scrollbar-none` only beside fades or arrows); every `overflow-*-auto|scroll`
+  carries `relative` (design-lint `scroller-positioned`); one vertical scroller per region — a view
+  inside the shell's content area takes the remaining height, never adds a second page scroll;
+  sideways strips show `scroll-fade-x` or arrows. Sizes, shadows, z-index, alpha and
   opacity are **plain Tailwind**: `h-8`, `size-4`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The token families that used
   to own them are deleted.
 - Type SIZES are Tailwind's stock scale and `font-semibold`/`text-4xl` are ordinary utilities; the
@@ -230,10 +236,11 @@ decision tree in [references/conventions.md](references/conventions.md).
 - **Icon-only controls are `<Button size="icon">`** — plus `icon-xs`, `icon-sm` and `icon-lg`,
   upstream's four square tiers, each needing an explicit `aria-label`, which `icon-button-name`
   checks. There is no `IconButton`: Batch 7a of the shadcn reset retired it, so the accessible name
-  is a lint guarantee rather than a type-level one. Every icon size is already an 8px rounded
-  square (`rounded-icon`, BRD-12) and every other size an 8px rounded rectangle (`rounded-control`);
-  nested in a field they take `rounded-segment`, and only inside a floating bar or the composer
-  (`capsule-scope`) do they become circles and capsules.
+  is a lint guarantee rather than a type-level one. Every icon size is already a 10px rounded
+  square (`rounded-icon`, BRD-12) and every other size a 10px rounded rectangle (`rounded-control`),
+  except the 24px tier (`xs`, `icon-xs`), which is `rounded-segment` (8px); nested in a field they
+  take `rounded-segment`; inside a `capsule-scope` (the top bar, a floating bar, the composer) they
+  become circles and capsules; `shape="pill"` makes one button a pill in a row of pills.
 - **Chevron policy** — `ChevronsUpDown` marks combobox-style triggers that filter/search (Combobox,
   SearchableSelect, DataList sortable headers). `ChevronDown` marks select-style triggers
   that open a fixed list (Select, DatePicker, ButtonGroup's menu trigger, Accordion — rotates

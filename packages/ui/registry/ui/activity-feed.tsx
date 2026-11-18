@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.116.0 sha256-uw5ip3SuB4TJoEEhUefMZxox/aD0+Bcbrq3z5Efqxzc=
+// @vegastack activity-feed@0.116.0 sha256-ozyDGpt9EzmJ92CgxkS8SHb3GsXj4CFrR/fqE6QNnKY=
 
 "use client";
 
@@ -1594,8 +1594,8 @@ export function ActivityFeedSkeleton() {
       <div className="flex flex-col rounded-card border border-border px-4 pt-3 pb-2">
         <Skeleton className="h-3.5 w-32" />
         <div className="flex justify-end gap-1 pt-5">
-          <Skeleton className="size-6 rounded-icon" />
-          <Skeleton className="size-6 rounded-icon" />
+          <Skeleton className="size-6 rounded-segment" />
+          <Skeleton className="size-6 rounded-segment" />
         </div>
       </div>
     </div>

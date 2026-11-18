@@ -1,4 +1,4 @@
-// @vegastack button@0.116.0 sha256-/s5oygpkNDdnarnixfrQK85wqBcwReJuqXwpcjp12MM=
+// @vegastack button@0.116.0 sha256-X9BGm9jS5+gC8CJL3TTseCK+7/zFVMX0+K9LQGacVgk=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -26,19 +26,30 @@ const buttonVariants = cva(
       size: {
         default:
           "h-8 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 pointer-coarse:after:-inset-1.75",
-        xs: "h-6 gap-1 px-2 text-xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 pointer-coarse:after:-inset-2.75",
+        xs: "h-6 gap-1 rounded-segment px-2 text-xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3 pointer-coarse:after:-inset-2.75",
         sm: "h-7 gap-1 px-2.5 text-xs has-data-[icon=inline-end]:pe-1.5 has-data-[icon=inline-start]:ps-1.5 [&_svg:not([class*='size-'])]:size-3.5 pointer-coarse:after:-inset-2.25",
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pe-2 has-data-[icon=inline-start]:ps-2 pointer-coarse:after:-inset-1.25",
         icon: "size-8 rounded-icon pointer-coarse:after:-inset-1.75",
         "icon-xs":
-          "size-6 rounded-icon [&_svg:not([class*='size-'])]:size-3 pointer-coarse:after:-inset-2.75",
+          "size-6 rounded-segment [&_svg:not([class*='size-'])]:size-3 pointer-coarse:after:-inset-2.75",
         "icon-sm": "size-7 rounded-icon pointer-coarse:after:-inset-2.25",
         "icon-lg": "size-9 rounded-icon pointer-coarse:after:-inset-1.25",
+      },
+      /**
+       * BRD-12 (corner shapes round 2): `rect` takes the corner of its context — `control` in the
+       * page, a capsule inside a `capsule-scope` (the top bar, floating bars). `pill` makes one
+       * button a capsule where its row is pills (a chip row's add button); it is never a way to
+       * pick a look button by button.
+       */
+      shape: {
+        rect: "",
+        pill: "rounded-capsule",
       },
     },
     defaultVariants: {
       variant: "default",
       size: "default",
+      shape: "rect",
     },
   },
 );
@@ -47,6 +58,7 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  shape = "rect",
   loading = false,
   disabled,
   focusableWhenDisabled,
@@ -66,11 +78,12 @@ function Button({
     <ButtonPrimitive
       data-slot="button"
       data-variant={variant}
+      data-shape={shape === "pill" ? "pill" : undefined}
       data-loading={loading ? "" : undefined}
       aria-busy={loading ? true : ariaBusy}
       disabled={disabled || loading}
       focusableWhenDisabled={focusableWhenDisabled ?? true}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(buttonVariants({ variant, size, shape, className }))}
       {...props}
     >
       {loading ? (

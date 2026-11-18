@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.116.0 sha256-3ZsntOQ3TxatOudmQ+uord0ELj4DalbOFp60ge22kks=
+// @vegastack text-edit@0.116.0 sha256-AgGiXvWLXOvzH+e8Uxq97VCSTJ5SLC0/T+m6XamjCfo=
 
 "use client";
 
@@ -810,13 +810,13 @@ function DiffLegend({ baseline }: { baseline?: React.ReactNode }) {
  * (`self-end`); the text starts 8px in when nothing leads. One line of text is exactly the 24px row.
  * The text scrolls inside past about ten lines; the footer spans the row under it. Its corner is
  * the multi-line field's `rounded-card` (16), so as the text grows the box keeps a 16px corner
- * instead of turning into a stadium (Input's single line is the 8px `rounded-control`).
+ * instead of turning into a stadium (Input's single line is the 10px `rounded-control`).
  */
 const COMPOSER_ROOT = "grid min-h-8 items-end gap-x-1 bg-muted/30 p-[3px]";
 const COMPOSER_LEADING =
   "col-start-1 row-start-1 flex shrink-0 items-center gap-1 self-end";
 const COMPOSER_CONTENT =
-  "row-start-1 max-h-[calc(10*1.5rem)] overflow-y-auto md:max-h-[calc(10*1.25rem+0.25rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0 [&_[data-slot=inline-chip]]:before:hidden";
+  "relative row-start-1 max-h-[calc(10*1.5rem)] overflow-y-auto md:max-h-[calc(10*1.25rem+0.25rem)] [&>*]:py-0 [&>*]:text-base [&>*]:leading-6 md:[&>*]:text-sm md:[&>*]:leading-5 md:[&_[role=textbox]]:py-0.5 [&>*>*:first-child]:mt-0 [&>*>*:last-child]:mb-0 [&_[data-slot=inline-chip]]:before:hidden";
 const COMPOSER_ACTIONS =
   "row-start-1 flex shrink-0 items-center gap-1 self-end";
 // An empty footer (a host passing a wrapper with no files in it) takes no room.
@@ -2540,7 +2540,7 @@ export function TextEdit(props: TextEditProps) {
     // and end at the same place.
     "relative flow-root min-w-0 max-w-full",
     minCss != null && "min-h-[var(--te-min-h)]",
-    maxCss != null && "max-h-[var(--te-max-h)] overflow-y-auto",
+    maxCss != null && "relative max-h-[var(--te-max-h)] overflow-y-auto",
     composer && COMPOSER_CONTENT,
     composer && (leading ? "col-start-2" : "col-start-1"),
   );

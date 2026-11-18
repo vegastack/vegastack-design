@@ -151,7 +151,8 @@
         "@vegastack/page-layout",
         "@vegastack/shell-layout",
         "@vegastack/date-time",
-        "@vegastack/rail"
+        "@vegastack/rail",
+        "@vegastack/scroll-area"
       ],
       "files": [
         {
@@ -2009,7 +2010,8 @@
         "@vegastack/relative-time",
         "@vegastack/searchable-select",
         "@vegastack/toast",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/add-filter-menu"
       ],
       "files": [
         {

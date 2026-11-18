@@ -1,4 +1,4 @@
-// @vegastack code-block@0.116.0 sha256-tyTWcgxw31xxMzFWd7d5ndFDVuCBXWKWQOfozWoUtNs=
+// @vegastack code-block@0.116.0 sha256-udHKVkpxypLcftnonnA3D/jCoOtdpMHyQYU3UpBGI6M=
 
 "use client";
 
@@ -170,7 +170,7 @@ export const codeBlockSurfaceClassName =
  * ProseMirror's own `.ProseMirror pre { white-space: pre-wrap }` in the editor.
  */
 export const codeBlockPreClassName =
-  "hljs overflow-x-auto overscroll-x-contain px-4 py-3 font-mono scrollbar-thin [scrollbar-color:var(--border)_transparent] print:overflow-visible print:[--code-block-white-space:pre-wrap] print:[--code-block-overflow-wrap:anywhere]";
+  "relative hljs overflow-x-auto overscroll-x-contain px-4 py-3 font-mono print:overflow-visible print:[--code-block-white-space:pre-wrap] print:[--code-block-overflow-wrap:anywhere]";
 /**
  * `white-space` for a code panel: `pre` scrolls sideways inside the block, `pre-wrap` wraps. The
  * unwrapped values read `--code-block-white-space` / `--code-block-overflow-wrap`, which the

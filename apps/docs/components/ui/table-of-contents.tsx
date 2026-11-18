@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.116.0 sha256-+epC47BsRYdsv0TxImd6Es7UTNWw8MY1sehJ0KOsxdU=
+// @vegastack table-of-contents@0.116.0 sha256-t6JhFDwGppC5cub5IiPFJGe/0e5sTHc874XMlIJMiMU=
 
 "use client";
 
@@ -650,7 +650,8 @@ function TableOfContentsNav({
           sticky && [
             STICKY,
             STICKY_MAX_HEIGHT,
-            "overflow-y-auto overscroll-contain",
+            // `sticky` names the scroller's position (BRD-SCR); `relative` here would replace it.
+            "sticky overflow-y-auto overscroll-contain",
           ],
           className,
         )}
@@ -811,7 +812,7 @@ const RAIL_TRIGGER =
 // The panel floats over the page beside the rail, from its top corner (its frame places it);
 // closed, it is transparent and inert. Long outlines scroll inside it.
 const RAIL_PANEL =
-  "pointer-events-none flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-card border border-border bg-popover p-1.25 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
+  "relative pointer-events-none flex w-64 max-w-[calc(100vw-2rem)] scale-95 flex-col gap-0.5 overflow-x-hidden overflow-y-auto overscroll-contain rounded-card border border-border bg-popover p-1.25 text-popover-foreground opacity-0 shadow-md transition-[opacity,scale] duration-150 ease-out group-data-expanded/table-of-contents:pointer-events-auto group-data-expanded/table-of-contents:scale-100 group-data-expanded/table-of-contents:opacity-100";
 
 interface TableOfContentsSheetProps extends Omit<
   TableOfContentsProps,

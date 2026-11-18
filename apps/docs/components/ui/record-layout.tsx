@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.116.0 sha256-qolzOZVkPnVud34uejbDD6zZqomf2toWFytpYDy+u0I=
+// @vegastack record-layout@0.116.0 sha256-Vjk/k2C4zeq/VIE4in3oL7l8maP9/0dVHncGHiKU8eM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -98,7 +98,10 @@ export function RecordLayoutMain({
     <div
       data-slot="record-layout-main"
       className={cn(
-        "flex min-w-0 flex-1 flex-col gap-6 p-(--page-gutter) sm:min-h-0 sm:overflow-y-auto sm:overscroll-contain",
+        // `relative`: a scroller is the containing block of what it scrolls, so an absolute child
+        // (a screen-reader-only label, a cue) never escapes to the page's scroller and gives it a
+        // second scrollbar (BRD-SCR, operator 2026-11-19).
+        "relative flex min-w-0 flex-1 flex-col gap-6 p-(--page-gutter) sm:min-h-0 sm:overflow-y-auto sm:overscroll-contain",
         className,
       )}
       {...props}

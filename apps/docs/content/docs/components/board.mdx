@@ -96,9 +96,13 @@ takes the lane out of `columns` and lists it in `hiddenColumns`. Each lane still
 
 ### Full height
 
-`height="fill"` is the default: the board measures where it starts and runs its lanes to the
-bottom of the viewport (less `fillOffset`, the page's bottom padding). Cards scroll inside each
-lane and the page never scrolls. Lanes are 320px (`columnWidth`) with a 12px gap; the board scrolls
+`height="fill"` is the default: the board runs its lanes to the bottom of its page's scroll area
+(the shell's content area, or the document on a phone), less whatever the page lays out after it —
+its bottom padding, a footer — measured from the boxes, never guessed from the viewport. Cards
+scroll inside each lane and the page never scrolls (one scroller per axis,
+[Scrolling](/docs/foundations/scrolling)) — down to a 20rem floor: with less room left, the lanes
+keep 20rem and the page scrolls to reach them. `fillOffset` (default `0px`) is only extra room on top of
+that. Lanes are 320px (`columnWidth`) with a 12px gap; the board scrolls
 sideways with a hidden scrollbar and fades at the edges that have more. A sideways pan — a
 trackpad swipe, <kbd>Shift</kbd>+wheel or a touch swipe — scrolls the board wherever it starts,
 over a lane or a card included; a lane body scrolls only vertically. Pass `height="auto"` to size lanes to their cards, or any CSS length.

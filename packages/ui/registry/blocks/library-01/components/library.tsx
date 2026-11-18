@@ -1,4 +1,4 @@
-// @vegastack library-01@0.116.0 sha256-eU/B7Xe6Pgpkn5DsHjbSPKrt4rRaneJDBRg5B67YeTU=
+// @vegastack library-01@0.116.0 sha256-nx+j+TjjzTYK1KpxiYAejjJOR1/u4XhaYvcGeWQxZOU=
 
 "use client";
 
@@ -286,7 +286,7 @@ export function Library({
       </div>
       <FolderTree
         aria-label="Library"
-        className="min-h-0 flex-1 overflow-y-auto"
+        className="relative min-h-0 flex-1 overflow-y-auto"
         sections={SECTIONS.map((section) => ({
           id: section.id,
           label: section.label,
@@ -331,7 +331,7 @@ export function Library({
   );
 
   const mainPane = (
-    <div className="flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-4 @3xl/library:p-6">
+    <div className="relative flex h-full min-h-0 flex-col gap-4 overflow-y-auto p-4 @3xl/library:p-6">
       <PageHeader
         title={folder?.name ?? "Shared"}
         breadcrumb={
@@ -513,7 +513,7 @@ export function Library({
           <FolderTree
             aria-label="Folders"
             mode="picker"
-            className="max-h-72 overflow-y-auto"
+            className="relative max-h-72 overflow-y-auto"
             sections={SECTIONS.map((section) => ({ ...section }))}
             rootItems={Object.fromEntries(
               SECTIONS.map((section) => [

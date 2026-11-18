@@ -32,6 +32,22 @@
   * {
     @apply border-border;
   }
+
+  /* BRD-SCR (ours, operator 2026-11-19: "create and use custom scroll … where vertical scroll or
+     double scroll sometimes is coming"): ONE scrollbar on every scroller, in every app — thin, a
+     pill thumb in the ink's own colour at low strength on a clear track, stronger while the
+     pointer is over the scroller. Set here, at zero specificity (`:where`), so every native
+     scroller matches with no per-component class, and a component that needs none
+     (`scrollbar-none`) or a gutter (`scrollbar-gutter-stable`) still wins. `ScrollArea` draws its
+     overlay thumb in the same colours (`--scrollbar-thumb`). Before this the sidebar was thin, the
+     page the browser default and sideways strips hidden: three different scrollbars. */
+  :where(*) {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) transparent;
+  }
+  :where(*):hover {
+    scrollbar-color: var(--scrollbar-thumb-hover) transparent;
+  }
   body {
     /* `isolate` (OVL-13) creates a root stacking context so Base UI portaled popups (Dialog,
        Popover, Tooltip, Select, menus, Sheet) reliably stack above page content — required by Base

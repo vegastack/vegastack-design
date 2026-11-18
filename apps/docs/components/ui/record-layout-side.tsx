@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.116.0 sha256-qolzOZVkPnVud34uejbDD6zZqomf2toWFytpYDy+u0I=
+// @vegastack record-layout@0.116.0 sha256-Vjk/k2C4zeq/VIE4in3oL7l8maP9/0dVHncGHiKU8eM=
 
 "use client";
 
@@ -612,7 +612,7 @@ export function RecordPanel({
               <X />
             </Button>
           </div>
-          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
+          <div className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain">
             {body}
           </div>
         </div>
@@ -639,7 +639,7 @@ export function RecordPanel({
         if (event.target === event.currentTarget) ctx.clearMotion();
       }}
       className={cn(
-        "hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-background text-foreground outline-none",
+        "relative hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-background text-foreground outline-none",
         // From 68rem (1088px) of record width it docks: in the flow, as tall as the record, while open.
         "@min-[68rem]/record-layout:data-open:flex",
         // Narrower, ▥ floats it over the page, edge to edge under the bar, with a shadow.

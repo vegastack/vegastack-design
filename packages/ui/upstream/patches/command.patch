@@ -76,7 +76,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..fcc97dc 100644
+index 5cb64c9..90ae974 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -509,7 +509,7 @@ index 5cb64c9..fcc97dc 100644
        className={cn(
 -        "no-scrollbar max-h-72 scroll-py-1 overflow-x-hidden overflow-y-auto outline-none",
 -        className
-+        "no-scrollbar max-h-72 scroll-pt-1 scroll-pb-[calc(var(--command-actions-height)+var(--spacing))] [--command-actions-height:0px] overflow-x-hidden overflow-y-auto outline-none data-[size=lg]:max-h-[min(28rem,60dvh)] data-[size=xl]:max-h-[min(28rem,60dvh)]",
++        "relative no-scrollbar max-h-72 scroll-pt-1 scroll-pb-[calc(var(--command-actions-height)+var(--spacing))] [--command-actions-height:0px] overflow-x-hidden overflow-y-auto outline-none data-[size=lg]:max-h-[min(28rem,60dvh)] data-[size=xl]:max-h-[min(28rem,60dvh)]",
 +        className,
        )}
        {...props}

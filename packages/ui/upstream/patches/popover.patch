@@ -19,7 +19,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/popover.tsx b/popover.tsx
-index 3e7ac5f..21eb68c 100644
+index 3e7ac5f..68aa320 100644
 --- a/popover.tsx
 +++ b/popover.tsx
 @@ -1,29 +1,49 @@
@@ -114,7 +114,7 @@ index 3e7ac5f..21eb68c 100644
 +    <div
 +      data-slot="popover-body"
 +      className={cn(
-+        "flex max-h-[70vh] min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain",
++        "relative flex max-h-[70vh] min-h-0 flex-col gap-3 overflow-y-auto overscroll-contain",
 +        className,
 +      )}
 +      {...props}

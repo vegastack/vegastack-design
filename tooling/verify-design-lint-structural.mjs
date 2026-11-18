@@ -34,6 +34,7 @@ const loaderMarkDir = groupDir("loader-mark");
 const importantDir = groupDir("important");
 const surfaceRingDir = groupDir("surface-ring");
 const radiusDir = groupDir("radius");
+const scrollerDir = groupDir("scroller");
 const colorBridgeDir = groupDir("color-bridge");
 const validDir = groupDir("valid");
 const textEntryBorderDir = groupDir("text-entry-border");
@@ -50,6 +51,7 @@ for (const dir of [
   radiusDir,
   colorBridgeDir,
   validDir,
+  scrollerDir,
 ]) {
   mkdirSync(dir, { recursive: true });
 }
@@ -649,6 +651,48 @@ export function NamedByItsOwnChildren() {
       `design-lint no-radius-ramp: accepted specimen line(s) ${radiusMissed.join(", ") || "none"}, ` +
         `rejected the prose line(s) ${radiusExtra.join(", ") || "none"} — BRD-12 names a role corner`,
       radius.output,
+    );
+  }
+
+  // ── scroller-positioned (BRD-SCR, ours, operator 2026-11-19) ───────────────────────────────
+  // A scroller names a position, so an absolute descendant can't escape it and scroll the page.
+  const scrollerForms = [
+    `<div className="min-h-0 overflow-y-auto">an unpositioned vertical scroller</div>`,
+    `<div className="sm:overflow-auto p-4">a variant-scoped scroller</div>`,
+    `<div className={cn("flex", open && "overflow-x-scroll")}>a conditional scroller</div>`,
+    `<div className="overflow-auto [&_svg]:size-4">a descendant selector is another box</div>`,
+    `<div className="overflow-auto md:relative">positioned only from md</div>`,
+    `<div className="[&]:overflow-auto">a self-targeting arbitrary variant</div>`,
+    `<div className="[&:hover]:overflow-auto">a self-targeting state</div>`,
+    `<div className="[@media(min-width:40rem)]:overflow-auto">an arbitrary media variant</div>`,
+  ];
+  writeFileSync(
+    join(scrollerDir, "scroller.tsx"),
+    `export function Scrollers() {\n  return <>\n${scrollerForms.map((form) => `    ${form}`).join("\n")}\n    <div className="relative overflow-y-auto">positioned</div>\n    <div className="sticky top-0 overflow-x-auto">its own position</div>\n    <div className="overflow-hidden">not a scroller</div>\n    <div className="md:relative md:overflow-auto">scrolls and is positioned from md</div>\n    <div className="relative [&_pre]:overflow-x-auto">the pre is another box</div>\n    <div className="before:hover:overflow-auto">a pseudo-element is another box</div>\n    <div className="[&>li]:overflow-auto *:overflow-auto">children are other boxes</div>\n  </>;\n}\n`,
+  );
+  const scroller = run(scrollerDir);
+  const scrollerReported = new Set(
+    [
+      ...scroller.output.matchAll(
+        /scroller\.tsx:(\d+) \[scroller-positioned\]/g,
+      ),
+    ].map((m) => Number(m[1])),
+  );
+  const scrollerMissed = scrollerForms
+    .map((_, index) => index + 3)
+    .filter((line) => !scrollerReported.has(line));
+  const scrollerExtra = [...scrollerReported].filter(
+    (line) => line > scrollerForms.length + 2,
+  );
+  if (
+    scroller.status === 0 ||
+    scrollerMissed.length > 0 ||
+    scrollerExtra.length > 0
+  ) {
+    fail(
+      `design-lint scroller-positioned: accepted specimen line(s) ${scrollerMissed.join(", ") || "none"}, ` +
+        `rejected the positioned line(s) ${scrollerExtra.join(", ") || "none"} — a scroller is positioned (BRD-SCR)`,
+      scroller.output,
     );
   }
 

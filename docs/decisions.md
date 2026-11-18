@@ -91,12 +91,35 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   both halves. `design-lint`'s `no-focus-ring-glow` rejects `ring-3`,
   `ring-[3px]`, `ring-ring/NN`, `focus-visible:ring-*`, `focus-visible:outline-*`,
   `aria-invalid:ring-*` and `shadow-[0_0_0_…]` anywhere in `packages/ui/registry/**`.
-- **Corners are a role, never a size** (BRD-12, operator 2026-11-16, amended 2026-11-18):
-  `rounded-control` (8px, in-page controls), `-segment` (6px, a control inside a control), `-icon`
-  (8px), `-capsule` (only what floats or stands alone, and the buttons inside it), `-chip`, `-inline` (6), `-mark` (4), `-item` (10, rows and tooltips), `-block`
-  (12), `-card` (16), `-bubble` (20), `-overlay` (24), `-tile` (25%); table rows use `row-fill`. The
-  tokens are `--corner-*`; `--radius` and its derived ramp stay for upstream parity only, and
-  `design-lint` `no-radius-ramp` rejects them in registry source (`design.md` § Corners).
+- **Corners are a role, never a size; the shape says what the thing is** (BRD-12, operator
+  2026-11-16, amended 2026-11-18 and 2026-11-19, round 2: "we have to get it right now, one last
+  time … consistently throughout"; on 10px: "rectangles are okay, but i think 8px is very sharp …
+  10px, same as rows"; table rows: "Square, full width"). Round 1's "where it sits decides" is
+  replaced: tokens and states are pills (`-chip`: chips, badges, reactions, filter chips and the
+  filter row's + Filter and Clear, quick-filter toggles, switches); the app frame and anything
+  floating are capsules (`-capsule` + `capsule-scope`: the top bar, floating bars and their circle
+  buttons, controls over media); actions and inputs in page content are `rounded-control` (10px);
+  `-segment` (8px) is a control in a control and every 24px compact control; `-icon` (10px); list
+  rows without dividers are `-item` (10, inset); table rows are a square full-width band
+  (`row-fill`); anything inside anything is concentric and errs round. Also `-inline` (6), `-mark`
+  (4), `-block` (12), `-card` (16), `-bubble` (20), `-overlay` (24), `-tile` (25%). Rules: one shape
+  per row; shape comes from the component and its context (`shape` on Button, Input, InputGroup,
+  ToggleGroup; `capsule-scope`), never ad-hoc `rounded-*` in app code; height never picks the shape
+  except the 24px tier. Touch (`corner-platforms.json`): `control`/`icon` capsule, `field` 12,
+  `segment` 6. The tokens are `--corner-*`; `--radius` and its derived ramp stay for upstream parity
+  only. Enforced by design-lint `no-radius-ramp` and `floating-capsule`,
+  `packages/ui/test/geometry.browser.test.tsx` and the `row-fill` utility (`design.md` § Corners,
+  Foundations › Radius).
+- **One scrollbar, one scroller per axis** (BRD-SCR, operator 2026-11-19: "create and use custom
+  scroll … where vertical scroll or double scroll sometimes is coming"; picked "Global thin + shell
+  ScrollArea"). `base.css` styles every scroller once (`:where(*)` thin, `--scrollbar-thumb`,
+  stronger on hover) and no component styles its own (`scrollbar-none` / `scrollbar-gutter-stable`
+  only); the shell's regions scroll in `ScrollArea` (overlay bar; `ShellColumn`); the shell's content
+  area is a page's only vertical scroller and views inside it (RecordLayout, `Board height="fill"`,
+  `fillOffset` default `0px`) take exactly the remaining height; every scroller is positioned
+  (`relative`), or an absolute descendant escapes and doubles the page's scrollbar; sideways
+  scrollers show a fade or arrows. Enforced by design-lint `scroller-positioned` (`design.md`
+  § Scrolling, Foundations › Scrolling).
 - **Size, shadow, z-index, alpha, opacity are plain Tailwind** — `h-8`, `size-4`,
   `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`. The `--size-*`, `--icon-*`, `--panel-width-*`,
   `--z-*`, `--alpha-*`, `--opacity-*` and `--shadow-overlay` families are deleted. **`z-50` is the

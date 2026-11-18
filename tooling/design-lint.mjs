@@ -1336,6 +1336,23 @@ for (const root of ROOTS) {
         );
       }
 
+      // (k) BRD-SCR (ours, operator 2026-11-19): a scroller is the containing block of what it
+      // scrolls. An `overflow-*-auto|scroll` element that is not positioned lets an absolute
+      // descendant (a screen-reader-only label) escape to the next scroller up and give it a
+      // second scrollbar — the task page's double scroll. Name `relative` (or the element's own
+      // `absolute`/`fixed`/`sticky`) beside the overflow.
+      if (
+        /(^|\/)packages\/ui\/registry\//.test(
+          resolve(file).replace(/\\/g, "/"),
+        ) &&
+        unpositionedScroller(lit)
+      ) {
+        report(
+          "scroller-positioned",
+          "a scroller (`overflow-*-auto`/`scroll`) is positioned: add `relative` beside it, so absolute descendants stay inside it and never give the page a second scrollbar (BRD-SCR, Foundations › Scrolling).",
+        );
+      }
+
       // (g) Tailwind's `!` modifier — the class-string half of the `important` rule. Counted per
       // file against IMPORTANT_MODIFIER_EXEMPTIONS after the loop.
       for (const token of importantModifierTokens(lit)) {
@@ -2164,6 +2181,63 @@ function bareRingClass(text, classPosition) {
   );
   const beside = tokens.some((token) => token !== bare && /[-:/[]/.test(token));
   return classShaped && beside ? bare : null;
+}
+
+/**
+ * BRD-SCR: a class string with a scroller that names no position for it. Each
+ * `overflow-*-auto|scroll` on the element ITSELF needs `relative`/`absolute`/`fixed`/`sticky` under
+ * the same variant chain or none (`md:relative` positions only from `md`, so it does not cover a
+ * bare `overflow-auto`). A variant chain that reaches another box — a descendant or sibling
+ * selector (`[&_pre]:`, `[&>li]:`, `*:`), a pseudo-element (`before:`, `[&::after]:`) — is not
+ * the element; a self-targeting one (`[&]:`, `[&:hover]:`, `[@media(...)]:`, `hover:`) is.
+ */
+function unpositionedScroller(text) {
+  const PSEUDO_ELEMENT =
+    /^(?:before|after|placeholder|file|marker|selection|backdrop|first-letter|first-line)$/;
+  const splitVariants = (token) => {
+    const parts = [];
+    let depth = 0;
+    let start = 0;
+    for (let i = 0; i < token.length; i++) {
+      const c = token[i];
+      if (c === "[" || c === "(") depth++;
+      else if (c === "]" || c === ")") depth--;
+      else if (c === ":" && depth === 0) {
+        parts.push(token.slice(start, i));
+        start = i + 1;
+      }
+    }
+    parts.push(token.slice(start));
+    return parts;
+  };
+  const otherBox = (variant) => {
+    if (PSEUDO_ELEMENT.test(variant) || variant === "*" || variant === "**")
+      return true;
+    if (!variant.startsWith("[") || variant.startsWith("[@")) return false;
+    // An arbitrary selector variant: another box when it combines (`_` is a space) or names a
+    // pseudo-element.
+    return /&\s*[_>+~]|&[^\]]*[_>+~][^\]]*\]|::/.test(variant);
+  };
+  const parsed = text
+    .split(/\s+/)
+    .filter(Boolean)
+    .map((token) => {
+      const parts = splitVariants(token);
+      const utility = parts.pop().replace(/^!|!$/g, "");
+      return { chain: parts, variant: parts.join(":"), utility };
+    })
+    .filter(({ chain }) => !chain.some(otherBox));
+  const positioned = (variant) =>
+    parsed.some(
+      (p) =>
+        ["relative", "absolute", "fixed", "sticky"].includes(p.utility) &&
+        (p.variant === "" || p.variant === variant),
+    );
+  return parsed.some(
+    (p) =>
+      /^overflow-(?:[xy]-)?(?:auto|scroll)$/.test(p.utility) &&
+      !positioned(p.variant),
+  );
 }
 
 /** BRD-12 (j): a class string that floats (fixed/sticky, or absolute + shadow) yet wears `rounded-control`. */

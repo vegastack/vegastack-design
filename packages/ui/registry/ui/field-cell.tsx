@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.116.0 sha256-IFCNGG3V2TNIOpruMt3h6vyza3d8H2cvd1cGIA6K2+o=
+// @vegastack field-cell@0.116.0 sha256-pI7c5tqDYHITMNnm6Vbing+iO3pfgnpfLRn6fZJwcVk=
 
 "use client";
 
@@ -2121,7 +2121,7 @@ function CellTextBox({
       placeholder={placeholder}
       aria-invalid={invalid || undefined}
       value={value}
-      className="block max-h-60 min-h-8 w-full overflow-y-auto px-2.5 py-1.5 leading-5"
+      className="relative block max-h-60 min-h-8 w-full overflow-y-auto px-2.5 py-1.5 leading-5"
       onChange={(event) => onChange(event.target.value.replace(/\r?\n/g, " "))}
     />
   );

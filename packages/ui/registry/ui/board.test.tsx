@@ -171,10 +171,14 @@ test("lanes are 20rem wide by default, grow, and the scroller hides its scrollba
   expect(document.querySelector('[data-slot="board-fade-end"]')).not.toBeNull();
 });
 
-test('height="fill" sizes the board to the viewport below it; cards scroll inside lanes', async () => {
-  await render(<Controlled height="fill" fillOffset="0px" />);
+test('height="fill" lanes scroll inside: the board carries a measured height', async () => {
+  await render(<Controlled height="fill" />);
   const board = document.querySelector<HTMLElement>('[data-slot="board"]')!;
-  expect(board.style.getPropertyValue("--board-height")).toContain("100dvh");
+  // Measured against its scroll area, never guessed from the viewport (BRD-SCR); the page-level
+  // proof — no second scrollbar — is in the compiled-CSS geometry suite.
+  await expect
+    .poll(() => board.style.getPropertyValue("--board-height"))
+    .toMatch(/px/);
   expect(board.className).toContain("h-(--board-height)");
   const body = document.querySelector<HTMLElement>(
     '[data-column="lead"] [data-slot="board-column-body"]',

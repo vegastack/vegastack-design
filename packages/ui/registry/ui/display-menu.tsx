@@ -1,4 +1,4 @@
-// @vegastack display-menu@0.116.0 sha256-aOB5EoQVCfEMmGc8329kH3xJMX7IBUzswhT5EbDQ5Bc=
+// @vegastack display-menu@0.116.0 sha256-WxEQZ2L/KeOYHQR6xFIDc/kHuC5iYCeDCKSaEFkqxmo=
 
 "use client";
 
@@ -499,7 +499,7 @@ export function DisplayMenu({
         {/* A long table's fields scroll inside the menu instead of running off the screen. */}
         <div
           data-slot="display-menu-columns-list"
-          className="-me-1 max-h-72 min-h-0 overflow-y-auto overscroll-contain pe-1"
+          className="relative -me-1 max-h-72 min-h-0 overflow-y-auto overscroll-contain pe-1"
         >
           <ColumnsList columns={columns} />
         </div>

@@ -166,7 +166,7 @@ test("the cluster is tight: 4px between icon tools, all 32px", async () => {
   expect(filter.getBoundingClientRect().width).toBe(32);
 });
 
-test("the filter row's chips and + Filter are the toolbar's tool height", async () => {
+test("the filter row is one 28px pill tier under the toolbar's 32px Filter tool (BRD-12, 2026-11-19)", async () => {
   await render(
     <div style={{ width: 900 }}>
       <ListToolbar
@@ -183,16 +183,15 @@ test("the filter row's chips and + Filter are the toolbar's tool height", async 
       />
     </div>,
   );
+  const height = (slot: string) =>
+    document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!.offsetHeight;
+  expect(height("list-toolbar-filter")).toBe(32);
   for (const slot of [
-    "list-toolbar-filter",
     "filter-chip",
     "add-filter-menu-trigger",
     "filter-row-clear",
   ])
-    expect(
-      document.querySelector<HTMLElement>(`[data-slot="${slot}"]`)!
-        .offsetHeight,
-    ).toBe(32);
+    expect(height(slot)).toBe(28);
 });
 
 test("Filter toggles the filter row and says its state", async () => {

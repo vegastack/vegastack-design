@@ -1,4 +1,4 @@
-// @vegastack toggle-group@0.116.0 sha256-7mSAuRoomjTp1YZKC0HgHISq+sWaZrt47qA3/s9i1TA=
+// @vegastack toggle-group@0.116.0 sha256-GCo1ZLoiyEN4wLp1KiChizagYljeW1zy6P9dXov+HOI=
 
 "use client";
 
@@ -75,6 +75,7 @@ function ToggleGroup({
   orientation = "horizontal",
   deselectable = true,
   wrap = false,
+  shape = "rect",
   multiple,
   onValueChange,
   ref,
@@ -86,6 +87,13 @@ function ToggleGroup({
     orientation?: "horizontal" | "vertical";
     deselectable?: boolean;
     wrap?: boolean;
+    /**
+     * BRD-12 (corner shapes round 2): `rect` is a segmented control or a toolbar's toggles
+     * (`control`); `pill` is a row of quick filters that read as chips (Home's All · Overdue ·
+     * Today) — every item, and a joined group's ends, become capsules.
+     * @default 'rect'
+     */
+    shape?: "rect" | "pill";
   }) {
   const [group, setGroup] = React.useState<HTMLDivElement | null>(null);
   const mergedRef = React.useMemo(() => mergeRefs(setGroup, ref), [ref]);
@@ -102,10 +110,12 @@ function ToggleGroup({
       data-orientation={orientation}
       orientation={orientation}
       data-wrap={wrap ? "" : undefined}
+      data-shape={shape === "pill" ? "pill" : undefined}
       style={{ "--gap": spacing } as React.CSSProperties}
       className={cn(
         "group/toggle-group flex w-fit flex-row items-center gap-[--spacing(var(--gap))] rounded-control data-vertical:rounded-card data-vertical:flex-col data-vertical:items-stretch",
         "data-wrap:flex-wrap data-wrap:data-[spacing=0]:gap-y-2",
+        shape === "pill" && "capsule-scope",
         className,
       )}
       ref={mergedRef}

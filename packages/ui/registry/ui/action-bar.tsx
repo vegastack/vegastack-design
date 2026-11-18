@@ -1,4 +1,4 @@
-// @vegastack action-bar@0.116.0 sha256-RdF6dg+6JKMZUQMcTiK3m94fgv2miAmQ59cIFqxDSCQ=
+// @vegastack action-bar@0.116.0 sha256-TC3wA7JH+lRSPP6lN5cRW8oOl7ca78Awwws7yjKmshk=
 
 "use client";
 
@@ -271,7 +271,7 @@ export function ActionBar({
             // On a phone the bar is capped at the screen width less its margins, and
             // `secondaryActions` fold into a ⋯ menu so the primary ones fit. The actions never
             // shrink into each other (a label under its own icon); an over-long set scrolls.
-            "flex min-w-0 items-center gap-1 overflow-x-auto *:shrink-0",
+            "relative flex min-w-0 items-center gap-1 overflow-x-auto *:shrink-0",
             pending && "opacity-50 select-none",
           )}
         >

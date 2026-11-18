@@ -159,6 +159,22 @@
       "alpha": 0.04
     }
   },
+  "scrollbar-thumb": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.2
+    }
+  },
+  "scrollbar-thumb-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 0.36
+    }
+  },
   "state-selected": {
     "$type": "color",
     "$value": {

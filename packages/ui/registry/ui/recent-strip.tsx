@@ -1,4 +1,4 @@
-// @vegastack recent-strip@0.116.0 sha256-3rcSYrR7ZE9nXwD8liiEzZ/Y3HuXT27yXfibaYmzIt4=
+// @vegastack recent-strip@0.116.0 sha256-HqVkh14Zxkxl10o2OuVfLERb5vG7s7BYNVsj7nShd/s=
 
 "use client";
 
@@ -315,7 +315,7 @@ function RecentStripList({
         onKeyDown={(event) => {
           if (STRIP_KEYS.has(event.key)) nav.handleKeyDown(event);
         }}
-        className="flex min-w-0 flex-1 snap-x gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-fade-x scrollbar-none"
+        className="relative flex min-w-0 flex-1 snap-x gap-2 overflow-x-auto overflow-y-hidden overscroll-x-contain scroll-fade-x scrollbar-none"
       >
         {items.map((item, index) => {
           const itemProps = nav.getItemProps(index);

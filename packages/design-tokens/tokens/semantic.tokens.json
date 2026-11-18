@@ -202,6 +202,24 @@
     },
     "$description": "COL-24 (ours, operator 2026-10-31): the ONE hover fill — the foreground at a low alpha, laid over whatever is underneath (page, card, popover, sidebar, muted, a filled button), so the step reads the same on every ground: ΔL ≈ 0.035–0.045 in both themes. Read it through the `state-layer` utility or `bg-state-hover`; never an opaque `muted`/`accent` hover."
   },
+  "scrollbar-thumb": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.2
+    },
+    "$description": "BRD-SCR (ours, operator 2026-11-19): the ONE scrollbar thumb — the foreground at low strength on a clear track, on every native scroller (base.css) and ScrollArea's overlay bar. Read it as `--scrollbar-thumb`."
+  },
+  "scrollbar-thumb-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.36
+    },
+    "$description": "BRD-SCR: the thumb while the pointer is over its scroller, or over the thumb itself."
+  },
   "state-selected": {
     "$type": "color",
     "$value": {
@@ -866,26 +884,26 @@
   "corner-control": {
     "$type": "dimension",
     "$value": {
-      "value": 0.5,
+      "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px, a quarter of the 32px control: every in-page control is a rounded rectangle — Button at every size, Input, Select, NativeSelect, Combobox, single-line InputGroup, page and header search fields, Toggle, ToggleGroup, TabsList, Menubar. Apple keeps compact desktop controls rounded rectangles and reserves capsules for standout or touch layouts (WWDC25 356). Read it as `rounded-control`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 10px, the same corner as a row: an action or input in the page content is a rounded rectangle — Button, Input, Select, NativeSelect, Combobox, single-line InputGroup, in-page search fields, Toggle, ToggleGroup, TabsList, Menubar, table-cell editors. 8px read as sharp on a 32px control (operator, 2026-11-19: “10px, same as rows”). A 24px compact control takes `segment`. Read it as `rounded-control`."
   },
   "corner-segment": {
     "$type": "dimension",
     "$value": {
-      "value": 0.375,
+      "value": 0.5,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 6px, the control corner minus its 2px inset: a control nested in a control — TabsList triggers, Menubar items, buttons inside an InputGroup or a search box, toggle-group segments — so the corners stay concentric. Read it as `rounded-segment`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 8px, the control corner minus its 2px inset: a control nested in a control — TabsList triggers, Menubar items, buttons inside an InputGroup — so the corners stay concentric; also the 24px compact controls (Button `xs`, `icon-xs`), where 10px would read as a pill. Read it as `rounded-segment`."
   },
   "corner-icon": {
     "$type": "dimension",
     "$value": {
-      "value": 0.5,
+      "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px: an icon-only button is a rounded square with the same corner as a labelled control, so a toolbar reads as one family. Inside a capsule it is a circle (`rounded-capsule`). Read it as `rounded-icon`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 10px: an icon-only button is a rounded square with the same corner as a labelled control, so a toolbar reads as one family; at 24px it takes `segment`. Inside a capsule it is a circle (`rounded-capsule`). Read it as `rounded-icon`."
   },
   "corner-capsule": {
     "$type": "dimension",
@@ -925,7 +943,7 @@
       "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill in a list without dividers — menu, select, combobox, sidebar, tree, settings nav — and tooltips. Not table rows: they fill a square band (`row-fill`, amended 2026-11-19). A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
   },
   "corner-block": {
     "$type": "dimension",

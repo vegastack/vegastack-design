@@ -1,4 +1,4 @@
-// @vegastack multi-step-form@0.116.0 sha256-fPzCOT46F6RIfWvSH4Y3qFSJY8NcvXjimnlXLb/jxKc=
+// @vegastack multi-step-form@0.116.0 sha256-gjqk2nkAg9BUbgGJnl3pBxBoItv0Jp5lyqj5RWWxMJE=
 
 "use client";
 
@@ -1241,7 +1241,7 @@ export function MultiStepFormStep({
         "flex min-w-0 flex-col gap-4",
         // In a panel the body is the ONE scrolling region — `min-h-0` is what lets a flex
         // child shrink below its content instead of pushing the action row off the frame.
-        layout === "panel" && "min-h-0 flex-1 overflow-y-auto",
+        layout === "panel" && "relative min-h-0 flex-1 overflow-y-auto",
         // `hidden` last so it wins over the flex display above.
         !active && "hidden",
         className,

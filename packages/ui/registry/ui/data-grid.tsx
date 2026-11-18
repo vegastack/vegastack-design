@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.116.0 sha256-8s79sv+0O1wY4otUwIAiuJYCFQc7INabCbUdHop4ds4=
+// @vegastack data-grid@0.116.0 sha256-+iHJbUaXENa+v14lxulI8aoM3MJQC0YMUzjOaBMUAj8=
 
 "use client";
 
@@ -1236,13 +1236,13 @@ const ROW_BASE_CLASS = cn("border-b", ROW_HOVER_CLASS);
  * The row's `row-fill` shape without a positioned cell per column. `row-fill` paints each cell's
  * slice on a positioned `::before`, which at 150 columns would bring back the paint layers the
  * note below removed. Here only the cells that are positioned anyway keep that `::before`: the
- * first and last (the shape's rounded `item` ends, inset from the row's edges), frozen (`sticky`,
- * which repaints the row's state over its opaque ground) and `relative` cells. Every other cell
- * stays static and paints the same fill as its own background image, inset 2px top and bottom like
- * the shape, so the row reads as one rounded fill, never a square one.
+ * first and last (the band's ends), frozen (`sticky`, which repaints the row's state over its
+ * opaque ground) and `relative` cells. Every other cell stays static and paints the same fill as its
+ * own background image, edge to edge, so the row reads as one square band that meets its hairlines
+ * (BRD-12, amended 2026-11-19).
  */
 const ROW_FILL_SLICE_CLASS =
-  "[&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:static [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:isolation-auto [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:before:content-none [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-[image:var(--row-fill-layer,none),linear-gradient(var(--row-fill-color,transparent),var(--row-fill-color,transparent))] [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-no-repeat [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-size-[100%_calc(100%-var(--spacing))] [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-center";
+  "[&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:static [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:isolation-auto [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:before:content-none [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-[image:var(--row-fill-layer,none),linear-gradient(var(--row-fill-color,transparent),var(--row-fill-color,transparent))] [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-no-repeat [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-size-[100%_100%] [&>:not(:first-child,:last-child,.sticky,.relative,[data-row-start],[data-row-end],[data-row-fill-skip])]:bg-center";
 // No `position` here: a positioned cell is a paint layer of its own, and at 150 columns the ~600
 // layered cells made paint and layerize most of a scroll tick. A cell is `relative` only while it
 // can hold an absolute child (a remote change's cue, the fill handle); a frozen one is `sticky`.
@@ -1379,9 +1379,10 @@ function stickyStyle(
 interface GridCellProps<T> {
   placed: PlacedColumn<T>;
   /**
-   * Which end of the row's `row-fill` shape this cell carries when it is not the `<tr>`'s first or
-   * last child (BRD-12): the windowing spacers and the filler sit outside the real columns, so the
-   * first and last REAL cells hold the rounded ends.
+   * Which end of the row's `row-fill` band this cell is when it is not the `<tr>`'s first or last
+   * child (BRD-12): the windowing spacers and the filler sit outside the real columns and paint the
+   * band too (it is square and continuous), so these marks only keep the real end cells positioned
+   * for what sits on them — the peek and keyboard edge bar on the start cell.
    */
   rowEdge?: "start" | "end" | "both";
   row: T;
@@ -1845,14 +1846,7 @@ interface GridRowProps<T> {
  * so a window move rewrites two `<col>`s rather than two cells in every row.
  */
 const SpacerCell = React.memo(function SpacerCell() {
-  return (
-    <td
-      aria-hidden="true"
-      data-slot="data-grid-spacer"
-      data-row-fill-skip=""
-      className="p-0"
-    />
-  );
+  return <td aria-hidden="true" data-slot="data-grid-spacer" className="p-0" />;
 });
 
 /**
@@ -1862,14 +1856,7 @@ const SpacerCell = React.memo(function SpacerCell() {
  * its width. It sits after the "+" column, which stays right beside the last real column.
  */
 const FillerCell = React.memo(function FillerCell() {
-  return (
-    <td
-      aria-hidden="true"
-      data-slot="data-grid-filler"
-      data-row-fill-skip=""
-      className="p-0"
-    />
-  );
+  return <td aria-hidden="true" data-slot="data-grid-filler" className="p-0" />;
 });
 
 /**
@@ -1939,7 +1926,7 @@ function GridRowImpl<T>({
   measure,
   dataIndex,
 }: GridRowProps<T>) {
-  // The row's rounded ends sit on its first and last REAL cells (BRD-12): a leading spacer is the
+  // The row's band ends on its first and last REAL cells (BRD-12): a leading spacer is the
   // first child when there is no select or frozen column, and the trailing spacer, the "+" column and
   // the filler always follow the last column.
   const startCell =
@@ -2025,9 +2012,7 @@ function GridRowImpl<T>({
       {w.fixed ? <SpacerCell /> : null}
       {w.center.map(cell)}
       {w.fixed ? <SpacerCell /> : null}
-      {w.trailing ? (
-        <td aria-hidden="true" data-row-fill-skip="" className="p-0" />
-      ) : null}
+      {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
       {w.fixed ? <FillerCell /> : null}
     </tr>
   );
@@ -2582,9 +2567,7 @@ function FixedSkeletonRows<T>({
           <SpacerCell />
           {w.center.map(bar)}
           <SpacerCell />
-          {w.trailing ? (
-            <td aria-hidden="true" data-row-fill-skip="" className="p-0" />
-          ) : null}
+          {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
           <FillerCell />
         </tr>
       ))}

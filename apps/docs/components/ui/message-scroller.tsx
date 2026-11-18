@@ -1,4 +1,4 @@
-// @vegastack message-scroller@0.116.0 sha256-Fj0oqKzUBwoZVgi0yTeKYX/Wvynyzx84oxq86ZpGGZg=
+// @vegastack message-scroller@0.116.0 sha256-XLvf1PaTDrztXyyzsuyaBMbC0NfKmvYvSXggeAhUABI=
 
 "use client";
 
@@ -50,7 +50,7 @@ function MessageScrollerViewport({
         // `overflow-hidden` — so `base.css`'s outward `outline-offset: 1px` is drawn and then cut
         // away by the ancestor. FOC-9 is the one permitted local deviation: pull the outline
         // inside the clip. Nothing else about the affordance changes.
-        "size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content focus-visible:-outline-offset-2 data-autoscrolling:scrollbar-thumb-transparent data-autoscrolling:scrollbar-track-transparent data-pending-scroll:invisible",
+        "relative size-full min-h-0 min-w-0 scroll-fade-b scrollbar-thin scrollbar-gutter-stable overflow-y-auto overscroll-contain contain-content focus-visible:-outline-offset-2 data-autoscrolling:scrollbar-thumb-transparent data-autoscrolling:scrollbar-track-transparent data-pending-scroll:invisible",
         className,
       )}
       {...props}

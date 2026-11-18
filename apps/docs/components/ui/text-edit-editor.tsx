@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.116.0 sha256-3ZsntOQ3TxatOudmQ+uord0ELj4DalbOFp60ge22kks=
+// @vegastack text-edit@0.116.0 sha256-AgGiXvWLXOvzH+e8Uxq97VCSTJ5SLC0/T+m6XamjCfo=
 
 "use client";
 
@@ -6435,7 +6435,8 @@ const LINK_INVALID =
  * ----------------------------------------------------------------------------------------------*/
 
 /**
- * A floating panel: the card corner (`rounded-card`), its 8px controls 1 + 7px in (16 − 8 = 8). A
+ * A floating panel: the card corner (`rounded-card`), its controls 1 + 7px in (16 − 8 = 8; the 10px
+ * `control` errs one step round, never sharper). A
  * list of `rounded-item` rows on it takes `p-1.25` instead (16 − 6 = 10).
  */
 const MENU_SURFACE =

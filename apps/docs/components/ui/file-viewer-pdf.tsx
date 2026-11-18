@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.116.4 sha256-R17AqxC2YMIfmM6/gYXqCWz2BOwrF+3kJ5w573U8OCE=
+// @vegastack file-viewer@0.116.4 sha256-aMUoZXFmz7YxH+AGvn4qNmxm80ioP2Ts/u4QJ26+XHk=
 
 "use client";
 
@@ -218,7 +218,7 @@ export function FileViewerPdf({
       <div
         ref={scrollerRef}
         onScroll={onScroll}
-        className="size-full overflow-auto overscroll-contain"
+        className="relative size-full overflow-auto overscroll-contain"
       >
         {doc && scale ? (
           <div

@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu@0.116.0 sha256-UvCAW4GfsAU1mJRUtD0/+WRj0ig6DIPlcklWocKi6aA=
+// @vegastack dropdown-menu@0.116.0 sha256-n/m/czI/rdpQNRzVekFnOoFADWg5CQo04uU2yGcbhnI=
 
 "use client";
 
@@ -62,7 +62,7 @@ function DropdownMenuContent({
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
           className={cn(
-            "z-50 max-h-(--available-height) w-max max-w-(--available-width) min-w-[max(--spacing(32),var(--anchor-width))] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-card bg-popover p-1.25 text-popover-foreground shadow-md border border-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95",
+            "relative z-50 max-h-(--available-height) w-max max-w-(--available-width) min-w-[max(--spacing(32),var(--anchor-width))] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-card bg-popover p-1.25 text-popover-foreground shadow-md border border-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95",
             className,
           )}
           {...props}

@@ -1,4 +1,4 @@
-// @vegastack command@0.116.0 sha256-DXozyjErFfaJYhz33/X3r4FUSkr4CiZQCqwG1Ut6Oms=
+// @vegastack command@0.116.0 sha256-ofm5bDeEXKJCSZtq3CAylMNKJElxzkAuv7uQSmawZO8=
 
 "use client";
 
@@ -395,7 +395,7 @@ function CommandList({
       data-size={size}
       ref={setRef}
       className={cn(
-        "no-scrollbar max-h-72 scroll-pt-1 scroll-pb-[calc(var(--command-actions-height)+var(--spacing))] [--command-actions-height:0px] overflow-x-hidden overflow-y-auto outline-none data-[size=lg]:max-h-[min(28rem,60dvh)] data-[size=xl]:max-h-[min(28rem,60dvh)]",
+        "relative no-scrollbar max-h-72 scroll-pt-1 scroll-pb-[calc(var(--command-actions-height)+var(--spacing))] [--command-actions-height:0px] overflow-x-hidden overflow-y-auto outline-none data-[size=lg]:max-h-[min(28rem,60dvh)] data-[size=xl]:max-h-[min(28rem,60dvh)]",
         className,
       )}
       {...props}

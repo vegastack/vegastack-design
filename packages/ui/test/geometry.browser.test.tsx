@@ -59,6 +59,9 @@ import {
   MultiStepFormStep,
 } from "../registry/ui/multi-step-form";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
+import { GlobalBar, GlobalBarCenter } from "../registry/ui/global-bar";
+import { Board } from "../registry/ui/board";
+import { GlobalBarSearch } from "../registry/ui/global-bar-client";
 import { SortableList } from "../registry/ui/sortable-list";
 import {
   Select,
@@ -5153,4 +5156,105 @@ test("concentric corners: menu, select and command rows, and the dialog's close 
     "x",
   );
   await command.unmount();
+});
+
+test("the top bar's search: a capsule whose search and Ask sit 3px in on every side (BRD-12, 2026-11-19)", async () => {
+  await page.viewport(1280, 768);
+  const bar = await render(
+    <GlobalBar>
+      <GlobalBarCenter>
+        <GlobalBarSearch
+          label="Search or ask anything…"
+          ask={{ label: "Ask William", onClick: () => undefined }}
+        />
+      </GlobalBarCenter>
+    </GlobalBar>,
+  );
+  const box = document.querySelector('[data-slot="global-bar-search"]')!;
+  const search = box.querySelector("button")!;
+  const ask = box.querySelector('[data-slot="global-bar-search-ask"]')!;
+  await expect.element(search).toBeVisible();
+  const o = box.getBoundingClientRect();
+  const insets = (el: Element) => {
+    const r = el.getBoundingClientRect();
+    return { top: r.top - o.top, bottom: o.bottom - r.bottom };
+  };
+  // Even top and bottom on both fills, the search's start and Ask's end too: no fill touches
+  // the ring while its sides keep a gap (the operator's report).
+  expect(insets(search)).toEqual({ top: 3, bottom: 3 });
+  expect(insets(ask)).toEqual({ top: 3, bottom: 3 });
+  expect(search.getBoundingClientRect().left - o.left).toBe(3);
+  expect(o.right - ask.getBoundingClientRect().right).toBe(3);
+  expectConcentric(box, search);
+  expectConcentric(box, ask);
+  await bar.unmount();
+});
+
+test('a "fill" board ends where its page scrolls: one vertical scroller, never two (BRD-SCR, 2026-11-19)', async () => {
+  await page.viewport(1280, 800);
+  const cards = Array.from({ length: 30 }, (_, i) => ({
+    id: `c${i}`,
+    name: `Card ${i}`,
+  }));
+  const board = (
+    <Board<{ id: string; name: string }>
+      aria-label="Deals"
+      height="fill"
+      columns={[
+        { id: "a", title: "A", items: cards },
+        { id: "b", title: "B", items: cards.slice(0, 3) },
+      ]}
+      getItemId={(card) => card.id}
+      getItemLabel={(card) => card.name}
+      renderCard={(card) => <span>{card.name}</span>}
+      onMove={() => undefined}
+    />
+  );
+  // Flex and grid pages; the board alone or inside a `display: contents` wrapper; a footer after
+  // it, itself flattened through a contents wrapper.
+  for (const layout of ["flex", "grid"] as const)
+    for (const wrapped of [false, true]) {
+      const screen = await render(
+        <div
+          data-testid="page"
+          className={
+            layout === "flex"
+              ? "relative flex h-[600px] flex-col gap-6 overflow-y-auto pb-8"
+              : "relative grid h-[600px] auto-rows-min gap-6 overflow-y-auto pb-8"
+          }
+        >
+          <h1 className="h-20 shrink-0">Tasks</h1>
+          {wrapped ? <div className="contents">{board}</div> : board}
+          <div className="contents">
+            <footer data-testid="footer" className="h-10 shrink-0">
+              Footer
+            </footer>
+          </div>
+        </div>,
+      );
+      const scroller = screen.getByTestId("page").element() as HTMLElement;
+      const overflow = () => scroller.scrollHeight - scroller.clientHeight;
+      const label = `${layout}${wrapped ? ", wrapped" : ""}`;
+      await expect
+        .poll(overflow, {
+          message: `${label}: the page scrolls besides the lanes`,
+        })
+        .toBeLessThanOrEqual(0);
+      // Stable: the measured height doesn't flip between values on later frames.
+      const el = document.querySelector<HTMLElement>('[data-slot="board"]')!;
+      const first = el.getBoundingClientRect().height;
+      await new Promise((r) =>
+        requestAnimationFrame(() => requestAnimationFrame(r)),
+      );
+      expect(el.getBoundingClientRect().height).toBe(first);
+      // A footer that grows is measured again.
+      (screen.getByTestId("footer").element() as HTMLElement).style.height =
+        "120px";
+      await expect
+        .poll(overflow, {
+          message: `${label}: a taller footer gave the page a scroll`,
+        })
+        .toBeLessThanOrEqual(0);
+      await screen.unmount();
+    }
 });

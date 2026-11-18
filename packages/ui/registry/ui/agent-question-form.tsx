@@ -1,4 +1,4 @@
-// @vegastack agent-question-form@0.116.0 sha256-aVFz2Y5zYsV0H+4umNZ1N48WBCfHsSaWMOjOLXiXUGg=
+// @vegastack agent-question-form@0.116.0 sha256-d5Ek3B5VfvKMCIzv5lEtwUyReaBWHUxjAKiHQzC91xM=
 
 "use client";
 
@@ -495,7 +495,7 @@ function PreviewPanel({
           tabIndex={0}
           aria-labelledby={id}
           data-slot="agent-question-form-preview-text"
-          className="max-h-80 min-w-0 overflow-auto rounded-block border border-border bg-muted p-3 font-mono text-xs leading-relaxed whitespace-pre text-foreground"
+          className="relative max-h-80 min-w-0 overflow-auto rounded-block border border-border bg-muted p-3 font-mono text-xs leading-relaxed whitespace-pre text-foreground"
         >
           {option.preview}
         </pre>

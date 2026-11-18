@@ -330,7 +330,7 @@ export const emailColors: { light: EmailPalette; dark: EmailPalette } = ${json(p
 
 /**
  * The corner roles (BRD-12) as px, from \`corner-*\` in the design tokens. Every \`borderRadius\`
- * in the kit names one: the button is \`control\` (8px, the same corner as the app's buttons), the message card \`card\`, a card or
+ * in the kit names one: the button is \`control\` (10px, the same corner as the app's buttons), the message card \`card\`, a card or
  * quote nested in it and a code block \`block\`, inline code \`inline\`, a highlight \`mark\`.
  * Classic Outlook ignores border-radius and draws them square.
  */

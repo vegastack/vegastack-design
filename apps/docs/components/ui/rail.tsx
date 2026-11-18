@@ -1,4 +1,4 @@
-// @vegastack rail@0.116.0 sha256-grHaMK5CKTIm/cavA3ld+afNlJcbELGkvN90h1kp5SI=
+// @vegastack rail@0.116.0 sha256-qQpiKhOLOAH0o5vdXDKFoZUE3MZwsc4/durme8I2Wf8=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -92,7 +92,7 @@ export function Rail({ label = "Modules", className, ...props }: RailProps) {
       tabIndex={-1}
       aria-label={label}
       className={cn(
-        "scroll-fade-y flex min-h-0 w-full flex-1 flex-col items-stretch gap-0.5 overflow-y-auto pt-2 pb-2.5 outline-none [scrollbar-width:none]",
+        "relative scroll-fade-y flex min-h-0 w-full flex-1 flex-col items-stretch gap-0.5 overflow-y-auto pt-2 pb-2.5 outline-none [scrollbar-width:none]",
         className,
       )}
       {...props}

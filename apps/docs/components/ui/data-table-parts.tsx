@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.116.0 sha256-FZIyqRRZhtdF3QBJIqytT+Er3Kb6XokUohfhlTw2/vo=
+// @vegastack data-table-parts@0.116.0 sha256-B66FvLHZHTRFn3OB3KylvP7gNLZaG3vTToIukWEQd/g=
 
 "use client";
 
@@ -378,8 +378,8 @@ export function mergedValueClass(column: DataTableColumnLayout): string {
  * `text-muted-foreground` stays above 4.5:1 on it (4.87:1 light, 6.84:1 dark),
  * which a darker tint fails in light (a `primary` tint reaches the badge fill
  * at 5% and drops muted text under AA by 8%). The checkbox remains the
- * authoritative selection cue. The wash is the row's `row-fill` colour (the inset `item` shape its
- * cells paint), never a fill on the `<tr>`, so it has the same rounded shape as a menu option.
+ * authoritative selection cue. The wash is the row's `row-fill` colour (the square band its cells
+ * paint), never a fill on the `<tr>`.
  */
 export const SELECTED_ROW_CLASS =
   "[--row-fill-color:var(--state-selected)] hover:not-focus-visible:[--row-fill-layer:none]";
@@ -404,7 +404,7 @@ export const LIST_ROW_HEIGHT_CLASS = {
  * same way (web app POL-01):
  *
  * - hover — `ROW_HOVER_CLASS`, the `row-fill` hover/press steps (COL-24) and nothing else, drawn
- *   as one inset `rounded-item` shape across the row's cells (as a select option's hover);
+ *   as one square band across the row's cells, edge to edge (BRD-12, amended 2026-11-19);
  * - selected (ticked) — `SELECTED_ROW_CLASS`, the `state-selected` wash, held through hover (the
  *   hover layer stands down on it, so secondary text keeps AA);
  * - open (`activeRowId`) — `PEEK_ACTIVE_ROW_CLASS`, the `state-selected` wash plus the 2px `foreground`

@@ -1,4 +1,4 @@
-// @vegastack peek@0.116.0 sha256-pv/Z+W49FF06svL9LVyLuK82cm3sPslz+qbhtV07oCI=
+// @vegastack peek@0.116.0 sha256-9H0hl8fvZXMR4E15SE2kHTxN+GSaSWf8YEUeeewKrwI=
 
 "use client";
 
@@ -899,7 +899,7 @@ export function PeekBody({ className, ...props }: PeekBodyProps) {
     <div
       data-slot="peek-body"
       className={cn(
-        "flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-5",
+        "relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto overscroll-contain p-5",
         className,
       )}
       {...props}

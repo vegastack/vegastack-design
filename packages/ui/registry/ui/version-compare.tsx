@@ -1,4 +1,4 @@
-// @vegastack version-compare@0.116.3 sha256-R5nqvrri1NgQIi1D6suvwUzBfkXWmy1Opsli+5Nt4Zs=
+// @vegastack version-compare@0.116.3 sha256-96hh7hu3qUSA4vjHjGckMkqFSO++aj34VwU9KPK9jNc=
 
 "use client";
 
@@ -288,7 +288,7 @@ export function VersionCompare({
       ) : null}
       <div
         data-slot="version-compare-preview-body"
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+        className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain"
       >
         {showChanges && diff ? (
           <DiffView before={diff.before} after={diff.after} />
@@ -326,7 +326,7 @@ export function VersionCompare({
           <ResizablePanel defaultSize="32" minSize={240} maxSize="50">
             <div
               data-slot="version-compare-list"
-              className="h-full min-w-0 overflow-y-auto overscroll-contain ps-4"
+              className="relative h-full min-w-0 overflow-y-auto overscroll-contain ps-4"
             >
               {list}
             </div>
@@ -344,7 +344,7 @@ export function VersionCompare({
           key="list"
           ref={listRef}
           data-slot="version-compare-list"
-          className="min-h-0 flex-1 overflow-y-auto overscroll-contain"
+          className="relative min-h-0 flex-1 overflow-y-auto overscroll-contain"
           // A picked row (a tap, or Enter) pushes its preview in; the arrow keys only move.
           onClick={(event) => {
             if (

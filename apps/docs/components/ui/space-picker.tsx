@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.116.0 sha256-JNe5zpsyVqBeJpEtjLonpPiMYorpv5Nsk7n8suflIZw=
+// @vegastack space-picker@0.116.0 sha256-xcbsdj9c57bx7fpb8DBcvPwemxjiRmeWLg87P8yw8xA=
 
 "use client";
 
@@ -179,7 +179,8 @@ export function SpaceChip({
       className={cn(
         "max-w-full min-w-0 justify-start gap-1.5 px-1.5 font-normal text-foreground has-data-[icon=inline-end]:pe-1",
         size === "sm" && "text-sm",
-        size === "title" && "ps-1.5 pe-2 text-sm font-medium",
+        // The outlined chip a create dialog leads with: the read-only chip's pill shape.
+        size === "title" && "rounded-chip ps-1.5 pe-2 text-sm font-medium",
         className,
       )}
       {...props}
