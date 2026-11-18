@@ -298,7 +298,7 @@ test("floating, the corner grip resizes the card from the keyboard, never under 
   const card = document.querySelector<HTMLElement>(
     '[data-slot="assistant-card"]',
   )!;
-  const grip = screen.getByRole("button", { name: "Resize" });
+  const grip = screen.getByRole("separator", { name: "Resize" });
   await expect.poll(() => getComputedStyle(card).scale).toBe("1");
   const before = card.getBoundingClientRect();
   (grip.element() as HTMLElement).focus();
@@ -315,6 +315,33 @@ test("floating, the corner grip resizes the card from the keyboard, never under 
   );
   for (let i = 0; i < 30; i++) await userEvent.keyboard("{ArrowDown}");
   expect(Math.round(card.getBoundingClientRect().height)).toBe(320);
+});
+
+test("floating in a short container, the first move keeps the card's size", async () => {
+  await page.viewport(1280, 800);
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  await render(
+    <div style={{ position: "relative", width: 600, height: 220 }}>
+      <AssistantCard open onOpenChange={() => {}} place="float">
+        <AssistantCardHeader title="William" onClose={() => {}} />
+        <AssistantCardBody>
+          <p>How can I help?</p>
+        </AssistantCardBody>
+      </AssistantCard>
+    </div>,
+  );
+  const card = document.querySelector<HTMLElement>(
+    '[data-slot="assistant-card"]',
+  )!;
+  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
+  const height = card.offsetHeight;
+  card.focus();
+  await userEvent.keyboard("{Alt>}{ArrowLeft}{/Alt}");
+  await expect.poll(() => card.style.top).not.toBe("");
+  expect(card.offsetHeight).toBe(height);
 });
 
 test("Escape closes the card from content portalled in from another React tree", async () => {

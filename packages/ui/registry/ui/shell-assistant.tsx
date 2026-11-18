@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.117.0 sha256-94lQqZb4CopPR1F+nrqNXVLB7pb2PgubA7vzIfo9BUc=
+// @vegastack shell-assistant@0.117.0 sha256-ZwFgAvHrC48OTzBuXxnK4My5VTi0Sd3xInl8/chZhZQ=
 
 "use client";
 
@@ -54,6 +54,8 @@ export type AssistantPlace = "float" | "dock";
 
 /** A floating card's smallest size, in px (or the room there is, when less). */
 const MIN_SIZE = 320;
+/** The top of the grip's reported range (px): no window is taller. */
+const MAX_REPORTED = 10_000;
 
 /** Focuses `node` if it can take focus now; whether it did. */
 function tryFocus(node: HTMLElement | null | undefined): boolean {
@@ -139,6 +141,13 @@ function AssistantCard({
   const onOpenChangeRef = React.useRef(onOpenChange);
   onOpenChangeRef.current = onOpenChange;
   const cardRef = React.useRef<HTMLElement | null>(null);
+  // The size the grip reports (its value text); null until it is read or changed.
+  const [size, setSize] = React.useState<{ w: number; h: number } | null>(null);
+  /** Reads the card's layout size into the grip's value. */
+  const readSize = () => {
+    const card = cardRef.current;
+    if (card) setSize({ w: card.offsetWidth, h: card.offsetHeight });
+  };
   // Ends a drag or resize in progress (its window listeners), on pointer up, docking or unmount.
   const gesture = React.useRef<(() => void) | null>(null);
   React.useEffect(() => () => gesture.current?.(), []);
@@ -306,7 +315,7 @@ function AssistantCard({
         event.button !== 0 ||
         !target.closest?.('[data-slot="assistant-card-header"]') ||
         target.closest?.(
-          'button, a, input, textarea, select, [role="button"], [role="menuitem"]',
+          'button, a, input, textarea, select, [role="button"], [role="menuitem"], [role="separator"]',
         )
       )
         return;
@@ -342,6 +351,7 @@ function AssistantCard({
       Math.round(Math.max(Math.min(MIN_SIZE, max), Math.min(value, max)));
     card.style.width = `${fit(width, room(rtl ? window.innerWidth - from.left : from.right))}px`;
     card.style.height = `${fit(height, room(from.bottom))}px`;
+    readSize();
     if (!card.style.top) return;
     // The size CSS let it take (its own limits may be tighter): the opposite corner stays put.
     setAt({
@@ -374,7 +384,15 @@ function AssistantCard({
   /** The grip from the keyboard: arrows away from the card grow it, toward it shrink it. */
   const resizeByKey = (event: React.KeyboardEvent<HTMLElement>) => {
     const card = cardRef.current;
-    if (!card || !event.key.startsWith("Arrow")) return;
+    // Alt and an arrow still move the card (the window handler); only plain arrows resize.
+    if (
+      !card ||
+      !event.key.startsWith("Arrow") ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey
+    )
+      return;
     event.preventDefault();
     event.stopPropagation();
     const from = card.getBoundingClientRect();
@@ -434,7 +452,7 @@ function AssistantCard({
           // Dragged: a window of its own over the app (z-40, the slide-over's layer, under menus
           // and dialogs), kept inside the window.
           moved &&
-            "fixed z-40 max-h-[calc(100dvh-1rem)] max-w-[calc(100vw-1rem)] shadow-2xl starting:scale-100",
+            "fixed z-40 min-h-0 min-w-0 max-h-[calc(100dvh-1rem)] max-w-[calc(100vw-1rem)] shadow-2xl starting:scale-100",
           // Docked: the shell places it as a card beside the page (from 40rem); it only fades in.
           docked && "starting:translate-y-0 starting:scale-100",
         )}
@@ -444,13 +462,22 @@ function AssistantCard({
           // Sticky at the card's top-start corner, taking no room: it stays put while a short card
           // scrolls. 24px, the smallest target; its arrow keys resize from the keyboard.
           <div
-            role="button"
+            role="separator"
             tabIndex={0}
             aria-label="Resize"
+            aria-orientation="horizontal"
+            // Its value is the card's height in px (the width moves with it on the side arrows).
+            aria-valuenow={size?.h ?? 0}
+            aria-valuemin={0}
+            aria-valuemax={Math.max(size?.h ?? 0, MAX_REPORTED)}
+            aria-valuetext={
+              size ? `${size.w} by ${size.h} pixels` : "Arrow keys resize"
+            }
             aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
             data-slot="assistant-card-resize"
             onPointerDown={startResize}
             onKeyDown={resizeByKey}
+            onFocus={readSize}
             className="sticky top-0 z-10 -mb-6 size-6 shrink-0 cursor-nwse-resize touch-none self-start outline-none rtl:cursor-nesw-resize"
           />
         ) : null}
