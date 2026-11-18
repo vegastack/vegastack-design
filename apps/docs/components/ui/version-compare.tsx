@@ -1,9 +1,9 @@
-// @vegastack version-compare@0.116.0 sha256-QJAgGJtiNiB3zi7e9/jY9uAuYoR/SJ63o26UW1RNzqM=
+// @vegastack version-compare@0.116.0 sha256-lH9b4mwexf8cVKRRQBIN5qQ3q8qEzoX0PW7zYE1W724=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DiffView } from "@/components/ui/diff-view";
@@ -95,8 +95,9 @@ export interface VersionCompareProps
  * size="fullscreen"`: the selected version's text on the start side (its changes through
  * `DiffView` while `showChanges` is on), the versions in a `VersionList` beside it — grouped by
  * day, an agent's versions under the agent avatar — on `ResizablePanels`, and `actions` (Restore
- * this version, Copy) in a footer that stays put while both sides scroll. Below 640px the list
- * comes first and picking a version pushes its preview in, with a back button to the list;
+ * this version, Copy) in a footer that stays put while both sides scroll. Narrower than 640px (its
+ * own width, so a side panel on a wide window counts as narrow) the list comes first and picking a
+ * version pushes its preview in, with a back button to the list;
  * `phoneView` / `defaultPhoneView` open it on the preview instead.
  *
  * @example
@@ -137,10 +138,33 @@ export function VersionCompare({
   defaultPhoneView = "list",
   onPhoneViewChange,
   className,
+  ref,
   ...props
 }: VersionCompareProps) {
   const switchId = React.useId();
-  const wide = useMediaQuery("(min-width: 40rem)");
+  // Side by side only when the component itself has room: a 320px side panel on a wide window
+  // gets the one-side-at-a-time layout. Until it is measured, the window's width stands in.
+  const windowWide = useMediaQuery("(min-width: 40rem)");
+  const [ownWide, setOwnWide] = React.useState<boolean | null>(null);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
+  React.useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root || typeof ResizeObserver === "undefined") return;
+    const measure = () =>
+      setOwnWide(
+        root.getBoundingClientRect().width >=
+          40 *
+            parseFloat(
+              getComputedStyle(document.documentElement).fontSize || "16",
+            ),
+      );
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    return () => observer.disconnect();
+  }, []);
+  const wide = ownWide ?? windowWide;
   // On a phone one side shows at a time: the list first (unless the host opens the preview), a
   // picked version's preview pushed in.
   const [viewState, setViewState] = React.useState(defaultPhoneView);
@@ -241,6 +265,7 @@ export function VersionCompare({
 
   return (
     <div
+      ref={setRootRef}
       data-slot="version-compare"
       data-view={wide ? undefined : view}
       className={cn("flex min-h-0 min-w-0 flex-1 flex-col gap-4", className)}

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
@@ -26,35 +26,25 @@ const versions: VersionItem[] = [
   },
 ];
 
-/** Answer `(min-width: 40rem)` as a wide screen or a phone. */
-function mockWide(wide: boolean) {
-  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
-    (query: string) =>
-      ({
-        matches: wide && query.includes("min-width: 40rem"),
-        media: query,
-        onchange: null,
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        addListener: () => {},
-        removeListener: () => {},
-        dispatchEvent: () => false,
-      }) as MediaQueryList,
-  );
-  onTestFinished(() => spy.mockRestore());
+/** A wide window or a phone: the component goes side by side only when it is wide itself. */
+async function viewport(wide: boolean) {
+  await page.viewport(wide ? 1280 : 390, 800);
 }
 
 function Harness({
   diff,
   preview = <p>Text of the selected version</p>,
+  width,
 }: {
   diff?: { before: string; after: string };
   preview?: React.ReactNode;
+  /** The box it sits in, e.g. a 320px side panel. @default the window's width */
+  width?: number;
 }) {
   const [selected, setSelected] = React.useState("v3");
   const [showChanges, setShowChanges] = React.useState(false);
   return (
-    <div style={{ height: 600, display: "flex" }}>
+    <div style={{ height: 600, display: "flex", width }}>
       <VersionCompare
         versions={versions}
         selectedId={selected}
@@ -82,7 +72,7 @@ function Harness({
 }
 
 test("wide: the preview and the day-grouped list side by side on resizable panels, the actions pinned below", async () => {
-  mockWide(true);
+  await viewport(true);
   const screen = await render(<Harness />);
   const root = screen.container.querySelector<HTMLElement>(
     "[data-slot=version-compare]",
@@ -110,7 +100,7 @@ test("wide: the preview and the day-grouped list side by side on resizable panel
 });
 
 test("Show changes: the switch toggles it; with a diff the preview is a DiffView, without one the host's preview stays", async () => {
-  mockWide(true);
+  await viewport(true);
   const screen = await render(
     <Harness
       diff={{
@@ -141,8 +131,22 @@ test("Show changes: the switch toggles it; with a diff the preview is a DiffView
   expect(host.container.textContent).toContain("Text of the selected version");
 });
 
+test("a narrow box on a wide window (a side panel): one side at a time, like a phone", async () => {
+  await viewport(true);
+  const screen = await render(<Harness width={320} />);
+  const root = () =>
+    screen.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+  await vi.waitFor(() => expect(root().dataset.view).toBe("list"));
+  expect(root().querySelector("[data-slot=version-compare-panels]")).toBeNull();
+  await screen.getByRole("option", { name: /Before review/ }).click();
+  expect(root().dataset.view).toBe("preview");
+  await expect
+    .element(screen.getByRole("button", { name: "Versions" }))
+    .toBeInTheDocument();
+});
+
 test("phone: the list first; a picked version pushes its preview in, with the actions; Back returns to the list", async () => {
-  mockWide(false);
+  await viewport(false);
   const screen = await render(<Harness />);
   const root = () =>
     screen.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
@@ -190,7 +194,7 @@ test("phone: the list first; a picked version pushes its preview in, with the ac
 });
 
 test('phone, defaultPhoneView="preview": opens straight on the selected version; Back returns to the list and reports it', async () => {
-  mockWide(false);
+  await viewport(false);
   const onPhoneViewChange = vi.fn();
   const screen = await render(
     <div style={{ height: 600, display: "flex" }}>
@@ -234,7 +238,7 @@ test('phone, defaultPhoneView="preview": opens straight on the selected version;
 });
 
 test("phone, controlled phoneView: the host decides the side; a pick and Back report it", async () => {
-  mockWide(false);
+  await viewport(false);
   const onPhoneViewChange = vi.fn();
   function Controlled() {
     const [view, setView] = React.useState<"list" | "preview">("preview");
