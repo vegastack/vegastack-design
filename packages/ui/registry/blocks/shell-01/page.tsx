@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.113.0 sha256-AZmmsMAgDvgiG+s/L4a2WU8I/V6SajRlu7cs2Zrem3Q=
+// @vegastack shell-01@0.113.0 sha256-Hwbw78zpm2Jph2e932WCNT5//ol9MiQ0D3owhdv7JP4=
 
 "use client";
 
@@ -7,12 +7,12 @@ import {
   BarChart3,
   Boxes,
   CalendarDays,
-  ChevronsUpDown,
   Circle,
   CircleCheck,
   CircleDashed,
   CircleHelp,
   Clock,
+  History,
   Hexagon,
   Home,
   Inbox,
@@ -32,8 +32,8 @@ import { Button } from "@/components/ui/button";
 import { MembersStack } from "@/components/ui/members-stack";
 import {
   GlobalBar,
-  GlobalBarAsk,
   GlobalBarCenter,
+  GlobalBarHelp,
   GlobalBarLeading,
   GlobalBarSearch,
   GlobalBarTrailing,
@@ -50,7 +50,19 @@ import {
   PeekPath,
   PeekTitle,
 } from "@/components/ui/peek";
-import { Rail, RailBottom, RailItem } from "@/components/ui/rail";
+import {
+  Rail,
+  RailBottom,
+  RailItem,
+  RailTile,
+  RailTop,
+} from "@/components/ui/rail";
+import {
+  AssistantCard,
+  AssistantCardBody,
+  AssistantCardHeader,
+  type AssistantPlace,
+} from "@/components/ui/shell-assistant";
 import {
   Shell,
   ShellBottomBar,
@@ -96,10 +108,13 @@ function StatusIcon({ status }: { status: Task["status"] }) {
 }
 
 /**
- * `shell-01` — the shell reference: the global bar, the module rail, Home's column with Tasks,
+ * `shell-01` — the shell reference: the rounded-card frame (LAY-26) — the global bar and the rail
+ * on the window's canvas, with the workspace's tile and the person's avatar at the rail's ends,
+ * one search-or-ask box and "? Help" — then Home's column and the page in one card: Tasks,
  * Meetings and Library nested under Work, the top bar in its fixed order, a task list, and a
- * task opening in a `Peek` over the page's right side: ↑ ↓ walk the list, ⤢ opens its page, Esc
- * closes it. On a phone the peek is a bottom sheet.
+ * task opening in a `Peek` over the page's right side (↑ ↓ walk the list, ⤢ opens its page, Esc
+ * closes it). The box's Ask chip opens the assistant docked beside the page; its header floats or
+ * pops it out. On a phone the peek is a bottom sheet.
  *
  * @example
  * <Shell01Page fill="parent" />
@@ -112,6 +127,8 @@ export default function Shell01Page({
 }) {
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [peekWidth, setPeekWidth] = React.useState(520);
+  const [askOpen, setAskOpen] = React.useState(false);
+  const [place, setPlace] = React.useState<AssistantPlace>("dock");
   const index = TASKS.findIndex((t) => t.id === openId);
   const task = index >= 0 ? TASKS[index] : null;
 
@@ -122,33 +139,31 @@ export default function Shell01Page({
         <GlobalBar>
           <GlobalBarLeading>
             <ShellColumnToggle />
-            <Button variant="ghost" size="sm" className="gap-2 font-semibold">
-              <span
-                aria-hidden="true"
-                className="grid size-5 place-items-center rounded-tile bg-primary text-xs font-semibold text-primary-foreground"
-              >
-                A
-              </span>
-              Acme
-              <ChevronsUpDown className="text-muted-foreground" />
-            </Button>
           </GlobalBarLeading>
           <GlobalBarCenter>
-            <GlobalBarSearch />
+            <Button variant="ghost" size="icon-sm" aria-label="Recent">
+              <History />
+            </Button>
+            <GlobalBarSearch
+              label="Search or ask anything…"
+              ask={{
+                label: "Ask William",
+                onClick: () => setAskOpen((open) => !open),
+                controls: "shell-01-assistant",
+                expanded: askOpen,
+              }}
+            />
           </GlobalBarCenter>
           <GlobalBarTrailing>
-            <GlobalBarAsk />
-            <Button variant="ghost" size="icon-sm" aria-label="Help">
-              <CircleHelp />
-            </Button>
-            <Avatar size="sm">
-              <AvatarFallback aria-label="Manoj Kumar">MK</AvatarFallback>
-            </Avatar>
+            <GlobalBarHelp dot="new updates" />
           </GlobalBarTrailing>
         </GlobalBar>
       }
       rail={
         <Rail>
+          <RailTop>
+            <RailTile label="Workspace: Acme. Switch workspace">A</RailTile>
+          </RailTop>
           <RailItem icon={<Home />} label="Home" href="#home" active />
           <RailItem icon={<Inbox />} label="Inbox" href="#inbox" badge={120} />
           <RailItem icon={<Hexagon />} label="Spaces" href="#spaces" />
@@ -157,8 +172,22 @@ export default function Shell01Page({
           <RailItem icon={<BarChart3 />} label="Sales" href="#sales" />
           <RailBottom>
             <RailItem icon={<Settings2 />} label="Settings" href="#settings" />
+            <RailTile shape="avatar" label="Manoj Kumar, account">
+              <Avatar>
+                <AvatarFallback>MK</AvatarFallback>
+              </Avatar>
+            </RailTile>
           </RailBottom>
         </Rail>
+      }
+      // One card in every place, so nothing in it remounts when it moves.
+      assistant={
+        <Assistant
+          open={askOpen}
+          onOpenChange={setAskOpen}
+          place={place}
+          onPlaceChange={setPlace}
+        />
       }
       column={
         <ShellColumn label="Home">
@@ -393,5 +422,39 @@ export default function Shell01Page({
         </Peek>
       </ShellMain>
     </Shell>
+  );
+}
+
+/** The assistant's card in whichever place the person put it. */
+function Assistant({
+  open,
+  onOpenChange,
+  place,
+  onPlaceChange,
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  place: AssistantPlace;
+  onPlaceChange: (place: AssistantPlace) => void;
+}) {
+  return (
+    <AssistantCard
+      id="shell-01-assistant"
+      open={open}
+      onOpenChange={onOpenChange}
+      place={place}
+    >
+      <AssistantCardHeader
+        title="William"
+        place={place}
+        onPlaceChange={onPlaceChange}
+        onClose={() => onOpenChange(false)}
+      />
+      <AssistantCardBody>
+        <p className="text-muted-foreground">
+          Ask anything about your workspace.
+        </p>
+      </AssistantCardBody>
+    </AssistantCard>
   );
 }

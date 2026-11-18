@@ -87,6 +87,15 @@ in dark — where the page's own `--card` is white on white in light and a lift 
 sidebar is a step above it. It is opaque, because below 1088px the panel floats over the page
 (COL-26).
 
+### The frame's canvas and card
+
+The rounded-card frame (LAY-26) has three grounds. `--shell-canvas` (`bg-shell-canvas`) is the
+window's ground under the global bar and the rail: about `#F3F3F3` in light and the page's old
+black in dark. `--shell-card` (`bg-shell-card`) is the page card, one step above it — white in
+light, `oklch(0.185 0 0)` in dark — and the shell re-points `--background` to it inside the card.
+`--shell-column` (`bg-shell-column`) is the module column inside the card, between the two. Only
+`Shell` and the global bar paint them; components keep reading `background` and `sidebar`.
+
 ### Desktop glass
 
 `--glass-ink`, `--glass-ink-muted`, `--glass-edge` and `--glass-dim` belong to the desktop app's

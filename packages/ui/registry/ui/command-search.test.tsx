@@ -1,5 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
+import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import geometryCss from "../../test/geometry.css?inline";
 import { expectNoA11yViolations } from "../../test/a11y";
@@ -214,4 +215,42 @@ test("results are capped at min(60dvh, 520px) and More fits what the row holds (
   } finally {
     sheet.remove();
   }
+});
+
+test("over the bar's box, the Ask chip sits in the field and Enter presses it", async () => {
+  const onAsk = vi.fn();
+  const screen = await render(
+    <CommandSearch open placement="bar">
+      <CommandSearchInput
+        placeholder="Search or ask anything…"
+        trailing={
+          <button type="button" onClick={onAsk}>
+            Ask William
+          </button>
+        }
+      />
+      <CommandSearchResults>
+        <CommandGroup heading="Pages">
+          <CommandItem value="spec">Spec v2</CommandItem>
+        </CommandGroup>
+      </CommandSearchResults>
+    </CommandSearch>,
+  );
+  await opened();
+  // The chip sits inside the field's wrapper, so it reads as part of the box.
+  expect(
+    q("command-search-input")!.contains(q("command-search-trailing")),
+  ).toBe(true);
+  // The test page has no stylesheet, so the dialog's backdrop covers it: click the element.
+  (
+    screen.getByRole("button", { name: "Ask William" }).element() as HTMLElement
+  ).click();
+  expect(onAsk).toHaveBeenCalledOnce();
+  // Enter on the chip presses it, not the highlighted result.
+  (
+    screen.getByRole("button", { name: "Ask William" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Enter}");
+  expect(onAsk).toHaveBeenCalledTimes(2);
+  await expectNoA11yViolations(document.body);
 });

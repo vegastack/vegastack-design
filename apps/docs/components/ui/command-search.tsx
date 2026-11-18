@@ -1,4 +1,4 @@
-// @vegastack command-search@0.112.0 sha256-nIB6t+5fMOE5awp55jzKBzR+YQpzEjJ3bTN0zsYEwM0=
+// @vegastack command-search@0.112.0 sha256-Ub6BYqiLwXOf2W7A2MrX7PvVyLNaoegZumvCy2DlChk=
 
 "use client";
 
@@ -93,6 +93,13 @@ export interface CommandSearchProps extends Omit<
    * @default undefined
    */
   dialogClassName?: string;
+  /**
+   * Where the palette opens: the middle of the window (`center`), or in place of the global bar's
+   * search-or-ask box (`bar`, LAY-26): at the window's top, as wide as the box, so typing in the
+   * box looks like the box growing its results underneath.
+   * @default 'center'
+   */
+  placement?: "center" | "bar";
 }
 
 /**
@@ -123,6 +130,7 @@ export function CommandSearch({
   preview,
   shouldFilter = false,
   dialogClassName,
+  placement = "center",
   className,
   children,
   ...props
@@ -139,6 +147,10 @@ export function CommandSearch({
       description={description}
       className={cn(
         preview ? "data-[size=default]:xl:max-w-6xl" : undefined,
+        // Over the bar's box (the box is 32px in the 44px bar, so the palette starts 4px above it
+        // and its field lands where the box was), as wide as the box (580px, or 42% of the window: the box's own width).
+        placement === "bar" &&
+          "top-1 translate-y-0 data-[size=default]:sm:max-w-[min(36.25rem,max(42vw,24rem),calc(100%-2rem))] data-open:zoom-in-100 data-open:slide-in-from-top-1",
         dialogClassName,
       )}
     >
@@ -158,17 +170,30 @@ export function CommandSearch({
 }
 
 /** Props accepted by `CommandSearchInput`. */
-export type CommandSearchInputProps = React.ComponentProps<typeof CommandInput>;
+export interface CommandSearchInputProps extends React.ComponentProps<
+  typeof CommandInput
+> {
+  /**
+   * A control at the field's end, inside it: the "Ask {name}" chip of a search-or-ask box
+   * (LAY-26). Keep it to one small button.
+   * @default undefined
+   */
+  trailing?: React.ReactNode;
+}
 
 /**
  * `CommandSearchInput` — the palette's search field: `CommandInput` with a thin indeterminate bar
- * along its foot while `CommandSearch` is `pending`.
+ * along its foot while `CommandSearch` is `pending`, and an optional `trailing` control inside the
+ * field's end.
  *
  * @example
  * <CommandSearchInput placeholder="Search or jump to…" value={query} onValueChange={setQuery} />
+ * <CommandSearchInput value={query} onValueChange={setQuery} trailing={<AskChip />} />
  */
 export function CommandSearchInput({
   placeholder = "Search or jump to…",
+  trailing,
+  className,
   ...props
 }: CommandSearchInputProps) {
   const { pending } = React.useContext(CommandSearchContext);
@@ -178,7 +203,21 @@ export function CommandSearchInput({
       data-pending={pending ? "" : undefined}
       className="relative"
     >
-      <CommandInput placeholder={placeholder} {...props} />
+      <CommandInput
+        placeholder={placeholder}
+        className={cn(trailing ? "pe-32" : undefined, className)}
+        {...props}
+      />
+      {trailing ? (
+        <div
+          data-slot="command-search-trailing"
+          // Enter and Space press the control, not the highlighted result (cmdk listens above).
+          onKeyDown={keepKeys}
+          className="absolute end-2 top-[calc(0.25rem+1rem)] flex -translate-y-1/2 items-center"
+        >
+          {trailing}
+        </div>
+      ) : null}
       {pending ? (
         <div
           aria-hidden

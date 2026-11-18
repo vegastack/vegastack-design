@@ -1,4 +1,4 @@
-// @vegastack rail@0.112.0 sha256-UxTQIjZq5D5updjpJf0OSidbr7S7pdh1yd+QYSDmvD4=
+// @vegastack rail@0.112.0 sha256-+Di6E46/PstUBlj1pRRFAwAngIURFznQ6wUhiqpmh7w=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -11,8 +11,10 @@ export { RailIcon, lazyAnimatedIcon } from "@/components/ui/rail-client";
 WHY THIS SHAPE — the module rail (Layout v2, D2).
 
 The rail holds the app's modules and nothing else: about seven items, each an 18px icon on a
-36×28 tile with a short label under it, and a bottom group (`RailBottom`) for Settings. Search,
-Help and the account live in the global bar, and there is no "More" menu: a rail that needs one
+36×28 tile with a short label under it, and a bottom group (`RailBottom`) for Settings. Its two
+fixed ends (LAY-26) are the workspace's logo tile at the top (`RailTop` + `RailTile`) and the
+person's avatar under Settings (`RailTile shape="avatar"`). Search and Help live in the global
+bar, and there is no "More" menu: a rail that needs one
 has too many modules, which is the app's choice to fix, not the rail's. It renders on the server;
 only an item's animated icon (`RailIcon`) is a client leaf.
 
@@ -199,6 +201,100 @@ export function RailItem({
         <span className="max-w-full truncate px-1">{label}</span>
       </>
     ),
+  } as ElementProps);
+}
+
+/**
+ * `RailTop` — the rail's head (LAY-26): the workspace's 36px logo tile above the modules, with a
+ * short rule under it. The tile is the app's own workspace menu trigger; the rail itself still
+ * holds modules only, with the workspace and the account as its two fixed ends.
+ *
+ * @example
+ * <Rail>
+ *   <RailTop><WorkspaceMenu trigger={<RailTile label="Workspace: Acme">A</RailTile>} /></RailTop>
+ *   <RailItem icon={<Home />} label="Home" href="/" active />
+ * </Rail>
+ */
+export function RailTop({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="rail-top"
+      className={cn(
+        "flex flex-none flex-col items-center gap-2 pt-0.5 pb-1.5",
+        className,
+      )}
+      {...props}
+    >
+      {children}
+      <span aria-hidden="true" className="h-px w-7 bg-border" />
+    </div>
+  );
+}
+
+/** Props accepted by `RailTile`. */
+export interface RailTileProps extends Omit<
+  React.ComponentProps<"button">,
+  "children"
+> {
+  /** The button's accessible name ("Workspace: Acme — switch workspace"). */
+  label: string;
+  /** The tile's face: a logo image or the workspace's initial. */
+  children: React.ReactNode;
+  /**
+   * `tile`: the workspace's 36px logo tile in `RailTop`. `avatar`: the person's round 32px avatar
+   * under Settings in `RailBottom`, which opens the account menu.
+   * @default 'tile'
+   */
+  shape?: "tile" | "avatar";
+  /** The app's own element; its props win. @default undefined */
+  render?: React.ReactElement;
+}
+
+/**
+ * `RailTile` — a button at the rail's ends: the workspace's 36px logo tile in `RailTop`, or the
+ * person's round 32px avatar under Settings (`shape="avatar"`). Pass a logo `<img>`, an initial
+ * or an avatar as its children; a ring in the canvas, then a hairline, marks it as pressable.
+ *
+ * @example
+ * <RailTile label="Workspace: Acme — switch workspace"><img src={logo} alt="" /></RailTile>
+ * <RailBottom>
+ *   <RailItem icon={<Settings2 />} label="Settings" href="/settings" />
+ *   <RailTile shape="avatar" label="Ada Lovelace, account"><Avatar … /></RailTile>
+ * </RailBottom>
+ */
+export function RailTile({
+  label,
+  shape = "tile",
+  render,
+  className,
+  children,
+  ...props
+}: RailTileProps) {
+  const element = render ?? <ButtonPrimitive />;
+  const ownProps = element.props as ElementProps;
+  return React.cloneElement(element, {
+    ...props,
+    ...ownProps,
+    "data-slot": "rail-tile",
+    "data-shape": shape,
+    "aria-label": label,
+    className: cn(
+      "relative grid flex-none place-items-center self-center overflow-hidden font-semibold outline-none transition-[box-shadow] duration-instant [&_img]:size-full [&_img]:object-cover [&_[data-slot=avatar]]:size-full",
+      // The focus tint (FOC-13) paints over the logo or the avatar, which would hide it beneath.
+      "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] focus-visible:after:bg-state-focus",
+      shape === "avatar"
+        ? "mt-2.5 size-8 rounded-chip text-xs [&_[data-slot=avatar]]:size-full"
+        : "size-9 rounded-tile bg-primary text-base text-primary-foreground",
+      // A ring in the canvas, then a hairline: the tile reads as pressable without a border of its own.
+      "shadow-[0_0_0_2px_var(--sidebar),0_0_0_3.5px_var(--border)] hover:shadow-[0_0_0_2px_var(--sidebar),0_0_0_3.5px_var(--input-hover)] data-popup-open:shadow-[0_0_0_2px_var(--sidebar),0_0_0_3.5px_var(--input-focus)]",
+      className,
+      ownProps.className,
+    ),
+    children,
   } as ElementProps);
 }
 

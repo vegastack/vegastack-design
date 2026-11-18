@@ -1,6 +1,6 @@
 ---
 title: Global Bar
-description: The 44px bar across the top of every page — column toggle, history and workspace, search (⌘K), then Ask (⌘J), Help and account. The desktop title row.
+description: The 44px bar across the top of every page — the column toggle, then History and one search-or-ask box (⌘K, ⌘J), then ? Help. The desktop title row.
 audience: public
 registry: global-bar
 status: stable
@@ -18,8 +18,8 @@ preview: globalBar
 ```tsx
 import {
   GlobalBar,
-  GlobalBarAsk,
   GlobalBarCenter,
+  GlobalBarHelp,
   GlobalBarHistory,
   GlobalBarLeading,
   GlobalBarSearch,
@@ -32,16 +32,18 @@ import { ShellColumnToggle } from "@/components/ui/shell";
     <GlobalBar>
       <GlobalBarLeading>
         <ShellColumnToggle />
-        {desktopHistory ? <GlobalBarHistory history={desktopHistory} /> : null}
-        <WorkspaceSwitcher />
       </GlobalBarLeading>
       <GlobalBarCenter>
-        <GlobalBarSearch onClick={openSearch} />
+        {desktopHistory ? <GlobalBarHistory history={desktopHistory} /> : null}
+        <RecentButton />
+        <GlobalBarSearch
+          label="Search or ask anything…"
+          onClick={openSearch}
+          ask={{ label: "Ask William", onClick: openAssistant }}
+        />
       </GlobalBarCenter>
       <GlobalBarTrailing>
-        <GlobalBarAsk onClick={openAsk} />
-        <HelpMenu trigger={helpButton} … />
-        <AccountMenu />
+        <HelpMenu trigger={<GlobalBarHelp dot={unread ? "new updates" : undefined} />} … />
       </GlobalBarTrailing>
     </GlobalBar>
   }
@@ -50,7 +52,9 @@ import { ShellColumnToggle } from "@/components/ui/shell";
 ```
 
 One bar runs the full width of the window above the rail, the column and the page, on every page.
-The centre slot stays centred on the window whatever the two sides hold. In a browser, the leading
+It sits on the window's canvas (`--shell-canvas`) beside the rail, above the page's rounded card
+(LAY-26). The centre slot stays centred on the window whatever the two sides hold. The workspace
+and the account are not here: they are the rail's two ends (`RailTile`). In a browser, the leading
 slot's first control sits on the rail's centre line, so the bar and the rail share one axis. The
 column toggle hides itself on a screen with no column.
 
@@ -61,6 +65,20 @@ column toggle hides itself on a screen with no column.
 <Anatomy name="global-bar" />
 
 ## Examples
+
+### One box to search or ask
+
+With `ask`, `GlobalBarSearch` is a 32px pill with an `Ask {name}` chip and its shortcut (⌘J) at its
+end. The pill opens the app's search palette (open `CommandSearch` with `placement="bar"` so the
+palette grows from the box); the chip opens the assistant. Give the chip the assistant's element in
+`controls` and its open state in `expanded`. As the bar narrows the words fold to icons, the box
+first.
+
+### ? Help
+
+`GlobalBarHelp` is the trailing slot's ghost pill: the help icon and "Help", with a brand-blue dot
+while there is something new the person hasn't seen. Pass the words the dot means as `dot` ("new
+updates"); they are read after the label. Use it as a `HelpMenu`'s trigger.
 
 ### The desktop app's title row
 
@@ -95,18 +113,20 @@ Under 40rem of shell the bar is hidden: a phone has its own one-row top bar and 
   name="GlobalBarSearchProps"
 />
 
-### GlobalBarAsk
+### GlobalBarHelp
 
 <ApiTable
-  path="../../packages/ui/registry/ui/global-bar-client.tsx"
-  name="GlobalBarAskProps"
+  path="../../packages/ui/registry/ui/global-bar.tsx"
+  name="GlobalBarHelpProps"
 />
 
 ## Accessibility
 
 - The bar is the app's `<header>`; F6 reaches it first, before the rail, column, top bar and page.
-- The search and Ask triggers name their shortcut with `aria-keyshortcuts` (⌘K and ⌘J on a Mac,
-  Ctrl+K and Ctrl+J elsewhere); the printed key is hidden from screen readers.
+- The search box and its Ask chip name their shortcut with `aria-keyshortcuts` (⌘K and ⌘J on a
+  Mac, Ctrl+K and Ctrl+J elsewhere); the printed key is hidden from screen readers. The chip
+  carries `aria-controls` and `aria-expanded` for the assistant.
+- Help's dot is decorative; its meaning is in the button's name ("Help (new updates)").
 - Back and Forward are disabled when the window cannot go there.
 
 <StatesTested name="global-bar" />
@@ -114,6 +134,6 @@ Under 40rem of shell the bar is hidden: a phone has its own one-row top bar and 
 ## Do / Don't
 
 <DoDont
-  do="Put the app's own controls here: the column, history, workspace, search, Ask, Help and the account."
+  do="Put the app's own controls here: the column, history, the search-or-ask box and Help."
   dont="Put a page's actions in the global bar; they belong in the page's top bar (ShellTopBar)."
 />

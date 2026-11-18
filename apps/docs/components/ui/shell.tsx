@@ -1,4 +1,4 @@
-// @vegastack shell@0.113.0 sha256-rIO58mxhTCSc2y3DI6969Aib7JokDujFrq2GXP4sfZk=
+// @vegastack shell@0.113.0 sha256-7lo7vPuER9Nt6VwEhUHClGPgD5F4bz7NXwAO74kwyTk=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -88,6 +88,10 @@ ${S}[data-has-global-bar] { --shell-globalbar-room: var(--shell-globalbar-height
 }
 ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100%; }
 [data-slot="shell-rail-area"] { display: none; }
+/* The page card (LAY-26): on a phone it is no box of its own; from 40rem it is the rounded card. */
+[data-slot="shell-card"] { display: contents; }
+/* The assistant's box: no box of its own, so a docked card is the room's flex item. */
+[data-slot="shell-assistant-area"] { display: contents; }
 [data-slot="shell-fit"] {
   position: relative;
   flex: 1 1 0%;
@@ -202,26 +206,68 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   /* The global bar takes its 44px row; the rail, column and page share the rest. */
   [data-slot="shell-room"] { height: calc(100dvh - var(--shell-globalbar-room)); min-height: 0; }
   ${S}[data-fill="parent"] > [data-slot="shell-room"] { height: calc(100% - var(--shell-globalbar-room)); }
+  /* The rounded-card frame (LAY-26): the global bar and the rail sit on the window's canvas, and
+     the column and the page share one card, inset from the window's end and bottom edges. Inside
+     the card the page's ground is the card's and the column's is its own, so every surface that
+     paints bg-background or bg-sidebar follows without knowing about the frame. */
+  [data-slot="shell-room"] { background: var(--shell-canvas); }
   [data-slot="shell-rail-area"] {
     display: flex;
     flex: none;
     flex-direction: column;
     width: ${RAIL};
-    background: var(--sidebar);
+    --sidebar: var(--shell-canvas);
+    --color-sidebar: var(--shell-canvas);
+    background: var(--shell-canvas);
     color: var(--sidebar-foreground);
-    border-inline-end: 1px solid var(--sidebar-border);
     contain: layout paint;
   }
-  [data-slot="shell-main-area"] {
-    height: 100%;
-    border-inline-start: 1px solid var(--sidebar-border);
+  [data-slot="shell-card"] {
+    --background: var(--shell-card);
+    --color-background: var(--shell-card);
+    position: relative;
+    display: flex;
+    flex: 1 1 0%;
+    min-width: 0;
+    margin-block: 0 var(--shell-card-inset);
+    margin-inline: 0 var(--shell-card-inset);
+    border: 1px solid var(--border);
+    border-radius: var(--shell-card-radius);
+    background: var(--shell-card);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.04);
+    overflow: clip;
   }
+  [data-slot="shell-column-area"] {
+    --sidebar: var(--shell-column);
+    --color-sidebar: var(--shell-column);
+    border-inline-end: 1px solid var(--border);
+  }
+  [data-slot="shell-main-area"] { height: 100%; }
+  /* The assistant docked beside the page: a second card with the same inset and corners (split
+     view). Floating and popped out, it places itself (shell-assistant). */
+  [data-slot="shell-assistant-area"] > [data-slot="assistant-card"][data-place="dock"] {
+    --background: var(--shell-card);
+    --color-background: var(--shell-card);
+    position: relative;
+    inset: auto;
+    flex: none;
+    width: min(var(--shell-assistant-width), 45cqw);
+    height: auto;
+    max-width: none;
+    max-height: none;
+    margin-block: 0 var(--shell-card-inset);
+    margin-inline: 0 var(--shell-card-inset);
+    border-radius: var(--shell-card-radius);
+    background: var(--shell-card);
+    box-shadow: 0 1px 2px oklch(0 0 0 / 0.04);
+  }
+  [data-slot="shell-assistant-area"] > [data-slot="assistant-card"][data-place="dock"]:not([data-open]) { display: none; }
   [data-slot="shell-content"] { overflow-y: auto; overscroll-behavior-y: contain; }
   ${FLOAT} [data-slot="shell-column-area"] {
     visibility: visible;
     opacity: 1;
     z-index: 40;
-    border-inline-end: 1px solid var(--sidebar-border);
+    border-inline-end: 1px solid var(--border);
     box-shadow: 0.5rem 0 2rem -0.25rem oklch(0 0 0 / 0.16), 0.0625rem 0 0.125rem oklch(0 0 0 / 0.06);
     transition: opacity var(--duration-quick) var(--motion-ease-standard), visibility 0s;
   }
@@ -250,8 +296,8 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
 }
 }
 @media print {
-  ${S} :is([data-slot="shell-rail-area"], [data-slot="shell-column-area"], [data-slot="global-bar"], [data-slot="shell-topbar"], [data-slot="shell-floating-area"], [data-slot="shell-bottombar"], [data-slot="shell-scrim"], [data-slot="shell-skip"]) { display: none; }
-  ${S}, [data-slot="shell-room"], [data-slot="shell-main-area"] { height: auto; width: auto; overflow: visible; margin: 0; border: 0; display: block; }
+  ${S} :is([data-slot="shell-rail-area"], [data-slot="shell-column-area"], [data-slot="assistant-card"], [data-slot="global-bar"], [data-slot="shell-topbar"], [data-slot="shell-floating-area"], [data-slot="shell-bottombar"], [data-slot="shell-scrim"], [data-slot="shell-skip"]) { display: none; }
+  ${S}, [data-slot="shell-room"], [data-slot="shell-card"], [data-slot="shell-main-area"] { height: auto; width: auto; overflow: visible; margin: 0; border: 0; display: block; }
   [data-slot="shell-fit"] { margin: 0; }
   [data-slot="shell-content"] { overflow: visible; padding: 0; }
 }
@@ -285,6 +331,13 @@ export interface ShellProps extends Omit<
   /** Floating items at the page's bottom-right: a `ShellFloatingArea`. @default undefined */
   floating?: React.ReactNode;
   /**
+   * The assistant: an `AssistantCard`. It renders beside the page card, so one element can dock
+   * there as a second card (`place="dock"`, the split view), float over the page's corner or pop
+   * out, and the chat inside it never remounts when it moves (LAY-26).
+   * @default undefined
+   */
+  assistant?: React.ReactNode;
+  /**
    * What the shell fills: the window (`viewport`; the page scrolls the document on phones so the
    * browser's toolbars can compact) or its parent (`parent`; a preview or an embedded frame).
    * @default 'viewport'
@@ -296,7 +349,10 @@ export interface ShellProps extends Omit<
 
 /**
  * `Shell` — the frame every screen sits in: a 44px global bar across the top, then a 64px module
- * rail, the module's 240px column and the page under its 48px top bar (LAY-22). It
+ * rail, the module's 240px column and the page under its 48px top bar (LAY-22). From 40rem the
+ * bar and the rail sit on the window's canvas and the column and the page share one rounded card
+ * inset from the window's end and bottom edges, with the assistant docked as a second card beside
+ * it (LAY-26). It
  * lays itself out in CSS before hydration, from the data attributes it renders and the marks
  * `ShellStateScript` leaves.
  *
@@ -319,6 +375,7 @@ export function Shell({
   defaultColumnOpen = true,
   bottomBar,
   floating,
+  assistant,
   fill = "viewport",
   className,
   style,
@@ -351,23 +408,27 @@ export function Shell({
       {globalBar}
       <div data-slot="shell-room">
         <div data-slot="shell-rail-area">{rail}</div>
-        <div data-slot="shell-fit">
-          {hasColumn ? (
-            <div
-              data-slot="shell-column-area"
-              data-shell-region="column"
-              tabIndex={-1}
-              className="outline-none"
-            >
-              {column}
-              <ShellColumnResize />
+        <div data-slot="shell-card">
+          <div data-slot="shell-fit">
+            {hasColumn ? (
+              <div
+                data-slot="shell-column-area"
+                data-shell-region="column"
+                tabIndex={-1}
+                className="outline-none"
+              >
+                {column}
+                <ShellColumnResize />
+              </div>
+            ) : null}
+            <div data-slot="shell-main-area">
+              {children}
+              {floating}
             </div>
-          ) : null}
-          <div data-slot="shell-main-area">
-            {children}
-            {floating}
           </div>
         </div>
+        {/* A stable box for the assistant: the phone sheet makes it inert as a whole. */}
+        <div data-slot="shell-assistant-area">{assistant}</div>
       </div>
       {hasColumn ? <div data-slot="shell-scrim" aria-hidden="true" /> : null}
       {bottomBar}

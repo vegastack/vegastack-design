@@ -146,7 +146,7 @@
         "whenToUse": "Code that must know where the shell puts the column without a DOM — a server render, a test, a docs table — or the shell's sizes and cookie format.",
         "whenNotToUse": "Laying the shell out: Shell does that in CSS before hydration; read the live outcome with useShellLayout.",
         "version": "0.107.0",
-        "integrity": "sha256-NQJwAop3lYjTtMzQ6OpGf8K0/+NOGYjTPKcHEvkjxjc="
+        "integrity": "sha256-fEjIl9WmSDhiEbsupT+DRxL8oUaAA0MKwLYHkftBCAs="
       }
     },
     {
@@ -194,7 +194,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.113.0",
-        "integrity": "sha256-rIO58mxhTCSc2y3DI6969Aib7JokDujFrq2GXP4sfZk="
+        "integrity": "sha256-7lo7vPuER9Nt6VwEhUHClGPgD5F4bz7NXwAO74kwyTk="
       }
     },
     {
@@ -260,7 +260,7 @@
         "whenToUse": "The shell's top row (Shell's globalBar), in the browser and as the desktop app's title row.",
         "whenNotToUse": "A page's own header and actions (ShellTopBar), or a phone's top row.",
         "version": "0.112.0",
-        "integrity": "sha256-OiPSnE5V2OHaFHPx/EGK4aJ9p1IqNhrsv1etzTqSexY="
+        "integrity": "sha256-ysvrq3Un8D461GUo5iJaLfvegnhc12ahL4dgleCKsdc="
       }
     },
     {
@@ -293,7 +293,7 @@
         "whenToUse": "The app's modules in the shell (Shell's rail).",
         "whenNotToUse": "A module's own places (NavTree in the column), search, help or the account (the global bar), or a phone (ShellBottomBar).",
         "version": "0.112.0",
-        "integrity": "sha256-UxTQIjZq5D5updjpJf0OSidbr7S7pdh1yd+QYSDmvD4="
+        "integrity": "sha256-+Di6E46/PstUBlj1pRRFAwAngIURFznQ6wUhiqpmh7w="
       }
     },
     {
@@ -20935,7 +20935,8 @@
         "@vegastack/peek",
         "@vegastack/rail",
         "@vegastack/shell",
-        "@vegastack/members-stack"
+        "@vegastack/members-stack",
+        "@vegastack/shell-assistant"
       ],
       "files": [
         {
@@ -20953,7 +20954,7 @@
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.113.0",
-        "integrity": "sha256-AZmmsMAgDvgiG+s/L4a2WU8I/V6SajRlu7cs2Zrem3Q="
+        "integrity": "sha256-Hwbw78zpm2Jph2e932WCNT5//ol9MiQ0D3owhdv7JP4="
       }
     },
     {
@@ -24386,7 +24387,7 @@
         "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
         "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (ListToolbar's search).",
         "version": "0.112.0",
-        "integrity": "sha256-nIB6t+5fMOE5awp55jzKBzR+YQpzEjJ3bTN0zsYEwM0="
+        "integrity": "sha256-Ub6BYqiLwXOf2W7A2MrX7PvVyLNaoegZumvCy2DlChk="
       }
     },
     {
@@ -24510,7 +24511,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.112.0",
-        "integrity": "sha256-D8xu4YH58BL4qwKZv0tjbouXimLLkkjzNoBZpffi+dU="
+        "integrity": "sha256-6pbDk6jHRn6KYz9PmCkcHTlEbDboOAYdmAisEHZwUNo="
       }
     }
   ]

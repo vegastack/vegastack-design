@@ -48,6 +48,11 @@ const NEUTRAL_SURFACES = [
   "accent",
   "secondary",
   "sidebar",
+  // LAY-26: the rounded-card frame's grounds (the canvas under the rail and global bar, the page card,
+  // the column inside it).
+  "shell-canvas",
+  "shell-card",
+  "shell-column",
 ];
 
 // Canonical (background, foreground) pairs. FAIL-CLOSED: every listed token must exist in both
@@ -362,10 +367,11 @@ export function checkTheme(css) {
       for (const name of NEUTRAL_SURFACES) {
         // The pressed step lasts one click. Over a `muted`-family well it lands at 4.44:1 for
         // secondary text — a transient frame, not reading text — so it is gated on the surfaces
-        // rows live on (page, card, popover, sidebar) and the resting steps are gated everywhere.
+        // rows live on (page, card, popover, sidebar) and the resting steps are gated everywhere. The
+        // frame's canvas (LAY-26) is a `muted`-lightness ground under the rail: the same 4.44:1 click.
         if (
           layer === "state-pressed" &&
-          ["muted", "accent", "secondary"].includes(name)
+          ["muted", "accent", "secondary", "shell-canvas"].includes(name)
         )
           continue;
         const surface = need(theme, vars, name, layer);

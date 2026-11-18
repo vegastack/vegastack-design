@@ -684,6 +684,33 @@
     "$type": "color",
     "$value": "{color.neutral.900}"
   },
+  "shell-canvas": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.964, 0, 0],
+      "alpha": 1
+    },
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the window's ground around the frame's card. The global bar and the rail sit on it (light about #F3F3F3, a step under `muted`, dark about #0A0A0A). Read it as `bg-shell-canvas`."
+  },
+  "shell-card": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [1, 0, 0],
+      "alpha": 1
+    },
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, one step above the canvas in both themes (light white, dark about #131313). The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
+  },
+  "shell-column": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.985, 0, 0],
+      "alpha": 1
+    },
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the module column inside the card, between the canvas and the card (light the same as `sidebar`, dark about #0E0E0E). The shell sets `--sidebar` to it inside the column. Read it as `bg-shell-column`."
+  },
   "radius": {
     "$type": "dimension",
     "$value": {
@@ -976,6 +1003,30 @@
       "unit": "rem"
     },
     "$description": "LAY-24 (ours, Regent operator 2026-11-17, Layout v2 D1): 44px: the global bar over the rail, the column and the page; the desktop app's title row."
+  },
+  "shell-card-inset": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.5,
+      "unit": "rem"
+    },
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 8px: the gap between the page card (and the docked assistant's card) and the window's end and bottom edges. The card meets the rail and the global bar with no gap of its own. Not on phones (under 40rem), where the page is full bleed."
+  },
+  "shell-card-radius": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.75,
+      "unit": "rem"
+    },
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 12px: the corners of the page card and of the docked assistant's card. It is the frame's own radius, like `--chat-card-radius`, not a component role."
+  },
+  "shell-assistant-width": {
+    "$type": "dimension",
+    "$value": {
+      "value": 25,
+      "unit": "rem"
+    },
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 400px: the assistant docked beside the page as a second card (split view)."
   },
   "shell-bottombar-height": {
     "$type": "dimension",

@@ -1913,6 +1913,8 @@
               "name": "data-slot",
               "values": [
                 "shell",
+                "shell-assistant-area",
+                "shell-card",
                 "shell-column-area",
                 "shell-fit",
                 "shell-main-area",
@@ -2415,24 +2417,6 @@
           }
         },
         {
-          "name": "GlobalBarAsk",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/global-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "GlobalBarAskProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/global-bar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "GlobalBarCenter",
           "kind": "component",
           "source": "packages/ui/registry/ui/global-bar.tsx",
@@ -2512,6 +2496,33 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "GlobalBarHelp",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarHelpProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "GlobalBarSearchAsk",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/global-bar.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "dataAttributes": {
@@ -2564,20 +2575,24 @@
           ],
           "cssVariables": []
         },
-        "GlobalBarSearch": {
+        "GlobalBarHelp": {
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["global-bar-search"]
+              "values": ["global-bar-help", "global-bar-help-dot"]
             }
           ],
           "cssVariables": []
         },
-        "GlobalBarAsk": {
+        "GlobalBarSearch": {
           "attributes": [
             {
+              "name": "data-ask",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
-              "values": ["global-bar-ask"]
+              "values": ["global-bar-search", "global-bar-search-ask"]
             }
           ],
           "cssVariables": []
@@ -2766,6 +2781,33 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "RailTile",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailTileProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RailTop",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/rail.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "dataAttributes": {
@@ -2796,6 +2838,15 @@
             {
               "name": "data-slot",
               "values": ["rail-dot"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RailTop": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["rail-top"]
             }
           ],
           "cssVariables": []
@@ -48975,7 +49026,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["command-search-input", "command-search-progress"]
+              "values": [
+                "command-search-input",
+                "command-search-progress",
+                "command-search-trailing"
+              ]
             }
           ],
           "cssVariables": []
@@ -51839,6 +51894,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "AssistantPlace",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/shell-assistant.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -51921,6 +51985,10 @@
             {
               "name": "data-open",
               "values": [""]
+            },
+            {
+              "name": "data-place",
+              "values": []
             },
             {
               "name": "data-slot",
@@ -56518,7 +56586,8 @@
         "@vegastack/peek",
         "@vegastack/rail",
         "@vegastack/shell",
-        "@vegastack/members-stack"
+        "@vegastack/members-stack",
+        "@vegastack/shell-assistant"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",

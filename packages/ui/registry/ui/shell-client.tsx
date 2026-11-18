@@ -1,4 +1,4 @@
-// @vegastack shell@0.113.0 sha256-rIO58mxhTCSc2y3DI6969Aib7JokDujFrq2GXP4sfZk=
+// @vegastack shell@0.113.0 sha256-7lo7vPuER9Nt6VwEhUHClGPgD5F4bz7NXwAO74kwyTk=
 
 "use client";
 
@@ -185,6 +185,8 @@ export function ShellController() {
         mainArea,
         railArea,
         root.querySelector<HTMLElement>('[data-slot="shell-bottombar"]'),
+        // The assistant's area (LAY-26), whatever the card in it does with its own inertness.
+        root.querySelector<HTMLElement>('[data-slot="shell-assistant-area"]'),
       ].filter((el): el is HTMLElement => el !== null);
     const setSheet = (modal: boolean) => {
       for (const el of behindSheet()) el.toggleAttribute("inert", modal);

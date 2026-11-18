@@ -17239,7 +17239,8 @@
         "@vegastack/peek",
         "@vegastack/rail",
         "@vegastack/shell",
-        "@vegastack/members-stack"
+        "@vegastack/members-stack",
+        "@vegastack/shell-assistant"
       ],
       "files": [
         {

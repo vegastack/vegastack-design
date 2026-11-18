@@ -29,7 +29,12 @@ test("tablets keep the column out of the flow, so it slides over", () => {
 test("laptops keep the column in the flow while the person keeps it open", () => {
   expect(resolveShellLayout({ width: 1280, columnOpen: true })).toMatchObject({
     columnShown: true,
-    pageWidth: 1280 - SHELL_SIZES.rail - SHELL_SIZES.divider - 240,
+    pageWidth:
+      1280 -
+      SHELL_SIZES.rail -
+      SHELL_SIZES.cardInset -
+      2 * SHELL_SIZES.divider -
+      240,
   });
   expect(
     resolveShellLayout({ width: 1280, columnOpen: false }).columnShown,
