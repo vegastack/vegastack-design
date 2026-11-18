@@ -3021,8 +3021,8 @@
       "meta": {
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
-        "version": "0.116.0",
-        "integrity": "sha256-7Lx6ebMwysITRshR8mhDeUPMS+i8f14tODBN0+At9ts="
+        "version": "0.116.4",
+        "integrity": "sha256-oso10Mz3vgZA2Of7okWM6YCj04dnXRbPpHn1iT3j9gk="
       }
     },
     {
@@ -16627,8 +16627,8 @@
       "meta": {
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
-        "version": "0.116.0",
-        "integrity": "sha256-rJ7n//9Amvt6GFtrLRl05scfnvfg3etqx42UcRvYz3o="
+        "version": "0.116.4",
+        "integrity": "sha256-R17AqxC2YMIfmM6/gYXqCWz2BOwrF+3kJ5w573U8OCE="
       }
     },
     {
@@ -18678,8 +18678,8 @@
       "meta": {
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
-        "version": "0.116.0",
-        "integrity": "sha256-EN+LdPyL0K7HKL+p6MOMt+yAcRdbnmZsVNg+XAq2QYI="
+        "version": "0.116.4",
+        "integrity": "sha256-c12jbjMdKqZTGQPoD8Ws/M3nOjBrKMN2DsKhNCIjZDY="
       }
     },
     {
