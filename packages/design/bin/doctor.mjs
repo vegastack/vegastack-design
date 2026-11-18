@@ -149,7 +149,7 @@ function readJson(path) {
 const GUIDE = "https://design.vegastack.com/docs/guides/migrating-shadcn-reset";
 const HEADING_HINT = {
   "text-h1":
-    "PageHeader (font-heading text-2xl font-semibold, the page heading)",
+    "PageHeader (font-heading text-page-title font-semibold, the page heading)",
   "text-h2": "font-heading text-base font-medium (section heading)",
   "text-h3": "text-lg font-semibold",
   "text-h4": "text-base font-medium (card / dialog title)",

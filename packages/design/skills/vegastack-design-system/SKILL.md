@@ -413,7 +413,7 @@ contract.
   rest); the filled primary `Button` is only the page's top-bar action and a dialog's confirm.
 - Set numbers — counts, dates, amounts, quantities — in the regular font with `tabular-nums`, and
   right-align a numeric column. `font-mono` is for code and identifiers (`SYS-1042`) only.
-- Title a page with `PageHeader` (`font-heading text-2xl font-semibold`); a section heading is
+- Title a page with `PageHeader` (`font-heading text-page-title font-semibold`, 26/600); a section heading is
   `font-heading text-base font-medium`, a group label `text-xs font-medium text-muted-foreground`.
 - Give every corner its ROLE, never a size (BRD-12): `rounded-control` for a single-line control,
   `rounded-icon` for an icon-only button, `rounded-chip`, `rounded-inline` for a token inside text,

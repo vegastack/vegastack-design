@@ -152,20 +152,21 @@ at 14px — is real and is kept; its `sm` half-step resolves down onto the ramp.
 `body` and never on `html`: `rem` resolves against the root, so an `html` size would rescale every
 token and override the reader's browser preference.
 
-There are no role utilities. Write the two or three stock utilities each one stood for:
+There are no role utilities but one: `text-page-title` (26/32, TYP-21), the size of a page's title
+(`PageHeader`'s) and of nothing else. For the rest, write the two or three stock utilities each one stood for:
 
-| was               | write                                                               |
-| ----------------- | ------------------------------------------------------------------- |
-| `text-h1`         | `font-heading text-2xl font-semibold` (a page title — `PageHeader`) |
-| `text-h2`         | `font-heading text-base font-medium` (a section heading)            |
-| `text-h3`         | `text-lg font-semibold`                                             |
-| `text-h4`         | `text-base font-medium`                                             |
-| `text-label`      | `text-sm font-medium`                                               |
-| `text-label-sm`   | `text-xs font-medium`                                               |
-| `text-code`       | `font-mono text-sm`                                                 |
-| `text-code-sm`    | `font-mono text-xs`                                                 |
-| `text-mono-label` | `text-xs font-medium` (a label is sans)                             |
-| `text-display-*`  | `text-4xl` … `text-7xl`                                             |
+| was               | write                                                                      |
+| ----------------- | -------------------------------------------------------------------------- |
+| `text-h1`         | `font-heading text-page-title font-semibold` (a page title — `PageHeader`) |
+| `text-h2`         | `font-heading text-base font-medium` (a section heading)                   |
+| `text-h3`         | `text-lg font-semibold`                                                    |
+| `text-h4`         | `text-base font-medium`                                                    |
+| `text-label`      | `text-sm font-medium`                                                      |
+| `text-label-sm`   | `text-xs font-medium`                                                      |
+| `text-code`       | `font-mono text-sm`                                                        |
+| `text-code-sm`    | `font-mono text-xs`                                                        |
+| `text-mono-label` | `text-xs font-medium` (a label is sans)                                    |
+| `text-display-*`  | `text-4xl` … `text-7xl`                                                    |
 
 `font-semibold`, `font-bold` and `text-4xl`+ are ordinary utilities: TYP-4 and TYP-8 are decided as
 shadcn. `tracking-*` is NOT — TYP-6's "tracking is owned by roles" is gone, but TYP-15 puts tracking

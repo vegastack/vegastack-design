@@ -279,8 +279,8 @@ import { SectionHeading } from "@/components/ui/page-header";
 - The root renders `<header>`, a banner landmark when `PageHeader` sits at the top of the page
   (outside `<article>`/`<aside>`/`<main>`/`<nav>`/`<section>`), so assistive tech can jump straight
   to it.
-- The title renders as a single `<h1>` in the page-heading face (`font-heading text-2xl
-font-semibold`) — one per page — so assistive tech announces the page's primary heading. Pass the breadcrumb as a labelled `<nav aria-label="breadcrumb">`.
+- The title renders as a single `<h1>` in the page-heading face (`font-heading text-page-title
+font-semibold`, 26/600) — one per page — so assistive tech announces the page's primary heading. Pass the breadcrumb as a labelled `<nav aria-label="breadcrumb">`.
 - An overlong title is keyboard-focusable when clipped (`TruncatedText`'s overflow measurement),
   so the full title is reachable via `Tab` and a focus-triggered tooltip — not hover-only.
 - The back affordance is a real link (`backRender` or `backHref`) or button (`onBack`) with an accessible

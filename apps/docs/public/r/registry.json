@@ -17698,7 +17698,7 @@
         "whenToUse": "The header band at the top of a page — title plus back/breadcrumb nav (backRender for a framework link), actions, favorite, and a meta row that can hold badges and inline pickers.",
         "whenNotToUse": "App-shell chrome (top nav/sidebar) or a section heading inside a page.",
         "version": "0.111.0",
-        "integrity": "sha256-tR6eQoOFjpI0vrZooO8ajFx2fUkdvs8l5N0rWl2lnDg="
+        "integrity": "sha256-cgDk2PoSi3KwkA27sPAW+2O3lndDIXjsaKhSFZ0fhTc="
       }
     },
     {
