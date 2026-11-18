@@ -1,6 +1,6 @@
 ---
 title: Shell Assistant
-description: The assistant's chat in three places — docked beside the page, floating at its corner, or popped out as a window you drag anywhere.
+description: The assistant's chat in two places — docked beside the page, or floating over it as a card you drag anywhere and resize.
 audience: public
 registry: shell-assistant
 status: stable
@@ -69,18 +69,21 @@ presentational: the host fetches and sends.
 
 ## Examples
 
-### Three places
+### Two places
 
-`place` puts the same card in one of three places (LAY-26). `dock` is a second card beside the
+`place` puts the same card in one of two places (LAY-26). `dock` is a second card beside the
 page, the split view: render the card as `Shell`'s `assistant` and the shell gives it 400px and the
-page card's inset and corner; docked it is a region of the frame, not a dialog. `float` is the
-compact card over the page area's corner. `popout` is a window of its own over the app: it opens
-centred, drags by its header, resizes from its corner and stays inside the window.
+page card's inset and corner; docked it is a region of the frame, not a dialog. `float` is a card
+over the page, a non-modal dialog: it opens at the page area's bottom-end corner, drags by its
+header to anywhere in the window (then it sits over everything and stays inside the window), and
+resizes from its top-start corner. Alt and an arrow key move it from the keyboard (with Shift,
+further).
 
-Give the header `place` and `onPlaceChange` and it offers the other places: floating, "Dock beside
-the page" and "Pop out"; docked, "Float as a card" and "Pop out"; popped out, "Dock beside the page"
-and "Back into the app". `places` narrows the offer (a host with its own pop-out window, a phone).
-Render one card in `Shell`'s `assistant` slot whatever its place — floating, it sits at the window's bottom-end corner over the page card; popped out, over everything — so nothing inside it remounts when it moves. Popped out, Alt and an arrow key move it from the keyboard (with Shift, further).
+Give the header `place` and `onPlaceChange` and it offers the one other place: docked, "Float
+over the page"; floating, "Dock beside the page". A host that moves the chat somewhere of its own
+instead — a desktop app's own window, a phone's bottom sheet — omits both and puts its own tool in
+`actions`. Render one card in `Shell`'s `assistant` slot whatever its place, so nothing inside it
+remounts when it moves.
 
 ### Without a context
 

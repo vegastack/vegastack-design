@@ -24513,7 +24513,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.117.0",
-        "integrity": "sha256-VPL7KK+4zSAWZX9TtZpLYR0G2fI2d6IMSW/VzqLleK8="
+        "integrity": "sha256-/Qx1p84Z0BzKZpR9HxZMerU2Na2MW9gvuq7MfbSZPAc="
       }
     }
   ]

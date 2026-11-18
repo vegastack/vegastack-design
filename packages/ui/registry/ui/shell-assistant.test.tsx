@@ -213,34 +213,34 @@ function Places() {
   );
 }
 
-test("the header offers the other places, and the card moves without losing its content", async () => {
+test("the header offers the other place, and the card moves without losing its content", async () => {
   const screen = await render(<Places />);
   const card = () =>
     document.querySelector<HTMLElement>('[data-slot="assistant-card"]')!;
   expect(card().dataset.place).toBe("float");
-  await expect
-    .element(screen.getByRole("button", { name: "Dock beside the page" }))
-    .toBeVisible();
-  await screen.getByRole("button", { name: "Pop out" }).click();
-  expect(card().dataset.place).toBe("popout");
-  expect(card().getAttribute("role")).toBe("dialog");
+  await screen.getByRole("button", { name: "Dock beside the page" }).click();
+  expect(card().dataset.place).toBe("dock");
+  expect(card().getAttribute("role")).toBe("region");
   // The button that moved it is gone: focus stays in the card, not on the page.
   await expect.poll(() => card().contains(document.activeElement)).toBe(true);
-  // Popped out, "Back into the app" floats it again.
-  await screen.getByRole("button", { name: "Back into the app" }).click();
+  // Docked, "Float over the page" floats it again; one move is offered from each place.
+  await screen.getByRole("button", { name: "Float over the page" }).click();
   expect(card().dataset.place).toBe("float");
+  expect(card().getAttribute("role")).toBe("dialog");
+  expect(
+    screen.getByRole("button", { name: "Float over the page" }).query(),
+  ).toBeNull();
   await expect.element(screen.getByText("How can I help?")).toBeVisible();
   await expectNoA11yViolations(screen.container);
 });
 
-test("popped out, the card drags by its header and stays inside the window", async () => {
+test("floating, the card drags by its header and stays inside the window", async () => {
   await page.viewport(1280, 800);
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;
   document.head.append(sheet);
   onTestFinished(() => sheet.remove());
-  const screen = await render(<Places />);
-  await screen.getByRole("button", { name: "Pop out" }).click();
+  await render(<Places />);
   const card = document.querySelector<HTMLElement>(
     '[data-slot="assistant-card"]',
   )!;
@@ -270,14 +270,13 @@ test("popped out, the card drags by its header and stays inside the window", asy
   expect(card.getBoundingClientRect().top).toBe(0);
 });
 
-test("popped out, Alt and an arrow key move the card", async () => {
+test("floating, Alt and an arrow key move the card", async () => {
   await page.viewport(1280, 800);
   const sheet = document.createElement("style");
   sheet.textContent = geometryCss;
   document.head.append(sheet);
   onTestFinished(() => sheet.remove());
-  const screen = await render(<Places />);
-  await screen.getByRole("button", { name: "Pop out" }).click();
+  await render(<Places />);
   const card = document.querySelector<HTMLElement>(
     '[data-slot="assistant-card"]',
   )!;
