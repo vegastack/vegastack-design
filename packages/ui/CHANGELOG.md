@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.116.2
+
+### Patch Changes
+
+- [#1042](https://github.com/vegastack/vegastack-design/pull/1042) [`3d592a0`](https://github.com/vegastack/vegastack-design/commit/3d592a086c8e6f1e7abf25775d78e23595f5a234) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Version Compare: it goes side by side from its own width, not the window's, so in a 320px side panel on a wide window the list comes first and a picked version pushes in, as on a phone, instead of squeezing the preview and the list into two narrow columns.
+
 ## 0.116.1
 
 ### Patch Changes

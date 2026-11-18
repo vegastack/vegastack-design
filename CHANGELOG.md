@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.116.2] — November 18, 2026
+
+<!-- assembled from 1 changeset: 3d0e11b199b8 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.116.1 → 0.116.2.
+
+### 🐛 Fixed
+
+- Version Compare: it goes side by side from its own width, not the window's, so in a 320px side panel on a wide window the list comes first and a picked version pushes in, as on a phone, instead of squeezing the preview and the list into two narrow columns.
+  [`3d592a0`](https://github.com/VegaStack/vegastack-design/commit/3d592a0)
+
 ## [0.116.1] — November 18, 2026
 
 <!-- assembled from 1 changeset: f1dc5fca592e -->
