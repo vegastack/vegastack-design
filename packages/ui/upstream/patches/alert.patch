@@ -1,8 +1,8 @@
 # component: alert
 # decisions: A11Y-3, A11Y-8, A11Y-13, API-29, COL-12, DOC-2, LAY-15, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-29: each status variant gives every non-primary button inside it the family's own hover
 #     and open state (`bg-<family>/10 text-<family>-text`, the svg too), keyed on Button's
 #     `data-variant`; the neutral `bg-muted text-foreground` hover read white in dark mode on a

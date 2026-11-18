@@ -21,7 +21,9 @@ import {
 // dropped the size; taught, it conflicts only with other font sizes, as `text-2xl` does.
 const CORNER_ROLES = [
   "control",
+  "segment",
   "icon",
+  "capsule",
   "chip",
   "inline",
   "mark",

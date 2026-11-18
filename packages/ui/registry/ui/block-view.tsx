@@ -1,4 +1,4 @@
-// @vegastack block-view@0.114.0 sha256-FM6rsgfz/v/+iB1fhPg3PvUcokApkJYNSiRnI06Cb4Q=
+// @vegastack block-view@0.114.0 sha256-BjoI02H+nYcEIB+qherjPtao1ma6CqZgaB1EeYwaNz8=
 
 "use client";
 
@@ -250,7 +250,7 @@ export function BlockViewFrame({
         <div
           role="group"
           aria-label={`${label} view`}
-          className="flex items-center gap-0.5 rounded-control bg-muted p-0.5"
+          className="flex items-center gap-0.5 rounded-control bg-muted p-0.5 [&_[data-slot=button]]:rounded-segment"
         >
           {(["preview", "code"] as const).map((each) => (
             <Button
@@ -537,7 +537,7 @@ function PanZoom({
       <div
         role="group"
         aria-label="Zoom"
-        className="absolute end-2 bottom-2 flex items-center gap-0.5 rounded-control border border-border bg-popover p-0.5 shadow-sm"
+        className="absolute end-2 bottom-2 flex items-center gap-0.5 rounded-capsule capsule-scope border border-border bg-popover p-0.5 shadow-sm"
       >
         <Button
           type="button"

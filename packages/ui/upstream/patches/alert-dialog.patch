@@ -1,8 +1,8 @@
 # component: alert-dialog
 # decisions: A11Y-9, BRD-1, DOC-1, DOC-2, OVL-13, OVL-18, LAY-17, OVL-23, OVL-25, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   OVL-25 (operator, 2026-11-13, agent chat ground up §4.1 "no blur behind dialogs"): the backdrop
 #     is `bg-black/20`, `dark:bg-black/50`, with upstream's `supports-backdrop-filter:backdrop-blur-xs`
 #     removed, so the page behind a modal stays legible and still and dark mode no longer smears.

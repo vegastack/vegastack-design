@@ -186,6 +186,18 @@
   background-image: linear-gradient(var(--state-focus), var(--state-focus));
 }
 
+/* BRD-12 (amended 2026-11-18, corner shapes): a bar that floats over the page or sits on media is
+   a capsule, and every control inside it is concentric with it — a capsule, or a circle when it is
+   square. Re-pointing the control roles for the subtree covers composed buttons, tooltip and menu
+   triggers and custom slots without naming each one; menus and popovers portal out, so they keep
+   their own corners. The bar itself still names its own corner (`rounded-capsule capsule-scope`), so a
+   breakpoint can square it (`max-sm:rounded-none`). */
+@utility capsule-scope {
+  --corner-control: var(--corner-capsule);
+  --corner-segment: var(--corner-capsule);
+  --corner-icon: var(--corner-capsule);
+}
+
 /* BRD-12 (ours, operator 2026-11-16: "table hover bg for rows also should be following these
    standards like how select dropdown options hover"): a table row draws its hover, pressed,
    selected and keyboard-focus fills as one `rounded-item` (10px) shape inset 2px from its hairlines

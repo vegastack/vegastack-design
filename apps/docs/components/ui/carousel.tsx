@@ -1,4 +1,4 @@
-// @vegastack carousel@0.114.0 sha256-Nu28iowZkIrDupKLq9r7uLw73DcqrCBvuskPxNzsKsc=
+// @vegastack carousel@0.114.0 sha256-FV2uqtAfy7PP3JVJA7OGhapXydywe8D1h2qwXaq+pmM=
 
 "use client";
 
@@ -187,7 +187,7 @@ function CarouselPrevious({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation",
+        "absolute rounded-capsule touch-manipulation",
         orientation === "horizontal"
           ? "inset-y-0 -start-12 my-auto"
           : "-top-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90",
@@ -217,7 +217,7 @@ function CarouselNext({
       variant={variant}
       size={size}
       className={cn(
-        "absolute touch-manipulation",
+        "absolute rounded-capsule touch-manipulation",
         orientation === "horizontal"
           ? "inset-y-0 -end-12 my-auto"
           : "-bottom-12 start-1/2 -translate-x-1/2 rtl:translate-x-1/2 rotate-90",

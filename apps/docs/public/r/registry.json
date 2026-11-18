@@ -61,7 +61,7 @@
         "whenToUse": "A floating bar of contextual actions tied to transient state — N selected, unsaved changes, a batch operation in flight. The host owns the state; the bar shows status and actions.",
         "whenNotToUse": "Transient outcome notifications (toast), page-level primary actions (PageHeader), or owning selection — the host's list keeps selectedIds.",
         "version": "0.114.0",
-        "integrity": "sha256-N5JyXH9tGXRT5/HNwFOYPhCfrRJgzUE04zUOx4vyPak="
+        "integrity": "sha256-3z9A/WCsq5KxXGYyouGAqsQEtq0UhT7utQcfHDx5E2A="
       }
     },
     {
@@ -194,7 +194,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.114.0",
-        "integrity": "sha256-3Qaq0cINlqTYOIc5/jMwNMrZsZ1T+xM8Cp3LuAexCSU="
+        "integrity": "sha256-Ap8DOBYMoy8HBOos0zkUEUJSO1gRfH44n1yrdngigh8="
       }
     },
     {
@@ -260,7 +260,7 @@
         "whenToUse": "The shell's top row (Shell's globalBar), in the browser and as the desktop app's title row.",
         "whenNotToUse": "A page's own header and actions (ShellTopBar), or a phone's top row.",
         "version": "0.114.0",
-        "integrity": "sha256-uCH4+1Q0FMIRiER+eXu/Bt2wk2wMAslgqkllAZhZ2lU="
+        "integrity": "sha256-KM8v0nsSbP33jMEGH+rfle+/Lnwi/GFBFJAMH0Dw+B0="
       }
     },
     {
@@ -349,7 +349,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
         "version": "0.114.0",
-        "integrity": "sha256-BC1Sj4zYBQkTbjvNU+/rA+YCExsraM/fJw871d98Grs="
+        "integrity": "sha256-7qVHJkkTfq+4tRTXKhqFBSh/tGGqJgj4eVC+E4jIv/E="
       }
     },
     {
@@ -425,8 +425,8 @@
       "meta": {
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
-        "version": "0.114.0",
-        "integrity": "sha256-tBFwo4aC0JpuDfnVtEmaOjpGW0Xl6ZthPPLrp22V+vI="
+        "version": "0.114.3",
+        "integrity": "sha256-Z9/5e3Z97vZBi9+zQyQ7A20duK5T8LGUUXB9Kqi49WU="
       }
     },
     {
@@ -473,7 +473,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.114.0",
-        "integrity": "sha256-VkZchqY1NB1BmKv5f7Rj9oB98jnRPWT6RqTMA8Wq9e0="
+        "integrity": "sha256-uPYaxNpdVX3WHa46l3BhjhVXl4qmvEnop09iCRZ0c08="
       }
     },
     {
@@ -675,7 +675,7 @@
         "whenToUse": "Internal to TextEdit and MarkdownView: pass blockViews to either rather than mounting it.",
         "whenNotToUse": "Showing code (CodeBlock) or a standalone diagram (MermaidBlock).",
         "version": "0.114.0",
-        "integrity": "sha256-FM6rsgfz/v/+iB1fhPg3PvUcokApkJYNSiRnI06Cb4Q="
+        "integrity": "sha256-BjoI02H+nYcEIB+qherjPtao1ma6CqZgaB1EeYwaNz8="
       }
     },
     {
@@ -898,7 +898,7 @@
         "whenToUse": "A single audio asset that needs a compact, branded transport with rewind/forward, a tappable speed control, keyboard shortcuts, and a two-line mobile layout with an optional transcript control; `docked` pins a closable player to the bottom of a scroll column, a function `src` resolves a signed URL on first play, `actionsRef` seeks it from a transcript or chapter list, and `peaks` draws a stored waveform without downloading the file.",
         "whenNotToUse": "Playlists, queue management, waveform editing, audio recording, or a bar of bulk actions over a selection (ActionBar).",
         "version": "0.114.0",
-        "integrity": "sha256-mdoftwNBc3d45AtjXrY5T5AVrJE9wtJ3R0Vl9Yp0iv4="
+        "integrity": "sha256-U09S/jrs9tOaK8mTlp7AUWDQ7zpni5ZegjsSuvnE8Zc="
       }
     },
     {
@@ -1296,7 +1296,7 @@
         "whenToUse": "Choosing one or more dates from a month grid — a booking range, a report period, a due date inside a Popover.",
         "whenNotToUse": "A free-text date a user already knows (an input with a mask) or a time-only value.",
         "version": "0.114.0",
-        "integrity": "sha256-Bo1Nx8UmkSwT9xuIJ3YEYKtp1AOl4fnwK43GCj3ygBM="
+        "integrity": "sha256-knaEElfZOTXuqWhZA7GiHSicFiFlbS1I0hVUZXKsebA="
       }
     },
     {
@@ -1355,7 +1355,7 @@
         "whenToUse": "A horizontal or vertical run of peer items the reader scrolls through one or a few at a time — a gallery, a set of feature cards, a testimonial run.",
         "whenNotToUse": "Content the reader must not miss, or a list they need to scan and compare — put that in the page, not behind a control.",
         "version": "0.114.0",
-        "integrity": "sha256-Nu28iowZkIrDupKLq9r7uLw73DcqrCBvuskPxNzsKsc="
+        "integrity": "sha256-FV2uqtAfy7PP3JVJA7OGhapXydywe8D1h2qwXaq+pmM="
       }
     },
     {
@@ -1443,7 +1443,7 @@
         "whenToUse": "A labelled, optionally removable pill — a record label, an applied filter, a selected value in a multi-select.",
         "whenNotToUse": "A status signal (Badge) or a clickable action (Button); a Chip's root is not interactive.",
         "version": "0.114.0",
-        "integrity": "sha256-ujWvYd6+3V2W/ilHUJn0zdgjdVZvG31Oew6w+sFCDJs="
+        "integrity": "sha256-H1Llt6OBPofSDfvB226ZFyvzrpSYkWvSGbGPdnnZgSM="
       }
     },
     {
@@ -1592,7 +1592,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.114.0",
-        "integrity": "sha256-4uzpc3TQdATXKaC8HDbn4grNzn4cT0sf/49t+CaYcqI="
+        "integrity": "sha256-9pavZ2XgfiezJMyKh5LOHEFjLW8VR7NK5dkBYjv6yjA="
       }
     },
     {
@@ -1626,7 +1626,7 @@
         "whenToUse": "Choosing from a large or dynamic set that benefits from typing to narrow it down — searchable pickers, tag/label multi-select, async-loaded results. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "A small, fixed set with no need to search (Select), boolean on/off (Switch), or a few always-visible options (radios/checkboxes).",
         "version": "0.114.0",
-        "integrity": "sha256-uOzE2l2ubaCnRoAm2PKqGDZ2jAuM4w3mcbUL54GerSY="
+        "integrity": "sha256-X0k3MMDxFLf+8f38DuAlP36URBt5wo9w4qmnkh22Ywg="
       }
     },
     {
@@ -1662,7 +1662,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.114.0",
-        "integrity": "sha256-Rfr/L//bHJ8gs6CiIjsUzvR6z12+jWuwLgurxUdeiXs="
+        "integrity": "sha256-Jze4IE1+ErWGCXUzqdWTkChm7oN0LIfVuTcAa5hFf8Y="
       }
     },
     {
@@ -1693,7 +1693,7 @@
         "whenToUse": "Secondary actions on an object the user has already found — a file row, a canvas node, a board card. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "The only way to reach an action — right-click is discoverable by almost nobody; pair it with a visible menu.",
         "version": "0.114.0",
-        "integrity": "sha256-xXeY1hd6+Ssp4YNBZ3z0ZVF7AhXqFk0i1r6vHXrM1Jk="
+        "integrity": "sha256-z5w2By+mBeZwJZ2RCHJETpsnbGGp5na+aU/BNM0vrqA="
       }
     },
     {
@@ -2166,7 +2166,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ListToolbar's Layout tool), or page sections (Tabs).",
         "version": "0.114.0",
-        "integrity": "sha256-B2ZxLsw04S47J7Nj9r/I+U6aad5FD1bbZtQpqOG9+Y4="
+        "integrity": "sha256-c3S+PH+cFdouwHfsI2UiskCq9eIJLRLmomEEiA0jTd4="
       }
     },
     {
@@ -2228,7 +2228,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.114.0",
-        "integrity": "sha256-0WLUa87UUh6j+TwVPYTI2PYsk9gII57v3mYtFVTcHio="
+        "integrity": "sha256-JsIcpvTlHp4p49ejxmtpIdPYBFyDt4DPJOalJ1+i3wU="
       }
     },
     {
@@ -2269,7 +2269,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.114.0",
-        "integrity": "sha256-5XLF1E0BiBlD15CiiPPW8Wr5WjHdfrXovB67toCLRao="
+        "integrity": "sha256-vSme+6aTk3CkKotICEOLjyagsBQQPgu5uy5LwyW7I5Y="
       }
     },
     {
@@ -2446,7 +2446,7 @@
         "whenToUse": "Selecting a single date, a date with a time of day (DateTimePicker: the calendar and the time in one popup, on the reader's clock), or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.114.0",
-        "integrity": "sha256-J7SsVsD233YWT5aHXLktiidbkaT48cfl/vp3d9wgLfs="
+        "integrity": "sha256-OaMJT7Rq2/69RwG6roIcBsxxzDUfW6WevPUrLvLYnys="
       }
     },
     {
@@ -2549,7 +2549,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.114.0",
-        "integrity": "sha256-VL+BQWfy/BImAo9Hg8Tm5uiJ9Q/L++zMkKvDqFZmZj8="
+        "integrity": "sha256-1SwjW5tMdiOfsDHIpKZEywOoWkOJjcJe+alOOCzI808="
       }
     },
     {
@@ -2968,7 +2968,7 @@
         "whenToUse": "Building a tile surface with controls over an image — spread tileCornerClasses on the slot, tileOverlayButtonClasses on a ghost icon Button, tileGroupClass on the tile.",
         "whenNotToUse": "Chrome that does not sit over media — use a plain Button.",
         "version": "0.26.4",
-        "integrity": "sha256-YOnsqa75b/EiJrtPvFLvbgV9VVA7J21mIgNJJOTYe1s="
+        "integrity": "sha256-yIARzR0DuH8FkuYd5ncMg621/l7/rv+iwhl6olkoG2c="
       }
     },
     {
@@ -3053,7 +3053,7 @@
         "whenToUse": "A list of actions or option toggles anchored to a button — row actions, an account menu, a view switcher. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "Choosing a form value (Select), navigating between pages (NavigationMenu), or content the user reads (Popover).",
         "version": "0.114.0",
-        "integrity": "sha256-TQELCNfpbohbH57u63SKBZ7LP31vTpcLXgMFszFSDNI="
+        "integrity": "sha256-OYpFa8gOhMAe+HFbFAF8RZ4SirmPEfRN+2ZDknLePjU="
       }
     },
     {
@@ -3120,7 +3120,7 @@
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
         "version": "0.114.0",
-        "integrity": "sha256-vWulBx6khnqt6Z4mHidpLhJlKoxLW8C6vc/op+A+VVQ="
+        "integrity": "sha256-0J9WF7A9+cmjw97XvKe3JyKv90WHVuOsYGG+JUx4Sxg="
       }
     },
     {
@@ -3313,7 +3313,7 @@
         "whenToUse": "Installed automatically with TextEdit or TemplateEditor; import it directly when another editor that keeps focus needs a caret-anchored list of suggestions.",
         "whenNotToUse": "A list that takes focus or hangs off a trigger element — that is Combobox, Command or DropdownMenu.",
         "version": "0.114.0",
-        "integrity": "sha256-i3Sv7gFmhH/sqfGzfDPBiWIELXY+BgcndmqEameg+nE="
+        "integrity": "sha256-TVGbd4qzi041h8AVW/5yKX2cFdepjX+ZA8h6rqu8NAo="
       }
     },
     {
@@ -16628,7 +16628,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.114.0",
-        "integrity": "sha256-A3OHbS7g7unRUcbZVM9arjWHUwl0LyWVk9i0CvtJQR0="
+        "integrity": "sha256-5Yt/io2sV1e466ezlIrjY7Lx+3tv4QKHt5Ee04ZHtOo="
       }
     },
     {
@@ -16697,7 +16697,7 @@
         "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
         "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
         "version": "0.114.0",
-        "integrity": "sha256-stnZk6PtpqH9u8Nt/kVzDSHir3X98BEjWQhj4+rYmGY="
+        "integrity": "sha256-X+HmY/unl0Xo6ktbZgh3bDYzlq4PfQiJKwvTd02UKgs="
       }
     },
     {
@@ -16785,7 +16785,7 @@
         "whenToUse": "A text control that needs an affordance on the same surface — a search icon, a currency prefix, a reveal button, a character counter.",
         "whenNotToUse": "A control whose affordance belongs outside the field — use a Field description or a ButtonGroup.",
         "version": "0.114.0",
-        "integrity": "sha256-rStz+FOni+SElA340weGmzhCyNhJwO+jhqmoj2p690c="
+        "integrity": "sha256-4KWwJu9IP532LwYCs/kKAu0/le7Kf0BD3vO3koE9vlc="
       }
     },
     {
@@ -16991,7 +16991,7 @@
         "whenToUse": "Display user/system-authored markdown — descriptions, comments, activity — as safe token-styled prose.",
         "whenNotToUse": "Editing markdown (use an editor), or when the source needs embedded raw HTML.",
         "version": "0.114.0",
-        "integrity": "sha256-sp/iFKnw+lub72ZEsR326xrE+LknJ77O4H7WuOSVVA4="
+        "integrity": "sha256-QU0brMYk4cj1DiKzJ0KvSMC3shaP+PQjxuI6fRTnzUw="
       }
     },
     {
@@ -17054,7 +17054,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.114.0",
-        "integrity": "sha256-DoLA1dbXSjvb2CGbCDghKukia+a9cpGaFkhpp7+TLdI="
+        "integrity": "sha256-ySWHhtALHv1jZobBBH6uaTHv+yn5tdv8XCOE5ukq2K8="
       }
     },
     {
@@ -17086,7 +17086,7 @@
         "whenToUse": "A desktop-application shell where several menus stay visible and move focus between each other. A two-line row composes ItemTitle + ItemDescription, and the description is the row's accessible description — including a disabled row's reason.",
         "whenNotToUse": "A single button's actions (DropdownMenu), or site navigation (NavigationMenu).",
         "version": "0.114.0",
-        "integrity": "sha256-POubAtFSu4ucN7pN5g5O5Tc1wNVn0G9LMEr3uWw0xhc="
+        "integrity": "sha256-UD/vJ3Gz1QOP0yq1Iu4EbWjKyx55x2RmOT0ZNQA4duY="
       }
     },
     {
@@ -17145,7 +17145,7 @@
         "whenToUse": "A live chat/AI thread that must auto-scroll, keep its place when older messages load, and offer a jump-to-latest control.",
         "whenNotToUse": "A short, static list that fits without scrolling - use Message inside a plain container or Scroll Area.",
         "version": "0.114.0",
-        "integrity": "sha256-8yZUUQm/RYiUlSitUL+mT7MKDVHg+ZwgbeYgB9qsH08="
+        "integrity": "sha256-tMOP4a9PZ5GMy9qBkCjLakWyQT3B0cfnu9sN326m7ls="
       }
     },
     {
@@ -17207,7 +17207,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
         "version": "0.114.0",
-        "integrity": "sha256-9GddvUpBe5BXxo07sdy0zpzUBmDwkvK37QVSZn84RGw="
+        "integrity": "sha256-FK9Qaw+/9gzM+GKEbmh7v3ubL3XeDHcNaEdJMHiAOIk="
       }
     },
     {
@@ -17358,7 +17358,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.114.0",
-        "integrity": "sha256-j8XkwVr/PzEIQ1emLxek2RDm/1aGE4g+Cc/Vi1AlWF8="
+        "integrity": "sha256-PQ0zHBhFYFgVTQoOP8hQMYYQlCb/KIWj5pguoLK/gBQ="
       }
     },
     {
@@ -17571,7 +17571,7 @@
         "whenToUse": "Top-level site/product navigation with rich dropdown panels.",
         "whenNotToUse": "In-app action menus (DropdownMenu) or content tabs (Tabs).",
         "version": "0.114.0",
-        "integrity": "sha256-AlF5QmsVmAvPOOhBys8x3oXYJDuBc+1M3QXjHUfGu2E="
+        "integrity": "sha256-CVFMxcgIqMy8gDW7BTLNvVFgNDvTZg474LkTBsL9kIk="
       },
       "registryDependencies": []
     },
@@ -17608,7 +17608,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread marker (NotificationDot).",
         "version": "0.114.0",
-        "integrity": "sha256-caFWhcyCKFYNA976eXGhipj4td6EJwVo8vJNnr9DfxE="
+        "integrity": "sha256-ASfQUbRPKR4wBGb8CaTpTEq1XEGzN5+DwpgAhn2vDT8="
       }
     },
     {
@@ -18494,7 +18494,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.114.0",
-        "integrity": "sha256-Sg+sRnMiGlJeT97c1PrzaiCxVM+Wm++sSur2Htv7mac="
+        "integrity": "sha256-9jJQRuxijE+eHr1NFlTz7EuTmQd11TUH2PZdQNfstEY="
       }
     },
     {
@@ -18589,7 +18589,7 @@
         "whenToUse": "Choosing from a short fixed, known set — statuses, sort orders, units — including grouped options; pass multiple for a multi-value select. The default trigger fills its parent; use variant=\"ghost\" (with size=\"sm\") for an inline trigger in table rows, list items and toolbars. A two-line option composes ItemTitle + ItemDescription, and the description is the option's accessible description.",
         "whenNotToUse": "Boolean on/off (Switch), few inline options (radios), a list long enough to need a search field (SearchableSelect), or free-text/async search (Combobox).",
         "version": "0.114.0",
-        "integrity": "sha256-VBeMHs3Wk2ndsTj1huwydClLgjIg+IYalCFx9LQslJs="
+        "integrity": "sha256-14ynZwWN1Vbah+x8pk/ZQLchOQ19R45nNlTz8CKBZPU="
       }
     },
     {
@@ -19137,7 +19137,7 @@
         "whenToUse": "Organize related content into peer sections the user switches between in place; a count after a trigger's label is an aria-hidden tabular number plus an sr-only suffix, so it reads as part of the tab's name. A line list scrolls sideways inside itself when the tabs outnumber the width; orientation=\"vertical\" suits a stable column of settings sections. For tabs that are separate pages, draw a nav of links from tabsListVariants and tabsTriggerVariants with aria-current=\"page\" (route tabs).",
         "whenNotToUse": "Sequential multi-step flows (stepper), single-select form input (radio/select), sections that must be visible at once, or page-level navigation rendered as a tablist — route tabs are links, not tabs.",
         "version": "0.114.0",
-        "integrity": "sha256-mZvUjbIe03wFSr2Jc10cL0y70GZPTPI3xhqgBXFNcf0="
+        "integrity": "sha256-ict8EoUA49Sq7mC7KQXHPH+tMwieCZkEJgC9dPowN0I="
       }
     },
     {
@@ -19327,7 +19327,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.114.0",
-        "integrity": "sha256-xuDoPF5tHmrrU96aDieUzS6mJe0PPc8pY8yXxdKbLdg="
+        "integrity": "sha256-chCX0mTdb6XLqPR7Q8RaeA5haAbXILbkXc139bO7tfU="
       }
     },
     {
@@ -19386,7 +19386,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.114.0",
-        "integrity": "sha256-WvuIHRh01Z/AvLYE30TRz6TFqUsmJ85cgiQY0EAWRaU="
+        "integrity": "sha256-OJSPgZp9aAa5VxpTARivqXwpJfqws5yjZKGtl/XaWAM="
       }
     },
     {
@@ -20007,7 +20007,7 @@
         "whenToUse": "The data-tasklist part of an agent turn.",
         "whenNotToUse": "A to-do list a person edits (Checkbox lists, Tasks).",
         "version": "0.114.0",
-        "integrity": "sha256-YCXPv1iMKGWResz4uLBhFcXY2L2Ej7fG53yXnxBV4WM="
+        "integrity": "sha256-/P84PdDpXaaCVMpm2F8AFh0tzCeYqdIlRbOydxeDMhc="
       }
     },
     {
@@ -20041,7 +20041,7 @@
         "whenToUse": "Subagent calls of an agent turn; background work summaries.",
         "whenNotToUse": "A single tool call (WorkLog row).",
         "version": "0.114.0",
-        "integrity": "sha256-NaQgMXgZ8aQyCkhIbGik7ZBIvn6TdL0GQDiga+hsMg0="
+        "integrity": "sha256-KrhnI/ViTZHuxYFi8k2E0yKD5V9fQLNj1qHBVRCTBuU="
       }
     },
     {
@@ -20169,7 +20169,7 @@
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
         "version": "0.114.0",
-        "integrity": "sha256-QeBrPUFUI6gVihVL3djy7OoI3PixoOAnaMC9OvEH3NA="
+        "integrity": "sha256-EPfeabVbrzw6PJOPjBQ/gWPAk+loFYlV0bpKseLOsOk="
       }
     },
     {
@@ -20408,7 +20408,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.114.0",
-        "integrity": "sha256-dXe+gmOaTpiC30XC+3lr2O+uJet5PsFsL2Zn8ZmCNUg="
+        "integrity": "sha256-GE7wMBajZU7m9CdM8vJjsSB+lSvSm+vLsbBgtLTQPPU="
       }
     },
     {
@@ -23613,7 +23613,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.100.0",
-        "integrity": "sha256-XFO1jrnYcWOJ0WgUJC9+jJ6ob7sVIJvRQe7Jed7Pljc="
+        "integrity": "sha256-xtEqvHggcqe0Uj7W/S7aLByaERcWQM27CA4k0X0rtTc="
       }
     },
     {
@@ -24070,7 +24070,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.114.0",
-        "integrity": "sha256-ADCZ0FbU0jZEJhKhMXgEGOOApN5/c0iZNidBg7o9fE4="
+        "integrity": "sha256-nlZIDNH4yfz16CAS6+WWwLZlFlBgOPzXb0+htH5YhrM="
       }
     },
     {
@@ -24211,7 +24211,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
         "version": "0.114.0",
-        "integrity": "sha256-2Hyv5yKJOJmIw+a7hx/y2D0xEhXlOCZ8MhPlo+XHUUw="
+        "integrity": "sha256-5H/eHhO6Rab/KMvbbEp0l8JfThJuXfaZ9v1TnZa1bRo="
       }
     },
     {
@@ -24351,7 +24351,7 @@
         "whenToUse": "A section's sub-pages as tabs in its layout, each tab its own URL (a space's Tasks/Library/Settings, Connections).",
         "whenNotToUse": "Panels that swap in place without a URL (Tabs), or the app's main navigation (Sidebar).",
         "version": "0.114.0",
-        "integrity": "sha256-bjcSd9EAZd4TC8a19fZDqoc6UrWuvq0jbb5q/6BTHA8="
+        "integrity": "sha256-bIRCm4BB+9K9xvMPctOAwbn6qswTcL0645BSLLcPAD4="
       }
     },
     {
@@ -24511,7 +24511,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.114.0",
-        "integrity": "sha256-17BCAOot//5/ROKfQ0zme5pBhfWFdURsSj+2+rMYayM="
+        "integrity": "sha256-JmvBxgIxJf5gyOi73zzlDFM/2ib2A+4xgqTz1YC1mlk="
       }
     }
   ]

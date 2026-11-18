@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.114.3] — November 18, 2026
+
+<!-- assembled from 1 changeset: d02f7845f5e7 -->
+
+### 🔧 Changed components
+
+- Record Layout: on a phone the side panel's bottom sheet paints `--panel`, the side surface it has where it docks, instead of the popover lift (LAY-26, COL-26).
+  [`3f6b4ac`](https://github.com/VegaStack/vegastack-design/commit/3f6b4ac)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.114.2 → 0.114.3.
+
 ## [0.114.2] — November 18, 2026
 
 <!-- assembled from 1 changeset: 7cf471149096 -->

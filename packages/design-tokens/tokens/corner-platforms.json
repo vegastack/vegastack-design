@@ -1,0 +1,11 @@
+{
+  "$description": "BRD-12 (amended 2026-11-18, corner shapes): how each platform reads the corner roles. `pointer` (web and the desktop app) takes every `corner-*` token as it is. `touch` (the Flutter app) overrides only what touch changes — Apple's guidance that capsules suit touch layouts: buttons, icon buttons, segmented controls, chips and search fields stay capsules, and form fields are their own 12px role (a quarter of the 48px field). Every other role is the same number on every platform. The build writes dist/corners.json and dist/corners.dart from this file and the tokens. On touch, `segment` stays 6: it is the button inside a 12px field (12 − 6), while a touch segmented control's thumb is itself a `control` capsule.",
+  "pointer": {
+    "field": "control"
+  },
+  "touch": {
+    "control": "capsule",
+    "icon": "capsule",
+    "field": 12
+  }
+}

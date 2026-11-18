@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.114.0 sha256-tBFwo4aC0JpuDfnVtEmaOjpGW0Xl6ZthPPLrp22V+vI=
+// @vegastack record-layout@0.114.3 sha256-Z9/5e3Z97vZBi9+zQyQ7A20duK5T8LGUUXB9Kqi49WU=
 
 "use client";
 
@@ -580,6 +580,8 @@ export function RecordPanel({
   if (mode === "sheet")
     return (
       <PeekSheet
+        // The page's own ground, as where it docks (COL-26), not the popover lift of a menu.
+        className="bg-background [--drawer-bleed-background:var(--background)]"
         open={ctx.sheet}
         onOpenChange={(next) => {
           if (!next) ctx.setSheet(false);

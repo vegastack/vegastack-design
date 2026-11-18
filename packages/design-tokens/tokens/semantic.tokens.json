@@ -866,18 +866,34 @@
   "corner-control": {
     "$type": "dimension",
     "$value": {
-      "value": 9999,
-      "unit": "px"
+      "value": 0.5,
+      "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): every single-line control is a pill — Button at every size, Input, Select, InputGroup, Toggle, ToggleGroup, the segmented TabsList and its triggers, the single-line composer. Read it as `rounded-control`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px, a quarter of the 32px control: every in-page control is a rounded rectangle — Button at every size, Input, Select, NativeSelect, Combobox, single-line InputGroup, page and header search fields, Toggle, ToggleGroup, TabsList, Menubar. Apple keeps compact desktop controls rounded rectangles and reserves capsules for standout or touch layouts (WWDC25 356). Read it as `rounded-control`."
+  },
+  "corner-segment": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.375,
+      "unit": "rem"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 6px, the control corner minus its 2px inset: a control nested in a control — TabsList triggers, Menubar items, buttons inside an InputGroup or a search box, toggle-group segments — so the corners stay concentric. Read it as `rounded-segment`."
   },
   "corner-icon": {
+    "$type": "dimension",
+    "$value": {
+      "value": 0.5,
+      "unit": "rem"
+    },
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px: an icon-only button is a rounded square with the same corner as a labelled control, so a toolbar reads as one family. Inside a capsule it is a circle (`rounded-capsule`). Read it as `rounded-icon`."
+  },
+  "corner-capsule": {
     "$type": "dimension",
     "$value": {
       "value": 9999,
       "unit": "px"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): every icon-only button is a circle, so its hover is round. Read it as `rounded-icon`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): a capsule, only for what floats or stands alone: floating and sticky bars, hover toolbars, controls over media, and everything inside a capsule (its icon buttons are circles); also calendar days, colour swatches and the remove button inside a chip. Read it as `rounded-capsule`."
   },
   "corner-chip": {
     "$type": "dimension",
@@ -909,7 +925,7 @@
       "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the container's padding (a 16px menu with 6px padding). Read it as `rounded-item`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
   },
   "corner-block": {
     "$type": "dimension",

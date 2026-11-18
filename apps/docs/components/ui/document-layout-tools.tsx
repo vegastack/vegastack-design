@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.114.0 sha256-BC1Sj4zYBQkTbjvNU+/rA+YCExsraM/fJw871d98Grs=
+// @vegastack document-layout@0.114.0 sha256-7qVHJkkTfq+4tRTXKhqFBSh/tGGqJgj4eVC+E4jIv/E=
 
 "use client";
 
@@ -198,7 +198,7 @@ export function DocumentLayoutJumpCue({
         variant="secondary"
         size="sm"
         className={cn(
-          "pointer-events-auto border border-border shadow-md",
+          "pointer-events-auto rounded-capsule border border-border shadow-md",
           className,
         )}
         {...props}

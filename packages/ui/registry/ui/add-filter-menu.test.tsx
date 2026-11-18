@@ -113,15 +113,16 @@ test("with AI: a field name never offers AI; a phrase or an unmatched word does,
   expect(options[0]?.getAttribute("aria-selected")).toBe("true");
 });
 
-test("menu rhythm: the DropdownMenu's 6px inset and 28px item rows (BRD-12)", async () => {
+test("menu rhythm: the DropdownMenu's 6px inset (1px border + 5px padding) and 28px item rows (BRD-12)", async () => {
   await page.viewport(1024, 768);
   const screen = await render(<AddFilterMenu fields={FIELDS} />);
   await screen.getByRole("button", { name: "Filter" }).click();
   const surface = document.querySelector<HTMLElement>(
     '[data-slot="add-filter-menu-content"]',
   )!;
-  // A menu is `rounded-card p-1.5` around `rounded-item px-2` rows: 16 − 6 = 10, concentric.
-  expect(getComputedStyle(surface).paddingTop).toBe("6px");
+  // A menu is `rounded-card border p-1.25` around `rounded-item px-2` rows: 16 − (1 + 5) = 10,
+  // concentric from the outer edge.
+  expect(getComputedStyle(surface).paddingTop).toBe("5px");
   expect(getComputedStyle(surface).borderTopLeftRadius).toBe("16px");
   const option = document.querySelector<HTMLElement>(
     '[data-slot="add-filter-menu-field"]',

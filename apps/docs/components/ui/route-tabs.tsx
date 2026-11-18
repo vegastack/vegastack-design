@@ -1,4 +1,4 @@
-// @vegastack route-tabs@0.114.0 sha256-bjcSd9EAZd4TC8a19fZDqoc6UrWuvq0jbb5q/6BTHA8=
+// @vegastack route-tabs@0.114.0 sha256-bIRCm4BB+9K9xvMPctOAwbn6qswTcL0645BSLLcPAD4=
 
 "use client";
 
@@ -19,7 +19,7 @@ import { useOverflowFold } from "@/components/ui/use-overflow-fold";
 
 /* ---
 `RouteTabs` are Tabs whose panels are pages: a named `nav` of links drawn as the
-default pill tabs (or, `variant="line"`, underlined — the secondary strip under a page's own tabs),
+default segmented tabs (or, `variant="line"`, underlined — the secondary strip under a page's own tabs),
 one URL per tab. Put them in the segment's layout so a switch swaps
 only the page below them.
 
@@ -97,7 +97,7 @@ export interface RouteTabsProps extends Omit<
    */
   overflow?: "scroll" | "visible" | "menu";
   /**
-   * `default` draws the pill tabs; `line` draws underlined tabs on a transparent strip — the
+   * `default` draws the segmented tabs; `line` draws underlined tabs on a transparent strip — the
    * secondary level when a page's own tabs already sit above (a record's Settings tab and its
    * sub-pages), so the two strips never read as one row repeated.
    * @default "default"
@@ -176,7 +176,7 @@ function linkElement(
 }
 
 /**
- * `RouteTabs` — page tabs: a named `nav` of links drawn as the default pill tabs (or underlined,
+ * `RouteTabs` — page tabs: a named `nav` of links drawn as the default segmented tabs (or underlined,
  * `variant="line"`, for a second level under a page's own tabs), the current one marked
  * `aria-current="page"`. A clicked tab is current at once — nothing flashes under it — until
  * the page arrives (`currentHref` changes); with `overflow="scroll"` the strip scrolls sideways and

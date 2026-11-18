@@ -1,8 +1,8 @@
 # component: select
 # decisions: API-19, API-24, API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14, API-35, API-38, COL-24, INT-4, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-38 (MK 2026-10-26, Regent product-cohesion W1-DS2): `SelectContent` takes `loading`, `error`,
 #     `onRetry` and their labels: a `select-status` row (`role="status"`) after the list — a spinner
 #     while loading, the error with a Try again button — so an async list never shows an empty popup.
@@ -61,7 +61,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..2b9b12d 100644
+index e8a22e1..0209c5e 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,20 +1,52 @@
@@ -117,7 +117,7 @@ index e8a22e1..2b9b12d 100644
      <SelectPrimitive.Group
        data-slot="select-group"
 -      className={cn("scroll-my-1 p-1", className)}
-+      className={cn("scroll-my-1.5 p-1.5", className)}
++      className={cn("scroll-my-1.25", className)}
        {...props}
      />
 -  )
@@ -221,7 +221,7 @@ index e8a22e1..2b9b12d 100644
    return (
      <SelectPrimitive.Portal>
        <SelectPrimitive.Positioner
-@@ -77,21 +153,57 @@ function SelectContent({
+@@ -77,21 +153,59 @@ function SelectContent({
          align={align}
          alignOffset={alignOffset}
          alignItemWithTrigger={alignItemWithTrigger}
@@ -240,7 +240,10 @@ index e8a22e1..2b9b12d 100644
            {...props}
          >
            <SelectScrollUpButton />
-           <SelectPrimitive.List>{children}</SelectPrimitive.List>
+-          <SelectPrimitive.List>{children}</SelectPrimitive.List>
++          <SelectPrimitive.List className="scroll-my-1.25 p-1.25">
++            {children}
++          </SelectPrimitive.List>
 +          {loading || error ? (
 +            <div
 +              data-slot="select-status"
@@ -282,7 +285,7 @@ index e8a22e1..2b9b12d 100644
  }
  
  function SelectLabel({
-@@ -101,10 +213,10 @@ function SelectLabel({
+@@ -101,10 +215,10 @@ function SelectLabel({
    return (
      <SelectPrimitive.GroupLabel
        data-slot="select-label"
@@ -295,7 +298,7 @@ index e8a22e1..2b9b12d 100644
  }
  
  function SelectItem({
-@@ -112,27 +224,31 @@ function SelectItem({
+@@ -112,27 +226,31 @@ function SelectItem({
    children,
    ...props
  }: SelectPrimitive.Item.Props) {
@@ -346,7 +349,7 @@ index e8a22e1..2b9b12d 100644
  }
  
  function SelectSeparator({
-@@ -142,10 +258,13 @@ function SelectSeparator({
+@@ -142,10 +260,13 @@ function SelectSeparator({
    return (
      <SelectPrimitive.Separator
        data-slot="select-separator"
@@ -362,7 +365,7 @@ index e8a22e1..2b9b12d 100644
  }
  
  function SelectScrollUpButton({
-@@ -157,14 +276,13 @@ function SelectScrollUpButton({
+@@ -157,14 +278,13 @@ function SelectScrollUpButton({
        data-slot="select-scroll-up-button"
        className={cn(
          "top-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
@@ -380,7 +383,7 @@ index e8a22e1..2b9b12d 100644
  }
  
  function SelectScrollDownButton({
-@@ -176,14 +294,13 @@ function SelectScrollDownButton({
+@@ -176,14 +296,13 @@ function SelectScrollDownButton({
        data-slot="select-scroll-down-button"
        className={cn(
          "bottom-0 z-10 flex w-full cursor-default items-center justify-center bg-popover py-1 [&_svg:not([class*='size-'])]:size-4",
@@ -398,7 +401,7 @@ index e8a22e1..2b9b12d 100644
  }
  
  export {
-@@ -197,4 +314,4 @@ export {
+@@ -197,4 +316,4 @@ export {
    SelectSeparator,
    SelectTrigger,
    SelectValue,

@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.114.0 sha256-17BCAOot//5/ROKfQ0zme5pBhfWFdURsSj+2+rMYayM=
+// @vegastack shell-assistant@0.114.0 sha256-JmvBxgIxJf5gyOi73zzlDFM/2ib2A+4xgqTz1YC1mlk=
 
 "use client";
 
@@ -449,7 +449,7 @@ function AssistantCardHeader({
     <div
       data-slot="assistant-card-header"
       className={cn(
-        "flex h-12 shrink-0 items-center gap-2 ps-4 pe-2",
+        "flex h-11 shrink-0 items-center gap-2 ps-4 pe-2 capsule-scope",
         className,
       )}
       {...props}

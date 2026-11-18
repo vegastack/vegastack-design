@@ -68,15 +68,15 @@ column toggle hides itself on a screen with no column.
 
 ### One box to search or ask
 
-With `ask`, `GlobalBarSearch` is a 32px pill with an `Ask {name}` chip and its shortcut (⌘J) at its
-end. The pill opens the app's search palette (open `CommandSearch` with `placement="bar"` so the
+With `ask`, `GlobalBarSearch` is a 32px search field (`rounded-control`) with an `Ask {name}` button
+and its shortcut (⌘J) at its end, both nested in it at `rounded-segment`. The box opens the app's search palette (open `CommandSearch` with `placement="bar"` so the
 palette grows from the box); the chip opens the assistant. Give the chip the assistant's element in
 `controls` and its open state in `expanded`. As the bar narrows the words fold to icons, the box
 first.
 
 ### ? Help
 
-`GlobalBarHelp` is the trailing slot's ghost pill: the help icon and "Help", with a brand-blue dot
+`GlobalBarHelp` is the trailing slot's ghost button (`rounded-control`): the help icon and "Help", with a brand-blue dot
 while there is something new the person hasn't seen. Pass the words the dot means as `dot` ("new
 updates"); they are read after the label. Use it as a `HelpMenu`'s trigger.
 

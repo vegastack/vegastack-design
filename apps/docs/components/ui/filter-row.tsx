@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.114.0 sha256-5XLF1E0BiBlD15CiiPPW8Wr5WjHdfrXovB67toCLRao=
+// @vegastack filter-row@0.114.0 sha256-vSme+6aTk3CkKotICEOLjyagsBQQPgu5uy5LwyW7I5Y=
 
 "use client";
 
@@ -637,7 +637,7 @@ export function FilterChip({
       // The filter row's one chip shape: the row's height, a pill (`rounded-chip`), quiet type — set or unset.
       // An unset pinned facet is the same box, dashed and clear: an offer, not a value.
       className={cn(
-        "max-w-xs rounded-chip text-sm font-normal [&_[data-slot=chip-remove]]:rounded-icon",
+        "max-w-xs rounded-chip text-sm font-normal [&_[data-slot=chip-remove]]:rounded-capsule",
         unset &&
           "border border-dashed border-border bg-transparent text-muted-foreground hover:border-transparent state-layer has-aria-expanded:border-transparent has-aria-expanded:bg-state-selected",
         className,
@@ -1576,7 +1576,7 @@ export function DateRangeFilter({
         <PopoverContent
           align="start"
           data-slot="date-range-filter-content"
-          className={cn("gap-0 p-1", custom ? "w-auto" : "w-56")}
+          className={cn("gap-0 p-1.25", custom ? "w-auto" : "w-56")}
         >
           {custom ? (
             <div data-slot="date-range-filter-custom" className="flex flex-col">

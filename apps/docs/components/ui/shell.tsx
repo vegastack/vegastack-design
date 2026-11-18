@@ -1,4 +1,4 @@
-// @vegastack shell@0.114.0 sha256-3Qaq0cINlqTYOIc5/jMwNMrZsZ1T+xM8Cp3LuAexCSU=
+// @vegastack shell@0.114.0 sha256-Ap8DOBYMoy8HBOos0zkUEUJSO1gRfH44n1yrdngigh8=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";

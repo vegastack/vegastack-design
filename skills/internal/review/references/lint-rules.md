@@ -255,9 +255,12 @@ that catch bugs nobody can see in review.
     role: a ramp step (`rounded-xs|sm|md|lg|xl|2xl|3xl|4xl`), bare `rounded`, an arbitrary length
     (`rounded-[4px]`, `rounded-[calc(var(--radius)-3px)]`, upstream's `rounded-[min(var(--radius-md),10px)]`),
     a radius variable (`rounded-(--cell-radius)`) or the retired `rounded-chat-card`, under any
-    variant and in any side form. Use `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile`;
+    variant and in any side form. Use `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile`;
     `none`, `full` and `[inherit]` stay legal. Upstream pulls arrive with ramp steps, so this rule is
     what makes a re-pull restate its corners.
+    **`floating-capsule`** (BRD-12, **new 2026-11-18**) — in registry source, a class string that
+    floats (`fixed`, `sticky`, or `absolute` with a `shadow-*`) yet wears `rounded-control`: a floating
+    bar is `rounded-capsule`, and its buttons follow (`[&_[data-slot=button]]:rounded-capsule`).
 30. **`no-color-bridge`** (OVL-13 theme scopes, **new 2026-11-16**) — in registry source, a read of the
     `@theme inline` colour bridge: `var(--color-<semantic>)` (any spacing, across lines), Tailwind's
     `bg-(--color-x)` and `bg-(color:--color-x)` shorthands, or such a read as a fallback. The bridge

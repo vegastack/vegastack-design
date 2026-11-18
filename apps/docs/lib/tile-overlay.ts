@@ -1,4 +1,4 @@
-// @vegastack tile-overlay@0.26.4 sha256-YOnsqa75b/EiJrtPvFLvbgV9VVA7J21mIgNJJOTYe1s=
+// @vegastack tile-overlay@0.26.4 sha256-yIARzR0DuH8FkuYd5ncMg621/l7/rv+iwhl6olkoG2c=
 
 /**
  * tile-overlay — the ONE visual recipe for media tiles and the chrome that floats over them:
@@ -35,7 +35,7 @@ export const tileGroupClass = "group/tile";
  * Written against the ghost variant's own selectors so `cn` replaces them rather than stacking.
  */
 export const tileOverlayButtonClasses = [
-  "bg-scrim/40 text-scrim-foreground backdrop-blur-sm",
+  "rounded-capsule bg-scrim/40 text-scrim-foreground backdrop-blur-sm",
   "hover:bg-scrim/60 hover:text-scrim-foreground dark:hover:bg-scrim/60",
   "aria-expanded:bg-scrim/60 aria-expanded:text-scrim-foreground",
   "[&_svg:not([class*='text-']):not([data-icon-tone])]:text-scrim-foreground",

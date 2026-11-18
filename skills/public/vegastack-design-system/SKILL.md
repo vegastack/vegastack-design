@@ -249,7 +249,7 @@ on shadcn's `neutral` base. Always use the utility, never a raw value.
 | Text     | `text-foreground` · `text-muted-foreground` · `text-{primary,secondary,accent,card,popover}-foreground`                                                                                                             |
 | Status   | `bg-{destructive,success,warning,info}` · `-foreground` (ink ON the fill) · `-text` (ink on the page or on the family's own tint)                                                                                   |
 | Border   | `border-border` · `border-input` — there are no rings; focus is a global background tint (Tabs included)                                                                                                            |
-| Radius   | a role, never a size: `rounded-{control,icon,chip,inline,mark,item,block,card,bubble,overlay,tile}` · `row-fill` on table rows (BRD-12)                                                                             |
+| Radius   | a role, never a size: `rounded-{control,segment,icon,capsule,chip,inline,mark,item,block,card,bubble,overlay,tile}` · `row-fill` (BRD-12)                                                                           |
 | Type     | Tailwind's own `text-{xs…7xl}`. `text-sm` is 14px, `text-base` is 16px. Line-height and letter-spacing above `text-base` come from the theme — never write `tracking-*`, an arbitrary `text-[13px]`, or `uppercase` |
 | Font     | `font-sans` `font-mono` `font-serif` `font-heading`                                                                                                                                                                 |
 | Motion   | `duration-{fast,base,slow}` · `ease-{standard,emphasized,exit,spring}` — or Tailwind's own steps                                                                                                                    |
@@ -415,8 +415,10 @@ contract.
   right-align a numeric column. `font-mono` is for code and identifiers (`SYS-1042`) only.
 - Title a page with `PageHeader` (`font-heading text-page-title font-semibold`, 26/600); a section heading is
   `font-heading text-base font-medium`, a group label `text-xs font-medium text-muted-foreground`.
-- Give every corner its ROLE, never a size (BRD-12): `rounded-control` for a single-line control,
-  `rounded-icon` for an icon-only button, `rounded-chip`, `rounded-inline` for a token inside text,
+- Give every corner its ROLE, never a size (BRD-12): `rounded-control` (8px rectangle) for an in-page
+  control, `rounded-segment` for a control nested in a control (tab triggers, buttons inside a field),
+  `rounded-icon` for an icon-only button, `rounded-capsule` only for what floats or stands alone (floating
+  bars, hover toolbars, controls over media, and the buttons inside them), `rounded-chip`, `rounded-inline` for a token inside text,
   `rounded-mark`, `rounded-item` for a row with a fill or a tooltip, `rounded-block`,
   `rounded-card`, `rounded-bubble`, `rounded-overlay`, `rounded-tile` for square media; `row-fill`
   on a table row. Never `rounded-sm|md|lg|xl…`, bare `rounded` or `rounded-[…]`.

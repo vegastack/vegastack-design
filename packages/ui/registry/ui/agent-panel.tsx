@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.114.0 sha256-2Hyv5yKJOJmIw+a7hx/y2D0xEhXlOCZ8MhPlo+XHUUw=
+// @vegastack agent-panel@0.114.0 sha256-5H/eHhO6Rab/KMvbbEp0l8JfThJuXfaZ9v1TnZa1bRo=
 
 "use client";
 
@@ -2628,7 +2628,7 @@ export function AgentPanel({
       >
         <div
           data-slot="agent-panel-header"
-          className="flex min-h-9 min-w-0 items-center gap-1 px-1.5 py-1"
+          className="flex min-h-9 min-w-0 items-center gap-1 p-1.25"
         >
           <h2 className="flex min-w-0 flex-1">
             <CollapsibleTrigger

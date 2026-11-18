@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.114.0 sha256-J7SsVsD233YWT5aHXLktiidbkaT48cfl/vp3d9wgLfs=
+// @vegastack date-picker@0.114.0 sha256-OaMJT7Rq2/69RwG6roIcBsxxzDUfW6WevPUrLvLYnys=
 
 "use client";
 
@@ -777,7 +777,7 @@ export function DatePicker({
           data-slot="date-picker-clear"
           // Centred with auto margins, not `-translate-y-1/2`: Button's press nudge sets `translate-y`
           // and would replace the centring transform, dropping the × by half its height.
-          className="absolute inset-y-0 end-1.5 my-auto active:not-aria-[haspopup]:translate-y-0"
+          className="absolute inset-y-0 end-1.5 my-auto rounded-segment active:not-aria-[haspopup]:translate-y-0"
           onClick={() => {
             trigger?.focus();
             onValueChange?.(undefined);
@@ -1275,7 +1275,7 @@ export function DateTimePicker({
           aria-label={clearLabel}
           disabled={disabled}
           data-slot="date-time-picker-clear"
-          className="absolute inset-y-0 end-1.5 my-auto active:not-aria-[haspopup]:translate-y-0"
+          className="absolute inset-y-0 end-1.5 my-auto rounded-segment active:not-aria-[haspopup]:translate-y-0"
           onClick={() => {
             trigger?.focus();
             onValueChange?.(undefined);

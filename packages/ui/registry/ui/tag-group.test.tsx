@@ -75,11 +75,11 @@ test("onRemove renders a labelled remove button and fires", async () => {
   await userEvent.click(screen.getByRole("button", { name: "Remove SaaS" }));
   expect(onRemove).toHaveBeenCalledTimes(1);
   const remove = screen.getByRole("button", { name: "Remove SaaS" }).element();
-  // The shared ChipRemove: a round ghost icon Button whose REAL box is the target. The old
+  // The shared ChipRemove: a round (`rounded-capsule`, a button inside a pill) ghost icon Button whose REAL box is the target. The old
   // `before:-inset-2` hit area was never hit-testable — Chromium clips a nested <button>'s
   // generated content to its own border box (see chip.test.tsx for the elementFromPoint proof).
   expect(remove.dataset.slot).toBe("chip-remove");
-  expect(remove.className).toContain("rounded-icon");
+  expect(remove.className).toContain("rounded-capsule");
   expect(remove.className).not.toContain("before:-inset-2");
   await expectNoA11yViolations(screen.container);
 });
@@ -128,7 +128,7 @@ test("a Tag is the Chip primitive at the inline tier, with a real 24px remove co
   expect(remove.dataset.slot).toBe("chip-remove");
   // Since Batch 2 the square tier is upstream's own `size-6`, not a `w-6` override of a text tier.
   expect(remove.className).toContain("size-6");
-  expect(remove.className).toContain("rounded-icon");
+  expect(remove.className).toContain("rounded-capsule");
 });
 
 test("forwards refs to tag and group roots", async () => {

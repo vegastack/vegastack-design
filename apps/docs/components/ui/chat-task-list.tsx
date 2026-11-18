@@ -1,4 +1,4 @@
-// @vegastack chat-task-list@0.114.0 sha256-YCXPv1iMKGWResz4uLBhFcXY2L2Ej7fG53yXnxBV4WM=
+// @vegastack chat-task-list@0.114.0 sha256-/P84PdDpXaaCVMpm2F8AFh0tzCeYqdIlRbOydxeDMhc=
 
 "use client";
 
@@ -148,7 +148,7 @@ function ChatTaskList({
         onOpenChange?.(next);
       }}
       className={cn(
-        "flex min-w-0 flex-col rounded-card border border-chat-hairline p-1",
+        "flex min-w-0 flex-col rounded-card border border-chat-hairline p-1.25",
         className,
       )}
     >

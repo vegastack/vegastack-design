@@ -55,7 +55,7 @@ Tabs
 ### Line
 
 Use the `variant="line"` prop on `TabsList` for a line style. The default is `variant="default"`,
-the grey pill track — the two are the whole variant set.
+the grey segmented track (`rounded-control`, its triggers `rounded-segment`) — the two are the whole variant set.
 
 <ComponentPreview name="tabsLine" file="components/preview/tabs.tsx" />
 
@@ -167,7 +167,7 @@ so a separate span is already read as its own word.
 `TabsList` takes `overflow`: `"scroll"` or `"visible"`. A line list defaults to `"scroll"` (LAY-14):
 the row scrolls sideways inside itself, never the page, with the same edge fades and hidden
 scrollbar as `AttachmentGroup`. The selected tab is kept in view on mount and whenever the
-selection changes, and the keyboard's roving stop scrolls in as it moves. The pill track defaults to
+selection changes, and the keyboard's roving stop scrolls in as it moves. The segmented track defaults to
 `"visible"`, upstream's behaviour; pass `overflow="scroll"` to opt it in.
 
 `overflow="menu"` folds the list instead: when the tabs do not fit the room they are given

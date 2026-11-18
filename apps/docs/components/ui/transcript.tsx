@@ -1,4 +1,4 @@
-// @vegastack transcript@0.114.0 sha256-9GddvUpBe5BXxo07sdy0zpzUBmDwkvK37QVSZn84RGw=
+// @vegastack transcript@0.114.0 sha256-FK9Qaw+/9gzM+GKEbmh7v3ubL3XeDHcNaEdJMHiAOIk=
 
 "use client";
 
@@ -942,7 +942,7 @@ function TranscriptBack() {
       tabIndex={shown ? 0 : -1}
       aria-hidden={!shown}
       className={cn(
-        "absolute bottom-3 inset-s-1/2 -translate-x-1/2 border-border shadow-md transition-[opacity,translate] duration-200 ease-out rtl:translate-x-1/2",
+        "absolute bottom-3 inset-s-1/2 -translate-x-1/2 rounded-capsule border-border shadow-md transition-[opacity,translate] duration-200 ease-out rtl:translate-x-1/2",
         shown ? "opacity-100" : "pointer-events-none translate-y-1 opacity-0",
       )}
       onPointerEnter={() => setEngaged(true)}

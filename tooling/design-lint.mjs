@@ -347,13 +347,15 @@ const colorBridgeReads = (file, src) => {
 };
 
 const NO_RADIUS_RAMP_MSG =
-  "radius off the role scale (BRD-12): use the role corner — rounded-control (single-line controls), -icon (icon buttons), -chip, -inline (tokens in text), -mark, -item (rows, tooltips), -block, -card, -bubble, -overlay, -tile (square media) — never a ramp step, bare `rounded`, an arbitrary length or a radius variable";
+  "radius off the role scale (BRD-12): use the role corner — rounded-control (in-page controls), -segment (a control in a control), -icon (icon buttons), -capsule (what floats), -chip, -inline (tokens in text), -mark, -item (rows, tooltips), -block, -card, -bubble, -overlay, -tile (square media) — never a ramp step, bare `rounded`, an arbitrary length or a radius variable";
 const RADIUS_ROLES = new Set([
   "none",
   "full",
   "[inherit]",
   "control",
+  "segment",
   "icon",
+  "capsule",
   "chip",
   "inline",
   "mark",
@@ -710,7 +712,7 @@ function sourceFileFor(file, src) {
 const INLINE_RADIUS_KEY =
   /^border(?:(?:Top|Bottom)(?:Left|Right)|(?:Start|End)(?:Start|End))?Radius$|^border(?:-[a-z]+)*-radius$/;
 const ROLE_RADIUS_VALUE =
-  /^var\(--(?:corner|radius)-(?:control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile)\)$/;
+  /^var\(--(?:corner|radius)-(?:control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile)\)$/;
 
 /** BRD-12: every style-object radius whose value is a number or a non-role string, with its line. */
 function inlineRadiusLiterals(file, src) {
@@ -1316,6 +1318,22 @@ for (const root of ROOTS) {
       ) {
         const ramp = radiusRampClass(lit, classPosition);
         if (ramp) report("no-radius-ramp", `${NO_RADIUS_RAMP_MSG} ("${ramp}")`);
+      }
+
+      // (j) BRD-12, amended 2026-11-18 (corner shapes): a bar that floats over the page — `fixed`
+      // or `sticky`, or `absolute` with a shadow (a hover toolbar) — is a capsule, never the in-page
+      // control's 8px rectangle. The reverse choice (which in-page control is a rectangle) is the
+      // default, so only this direction needs a gate.
+      if (
+        /(^|\/)packages\/ui\/registry\//.test(
+          resolve(file).replace(/\\/g, "/"),
+        ) &&
+        floatingControlCorner(lit)
+      ) {
+        report(
+          "floating-capsule",
+          "a floating part (fixed, sticky, or absolute with a shadow) is a capsule: `rounded-capsule`, plus `capsule-scope` on a bar with controls — not `rounded-control`/`rounded-icon` (BRD-12, design.md § Corners). A floating panel that wraps or holds a form is `rounded-card`.",
+        );
       }
 
       // (g) Tailwind's `!` modifier — the class-string half of the `important` rule. Counted per
@@ -2146,6 +2164,27 @@ function bareRingClass(text, classPosition) {
   );
   const beside = tokens.some((token) => token !== bare && /[-:/[]/.test(token));
   return classShaped && beside ? bare : null;
+}
+
+/** BRD-12 (j): a class string that floats (fixed/sticky, or absolute + shadow) yet wears `rounded-control`. */
+function floatingControlCorner(text) {
+  // Any variant counts (`max-sm:fixed`); `shadow-none` and `shadow-transparent` are not a shadow.
+  const utilities = text
+    .split(/\s+/)
+    .map((token) => token.slice(token.lastIndexOf(":") + 1));
+  if (
+    !utilities.includes("rounded-control") &&
+    !utilities.includes("rounded-icon")
+  )
+    return false;
+  return (
+    utilities.includes("fixed") ||
+    utilities.includes("sticky") ||
+    (utilities.includes("absolute") &&
+      utilities.some(
+        (u) => /^shadow-/.test(u) && !/^shadow-(?:none|transparent)$/.test(u),
+      ))
+  );
 }
 
 /**
