@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.114.2] — November 18, 2026
+
+<!-- assembled from 1 changeset: 7cf471149096 -->
+
+### 🔧 Changed components
+
+- Shell: the rounded-card frame follows one rule in dark — the page is the extreme and each step out from the work moves one notch toward the middle (LAY-26). `--shell-card` (the page card and the docked assistant) moves from `oklch(0.185 0 0)` to `oklch(0.145 0 0)`, the value of `--background`; `--panel` (the record side panel) from `oklch(0.125 0 0)` to `oklch(0.165 0 0)`, the step of `--shell-column`; `--shell-canvas` (under the global bar and the rail) from `oklch(0.235 0 0)` to `oklch(0.205 0 0)`. Cards and menus stay at `oklch(0.205 0 0)`, lifted on the page. Light is unchanged.
+  [`9059856`](https://github.com/VegaStack/vegastack-design/commit/9059856)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.24.2`** (was `0.24.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.114.1 → 0.114.2.
+
 ## [0.114.1] — November 18, 2026
 
 <!-- assembled from 1 changeset: a71c31bdc9d1 -->
