@@ -167,7 +167,9 @@ test("API-39 (C3): a bare toggle takes no pressed fill — its icon carries the 
   expect(classes).not.toContain("aria-pressed:bg-state-selected");
   expect(classes).not.toContain("data-[state=on]:bg-state-selected");
   expect(classes).toContain("aria-pressed:bg-transparent");
-  expect(classes).toContain("aria-pressed:hover:layer-hover");
+  expect(classes).toContain(
+    "aria-pressed:not-focus-visible:not-disabled:hover:layer-hover",
+  );
   // An icon with its own ink keeps it when pressed (a gold star).
   expect(screen.getByTestId("star").element().getAttribute("class")).toContain(
     "text-warning",

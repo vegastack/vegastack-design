@@ -30979,7 +30979,7 @@
         "dimensions": [
           {
             "name": "variant",
-            "values": ["default", "outline"],
+            "values": ["default", "outline", "bare"],
             "evidence": "packages/ui/registry/ui/toggle.tsx: cva variant"
           }
         ]
@@ -35901,9 +35901,14 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["default", "panel"],
+            "evidence": "packages/ui/registry/ui/context-panel.tsx: ContextPanelProps variant union"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -38344,9 +38349,14 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No local variants; the look is Attachment's, and the layout is the enclosing AttachmentGroup's."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["card", "row"],
+            "evidence": "packages/ui/registry/ui/file-card.tsx: FileCardProps variant union"
+          }
+        ]
       },
       "sizes": {
         "status": "observed",
@@ -40221,9 +40231,14 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A layout frame; no local axis."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "dockAt",
+            "values": ["69", "74", "75", "95"],
+            "evidence": "packages/ui/registry/ui/record-layout-side.tsx: RecordPanelDock union (DOCK_CLASSES)"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -44402,7 +44417,7 @@
       "name": "members-stack",
       "registryType": "registry:ui",
       "title": "Members Stack",
-      "summary": "Who has access, drawn one way everywhere: 24px faces overlapped 6px, at most three and a \"+N\" pill of the same height, active people first; only you, everyone in a space and a team as their own forms; names on hover and one members popover.",
+      "summary": "Who has access, drawn one way everywhere: 24px faces overlapped 6px, at most three and a \"+N\" pill of the same height, active people first; only you, everyone in a space and a team as their own forms; names on hover and one members popover. A compact viewers variant (22px faces, a hue ring for who is here, grouped Viewing now / Viewed popover).",
       "status": "stable",
       "since": "0.110.0",
       "family": "data",
@@ -44474,14 +44489,19 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "One shape; `audience` picks the form (people, only you, everyone, team), not a style axis."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["members", "viewers"],
+            "evidence": "packages/ui/registry/ui/members-stack.tsx: MembersStackVariant union"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "One size: 24px faces on the 28px bar line (UI ground rules M2)."
+        "rationale": "One size per variant: 24px faces on the 28px bar line (UI ground rules M2); viewers 22px faces."
       },
       "states": {
         "behavior": {

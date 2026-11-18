@@ -19421,7 +19421,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.117.0",
-        "integrity": "sha256-9IUAmd3Fl2R65i0JAhZfSwBurpDVErdiA7eL7nZ26UI="
+        "integrity": "sha256-P7fjzL7wWwyrmzD1mqnv25dWDE9PGEUmEbkRwWXteXA="
       }
     },
     {
