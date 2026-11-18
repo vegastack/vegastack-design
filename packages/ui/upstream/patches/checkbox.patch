@@ -1,8 +1,8 @@
 # component: checkbox
 # decisions: A11Y-19, DOC-1, DOC-2, FOC-1, FOC-12, FOC-5, FOC-6, FRM-15, FOC-14, A11Y-24, BRD-12, BRD-11
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   BRD-11: the box is `rounded-mark` (4px) instead of `rounded-[4px]`.
 #   A11Y-24 (widened MK 2026-10-26, Regent product-cohesion W1-DS2): on a coarse pointer the
 #     invisible `after:` hit area grows to 44×44 (`pointer-coarse:after:-inset-3.5`).

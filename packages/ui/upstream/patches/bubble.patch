@@ -1,8 +1,8 @@
 # component: bubble
 # decisions: A11Y-2, A11Y-13, API-16, DOC-1, DOC-2, FOC-1, FOC-6, COL-24, INT-4, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1, FOC-6: `BubbleContent` drops `[button,a]:outline-none`,
 #     `[button,a]:focus-visible:border-ring`, `[button,a]:focus-visible:ring-3` and
 #     `[button,a]:focus-visible:ring-ring/50`. An interactive bubble takes `base.css`'s one 2px

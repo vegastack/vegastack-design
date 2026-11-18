@@ -1,54 +1,130 @@
 ---
 title: Radius
-description: The corner roles — one radius per kind of element, from the pill control to the 24px overlay.
+description: The corner roles — one radius per kind of element, when a control is a capsule and when it is a rounded rectangle.
 audience: public
 ---
 
-Corners are **roles**, not a ramp. Every element takes the corner of the job it does — a
-single-line control, a row, a block in the content, a card, a dialog — and the role names that
+Corners are **roles**, not a ramp. Every element takes the corner of the job it does — a control in
+the page, a bar that floats, a row, a block in the content, a card, a dialog — and the role names that
 corner on every platform (web `rounded-*`, mobile `AppRadii`). A control never borrows a card's
 corner, and nothing picks a value because it looks close (BRD-12).
 
 <RadiusScale />
 
-| Role    | Value       | Utility           | Used by                                                                                                                                                                                                                                                  |
-| ------- | ----------- | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| control | pill        | `rounded-control` | Every single-line control: Button at every size, Input, Select, NativeSelect, Combobox trigger, single-line InputGroup, search fields, Toggle, ToggleGroup, the segmented TabsList and its triggers, the single-line composer, single-line floating bars |
-| icon    | circle      | `rounded-icon`    | Every icon-only button (all `icon*` sizes): sidebar row actions, sheet and toast close, nav arrows, send, FAB                                                                                                                                            |
-| chip    | pill        | `rounded-chip`    | Chips, badges, counts, tiny numeric citation markers                                                                                                                                                                                                     |
-| inline  | 6px         | `rounded-inline`  | A token inside running text: mentions, record and file links, template and due tokens, Kbd, inline code                                                                                                                                                  |
-| mark    | 4px         | `rounded-mark`    | Highlights, find matches, diff marks, the checkbox, chart swatches, the grid fill handle                                                                                                                                                                 |
-| item    | 10px        | `rounded-item`    | Every row with a hover, highlighted, selected or focus fill — menu, select, combobox, sidebar, tree, list, settings nav, question options, version list, and table, data-list and data-grid rows — and tooltips                                          |
-| block   | 12px        | `rounded-block`   | Blocks in the reading flow: code, alerts, callouts, embeds, bookmarks, notes, previews, images in content; a card nested in a card (board cards)                                                                                                         |
-| card    | 16px        | `rounded-card`    | Card, chat cards, popovers, hover cards, menus, toasts, floating panels, multi-line fields (Textarea, multi-line InputGroup)                                                                                                                             |
-| bubble  | 20px        | `rounded-bubble`  | User and chat bubbles, the command palette                                                                                                                                                                                                               |
-| overlay | 24px        | `rounded-overlay` | Dialogs, alert dialogs, drawers, sheets (top corners), the grown multi-line composer, floating desktop windows                                                                                                                                           |
-| tile    | 25% of size | `rounded-tile`    | Square media tiles: icon tiles, thumbnails, logos, team and workspace avatars                                                                                                                                                                            |
+| Role    | Value       | Utility           | Used by                                                                                                                                                                                                         |
+| ------- | ----------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| control | 8px         | `rounded-control` | Every control in the page: Button at every size, Input, Select, NativeSelect, Combobox trigger, single-line InputGroup, page and header search fields, Toggle, ToggleGroup, TabsList, Menubar                   |
+| segment | 6px         | `rounded-segment` | A control nested in a control: TabsList triggers, Menubar items, buttons inside an InputGroup or a search box, segments of a joined group                                                                       |
+| icon    | 8px         | `rounded-icon`    | Every icon-only button in the page: toolbar and row actions, sheet and toast close, nav arrows                                                                                                                  |
+| capsule | pill        | `rounded-capsule` | Only what floats or stands alone: the selection action bar, the sticky audio bar, hover toolbars on blocks and images, floating editor toolbars, controls over video — and every button inside them             |
+| chip    | pill        | `rounded-chip`    | Chips, badges, counts, tiny numeric citation markers                                                                                                                                                            |
+| inline  | 6px         | `rounded-inline`  | A token inside running text: mentions, record and file links, template and due tokens, Kbd, inline code                                                                                                         |
+| mark    | 4px         | `rounded-mark`    | Highlights, find matches, diff marks, the checkbox, chart swatches, the grid fill handle                                                                                                                        |
+| item    | 10px        | `rounded-item`    | Every row with a hover, highlighted, selected or focus fill — menu, select, combobox, sidebar, tree, list, settings nav, question options, version list, and table, data-list and data-grid rows — and tooltips |
+| block   | 12px        | `rounded-block`   | Blocks in the reading flow: code, alerts, callouts, embeds, bookmarks, notes, previews, images in content; a card nested in a card (board cards)                                                                |
+| card    | 16px        | `rounded-card`    | Card, chat cards, popovers, hover cards, menus, toasts, floating panels, multi-line fields (Textarea, multi-line InputGroup)                                                                                    |
+| bubble  | 20px        | `rounded-bubble`  | User and chat bubbles, the command palette                                                                                                                                                                      |
+| overlay | 24px        | `rounded-overlay` | Dialogs, alert dialogs, drawers, sheets (top corners), the grown multi-line composer, floating desktop windows                                                                                                  |
+| tile    | 25% of size | `rounded-tile`    | Square media tiles: icon tiles, thumbnails, logos, team and workspace avatars                                                                                                                                   |
 
 Directional forms work the same way: `rounded-t-overlay` for a sheet's top corners,
 `rounded-s-item` / `rounded-e-item` for the ends of a row, `rounded-e-control` for the last segment
-of a pill group. Three structural values stay legal: `rounded-none`, `rounded-full` (a dot, or a
-true circle that is not an icon button — a person's avatar, a status dot, a radio) and
-`rounded-[inherit]`.
+of a joined group. Three structural values stay legal: `rounded-none`, `rounded-full` (a dot, or a
+true circle that is not a button — a person's avatar, a status dot, a radio) and `rounded-[inherit]`.
+
+## Capsule or rounded rectangle
+
+The same control can be either; **where it sits** decides, not its height.
+
+| Make it a **rounded rectangle** (`control`, `icon`) when…            | Make it a **capsule** (`capsule`, `chip`) when…                            |
+| -------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| it sits in the page: a header, a form, a card, a table toolbar       | it floats over the page: a selection bar, a sticky player, a hover toolbar |
+| it is a field you type or pick into: input, select, search, combobox | it sits on media: video and image controls                                 |
+| its neighbours are rectangles: rows, cards, other fields             | it is a label: a chip, a badge, a count                                    |
+| it stretches to the container's width                                | it is a button inside a capsule (then a circle)                            |
+
+Why: Apple keeps compact desktop controls rounded rectangles and uses capsules for touch layouts and
+standout actions ("in dense desktop environments, they're best used for standout actions", WWDC25
+_Get to know the new design system_). Material 3 and GitHub Primer draw fields as small rectangles
+(4dp, 6px) and keep pills for labels. A pill next to a 10px row or inside a 16px card reads as a
+different family; that mismatch is what the rules below prevent.
+
+**Touch platforms.** The mobile app follows the touch half of the same guidance: buttons, segmented
+controls, chips and search fields stay capsules there, and only form fields are rounded rectangles
+(`AppRadii.field`, a quarter of the 48px field).
+
+**Squircles.** A squircle is how a rounded corner is drawn (a continuous curve), not a different
+radius. The mobile app draws its rounded rectangles that way. The web waits until stable Safari
+supports CSS `corner-shape`, so Chrome and Safari never show different corners.
 
 ## The rules
 
-1. **A single line is a pill.** Controls inside a pill are pills or circles.
-2. **A lone icon is a circle.** An icon button with a label is a pill.
-3. **Tokens inside running text stay medium** (`inline`, 6px), so a mention never reads as a
-   button. Highlights and marks are smaller still (`mark`, 4px).
-4. **Rows follow their container.** A row's fill is `item` (10px), inset from the container edge
-   so its corners show — the shape you see when you hover a Select option. Row radius is the
-   container's radius minus its padding: a menu is `card` (16px) with `p-1.5` (6px), so its rows
-   are 10px.
-5. **Bigger surfaces, bigger corners:** `block` 12 → `card` 16 → `bubble` 20 → `overlay` 24.
-6. **Every hover has a shape.** A fill never relies on a parent's `overflow-hidden` to look
+1. **Controls in the page are rounded rectangles** (`control`, 8px — a quarter of the 32px control).
+   An icon-only button is a rounded square with the same corner (`icon`).
+2. **Nested corners are concentric** — the inner corner is the outer corner minus the inset. A
+   control 2–4px inside another takes `segment` (6px = 8px − 2px; at a 4px inset it errs one step
+   round, Apple's fallback radius, so an inner button never looks sharper than its field).
+   Containers that hold segments use a 2px inset. Inside a capsule everything is a capsule, and so
+   it is inside a 24px card whose controls sit 7px in (the chat composer: 24 − (1 + 6) leaves a full
+   circle on a 32px button), which takes `capsule-scope` too.
+3. **The capsule is for what floats or stands alone** — floating and sticky bars, hover toolbars,
+   controls over media — and for the buttons inside them, which are circles. Give the bar
+   `rounded-capsule capsule-scope`: the scope re-points `control`, `segment` and `icon` to the capsule
+   for everything inside, so composed buttons, tooltip and menu triggers follow without naming each
+   one. A floating **panel** that can wrap onto a second row or holds a form (the editor's selection
+   bubble, a document's decision bar) is a card (`rounded-card`), not a capsule. Calendar days,
+   colour swatches and the remove button inside a chip are circles by convention.
+4. **One family per cluster.** A field and the button beside it share a shape. Never put a capsule
+   button next to a rectangular field.
+5. **Labels are pills** (`chip`). **Tokens inside running text stay medium** (`inline`, 6px), so a
+   mention never reads as a button. Highlights and marks are smaller still (`mark`, 4px).
+6. **Rows follow their container.** A row's fill is `item` (10px), inset from the container edge
+   so its corners show — the shape you see when you hover a Select option. The inset is measured
+   from the container's **outer** edge, border included: a menu is `card` (16px) with a 1px border
+   and `p-1.25` (5px), 16 − (1 + 5) = 10. A borderless container takes the whole 6px as padding.
+7. **Bigger surfaces, bigger corners:** `block` 12 → `card` 16 → `bubble` 20 → `overlay` 24.
+8. **Every hover has a shape.** A fill never relies on a parent's `overflow-hidden` to look
    rounded. Only cells inside a spreadsheet selection rectangle are square.
-7. **Media tiles scale.** A square tile is rounded at a quarter of its size at every size. People
+9. **Media tiles scale.** A square tile is rounded at a quarter of its size at every size. People
    are circles; agents keep their hexagon.
-8. **Indicators have pill ends** — progress, sliders, meters, scrollbar thumbs, resize grips, step
-   connectors, underline indicators. Chart swatches stay `mark`.
-9. **Skeletons copy the radius** of what they stand in for.
+10. **Indicators have pill ends** — switches, progress, sliders, meters, scrollbar thumbs, resize
+    grips, step connectors, underline indicators. Chart swatches stay `mark`.
+11. **Skeletons copy the radius** of what they stand in for.
+
+## The arithmetic
+
+A part that sits in a rounded corner is **concentric** with it: its corner is the container's corner
+minus the inset, and the inset is everything between the two outer edges — the container's border
+plus its padding (plus any wrapper's padding). When the result reaches half the part's height, the
+part is simply round. When the inset is larger than the container's corner, the part is free and
+takes its own role.
+
+| Part                                                    | Container    | Inset (border + padding) | Corner                                          |
+| ------------------------------------------------------- | ------------ | ------------------------ | ----------------------------------------------- |
+| Menu, Select, Combobox row (the list carries the inset) | `card` 16    | 1 + 5 = 6                | 16 − 6 = **10** (`item`)                        |
+| Command palette row                                     | `bubble` 20  | 1 + 4 + 5 = 10           | 20 − 10 = **10** (`item`)                       |
+| Command palette search box                              | `bubble` 20  | 1 + 4 + 5 = 10           | 20 − 10 = **10** (`item`)                       |
+| Dialog close (28px)                                     | `overlay` 24 | 1 + 8 = 9                | 24 − 9 = 15 ≥ 14 → **circle** (`capsule`)       |
+| Composer +, @, Send (32px)                              | `overlay` 24 | 1 + 6 = 7                | 24 − 7 = 17 ≥ 16 → **circle** (`capsule-scope`) |
+| Tab trigger                                             | `control` 8  | 2                        | 8 − 2 = **6** (`segment`)                       |
+| Vertical tab trigger                                    | `card` 16    | 6                        | 16 − 6 = **10** (`item`)                        |
+| Menubar item                                            | `control` 8  | 1 + 1 = 2                | 8 − 2 = **6** (`segment`)                       |
+| Editor panel's buttons                                  | `card` 16    | 1 + 7 = 8                | 16 − 8 = **8** (`control`, `icon`)              |
+| Assistant card's close                                  | `overlay` 24 | 1 + 8 = 9                | 15 ≥ 14 → **circle** (`capsule-scope`)          |
+| Card action, toast ×                                    | `card` 16    | 1 + 16 = 17              | past the corner: free → `icon` 8                |
+
+`geometry.browser.test.tsx` measures the painted boxes of a menu, a select, the dialog's close and
+the command palette against this rule, so a padding or border change that breaks it fails the build.
+
+## One source on every platform
+
+Every number above lives once, in `@vegastack/design-tokens` (`tokens/semantic.tokens.json` and
+`tokens/corner-platforms.json`). The web reads the CSS variables (`--corner-*`), the desktop app
+reads `corner-*` from the package (its floating windows' native glass corners), and the Flutter app
+pulls `corners.dart` (generated as `DesignCorners`) with `scripts/pull-design-corners.sh`.
+`corners.json` lists both tables: **pointer** (web, desktop) and **touch** (mobile), where touch
+overrides only `control`, `icon` (capsules) and `field` (12px). Change a corner in the design
+system, release, and pull it; never type a radius in an app.
 
 ## Table rows
 
@@ -62,11 +138,11 @@ target) sets `--row-fill-color` instead of painting the row.
 
 ## Overriding shape
 
-Each role is one variable — `--corner-control`, `--corner-icon`, `--corner-chip`,
+Each role is one variable — `--corner-control`, `--corner-segment`, `--corner-icon`, `--corner-capsule`, `--corner-chip`,
 `--corner-inline`, `--corner-mark`, `--corner-item`, `--corner-block`, `--corner-card`,
 `--corner-bubble`, `--corner-overlay`, `--corner-tile` — so re-theming a role in your global CSS
 changes every element that plays it. Keep the order (`inline` < `item` < `block` < `card` <
-`bubble` < `overlay`) and the row rule (row = container − padding) intact.
+`bubble` < `overlay`) and the row rule (inner = outer − border − padding) intact.
 
 `--radius` (0.625rem) and the derived `rounded-sm` … `rounded-4xl` ramp still exist so pasted
 upstream snippets compile, but VegaStack components never use them: design-lint's
@@ -74,6 +150,6 @@ upstream snippets compile, but VegaStack components never use them: design-lint'
 `--radius` arithmetic in registry source.
 
 <DoDont
-  do="Give each element the role of the job it does: rounded-control for a single-line field, rounded-item for a row, rounded-card for a menu."
+  do="Give each element the role of the job it does: rounded-control for a field in the page, rounded-capsule for a floating bar, rounded-item for a row, rounded-card for a menu."
   dont="Pick a ramp step (rounded-md, rounded-xl) or an arbitrary length because it looks close."
 />

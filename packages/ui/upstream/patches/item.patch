@@ -1,8 +1,8 @@
 # component: item
 # decisions: A11Y-7, API-16, API-19, API-20, API-29, DOC-2, FOC-1, FOC-6, LAY-11, API-37, COL-24, INT-4, LAY-20, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-37 (MK 2026-10-26, Regent product-cohesion W1-DS2): `ItemGroup` takes `variant`
 #     (`default` · `flush`, as `data-variant`); `flush` lays the rows with no gap and bleeds them
 #     into the enclosing card's padding (`-mx-3 w-auto gap-0`; LAY-20 below moves it to `-mx-2 gap-px`).

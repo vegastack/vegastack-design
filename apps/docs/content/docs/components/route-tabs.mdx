@@ -1,6 +1,6 @@
 ---
 title: Route Tabs
-description: Tabs whose panels are pages — a named nav of links drawn as pill tabs, one URL per tab, current at once on click while the page loads.
+description: Tabs whose panels are pages — a named nav of links drawn as segmented tabs, one URL per tab, current at once on click while the page loads.
 audience: public
 registry: route-tabs
 status: stable
@@ -47,7 +47,7 @@ export function ConnectionsFrame({ children }: { children: React.ReactNode }) {
 ```
 
 When each tab is its own URL, the tabs are navigation, not a `Tabs` widget: a `nav` of links that
-look like the pill tabs. Put them in the section's layout so a switch swaps only the page below.
+look like the segmented tabs. Put them in the section's layout so a switch swaps only the page below.
 A clicked tab is current at once and is marked pending — with no bar or line under it — until the router's path moves, and
 the page below dims meanwhile — so a slow page never leaves the previous tab looking chosen with
 its old content (or its empty state) on screen.
@@ -95,8 +95,8 @@ and keeps the current tab in view — counts arriving after the first paint incl
 ### Sub-pages under page tabs
 
 `variant="line"` draws underlined tabs on a transparent strip: the second level when a page's own
-pill tabs already sit above it (a record's Settings tab and its Job, Access and Manage pages). Two
-pill strips stacked read as one row repeated; never stack them.
+segmented tabs already sit above it (a record's Settings tab and its Job, Access and Manage pages). Two
+segmented strips stacked read as one row repeated; never stack them.
 
 <ComponentPreview
   name="routeTabsLine"

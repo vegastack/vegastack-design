@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.114.0 sha256-QeBrPUFUI6gVihVL3djy7OoI3PixoOAnaMC9OvEH3NA=
+// @vegastack chat-question-card@0.114.0 sha256-EPfeabVbrzw6PJOPjBQ/gWPAk+loFYlV0bpKseLOsOk=
 
 "use client";
 
@@ -14,7 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 /* ------------------------------------------------------------------------------------------------
  * QuestionCard — the agent asking the person to choose, drawn whole: a pager "‹ 1 of 4 ›" and a
  * close (skip) on top, the question as the title, full-width option rows with a muted description
- * and no radios, an "Other" row that opens a text field, and one pill "Next →" that becomes
+ * and no radios, an "Other" row that opens a text field, and one "Next →" button that becomes
  * "Submit". Number keys pick, Enter moves on. Answered or skipped, it settles into a line.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -91,7 +91,7 @@ type Draft = { picked: string[]; other: string };
 /**
  * The agent's questions, drawn whole (G133): a pager and a close on top, the question as the title,
  * full-width options with muted descriptions and no radios — the picked one takes the selected
- * fill and a primary ✓ — an "Other" row with a text field, and a pill "Next →" that becomes
+ * fill and a primary ✓ — an "Other" row with a text field, and a "Next →" button that becomes
  * "Submit" on the last question. Keys 1–9 pick, arrows move between options, Enter picks and moves on; the × skips. A
  * new `interactionId` starts clean.
  *

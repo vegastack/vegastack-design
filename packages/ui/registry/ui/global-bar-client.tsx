@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.114.0 sha256-uCH4+1Q0FMIRiER+eXu/Bt2wk2wMAslgqkllAZhZ2lU=
+// @vegastack global-bar@0.114.0 sha256-KM8v0nsSbP33jMEGH+rfle+/Lnwi/GFBFJAMH0Dw+B0=
 
 "use client";
 
@@ -77,7 +77,7 @@ export function GlobalBarSearch({
           variant="ghost"
           size="sm"
           aria-keyshortcuts={os === "mac" ? "Meta+K" : "Control+K"}
-          className="h-7 min-w-0 flex-1 justify-start gap-2 rounded-control px-2 text-sm font-normal text-muted-foreground [&_svg:not([class*='size-'])]:size-4 hover:bg-transparent aria-expanded:bg-transparent"
+          className="h-7 min-w-0 flex-1 justify-start gap-2 rounded-segment px-2 text-sm font-normal text-muted-foreground [&_svg:not([class*='size-'])]:size-4 hover:bg-transparent aria-expanded:bg-transparent"
           {...props}
         >
           <Search aria-hidden="true" />
@@ -97,7 +97,7 @@ export function GlobalBarSearch({
           aria-controls={ask.controls}
           aria-expanded={ask.expanded}
           onClick={ask.onClick}
-          className="h-6 flex-none gap-1.5 rounded-control bg-info/10 px-2.5 text-xs font-semibold text-info-text hover:bg-info/15 hover:text-info-text aria-expanded:bg-info/15"
+          className="h-6 flex-none gap-1.5 rounded-segment bg-info/10 px-2.5 text-xs font-semibold text-info-text hover:bg-info/15 hover:text-info-text aria-expanded:bg-info/15"
         >
           <Sparkles aria-hidden="true" />
           <span className="@max-2xl/global-bar:sr-only">{ask.label}</span>

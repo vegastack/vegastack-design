@@ -71,7 +71,8 @@ ask has no strip.
 
 The card has one radius, `rounded-overlay` (24px, the grown composer), and one hairline that darkens
 a little while the text has focus. Everything inside is concentric with it: the strip and the
-actions row sit 6px in with pill and circle 32px controls, and the attachments sit 10px in with
+actions row sit 6px in with pill and circle 32px controls (the card sets `capsule-scope`, so its
+buttons take `rounded-capsule`), and the attachments sit 10px in with
 `rounded-tile` thumbnails and pill (`rounded-chip`) file chips. The
 text is [`TextEdit`](/docs/components/text-edit), so a mention is the same chip a comment has. For a
 comment on a record use [`CommentComposer`](/docs/components/comments): this box is for a
@@ -100,7 +101,7 @@ model and Send at the end.
 
 ### Send, Stop and the states between
 
-`state` drives `ChatComposerSubmit`, a perfectly round button the size of + and @. `idle` with text
+`state` drives `ChatComposerSubmit`, a circle (`capsule-scope`) the size of + and @. `idle` with text
 is a primary ↑; an empty box is a quiet outline. `sending` shows the bolt
 [`TextSpinner`](/docs/components/text-spinner) inside the same button — keep it for at most ~300ms,
 then move to `running` — and Send becomes Stop ■ with a crossfade and a small scale (with the

@@ -1,4 +1,4 @@
-// @vegastack menubar@0.114.0 sha256-POubAtFSu4ucN7pN5g5O5Tc1wNVn0G9LMEr3uWw0xhc=
+// @vegastack menubar@0.114.0 sha256-UD/vJ3Gz1QOP0yq1Iu4EbWjKyx55x2RmOT0ZNQA4duY=
 
 "use client";
 
@@ -34,7 +34,7 @@ function Menubar({ className, ...props }: MenubarPrimitive.Props) {
     <MenubarPrimitive
       data-slot="menubar"
       className={cn(
-        "flex h-8 items-center gap-0.5 rounded-control border p-[3px]",
+        "flex h-8 items-center gap-0.5 rounded-control border p-px",
         className,
       )}
       {...props}
@@ -66,7 +66,7 @@ function MenubarTrigger({
     <DropdownMenuTrigger
       data-slot="menubar-trigger"
       className={cn(
-        "flex items-center rounded-control px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
+        "flex h-full items-center rounded-segment px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
         className,
       )}
       {...props}
@@ -88,7 +88,7 @@ function MenubarContent({
       alignOffset={alignOffset}
       sideOffset={sideOffset}
       className={cn(
-        "min-w-36 rounded-card bg-popover p-1.5 text-popover-foreground shadow-md border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
+        "min-w-36 rounded-card bg-popover p-1.25 text-popover-foreground shadow-md border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
         className,
       )}
       {...props}
@@ -268,7 +268,7 @@ function MenubarSubContent({
     <DropdownMenuSubContent
       data-slot="menubar-sub-content"
       className={cn(
-        "min-w-32 rounded-card bg-popover p-1.5 text-popover-foreground shadow-lg border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+        "min-w-32 rounded-card bg-popover p-1.25 text-popover-foreground shadow-lg border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
         className,
       )}
       {...props}

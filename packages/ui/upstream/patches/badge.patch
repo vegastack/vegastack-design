@@ -1,8 +1,8 @@
 # component: badge
 # decisions: A11Y-13, A11Y-2, A11Y-8, API-16, API-25, COL-12, DOC-2, FOC-1, FOC-5, FOC-6, FOC-14, API-36, COL-24, INT-4, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-36: an interactive badge (`[a]`/`[button]`) shows the pointer.
 #   A11Y-2: an interactive badge (`[a]`/`[button]`) gets an invisible `::after` hit area and drops
 #           `overflow-hidden`, so its pointer target clears 24px. Upstream's is 20px tall.

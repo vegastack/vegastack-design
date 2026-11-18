@@ -29,6 +29,8 @@
     "./base.css": "./dist/base.css",
     "./utilities.css": "./dist/utilities.css",
     "./tokens.json": "./dist/tokens.json",
+    "./corners.json": "./dist/corners.json",
+    "./corners.dart": "./dist/corners.dart",
     "./package.json": "./package.json"
   },
   "scripts": {

@@ -107,7 +107,7 @@ test("the remove control is a round ghost icon Button with the shared hover/pres
     .getByRole("button", { name: "Remove API" })
     .element() as HTMLElement;
   expect(remove.dataset.slot).toBe("chip-remove");
-  expect(remove.className).toContain("rounded-icon");
+  expect(remove.className).toContain("rounded-capsule");
   // The hover wash comes from Button's own `ghost` recipe, never a literal restated here.
   // Since COL-24 that recipe is the shared `state-layer` (hover and press).
   expect(remove.className).toContain("state-layer");

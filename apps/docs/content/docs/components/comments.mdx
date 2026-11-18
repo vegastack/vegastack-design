@@ -57,15 +57,15 @@ full-width muted row with a chevron, `hiddenReplies` + `onShowReplies`; "Show le
 — a 20px avatar, 8px to the name, the badge, the relative time and "(edited)" — then, 4px under it,
 the body. The first comment's body runs the row's full width; **a reply's body is indented to the
 name** (28px). At the card's foot, over a hairline, sits **the reply row**: the viewer's avatar
-(`viewer`), a one-line "Leave a reply…" box with no border or fill of its own, and attach and a
-round ↑ Send at its end. It grows with the text, Esc leaves it, and Cmd/Ctrl+Enter sends.
+(`viewer`), a one-line "Leave a reply…" box with no border or fill of its own, and attach and an
+↑ Send icon button at its end. It grows with the text, Esc leaves it, and Cmd/Ctrl+Enter sends.
 
 `CommentComposer` — a record's new comment — is a **bordered card**: the text on top (two lines at
 rest, about twelve before it scrolls inside, "Add a comment…"), the draft's files under it, and a
 toolbar row whose end holds the optional `attachments` slot, a muted paperclip (whenever
-`onImageUpload`, `onFileUpload` or `onAttachFiles` is set) and the round ↑ Send — a quiet grey disc
+`onImageUpload`, `onFileUpload` or `onAttachFiles` is set) and the ↑ Send icon button (`rounded-icon`) — quiet grey
 while there is nothing to send. Its border darkens subtly while it holds focus. Cmd/Ctrl+Enter
-sends, and Send's tooltip names the shortcut. On a touch screen every round control gets a 40px
+sends, and Send's tooltip names the shortcut. On a touch screen every icon control gets a 40px
 target. `replyingTo={{ name }}` shows "Replying to name ×" above the box and the "Leave a reply…"
 placeholder; × or Esc calls `onCancelReply` and keeps the text. The `files` slot is a draft's
 attached files (pending cards with progress and ×), part of what Send posts. With `onAttachFiles`,

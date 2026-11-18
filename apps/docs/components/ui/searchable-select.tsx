@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.114.0 sha256-Sg+sRnMiGlJeT97c1PrzaiCxVM+Wm++sSur2Htv7mac=
+// @vegastack searchable-select@0.114.0 sha256-9jJQRuxijE+eHr1NFlTz7EuTmQd11TUH2PZdQNfstEY=
 
 "use client";
 
@@ -1203,7 +1203,7 @@ export function SearchableSelect<
           data-slot={`${slot}-clear`}
           // Centred with auto margins, not `-translate-y-1/2`: Button's press nudge sets `translate-y`
           // and would replace the centring transform, dropping the × by half its height.
-          className="absolute inset-y-0 end-1.5 my-auto active:not-aria-[haspopup]:translate-y-0"
+          className="absolute inset-y-0 end-1.5 my-auto rounded-segment active:not-aria-[haspopup]:translate-y-0"
           onClick={() => {
             // DS-22: this control unmounts the moment the value clears, which would drop focus
             // to <body>; hand it to the trigger first. No announcement — the change is visible.

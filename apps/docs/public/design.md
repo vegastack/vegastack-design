@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 41033
-      sha256: "ecf71afbfde1bb5aac656502d047fb797725199a56c2b78b24721561bd079ef2"
+      bytes: 42422
+      sha256: "1e604fa9e1a29e3b8192708c11f2b130272fd19929e15518e179c39c704962cb"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 14508
@@ -112,6 +112,10 @@ themes:
       type: "dimension"
       value: "1.25rem"
       description: "BRD-12 (ours, operator 2026-11-16, corner system): 20px: chat bubbles and the command palette. Read it as `rounded-bubble`."
+    corner-capsule:
+      type: "dimension"
+      value: "9999px"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): a capsule, only for what floats or stands alone: floating and sticky bars, hover toolbars, controls over media, and everything inside a capsule (its icon buttons are circles); also calendar days, colour swatches and the remove button inside a chip. Read it as `rounded-capsule`."
     corner-card:
       type: "dimension"
       value: "1rem"
@@ -122,12 +126,12 @@ themes:
       description: "BRD-12 (ours, operator 2026-11-16, corner system): chips, badges and counts are pills. Read it as `rounded-chip`."
     corner-control:
       type: "dimension"
-      value: "9999px"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): every single-line control is a pill — Button at every size, Input, Select, InputGroup, Toggle, ToggleGroup, the segmented TabsList and its triggers, the single-line composer. Read it as `rounded-control`."
+      value: "0.5rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px, a quarter of the 32px control: every in-page control is a rounded rectangle — Button at every size, Input, Select, NativeSelect, Combobox, single-line InputGroup, page and header search fields, Toggle, ToggleGroup, TabsList, Menubar. Apple keeps compact desktop controls rounded rectangles and reserves capsules for standout or touch layouts (WWDC25 356). Read it as `rounded-control`."
     corner-icon:
       type: "dimension"
-      value: "9999px"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): every icon-only button is a circle, so its hover is round. Read it as `rounded-icon`."
+      value: "0.5rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px: an icon-only button is a rounded square with the same corner as a labelled control, so a toolbar reads as one family. Inside a capsule it is a circle (`rounded-capsule`). Read it as `rounded-icon`."
     corner-inline:
       type: "dimension"
       value: "0.375rem"
@@ -135,7 +139,7 @@ themes:
     corner-item:
       type: "dimension"
       value: "0.625rem"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the container's padding (a 16px menu with 6px padding). Read it as `rounded-item`."
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
     corner-mark:
       type: "dimension"
       value: "0.25rem"
@@ -144,6 +148,10 @@ themes:
       type: "dimension"
       value: "1.5rem"
       description: "BRD-12 (ours, operator 2026-11-16, corner system): 24px: dialogs, alert dialogs, drawers, sheets (top corners), the grown composer and floating desktop windows. Read it as `rounded-overlay`."
+    corner-segment:
+      type: "dimension"
+      value: "0.375rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 6px, the control corner minus its 2px inset: a control nested in a control — TabsList triggers, Menubar items, buttons inside an InputGroup or a search box, toggle-group segments — so the corners stay concentric. Read it as `rounded-segment`."
     corner-tile:
       type: "dimension"
       value: "25%"
@@ -628,6 +636,10 @@ themes:
       type: "dimension"
       value: "1.25rem"
       description: "BRD-12 (ours, operator 2026-11-16, corner system): 20px: chat bubbles and the command palette. Read it as `rounded-bubble`."
+    corner-capsule:
+      type: "dimension"
+      value: "9999px"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): a capsule, only for what floats or stands alone: floating and sticky bars, hover toolbars, controls over media, and everything inside a capsule (its icon buttons are circles); also calendar days, colour swatches and the remove button inside a chip. Read it as `rounded-capsule`."
     corner-card:
       type: "dimension"
       value: "1rem"
@@ -638,12 +650,12 @@ themes:
       description: "BRD-12 (ours, operator 2026-11-16, corner system): chips, badges and counts are pills. Read it as `rounded-chip`."
     corner-control:
       type: "dimension"
-      value: "9999px"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): every single-line control is a pill — Button at every size, Input, Select, InputGroup, Toggle, ToggleGroup, the segmented TabsList and its triggers, the single-line composer. Read it as `rounded-control`."
+      value: "0.5rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px, a quarter of the 32px control: every in-page control is a rounded rectangle — Button at every size, Input, Select, NativeSelect, Combobox, single-line InputGroup, page and header search fields, Toggle, ToggleGroup, TabsList, Menubar. Apple keeps compact desktop controls rounded rectangles and reserves capsules for standout or touch layouts (WWDC25 356). Read it as `rounded-control`."
     corner-icon:
       type: "dimension"
-      value: "9999px"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): every icon-only button is a circle, so its hover is round. Read it as `rounded-icon`."
+      value: "0.5rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 8px: an icon-only button is a rounded square with the same corner as a labelled control, so a toolbar reads as one family. Inside a capsule it is a circle (`rounded-capsule`). Read it as `rounded-icon`."
     corner-inline:
       type: "dimension"
       value: "0.375rem"
@@ -651,7 +663,7 @@ themes:
     corner-item:
       type: "dimension"
       value: "0.625rem"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the container's padding (a 16px menu with 6px padding). Read it as `rounded-item`."
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
     corner-mark:
       type: "dimension"
       value: "0.25rem"
@@ -660,6 +672,10 @@ themes:
       type: "dimension"
       value: "1.5rem"
       description: "BRD-12 (ours, operator 2026-11-16, corner system): 24px: dialogs, alert dialogs, drawers, sheets (top corners), the grown composer and floating desktop windows. Read it as `rounded-overlay`."
+    corner-segment:
+      type: "dimension"
+      value: "0.375rem"
+      description: "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18, corner shapes): 6px, the control corner minus its 2px inset: a control nested in a control — TabsList triggers, Menubar items, buttons inside an InputGroup or a search box, toggle-group segments — so the corners stay concentric. Read it as `rounded-segment`."
     corner-tile:
       type: "dimension"
       value: "25%"
@@ -1624,30 +1640,47 @@ build-inlined Tailwind bridge, not the runtime contract.
 
 Operator, 2026-11-16 (corner system, Regent web app `.vegastack/plans/radius-system/`): "see that
 consistently tokens are being declared globally in web and mobile and desktop and they're being
-followed thorhgout in all apps and components consistently". A corner is chosen by the ROLE an element
-plays, never by its size, and the same eleven names exist on web (`rounded-<role>`, from
-`--corner-<role>`), in the Flutter app (`AppRadii.<role>`) and in the Mac app's native windows:
+followed thorhgout in all apps and components consistently". Amended 2026-11-18 (corner shapes,
+`.vegastack/plans/corner-shapes/`): in-page controls are rounded rectangles; the capsule is kept for
+what floats or stands alone. A corner is chosen by the ROLE an element plays, never by its size, and the
+same thirteen names exist on web (`rounded-<role>`, from `--corner-<role>`), in the Flutter app
+(`AppRadii.<role>`) and in the Mac app's native windows:
 
-| Role      | Value  | Used by                                                                                                                                |
-| --------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `control` | pill   | every single-line control: Button at every size, Input, Select, InputGroup, Toggle, ToggleGroup, segmented tabs, the one-line composer |
-| `icon`    | circle | every icon-only button, so its hover is round                                                                                          |
-| `chip`    | pill   | chips, badges, counts, tiny numeric citation markers                                                                                   |
-| `inline`  | 6px    | a token inside running text: mentions, record and file links, template and due tokens, Kbd, inline code                                |
-| `mark`    | 4px    | highlights, find matches, diff marks, the checkbox, chart swatches, the grid fill handle                                               |
-| `item`    | 10px   | every row with a hover, highlighted, selected or focus fill — menu, select, sidebar, tree, list, table rows — and tooltips             |
-| `block`   | 12px   | blocks in the reading flow (code, alerts, embeds, notes, previews, images) and a card nested in a card                                 |
-| `card`    | 16px   | cards, chat cards, popovers, hover cards, menus, toasts, panels, multi-line fields                                                     |
-| `bubble`  | 20px   | chat bubbles and the command palette                                                                                                   |
-| `overlay` | 24px   | dialogs, alert dialogs, drawers, sheets (top corners), the grown composer, floating desktop windows                                    |
-| `tile`    | 25%    | square media: icon tiles, thumbnails, logos, team and workspace avatars                                                                |
+| Role      | Value | Used by                                                                                                                              |
+| --------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| `control` | 8px   | every in-page control: Button at every size, Input, Select, InputGroup, search fields, Toggle, ToggleGroup, TabsList, Menubar        |
+| `segment` | 6px   | a control nested in a control (tab triggers, Menubar items, buttons inside a field): the control corner minus its 2px inset          |
+| `icon`    | 8px   | every icon-only button: a rounded square, the same family as the labelled controls beside it                                         |
+| `capsule` | pill  | only what floats or stands alone — floating and sticky bars, hover toolbars, controls over media — and every button inside a capsule |
+| `chip`    | pill  | chips, badges, counts, tiny numeric citation markers                                                                                 |
+| `inline`  | 6px   | a token inside running text: mentions, record and file links, template and due tokens, Kbd, inline code                              |
+| `mark`    | 4px   | highlights, find matches, diff marks, the checkbox, chart swatches, the grid fill handle                                             |
+| `item`    | 10px  | every row with a hover, highlighted, selected or focus fill — menu, select, sidebar, tree, list, table rows — and tooltips           |
+| `block`   | 12px  | blocks in the reading flow (code, alerts, embeds, notes, previews, images) and a card nested in a card                               |
+| `card`    | 16px  | cards, chat cards, popovers, hover cards, menus, toasts, panels, multi-line fields                                                   |
+| `bubble`  | 20px  | chat bubbles and the command palette                                                                                                 |
+| `overlay` | 24px  | dialogs, alert dialogs, drawers, sheets (top corners), the grown composer, floating desktop windows                                  |
+| `tile`    | 25%   | square media: icon tiles, thumbnails, logos, team and workspace avatars                                                              |
 
 Three rules follow from the table. **Rows follow their container**: a row's corner is its
-container's corner minus the container's padding, so menus are `rounded-card p-1.5` around
+container's corner minus the inset from its outer edge (border plus padding), so bordered menus are
+`rounded-card border p-1.25` (16 − 1 − 5 = 10) around
 `rounded-item` rows, and a fill always shows its corners — table rows take the `row-fill` utility,
 which draws their hover, pressed, selected and focus fills as an inset `item` shape like a select
 option. **Every hover has a shape**: no fill relies on a parent's `overflow-hidden` to look rounded.
-**Controls inside a pill are pills or circles**, so they stay concentric at any height. Indicators
+**Capsule or rectangle is a question of context, not of height** (Apple, WWDC25 356: capsules suit
+touch layouts and standout actions; compact desktop controls stay rounded rectangles; Material 3 text
+fields 4dp, Primer buttons and fields 6px): an in-page control is a rectangle, a floating bar is a
+capsule, and **one family per cluster** — a field and the button beside it share a shape. **Nested
+corners are concentric**: inside a control use `segment`, inside a capsule use `capsule` (its buttons
+are circles). Calendar days, colour swatches and a chip's remove button are circles by convention. The
+Flutter app is a touch platform: its buttons, segmented controls, chips and search fields stay
+capsules and only its form fields are rounded rectangles (`AppRadii.field`). A floating bar is
+`rounded-capsule capsule-scope` (the scope re-points the control roles for its subtree); a floating
+panel that wraps or holds a form stays `rounded-card`; design-lint's `floating-capsule` rejects a
+`fixed`, `sticky` or shadowed `absolute` part that wears `rounded-control` or `rounded-icon`. Continuous corners
+(squircles) are drawn natively on mobile; on the web they wait for stable Safari to ship CSS
+`corner-shape`, so every browser draws the same corner. Indicators
 (progress, meters, grips, connectors) have pill ends, people are circles and agents keep their
 hexagon. `none`, `full` (a dot or a true circle that is not an icon button) and `[inherit]` stay
 structural. `--radius` and its derived ramp remain only so upstream's math still holds; no

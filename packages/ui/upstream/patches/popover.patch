@@ -1,8 +1,8 @@
 # component: popover
 # decisions: BRD-1, DOC-1, DOC-2, OVL-13, LAY-17, API-36, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-36: `PopoverContent` takes `size` (`default` · `md` · `lg` · `fit`) and forwards `anchor` to the
 #     Positioner (an element or a virtual one, read in the window's coordinates); `PopoverBody`
 #     scrolls long content; `PopoverAnchor` is an invisible 0×0 trigger; `PopoverDescription`

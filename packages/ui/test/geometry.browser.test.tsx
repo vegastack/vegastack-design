@@ -40,6 +40,20 @@ import { DatePicker } from "../registry/ui/date-picker";
 import { preloadTextEdit } from "../registry/ui/text-edit";
 import { SearchableSelect } from "../registry/ui/searchable-select";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../registry/ui/dropdown-menu";
+import {
+  Command,
+  CommandDialog,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "../registry/ui/command";
+import {
   MultiStepForm,
   MultiStepFormActions,
   MultiStepFormStep,
@@ -5010,3 +5024,133 @@ for (const [width, tracks] of [
     }
   });
 }
+
+/**
+ * BRD-12 (amended 2026-11-18): a part that sits in a rounded corner is concentric with it. Its
+ * corner is the container's minus the inset measured from the container's OUTER edge (border plus
+ * padding) — on each axis on its own — and a part that reaches half its own size is simply round.
+ * Measured on the painted boxes once every open animation has settled, so a padding or border
+ * change that breaks the arithmetic fails here.
+ */
+async function settled() {
+  await Promise.all(
+    document.getAnimations().map((a) => a.finished.catch(() => undefined)),
+  );
+}
+function cornerOf(el: Element) {
+  const r = el.getBoundingClientRect();
+  return Math.min(
+    parseFloat(getComputedStyle(el).borderTopLeftRadius),
+    r.width / 2,
+    r.height / 2,
+  );
+}
+function expectConcentric(
+  outer: Element,
+  inner: Element,
+  axes: "both" | "x" = "both",
+) {
+  const o = outer.getBoundingClientRect();
+  const i = inner.getBoundingClientRect();
+  const outerRadius = parseFloat(getComputedStyle(outer).borderTopLeftRadius);
+  const round = Math.min(i.width / 2, i.height / 2);
+  const insetX = Math.min(i.left - o.left, o.right - i.right);
+  const insetY = Math.min(i.top - o.top, o.bottom - i.bottom);
+  const want = (inset: number) => Math.min(outerRadius - inset, round);
+  const got = cornerOf(inner);
+  expect({ axis: "x", insetX, got }).toEqual({
+    axis: "x",
+    insetX,
+    got: want(insetX),
+  });
+  if (axes === "both")
+    expect({ axis: "y", insetY, got }).toEqual({
+      axis: "y",
+      insetY,
+      got: want(insetY),
+    });
+}
+
+test("concentric corners: menu, select and command rows, and the dialog's close (BRD-12)", async () => {
+  await page.viewport(1024, 768);
+  const menu = await render(
+    <DropdownMenu open>
+      <DropdownMenuTrigger>Menu</DropdownMenuTrigger>
+      <DropdownMenuContent data-testid="menu">
+        <DropdownMenuItem data-testid="menu-row">First</DropdownMenuItem>
+        <DropdownMenuItem>Second</DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>,
+  );
+  await expect.element(menu.getByTestId("menu-row")).toBeVisible();
+  await settled();
+  expectConcentric(
+    menu.getByTestId("menu").element(),
+    menu.getByTestId("menu-row").element(),
+  );
+  await menu.unmount();
+
+  // Items straight in SelectContent, the way apps write it: the list carries the inset.
+  const select = await render(
+    <Select open defaultValue="a">
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent data-testid="select" alignItemWithTrigger={false}>
+        <SelectItem value="a" data-testid="select-row">
+          A
+        </SelectItem>
+        <SelectItem value="b">B</SelectItem>
+      </SelectContent>
+    </Select>,
+  );
+  await expect.element(select.getByTestId("select-row")).toBeVisible();
+  await settled();
+  expectConcentric(
+    select.getByTestId("select").element(),
+    select.getByTestId("select-row").element(),
+  );
+  await select.unmount();
+
+  const dialog = await render(
+    <Dialog open>
+      <DialogContent data-testid="dialog">
+        <DialogTitle>Title</DialogTitle>
+      </DialogContent>
+    </Dialog>,
+  );
+  await expect.element(dialog.getByTestId("dialog")).toBeVisible();
+  await settled();
+  expectConcentric(
+    dialog.getByTestId("dialog").element(),
+    document.querySelector('[data-slot="dialog-close"]')!,
+  );
+  await dialog.unmount();
+
+  const command = await render(
+    <CommandDialog open>
+      <Command>
+        <CommandInput placeholder="Search" />
+        <CommandList>
+          <CommandGroup heading="Go">
+            <CommandItem>Home</CommandItem>
+          </CommandGroup>
+        </CommandList>
+      </Command>
+    </CommandDialog>,
+  );
+  await expect.element(command.getByText("Home")).toBeVisible();
+  await settled();
+  const palette = document.querySelector('[data-slot="dialog-content"]')!;
+  expectConcentric(
+    palette,
+    document.querySelector('[data-slot="input-group"]')!,
+  );
+  // A row sits below the search box, so only its sides meet the palette's corner arc.
+  expectConcentric(
+    palette,
+    document.querySelector('[data-slot="command-item"]')!,
+    "x",
+  );
+  await command.unmount();
+});

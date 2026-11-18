@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.114.0 sha256-vWulBx6khnqt6Z4mHidpLhJlKoxLW8C6vc/op+A+VVQ=
+// @vegastack upload-panel@0.114.0 sha256-0J9WF7A9+cmjw97XvKe3JyKv90WHVuOsYGG+JUx4Sxg=
 
 "use client";
 
@@ -1165,7 +1165,7 @@ export function UploadPanel({
         ) : (
           <div
             data-slot="upload-panel-header"
-            className="flex min-h-12 items-center gap-2 py-2 ps-4 pe-2"
+            className="flex min-h-12 items-center gap-2 p-4"
           >
             {glyph}
             <span className="flex min-w-0 flex-1 flex-col">

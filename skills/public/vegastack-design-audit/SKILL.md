@@ -66,7 +66,9 @@ rg -n 'style=\{\{' --glob '!components/ui/**'
   expresses is not a finding; upstream writes several itself. **warning**
 - **off-role corner** — a corner that is not a role (BRD-12): `rounded-sm|md|lg|xl|2xl|3xl|4xl`,
   bare `rounded`, `rounded-[…]`, `rounded-(--…)` or the retired `rounded-chat-card`. Name the role
-  the element plays: `rounded-control` (single-line control), `-icon` (icon-only button), `-chip`,
+  the element plays: `rounded-control` (in-page control, 8px), `-icon` (icon-only button, 8px
+  square), `-segment` (control inside a control), `-capsule` (floating bar or media control, and its
+  buttons), `-chip`,
   `-inline` (token in text), `-mark`, `-item` (row with a fill, tooltip), `-block`, `-card`,
   `-bubble`, `-overlay`, `-tile` (square media); `row-fill` on a table row. A square hover fill on
   an inset row is the same finding. **error**

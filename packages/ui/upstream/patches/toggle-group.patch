@@ -1,8 +1,8 @@
 # component: toggle-group
 # decisions: A11Y-20, API-23, API-39, DOC-2, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   A11Y-20 (widened 2026-09-24): `orientation` is forwarded to the Base UI group as well as mirrored
 #     to `data-orientation`, so a vertical group's arrow keys are up and down. Upstream styles the
 #     column and leaves the keys horizontal.

@@ -1,8 +1,8 @@
 # component: toggle
 # decisions: A11Y-1, A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, API-39, COL-24, INT-4, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-[3px]
 #     focus-visible:ring-ring/50` and the `aria-invalid` rings are removed.
 #   FOC-5: the invalid border becomes `not-focus:aria-invalid:border-destructive`.

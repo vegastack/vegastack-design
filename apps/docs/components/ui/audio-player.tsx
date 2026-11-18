@@ -1,4 +1,4 @@
-// @vegastack audio-player@0.114.0 sha256-mdoftwNBc3d45AtjXrY5T5AVrJE9wtJ3R0Vl9Yp0iv4=
+// @vegastack audio-player@0.114.0 sha256-U09S/jrs9tOaK8mTlp7AUWDQ7zpni5ZegjsSuvnE8Zc=
 
 "use client";
 
@@ -846,7 +846,7 @@ export function AudioPlayer({
         isFloating && [
           // Always at the bottom of its flex column (`mt-auto`), centred on it.
           "w-[calc(100%-2rem)]",
-          "sticky bottom-4 z-20 mx-auto mt-auto max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-control border border-border bg-popover p-1.5 text-popover-foreground shadow-md",
+          "sticky bottom-4 z-20 mx-auto mt-auto max-w-3xl flex-row flex-wrap items-center gap-x-2 gap-y-1 rounded-capsule capsule-scope border border-border bg-popover p-1.5 text-popover-foreground shadow-md",
           // Phone: full width on the bottom edge, clear of the safe-area inset.
           "max-sm:bottom-0 max-sm:w-full max-sm:translate-x-0 max-sm:rounded-none max-sm:border-x-0 max-sm:border-b-0 max-sm:px-1 max-sm:pb-[calc(var(--spacing)*1+env(safe-area-inset-bottom))]",
           "data-[active=true]:motion-dock-in data-[active=true]:translate-y-0 data-[active=false]:motion-dock-out data-[active=false]:translate-y-[calc(100%+var(--spacing)*4+env(safe-area-inset-bottom))]",

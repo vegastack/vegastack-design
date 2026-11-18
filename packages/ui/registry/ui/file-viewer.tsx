@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.114.0 sha256-A3OHbS7g7unRUcbZVM9arjWHUwl0LyWVk9i0CvtJQR0=
+// @vegastack file-viewer@0.114.0 sha256-5Yt/io2sV1e466ezlIrjY7Lx+3tv4QKHt5Ee04ZHtOo=
 
 "use client";
 
@@ -2160,7 +2160,7 @@ export function FileViewer({
                 aria-label="Previous file"
                 disabled={current === 0}
                 onClick={() => go(-1)}
-                className="absolute start-[calc(var(--spacing)*3+env(safe-area-inset-left))] inset-y-0 my-auto hidden pointer-fine:inline-flex"
+                className="absolute start-[calc(var(--spacing)*3+env(safe-area-inset-left))] inset-y-0 my-auto hidden rounded-capsule pointer-fine:inline-flex"
               >
                 <ChevronLeftIcon className="rtl:rotate-180" />
               </Button>
@@ -2170,7 +2170,7 @@ export function FileViewer({
                 aria-label="Next file"
                 disabled={current === count - 1}
                 onClick={() => go(1)}
-                className="absolute end-[calc(var(--spacing)*3+env(safe-area-inset-right))] inset-y-0 my-auto hidden pointer-fine:inline-flex"
+                className="absolute end-[calc(var(--spacing)*3+env(safe-area-inset-right))] inset-y-0 my-auto hidden rounded-capsule pointer-fine:inline-flex"
               >
                 <ChevronRightIcon className="rtl:rotate-180" />
               </Button>

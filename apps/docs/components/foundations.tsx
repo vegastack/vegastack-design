@@ -189,15 +189,27 @@ const CORNER_ROLES: {
 }[] = [
   {
     role: "control",
-    value: "pill",
-    usedBy: "Single-line controls",
-    className: "h-9 w-24 rounded-control",
+    value: "8px",
+    usedBy: "In-page controls: buttons, fields, tabs",
+    className: "h-8 w-24 rounded-control",
+  },
+  {
+    role: "segment",
+    value: "6px",
+    usedBy: "A control inside a control",
+    className: "h-7 w-20 rounded-segment",
   },
   {
     role: "icon",
-    value: "circle",
+    value: "8px",
     usedBy: "Icon-only buttons",
-    className: "size-10 rounded-icon",
+    className: "size-8 rounded-icon",
+  },
+  {
+    role: "capsule",
+    value: "pill",
+    usedBy: "What floats or stands alone",
+    className: "h-9 w-28 rounded-capsule",
   },
   {
     role: "chip",
