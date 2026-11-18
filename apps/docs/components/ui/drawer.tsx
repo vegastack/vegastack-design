@@ -1,4 +1,4 @@
-// @vegastack drawer@0.116.0 sha256-UmFa7Uk2ilLjsFNcdY8+MtxX5Pl3MezDsljHC+IgVL8=
+// @vegastack drawer@0.116.4 sha256-oso10Mz3vgZA2Of7okWM6YCj04dnXRbPpHn1iT3j9gk=
 
 "use client";
 
@@ -132,7 +132,7 @@ function DrawerContent({
       <DrawerPrimitive.Viewport
         data-slot="drawer-viewport"
         data-modal={modal}
-        className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto"
+        className="pointer-events-none fixed inset-0 z-50 select-none data-[modal=true]:pointer-events-auto in-data-desktop-titlebar:has-data-[swipe-direction=up]:[clip-path:inset(var(--shell-globalbar-height)_0_0_0)]"
       >
         <DrawerPrimitive.Popup
           ref={popupRef}
@@ -161,6 +161,10 @@ function DrawerContent({
             "data-[swipe-axis=y]:inset-x-0 data-[swipe-axis=y]:data-nested-drawer-open:h-(--stack-height)",
             // Axis: x.
             "data-[swipe-axis=x]:inset-y-0 data-[swipe-axis=x]:flex-row",
+            // LAY-24: in the desktop app a side or top drawer starts below the window's title row; a
+            // top drawer's viewport is also clipped there, so its bleed, snap points and swipe never
+            // paint over the row (the backdrop sits outside the viewport and still covers it).
+            "in-data-desktop-titlebar:data-[swipe-axis=x]:top-(--shell-globalbar-height) in-data-desktop-titlebar:data-[swipe-direction=up]:top-(--shell-globalbar-height)",
             // Direction: down.
             "data-[swipe-direction=down]:bottom-0 data-[swipe-direction=down]:origin-bottom data-[swipe-direction=down]:[--closed-transform:translate3d(0,calc(100%+var(--drawer-inset,0px)+2px),0)] data-[swipe-direction=down]:[--translate-y:calc(var(--drawer-snap-point-offset,0px)+var(--drawer-swipe-movement-y)-var(--stack-peek-offset)-(var(--stack-shrink)*var(--stack-height)))]",
             // Direction: up.

@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.116.0 sha256-nuCfYqMA05cVo6wRP2x1fby2OErwfGiESd/cA454NbI=
+// @vegastack file-viewer@0.116.4 sha256-aMUoZXFmz7YxH+AGvn4qNmxm80ioP2Ts/u4QJ26+XHk=
 
 "use client";
 
@@ -2248,7 +2248,8 @@ export function FileViewer({
           data-kind={kind}
           initialFocus={popupNode}
           onKeyDown={onKeyDown}
-          className="dark fixed inset-0 z-50 flex flex-col bg-background text-foreground outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0"
+          // LAY-24: in the desktop app the viewer starts below the window's title row.
+          className="dark fixed inset-0 z-50 flex flex-col in-data-desktop-titlebar:top-(--shell-globalbar-height) bg-background text-foreground outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0"
         >
           {framed}
         </DialogPrimitive.Popup>

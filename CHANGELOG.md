@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.116.4] — November 18, 2026
+
+<!-- assembled from 1 changeset: cc5eefe351cc -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.116.3 → 0.116.4.
+
+### 🐛 Fixed
+
+- Desktop app title row (LAY-24): with `data-desktop-titlebar` on `<html>`, a left, right or top `Sheet`, a side or top `Drawer` and the file viewer start below the window's title row (`--shell-globalbar-height`), so they never sit under the macOS traffic lights or the Windows caption buttons. Backdrops still cover the whole window; browsers are unchanged.
+  [`5f2b6f4`](https://github.com/VegaStack/vegastack-design/commit/5f2b6f4)
+
 ## [0.116.3] — November 18, 2026
 
 <!-- assembled from 1 changeset: 17b9955004d7 -->
