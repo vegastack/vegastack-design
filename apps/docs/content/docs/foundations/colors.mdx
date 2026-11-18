@@ -85,11 +85,11 @@ The rounded-card frame (LAY-26) follows one rule: the page is the extreme — wh
 near-black in dark — and each step out from the work moves one notch toward the middle (Regent
 operator, 2026-11-18).
 
-| Step                                                        | Token                                | Light              | Dark                                                  |
-| ----------------------------------------------------------- | ------------------------------------ | ------------------ | ----------------------------------------------------- |
-| The page card and the docked assistant                      | `--shell-card` (`bg-shell-card`)     | white              | `oklch(0.145 0 0)`, the value of `background`         |
-| The side surfaces: the module column, the record side panel | `--shell-column`, `--panel`          | `oklch(0.985 0 0)` | `oklch(0.165 0 0)`                                    |
-| The window's ground under the global bar and the rail       | `--shell-canvas` (`bg-shell-canvas`) | about `#F3F3F3`    | `oklch(0.205 0 0)`, the value of `card` and `sidebar` |
+| Step                                                  | Token                                | Light              | Dark                                                  |
+| ----------------------------------------------------- | ------------------------------------ | ------------------ | ----------------------------------------------------- |
+| The page card and the docked assistant                | `--shell-card` (`bg-shell-card`)     | white              | `oklch(0.145 0 0)`, the value of `background`         |
+| The module column                                     | `--shell-column`                     | `oklch(0.985 0 0)` | `oklch(0.165 0 0)`                                    |
+| The window's ground under the global bar and the rail | `--shell-canvas` (`bg-shell-canvas`) | about `#F3F3F3`    | `oklch(0.205 0 0)`, the value of `card` and `sidebar` |
 
 The shell re-points `--background` to the card inside it and `--sidebar` to the column, so cards and
 menus (`card`, `popover`, `oklch(0.205 0 0)` in dark) sit lifted on the near-black page. Only
