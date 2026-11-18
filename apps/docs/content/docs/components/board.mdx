@@ -100,7 +100,8 @@ takes the lane out of `columns` and lists it in `hiddenColumns`. Each lane still
 (the shell's content area, or the document on a phone), less whatever the page lays out after it —
 its bottom padding, a footer — measured from the boxes, never guessed from the viewport. Cards
 scroll inside each lane and the page never scrolls (one scroller per axis,
-[Scrolling](/docs/foundations/scrolling)). `fillOffset` (default `0px`) is only extra room on top of
+[Scrolling](/docs/foundations/scrolling)) — down to a 20rem floor: with less room left, the lanes
+keep 20rem and the page scrolls to reach them. `fillOffset` (default `0px`) is only extra room on top of
 that. Lanes are 320px (`columnWidth`) with a 12px gap; the board scrolls
 sideways with a hidden scrollbar and fades at the edges that have more. A sideways pan — a
 trackpad swipe, <kbd>Shift</kbd>+wheel or a touch swipe — scrolls the board wherever it starts,

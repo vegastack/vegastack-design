@@ -24,8 +24,9 @@ visible reason are bugs, not styles (BRD-SCR).
 3. **One scroller per axis per region.** The shell's content area (`shell-content`) is a page's only
    vertical scroller. A view that scrolls inside it — a record layout, a `Board` with
    `height="fill"` — takes exactly the remaining height, so the page never scrolls as well. A fill
-   board measures the real scroll area, less what the page lays out after it; `fillOffset`
-   (default `0px`) is only extra room.
+   board measures the real scroll area, less what the page lays out after it, and never goes
+   below 20rem — with less room than that, its lanes keep 20rem and the page scrolls to reach
+   them; `fillOffset` (default `0px`) is only extra room.
 4. **A scroller is positioned.** Every `overflow-*-auto` or `overflow-*-scroll` element carries
    `relative` (or is itself `absolute`, `fixed` or `sticky`). Otherwise an absolute descendant — a
    screen-reader-only label — escapes to the next scroller up and gives it a second scrollbar; that

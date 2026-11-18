@@ -5196,46 +5196,65 @@ test('a "fill" board ends where its page scrolls: one vertical scroller, never t
     id: `c${i}`,
     name: `Card ${i}`,
   }));
-  const fixture = (layout: "flex" | "grid") => (
-    <div
-      data-testid="page"
-      className={
-        layout === "flex"
-          ? "relative flex h-[600px] flex-col gap-6 overflow-y-auto pb-8"
-          : "relative grid h-[600px] auto-rows-min gap-6 overflow-y-auto pb-8"
-      }
-    >
-      <h1 className="h-20 shrink-0">Tasks</h1>
-      <Board<{ id: string; name: string }>
-        aria-label="Deals"
-        height="fill"
-        columns={[
-          { id: "a", title: "A", items: cards },
-          { id: "b", title: "B", items: cards.slice(0, 3) },
-        ]}
-        getItemId={(card) => card.id}
-        getItemLabel={(card) => card.name}
-        renderCard={(card) => <span>{card.name}</span>}
-        onMove={() => undefined}
-      />
-      {/* A footer after the board, flattened through a display:contents wrapper. */}
-      <div className="contents">
-        <footer className="h-10 shrink-0">Footer</footer>
-      </div>
-    </div>
+  const board = (
+    <Board<{ id: string; name: string }>
+      aria-label="Deals"
+      height="fill"
+      columns={[
+        { id: "a", title: "A", items: cards },
+        { id: "b", title: "B", items: cards.slice(0, 3) },
+      ]}
+      getItemId={(card) => card.id}
+      getItemLabel={(card) => card.name}
+      renderCard={(card) => <span>{card.name}</span>}
+      onMove={() => undefined}
+    />
   );
-  for (const layout of ["flex", "grid"] as const) {
-    const screen = await render(fixture(layout));
-    const scroller = screen.getByTestId("page").element() as HTMLElement;
-    const board = document.querySelector<HTMLElement>('[data-slot="board"]')!;
-    await expect
-      .poll(() => board.style.getPropertyValue("--board-height"))
-      .toMatch(/px/);
-    await expect
-      .poll(() => scroller.scrollHeight - scroller.clientHeight, {
-        message: `${layout}: the page scrolls besides the lanes`,
-      })
-      .toBeLessThanOrEqual(0);
-    await screen.unmount();
-  }
+  // Flex and grid pages; the board alone or inside a `display: contents` wrapper; a footer after
+  // it, itself flattened through a contents wrapper.
+  for (const layout of ["flex", "grid"] as const)
+    for (const wrapped of [false, true]) {
+      const screen = await render(
+        <div
+          data-testid="page"
+          className={
+            layout === "flex"
+              ? "relative flex h-[600px] flex-col gap-6 overflow-y-auto pb-8"
+              : "relative grid h-[600px] auto-rows-min gap-6 overflow-y-auto pb-8"
+          }
+        >
+          <h1 className="h-20 shrink-0">Tasks</h1>
+          {wrapped ? <div className="contents">{board}</div> : board}
+          <div className="contents">
+            <footer data-testid="footer" className="h-10 shrink-0">
+              Footer
+            </footer>
+          </div>
+        </div>,
+      );
+      const scroller = screen.getByTestId("page").element() as HTMLElement;
+      const overflow = () => scroller.scrollHeight - scroller.clientHeight;
+      const label = `${layout}${wrapped ? ", wrapped" : ""}`;
+      await expect
+        .poll(overflow, {
+          message: `${label}: the page scrolls besides the lanes`,
+        })
+        .toBeLessThanOrEqual(0);
+      // Stable: the measured height doesn't flip between values on later frames.
+      const el = document.querySelector<HTMLElement>('[data-slot="board"]')!;
+      const first = el.getBoundingClientRect().height;
+      await new Promise((r) =>
+        requestAnimationFrame(() => requestAnimationFrame(r)),
+      );
+      expect(el.getBoundingClientRect().height).toBe(first);
+      // A footer that grows is measured again.
+      (screen.getByTestId("footer").element() as HTMLElement).style.height =
+        "120px";
+      await expect
+        .poll(overflow, {
+          message: `${label}: a taller footer gave the page a scroll`,
+        })
+        .toBeLessThanOrEqual(0);
+      await screen.unmount();
+    }
 });

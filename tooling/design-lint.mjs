@@ -2184,23 +2184,49 @@ function bareRingClass(text, classPosition) {
 }
 
 /**
- * BRD-SCR (k): a class string with a scroller that names no position for it. Each
- * `overflow-*-auto|scroll` utility on the element itself (a descendant or pseudo-element variant
- * like `[&_pre]:` is another box) needs a position under the same variant or none: `md:relative`
- * positions only from `md`, so it does not cover a bare `overflow-auto`.
+ * BRD-SCR: a class string with a scroller that names no position for it. Each
+ * `overflow-*-auto|scroll` on the element ITSELF needs `relative`/`absolute`/`fixed`/`sticky` under
+ * the same variant chain or none (`md:relative` positions only from `md`, so it does not cover a
+ * bare `overflow-auto`). A variant chain that reaches another box — a descendant or sibling
+ * selector (`[&_pre]:`, `[&>li]:`, `*:`), a pseudo-element (`before:`, `[&::after]:`) — is not
+ * the element; a self-targeting one (`[&]:`, `[&:hover]:`, `[@media(...)]:`, `hover:`) is.
  */
 function unpositionedScroller(text) {
+  const PSEUDO_ELEMENT =
+    /^(?:before|after|placeholder|file|marker|selection|backdrop|first-letter|first-line)$/;
+  const splitVariants = (token) => {
+    const parts = [];
+    let depth = 0;
+    let start = 0;
+    for (let i = 0; i < token.length; i++) {
+      const c = token[i];
+      if (c === "[" || c === "(") depth++;
+      else if (c === "]" || c === ")") depth--;
+      else if (c === ":" && depth === 0) {
+        parts.push(token.slice(start, i));
+        start = i + 1;
+      }
+    }
+    parts.push(token.slice(start));
+    return parts;
+  };
+  const otherBox = (variant) => {
+    if (PSEUDO_ELEMENT.test(variant) || variant === "*" || variant === "**")
+      return true;
+    if (!variant.startsWith("[") || variant.startsWith("[@")) return false;
+    // An arbitrary selector variant: another box when it combines (`_` is a space) or names a
+    // pseudo-element.
+    return /&\s*[_>+~]|&[^\]]*[_>+~][^\]]*\]|::/.test(variant);
+  };
   const parsed = text
     .split(/\s+/)
     .filter(Boolean)
     .map((token) => {
-      const at = token.lastIndexOf(":");
-      return {
-        variant: at === -1 ? "" : token.slice(0, at),
-        utility: token.slice(at + 1).replace(/^!|!$/g, ""),
-      };
+      const parts = splitVariants(token);
+      const utility = parts.pop().replace(/^!|!$/g, "");
+      return { chain: parts, variant: parts.join(":"), utility };
     })
-    .filter(({ variant }) => !/(^|:)(?:\[|\*|before$|after$)/.test(variant));
+    .filter(({ chain }) => !chain.some(otherBox));
   const positioned = (variant) =>
     parsed.some(
       (p) =>

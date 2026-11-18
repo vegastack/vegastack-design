@@ -1,4 +1,4 @@
-// @vegastack board@0.116.0 sha256-mauHlLXZeUbK5+NUMzjs4CHBpMAARQBjMUy1k3gzabI=
+// @vegastack board@0.116.0 sha256-UNuFkcBUtuO73EzinIphjmfUwRir9VG0soQ+xthXV2c=
 
 "use client";
 
@@ -1326,7 +1326,8 @@ export function Board<T>({
 
   // ---- layout: fill the scroll area, edge fades, the phone's lane strip ------------------------
   // A "fill" board ends where its page's scroll area ends, so the page itself never scrolls and the
-  // lanes are the only vertical scrollers (one scroller per axis, BRD-SCR). The height is measured
+  // lanes are the only vertical scrollers (one scroller per axis, BRD-SCR) — down to a 20rem floor:
+  // with less room than that left, the lanes keep 20rem and the page scrolls to reach them. The height is measured
   // against the nearest vertical scroller (the shell's content area), less whatever the page lays
   // out after the board (its bottom padding, a footer) — never guessed from the viewport, which
   // left the board ~25px taller than the framed card and gave the page a second scrollbar.
@@ -1335,8 +1336,41 @@ export function Board<T>({
   React.useLayoutEffect(() => {
     const root = rootRef.current;
     if (!root || resolvedHeight !== "fill") return;
-    const scroller = scrollParent(root);
+    // The scroll owner can change with the layout (the shell's content area on a desktop, the
+    // document on a phone), so it is found again on every measure and the observers follow it.
+    let scroller: HTMLElement | null = null;
+    const resizes =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() => measure());
+    const mutations =
+      typeof MutationObserver === "undefined"
+        ? null
+        : new MutationObserver(() => {
+            subscribe();
+            measure();
+          });
+    // Every rendered box between the board and its scroller, and every box laid out beside or
+    // after it at each level (`display: contents` wrappers flattened): a header or footer that
+    // grows, appears or goes resizes one of them; a child added or removed re-subscribes.
+    const subscribe = () => {
+      resizes?.disconnect();
+      mutations?.disconnect();
+      for (let el = root.parentElement; el; el = el.parentElement) {
+        mutations?.observe(el, { childList: true });
+        for (const box of layoutBoxes(el)) resizes?.observe(box);
+        for (const child of el.children)
+          if (child !== root)
+            for (const box of layoutBoxes(child)) resizes?.observe(box);
+        if (el === scroller || el === document.body) break;
+      }
+    };
     const measure = () => {
+      const owner = scrollParent(root);
+      if (owner !== scroller) {
+        scroller = owner;
+        subscribe();
+      }
       const rootTop = root.getBoundingClientRect().top;
       // The board's top in its scroll area's CONTENT coordinates (a restored scroll position
       // counts), or on the page when the document scrolls (the phone).
@@ -1353,27 +1387,14 @@ export function Board<T>({
       );
       setFillHeight((prev) => (prev === next ? prev : next));
     };
+    scroller = scrollParent(root);
+    subscribe();
     measure();
     window.addEventListener("resize", measure);
-    const observer =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(measure);
-    // Every box between the board and its scroller, and their children: a header or footer that
-    // grows or appears resizes one of them.
-    for (
-      let el = root.parentElement;
-      el && el !== scroller?.parentElement;
-      el = el.parentElement
-    ) {
-      observer?.observe(el);
-      for (const child of el.children)
-        if (child !== root) observer?.observe(child);
-      if (el === scroller) break;
-    }
     return () => {
       window.removeEventListener("resize", measure);
-      observer?.disconnect();
+      resizes?.disconnect();
+      mutations?.disconnect();
     };
   }, [resolvedHeight]);
   const boardHeight =
@@ -2222,26 +2243,31 @@ function scrollParent(node: HTMLElement): HTMLElement | null {
   return null;
 }
 
+/** The boxes an element lays out: itself, or its children's when it is `display: contents`. */
+function layoutBoxes(el: Element): Element[] {
+  return getComputedStyle(el).display === "contents"
+    ? [...el.children].flatMap(layoutBoxes)
+    : [el];
+}
+
 /**
  * The height a page lays out below `node` inside `scroller`, read from the boxes as they are: at
  * every level up to the scroller, the lowest box that starts at or below the current box's bottom
- * (a footer, the next grid row, a flex column's next item with its gap — `display: contents`
- * wrappers flattened, boxes beside it ignored), then that level's bottom padding and border. Free
- * space inside the scroller never counts, because only boxes are measured.
+ * (a footer, the next grid row, a flex column's next item with its gap; `display: contents`
+ * wrappers flattened on both sides — a contents ancestor has no box, so the level keeps measuring
+ * from the last real box), then that level's bottom padding and border. Free space inside the
+ * scroller never counts, because only boxes are measured.
  */
 function contentAfter(node: HTMLElement, scroller: HTMLElement | null): number {
-  const boxes = (el: Element): Element[] =>
-    getComputedStyle(el).display === "contents"
-      ? [...el.children].flatMap(boxes)
-      : [el];
   let total = 0;
+  // The last real box on the way up, and the bottom everything below it is measured from.
+  let bottom = node.getBoundingClientRect().bottom;
+  let lowest = bottom + (parseFloat(getComputedStyle(node).marginBottom) || 0);
   for (let el: HTMLElement = node; ;) {
     const parent = el.parentElement;
     if (!parent) break;
-    const bottom = el.getBoundingClientRect().bottom;
-    let lowest = bottom + (parseFloat(getComputedStyle(el).marginBottom) || 0);
     for (let sib = el.nextElementSibling; sib; sib = sib.nextElementSibling)
-      for (const box of boxes(sib)) {
+      for (const box of layoutBoxes(sib)) {
         const style = getComputedStyle(box);
         if (
           style.display === "none" ||
@@ -2257,6 +2283,11 @@ function contentAfter(node: HTMLElement, scroller: HTMLElement | null): number {
         );
       }
     const ps = getComputedStyle(parent);
+    if (ps.display === "contents") {
+      // No box of its own: its siblings are laid out by the next real box up, from the same bottom.
+      el = parent;
+      continue;
+    }
     total +=
       lowest -
       bottom +
@@ -2264,6 +2295,8 @@ function contentAfter(node: HTMLElement, scroller: HTMLElement | null): number {
       (parseFloat(ps.borderBottomWidth) || 0);
     if (parent === scroller || parent === document.body) break;
     el = parent;
+    bottom = parent.getBoundingClientRect().bottom;
+    lowest = bottom + (parseFloat(ps.marginBottom) || 0);
   }
   return total;
 }

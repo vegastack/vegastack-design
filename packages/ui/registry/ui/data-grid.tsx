@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.116.0 sha256-hi+0/4FZ9cSlJcFCaWhKob868lry+nN/ZqTVEp45Nfs=
+// @vegastack data-grid@0.116.0 sha256-+iHJbUaXENa+v14lxulI8aoM3MJQC0YMUzjOaBMUAj8=
 
 "use client";
 
@@ -1379,9 +1379,10 @@ function stickyStyle(
 interface GridCellProps<T> {
   placed: PlacedColumn<T>;
   /**
-   * Which end of the row's `row-fill` shape this cell carries when it is not the `<tr>`'s first or
-   * last child (BRD-12): the windowing spacers and the filler sit outside the real columns, so the
-   * first and last REAL cells hold the rounded ends.
+   * Which end of the row's `row-fill` band this cell is when it is not the `<tr>`'s first or last
+   * child (BRD-12): the windowing spacers and the filler sit outside the real columns and paint the
+   * band too (it is square and continuous), so these marks only keep the real end cells positioned
+   * for what sits on them — the peek and keyboard edge bar on the start cell.
    */
   rowEdge?: "start" | "end" | "both";
   row: T;
