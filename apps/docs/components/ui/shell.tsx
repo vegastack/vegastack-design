@@ -1,4 +1,4 @@
-// @vegastack shell@0.116.0 sha256-MCugKVOPk/EgSF+KN6PT2RKY/HNG7Wzq/wK8aBW8qYI=
+// @vegastack shell@0.116.0 sha256-eid4xTvbXLuLGHxEr56+ph6xI6Gw6Q4B68lrpfr/QYU=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -169,6 +169,9 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
     bottom: calc(1rem + var(--shell-bottombar-height) + env(safe-area-inset-bottom));
   }
   [data-slot="shell-column-area"] {
+    /* The phone's sheet is the column too: the side surface, as in the frame (LAY-26). */
+    --sidebar: var(--shell-column);
+    --color-sidebar: var(--shell-column);
     position: fixed;
     inset: auto 0 0 0;
     z-index: 50;
