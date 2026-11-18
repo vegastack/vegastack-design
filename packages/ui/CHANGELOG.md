@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.116.1
+
+### Patch Changes
+
+- [#1041](https://github.com/vegastack/vegastack-design/pull/1041) [`d11a67b`](https://github.com/vegastack/vegastack-design/commit/d11a67bfcf52fd8fb458020364d6ffdb0f7b7c85) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Shell: on a phone the module column's sheet paints `--shell-column`, the step it has in the frame, instead of the plain `--sidebar` (0.205 in dark), so the phone follows the frame's steps too (LAY-26). Light is unchanged. The LAY-26 register row now says the record side panel shares the page's ground with a hairline (COL-26, #1039).
+
 ## 0.116.0
 
 ### Minor Changes

@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.116.1] — November 18, 2026
+
+<!-- assembled from 1 changeset: f1dc5fca592e -->
+
+### 🔧 Changed components
+
+- Shell: on a phone the module column's sheet paints `--shell-column`, the step it has in the frame, instead of the plain `--sidebar` (0.205 in dark), so the phone follows the frame's steps too (LAY-26). Light is unchanged. The LAY-26 register row now says the record side panel shares the page's ground with a hairline (COL-26, #1039).
+  [`d11a67b`](https://github.com/VegaStack/vegastack-design/commit/d11a67b)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.116.0 → 0.116.1.
+
 ## [0.116.0] — November 18, 2026
 
 <!-- assembled from 1 changeset: 2c030d52e0b3 -->
