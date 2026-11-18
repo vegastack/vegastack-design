@@ -1,4 +1,4 @@
-// @vegastack tabs@0.114.0 sha256-a4lT8Ndc4j1ZdJnU9pJ20Rc4aujIkzo6mqGnLwR718E=
+// @vegastack tabs@0.114.0 sha256-0LopL6/azGZSDfQ2kJM3YXxGJ1+d2KkXN/A/Q537j6E=
 
 "use client";
 
@@ -37,7 +37,7 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center justify-center rounded-control group-data-vertical/tabs:rounded-card p-0.5 text-muted-foreground group-not-data-vertical/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list inline-flex w-fit items-center justify-center rounded-control group-data-vertical/tabs:rounded-card p-0.5 data-[variant=line]:p-[3px] text-muted-foreground group-not-data-vertical/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
   {
     variants: {
       variant: {

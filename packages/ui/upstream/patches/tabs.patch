@@ -77,7 +77,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/tabs.tsx b/tabs.tsx
-index c3262d3..a9aaa24 100644
+index c3262d3..cdf0e91 100644
 --- a/tabs.tsx
 +++ b/tabs.tsx
 @@ -1,8 +1,19 @@
@@ -122,7 +122,7 @@ index c3262d3..a9aaa24 100644
  
  const tabsListVariants = cva(
 -  "group/tabs-list inline-flex w-fit items-center justify-center rounded-lg p-[3px] text-muted-foreground group-data-horizontal/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
-+  "group/tabs-list inline-flex w-fit items-center justify-center rounded-control group-data-vertical/tabs:rounded-card p-0.5 text-muted-foreground group-not-data-vertical/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
++  "group/tabs-list inline-flex w-fit items-center justify-center rounded-control group-data-vertical/tabs:rounded-card p-0.5 data-[variant=line]:p-[3px] text-muted-foreground group-not-data-vertical/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
    {
      variants: {
        variant: {
