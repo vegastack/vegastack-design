@@ -691,7 +691,7 @@
       "components": [0.964, 0, 0],
       "alpha": 1
     },
-    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the window's ground around the frame's card. The global bar and the rail sit on it (light about #F3F3F3, a step under `muted`, dark about #0A0A0A). Read it as `bg-shell-canvas`."
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the window's ground around the frame's card. The global bar and the rail sit on it (light about #F3F3F3, a step under `muted` and below the card; dark about #1E1E1E, a step above the card, so in dark the ground is the lighter of the two, Regent operator 2026-11-18). Read it as `bg-shell-canvas`."
   },
   "shell-card": {
     "$type": "color",
@@ -700,7 +700,7 @@
       "components": [1, 0, 0],
       "alpha": 1
     },
-    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, one step above the canvas in both themes (light white, dark about #131313). The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground: in light one step above the canvas (white), in dark one step below it (about #131313 on the #1E1E1E canvas). The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
   },
   "shell-column": {
     "$type": "color",
@@ -709,7 +709,7 @@
       "components": [0.985, 0, 0],
       "alpha": 1
     },
-    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the module column inside the card, between the canvas and the card (light the same as `sidebar`, dark about #0E0E0E). The shell sets `--sidebar` to it inside the column. Read it as `bg-shell-column`."
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the module column inside the card (light the same as `sidebar`, between the canvas and the card; dark about #0E0E0E, a step under the card). The shell sets `--sidebar` to it inside the column. Read it as `bg-shell-column`."
   },
   "radius": {
     "$type": "dimension",
