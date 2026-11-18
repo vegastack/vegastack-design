@@ -1,9 +1,16 @@
-// @vegastack shell-assistant@0.112.0 sha256-D8xu4YH58BL4qwKZv0tjbouXimLLkkjzNoBZpffi+dU=
+// @vegastack shell-assistant@0.112.0 sha256-6pbDk6jHRn6KYz9PmCkcHTlEbDboOAYdmAisEHZwUNo=
 
 "use client";
 
 import * as React from "react";
-import { Maximize2Icon, SparklesIcon, XIcon } from "lucide-react";
+import {
+  Maximize2Icon,
+  Minimize2Icon,
+  PanelRightIcon,
+  PictureInPicture2Icon,
+  SparklesIcon,
+  XIcon,
+} from "lucide-react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { Button } from "@/components/ui/button";
 import { Chip } from "@/components/ui/chip";
@@ -32,6 +39,52 @@ export interface AssistantCardProps extends React.ComponentProps<"section"> {
    * @default whatever had focus before it opened
    */
   finalFocus?: React.RefObject<HTMLElement | null>;
+  /**
+   * Where the chat sits (LAY-26). `float`: the compact card over the page's corner. `dock`: a
+   * second card beside the page, the split view (render the card as `Shell`'s `assistant`; under
+   * 40rem of shell it floats). `popout`: a window of its own over the app that the person drags by
+   * its header and resizes from its corner. The same element moves between them, so the chat in
+   * it never remounts.
+   * @default 'float'
+   */
+  place?: AssistantPlace;
+}
+
+/** Where the assistant's chat sits: floating, docked beside the page, or popped out. */
+export type AssistantPlace = "float" | "dock" | "popout";
+
+/** Focuses `node` if it can take focus now; whether it did. */
+function tryFocus(node: HTMLElement | null | undefined): boolean {
+  if (!node?.isConnected) return false;
+  node.focus({ preventScroll: true });
+  return document.activeElement === node;
+}
+
+/** Focus into the card: `first`, else its first visible text field, else the card itself. */
+function focusInto(card: HTMLElement, first?: HTMLElement | null) {
+  if (tryFocus(first)) return;
+  const fields = card.querySelectorAll<HTMLElement>(
+    'textarea:not(:disabled), input:not(:disabled):is(:not([type]), [type=text], [type=search], [type=email], [type=url], [type=tel], [type=password]), [contenteditable="true"], [contenteditable=""]',
+  );
+  for (const field of fields) {
+    if (field.checkVisibility?.() === false) continue;
+    if (tryFocus(field)) return;
+  }
+  card.focus({ preventScroll: true });
+}
+
+/** Keeps a popped-out card's top-left corner inside the window. */
+function clampToWindow(
+  x: number,
+  y: number,
+  card: HTMLElement,
+): { x: number; y: number } {
+  const maxX = Math.max(0, window.innerWidth - card.offsetWidth);
+  const maxY = Math.max(0, window.innerHeight - card.offsetHeight);
+  return {
+    x: Math.min(Math.max(0, x), maxX),
+    y: Math.min(Math.max(0, y), maxY),
+  };
 }
 
 /**
@@ -57,14 +110,21 @@ function AssistantCard({
   onOpenChange,
   initialFocus,
   finalFocus,
+  place = "float",
   className,
   onKeyDown,
+  onPointerDown,
+  style,
   children,
   ref,
   id,
   ...props
 }: AssistantCardProps) {
+  // A popped-out card's top-left corner; null until it is first placed (then it opens centred).
+  const [at, setAt] = React.useState<{ x: number; y: number } | null>(null);
   const titleId = React.useId();
+  const onOpenChangeRef = React.useRef(onOpenChange);
+  onOpenChangeRef.current = onOpenChange;
   const cardRef = React.useRef<HTMLElement | null>(null);
   const returnTo = React.useRef<HTMLElement | null>(null);
   const lastOutside = React.useRef<HTMLElement | null>(null);
@@ -100,11 +160,6 @@ function AssistantCard({
     const card = cardRef.current;
     if (!card || wasOpen.current === open) return;
     wasOpen.current = open;
-    const tryFocus = (node: HTMLElement | null | undefined) => {
-      if (!node?.isConnected) return false;
-      node.focus({ preventScroll: true });
-      return document.activeElement === node;
-    };
     const opener = () =>
       id
         ? document.querySelector<HTMLElement>(
@@ -115,15 +170,7 @@ function AssistantCard({
       returnTo.current = lastOutside.current;
       // Something inside already took focus (an autofocusing composer): leave it there.
       if (card.contains(document.activeElement)) return;
-      if (tryFocus(initialFocus?.current)) return;
-      const fields = card.querySelectorAll<HTMLElement>(
-        'textarea:not(:disabled), input:not(:disabled):is(:not([type]), [type=text], [type=search], [type=email], [type=url], [type=tel], [type=password]), [contenteditable="true"], [contenteditable=""]',
-      );
-      for (const field of fields) {
-        if (field.checkVisibility?.() === false) continue;
-        if (tryFocus(field)) return;
-      }
-      card.focus({ preventScroll: true });
+      focusInto(card, initialFocus?.current);
       return;
     }
     const active = document.activeElement;
@@ -133,31 +180,153 @@ function AssistantCard({
       tryFocus(opener());
   }, [open, initialFocus, finalFocus, id]);
 
+  // Moving the card to another place removes the button that moved it: focus stays in the card
+  // (its first text field, else the card) rather than falling to the page.
+  const lastPlace = React.useRef(place);
+  React.useEffect(() => {
+    if (lastPlace.current === place) return;
+    lastPlace.current = place;
+    const card = cardRef.current;
+    if (place !== "popout") {
+      setAt(null);
+      // A native resize while popped out leaves its size inline: the other places size themselves.
+      card?.style.removeProperty("width");
+      card?.style.removeProperty("height");
+    }
+    const active = document.activeElement;
+    if (!card || !open || (active && active !== document.body)) return;
+    focusInto(card);
+  }, [place, open]);
+
+  // A popped-out card stays inside the window as the window resizes.
+  React.useEffect(() => {
+    if (place !== "popout") return;
+    const onResize = () =>
+      setAt((prev) =>
+        prev && cardRef.current
+          ? clampToWindow(prev.x, prev.y, cardRef.current)
+          : prev,
+      );
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, [place]);
+
+  // The card's own keys and drag listen on the window, after the page's handlers, for events from
+  // inside the card: what it holds may be portalled in from another React tree (a chat moved
+  // between places), whose events never reach this element's React handlers. A handler inside
+  // that already took the key (a menu's Escape, a composer's "stop") wins: `defaultPrevented`.
+  const placeRef = React.useRef(place);
+  placeRef.current = place;
+  React.useEffect(() => {
+    const inside = (event: Event): HTMLElement | null => {
+      const card = cardRef.current;
+      return card && card.contains(event.target as Node) ? card : null;
+    };
+    const onKey = (event: KeyboardEvent) => {
+      const card = inside(event);
+      if (!card || event.defaultPrevented) return;
+      // Popped out, Alt + an arrow key moves the card (Shift: further) from anywhere in it but a
+      // text field, where it moves the caret by a word: the keyboard's way to place it (2.1.1).
+      if (
+        placeRef.current === "popout" &&
+        event.altKey &&
+        !event.metaKey &&
+        !event.ctrlKey &&
+        event.key.startsWith("Arrow") &&
+        !(event.target as Element).closest?.(
+          'input, textarea, [contenteditable="true"], [contenteditable=""]',
+        )
+      ) {
+        event.preventDefault();
+        const box = card.getBoundingClientRect();
+        const step = event.shiftKey ? 64 : 16;
+        const dx =
+          event.key === "ArrowLeft"
+            ? -step
+            : event.key === "ArrowRight"
+              ? step
+              : 0;
+        const dy =
+          event.key === "ArrowUp"
+            ? -step
+            : event.key === "ArrowDown"
+              ? step
+              : 0;
+        setAt(clampToWindow(box.left + dx, box.top + dy, card));
+        return;
+      }
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      onOpenChangeRef.current(false);
+    };
+    /** Drags a popped-out card by its header (not by the header's buttons). */
+    const onDown = (event: PointerEvent) => {
+      const card = inside(event);
+      const target = event.target as Element;
+      if (
+        !card ||
+        placeRef.current !== "popout" ||
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        !target.closest?.('[data-slot="assistant-card-header"]') ||
+        target.closest?.(
+          'button, a, input, textarea, select, [role="button"], [role="menuitem"]',
+        )
+      )
+        return;
+      event.preventDefault();
+      const box = card.getBoundingClientRect();
+      const dx = event.clientX - box.left;
+      const dy = event.clientY - box.top;
+      const move = (e: PointerEvent) =>
+        setAt(clampToWindow(e.clientX - dx, e.clientY - dy, card));
+      const end = () => {
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", end);
+        window.removeEventListener("pointercancel", end);
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", end);
+      window.addEventListener("pointercancel", end);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+    };
+  }, []);
+
   if (!opened) return null;
+  const docked = place === "dock";
+  const popped = place === "popout";
   return (
     <AssistantCardTitle.Provider value={{ titleId }}>
       <section
         ref={setRef}
         id={id}
-        role="dialog"
-        aria-modal={false}
+        // Docked, it is a region of the frame beside the page; floating or popped out, a
+        // non-modal dialog over it.
+        role={docked ? "region" : "dialog"}
+        aria-modal={docked ? undefined : false}
         aria-labelledby={titleId}
         tabIndex={-1}
         data-slot="assistant-card"
+        data-place={place}
+        aria-keyshortcuts={
+          popped
+            ? "Alt+ArrowUp Alt+ArrowDown Alt+ArrowLeft Alt+ArrowRight"
+            : undefined
+        }
         data-open={open ? "" : undefined}
         inert={!open}
-        onKeyDown={(event) => {
-          onKeyDown?.(event);
-          if (
-            event.key !== "Escape" ||
-            event.defaultPrevented ||
-            // A menu portalled out of the card handles its own Escape.
-            !cardRef.current?.contains(event.target as Node)
-          )
-            return;
-          event.preventDefault();
-          onOpenChange(false);
-        }}
+        style={
+          popped && at
+            ? { ...style, left: at.x, top: at.y, right: "auto", bottom: "auto" }
+            : style
+        }
+        onKeyDown={onKeyDown}
+        onPointerDown={onPointerDown}
         // z-30, the side peek's layer: it comes after the page (and a peek in it) in the frame, so
         // a card opened while a record is peeked sits on top of it, under the column and scrims.
         className={cn(
@@ -167,6 +336,12 @@ function AssistantCard({
             ? "visible translate-y-0 scale-100 opacity-100 duration-state ease-enter starting:translate-y-2 starting:scale-95 starting:opacity-0"
             : "invisible translate-y-2 scale-95 opacity-0 duration-state-exit ease-exit",
           className,
+          // Popped out: a window of its own over the app (z-40, the slide-over's layer, under
+          // menus and dialogs), centred until the person drags it, resizable from its corner.
+          popped &&
+            "fixed start-[max(0.5rem,calc(50%-13.125rem))] top-[max(0.5rem,calc(50%-17.5rem))] end-auto bottom-auto z-40 h-140 max-h-[calc(100dvh-1rem)] min-h-[min(20rem,calc(100dvh-1rem))] w-105 max-w-[calc(100vw-1rem)] min-w-[min(20rem,calc(100vw-1rem))] resize overflow-hidden shadow-2xl starting:scale-100 [&_[data-slot=assistant-card-header]]:cursor-grab [&_[data-slot=assistant-card-header]]:select-none",
+          // Docked: the shell places it as a card beside the page (from 40rem); it only fades in.
+          docked && "starting:translate-y-0 starting:scale-100",
         )}
         {...props}
       >
@@ -205,11 +380,38 @@ export interface AssistantCardHeaderProps extends Omit<
    * @default undefined
    */
   actions?: React.ReactNode;
+  /**
+   * Where the card sits now. With `onPlaceChange`, the header offers the other places (LAY-26):
+   * floating, "Dock beside the page" and "Pop out"; docked, "Float as a card" and "Pop out";
+   * popped out, "Dock beside the page" and "Back into the app" (floating).
+   * @default undefined
+   */
+  place?: AssistantPlace;
+  /** Moves the card to another place. Omit to offer no places. @default undefined */
+  onPlaceChange?: (place: AssistantPlace) => void;
+  /**
+   * Which places to offer (a phone, or a host without a popped-out window, offers fewer).
+   * @default ["float", "dock", "popout"]
+   */
+  places?: readonly AssistantPlace[];
 }
 
+const PLACE_TOOL: Record<
+  AssistantPlace,
+  { label: (from: AssistantPlace) => string; icon: React.ReactNode }
+> = {
+  dock: { label: () => "Dock beside the page", icon: <PanelRightIcon /> },
+  float: {
+    label: (from) =>
+      from === "popout" ? "Back into the app" : "Float as a card",
+    icon: <Minimize2Icon />,
+  },
+  popout: { label: () => "Pop out", icon: <PictureInPicture2Icon /> },
+};
+
 /**
- * The card's 48px header: the assistant's mark and name, then Open full chat and Close as one
- * tool group.
+ * The card's 48px header: the assistant's mark and name, then the chat's tools, the other places
+ * the card can move to, Open full chat and Close as one tool group.
  *
  * @example
  * ```tsx
@@ -229,10 +431,20 @@ function AssistantCardHeader({
   openFullLabel = "Open full chat",
   closeLabel = "Close",
   actions,
+  place,
+  onPlaceChange,
+  places = ["float", "dock", "popout"],
   className,
   ...props
 }: AssistantCardHeaderProps) {
   const ctx = React.useContext(AssistantCardTitle);
+  // The places it isn't in, in one order: dock, then pop out, then back to floating.
+  const moves =
+    place && onPlaceChange
+      ? (["dock", "popout", "float"] as const).filter(
+          (p) => p !== place && places.includes(p),
+        )
+      : [];
   return (
     <div
       data-slot="assistant-card-header"
@@ -256,6 +468,15 @@ function AssistantCardHeader({
       </h2>
       <ToolGroup aria-label="Chat actions">
         {actions}
+        {moves.map((p) => (
+          <ToolGroupItem
+            key={p}
+            label={PLACE_TOOL[p].label(place!)}
+            onClick={() => onPlaceChange?.(p)}
+          >
+            {PLACE_TOOL[p].icon}
+          </ToolGroupItem>
+        ))}
         {onOpenFull ? (
           <ToolGroupItem label={openFullLabel} onClick={onOpenFull}>
             <Maximize2Icon />

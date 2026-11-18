@@ -1,3 +1,4 @@
+import * as React from "react";
 import { render } from "vitest-browser-react";
 import { afterEach, expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
@@ -30,6 +31,7 @@ import {
   ShellTopBarWatch,
 } from "./shell";
 import { ShellStateScript } from "./shell-scripts";
+import { AssistantCard } from "./shell-assistant";
 import "../../test/geometry.css";
 
 afterEach(() => {
@@ -45,17 +47,20 @@ function Frame({
   column = true,
   columnWidth,
   module = "Tasks",
+  assistant,
 }: {
   width: number;
   columnWidth?: number;
   column?: boolean;
   module?: string;
+  assistant?: React.ReactNode;
 }) {
   return (
     <div style={{ width, height: 600 }}>
       <Shell
         fill="parent"
         columnWidth={columnWidth}
+        assistant={assistant}
         globalBar={
           <GlobalBar>
             <GlobalBarLeading>
@@ -563,4 +568,72 @@ test("picking a place in a column that slid over closes it; folding a parent doe
   expect(shell().dataset.column).toBe("over");
   await userEvent.click(row("Board"));
   await expect.poll(() => shell().dataset.column).toBe("folded");
+});
+
+const rect = (slot: string) =>
+  document.querySelector(`[data-slot="${slot}"]`)!.getBoundingClientRect();
+
+test("from 40rem the column and the page share one rounded card, inset from the end and the foot", async () => {
+  const screen = await render(<Frame width={1280} />);
+  await settled();
+  const frame = shell().getBoundingClientRect();
+  const card = rect("shell-card");
+  const style = getComputedStyle(
+    document.querySelector('[data-slot="shell-card"]')!,
+  );
+  expect(style.borderTopLeftRadius).toBe("12px");
+  expect(Math.round(frame.right - card.right)).toBe(8);
+  expect(Math.round(frame.bottom - card.bottom)).toBe(8);
+  // It meets the rail and the global bar with no gap of its own.
+  expect(Math.round(card.left)).toBe(Math.round(rect("shell-rail-area").right));
+  expect(Math.round(card.top)).toBe(Math.round(rect("global-bar").bottom));
+  // The column and the page are inside it; the rail and the bar sit on the canvas.
+  const cardEl = document.querySelector('[data-slot="shell-card"]')!;
+  expect(cardEl.contains(document.querySelector("main"))).toBe(true);
+  expect(
+    cardEl.contains(document.querySelector('[data-slot="shell-rail-area"]')),
+  ).toBe(false);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("on a phone the page is full bleed: the card has no box of its own", async () => {
+  await render(<Frame width={390} />);
+  await settled();
+  const style = getComputedStyle(
+    document.querySelector('[data-slot="shell-card"]')!,
+  );
+  expect(style.display).toBe("contents");
+});
+
+test("the assistant docked beside the page is a second card, the page giving it room", async () => {
+  await render(
+    <Frame
+      width={1440}
+      assistant={
+        <AssistantCard open onOpenChange={() => {}} place="dock">
+          <p>How can I help?</p>
+        </AssistantCard>
+      }
+    />,
+  );
+  await settled();
+  const card = rect("shell-card");
+  const dock = rect("assistant-card");
+  expect(Math.round(dock.width)).toBe(400);
+  expect(Math.round(dock.left - card.right)).toBe(8);
+  expect(Math.round(shell().getBoundingClientRect().right - dock.right)).toBe(
+    8,
+  );
+  expect(Math.round(dock.top)).toBe(Math.round(card.top));
+  // The resolver knows the room it takes.
+  const page = shell().querySelector('[data-slot="shell-content"]')!;
+  expect(Math.round(page.getBoundingClientRect().width)).toBe(
+    resolveShellLayout({ width: 1440, columnOpen: true, assistantDocked: true })
+      .pageWidth,
+  );
+  expect(
+    document
+      .querySelector('[data-slot="assistant-card"]')!
+      .getAttribute("role"),
+  ).toBe("region");
 });

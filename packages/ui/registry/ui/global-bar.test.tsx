@@ -1,12 +1,11 @@
 import { render } from "vitest-browser-react";
 import { afterEach, expect, test, vi } from "vitest";
-import { CircleHelp } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import {
   GlobalBar,
-  GlobalBarAsk,
   GlobalBarCenter,
+  GlobalBarHelp,
   GlobalBarHistory,
   GlobalBarLeading,
   GlobalBarSearch,
@@ -24,9 +23,11 @@ afterEach(() => {
 function Bar({
   leading = "Acme",
   width = 1200,
+  onAsk = () => {},
 }: {
   leading?: string;
   width?: number;
+  onAsk?: () => void;
 }) {
   return (
     <div style={{ width }}>
@@ -48,13 +49,13 @@ function Bar({
           </Button>
         </GlobalBarLeading>
         <GlobalBarCenter>
-          <GlobalBarSearch />
+          <GlobalBarSearch
+            label="Search or ask anything…"
+            ask={{ label: "Ask William", onClick: onAsk }}
+          />
         </GlobalBarCenter>
         <GlobalBarTrailing>
-          <GlobalBarAsk />
-          <Button variant="ghost" size="icon-sm" aria-label="Help">
-            <CircleHelp />
-          </Button>
+          <GlobalBarHelp dot="new updates" />
         </GlobalBarTrailing>
       </GlobalBar>
     </div>
@@ -77,9 +78,11 @@ test("44px tall, with the search trigger centred whatever the sides hold", async
 
 test("the triggers carry their shortcuts and history follows what the window can do", async () => {
   const screen = await render(<Bar />);
-  const search = screen.getByRole("button", { name: "Search" }).element();
+  const search = screen
+    .getByRole("button", { name: "Search or ask anything…" })
+    .element();
   expect(search.getAttribute("aria-keyshortcuts")).toMatch(/\+K$/);
-  const ask = screen.getByRole("button", { name: "Ask" }).element();
+  const ask = screen.getByRole("button", { name: "Ask William" }).element();
   expect(ask.getAttribute("aria-keyshortcuts")).toMatch(/\+J$/);
   await expect
     .element(screen.getByRole("button", { name: "Back" }))
@@ -160,3 +163,16 @@ test.each([
       );
   },
 );
+
+test("the box's Ask chip opens the assistant, and Help reads its dot", async () => {
+  const onAsk = vi.fn();
+  const screen = await render(<Bar onAsk={onAsk} />);
+  await screen.getByRole("button", { name: "Ask William" }).click();
+  expect(onAsk).toHaveBeenCalledOnce();
+  await expect
+    .element(screen.getByRole("button", { name: "Help (new updates)" }))
+    .toBeVisible();
+  // The box is a pill on the card's ground, 32px tall in the 44px bar.
+  expect(box('[data-slot="global-bar-search"]').height).toBe(32);
+  await expectNoA11yViolations(screen.container);
+});

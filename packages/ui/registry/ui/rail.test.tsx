@@ -7,6 +7,8 @@ import {
   RailBadge,
   RailBottom,
   RailItem,
+  RailTile,
+  RailTop,
   lazyAnimatedIcon,
 } from "./rail";
 import "../../test/geometry.css";
@@ -142,4 +144,40 @@ test("an animated rail icon paints static first, then swaps in at the same size 
     .toBeNull();
   const after = size();
   expect([after.width, after.height]).toEqual([before.width, before.height]);
+});
+
+test("the rail's two ends: the workspace's tile on top and the avatar under Settings", async () => {
+  const screen = await render(
+    <div style={{ width: 64, height: 480, display: "flex" }}>
+      <Rail>
+        <RailTop>
+          <RailTile label="Workspace: Acme. Switch workspace">A</RailTile>
+        </RailTop>
+        <RailItem icon={<Home />} label="Home" href="#home" active />
+        <RailBottom>
+          <RailItem icon={<Settings2 />} label="Settings" href="#settings" />
+          <RailTile shape="avatar" label="Ada Lovelace, account">
+            AL
+          </RailTile>
+        </RailBottom>
+      </Rail>
+    </div>,
+  );
+  const tile = screen
+    .getByRole("button", { name: "Workspace: Acme. Switch workspace" })
+    .element();
+  const avatar = screen
+    .getByRole("button", { name: "Ada Lovelace, account" })
+    .element();
+  const home = screen.getByRole("link", { name: "Home" }).element();
+  const settings = screen.getByRole("link", { name: "Settings" }).element();
+  expect(box(tile).width).toBe(36);
+  expect(box(avatar).width).toBe(32);
+  expect(box(tile).bottom).toBeLessThan(box(home).top);
+  expect(box(avatar).top).toBeGreaterThan(box(settings).bottom);
+  // Both sit on the rail's centre line.
+  const mid = (el: Element) => box(el).left + box(el).width / 2;
+  expect(Math.round(mid(tile))).toBe(32);
+  expect(Math.round(mid(avatar))).toBe(32);
+  await expectNoA11yViolations(screen.container);
 });

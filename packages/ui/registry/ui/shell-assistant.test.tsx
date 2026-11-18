@@ -1,7 +1,8 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
-import { expect, onTestFinished, test } from "vitest";
+import { page, userEvent } from "vitest/browser";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   AssistantCard,
@@ -9,6 +10,7 @@ import {
   AssistantCardComposer,
   AssistantCardContext,
   AssistantCardHeader,
+  type AssistantPlace,
 } from "./shell-assistant";
 import { Peek, PeekBody, PeekTitle } from "./peek";
 import { ToolGroupItem } from "./tool-group";
@@ -190,4 +192,122 @@ test("a card opened while a record is peeked sits above the peek", async () => {
     card.contains(hit),
     `${hit?.outerHTML.slice(0, 80)} at ${r.left},${r.top} ${innerWidth}x${innerHeight}`,
   ).toBe(true);
+});
+
+function Places() {
+  const [place, setPlace] = React.useState<AssistantPlace>("float");
+  return (
+    <div style={{ position: "relative", width: 900, height: 700 }}>
+      <AssistantCard open onOpenChange={() => {}} place={place}>
+        <AssistantCardHeader
+          title="William"
+          place={place}
+          onPlaceChange={setPlace}
+          onClose={() => {}}
+        />
+        <AssistantCardBody>
+          <p>How can I help?</p>
+        </AssistantCardBody>
+      </AssistantCard>
+    </div>
+  );
+}
+
+test("the header offers the other places, and the card moves without losing its content", async () => {
+  const screen = await render(<Places />);
+  const card = () =>
+    document.querySelector<HTMLElement>('[data-slot="assistant-card"]')!;
+  expect(card().dataset.place).toBe("float");
+  await expect
+    .element(screen.getByRole("button", { name: "Dock beside the page" }))
+    .toBeVisible();
+  await screen.getByRole("button", { name: "Pop out" }).click();
+  expect(card().dataset.place).toBe("popout");
+  expect(card().getAttribute("role")).toBe("dialog");
+  // The button that moved it is gone: focus stays in the card, not on the page.
+  await expect.poll(() => card().contains(document.activeElement)).toBe(true);
+  // Popped out, "Back into the app" floats it again.
+  await screen.getByRole("button", { name: "Back into the app" }).click();
+  expect(card().dataset.place).toBe("float");
+  await expect.element(screen.getByText("How can I help?")).toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("popped out, the card drags by its header and stays inside the window", async () => {
+  await page.viewport(1280, 800);
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(<Places />);
+  await screen.getByRole("button", { name: "Pop out" }).click();
+  const card = document.querySelector<HTMLElement>(
+    '[data-slot="assistant-card"]',
+  )!;
+  const header = card.querySelector<HTMLElement>(
+    '[data-slot="assistant-card-header"]',
+  )!;
+  const start = card.getBoundingClientRect();
+  const at = header.getBoundingClientRect();
+  const x = at.left + 8;
+  const y = at.top + at.height / 2;
+  header.dispatchEvent(
+    new PointerEvent("pointerdown", {
+      bubbles: true,
+      button: 0,
+      clientX: x,
+      clientY: y,
+    }),
+  );
+  window.dispatchEvent(
+    new PointerEvent("pointermove", { clientX: x - 5000, clientY: y - 5000 }),
+  );
+  window.dispatchEvent(new PointerEvent("pointerup", {}));
+  await expect
+    .poll(() => card.getBoundingClientRect().left)
+    .not.toBe(start.left);
+  expect(card.getBoundingClientRect().left).toBe(0);
+  expect(card.getBoundingClientRect().top).toBe(0);
+});
+
+test("popped out, Alt and an arrow key move the card", async () => {
+  await page.viewport(1280, 800);
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(<Places />);
+  await screen.getByRole("button", { name: "Pop out" }).click();
+  const card = document.querySelector<HTMLElement>(
+    '[data-slot="assistant-card"]',
+  )!;
+  card.focus();
+  const before = card.getBoundingClientRect().left;
+  await userEvent.keyboard("{Alt>}{ArrowRight}{/Alt}");
+  await expect
+    .poll(() => Math.round(card.getBoundingClientRect().left))
+    .toBe(Math.round(before + 16));
+});
+
+test("Escape closes the card from content portalled in from another React tree", async () => {
+  const onOpenChange = vi.fn();
+  function Portalled() {
+    const [card, setCard] = React.useState<HTMLElement | null>(null);
+    return (
+      <>
+        <AssistantCard ref={setCard} open onOpenChange={onOpenChange}>
+          <p>Card</p>
+        </AssistantCard>
+        {card
+          ? createPortal(<button type="button">Inside</button>, card)
+          : null}
+      </>
+    );
+  }
+  const screen = await render(<Portalled />);
+  (
+    screen.getByRole("button", { name: "Inside" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{Escape}");
+  expect(onOpenChange).toHaveBeenCalledWith(false);
 });

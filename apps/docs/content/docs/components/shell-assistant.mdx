@@ -1,6 +1,6 @@
 ---
 title: Shell Assistant
-description: The compact assistant card at the page area's corner, opened from the global bar's Ask or ⌘J.
+description: The assistant's chat in three places — docked beside the page, floating at its corner, or popped out as a window you drag anywhere.
 audience: public
 registry: shell-assistant
 status: stable
@@ -68,6 +68,19 @@ presentational: the host fetches and sends.
 <Anatomy name="shell-assistant" />
 
 ## Examples
+
+### Three places
+
+`place` puts the same card in one of three places (LAY-26). `dock` is a second card beside the
+page, the split view: render the card as `Shell`'s `assistant` and the shell gives it 400px and the
+page card's inset and corner; docked it is a region of the frame, not a dialog. `float` is the
+compact card over the page area's corner. `popout` is a window of its own over the app: it opens
+centred, drags by its header, resizes from its corner and stays inside the window.
+
+Give the header `place` and `onPlaceChange` and it offers the other places: floating, "Dock beside
+the page" and "Pop out"; docked, "Float as a card" and "Pop out"; popped out, "Dock beside the page"
+and "Back into the app". `places` narrows the offer (a host with its own pop-out window, a phone).
+Render one card in `Shell`'s `assistant` slot whatever its place — floating, it sits at the window's bottom-end corner over the page card; popped out, over everything — so nothing inside it remounts when it moves. Popped out, Alt and an arrow key move it from the keyboard (with Shift, further).
 
 ### Without a context
 

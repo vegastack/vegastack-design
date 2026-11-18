@@ -1,6 +1,6 @@
 ---
 title: Shell
-description: The frame every screen sits in — the global bar, then the module rail, the column and the page under its top bar, laid out in CSS.
+description: The frame every screen sits in — the global bar and rail on the window's canvas, the column and page in one rounded card. Laid out in CSS.
 audience: public
 registry: shell
 status: stable
@@ -122,6 +122,19 @@ HTML is already laid out. Nothing measures after hydration.
 There is no right panel in the frame: a record opens in [`Peek`](/docs/components/peek), placed in
 the page area (inside `ShellMain`), and its full page uses
 [`RecordLayout`](/docs/components/record-layout), whose side panel belongs to the page.
+
+### The rounded card
+
+From 40rem (LAY-26) the global bar and the rail sit on the window's canvas (`--shell-canvas`), and
+the column and the page share one card: `--shell-card` with a hairline border and a 12px corner
+(`--shell-card-radius`), inset 8px from the window's end and bottom (`--shell-card-inset`) and
+meeting the rail and the bar with no gap. Inside it the shell points `--background` at the card
+and `--sidebar` at `--shell-column`, so pages, lists and the record side panel paint as they always
+did; the side panel stays flush with the card's end. Under 40rem the card has no box of its own and
+the page is full bleed.
+
+Pass an `AssistantCard` as `assistant`: with `place="dock"` it is a second card beside the page,
+400px wide (`--shell-assistant-width`) with the same inset and corner, and the page gives it room.
 
 ### The global bar
 

@@ -620,5 +620,29 @@
   "sidebar-ring": {
     "$type": "color",
     "$value": "{color.neutral.200}"
+  },
+  "shell-canvas": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 1
+    }
+  },
+  "shell-card": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.185, 0, 0],
+      "alpha": 1
+    }
+  },
+  "shell-column": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.165, 0, 0],
+      "alpha": 1
+    }
   }
 }

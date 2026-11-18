@@ -1,6 +1,6 @@
 ---
 title: Rail
-description: The module rail down the app's start edge — about seven modules as icons over labels, with compact count badges, and a bottom group.
+description: The module rail down the app's start edge — modules as icons over labels with count badges, and the workspace's tile and your avatar at its ends.
 audience: public
 registry: rail
 status: stable
@@ -42,7 +42,7 @@ import { Rail, RailBottom, RailItem } from "@/components/ui/rail";
 ```
 
 The rail holds the app's modules and nothing else, about seven of them, with Settings in the
-bottom group. Search, Help and the account live in the [global bar](/docs/components/global-bar).
+bottom group, with the workspace's tile and the person's avatar as its two ends. Search and Help live in the [global bar](/docs/components/global-bar).
 There is no More menu: a rail that needs one has too many modules.
 
 <ComponentPreview name="rail" file="components/preview/rail.tsx" />
@@ -83,6 +83,27 @@ export const HomeIconLazy = lazyAnimatedIcon(() =>
 />;
 ```
 
+### The rail's two ends
+
+The rail's fixed ends (LAY-26) are the workspace and the person. `RailTop` holds the workspace's
+36px logo tile, with a short rule under it, above the modules; the tile is the workspace menu's
+trigger. Under Settings in `RailBottom`, `RailTile shape="avatar"` is the person's round 32px
+avatar, the account menu's trigger. Both sit on the rail's centre line, with a ring in the canvas
+and a hairline that darkens on hover.
+
+```tsx
+<Rail>
+  <RailTop>
+    <WorkspaceMenu trigger={<RailTile label="Workspace: Acme. Switch workspace">A</RailTile>} />
+  </RailTop>
+  <RailItem icon={<Home />} label="Home" href="/" active />
+  <RailBottom>
+    <RailItem icon={<Settings2 />} label="Settings" href="/settings" />
+    <AccountMenu trigger={<RailTile shape="avatar" label="Ada Lovelace, account"><Avatar … /></RailTile>} />
+  </RailBottom>
+</Rail>
+```
+
 ## API Reference
 
 <ApiTable path="../../packages/ui/registry/ui/rail.tsx" name="RailProps" />
@@ -94,6 +115,10 @@ export const HomeIconLazy = lazyAnimatedIcon(() =>
 ### RailBadge
 
 <ApiTable path="../../packages/ui/registry/ui/rail.tsx" name="RailBadgeProps" />
+
+### RailTile
+
+<ApiTable path="../../packages/ui/registry/ui/rail.tsx" name="RailTileProps" />
 
 ## Accessibility
 
@@ -109,5 +134,5 @@ export const HomeIconLazy = lazyAnimatedIcon(() =>
 
 <DoDont
   do="Keep the rail to the app's modules, with Settings at the foot."
-  dont="Add Search, Help, the account or a More menu to the rail: they live in the global bar, and a rail that overflows has too many modules."
+  dont="Add Search, Help or a More menu to the rail: they live in the global bar, and a rail that overflows has too many modules. The workspace and the account are its two ends only."
 />

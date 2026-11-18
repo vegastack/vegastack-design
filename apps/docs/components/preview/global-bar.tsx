@@ -1,15 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ChevronsUpDown, CircleHelp, PanelLeft } from "lucide-react";
+import { History, PanelLeft } from "lucide-react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/global-bar` (dogfoods the registry) → auto-scanned.
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   GlobalBar,
-  GlobalBarAsk,
   GlobalBarCenter,
+  GlobalBarHelp,
   GlobalBarHistory,
   GlobalBarLeading,
   GlobalBarSearch,
@@ -23,12 +22,12 @@ const history = {
   forward: () => {},
 };
 
-/** The whole bar: ▤, ‹ ›, the workspace · search (⌘K) · Ask (⌘J), Help, the account. */
+/** The whole bar: ▤, then ‹ › (the desktop app's), History and the search-or-ask box, then ? Help. */
 export function globalBar(): ReactNode {
   return (
     // A shell container, as in the app: under 40rem (a phone) the bar hides itself.
-    <Wrapper className="block overflow-hidden p-0 @container/shell">
-      <GlobalBar className="border-b border-sidebar-border">
+    <Wrapper className="block overflow-hidden bg-shell-canvas p-0 @container/shell">
+      <GlobalBar>
         <GlobalBarLeading>
           <Button
             variant="ghost"
@@ -37,32 +36,22 @@ export function globalBar(): ReactNode {
           >
             <PanelLeft />
           </Button>
-          <GlobalBarHistory history={history} />
-          <Button variant="ghost" size="sm" className="gap-2 font-semibold">
-            <span
-              aria-hidden="true"
-              className="grid size-5 place-items-center rounded-tile bg-primary text-xs font-semibold text-primary-foreground"
-            >
-              A
-            </span>
-            Acme
-            <ChevronsUpDown className="text-muted-foreground" />
-          </Button>
         </GlobalBarLeading>
         <GlobalBarCenter>
-          <GlobalBarSearch />
+          <GlobalBarHistory history={history} />
+          <Button variant="ghost" size="icon-sm" aria-label="Recent">
+            <History />
+          </Button>
+          <GlobalBarSearch
+            label="Search or ask anything…"
+            ask={{ label: "Ask William", onClick: () => {} }}
+          />
         </GlobalBarCenter>
         <GlobalBarTrailing>
-          <GlobalBarAsk />
-          <Button variant="ghost" size="icon-sm" aria-label="Help">
-            <CircleHelp />
-          </Button>
-          <Avatar size="sm">
-            <AvatarFallback aria-label="Manoj Kumar">MK</AvatarFallback>
-          </Avatar>
+          <GlobalBarHelp dot="new updates" />
         </GlobalBarTrailing>
       </GlobalBar>
-      <div className="h-24 bg-background" />
+      <div className="mx-2 mb-2 h-24 rounded-block border border-border bg-shell-card" />
     </Wrapper>
   );
 }

@@ -1,4 +1,4 @@
-// @vegastack shell-layout@0.107.0 sha256-NQJwAop3lYjTtMzQ6OpGf8K0/+NOGYjTPKcHEvkjxjc=
+// @vegastack shell-layout@0.107.0 sha256-fEjIl9WmSDhiEbsupT+DRxL8oUaAA0MKwLYHkftBCAs=
 
 /**
  * The shell's layout rule (LAY-22) as one pure function, plus the sizes, cookie and clamp the
@@ -30,8 +30,12 @@ export const SHELL_SIZES = Object.freeze({
   bottomBar: 56,
   /** The narrowest the page gets when a person widens the column. */
   pageMin: 560,
-  /** The hairline between the rail (or column) and the page, counted against the page. */
+  /** The page card's hairline edge (LAY-26), one on each side, counted against the page. */
   divider: 1,
+  /** The gap between the page card and the window's end edge (`--shell-card-inset`, LAY-26). */
+  cardInset: 8,
+  /** The assistant docked beside the page (`--shell-assistant-width`, LAY-26). */
+  assistant: 400,
   macInset: 78,
   winInset: 138,
 } as const);
@@ -57,8 +61,13 @@ export interface ShellLayoutInput {
   columnOpen: boolean;
   /** The column's width. @default SHELL_SIZES.column */
   columnWidth?: number;
-  /** The hairline before the page, in pixels. @default SHELL_SIZES.divider */
+  /** The page card's hairline edge, in pixels. @default SHELL_SIZES.divider */
   dividerWidth?: number;
+  /**
+   * Whether the assistant is docked beside the page (LAY-26): a second card at most 400px wide
+   * (45% of the window under that) with its own inset, taken from the page. @default false
+   */
+  assistantDocked?: boolean;
 }
 
 /** What the layout rule decides. */
@@ -86,7 +95,7 @@ export function clampColumnWidth(width: number): number {
  *
  * @example
  * resolveShellLayout({ width: 1280, columnOpen: true });
- * // → { tier: "laptop", railShown: true, columnShown: true, columnSlidesOver: false, pageWidth: 975 }
+ * // → { tier: "laptop", railShown: true, columnShown: true, columnSlidesOver: false, pageWidth: 966 }
  */
 export function resolveShellLayout(input: ShellLayoutInput): ShellLayout {
   const tier = input.tier ?? layoutTierOf(input.width);
@@ -103,14 +112,22 @@ export function resolveShellLayout(input: ShellLayoutInput): ShellLayout {
     };
   }
 
-  const rail = SHELL_SIZES.rail + (input.dividerWidth ?? SHELL_SIZES.divider);
+  // The rail, then the page card (LAY-26): its hairline on both sides and its inset at the end.
+  const rail =
+    SHELL_SIZES.rail +
+    SHELL_SIZES.cardInset +
+    2 * (input.dividerWidth ?? SHELL_SIZES.divider);
   const columnShown = tier !== "tablet" && hasColumn && input.columnOpen;
+  const dock = input.assistantDocked
+    ? Math.min(SHELL_SIZES.assistant, 0.45 * input.width) +
+      SHELL_SIZES.cardInset
+    : 0;
   return {
     tier,
     railShown: true,
     columnShown,
     columnSlidesOver: tier === "tablet" && hasColumn,
-    pageWidth: input.width - rail - (columnShown ? column : 0),
+    pageWidth: input.width - rail - (columnShown ? column : 0) - dock,
   };
 }
 

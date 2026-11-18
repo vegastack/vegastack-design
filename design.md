@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 37806
-      sha256: "0780538527a14ce9815b1f307ea7d9f4dfeb887ea95650c9e13a2ef2d85064a7"
+      bytes: 40238
+      sha256: "b05ecfe8b086621300f036a196bb726d11d6f0ce81632467ebed3c2be6778dd4"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 14060
-      sha256: "8cf46e148107e41fbf409ab5aad7f927234ba49535ea1d8bb340b3da8c034abc"
+      bytes: 14508
+      sha256: "e2b4eb6c53da58e58134a18a813e192db3d0b035111d203889e3637343f65f76"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -344,10 +344,34 @@ themes:
     secondary-foreground:
       type: "color"
       value: "oklch(0.205 0 0)"
+    shell-assistant-width:
+      type: "dimension"
+      value: "25rem"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 400px: the assistant docked beside the page as a second card (split view)."
     shell-bottombar-height:
       type: "dimension"
       value: "3.5rem"
       description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 56px: the phone bottom tab bar, plus `env(safe-area-inset-bottom)` (L13)."
+    shell-canvas:
+      type: "color"
+      value: "oklch(0.964 0 0)"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the window's ground around the frame's card. The global bar and the rail sit on it (light about #F3F3F3, a step under `muted`, dark about #0A0A0A). Read it as `bg-shell-canvas`."
+    shell-card:
+      type: "color"
+      value: "oklch(1 0 0)"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, one step above the canvas in both themes (light white, dark about #131313). The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
+    shell-card-inset:
+      type: "dimension"
+      value: "0.5rem"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 8px: the gap between the page card (and the docked assistant's card) and the window's end and bottom edges. The card meets the rail and the global bar with no gap of its own. Not on phones (under 40rem), where the page is full bleed."
+    shell-card-radius:
+      type: "dimension"
+      value: "0.75rem"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 12px: the corners of the page card and of the docked assistant's card. It is the frame's own radius, like `--chat-card-radius`, not a component role."
+    shell-column:
+      type: "color"
+      value: "oklch(0.985 0 0)"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the module column inside the card, between the canvas and the card (light the same as `sidebar`, dark about #0E0E0E). The shell sets `--sidebar` to it inside the column. Read it as `bg-shell-column`."
     shell-column-width:
       type: "dimension"
       value: "15rem"
@@ -828,10 +852,31 @@ themes:
     secondary-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
+    shell-assistant-width:
+      type: "dimension"
+      value: "25rem"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 400px: the assistant docked beside the page as a second card (split view)."
     shell-bottombar-height:
       type: "dimension"
       value: "3.5rem"
       description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 56px: the phone bottom tab bar, plus `env(safe-area-inset-bottom)` (L13)."
+    shell-canvas:
+      type: "color"
+      value: "oklch(0.145 0 0)"
+    shell-card:
+      type: "color"
+      value: "oklch(0.185 0 0)"
+    shell-card-inset:
+      type: "dimension"
+      value: "0.5rem"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 8px: the gap between the page card (and the docked assistant's card) and the window's end and bottom edges. The card meets the rail and the global bar with no gap of its own. Not on phones (under 40rem), where the page is full bleed."
+    shell-card-radius:
+      type: "dimension"
+      value: "0.75rem"
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): 12px: the corners of the page card and of the docked assistant's card. It is the frame's own radius, like `--chat-card-radius`, not a component role."
+    shell-column:
+      type: "color"
+      value: "oklch(0.165 0 0)"
     shell-column-width:
       type: "dimension"
       value: "15rem"
@@ -1135,8 +1180,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 262 rows, 105 resolved as
-**shadcn** (upstream ships unchanged) and 157 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 263 rows, 105 resolved as
+**shadcn** (upstream ships unchanged) and 158 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1323,7 +1368,7 @@ token — that is COL-20 being enforced, not broken.
 ### 5. Our own recipes and behaviours
 
 `MOT-5 · MOT-6 · MOT-7 · MOT-13 · MOT-14 · TYP-13 · TYP-20 · BRD-1 · LAY-9 · LAY-10 · LAY-11 · LAY-12 · LAY-13 · LAY-14 ·
-LAY-15 · LAY-16 · LAY-18 · LAY-19 · LAY-21 · LAY-22 · LAY-23 · LAY-24 · LAY-25 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
+LAY-15 · LAY-16 · LAY-18 · LAY-19 · LAY-21 · LAY-22 · LAY-23 · LAY-24 · LAY-25 · LAY-26 · FRM-9 · FRM-10 · FRM-12 · FRM-13 · OVL-10 · OVL-11 · OVL-13 · OVL-14 · OVL-15 ·
 OVL-16 · OVL-17 · OVL-18 · OVL-20 · OVL-21 · OVL-25 · API-5 · API-9 · API-17 · API-18 · API-19 · API-20 · API-21 · API-22 · API-23 ·
 API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
 
@@ -1389,7 +1434,11 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   docks beside the main column from 1200px of record width and floats over it below. The
   phone bar steps aside as the browser's own bars compact and while the keyboard is open (LAY-23), the
   desktop app's title row is the global bar, which drags the window and clears the traffic lights or
-  caption buttons (LAY-24), and on a tablet the column slides over the page (LAY-25).
+  caption buttons (LAY-24), and on a tablet the column slides over the page (LAY-25). From 40rem
+  the frame is a rounded card (LAY-26): the global bar and the rail sit on the window's canvas, the
+  column and the page share one card inset 8px from the window's end and bottom, the rail's ends
+  are the workspace's tile and the person's avatar, and the assistant docks beside the page as a
+  second card, floats at its corner, or pops out as a window the person drags anywhere.
 - **Forms** (FRM-9…FRM-13, API-26) — `Field` wires its control through Base UI Field (API-26): the label, the
   description and error ids, and `aria-invalid` from the Field's `data-invalid`, on every control
   including the composite ones (Select, Combobox, RadioGroup, NumberField, DatePicker, TextEdit). Pass
