@@ -1,4 +1,4 @@
-// @vegastack command-search@0.117.0 sha256-GYwq+/BbZWeu+5oYZHmmzvLje3Btz3qFuFf+4HFpaZ4=
+// @vegastack command-search@0.117.0 sha256-32Hizy3edOeUkyN5xj4vyT5JFN5MjERN4dKkhKeI1FA=
 
 "use client";
 
@@ -39,11 +39,17 @@ its `loading` as `pending`. The empty query's start state is `CommandSearchSecti
 Recent · Create · Places, always in that order.
 --- */
 
-type CommandSearchState = { pending: boolean; preview: React.ReactNode };
+type CommandSearchState = {
+  pending: boolean;
+  preview: React.ReactNode;
+  /** Opened over the bar's box (`placement="bar"`): the field takes the box's pill shape. */
+  bar: boolean;
+};
 
 const CommandSearchContext = React.createContext<CommandSearchState>({
   pending: false,
   preview: null,
+  bar: false,
 });
 
 /** Props accepted by `CommandSearch`. */
@@ -95,11 +101,107 @@ export interface CommandSearchProps extends Omit<
   dialogClassName?: string;
   /**
    * Where the palette opens: the middle of the window (`center`), or in place of the global bar's
-   * search-or-ask box (`bar`, LAY-26): at the window's top, as wide as the box, so typing in the
-   * box looks like the box growing its results underneath.
+   * search-or-ask box (`bar`, LAY-26): its field lands exactly on the box (same left edge and
+   * width; a box too narrow for results, like the icon-only one, gets a wider palette centred on
+   * it), and the palette grows out of the box's shape. With no box on screen it opens at the
+   * window's top centre.
    * @default 'center'
    */
   placement?: "center" | "bar";
+  /**
+   * With `placement="bar"`: the box the palette opens over.
+   * @default the first visible `[data-slot="global-bar-search"]`
+   */
+  anchor?: React.RefObject<HTMLElement | null>;
+}
+
+/**
+ * The field's inset from the palette's outer edge: its 1px border and the palette's 3px padding
+ * (the input row adds none), so the 16px pill sits concentric in the 20px (`bubble`) corner.
+ */
+const BAR_INSET = 4;
+/** The narrowest palette that still reads results (20rem); never wider than the window less its 16px gutters. */
+const BAR_MIN_WIDTH = 320;
+const BAR_GUTTER = 16;
+/** The palette's field is 32px tall; a 28px box (the plain search) has it centred on it. */
+const BAR_FIELD = 32;
+
+/** Where the `bar` palette sits, from the box's rect: its surface's inline style. */
+function barPlacement(
+  box: HTMLElement,
+): (React.CSSProperties & { "--command-search-from": string }) | null {
+  const b = box.getBoundingClientRect();
+  if (b.width === 0 || b.height === 0) return null;
+  const vw = document.documentElement.clientWidth;
+  const width = Math.min(
+    Math.max(b.width + BAR_INSET * 2, BAR_MIN_WIDTH),
+    vw - BAR_GUTTER * 2,
+  );
+  // Centred on the box (equal to the box's own edges, less the inset, when it is wide enough),
+  // kept inside the window's gutters.
+  const left = Math.min(
+    Math.max(b.left + b.width / 2 - width / 2, BAR_GUTTER),
+    vw - BAR_GUTTER - width,
+  );
+  const top = b.top + (b.height - BAR_FIELD) / 2 - BAR_INSET;
+  // The box's shape inside the palette: the palette opens from it and closes back into it.
+  const clip = `inset(${b.top - top}px ${left + width - b.right}px calc(100% - ${
+    b.bottom - top
+  }px) ${b.left - left}px round ${b.height / 2}px)`;
+  return {
+    top,
+    // Physical, not logical: the palette is portalled to the body, whose direction need not be
+    // the box's; `right: auto` frees the right edge DialogContent's `start-1/2` sets in RTL.
+    left,
+    right: "auto",
+    width,
+    maxWidth: "none",
+    translate: "none",
+    // DialogContent's keyframe zoom and fade would run beside the grow and win the class order;
+    // the palette moves only by its transitions (below).
+    animation: "none",
+    "--command-search-from": clip,
+  };
+}
+
+/** Tracks the box's place while the palette is open, keeping the last one for the exit. */
+function useBarPlacement(
+  enabled: boolean,
+  anchor: React.RefObject<HTMLElement | null> | undefined,
+) {
+  const [style, setStyle] = React.useState<React.CSSProperties | null>(null);
+  React.useLayoutEffect(() => {
+    if (!enabled) return;
+    const find = () =>
+      anchor?.current ??
+      Array.from(
+        document.querySelectorAll<HTMLElement>(
+          '[data-slot="global-bar-search"]',
+        ),
+      ).find((el) => el.getClientRects().length > 0) ??
+      null;
+    const box = find();
+    if (!box) return setStyle(null);
+    const measure = () => setStyle(barPlacement(box));
+    measure();
+    const observer = new ResizeObserver(measure);
+    // The box moves without resizing when a control beside it does (the bar centres its group),
+    // so its group and every control in it are watched as well as the box and the window.
+    observer.observe(box);
+    const group = box.parentElement;
+    if (group) {
+      observer.observe(group);
+      for (const sibling of Array.from(group.children))
+        observer.observe(sibling);
+    }
+    observer.observe(document.documentElement);
+    window.addEventListener("resize", measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
+  }, [enabled, anchor]);
+  return style;
 }
 
 /**
@@ -131,26 +233,38 @@ export function CommandSearch({
   shouldFilter = false,
   dialogClassName,
   placement = "center",
+  anchor,
   className,
   children,
   ...props
 }: CommandSearchProps) {
+  const bar = placement === "bar";
   const state = React.useMemo(
-    () => ({ pending, preview: preview ?? null }),
-    [pending, preview],
+    () => ({ pending, preview: preview ?? null, bar }),
+    [pending, preview, bar],
   );
+  const anchored = useBarPlacement(bar && !!open, anchor);
   return (
     <CommandDialog
       open={open}
       onOpenChange={onOpenChange}
       title={title}
       description={description}
+      style={anchored ?? undefined}
       className={cn(
         preview ? "data-[size=default]:xl:max-w-6xl" : undefined,
-        // Over the bar's box (the box is 32px in the 44px bar, so the palette starts 4px above it
-        // and its field lands where the box was), as wide as the box (580px, or 42% of the window: the box's own width).
-        placement === "bar" &&
-          "top-1 translate-y-0 data-[size=default]:sm:max-w-[min(36.25rem,max(42vw,24rem),calc(100%-2rem))] data-open:zoom-in-100 data-open:slide-in-from-top-1",
+        // LAY-26 over the bar's box: the field is a pill (the box's own shape, its controls
+        // capsules) 3px inside the palette's border (its padding; the input row adds none), so the 20px corners are concentric with it.
+        bar &&
+          "[&_[data-slot=command-search]]:p-0.75 [&_[data-slot=command-input-wrapper]]:p-0 [&_[data-slot=command-search-trailing]]:top-4",
+        // Placed on the box (inline style), it grows out of the box's shape and closes back into it.
+        bar &&
+          anchored &&
+          "[clip-path:inset(0_round_var(--radius-bubble))] [transition:clip-path_var(--duration-state)_var(--ease-enter),opacity_var(--duration-quick)_var(--ease-enter)] data-starting-style:opacity-0 data-starting-style:[clip-path:var(--command-search-from)] data-ending-style:opacity-0 data-ending-style:[clip-path:var(--command-search-from)] data-ending-style:[transition:clip-path_var(--duration-state-exit)_var(--ease-exit),opacity_var(--duration-quick-exit)_var(--ease-exit)] motion-reduce:[transition:opacity_var(--duration-quick)_var(--ease-enter)]",
+        // No box on screen: the window's top centre, 580px at most.
+        bar &&
+          !anchored &&
+          "top-1 translate-y-0 data-[size=default]:sm:max-w-[min(36.25rem,calc(100%-2rem))] data-open:zoom-in-100 data-open:slide-in-from-top-1",
         dialogClassName,
       )}
     >
@@ -196,7 +310,7 @@ export function CommandSearchInput({
   className,
   ...props
 }: CommandSearchInputProps) {
-  const { pending } = React.useContext(CommandSearchContext);
+  const { pending, bar } = React.useContext(CommandSearchContext);
   return (
     <div
       data-slot="command-search-input"
@@ -204,6 +318,7 @@ export function CommandSearchInput({
       className="relative"
     >
       <CommandInput
+        shape={bar ? "pill" : undefined}
         placeholder={placeholder}
         className={cn(trailing ? "pe-32" : undefined, className)}
         {...props}
@@ -222,9 +337,17 @@ export function CommandSearchInput({
         <div
           aria-hidden
           data-slot="command-search-progress"
-          className="pointer-events-none absolute inset-x-3 bottom-0 h-0.5 overflow-hidden rounded-full"
+          className={cn(
+            "pointer-events-none absolute bottom-0 h-px overflow-hidden rounded-full",
+            // Inside the field's corners (the pill's 16px curve over the bar's box), and short of
+            // a trailing control: it runs under the text being searched, never under Ask.
+            bar ? "start-4" : "start-3",
+            trailing ? "end-32" : bar ? "end-4" : "end-3",
+          )}
         >
-          <span className="absolute inset-y-0 w-1/3 rounded-full bg-primary motion-indeterminate" />
+          {/* Quiet, not primary (operator, 2026-11-19): a 1px line in `muted-foreground` at 80%, 3.6:1 on the
+              field in light and 4.5:1 in dark — seen, but never the loudest thing in the palette. */}
+          <span className="absolute inset-y-0 w-1/3 rounded-full bg-muted-foreground/80 motion-indeterminate" />
         </div>
       ) : null}
     </div>

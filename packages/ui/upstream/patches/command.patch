@@ -1,6 +1,8 @@
 # component: command
-# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-7, API-18, API-19, DOC-1, DOC-2, INT-1, LAY-10, OVL-16, OVL-20, VOI-1, COL-24, BRD-12
+# decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-7, API-18, API-19, DOC-1, DOC-2, INT-1, LAY-10, OVL-16, OVL-20, VOI-1, COL-24, BRD-12, LAY-26
 # hunks:
+#   LAY-26: `CommandInput` takes `shape="pill"` (the global bar's box shape, for the palette opened over
+#     it) and `CommandDialog` passes a `style` to its surface, where `CommandSearch` writes the box's place.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   INT-1: `cursor-default` is removed from `CommandItem`, so a row shows the hand cursor the one
@@ -76,7 +78,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..90ae974 100644
+index 5cb64c9..616ce98 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -92,7 +94,7 @@ index 5cb64c9..90ae974 100644
  
  import {
    Dialog,
-@@ -10,42 +10,268 @@ import {
+@@ -10,42 +10,271 @@ import {
    DialogDescription,
    DialogHeader,
    DialogTitle,
@@ -367,6 +369,7 @@ index 5cb64c9..90ae974 100644
    className,
    showCloseButton = false,
 +  size = "default",
++  style,
    ...props
  }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
 -  title?: string
@@ -377,13 +380,15 @@ index 5cb64c9..90ae974 100644
 +  title?: string;
 +  description?: string;
 +  className?: string;
++  /** Inline style for the palette's surface (where an anchored palette writes its position). */
++  style?: React.CSSProperties;
 +  showCloseButton?: boolean;
 +  size?: CommandDialogSize;
 +  children: React.ReactNode;
  }) {
    return (
      <Dialog {...props}>
-@@ -55,15 +281,20 @@ function CommandDialog({
+@@ -55,29 +284,53 @@ function CommandDialog({
        </DialogHeader>
        <DialogContent
          className={cn(
@@ -396,6 +401,7 @@ index 5cb64c9..90ae974 100644
          )}
          showCloseButton={showCloseButton}
 +        size={size}
++        style={style}
        >
 -        {children}
 +        <CommandDialogSizeContext.Provider value={size}>
@@ -408,14 +414,29 @@ index 5cb64c9..90ae974 100644
  }
  
  function CommandInput({
-@@ -71,13 +302,17 @@ function CommandInput({
+   className,
++  shape = "rect",
    ...props
- }: React.ComponentProps<typeof CommandPrimitive.Input>) {
+-}: React.ComponentProps<typeof CommandPrimitive.Input>) {
++}: React.ComponentProps<typeof CommandPrimitive.Input> & {
++  /**
++   * `pill` takes a top-bar search box's shape (a capsule whose buttons are capsules, BRD-12):
++   * the palette opened over the global bar's box.
++   * @default 'rect'
++   */
++  shape?: "rect" | "pill";
++}) {
    return (
 -    <div data-slot="command-input-wrapper" className="p-1 pb-0">
 -      <InputGroup className="h-8! rounded-lg! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:ps-2!">
 +    <div data-slot="command-input-wrapper" className="p-1.25 pb-0">
-+      <InputGroup className="h-8! rounded-item! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:ps-2!">
++      <InputGroup
++        shape={shape}
++        className={cn(
++          "h-8! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:ps-2!",
++          shape === "rect" && "rounded-item!",
++        )}
++      >
          <CommandPrimitive.Input
            data-slot="command-input"
            className={cn(
@@ -430,7 +451,7 @@ index 5cb64c9..90ae974 100644
            )}
            {...props}
          />
-@@ -86,36 +321,281 @@ function CommandInput({
+@@ -86,36 +339,281 @@ function CommandInput({
          </InputGroupAddon>
        </InputGroup>
      </div>
@@ -719,7 +740,7 @@ index 5cb64c9..90ae974 100644
  }
  
  function CommandGroup({
-@@ -126,12 +606,12 @@ function CommandGroup({
+@@ -126,12 +624,12 @@ function CommandGroup({
      <CommandPrimitive.Group
        data-slot="command-group"
        className={cn(
@@ -735,7 +756,7 @@ index 5cb64c9..90ae974 100644
  }
  
  function CommandSeparator({
-@@ -144,27 +624,49 @@ function CommandSeparator({
+@@ -144,27 +642,49 @@ function CommandSeparator({
        className={cn("-mx-1 h-px bg-border", className)}
        {...props}
      />
@@ -791,7 +812,7 @@ index 5cb64c9..90ae974 100644
  }
  
  function CommandShortcut({
-@@ -176,21 +678,26 @@ function CommandShortcut({
+@@ -176,21 +696,26 @@ function CommandShortcut({
        data-slot="command-shortcut"
        className={cn(
          "ms-auto text-xs tracking-widest text-muted-foreground group-data-selected/command-item:text-foreground",
