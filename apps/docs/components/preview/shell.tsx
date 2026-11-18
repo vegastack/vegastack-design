@@ -30,6 +30,20 @@ export function shell(): ReactNode {
   );
 }
 
+/** The same frame at a phone's 390px: the places button, Help and the avatar in the top bar. */
+export function shellPhone(): ReactNode {
+  return (
+    <Wrapper className="justify-center p-0">
+      <div
+        className="h-160 w-97.5 overflow-hidden border-x border-border"
+        style={{ contain: "paint" }}
+      >
+        <Shell01Page fill="parent" />
+      </div>
+    </Wrapper>
+  );
+}
+
 function Bar() {
   return (
     <ShellTopBar className="rounded-block border border-border">

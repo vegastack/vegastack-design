@@ -23,10 +23,12 @@ import {
   Shell,
   ShellColumn,
   ShellColumnHeader,
+  ShellColumnSwitch,
   ShellColumnToggle,
   ShellMain,
   ShellPage,
   ShellTopBar,
+  ShellTopBarAccount,
   ShellTopBarMore,
   ShellTopBarTitle,
 } from "@/components/ui/shell";
@@ -62,10 +64,17 @@ import {
   }
 >
   <ShellTopBar>
+    {/* A phone's way to the column: the workspace's logo, the module and ⌄. */}
+    <ShellColumnSwitch media={<WorkspaceLogo />}>Home</ShellColumnSwitch>
     <ShellTopBarTitle>My tasks</ShellTopBarTitle>
     <ShellTopBarMore>
       <MoreMenu />
     </ShellTopBarMore>
+    {/* A phone has no global bar: Help and the avatar end its top bar. */}
+    <ShellTopBarAccount>
+      <HelpMenu … />
+      <AccountMenu />
+    </ShellTopBarAccount>
   </ShellTopBar>
   <ShellMain>
     <ShellPage>…</ShellPage>
@@ -146,6 +155,7 @@ sits in the content, beside the work.
 | `ShellTopBarFavorite` | ☆                                                                           |
 | `ShellTopBarMore`     | ⋯, the page's menu, only with two or more actions                           |
 | `ShellTopBarPanel`    | A record page's ▥, after ⋯ and a divider                                    |
+| `ShellTopBarAccount`  | On a phone only: Help and the person's avatar, last                         |
 
 A record page adds one control after ⋯: ▥ (`RecordPanelToggle` in `ShellTopBarPanel`, behind a
 hairline divider), which shows and hides its side panel ([Record Layout](/docs/components/record-layout)).
@@ -160,9 +170,14 @@ and a failed save shows an alert with a retry in the page.
 
 ### Phones
 
-There is no rail or ▤ on a phone: the page title opens the module's column as a sheet
-(`ShellColumnSwitch`, rendered by `ShellTopBarTitle` when the shell has a column; name it with
-`switchLabel`), and picking a place closes the sheet. The sheet's rows are 44px targets. Dragging
+There is no rail, ▤ or global bar on a phone, so its top bar carries their jobs. At the top of a
+module, the bar starts with one button: the workspace's 28px logo, the module's name and ⌄
+(`ShellColumnSwitch`, given the logo as `media`). It opens the module's column as a sheet, and the
+shell shows it only on a phone with a column. On an inner page the bar starts with
+`‹ <parent>` instead, a `BreadcrumbTrail` with `compact`: one link back, whose name always shows.
+`ShellTopBarAccount` ends the bar with Help (a 36px ghost icon button) and the person's 30px
+avatar; above a phone it takes no room. Picking a place closes the sheet, and focus returns to the
+button that opened it. The sheet's rows are 44px targets. Dragging
 the sheet down from its top, or pulling its list down once it is at the top, moves the sheet with
 the finger and closes it past a short distance or on a flick; the drag never scrolls the page behind
 or starts Safari's pull-to-refresh.
@@ -172,6 +187,8 @@ bar sits above the home indicator, steps aside while you scroll down and returns
 up, and hides while the keyboard is open or a record is open full screen. Set
 `viewport-fit=cover` and `interactive-widget=resizes-content` in the viewport meta, and a
 `theme-color` that matches the background.
+
+<ComponentPreview name="shellPhone" file="components/preview/shell.tsx" />
 
 ### Sections, bleeds and the gutter
 

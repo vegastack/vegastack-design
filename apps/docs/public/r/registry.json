@@ -194,7 +194,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.111.0",
-        "integrity": "sha256-PV/6DpM9FlH0341U+ddFjwO/xI3D1Xz0luzpMYRXWiA="
+        "integrity": "sha256-TdJyQJhtH9ZBweUXeYMUHMV9HPj0Bq++qoZB5BRkf7w="
       }
     },
     {
@@ -1174,7 +1174,7 @@
         "whenToUse": "A file browser's trail: drop rows onto a parent folder's crumb, or jump to a sibling folder from a segment's menu.",
         "whenNotToUse": "A plain location trail (Breadcrumb alone), or primary navigation.",
         "version": "0.111.0",
-        "integrity": "sha256-Q+wAyBIuLvgVEG4+DfCuBAJHg/uh559tyU6J+469gi0="
+        "integrity": "sha256-iIYki1cC29GKtYU+dJsKZRJ/wRwKzfiJVIJhdmIBFD0="
       }
     },
     {
@@ -20953,7 +20953,7 @@
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.111.0",
-        "integrity": "sha256-wBaoAyUbAPEV7mpAQVYZ0MOnRlOXfKCwnxzZm6+8r8U="
+        "integrity": "sha256-BNwjn6diq5P/Ly88UFo4IzzflBc5bepFqjEKOf3fmKc="
       }
     },
     {

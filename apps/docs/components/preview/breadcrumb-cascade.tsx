@@ -193,8 +193,8 @@ const PATH = [
 ];
 
 /**
- * The compact trail for a narrow header: `‹` and the parent's name, a menu of the whole path. The
- * second trail is `compact="auto"` in a 40rem-wide frame — full above it, compact below.
+ * The compact trail for a narrow header: `‹` and the parent's name, one link back. The second
+ * trail is `compact="auto"` in a 40rem-wide frame — full above it, compact below.
  */
 export function breadcrumbTrailCompact(): ReactNode {
   return (

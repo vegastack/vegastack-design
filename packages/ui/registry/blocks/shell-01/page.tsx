@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.111.0 sha256-wBaoAyUbAPEV7mpAQVYZ0MOnRlOXfKCwnxzZm6+8r8U=
+// @vegastack shell-01@0.111.0 sha256-BNwjn6diq5P/Ly88UFo4IzzflBc5bepFqjEKOf3fmKc=
 
 "use client";
 
@@ -57,10 +57,12 @@ import {
   ShellBottomBarItem,
   ShellColumn,
   ShellColumnHeader,
+  ShellColumnSwitch,
   ShellColumnToggle,
   ShellMain,
   ShellPage,
   ShellTopBar,
+  ShellTopBarAccount,
   ShellTopBarFavorite,
   ShellTopBarLabel,
   ShellTopBarMore,
@@ -76,6 +78,9 @@ const people = [
   { name: "Manoj Kumar", hue: "green" as const, you: true },
   { name: "Ravi Shah", hue: "orange" as const },
 ];
+
+/** A phone's bar is one row: Share, Watch and ☆ fold into the page's ⋯ there. */
+const PHONE_FOLDS = "@max-[40rem]/shell:hidden";
 
 function StatusIcon({ status }: { status: Task["status"] }) {
   if (status === "done")
@@ -241,7 +246,24 @@ export default function Shell01Page({
       }
     >
       <ShellTopBar>
-        <ShellTopBarTitle parents={<a href="#home">Home</a>}>
+        {/* A phone's top bar: the workspace's logo, the module and ⌄ open its places. */}
+        <ShellColumnSwitch
+          media={
+            <span
+              aria-hidden="true"
+              className="grid size-7 place-items-center rounded-tile bg-primary text-sm font-semibold text-primary-foreground"
+            >
+              A
+            </span>
+          }
+        >
+          Home
+        </ShellColumnSwitch>
+        <ShellTopBarTitle
+          parents={<a href="#home">Home</a>}
+          // A phone's bar names the module, not the page: the page keeps its own title.
+          className="@max-[40rem]/shell:[&>nav]:hidden @max-[40rem]/shell:[&>[data-slot=shell-topbar-heading]]:sr-only"
+        >
           My tasks
         </ShellTopBarTitle>
         <ShellTopBarMembers>
@@ -252,7 +274,7 @@ export default function Shell01Page({
             <MoreHorizontal />
           </Button>
         </ShellTopBarMore>
-        <ShellTopBarFavorite>
+        <ShellTopBarFavorite className={PHONE_FOLDS}>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -262,7 +284,7 @@ export default function Shell01Page({
             <Star />
           </Button>
         </ShellTopBarFavorite>
-        <ShellTopBarWatch>
+        <ShellTopBarWatch className={PHONE_FOLDS}>
           <Button
             variant="ghost"
             size="icon-sm"
@@ -272,12 +294,28 @@ export default function Shell01Page({
             <Bell />
           </Button>
         </ShellTopBarWatch>
-        <ShellTopBarShare>
+        <ShellTopBarShare className={PHONE_FOLDS}>
           <Button variant="ghost" size="sm">
             <Share2 />
             <ShellTopBarLabel>Share</ShellTopBarLabel>
           </Button>
         </ShellTopBarShare>
+        {/* A phone has no global bar: Help and the avatar end its top bar. */}
+        <ShellTopBarAccount>
+          <Button variant="ghost" size="icon-lg" aria-label="Help">
+            <CircleHelp />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            className="rounded-full"
+            aria-label="Manoj Kumar, account"
+          >
+            <Avatar className="size-7.5">
+              <AvatarFallback>MK</AvatarFallback>
+            </Avatar>
+          </Button>
+        </ShellTopBarAccount>
       </ShellTopBar>
       <ShellMain>
         <ShellPage>

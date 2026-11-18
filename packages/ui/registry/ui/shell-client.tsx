@@ -1,4 +1,4 @@
-// @vegastack shell@0.111.0 sha256-PV/6DpM9FlH0341U+ddFjwO/xI3D1Xz0luzpMYRXWiA=
+// @vegastack shell@0.111.0 sha256-TdJyQJhtH9ZBweUXeYMUHMV9HPj0Bq++qoZB5BRkf7w=
 
 "use client";
 
@@ -21,8 +21,8 @@ is here only adds behaviour on top of a layout that is already right:
 
 - `ShellController` mirrors the CSS outcome into `data-tier` and `data-column` on the shell for scripts (`useShellLayout`), keeps the cookies, and owns ⌘\, F6, Escape, the
   hover-peek of a folded column and the tablet slide-over (L14).
-- `ShellColumnResize`, `ShellSkipLink`, `ShellColumnToggle`, `ShellColumnSwitch` and
-  `ShellBottomBar` are the interactive leaves.
+- `ShellColumnResize`, `ShellSkipLink`, `ShellColumnToggle`, `ShellColumnSwitch` (a phone's
+  places button) and `ShellBottomBar` are the interactive leaves.
 
 Nothing here re-renders React per pointer move: drags and scrolls write attributes and CSS
 variables on the shell element directly.
@@ -224,7 +224,13 @@ export function ShellController() {
         delete root.dataset.colFloat;
         delete root.dataset.colFloatSource;
         setSheet(false);
-        if (columnArea?.contains(document.activeElement)) {
+        // Focus in the column, or dropped to the body (the page went inert under the phone's
+        // sheet and took its focused trigger with it): back to where it was.
+        const lost =
+          restoreFocus !== null &&
+          (document.activeElement === null ||
+            document.activeElement === document.body);
+        if (lost || columnArea?.contains(document.activeElement)) {
           const back =
             restoreFocus && restoreFocus.isConnected && visible(restoreFocus)
               ? restoreFocus
@@ -751,23 +757,26 @@ export function ShellColumnToggle({
 /** Props accepted by `ShellColumnSwitch`. */
 export interface ShellColumnSwitchProps extends Omit<
   React.ComponentProps<typeof Button>,
-  "children" | "variant" | "size" | "ref"
+  "variant" | "size" | "ref"
 > {
-  /** What the button does, read out after the page's heading. @default 'Switch view' */
-  label?: string;
+  /** The workspace's mark before the module's name: a 28px logo tile. @default undefined */
+  media?: React.ReactNode;
+  /** The module's name. */
+  children: React.ReactNode;
 }
 
 /**
- * `ShellColumnSwitch` — on a phone, the page title opens the module's column as a sheet (L13):
- * the ▤ of wider screens has no room there. `ShellTopBarTitle` renders it after its `<h1>`, and
- * the shell shows it only on a phone with a column; its hit area covers the heading, so a tap
- * anywhere on the title opens the sheet. Picking something in the sheet closes it.
+ * `ShellColumnSwitch` — a phone's way to the module's places (L13): the workspace's logo, the
+ * module's name and ⌄, one button at the start of the top bar that opens the module's column as a
+ * sheet where wider screens have ▤. The shell shows it only on a phone with a column. Picking a
+ * place, a tap outside or Escape closes the sheet, and focus comes back to the button.
  *
  * @example
- * <ShellTopBarTitle switchLabel="Switch Tasks view">My tasks</ShellTopBarTitle>
+ * <ShellColumnSwitch media={<WorkspaceLogo />}>Tasks</ShellColumnSwitch>
  */
 export function ShellColumnSwitch({
-  label = "Switch view",
+  media,
+  children,
   className,
   onClick,
   ...props
@@ -791,23 +800,35 @@ export function ShellColumnSwitch({
       ref={ref}
       data-slot="shell-column-switch"
       variant="ghost"
-      size="icon-xs"
-      aria-label={label}
+      size="lg"
       aria-haspopup="dialog"
       aria-expanded={open}
-      // `static`: the hit area (`after`) spans the heading, so a tap on the title opens the sheet.
+      // Hidden but on a phone with a column: the shell's stylesheet shows it there.
       className={cn(
-        "static hidden text-muted-foreground after:absolute after:inset-x-0 after:-inset-y-2.5 after:content-[''] pointer-coarse:after:inset-x-0 pointer-coarse:after:-inset-y-2.5 [&_svg]:transition-transform [&_svg]:duration-quick aria-expanded:[&_svg]:rotate-180",
+        "hidden max-w-full min-w-0 shrink justify-start gap-2 ps-1 pe-1.5 text-base font-semibold text-foreground [&>svg]:transition-transform [&>svg]:duration-quick aria-expanded:[&>svg]:rotate-180",
         className,
       )}
       onClick={(event) => {
         onClick?.(event);
-        if (!event.defaultPrevented)
-          toggleShellColumn(event.currentTarget, "toggle");
+        if (event.defaultPrevented) return;
+        // Safari doesn't focus a tapped button; the sheet returns focus to what had it.
+        event.currentTarget.focus({ preventScroll: true });
+        toggleShellColumn(event.currentTarget, "toggle");
       }}
       {...props}
     >
-      <ChevronDown aria-hidden="true" />
+      {media ? (
+        // The workspace's mark is decoration here: the button is named by its module.
+        <span
+          data-slot="shell-column-switch-media"
+          aria-hidden="true"
+          className="flex flex-none items-center"
+        >
+          {media}
+        </span>
+      ) : null}
+      <span className="min-w-0 truncate">{children}</span>
+      <ChevronDown aria-hidden="true" className="text-muted-foreground" />
     </Button>
   );
 }
