@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.112.0] — November 18, 2026
+
+<!-- assembled from 1 changeset: 86a3c07e40f5 -->
+
+### 🧩 New components
+
+- A page title is 26/600 (TYP-21). `@vegastack/design-tokens` adds the one named type step, `--text-page-title` (26px, 32px leading, −0.04em), read as `text-page-title`; `PageHeader`'s title wears it with `font-semibold` in place of `text-2xl`. `cn` teaches tailwind-merge the name as a font size, so `cn("text-page-title", "text-foreground")` keeps both. Every other size stays stock.
+  [`4a223a9`](https://github.com/VegaStack/vegastack-design/commit/4a223a9)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.23.0`** (was `0.22.1`).
+- **`@vegastack/design`** → **`0.23.0`** (was `0.22.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.111.1 → 0.112.0.
+
 ## [0.111.1] — November 17, 2026
 
 <!-- assembled from 2 changesets: 1ece97067d4e -->

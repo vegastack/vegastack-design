@@ -1135,8 +1135,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 261 rows, 105 resolved as
-**shadcn** (upstream ships unchanged) and 156 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 262 rows, 105 resolved as
+**shadcn** (upstream ships unchanged) and 157 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1292,7 +1292,7 @@ FRM-4 · FRM-15`
 
 ### 4. Tokens and semantics we add
 
-`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · COL-25 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 ·
+`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · COL-25 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 · TYP-21 ·
 ICO-1 · ICO-3 · ICO-6 · ICO-8`
 
 Four status families written in upstream's own `destructive` shape (COL-12); a status hue means
@@ -1484,7 +1484,7 @@ line when its file is next touched, never in a drive-by rename.
 | Default copy            | Every rendered string is an overridable `<action>Label` (or `…Message`) prop with a sentence-case default; a `labels` object only past about six strings. Progress text and search placeholders end with the ellipsis character; a one-line state has no full stop.                                                                                                                                                      |
 | Settled value           | `onValueCommitted` — Base UI's word.                                                                                                                                                                                                                                                                                                                                                                                     |
 | Counts in controls      | The visible count plus an `sr-only` suffix inside the control's accessible name; the visual badge is `aria-hidden`. A new prop that supplies the host noun is `countLabel?: (n) => string` (or `badgeLabel` for a fixed string). A `Badge` shows a count only for unread or attention.                                                                                                                                   |
-| Headings                | Page: `font-heading text-2xl font-semibold`, through `PageHeader`. Section `h2`: `font-heading text-base font-medium` (a plain `h2` with those utilities, or `CardTitle`; the `SettingsSection` title is the same size and weight). Group label: `text-xs font-medium text-muted-foreground` (table section rows, Board lanes).                                                                                          |
+| Headings                | Page: `font-heading text-page-title font-semibold` (26/600, TYP-21), through `PageHeader`. Section `h2`: `font-heading text-base font-medium` (a plain `h2` with those utilities, or `CardTitle`; the `SettingsSection` title is the same size and weight). Group label: `text-xs font-medium text-muted-foreground` (table section rows, Board lanes).                                                                  |
 | Numbers                 | Counts, dates, amounts and quantities are the regular font with `tabular-nums`; `font-mono` is for code and identifiers only (TYP-10).                                                                                                                                                                                                                                                                                   |
 | Announcements           | `useAnnouncer` for events; the engine's own region where it ships one (Base UI's `Combobox.Status`, the toast viewport); a persistent status that is the component's own content may be `role="status"`.                                                                                                                                                                                                                 |
 | Slots                   | `data-slot` on every part, prefixed with the exported component's kebab-case name; a container-query name is the slot name.                                                                                                                                                                                                                                                                                              |
@@ -1611,7 +1611,9 @@ There is almost no doctrine in this section, and that is the point. These are pl
 utilities: `h-8`, `size-4`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
 `font-semibold`, `text-4xl`, `transition-all duration-100 ease-in-out`. Corners are the exception
 above. Type SIZES are Tailwind's stock scale —
-`text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell.
+`text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell. One named step
+sits on top of it: `text-page-title`, 26/32 at the heading tier's −0.04em, the size of a page's
+title (`PageHeader` wears it) and of nothing else (TYP-21, Regent UI ground rules T1, 2026-11-18).
 
 **Type metrics are the one exception, and they are global** (TYP-15/16/17/18, MK 2026-09-22).
 Geist's own spec splits a COPY tier from a HEADING tier, and so does this system:

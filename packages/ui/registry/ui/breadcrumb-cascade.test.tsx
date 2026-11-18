@@ -388,6 +388,19 @@ test("BreadcrumbTrail compact goes back through the app's router (LinkProvider) 
   expect(navigate).toHaveBeenCalledWith("/settings");
 });
 
+test("BreadcrumbTrail compact goes back to the parent even when linkRender carries an href of its own", async () => {
+  const screen = await render(
+    <BreadcrumbTrail
+      compact
+      linkRender={<a href="/" />}
+      steps={[{ label: "Settings", href: "/settings" }, { label: "Members" }]}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Back to Settings" }))
+    .toHaveAttribute("href", "/settings");
+});
+
 test("BreadcrumbTrail compact goes back to the nearest step with a link, and keeps its name in a tight header", async () => {
   const screen = await render(
     <div style={{ width: 120, display: "flex" }}>

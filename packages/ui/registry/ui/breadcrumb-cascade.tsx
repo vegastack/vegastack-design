@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.111.0 sha256-iIYki1cC29GKtYU+dJsKZRJ/wRwKzfiJVIJhdmIBFD0=
+// @vegastack breadcrumb-cascade@0.112.0 sha256-dWHHPKkmgPho5R+pK6bnBLJWtcEcTQG360KrqVopldE=
 
 "use client";
 
@@ -495,8 +495,11 @@ export function BreadcrumbTrail({
           >
             {parent ? (
               <BreadcrumbLink
-                render={linkRender ?? <AppLink />}
-                href={parent.href}
+                // The step's href on the router's link: a `linkRender` carrying its own `href`
+                // (`<Link href="/" />`) would otherwise win.
+                render={React.cloneElement(linkRender ?? <AppLink />, {
+                  href: parent.href,
+                })}
                 aria-label={backLabel(parent.label)}
                 // A ghost button's shape on a real link. No negative margin: it would come off the
                 // trail's own width and clip the name it was sized to hold. At least ‹ and a few

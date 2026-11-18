@@ -1,5 +1,16 @@
 # @vegastack/design
 
+## 0.23.0
+
+### Minor Changes
+
+- [#1032](https://github.com/vegastack/vegastack-design/pull/1032) [`4a223a9`](https://github.com/vegastack/vegastack-design/commit/4a223a9be01b027bd0dea6c9081c469bd8178e38) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 A page title is 26/600 (TYP-21). `@vegastack/design-tokens` adds the one named type step, `--text-page-title` (26px, 32px leading, −0.04em), read as `text-page-title`; `PageHeader`'s title wears it with `font-semibold` in place of `text-2xl`. `cn` teaches tailwind-merge the name as a font size, so `cn("text-page-title", "text-foreground")` keeps both. Every other size stays stock.
+
+### Patch Changes
+
+- Updated dependencies [[`4a223a9`](https://github.com/vegastack/vegastack-design/commit/4a223a9be01b027bd0dea6c9081c469bd8178e38)]:
+  - @vegastack/design-tokens@0.23.0
+
 ## 0.22.0
 
 ### Patch Changes
