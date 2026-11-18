@@ -20475,7 +20475,7 @@
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.117.0",
-        "integrity": "sha256-ePTi3OQTfl/GxxlcOBd6SwsFCVQbvxKgS6F5b3xh7RA="
+        "integrity": "sha256-9HaRsmqrmnKWWN40iX4YpOYZx1zcsWI+9dHgs4EiRp0="
       }
     },
     {

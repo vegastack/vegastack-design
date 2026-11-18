@@ -1,4 +1,4 @@
-// @vegastack context-panel@0.117.0 sha256-ePTi3OQTfl/GxxlcOBd6SwsFCVQbvxKgS6F5b3xh7RA=
+// @vegastack context-panel@0.117.0 sha256-9HaRsmqrmnKWWN40iX4YpOYZx1zcsWI+9dHgs4EiRp0=
 
 "use client";
 
@@ -204,7 +204,7 @@ export function ContextPanel({
                   <p
                     tabIndex={0}
                     data-slot="context-panel-used"
-                    className="self-start tabular-nums outline-none"
+                    className="inline-flex min-h-6 items-center gap-1 self-start tabular-nums outline-none"
                   />
                 }
               >
