@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.113.0] — November 18, 2026
+
+<!-- assembled from 1 changeset: 5f124830e5c6 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.112.0 → 0.113.0.
+
+### ⚠️ Breaking
+
+- Shell and Breadcrumb Cascade: the phone header, option A. At the top of a module the phone's top bar starts with one button, the workspace's 28px logo, the module's name and ⌄ (`ShellColumnSwitch`, logo as `media`), which opens the module's column as a sheet and replaces the lone ⌄ beside the title. On an inner page `BreadcrumbTrail compact` is now one link back, `‹ <parent>` to the nearest earlier step with an `href`, its name always shown (36px, 44px+ on touch), named "Back to <parent>" (`backLabel`). The new `ShellTopBarAccount` slot ends a phone's bar with Help and the avatar and takes no room above a phone. **Breaking:** `ShellColumnSwitch` takes `media` and its children instead of `label`; `ShellTopBarTitle` no longer renders it, and its `switchLabel` prop is gone; `BreadcrumbTrail`'s compact path menu and its `compactLabel` prop are removed, with no compatibility exports.
+  [`2eb58f6`](https://github.com/VegaStack/vegastack-design/commit/2eb58f6)
+
 ## [0.112.0] — November 18, 2026
 
 <!-- assembled from 1 changeset: 86a3c07e40f5 -->
