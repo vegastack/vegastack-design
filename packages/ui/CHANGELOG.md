@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.116.3
+
+### Patch Changes
+
+- [#1043](https://github.com/vegastack/vegastack-design/pull/1043) [`b0e5a6b`](https://github.com/vegastack/vegastack-design/commit/b0e5a6bffe9c7080e1dd1b1b1890890675499e5d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Version Compare: takes `headingHidden` and passes it to its `VersionList`, so a host that already titles the history (a side panel section called "Versions") keeps the list's heading for assistive technology only instead of showing it twice.
+
 ## 0.116.2
 
 ### Patch Changes

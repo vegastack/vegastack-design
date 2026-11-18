@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.116.3] — November 18, 2026
+
+<!-- assembled from 1 changeset: 17b9955004d7 -->
+
+### 🔧 Changed components
+
+- Version Compare: takes `headingHidden` and passes it to its `VersionList`, so a host that already titles the history (a side panel section called "Versions") keeps the list's heading for assistive technology only instead of showing it twice.
+  [`b0e5a6b`](https://github.com/VegaStack/vegastack-design/commit/b0e5a6b)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.116.2 → 0.116.3.
+
 ## [0.116.2] — November 18, 2026
 
 <!-- assembled from 1 changeset: 3d0e11b199b8 -->
