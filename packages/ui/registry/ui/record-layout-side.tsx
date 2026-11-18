@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.114.0 sha256-afHRHv2ystgDhvwvmsHiS7+QfS8XRBUYZqamaFS4bRg=
+// @vegastack record-layout@0.114.0 sha256-LHDcHWpFd1xP/NXBHKgUbb/m5bYWLW+vcIP3AUwCd8I=
 
 "use client";
 
@@ -580,6 +580,9 @@ export function RecordPanel({
   if (mode === "sheet")
     return (
       <PeekSheet
+        // A side surface, as where it docks (LAY-26: the page is the extreme, side surfaces one
+        // notch in), not the popover lift of a menu.
+        className="bg-panel"
         open={ctx.sheet}
         onOpenChange={(next) => {
           if (!next) ctx.setSheet(false);
