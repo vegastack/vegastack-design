@@ -41,14 +41,6 @@
      (`scrollbar-none`) or a gutter (`scrollbar-gutter-stable`) still wins. `ScrollArea` draws its
      overlay thumb in the same colours (`--scrollbar-thumb`). Before this the sidebar was thin, the
      page the browser default and sideways strips hidden: three different scrollbars. */
-  :root {
-    --scrollbar-thumb: color-mix(in oklab, var(--foreground) 18%, transparent);
-    --scrollbar-thumb-hover: color-mix(
-      in oklab,
-      var(--foreground) 32%,
-      transparent
-    );
-  }
   :where(*) {
     scrollbar-width: thin;
     scrollbar-color: var(--scrollbar-thumb) transparent;

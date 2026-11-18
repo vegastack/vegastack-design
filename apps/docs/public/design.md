@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 41995
-      sha256: "bcc9f78470fdf4a3573e4facaf00b1209e71c03f5df75d3fdb504bde67ba500a"
+      bytes: 42655
+      sha256: "5ba598005699f83914c09c2db40a1d688652bebacfcb692eed7788927afe5885"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 14365
-      sha256: "0fbe07b372ccc51b854cfe6cd72dc2833f28d4c52c465851186dfc1f8c739e98"
+      bytes: 14682
+      sha256: "bd1311c88b74158cf4285dccea466ed8651656c7d0b5c89d3994fe65f60acab3"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -342,6 +342,14 @@ themes:
       type: "color"
       value: "oklch(1 0 0)"
       description: "Theme-invariant ink drawn on `scrim`: the icon (and pencil) colour of every tile-overlay control. Not overridden in dark on purpose."
+    scrollbar-thumb:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.2)"
+      description: "BRD-SCR (ours, operator 2026-11-19): the ONE scrollbar thumb — the foreground at low strength on a clear track, on every native scroller (base.css) and ScrollArea's overlay bar. Read it as `--scrollbar-thumb`."
+    scrollbar-thumb-hover:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.36)"
+      description: "BRD-SCR: the thumb while the pointer is over its scroller, or over the thumb itself."
     secondary:
       type: "color"
       value: "oklch(0.97 0 0)"
@@ -855,6 +863,12 @@ themes:
       type: "color"
       value: "oklch(1 0 0)"
       description: "Theme-invariant ink drawn on `scrim`: the icon (and pencil) colour of every tile-overlay control. Not overridden in dark on purpose."
+    scrollbar-thumb:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.2)"
+    scrollbar-thumb-hover:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.36)"
     secondary:
       type: "color"
       value: "oklch(0.269 0 0)"

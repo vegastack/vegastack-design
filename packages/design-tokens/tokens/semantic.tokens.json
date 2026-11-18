@@ -202,6 +202,24 @@
     },
     "$description": "COL-24 (ours, operator 2026-10-31): the ONE hover fill — the foreground at a low alpha, laid over whatever is underneath (page, card, popover, sidebar, muted, a filled button), so the step reads the same on every ground: ΔL ≈ 0.035–0.045 in both themes. Read it through the `state-layer` utility or `bg-state-hover`; never an opaque `muted`/`accent` hover."
   },
+  "scrollbar-thumb": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.2
+    },
+    "$description": "BRD-SCR (ours, operator 2026-11-19): the ONE scrollbar thumb — the foreground at low strength on a clear track, on every native scroller (base.css) and ScrollArea's overlay bar. Read it as `--scrollbar-thumb`."
+  },
+  "scrollbar-thumb-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.145, 0, 0],
+      "alpha": 0.36
+    },
+    "$description": "BRD-SCR: the thumb while the pointer is over its scroller, or over the thumb itself."
+  },
   "state-selected": {
     "$type": "color",
     "$value": {
