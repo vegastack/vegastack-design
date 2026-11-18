@@ -1,4 +1,4 @@
-// @vegastack sortable-list@0.115.0 sha256-HbNpbsfLoWpRCgynH9j9IcMxy2IbhqDb/QQjTw29a9s=
+// @vegastack sortable-list@0.116.0 sha256-UN18L33rEgUUXiP3cJcieEdVyRyj9kpEMq5JTSodRTU=
 
 "use client";
 

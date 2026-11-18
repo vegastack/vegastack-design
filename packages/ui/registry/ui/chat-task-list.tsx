@@ -1,4 +1,4 @@
-// @vegastack chat-task-list@0.115.0 sha256-eXIOn4r/4qbobzRw4tkco+LYevvmnRRxS79AYw5n9cE=
+// @vegastack chat-task-list@0.116.0 sha256-865HB6LpW6sNoIntGZ4/nyeT3ozfvENOKIDpBfoumG0=
 
 "use client";
 

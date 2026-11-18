@@ -1,4 +1,4 @@
-// @vegastack composer-chip@0.115.0 sha256-iNuXc2tqxetn6KZFgMj52g8e/AD6Me/SPY8KHf54KUY=
+// @vegastack composer-chip@0.116.0 sha256-8vkqeT69oHJ7Dk+FPI9meOfF7vV42GzDCcjOqCFUnZ0=
 
 "use client";
 

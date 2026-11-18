@@ -1,4 +1,4 @@
-// @vegastack peek@0.115.0 sha256-PCGc6sYlZGTKPTWuWoDgF1jNqJ5+PdOKYtB+rZoELi4=
+// @vegastack peek@0.116.0 sha256-pv/Z+W49FF06svL9LVyLuK82cm3sPslz+qbhtV07oCI=
 
 "use client";
 

@@ -1,4 +1,4 @@
-// @vegastack slider@0.115.0 sha256-VFKNt2kvKLQw4dHCjcBfaTQGL8k1nzA5BK0QUXw1NZM=
+// @vegastack slider@0.116.0 sha256-IcRgfR1jMxwDY61gGs/C2Er04gNccPOFisqiUn1j3kE=
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
 import { cn } from "@vegastack/design";
