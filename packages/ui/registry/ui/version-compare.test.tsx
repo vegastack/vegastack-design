@@ -145,6 +145,57 @@ test("a narrow box on a wide window (a side panel): one side at a time, like a p
     .toBeInTheDocument();
 });
 
+test("the box resizing flips the layout and keeps focus; so does a root font-size change", async () => {
+  await viewport(true);
+  function Resizable() {
+    const [width, setWidth] = React.useState(800);
+    return (
+      <>
+        <Button onClick={() => setWidth((w) => (w === 800 ? 320 : 800))}>
+          Resize
+        </Button>
+        <Harness width={width} />
+      </>
+    );
+  }
+  const screen = await render(<Resizable />);
+  const root = () =>
+    screen.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+  await vi.waitFor(() =>
+    expect(
+      root().querySelector("[data-slot=version-compare-panels]"),
+    ).not.toBeNull(),
+  );
+  const row = root().querySelector<HTMLElement>(
+    "[data-slot=version-list-item][data-selected]",
+  )!;
+  row.focus();
+  // Shrink from outside, without moving focus off the row.
+  (screen.container.querySelector("button") as HTMLButtonElement).dispatchEvent(
+    new MouseEvent("click", { bubbles: true }),
+  );
+  await vi.waitFor(() => expect(root().dataset.view).toBe("list"));
+  await vi.waitFor(() =>
+    expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
+      "version-list-item",
+    ),
+  );
+  await screen.unmount();
+
+  // 40rem grows past a 700px box when the root font goes from 16px to 20px.
+  const html = document.documentElement;
+  const before = html.style.fontSize;
+  onTestFinished(() => {
+    html.style.fontSize = before;
+  });
+  const fixed = await render(<Harness width={700} />);
+  const fixedRoot = () =>
+    fixed.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+  await vi.waitFor(() => expect(fixedRoot().dataset.view).toBeUndefined());
+  html.style.fontSize = "20px";
+  await vi.waitFor(() => expect(fixedRoot().dataset.view).toBe("list"));
+});
+
 test("phone: the list first; a picked version pushes its preview in, with the actions; Back returns to the list", async () => {
   await viewport(false);
   const screen = await render(<Harness />);

@@ -1,4 +1,4 @@
-// @vegastack version-compare@0.116.0 sha256-lH9b4mwexf8cVKRRQBIN5qQ3q8qEzoX0PW7zYE1W724=
+// @vegastack version-compare@0.116.0 sha256-Pw3HZD+VlgXFp9gcHwt7BEQI3e4ep1t8zxeK7iXCvvY=
 
 "use client";
 
@@ -25,6 +25,17 @@ import {
  * VersionCompare — a document's history at full size: the selected version on the start side,
  * the versions beside it, and the actions on it (Restore this version, Copy) pinned at the foot.
  * ----------------------------------------------------------------------------------------------*/
+
+/** Holds the 40rem probe out of the layout: no box, nothing seen, nothing hit. */
+const PROBE_FRAME: React.CSSProperties = {
+  position: "absolute",
+  insetInline: 0,
+  top: 0,
+  height: 0,
+  overflow: "hidden",
+  visibility: "hidden",
+  pointerEvents: "none",
+};
 
 /** Props accepted by `VersionCompare`. */
 export interface VersionCompareProps
@@ -143,25 +154,32 @@ export function VersionCompare({
 }: VersionCompareProps) {
   const switchId = React.useId();
   // Side by side only when the component itself has room: a 320px side panel on a wide window
-  // gets the one-side-at-a-time layout. Until it is measured, the window's width stands in.
+  // gets the one-side-at-a-time layout. Until it is measured, the window's width stands in. The
+  // layout widths (`offsetWidth`) ignore a dialog's opening zoom, and a hidden 40rem probe, watched
+  // with the root, notices a root font-size change that leaves the root's own box as it was.
   const windowWide = useMediaQuery("(min-width: 40rem)");
   const [ownWide, setOwnWide] = React.useState<boolean | null>(null);
   const rootRef = React.useRef<HTMLDivElement>(null);
+  const probeRef = React.useRef<HTMLDivElement>(null);
   const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
+  /** Focus was inside when the layout flipped: the flip unmounts it, so it is put back. */
+  const refocus = React.useRef(false);
   React.useLayoutEffect(() => {
     const root = rootRef.current;
-    if (!root || typeof ResizeObserver === "undefined") return;
-    const measure = () =>
-      setOwnWide(
-        root.getBoundingClientRect().width >=
-          40 *
-            parseFloat(
-              getComputedStyle(document.documentElement).fontSize || "16",
-            ),
-      );
+    const probe = probeRef.current;
+    if (!root || !probe || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const next = root.offsetWidth >= probe.offsetWidth;
+      setOwnWide((was) => {
+        if (was !== null && was !== next)
+          refocus.current = root.contains(document.activeElement);
+        return next;
+      });
+    };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(root);
+    observer.observe(probe);
     return () => observer.disconnect();
   }, []);
   const wide = ownWide ?? windowWide;
@@ -196,6 +214,19 @@ export function VersionCompare({
         )
         ?.focus();
   }, [view, requests]);
+  // A flip between the layouts (the box resized) keeps focus inside: on the selected version, or
+  // on Back when only the preview shows.
+  React.useLayoutEffect(() => {
+    if (!refocus.current) return;
+    refocus.current = false;
+    const root = rootRef.current;
+    if (!root || root.contains(document.activeElement)) return;
+    (
+      root.querySelector<HTMLElement>(
+        "[data-slot=version-list-item][data-selected]",
+      ) ?? back.current
+    )?.focus();
+  }, [wide]);
 
   const list = (
     <VersionList
@@ -268,9 +299,15 @@ export function VersionCompare({
       ref={setRootRef}
       data-slot="version-compare"
       data-view={wide ? undefined : view}
-      className={cn("flex min-h-0 min-w-0 flex-1 flex-col gap-4", className)}
+      className={cn(
+        "relative flex min-h-0 min-w-0 flex-1 flex-col gap-4",
+        className,
+      )}
       {...props}
     >
+      <div aria-hidden style={PROBE_FRAME}>
+        <div ref={probeRef} style={{ width: "40rem", height: 0 }} />
+      </div>
       {wide ? (
         <ResizablePanelGroup
           orientation="horizontal"
