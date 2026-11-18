@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.114.0 sha256-PQ0zHBhFYFgVTQoOP8hQMYYQlCb/KIWj5pguoLK/gBQ=
+// @vegastack record-chip@0.115.0 sha256-OyYY5wB0I/zgXOQOoVTRujBNhWdq0YNcDjCgRok8cNY=
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";

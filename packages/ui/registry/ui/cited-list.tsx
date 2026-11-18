@@ -1,4 +1,4 @@
-// @vegastack cited-list@0.114.0 sha256-mS+C7mgthUTqlfXc4i+YyPowEz0jdvENlxmSQP0kD+o=
+// @vegastack cited-list@0.115.0 sha256-++nNPFvtqvlt7WzBv2izZR6sx0L5Qd2DVcZ21z47OHU=
 
 "use client";
 

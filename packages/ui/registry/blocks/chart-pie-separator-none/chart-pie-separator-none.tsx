@@ -1,4 +1,4 @@
-// @vegastack chart-pie-separator-none@0.114.0 sha256-mAbw3s7uJaMP2nBYXrAuNBblA0USXl8FXU2mUts1wa4=
+// @vegastack chart-pie-separator-none@0.115.0 sha256-wxtMeGsgd4zn2ogBfUV2ektwmneZeh7csJ+flcPGvhg=
 
 "use client";
 

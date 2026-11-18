@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.115.0
+
+### Minor Changes
+
+- [#1038](https://github.com/vegastack/vegastack-design/pull/1038) [`1a7f046`](https://github.com/vegastack/vegastack-design/commit/1a7f046aa915cb7099e8db678a3bc6be32c9829b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠️ Corners: capsule or rounded rectangle (BRD-12, amended). Controls in the page are now rounded rectangles: `--corner-control` and `--corner-icon` are 8px, so Button at every size, icon buttons, Input, Select, InputGroup, search fields, Toggle, ToggleGroup, TabsList and Menubar read as one family with rows and cards. Two new roles: `rounded-segment` (6px, a control inside a control — tab triggers, Menubar items, buttons inside a field, kept concentric with a 2px inset) and `rounded-capsule` (only what floats or stands alone — `ActionBar`, the sticky audio bar, block, image and PDF hover toolbars, floating editor and markdown toolbars, controls over video — and the buttons inside them, which are circles). A new `capsule-scope` utility re-points the control roles to the capsule for everything inside a floating bar, so composed buttons, tooltip and menu triggers become circles; the chat composer takes it too (24px card, controls 7px in: 24 − 7 = 17, round on 32px). A floating panel that wraps or holds a form stays a card. Calendar days, colour swatches, chip and combobox remove buttons, the split chip's icon segment, carousel and file-viewer arrows, scroll-to-latest and floating document buttons are circles or capsules; clear buttons inside fields are `rounded-segment`. `cn()` merges the new roles. design-lint gains `floating-capsule`: a `fixed`, `sticky` or shadowed `absolute` part can't wear `rounded-control` or `rounded-icon`. Foundations › Radius gains "Capsule or rounded rectangle". Concentric to the pixel, counted from the outer edge (border plus padding): bordered menus, Select and Combobox lists, the menubar and navigation menus go from `p-1.5` to `p-1.25` (16 − 1 − 5 = 10, the `item` row); the command palette's rows and search box are `rounded-item` at a 10px inset (20 − 10); the Dialog's close is a circle (24 − 9 = 15 on 28px). `@vegastack/design-tokens` exports `corners.json` (pointer and touch tables) and `corners.dart` (`DesignCorners`, for the Flutter app) from one source, `tokens/corner-platforms.json`. Foundations › Radius gains "The arithmetic" and "One source on every platform".
+
+### Patch Changes
+
+- Updated dependencies [[`1a7f046`](https://github.com/vegastack/vegastack-design/commit/1a7f046aa915cb7099e8db678a3bc6be32c9829b)]:
+  - @vegastack/design-tokens@0.25.0
+  - @vegastack/design@0.25.0
+
 ## 0.114.3
 
 ### Patch Changes
