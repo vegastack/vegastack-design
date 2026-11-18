@@ -1757,6 +1757,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ShellTopBarAccount",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/shell.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -2082,7 +2091,7 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["shell-column-switch"]
+              "values": ["shell-column-switch", "shell-column-switch-media"]
             }
           ],
           "cssVariables": []
@@ -5245,7 +5254,6 @@
               "values": [
                 "breadcrumb-trail",
                 "breadcrumb-trail-compact",
-                "breadcrumb-trail-compact-menu",
                 "breadcrumb-trail-folded"
               ]
             }

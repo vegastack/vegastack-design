@@ -109,11 +109,12 @@ unbroken record name never overflows the header. Pass
 
 ### Compact trail
 
-In a narrow header — a phone, a split view — `compact` shortens the trail to `‹` and the parent
-step's name: one button that opens a menu of the whole path, each level stepping in, the current
-step marked with a check and `aria-current`. `compact="auto"` switches by the trail's container:
-compact under 40rem, the full trail above. The menu's entries are plain links (`linkRender`);
-`renderStep`, `renderCurrent` and drop targets belong to the full trail.
+In a narrow header — a phone, a split view — `compact` shortens the trail to `‹` and the parent's
+name: one link back to the nearest earlier step with an `href`, a 36px target (44px and more on
+touch). The name always shows: past the trail's room it is cut short, never to nothing.
+`compact="auto"` switches by the trail's container: compact under 40rem, the full trail above.
+The link renders `linkRender`; `renderStep`, `renderCurrent` and drop targets belong to the full
+trail.
 
 <ComponentPreview
   name="breadcrumbTrailCompact"
@@ -162,9 +163,8 @@ compact under 40rem, the full trail above. The menu's entries are plain links (`
   `DropdownMenu`: focus moves into it, the current segment carries `aria-current="page"` and a
   check, and <kbd>Esc</kbd> closes it with focus back on the trigger. While `loading` the menu is
   `aria-busy` and its one entry says "Loading…".
-- The compact trail's button is named by the parent step and "show path" ("Specs, show path"), so
-  what a voice user says matches what they see; its menu marks the current step with
-  `aria-current="page"`.
+- The compact trail's link is named "Back to" and the parent's name ("Back to Specs"; set it with
+  `backLabel`), so the name holds what a voice user sees.
 - A drop target is pointer only, like every drag in the system: the keyboard path for a move is the
   host's "Move…" action (a `MoveDialog` or a `FolderTree` picker).
 

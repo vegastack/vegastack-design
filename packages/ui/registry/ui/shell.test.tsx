@@ -1,7 +1,7 @@
 import { render } from "vitest-browser-react";
 import { afterEach, expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
-import { Home, ListChecks } from "lucide-react";
+import { CircleHelp, Home, ListChecks } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { resolveShellLayout } from "../lib/shell-layout";
 import { Button } from "./button";
@@ -16,10 +16,12 @@ import { Rail, RailItem } from "./rail";
 import {
   Shell,
   ShellColumn,
+  ShellColumnSwitch,
   ShellColumnToggle,
   ShellMain,
   ShellPage,
   ShellTopBar,
+  ShellTopBarAccount,
   ShellTopBarFavorite,
   ShellTopBarMore,
   ShellTopBarMembers,
@@ -42,10 +44,12 @@ function Frame({
   width,
   column = true,
   columnWidth,
+  module = "Tasks",
 }: {
   width: number;
   columnWidth?: number;
   column?: boolean;
+  module?: string;
 }) {
   return (
     <div style={{ width, height: 600 }}>
@@ -86,7 +90,20 @@ function Frame({
         }
       >
         <ShellTopBar>
+          <ShellColumnSwitch
+            media={<span data-testid="logo" className="size-7" />}
+          >
+            {module}
+          </ShellColumnSwitch>
           <ShellTopBarTitle>My tasks</ShellTopBarTitle>
+          <ShellTopBarAccount>
+            <Button variant="ghost" size="icon-lg" aria-label="Help">
+              <CircleHelp />
+            </Button>
+            <Button variant="ghost" size="icon-lg" aria-label="Account">
+              <Home />
+            </Button>
+          </ShellTopBarAccount>
         </ShellTopBar>
         <ShellMain>
           <ShellPage>Page</ShellPage>
@@ -252,17 +269,91 @@ test("a section keeps its measure and a bleed reaches past the page gutter", asy
 const columnSwitch = () =>
   document.querySelector<HTMLElement>('[data-slot="shell-column-switch"]')!;
 
-test("on a phone the title opens the column as a sheet", async () => {
+test("on a phone the places button (logo, module, ⌄) opens the column as a sheet, and focus comes back to it", async () => {
   await render(<Frame width={390} />);
   await settled();
   expect(getComputedStyle(columnSwitch()).display).not.toBe("none");
-  expect(document.querySelector("h1")?.textContent).toBe("My tasks");
+  expect(columnSwitch().textContent).toBe("Tasks");
+  expect(columnSwitch().querySelector('[data-testid="logo"]')).not.toBeNull();
+  // A 36px button, a 44px+ target on touch.
+  expect(columnSwitch().getBoundingClientRect().height).toBe(36);
   await userEvent.click(columnSwitch());
   await expect.poll(() => shell().dataset.column).toBe("over");
   expect(columnSwitch().getAttribute("aria-expanded")).toBe("true");
   await userEvent.keyboard("{Escape}");
   await expect.poll(() => shell().dataset.column).toBe("none");
+  expect(document.activeElement).toBe(columnSwitch());
+  await expectNoA11yViolations(document.body);
 });
+
+test("on a phone focus comes back to the places button even when a tap never focused it (iOS Safari)", async () => {
+  await render(<Frame width={390} />);
+  await settled();
+  // A tap in Safari doesn't focus a button: a click with nothing focused.
+  (document.activeElement as HTMLElement | null)?.blur();
+  columnSwitch().click();
+  await expect.poll(() => shell().dataset.column).toBe("over");
+  // The page behind the sheet went inert; focus dropped to the body.
+  (document.activeElement as HTMLElement | null)?.blur();
+  expect(document.activeElement).toBe(document.body);
+  await userEvent.keyboard("{Escape}");
+  await expect.poll(() => shell().dataset.column).toBe("none");
+  expect(document.activeElement).toBe(columnSwitch());
+});
+
+test.each(["ltr", "rtl"] as const)(
+  "at 320px (%s) a long module name shortens, and Help and the account stay in the bar, 8px apart",
+  async (dir) => {
+    document.dir = dir;
+    try {
+      await render(
+        <Frame width={320} module="Procurement and vendor onboarding" />,
+      );
+      await settled();
+      const bar = document
+        .querySelector('[data-slot="shell-topbar"]')!
+        .getBoundingClientRect();
+      const name = columnSwitch().querySelector(
+        ":scope > span:not([data-slot])",
+      )!;
+      expect(name.scrollWidth).toBeGreaterThan(name.clientWidth);
+      const [help, account] = [
+        ...document.querySelectorAll<HTMLElement>(
+          '[data-slot="shell-topbar-account"] button',
+        ),
+      ].map((b) => b.getBoundingClientRect());
+      for (const box of [help!, account!]) {
+        expect(box.left).toBeGreaterThanOrEqual(bar.left);
+        expect(box.right).toBeLessThanOrEqual(bar.right);
+      }
+      expect(
+        Math.round(
+          dir === "ltr"
+            ? account!.left - help!.right
+            : help!.left - account!.right,
+        ),
+      ).toBe(8);
+    } finally {
+      document.dir = "";
+    }
+  },
+);
+
+test.each([
+  [390, true],
+  [820, false],
+  [1440, false],
+] as const)(
+  "at %ipx the bar's Help and account show: %s",
+  async (width, shown) => {
+    await render(<Frame width={width} />);
+    await settled();
+    const account = document.querySelector<HTMLElement>(
+      '[data-slot="shell-topbar-account"]',
+    )!;
+    expect(getComputedStyle(account).display !== "none").toBe(shown);
+  },
+);
 
 test("on a phone a drag down the column sheet moves it, never the page, and closes it", async () => {
   await render(<Frame width={390} />);
@@ -314,7 +405,7 @@ test.each([
   [820, true],
   [1440, true],
 ] as const)(
-  "at %ipx (column %s) the title has no switch",
+  "at %ipx (column %s) the bar has no places button",
   async (width, column) => {
     await render(<Frame width={width} column={column} />);
     await settled();

@@ -18,6 +18,7 @@ import {
   type BreadcrumbSibling,
 } from "./breadcrumb-cascade";
 import { DataList, type DataListColumn } from "./data-list";
+import { LinkProvider } from "./link-provider";
 
 const siblings: BreadcrumbSibling[] = [
   { id: "clients", label: "Clients", href: "#clients" },
@@ -348,26 +349,78 @@ const path = [
   { label: "Pricing v2" },
 ];
 
-test("BreadcrumbTrail compact: ‹ and the parent's name, a menu of the whole path with the current step marked", async () => {
+test("BreadcrumbTrail compact: ‹ and the parent's name, one link back to the parent", async () => {
   const screen = await render(<BreadcrumbTrail compact steps={path} />);
   const nav = screen.container.querySelector<HTMLElement>(
     "[data-slot=breadcrumb-trail]",
   )!;
   expect(nav.hasAttribute("data-compact")).toBe(true);
-  const trigger = screen.getByRole("button", { name: "Pricing, show path" });
-  await expect.element(trigger).toHaveTextContent("Pricing");
-  // Only the trigger: no full trail rendered beside it.
+  const back = screen.getByRole("link", { name: "Back to Pricing" });
+  await expect.element(back).toHaveTextContent("Pricing");
+  await expect.element(back).toHaveAttribute("href", "#pricing");
+  // Only the link: no full trail and no menu beside it.
+  expect(screen.container.querySelectorAll("a")).toHaveLength(1);
   expect(
-    screen.container.querySelectorAll("[data-slot=breadcrumb-link]"),
-  ).toHaveLength(0);
-  await trigger.click();
-  const menu = screen.getByRole("menu");
-  const items = menu.getByRole("menuitem");
-  await expect.element(items.nth(0)).toHaveTextContent("Product");
-  await expect.element(items.nth(3)).toHaveTextContent("Pricing v2");
-  await expect.element(items.nth(3)).toHaveAttribute("aria-current", "page");
-  await expect.element(items.nth(1)).toHaveAttribute("href", "#specs");
+    screen.container.querySelector(
+      "[data-slot=breadcrumb-trail-compact] button",
+    ),
+  ).toBeNull();
+  // The name shows in full while there is room for it.
+  const name = back.element().querySelector("span")!;
+  expect(name.scrollWidth).toBeLessThanOrEqual(
+    Math.ceil(name.getBoundingClientRect().width),
+  );
+  expect(name.getBoundingClientRect().width).toBeGreaterThan(0);
   await expectNoA11yViolations(document.body);
+});
+
+test("BreadcrumbTrail compact goes back through the app's router (LinkProvider) by default", async () => {
+  const navigate = vi.fn();
+  const screen = await render(
+    <LinkProvider navigate={navigate} origin={window.location.origin}>
+      <BreadcrumbTrail
+        compact
+        steps={[{ label: "Settings", href: "/settings" }, { label: "Members" }]}
+      />
+    </LinkProvider>,
+  );
+  await screen.getByRole("link", { name: "Back to Settings" }).click();
+  expect(navigate).toHaveBeenCalledWith("/settings");
+});
+
+test("BreadcrumbTrail compact goes back to the parent even when linkRender carries an href of its own", async () => {
+  const screen = await render(
+    <BreadcrumbTrail
+      compact
+      linkRender={<a href="/" />}
+      steps={[{ label: "Settings", href: "/settings" }, { label: "Members" }]}
+    />,
+  );
+  await expect
+    .element(screen.getByRole("link", { name: "Back to Settings" }))
+    .toHaveAttribute("href", "/settings");
+});
+
+test("BreadcrumbTrail compact goes back to the nearest step with a link, and keeps its name in a tight header", async () => {
+  const screen = await render(
+    <div style={{ width: 120, display: "flex" }}>
+      <BreadcrumbTrail
+        compact
+        backLabel={(parent) => `Up to ${parent}`}
+        steps={[
+          { label: "Customers", href: "#customers" },
+          { label: "Acme Lighting Private Limited" },
+          { label: "Site visit" },
+        ]}
+      />
+    </div>,
+  );
+  const back = screen.getByRole("link", { name: "Up to Customers" });
+  await expect.element(back).toHaveAttribute("href", "#customers");
+  // Never cut to nothing: ‹ and the start of the name stay.
+  expect(back.element().getBoundingClientRect().width).toBeGreaterThanOrEqual(
+    64,
+  );
 });
 
 test('BreadcrumbTrail compact="auto" follows its container: compact under 40rem, the full trail above', async () => {
@@ -402,8 +455,6 @@ test("BreadcrumbTrail compact with one step shows the current page alone", async
     screen.container.querySelector("[data-slot=breadcrumb-page]")?.textContent,
   ).toBe("Library");
   expect(
-    screen.container.querySelector(
-      "[data-slot=breadcrumb-trail-compact] button",
-    ),
+    screen.container.querySelector("[data-slot=breadcrumb-trail-compact] a"),
   ).toBeNull();
 });

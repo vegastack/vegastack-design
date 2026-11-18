@@ -1,4 +1,4 @@
-// @vegastack shell@0.112.0 sha256-xFfiKfpfkjkpCk4rXaFf6XH/3WZh8sJcVo7ySuuQDVU=
+// @vegastack shell@0.112.0 sha256-7VtdcwggTFVUmxFTvIblY7//Lykf6p+ZDO3LvNQod1Q=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/input-group";
 import {
   ShellColumnResize,
-  ShellColumnSwitch,
   ShellController,
   ShellSkipLink,
 } from "@/components/ui/shell-client";
@@ -154,8 +153,8 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   ${S}[data-fill="parent"] [data-slot="shell-main-area"] { height: 100%; }
   ${S}[data-fill="parent"] [data-slot="shell-content"] { overflow-y: auto; }
   ${S}[data-has-bottombar] [data-slot="shell-content"] { padding-bottom: calc(var(--shell-bottombar-height) + env(safe-area-inset-bottom)); }
-  /* The column has no ▤ here: the page title opens it as a sheet (L13). */
-  ${S}[data-has-column] [data-slot="shell-column-switch"] { display: grid; }
+  /* The column has no ▤ here: the bar's places button opens it as a sheet (L13). */
+  ${S}[data-has-column] [data-slot="shell-column-switch"] { display: inline-flex; }
   [data-slot="shell-topbar-heading"] > h1 { font-size: var(--text-base); line-height: var(--text-base--line-height); font-weight: 600; }
   ${S}:not([data-fill="parent"]) [data-slot="shell-floating-area"] {
     position: fixed;
@@ -521,7 +520,8 @@ export type ShellTopBarProps = React.ComponentProps<"header">;
 /**
  * `ShellTopBar` — the 48px bar over the page. Its slots keep one order whatever order a page
  * writes them in (UI ground rules P1): the title, then at the end `[members] · [Share] ·
- * [Watch] · [☆] · [⋯]`, with ⋯ last but for a record page's ▥ (`ShellTopBarPanel`). Every
+ * [Watch] · [☆] · [⋯]`, with ⋯ last but for a record page's ▥ (`ShellTopBarPanel`) and, on a
+ * phone, Help and the avatar (`ShellTopBarAccount`), which wider screens keep in the global bar. Every
  * control is ghost and 28px: no primary, no
  * outline, no other tools — a list's primary is its toolbar's last control. Narrow, Share shows
  * its icon alone and the members leave. There is no save status: saving is silent, and a failed
@@ -555,24 +555,18 @@ export function ShellTopBar({ className, ...props }: ShellTopBarProps) {
 export interface ShellTopBarTitleProps extends React.ComponentProps<"div"> {
   /** The breadcrumb before the title: links to the parents, separated for you. @default undefined */
   parents?: React.ReactNode;
-  /**
-   * On a phone with a column, the title opens the column as a sheet; this names that button
-   * (e.g. "Switch Tasks view"). @default 'Switch view'
-   */
-  switchLabel?: string;
 }
 
 /**
  * `ShellTopBarTitle` — the page's title, its `<h1>`, rendered on the server with the page (never
- * portalled), after the breadcrumb of its parents. On a phone with a column, a tap on the title
- * opens the column as a sheet (`ShellColumnSwitch`, L13).
+ * portalled), after the breadcrumb of its parents. A phone's way to the module's places is
+ * `ShellColumnSwitch`, beside it.
  *
  * @example
  * <ShellTopBarTitle parents={<><a href="/library">Library</a><a href="/library/f">Pricing</a></>}>Q3 review</ShellTopBarTitle>
  */
 export function ShellTopBarTitle({
   parents,
-  switchLabel,
   className,
   children,
   ...props
@@ -610,7 +604,6 @@ export function ShellTopBarTitle({
         className="relative flex min-w-0 items-center gap-0.5"
       >
         <h1 className="min-w-0 truncate text-sm font-medium">{children}</h1>
-        <ShellColumnSwitch label={switchLabel} />
       </div>
     </div>
   );
@@ -749,6 +742,37 @@ export const ShellTopBarPanel = topBarSlot(
     "gap-1 empty:hidden has-[>:only-child:empty]:hidden max-sm:hidden before:mx-1 before:h-4.5 before:w-px before:bg-border",
     BUTTON_SHAPE,
   ),
+);
+
+/**
+ * `ShellTopBarAccount` — on a phone only, the bar's last controls: Help (a 36px ghost icon
+ * button) and the person's 30px avatar, which the hidden global bar holds on wider screens. Above
+ * a phone it takes no room. Each control sits in its own box 8px from the next, so each keeps a
+ * 44px touch target of its own.
+ *
+ * @example
+ * <ShellTopBarAccount><HelpMenu … /><AccountMenu … /></ShellTopBarAccount>
+ */
+export function ShellTopBarAccount({
+  className,
+  children,
+  ...props
+}: ShellTopBarSlotProps) {
+  return (
+    <AccountSlot className={className} {...props}>
+      {/* Its own box: a control right after another clamps its touch target on that side. */}
+      {React.Children.map(children, (child) =>
+        child == null || child === false ? null : (
+          <span className="flex">{child}</span>
+        ),
+      )}
+    </AccountSlot>
+  );
+}
+const AccountSlot = topBarSlot(
+  "shell-topbar-account",
+  "order-8",
+  "hidden gap-2 @max-[40rem]/shell:flex",
 );
 
 /**

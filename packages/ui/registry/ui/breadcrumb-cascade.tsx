@@ -1,4 +1,4 @@
-// @vegastack breadcrumb-cascade@0.112.0 sha256-d1VOVKbdCQJQ2DlfgO7aSt2vBIuTmLOqE3G6vVCfqEY=
+// @vegastack breadcrumb-cascade@0.112.0 sha256-dWHHPKkmgPho5R+pK6bnBLJWtcEcTQG360KrqVopldE=
 
 "use client";
 
@@ -16,7 +16,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { TruncatedText } from "@/components/ui/truncated-text";
 import {
   DropdownMenu,
@@ -302,9 +302,6 @@ export function BreadcrumbSiblings({
   );
 }
 
-/** The compact menu's indent per level of the path (12px a level, capped). */
-const PATH_INDENT = ["ps-2", "ps-5", "ps-8", "ps-11", "ps-14", "ps-17"];
-
 /** One step of a `BreadcrumbTrail`. */
 export interface BreadcrumbTrailStep {
   /** A stable key (defaults to the index). */
@@ -352,20 +349,20 @@ export interface BreadcrumbTrailProps extends Omit<
    */
   collapsedLabel?: string;
   /**
-   * The compact trail for a narrow header: `‹` and the parent step's name, a button that opens a
-   * menu of the whole path (the current step marked). `true` always; `"auto"` while the trail's
-   * container is narrower than 40rem — a phone's header, a split view. The menu's entries are
-   * plain links (`linkRender`); `renderStep`, `renderCurrent` and drop targets belong to the full
-   * trail.
+   * The compact trail for a narrow header: `‹` and the parent's name, one link back to the
+   * parent — the nearest earlier step with an `href`. The name always shows; past the trail's
+   * room it is cut short, never to nothing. `true` always; `"auto"` while the trail's container is
+   * narrower than 40rem — a phone's header, a split view. The link renders `linkRender`;
+   * `renderStep`, `renderCurrent` and drop targets belong to the full trail.
    * @default false
    */
   compact?: boolean | "auto";
   /**
-   * The compact trigger's accessible name, from the parent step's name (it starts with it, so a
-   * voice user can say what they see).
-   * @default (parent) => `${parent}, show path`
+   * The compact link's accessible name, from the parent's name (it contains it, so a voice user
+   * can say what they see).
+   * @default (parent) => `Back to ${parent}`
    */
-  compactLabel?: (parent: string) => string;
+  backLabel?: (parent: string) => string;
 }
 
 /**
@@ -393,7 +390,7 @@ export function BreadcrumbTrail({
   renderCurrent,
   collapsedLabel = "Show path",
   compact = false,
-  compactLabel = (parent) => `${parent}, show path`,
+  backLabel = (parent) => `Back to ${parent}`,
   className,
   ref,
   ...props
@@ -474,7 +471,12 @@ export function BreadcrumbTrail({
     );
   };
   const hidden = steps.slice(1, 1 + folded);
-  const parent = last > 0 ? steps[last - 1]! : null;
+  // The compact trail's way back: the nearest earlier step that is a link.
+  const parent =
+    steps
+      .slice(0, Math.max(0, last))
+      .reverse()
+      .find((step) => step.href !== undefined) ?? null;
 
   return (
     <Breadcrumb
@@ -489,60 +491,33 @@ export function BreadcrumbTrail({
         {compactNow ? (
           <BreadcrumbItem
             data-slot="breadcrumb-trail-compact"
-            className="min-w-0"
+            className="max-w-full min-w-0"
           >
             {parent ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      aria-label={compactLabel(parent.label)}
-                      // No negative margin: it would come off the trail's own width and clip the
-                      // name it was sized to hold.
-                      className="max-w-full min-w-0 gap-0.5 px-1.5 text-sm font-normal text-muted-foreground hover:text-foreground aria-expanded:text-foreground"
-                    />
-                  }
-                >
-                  <ChevronLeft aria-hidden className="rtl:-scale-x-100" />
-                  <span className="min-w-0 truncate">{parent.label}</span>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="start"
-                  data-slot="breadcrumb-trail-compact-menu"
-                  className="max-w-[min(20rem,var(--available-width))]"
-                >
-                  <DropdownMenuGroup>
-                    {steps.map((step, index) => (
-                      <DropdownMenuItem
-                        key={step.key ?? index}
-                        aria-current={index === last ? "page" : undefined}
-                        disabled={index !== last && step.href === undefined}
-                        render={
-                          index !== last && step.href !== undefined
-                            ? React.cloneElement(linkRender ?? <AppLink />, {
-                                href: step.href,
-                              })
-                            : undefined
-                        }
-                        // Each level steps in, so the menu reads as the path it is.
-                        className={
-                          PATH_INDENT[Math.min(index, PATH_INDENT.length - 1)]
-                        }
-                      >
-                        <span className="min-w-0 flex-1 truncate">
-                          {step.label}
-                        </span>
-                        {index === last ? <Check aria-hidden="true" /> : null}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <BreadcrumbLink
+                // The step's href on the router's link: a `linkRender` carrying its own `href`
+                // (`<Link href="/" />`) would otherwise win.
+                render={React.cloneElement(linkRender ?? <AppLink />, {
+                  href: parent.href,
+                })}
+                aria-label={backLabel(parent.label)}
+                // A ghost button's shape on a real link. No negative margin: it would come off the
+                // trail's own width and clip the name it was sized to hold. At least ‹ and a few
+                // letters stay, however tight the bar.
+                className={cn(
+                  buttonVariants({ variant: "ghost", size: "lg" }),
+                  "max-w-full min-w-16 justify-start gap-0.5 ps-0.5 pe-2 text-base font-medium text-foreground hover:text-foreground",
+                )}
+              >
+                <ChevronLeft
+                  aria-hidden
+                  className="size-5.5 text-muted-foreground rtl:-scale-x-100"
+                />
+                <span className="min-w-0 truncate">{parent.label}</span>
+              </BreadcrumbLink>
             ) : (
               <BreadcrumbPage className="block min-w-0">
-                <TruncatedText>{steps[0]?.label ?? ""}</TruncatedText>
+                <TruncatedText>{steps[last]?.label ?? ""}</TruncatedText>
               </BreadcrumbPage>
             )}
           </BreadcrumbItem>
