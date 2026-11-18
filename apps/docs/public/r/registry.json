@@ -426,8 +426,8 @@
       "meta": {
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
-        "version": "0.117.0",
-        "integrity": "sha256-cHo/81G/8QbEU6xL0tu915Sv09qyE1E9dym7Aqd0+2Y="
+        "version": "0.118.0",
+        "integrity": "sha256-a2m42RYSMZtfpxnIzxUGr2RUOrWktkjuUDmuWvP4pfc="
       }
     },
     {
@@ -17326,8 +17326,8 @@
       "meta": {
         "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
         "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
-        "version": "0.117.0",
-        "integrity": "sha256-5hdB6QfCWHyxFAOIcOEkXCsqlhV3S6BEuhwMiGMrZaE="
+        "version": "0.118.0",
+        "integrity": "sha256-pscRyH6/O6riAELf2nFUirtJO3GXKnU7GcA3HZ9z2v0="
       }
     },
     {
@@ -17880,8 +17880,8 @@
       "meta": {
         "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
         "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
-        "version": "0.117.0",
-        "integrity": "sha256-L4F5RcaJNPVTpEkZu78m5w0NNSioLZr5l6Br9dVC3g0="
+        "version": "0.118.0",
+        "integrity": "sha256-2iRScuEBhquP3B2sn2vz5s1qidMnXVaZzFkVGCHpknA="
       }
     },
     {
@@ -19420,8 +19420,8 @@
       "meta": {
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
-        "version": "0.117.0",
-        "integrity": "sha256-P7fjzL7wWwyrmzD1mqnv25dWDE9PGEUmEbkRwWXteXA="
+        "version": "0.118.0",
+        "integrity": "sha256-Zc5e7u1kOk9xCragwt1hoRsjkAVdAnYXhQ0mYOEB7DU="
       }
     },
     {
@@ -20474,8 +20474,8 @@
       "meta": {
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
-        "version": "0.117.0",
-        "integrity": "sha256-9HaRsmqrmnKWWN40iX4YpOYZx1zcsWI+9dHgs4EiRp0="
+        "version": "0.118.0",
+        "integrity": "sha256-YtkYjfw2yBoG+KaYgLhumk2Pi5d6boFFh6+j76YrD/Q="
       }
     },
     {

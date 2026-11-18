@@ -386,7 +386,7 @@
       "meta": {
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -14065,7 +14065,7 @@
       "meta": {
         "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
         "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -14555,7 +14555,7 @@
       "meta": {
         "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
         "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -15916,7 +15916,7 @@
       "meta": {
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -16852,7 +16852,7 @@
       "meta": {
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {

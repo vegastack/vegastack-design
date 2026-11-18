@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.118.0
+
+### Minor Changes
+
+- [#1047](https://github.com/vegastack/vegastack-design/pull/1047) [`9389129`](https://github.com/vegastack/vegastack-design/commit/93891291b9b5ee7257fb774a2b9a2fae4a96b232) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Side panel polish (Regent side panel and top bar polish A1, A3, A4, C3, C4, D, B4). `RecordPanelSection` puts the fold chevron after the title and count ("Files 4 ⌄"), pointing on while folded and down while open; same 32px trigger and actions. `RecordPanelProvider` takes `dockAt` (`69` · `74` · `75` · `95` rem, default `69`, new `RecordPanelDock` type): the record width from which the panel docks, set per page type so the main column keeps its measure; the panel writes it as `data-dock` and its container queries and measured mode both follow it (the default threshold moves from 68rem to 69rem). `Toggle` gains `variant="bare"` for a page bar's star or bell: no pressed fill, only the icon changes, with the hover layer kept (API-39 amended). `MembersStack` gains `variant="viewers"` — 22px faces overlapped by 8px, who is viewing now first with a 1.5px ring in their hue, three then "+N", a popover grouped "Viewing now" and "Viewed" (new `viewedAt` on `MembersStackPerson`, `groupLabels`) ending in `footer`. `FileCard` gains `variant="row"` — a 44px borderless panel row with a 20px icon or thumbnail, the name, one muted meta line, an optional `source` icon with its tooltip and actions on hover or focus (always on touch), in its own `<li>` for a `RecordPanelList`. `ContextPanel` gains `variant="panel"` — one line "9% · 37.5k / 400k" (the summary note in its tooltip), the bar and compact rows (swatch · label · tokens, the share in a tooltip, Free muted last), with no title or button.
+
 ## 0.117.0
 
 ### Minor Changes
