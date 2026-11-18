@@ -1,4 +1,4 @@
-// @vegastack peek@0.114.0 sha256-61ze0x+Y8qayysTuYAhqBiQ6u6CuPbOz9HH+BWT4h0U=
+// @vegastack peek@0.114.0 sha256-f5jcgI0g4hWPoJZN1TZpM/k5LPDDL+tD2SGHjUFum4s=
 
 "use client";
 
@@ -773,7 +773,7 @@ export function PeekActions({ className, ...props }: PeekActionsProps) {
   return (
     <div
       data-slot="peek-actions"
-      className={cn("ms-auto flex shrink-0 items-center gap-0.5", className)}
+      className={cn("ms-auto flex shrink-0 items-center gap-1", className)}
       {...props}
     />
   );

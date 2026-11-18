@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.114.0 sha256-afHRHv2ystgDhvwvmsHiS7+QfS8XRBUYZqamaFS4bRg=
+// @vegastack record-layout@0.114.0 sha256-tBFwo4aC0JpuDfnVtEmaOjpGW0Xl6ZthPPLrp22V+vI=
 
 "use client";
 
@@ -495,7 +495,7 @@ export type RecordPanelProps = Omit<React.ComponentPropsWithRef<"aside">, "id">;
 
 /**
  * `RecordPanel` — the side panel itself, after `RecordLayoutMain` inside `RecordLayout`: an
- * `aside` of stacked `RecordPanelSection`s on the `panel` surface. It docks from 1088px (68rem) of record
+ * `aside` of stacked `RecordPanelSection`s on the page's own ground, behind a hairline. It docks from 1088px (68rem) of record
  * width, floats over the page below that (Escape or a click on the page closes it, and focus
  * returns to ▥), and is a bottom sheet on a phone. Never on a list page: rows open in `Peek`.
  *
@@ -637,7 +637,7 @@ export function RecordPanel({
         if (event.target === event.currentTarget) ctx.clearMotion();
       }}
       className={cn(
-        "hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-panel text-foreground outline-none",
+        "hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-background text-foreground outline-none",
         // From 68rem (1088px) of record width it docks: in the flow, as tall as the record, while open.
         "@min-[68rem]/record-layout:data-open:flex",
         // Narrower, ▥ floats it over the page, edge to edge under the bar, with a shadow.

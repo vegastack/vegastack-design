@@ -1,4 +1,4 @@
-// @vegastack shell@0.114.0 sha256-GENDr2oW1SUNCg5bqk3jihScFRNSubt6W3pI45kZ1Fk=
+// @vegastack shell@0.114.0 sha256-JIk+M+bXAwS0ZTHJg1iesUFj2gZYeFTMO9GvcwOE5ik=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -604,7 +604,7 @@ export function ShellTopBar({ className, ...props }: ShellTopBarProps) {
       data-shell-region="topbar"
       tabIndex={-1}
       className={cn(
-        "@container/shell-topbar flex h-(--shell-topbar-height) min-w-0 items-center gap-2 ps-3.5 pe-2.5 outline-none",
+        "@container/shell-topbar flex h-(--shell-topbar-height) min-w-0 items-center gap-1 border-b ps-3.5 pe-2.5 outline-none",
         className,
       )}
       {...props}
@@ -637,7 +637,7 @@ export function ShellTopBarTitle({
     <div
       data-slot="shell-topbar-title"
       className={cn(
-        "order-1 flex min-w-0 flex-1 items-center gap-1 text-sm",
+        "order-1 flex min-w-0 flex-1 items-center gap-1 pe-1 text-sm",
         className,
       )}
       {...props}
@@ -833,7 +833,7 @@ export function ShellTopBarAccount({
 const AccountSlot = topBarSlot(
   "shell-topbar-account",
   "order-8",
-  "hidden gap-2 @max-[40rem]/shell:flex",
+  "ms-1 hidden gap-2 @max-[40rem]/shell:flex",
 );
 
 /**
