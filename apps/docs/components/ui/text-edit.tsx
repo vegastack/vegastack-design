@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.116.0 sha256-bADS/iCjsyrYrTvrpoUxhWcp3epVSzbftwwfNp9qmq8=
+// @vegastack text-edit@0.116.0 sha256-AgGiXvWLXOvzH+e8Uxq97VCSTJ5SLC0/T+m6XamjCfo=
 
 "use client";
 
@@ -810,7 +810,7 @@ function DiffLegend({ baseline }: { baseline?: React.ReactNode }) {
  * (`self-end`); the text starts 8px in when nothing leads. One line of text is exactly the 24px row.
  * The text scrolls inside past about ten lines; the footer spans the row under it. Its corner is
  * the multi-line field's `rounded-card` (16), so as the text grows the box keeps a 16px corner
- * instead of turning into a stadium (Input's single line is the 8px `rounded-control`).
+ * instead of turning into a stadium (Input's single line is the 10px `rounded-control`).
  */
 const COMPOSER_ROOT = "grid min-h-8 items-end gap-x-1 bg-muted/30 p-[3px]";
 const COMPOSER_LEADING =

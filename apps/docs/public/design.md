@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 42655
-      sha256: "5ba598005699f83914c09c2db40a1d688652bebacfcb692eed7788927afe5885"
+      bytes: 42749
+      sha256: "bf0bccc7854c7c152e6e8c0c68f7732b1089b5acb36505f219ca653f45bd0d01"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 14682
@@ -139,7 +139,7 @@ themes:
     corner-item:
       type: "dimension"
       value: "0.625rem"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill in a list without dividers — menu, select, combobox, sidebar, tree, settings nav — and tooltips. Not table rows: they fill a square band (`row-fill`, amended 2026-11-19). A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
     corner-mark:
       type: "dimension"
       value: "0.25rem"
@@ -667,7 +667,7 @@ themes:
     corner-item:
       type: "dimension"
       value: "0.625rem"
-      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
+      description: "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill in a list without dividers — menu, select, combobox, sidebar, tree, settings nav — and tooltips. Not table rows: they fill a square band (`row-fill`, amended 2026-11-19). A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
     corner-mark:
       type: "dimension"
       value: "0.25rem"

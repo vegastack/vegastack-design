@@ -1067,7 +1067,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.116.0",
-        "integrity": "sha256-XIVvq1IrW/51tN9Hluo+cjJvGzUDk4k9JIjOZDdcBek="
+        "integrity": "sha256-M3iwCYw/sAqExyxdH452wvU9u2scc7xo52oDdTR2R5E="
       }
     },
     {
@@ -1775,7 +1775,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.116.0",
-        "integrity": "sha256-ULo7auVlRrtqbzov5eIVf9xqlPjZM4+RW7g5kfG2i48="
+        "integrity": "sha256-/MyCtawOc1rW0/zz9Y5Wdh8yhobBkR8+TGhA4nOvxeI="
       }
     },
     {
@@ -2271,7 +2271,7 @@
         "whenToUse": "The filters a ListToolbar's Filter tool opens: facets, applied chips, the AI note.",
         "whenNotToUse": "A single search box, or a condition builder (FilterBuilder in a dialog).",
         "version": "0.116.0",
-        "integrity": "sha256-r2sCqAS+9+7R8yuyjdN16gcvC1mbVxOwTuG06GiYj+w="
+        "integrity": "sha256-eSY0L8KddRw2vSlRI3VC1phD7IQ1uQuNrnTMaxrseYE="
       }
     },
     {
@@ -16699,7 +16699,7 @@
         "whenToUse": "Headings of a long document (TextEdit onOutlineChange, MarkdownView headingIds) as an “On this page” list or rail, with a trigger instance in the header below the rail's breakpoint.",
         "whenNotToUse": "App navigation between pages (Sidebar, NavigationMenu, Breadcrumb), or a folder hierarchy (FolderTree).",
         "version": "0.116.0",
-        "integrity": "sha256-2yhMEZc6zunDtAIAjrJ0kydUcALL23G73Iya6S9Rqxg="
+        "integrity": "sha256-t6JhFDwGppC5cub5IiPFJGe/0e5sTHc874XMlIJMiMU="
       }
     },
     {
@@ -19329,7 +19329,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.116.0",
-        "integrity": "sha256-bADS/iCjsyrYrTvrpoUxhWcp3epVSzbftwwfNp9qmq8="
+        "integrity": "sha256-AgGiXvWLXOvzH+e8Uxq97VCSTJ5SLC0/T+m6XamjCfo="
       }
     },
     {
@@ -23615,7 +23615,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.115.0",
-        "integrity": "sha256-IYcUTLvmplyUbfTJA0eoDgbBE1BhtodN17P0O2TCaoM="
+        "integrity": "sha256-b8QbyRL5lKSQ9G7bzN3OIaKojhs/asum4CKzLZOZDJw="
       }
     },
     {

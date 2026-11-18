@@ -1,4 +1,4 @@
-// @vegastack table-of-contents@0.116.0 sha256-2yhMEZc6zunDtAIAjrJ0kydUcALL23G73Iya6S9Rqxg=
+// @vegastack table-of-contents@0.116.0 sha256-t6JhFDwGppC5cub5IiPFJGe/0e5sTHc874XMlIJMiMU=
 
 "use client";
 
@@ -650,7 +650,8 @@ function TableOfContentsNav({
           sticky && [
             STICKY,
             STICKY_MAX_HEIGHT,
-            "relative overflow-y-auto overscroll-contain",
+            // `sticky` names the scroller's position (BRD-SCR); `relative` here would replace it.
+            "sticky overflow-y-auto overscroll-contain",
           ],
           className,
         )}

@@ -1,4 +1,4 @@
-// @vegastack data-grid@0.116.0 sha256-ULo7auVlRrtqbzov5eIVf9xqlPjZM4+RW7g5kfG2i48=
+// @vegastack data-grid@0.116.0 sha256-/MyCtawOc1rW0/zz9Y5Wdh8yhobBkR8+TGhA4nOvxeI=
 
 "use client";
 
@@ -1845,14 +1845,7 @@ interface GridRowProps<T> {
  * so a window move rewrites two `<col>`s rather than two cells in every row.
  */
 const SpacerCell = React.memo(function SpacerCell() {
-  return (
-    <td
-      aria-hidden="true"
-      data-slot="data-grid-spacer"
-      data-row-fill-skip=""
-      className="p-0"
-    />
-  );
+  return <td aria-hidden="true" data-slot="data-grid-spacer" className="p-0" />;
 });
 
 /**
@@ -1862,14 +1855,7 @@ const SpacerCell = React.memo(function SpacerCell() {
  * its width. It sits after the "+" column, which stays right beside the last real column.
  */
 const FillerCell = React.memo(function FillerCell() {
-  return (
-    <td
-      aria-hidden="true"
-      data-slot="data-grid-filler"
-      data-row-fill-skip=""
-      className="p-0"
-    />
-  );
+  return <td aria-hidden="true" data-slot="data-grid-filler" className="p-0" />;
 });
 
 /**
@@ -2025,9 +2011,7 @@ function GridRowImpl<T>({
       {w.fixed ? <SpacerCell /> : null}
       {w.center.map(cell)}
       {w.fixed ? <SpacerCell /> : null}
-      {w.trailing ? (
-        <td aria-hidden="true" data-row-fill-skip="" className="p-0" />
-      ) : null}
+      {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
       {w.fixed ? <FillerCell /> : null}
     </tr>
   );
@@ -2582,9 +2566,7 @@ function FixedSkeletonRows<T>({
           <SpacerCell />
           {w.center.map(bar)}
           <SpacerCell />
-          {w.trailing ? (
-            <td aria-hidden="true" data-row-fill-skip="" className="p-0" />
-          ) : null}
+          {w.trailing ? <td aria-hidden="true" className="p-0" /> : null}
           <FillerCell />
         </tr>
       ))}

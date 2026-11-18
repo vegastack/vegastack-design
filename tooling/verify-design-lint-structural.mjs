@@ -660,10 +660,12 @@ export function NamedByItsOwnChildren() {
     `<div className="min-h-0 overflow-y-auto">an unpositioned vertical scroller</div>`,
     `<div className="sm:overflow-auto p-4">a variant-scoped scroller</div>`,
     `<div className={cn("flex", open && "overflow-x-scroll")}>a conditional scroller</div>`,
+    `<div className="overflow-auto [&_svg]:size-4">a descendant selector is another box</div>`,
+    `<div className="overflow-auto md:relative">positioned only from md</div>`,
   ];
   writeFileSync(
     join(scrollerDir, "scroller.tsx"),
-    `export function Scrollers() {\n  return <>\n${scrollerForms.map((form) => `    ${form}`).join("\n")}\n    <div className="relative overflow-y-auto">positioned</div>\n    <div className="sticky top-0 overflow-x-auto">its own position</div>\n    <div className="overflow-hidden">not a scroller</div>\n  </>;\n}\n`,
+    `export function Scrollers() {\n  return <>\n${scrollerForms.map((form) => `    ${form}`).join("\n")}\n    <div className="relative overflow-y-auto">positioned</div>\n    <div className="sticky top-0 overflow-x-auto">its own position</div>\n    <div className="overflow-hidden">not a scroller</div>\n    <div className="md:relative md:overflow-auto">scrolls and is positioned from md</div>\n    <div className="relative [&_pre]:overflow-x-auto">the pre is another box</div>\n  </>;\n}\n`,
   );
   const scroller = run(scrollerDir);
   const scrollerReported = new Set(

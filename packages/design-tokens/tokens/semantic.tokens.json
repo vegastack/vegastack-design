@@ -943,7 +943,7 @@
       "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill — menu, select, combobox, sidebar, tree, list and table rows — and tooltips. A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill in a list without dividers — menu, select, combobox, sidebar, tree, settings nav — and tooltips. Not table rows: they fill a square band (`row-fill`, amended 2026-11-19). A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
   },
   "corner-block": {
     "$type": "dimension",

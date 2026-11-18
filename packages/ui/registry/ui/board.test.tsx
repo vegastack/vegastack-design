@@ -171,26 +171,15 @@ test("lanes are 20rem wide by default, grow, and the scroller hides its scrollba
   expect(document.querySelector('[data-slot="board-fade-end"]')).not.toBeNull();
 });
 
-test('height="fill" ends the board where its scroll area ends: the page never scrolls too (BRD-SCR)', async () => {
-  // A page scroller with a heading above the board and bottom padding below it, like the shell's
-  // content area: the board takes exactly what is left, so the only vertical scrollers are lanes.
-  await render(
-    <div
-      data-testid="page"
-      style={{ height: 600, overflowY: "auto", paddingBottom: 32 }}
-      className="relative flex flex-col gap-6"
-    >
-      <h1 style={{ height: 80 }}>Tasks</h1>
-      <Controlled height="fill" />
-    </div>,
-  );
-  const page = document.querySelector<HTMLElement>('[data-testid="page"]')!;
+test('height="fill" lanes scroll inside: the board carries a measured height', async () => {
+  await render(<Controlled height="fill" />);
   const board = document.querySelector<HTMLElement>('[data-slot="board"]')!;
+  // Measured against its scroll area, never guessed from the viewport (BRD-SCR); the page-level
+  // proof — no second scrollbar — is in the compiled-CSS geometry suite.
   await expect
     .poll(() => board.style.getPropertyValue("--board-height"))
     .toMatch(/px/);
   expect(board.className).toContain("h-(--board-height)");
-  expect(page.scrollHeight).toBeLessThanOrEqual(page.clientHeight);
   const body = document.querySelector<HTMLElement>(
     '[data-column="lead"] [data-slot="board-column-body"]',
   )!;

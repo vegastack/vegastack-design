@@ -1,4 +1,4 @@
-// @vegastack board@0.116.0 sha256-XIVvq1IrW/51tN9Hluo+cjJvGzUDk4k9JIjOZDdcBek=
+// @vegastack board@0.116.0 sha256-M3iwCYw/sAqExyxdH452wvU9u2scc7xo52oDdTR2R5E=
 
 "use client";
 
@@ -1338,10 +1338,13 @@ export function Board<T>({
     const scroller = scrollParent(root);
     const measure = () => {
       const rootTop = root.getBoundingClientRect().top;
-      // Inside a scroller, the board's top within its visible area; on the document, its top on
-      // the page (the phone, where the document scrolls).
+      // The board's top in its scroll area's CONTENT coordinates (a restored scroll position
+      // counts), or on the page when the document scrolls (the phone).
       const offset = scroller
-        ? rootTop - scroller.getBoundingClientRect().top - scroller.clientTop
+        ? rootTop -
+          scroller.getBoundingClientRect().top -
+          scroller.clientTop +
+          scroller.scrollTop
         : rootTop + window.scrollY;
       const area = scroller ? scroller.clientHeight : window.innerHeight;
       const next = Math.max(
@@ -1356,8 +1359,18 @@ export function Board<T>({
       typeof ResizeObserver === "undefined"
         ? null
         : new ResizeObserver(measure);
-    if (root.parentElement) observer?.observe(root.parentElement);
-    if (scroller) observer?.observe(scroller);
+    // Every box between the board and its scroller, and their children: a header or footer that
+    // grows or appears resizes one of them.
+    for (
+      let el = root.parentElement;
+      el && el !== scroller?.parentElement;
+      el = el.parentElement
+    ) {
+      observer?.observe(el);
+      for (const child of el.children)
+        if (child !== root) observer?.observe(child);
+      if (el === scroller) break;
+    }
     return () => {
       window.removeEventListener("resize", measure);
       observer?.disconnect();
@@ -2210,43 +2223,43 @@ function scrollParent(node: HTMLElement): HTMLElement | null {
 }
 
 /**
- * The height a page lays out after `node` inside `scroller`: every ancestor's bottom padding and
- * border, every following sibling's box and the margins between — measured from the boxes, so free
- * space inside the scroller never counts.
+ * The height a page lays out below `node` inside `scroller`, read from the boxes as they are: at
+ * every level up to the scroller, the lowest box that starts at or below the current box's bottom
+ * (a footer, the next grid row, a flex column's next item with its gap — `display: contents`
+ * wrappers flattened, boxes beside it ignored), then that level's bottom padding and border. Free
+ * space inside the scroller never counts, because only boxes are measured.
  */
 function contentAfter(node: HTMLElement, scroller: HTMLElement | null): number {
+  const boxes = (el: Element): Element[] =>
+    getComputedStyle(el).display === "contents"
+      ? [...el.children].flatMap(boxes)
+      : [el];
   let total = 0;
   for (let el: HTMLElement = node; ;) {
     const parent = el.parentElement;
-    total += parseFloat(getComputedStyle(el).marginBottom) || 0;
     if (!parent) break;
-    const ps = getComputedStyle(parent);
-    // In a flex row or a grid, siblings sit beside `el`, not below it.
-    const stacked =
-      ps.display === "block" ||
-      ps.display === "flow-root" ||
-      (ps.display.includes("flex") && ps.flexDirection.startsWith("column"));
-    if (stacked)
-      for (
-        let sib = el.nextElementSibling as HTMLElement | null;
-        sib;
-        sib = sib.nextElementSibling as HTMLElement | null
-      ) {
-        const sibStyle = getComputedStyle(sib);
+    const bottom = el.getBoundingClientRect().bottom;
+    let lowest = bottom + (parseFloat(getComputedStyle(el).marginBottom) || 0);
+    for (let sib = el.nextElementSibling; sib; sib = sib.nextElementSibling)
+      for (const box of boxes(sib)) {
+        const style = getComputedStyle(box);
         if (
-          sibStyle.display === "none" ||
-          sibStyle.position === "absolute" ||
-          sibStyle.position === "fixed"
+          style.display === "none" ||
+          style.position === "absolute" ||
+          style.position === "fixed"
         )
           continue;
-        total +=
-          sib.getBoundingClientRect().height +
-          (parseFloat(sibStyle.marginTop) || 0) +
-          (parseFloat(sibStyle.marginBottom) || 0) +
-          // A flex column's gap before each following item (`gap-*`, not a margin).
-          (ps.display.includes("flex") ? parseFloat(ps.rowGap) || 0 : 0);
+        const rect = box.getBoundingClientRect();
+        if (rect.top < bottom - 0.5) continue; // beside it, not below
+        lowest = Math.max(
+          lowest,
+          rect.bottom + (parseFloat(style.marginBottom) || 0),
+        );
       }
+    const ps = getComputedStyle(parent);
     total +=
+      lowest -
+      bottom +
       (parseFloat(ps.paddingBottom) || 0) +
       (parseFloat(ps.borderBottomWidth) || 0);
     if (parent === scroller || parent === document.body) break;

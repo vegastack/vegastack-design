@@ -2183,18 +2183,34 @@ function bareRingClass(text, classPosition) {
   return classShaped && beside ? bare : null;
 }
 
-/** BRD-SCR (k): a class string that scrolls (any variant) but names no position. */
+/**
+ * BRD-SCR (k): a class string with a scroller that names no position for it. Each
+ * `overflow-*-auto|scroll` utility on the element itself (a descendant or pseudo-element variant
+ * like `[&_pre]:` is another box) needs a position under the same variant or none: `md:relative`
+ * positions only from `md`, so it does not cover a bare `overflow-auto`.
+ */
 function unpositionedScroller(text) {
-  const utilities = text
+  const parsed = text
     .split(/\s+/)
-    .map((token) => token.slice(token.lastIndexOf(":") + 1));
-  if (
-    !utilities.some((u) => /^overflow-(?:[xy]-)?(?:auto|scroll)$/.test(u)) ||
-    text.includes("[&_")
-  )
-    return false;
-  return !utilities.some((u) =>
-    ["relative", "absolute", "fixed", "sticky"].includes(u),
+    .filter(Boolean)
+    .map((token) => {
+      const at = token.lastIndexOf(":");
+      return {
+        variant: at === -1 ? "" : token.slice(0, at),
+        utility: token.slice(at + 1).replace(/^!|!$/g, ""),
+      };
+    })
+    .filter(({ variant }) => !/(^|:)(?:\[|\*|before$|after$)/.test(variant));
+  const positioned = (variant) =>
+    parsed.some(
+      (p) =>
+        ["relative", "absolute", "fixed", "sticky"].includes(p.utility) &&
+        (p.variant === "" || p.variant === variant),
+    );
+  return parsed.some(
+    (p) =>
+      /^overflow-(?:[xy]-)?(?:auto|scroll)$/.test(p.utility) &&
+      !positioned(p.variant),
   );
 }
 

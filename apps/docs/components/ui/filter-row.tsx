@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.116.0 sha256-r2sCqAS+9+7R8yuyjdN16gcvC1mbVxOwTuG06GiYj+w=
+// @vegastack filter-row@0.116.0 sha256-eSY0L8KddRw2vSlRI3VC1phD7IQ1uQuNrnTMaxrseYE=
 
 "use client";
 
@@ -601,8 +601,8 @@ function FilterChipText({
 /**
  * `FilterChip` — a single removable filter pill: a `label`, an optional `value`
  * after a colon, and a trailing `×` control that fires `onRemove`. The Chip
- * primitive in the filter row's one chip shape — the toolbar's tool height inside a `FilterRow`
- * (28px elsewhere), a pill (`rounded-chip`), quiet type — the same shape as a `ListFacet`. An applied filter is a selection, so it carries the
+ * primitive in the filter row's one chip shape — 28px, a pill (`rounded-chip`), 12px type — the
+ * same shape as a `ListFacet`. An applied filter is a selection, so it carries the
  * tinted fill by default; pass `active={false}` for a plain presence chip.
  * Purely presentational; `FilterRow` renders one per applied filter.
  *

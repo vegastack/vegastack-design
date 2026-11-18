@@ -60,6 +60,7 @@ import {
 } from "../registry/ui/multi-step-form";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
 import { GlobalBar, GlobalBarCenter } from "../registry/ui/global-bar";
+import { Board } from "../registry/ui/board";
 import { GlobalBarSearch } from "../registry/ui/global-bar-client";
 import { SortableList } from "../registry/ui/sortable-list";
 import {
@@ -5187,4 +5188,53 @@ test("the top bar's search: a capsule whose search and Ask sit 3px in on every s
   expectConcentric(box, search);
   expectConcentric(box, ask);
   await bar.unmount();
+});
+
+test('a "fill" board ends where its page scrolls: one vertical scroller, never two (BRD-SCR, 2026-11-19)', async () => {
+  await page.viewport(1280, 800);
+  const cards = Array.from({ length: 30 }, (_, i) => ({
+    id: `c${i}`,
+    name: `Card ${i}`,
+  }));
+  const fixture = (layout: "flex" | "grid") => (
+    <div
+      data-testid="page"
+      className={
+        layout === "flex"
+          ? "relative flex h-[600px] flex-col gap-6 overflow-y-auto pb-8"
+          : "relative grid h-[600px] auto-rows-min gap-6 overflow-y-auto pb-8"
+      }
+    >
+      <h1 className="h-20 shrink-0">Tasks</h1>
+      <Board<{ id: string; name: string }>
+        aria-label="Deals"
+        height="fill"
+        columns={[
+          { id: "a", title: "A", items: cards },
+          { id: "b", title: "B", items: cards.slice(0, 3) },
+        ]}
+        getItemId={(card) => card.id}
+        getItemLabel={(card) => card.name}
+        renderCard={(card) => <span>{card.name}</span>}
+      />
+      {/* A footer after the board, flattened through a display:contents wrapper. */}
+      <div className="contents">
+        <footer className="h-10 shrink-0">Footer</footer>
+      </div>
+    </div>
+  );
+  for (const layout of ["flex", "grid"] as const) {
+    const screen = await render(fixture(layout));
+    const scroller = screen.getByTestId("page").element() as HTMLElement;
+    const board = document.querySelector<HTMLElement>('[data-slot="board"]')!;
+    await expect
+      .poll(() => board.style.getPropertyValue("--board-height"))
+      .toMatch(/px/);
+    await expect
+      .poll(() => scroller.scrollHeight - scroller.clientHeight, {
+        message: `${layout}: the page scrolls besides the lanes`,
+      })
+      .toBeLessThanOrEqual(0);
+    await screen.unmount();
+  }
 });
