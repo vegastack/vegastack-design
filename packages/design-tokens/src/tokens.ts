@@ -249,7 +249,7 @@ export const tokens = {
     "sidebar-accent-foreground": "oklch(0.985 0 0)",
     "sidebar-border": "oklch(1 0 0 / 0.1)",
     "sidebar-ring": "oklch(0.922 0 0)",
-    "shell-canvas": "oklch(0.145 0 0)",
+    "shell-canvas": "oklch(0.235 0 0)",
     "shell-card": "oklch(0.185 0 0)",
     "shell-column": "oklch(0.165 0 0)",
     "radius": "0.625rem",

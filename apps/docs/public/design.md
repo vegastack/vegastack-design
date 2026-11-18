@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 40238
-      sha256: "b05ecfe8b086621300f036a196bb726d11d6f0ce81632467ebed3c2be6778dd4"
+      bytes: 40413
+      sha256: "2bec09923d6c2ad39f0a650daf7c32383078929a1eab88695c5574272cd0603f"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 14508
-      sha256: "e2b4eb6c53da58e58134a18a813e192db3d0b035111d203889e3637343f65f76"
+      sha256: "b536c769ffb605b311d5477c9305192dad562c15dcacc48c374dd1735da95666"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -355,11 +355,11 @@ themes:
     shell-canvas:
       type: "color"
       value: "oklch(0.964 0 0)"
-      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the window's ground around the frame's card. The global bar and the rail sit on it (light about #F3F3F3, a step under `muted`, dark about #0A0A0A). Read it as `bg-shell-canvas`."
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the window's ground around the frame's card. The global bar and the rail sit on it (light about #F3F3F3, a step under `muted` and below the card; dark about #1E1E1E, a step above the card, so in dark the ground is the lighter of the two, Regent operator 2026-11-18). Read it as `bg-shell-canvas`."
     shell-card:
       type: "color"
       value: "oklch(1 0 0)"
-      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, one step above the canvas in both themes (light white, dark about #131313). The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground: in light one step above the canvas (white), in dark one step below it (about #131313 on the #1E1E1E canvas). The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
     shell-card-inset:
       type: "dimension"
       value: "0.5rem"
@@ -371,7 +371,7 @@ themes:
     shell-column:
       type: "color"
       value: "oklch(0.985 0 0)"
-      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the module column inside the card, between the canvas and the card (light the same as `sidebar`, dark about #0E0E0E). The shell sets `--sidebar` to it inside the column. Read it as `bg-shell-column`."
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the module column inside the card (light the same as `sidebar`, between the canvas and the card; dark about #0E0E0E, a step under the card). The shell sets `--sidebar` to it inside the column. Read it as `bg-shell-column`."
     shell-column-width:
       type: "dimension"
       value: "15rem"
@@ -862,7 +862,7 @@ themes:
       description: "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 56px: the phone bottom tab bar, plus `env(safe-area-inset-bottom)` (L13)."
     shell-canvas:
       type: "color"
-      value: "oklch(0.145 0 0)"
+      value: "oklch(0.235 0 0)"
     shell-card:
       type: "color"
       value: "oklch(0.185 0 0)"
