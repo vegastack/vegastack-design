@@ -40,7 +40,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/menubar.tsx b/menubar.tsx
-index de8698e..1496b96 100644
+index de8698e..454f8f9 100644
 --- a/menubar.tsx
 +++ b/menubar.tsx
 @@ -1,9 +1,9 @@
@@ -79,7 +79,7 @@ index de8698e..1496b96 100644
        className={cn(
 -        "flex h-8 items-center gap-0.5 rounded-lg border p-[3px]",
 -        className
-+        "flex h-8 items-center gap-0.5 rounded-control border p-[3px]",
++        "flex h-8 items-center gap-0.5 rounded-control border p-0.5",
 +        className,
        )}
        {...props}
@@ -114,7 +114,7 @@ index de8698e..1496b96 100644
        className={cn(
 -        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium outline-hidden select-none hover:bg-muted aria-expanded:bg-muted",
 -        className
-+        "flex items-center rounded-control px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
++        "flex items-center rounded-segment px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
 +        className,
        )}
        {...props}

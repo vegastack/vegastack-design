@@ -41,7 +41,7 @@
 #     (no ring or glow; invalid keeps only its destructive border), and read-only as the `readonly`
 #     fill on a transparent border.
 diff --git a/input-group.tsx b/input-group.tsx
-index 2e3e7cd..5542c8d 100644
+index 2e3e7cd..7b4b979 100644
 --- a/input-group.tsx
 +++ b/input-group.tsx
 @@ -1,36 +1,37 @@
@@ -131,13 +131,13 @@ index 2e3e7cd..5542c8d 100644
      variants: {
        size: {
 -        xs: "h-6 gap-1 rounded-[calc(var(--radius)-3px)] px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
-+        xs: "h-6 gap-1 rounded-control px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
++        xs: "h-6 gap-1 rounded-segment px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
          sm: "",
 -        "icon-xs":
 -          "size-6 rounded-[calc(var(--radius)-3px)] p-0 has-[>svg]:p-0",
 -        "icon-sm": "size-8 p-0 has-[>svg]:p-0",
-+        "icon-xs": "size-6 rounded-icon p-0 has-[>svg]:p-0",
-+        "icon-sm": "size-7 rounded-icon p-0 has-[>svg]:p-0",
++        "icon-xs": "size-6 rounded-segment p-0 has-[>svg]:p-0",
++        "icon-sm": "size-7 rounded-segment p-0 has-[>svg]:p-0",
        },
      },
      defaultVariants: {

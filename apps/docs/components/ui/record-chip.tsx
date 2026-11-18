@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.114.0 sha256-j8XkwVr/PzEIQ1emLxek2RDm/1aGE4g+Cc/Vi1AlWF8=
+// @vegastack record-chip@0.114.0 sha256-PQ0zHBhFYFgVTQoOP8hQMYYQlCb/KIWj5pguoLK/gBQ=
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";
@@ -148,7 +148,7 @@ export const splitChipButtonClassName =
 
 /** Classes of a SplitChip's icon segment: a 24px circle (the 24px hit area). */
 export const splitChipIconActionClassName =
-  "inline-flex size-6 shrink-0 items-center justify-center rounded-icon text-muted-foreground transition-colors state-layer hover:text-foreground [&_svg]:size-3.5";
+  "inline-flex size-6 shrink-0 items-center justify-center rounded-capsule text-muted-foreground transition-colors state-layer hover:text-foreground [&_svg]:size-3.5";
 
 /**
  * A SplitChip's main segment — a ghost `Button` sized to the shared inset.

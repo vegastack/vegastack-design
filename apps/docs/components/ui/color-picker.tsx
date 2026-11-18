@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.114.0 sha256-4uzpc3TQdATXKaC8HDbn4grNzn4cT0sf/49t+CaYcqI=
+// @vegastack color-picker@0.114.0 sha256-9pavZ2XgfiezJMyKh5LOHEFjLW8VR7NK5dkBYjv6yjA=
 
 "use client";
 
@@ -173,7 +173,7 @@ export interface ColorPickerProps {
 }
 
 /**
- * `ColorPicker` — pick a preset color from a popover grid. The trigger is a round icon control
+ * `ColorPicker` — pick a preset color from a popover grid. The trigger is an icon control
  * (`rounded-icon`) showing the current selection; opening it reveals the palette, and selecting a swatch fires
  * `onValueChange` (with the color's `name`) and marks that swatch with a persistent outer-cell border.
  *
@@ -281,7 +281,7 @@ export function ColorPicker({
               onValueChange?.(color.name);
               commit();
             }}
-            className={cn(isSelected && "border-primary")}
+            className={cn("rounded-capsule", isSelected && "border-primary")}
           >
             <span
               data-slot="color-picker-swatch"

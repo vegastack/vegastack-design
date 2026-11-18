@@ -36,7 +36,7 @@ const TRACE_DATA = {
     tokens: [
       ["--primary", "action ink"],
       ["--primary-foreground", "on-action text"],
-      ["--corner-control", "pill"],
+      ["--corner-control", "8px"],
       ["--duration-fast", "150ms"],
     ],
   },

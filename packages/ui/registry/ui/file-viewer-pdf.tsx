@@ -1,4 +1,4 @@
-// @vegastack file-viewer@0.114.0 sha256-A3OHbS7g7unRUcbZVM9arjWHUwl0LyWVk9i0CvtJQR0=
+// @vegastack file-viewer@0.114.0 sha256-5Yt/io2sV1e466ezlIrjY7Lx+3tv4QKHt5Ee04ZHtOo=
 
 "use client";
 
@@ -245,7 +245,7 @@ export function FileViewerPdf({
           data-slot="file-viewer-pdf-toolbar"
           className="absolute inset-x-0 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] flex justify-center"
         >
-          <div className="flex items-center gap-1 rounded-control border border-border bg-popover/90 p-1 text-popover-foreground shadow-md backdrop-blur-sm">
+          <div className="flex items-center gap-1 rounded-capsule border border-border bg-popover/90 capsule-scope p-1 text-popover-foreground shadow-md backdrop-blur-sm">
             <Button
               variant="ghost"
               size="icon-sm"

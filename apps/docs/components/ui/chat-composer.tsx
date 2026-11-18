@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.114.0 sha256-dXe+gmOaTpiC30XC+3lr2O+uJet5PsFsL2Zn8ZmCNUg=
+// @vegastack chat-composer@0.114.0 sha256-piP0q5ccP5MAXXgT70ey7H2VJQQw7mZG27KuP8xNMFI=
 
 "use client";
 
@@ -49,7 +49,8 @@ import {
  *   ╰──────────────────────────────────────────────────────╯
  *
  * One radius: the card is `rounded-overlay` (24px, the grown composer). Everything inside is
- * concentric with it: the header and the actions row sit 6px in with pill and circle 32px controls,
+ * concentric with it: the header and the actions row sit 6px in, so 24 − 6 leaves a full circle on
+ * their 32px controls (`capsule-scope`: pills and circles),
  * the attachments 10px in with `rounded-tile` thumbnails and pill (`rounded-chip`) file chips. A
  * `ChatComposerNotice` runs edge to edge on the top edge. Steers wait above the card, a failed send says so under it.
  * ----------------------------------------------------------------------------------------------*/
@@ -490,7 +491,7 @@ export function ChatComposer({
           className={cn(
             // One radius; the hairline darkens a little while the text has focus (FOC-14's
             // text-entry cue). Nothing on it ever turns red: a failed send says so under it.
-            "relative flex min-w-0 flex-col overflow-hidden rounded-overlay border border-chat-hairline bg-background transition-[border-color] duration-quick ease-standard has-[[contenteditable=true]:focus]:border-input-focus",
+            "relative flex min-w-0 flex-col overflow-hidden rounded-overlay capsule-scope border border-chat-hairline bg-background transition-[border-color] duration-quick ease-standard has-[[contenteditable=true]:focus]:border-input-focus",
             disabled && "bg-muted/40",
           )}
           onMouseDown={(event) => {
@@ -902,7 +903,7 @@ function AttachmentItem({
       data-slot="chat-composer-attachment-remove"
       disabled={disabled}
       onClick={() => onRemove(id)}
-      className="size-6 text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
+      className="size-6 rounded-capsule text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
     >
       <X aria-hidden />
     </Button>
@@ -939,6 +940,7 @@ function AttachmentItem({
                 aria-label={retryLabel}
                 disabled={disabled}
                 onClick={() => onRetry(id)}
+                className="rounded-capsule"
               >
                 <RotateCw aria-hidden />
               </Button>
@@ -994,7 +996,7 @@ function AttachmentItem({
           aria-label={retryLabel}
           disabled={disabled}
           onClick={() => onRetry(id)}
-          className="size-6 text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
+          className="size-6 rounded-capsule text-muted-foreground hover:text-foreground [&_svg:not([class*='size-'])]:size-3"
         >
           <RotateCw aria-hidden />
         </Button>

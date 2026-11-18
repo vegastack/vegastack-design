@@ -1,0 +1,7 @@
+---
+"@vegastack/ui": minor
+"@vegastack/design-tokens": minor
+"@vegastack/design": minor
+---
+
+⚠️ Corners: capsule or rounded rectangle (BRD-12, amended). Controls in the page are now rounded rectangles: `--corner-control` and `--corner-icon` are 8px, so Button at every size, icon buttons, Input, Select, InputGroup, search fields, Toggle, ToggleGroup, TabsList and Menubar read as one family with rows and cards. Two new roles: `rounded-segment` (6px, a control inside a control — tab triggers, Menubar items, buttons inside a field, kept concentric with a 2px inset) and `rounded-capsule` (only what floats or stands alone — `ActionBar`, the sticky audio bar, block, image and PDF hover toolbars, floating editor and markdown toolbars, controls over video — and the buttons inside them, which are circles). A new `capsule-scope` utility re-points the control roles to the capsule for everything inside a floating bar, so composed buttons, tooltip and menu triggers become circles; the chat composer takes it too (24px card, controls 6px in). A floating panel that wraps or holds a form stays a card. Calendar days, colour swatches, chip and combobox remove buttons, the split chip's icon segment, carousel and file-viewer arrows, scroll-to-latest and floating document buttons are circles or capsules; clear buttons inside fields are `rounded-segment`. `cn()` merges the new roles. design-lint gains `floating-capsule`: a `fixed`, `sticky` or shadowed `absolute` part can't wear `rounded-control` or `rounded-icon`. Foundations › Radius gains "Capsule or rounded rectangle".

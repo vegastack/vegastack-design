@@ -1,4 +1,4 @@
-// @vegastack icon-picker@0.114.0 sha256-ADCZ0FbU0jZEJhKhMXgEGOOApN5/c0iZNidBg7o9fE4=
+// @vegastack icon-picker@0.114.0 sha256-nlZIDNH4yfz16CAS6+WWwLZlFlBgOPzXb0+htH5YhrM=
 
 "use client";
 import * as React from "react";
@@ -256,7 +256,7 @@ export function IconPicker({
               title={option.label}
               tabIndex={index === checkedHueIndex ? 0 : -1}
               // The selected picker cell's own cue — the button's 1px border in `primary` — not a ring.
-              className="shrink-0 aria-checked:border-primary"
+              className="shrink-0 rounded-capsule aria-checked:border-primary"
               ref={(node) => {
                 swatchRefs.current[index] = node;
               }}

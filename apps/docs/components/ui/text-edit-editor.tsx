@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.114.0 sha256-xuDoPF5tHmrrU96aDieUzS6mJe0PPc8pY8yXxdKbLdg=
+// @vegastack text-edit@0.114.0 sha256-86C9O409fZJNm//zcYs871MKofpR5WJApGV7Cw7Usnw=
 
 "use client";
 
@@ -3533,7 +3533,7 @@ const IMAGE_HANDLE = cn(
 );
 /** The hover toolbar's frame: top-right on the image, a blurred translucent pill. */
 const IMAGE_MENU_SLOT =
-  "absolute end-2 top-2 z-20 flex items-center gap-0.5 rounded-control border border-border bg-background/70 p-0.5 shadow-sm backdrop-blur-sm opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden empty:hidden data-narrow:hidden";
+  "absolute end-2 top-2 z-20 flex items-center gap-0.5 rounded-capsule capsule-scope border border-border bg-background/70 p-0.5 shadow-sm backdrop-blur-sm opacity-0 transition-opacity duration-150 group-hover/image:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 in-[.ProseMirror-selectednode]:opacity-100 group-data-[resize-state=true]/image:hidden empty:hidden data-narrow:hidden";
 const IMAGE_CAPTION =
   "mt-1.5 max-w-full text-sm leading-snug text-muted-foreground wrap-break-word select-text";
 const IMAGE_SIZE_LABEL =
@@ -6438,11 +6438,12 @@ const LINK_INVALID =
 const MENU_SURFACE =
   "z-50 rounded-card border border-border bg-popover p-1 text-popover-foreground shadow-md";
 /**
- * A single-line floating toolbar (the paste offers, the link card): a pill (`rounded-control`), its
- * buttons pills and circles inside.
+ * A single-line floating toolbar (the paste offers, the link card): a capsule (`rounded-capsule`, it
+ * floats) whose controls are capsules and circles (`capsule-scope`). The selection bubble can wrap
+ * onto a second row, so it is a floating panel on `MENU_SURFACE` (`rounded-card`), not a capsule.
  */
 const TOOLBAR_SURFACE =
-  "z-50 rounded-control border border-border bg-popover p-1 text-popover-foreground shadow-md";
+  "z-50 rounded-capsule border border-border bg-popover p-1 text-popover-foreground shadow-md capsule-scope";
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS = TEXT_EDIT_SESSION_SELECTOR;
@@ -7766,10 +7767,10 @@ function startDrag(
 }
 
 const GRIP =
-  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-icon text-muted-foreground/70 state-layer hover:text-foreground active:cursor-grabbing data-popup-open:bg-state-selected data-popup-open:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
+  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-capsule text-muted-foreground/70 state-layer hover:text-foreground active:cursor-grabbing data-popup-open:bg-state-selected data-popup-open:text-foreground [&_svg]:size-4 [&_svg]:shrink-0";
 /** A row or column grip: a small pill on the table's inner edge, over the cell padding. */
 const LINE_GRIP =
-  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-icon border border-border bg-background text-muted-foreground state-layer hover:text-foreground active:cursor-grabbing data-popup-open:layer-selected data-popup-open:text-foreground [&_svg]:size-3";
+  "fixed z-50 flex cursor-grab touch-none items-center justify-center rounded-capsule border border-border bg-background text-muted-foreground state-layer hover:text-foreground active:cursor-grabbing data-popup-open:layer-selected data-popup-open:text-foreground [&_svg]:size-3";
 /** Notion's "+" bars below and beside a table. */
 const ADD_BAR =
   "fixed z-50 size-auto min-w-0 bg-muted/50 text-muted-foreground/70 state-layer hover:text-foreground [&_svg]:size-3";

@@ -1,4 +1,4 @@
-// @vegastack chip@0.114.0 sha256-ujWvYd6+3V2W/ilHUJn0zdgjdVZvG31Oew6w+sFCDJs=
+// @vegastack chip@0.114.0 sha256-H1Llt6OBPofSDfvB226ZFyvzrpSYkWvSGbGPdnnZgSM=
 
 "use client";
 
@@ -211,7 +211,7 @@ export type ChipRemoveProps = React.ComponentProps<typeof Button> & {
 /**
  * `ChipRemove` — the trailing `×` on a {@link Chip}. A round, ghost, 24×24 `Button size="icon-xs"`: the real
  * border box IS the WCAG 2.5.8 target, so no invisible `::before` expansion is involved and nothing
- * can clip it. The circle (`rounded-icon`, BRD-12) would cut the box's corners out of hit testing, so
+ * can clip it. The circle (`rounded-capsule`: a button inside a pill is a circle, BRD-12) would cut the box's corners out of hit testing, so
  * an `::after` at `inset-0` — inside the border box, where a `<button>` does not clip it — keeps the
  * whole square hittable while the hover stays round. (`Tag`'s old pseudo-element hit area silently failed to expand anything at all —
  * Preflight's `appearance: button` clips generated content to a nested `<button>`'s own border box,
@@ -237,7 +237,7 @@ export function ChipRemove({
       size="icon-xs"
       data-slot={dataSlot ?? "chip-remove"}
       className={cn(
-        "shrink-0 after:absolute after:inset-0 active:not-aria-[haspopup]:translate-y-0",
+        "shrink-0 rounded-capsule after:absolute after:inset-0 active:not-aria-[haspopup]:translate-y-0",
         className,
       )}
       {...props}

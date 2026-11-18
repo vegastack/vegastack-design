@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.114.0 sha256-B2ZxLsw04S47J7Nj9r/I+U6aad5FD1bbZtQpqOG9+Y4=
+// @vegastack view-tabs@0.114.0 sha256-c3S+PH+cFdouwHfsI2UiskCq9eIJLRLmomEEiA0jTd4=
 
 "use client";
 
@@ -41,7 +41,7 @@ breakpoint — the row becomes one `Select` with the same two groups (its `+` an
 become one ⋯ menu, so the select keeps room for the name), and goes back to tabs as soon as they fit
 again. The root is not a size container, so a host can size it to its tabs.
 
-It is built on the same pill `Tabs` as every page's scope tabs (same height, same look), and folds
+It is built on the same segmented `Tabs` as every page's scope tabs (same height, same look), and folds
 into its select instead of scrolling. It
 is NOT the `ListToolbar` Layout tool: there "Grid" means a card grid, here it means a table.
 
@@ -441,7 +441,7 @@ export function ViewTabs({
         "relative flex w-full min-w-0 items-center gap-1",
         // Collapsed, the measuring tab row is wider than the room: clipped sideways, it never
         // widens the page (vertically the select's focus and popup stay unclipped).
-        // Folded, it keeps the pill row's 32px, so the toolbar below stays 12px away (T27).
+        // Folded, it keeps the tab row's 32px, so the toolbar below stays 12px away (T27).
         narrow && "h-8 overflow-x-clip",
         className,
       )}

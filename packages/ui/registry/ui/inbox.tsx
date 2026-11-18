@@ -1,4 +1,4 @@
-// @vegastack inbox@0.114.0 sha256-caFWhcyCKFYNA976eXGhipj4td6EJwVo8vJNnr9DfxE=
+// @vegastack inbox@0.114.0 sha256-ASfQUbRPKR4wBGb8CaTpTEq1XEGzN5+DwpgAhn2vDT8=
 
 "use client";
 
@@ -545,7 +545,7 @@ export function InboxFilters({
         onValueChange={(next) => onValueChange(String(next))}
         className="max-w-full min-w-0 grow"
       >
-        {/* The list pages' pill tabs, folding by measurement (`overflow="menu"`), so a triage queue
+        {/* The list pages' segmented tabs, folding by measurement (`overflow="menu"`), so a triage queue
             reads as a list. */}
         <TabsList aria-label={label} overflow="menu">
           {tabs.map((tab) => (

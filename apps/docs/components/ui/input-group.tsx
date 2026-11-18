@@ -1,4 +1,4 @@
-// @vegastack input-group@0.114.0 sha256-rStz+FOni+SElA340weGmzhCyNhJwO+jhqmoj2p690c=
+// @vegastack input-group@0.114.0 sha256-4KWwJu9IP532LwYCs/kKAu0/le7Kf0BD3vO3koE9vlc=
 
 "use client";
 
@@ -76,10 +76,10 @@ const inputGroupButtonVariants = cva(
   {
     variants: {
       size: {
-        xs: "h-6 gap-1 rounded-control px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
+        xs: "h-6 gap-1 rounded-segment px-1.5 [&>svg:not([class*='size-'])]:size-3.5",
         sm: "",
-        "icon-xs": "size-6 rounded-icon p-0 has-[>svg]:p-0",
-        "icon-sm": "size-7 rounded-icon p-0 has-[>svg]:p-0",
+        "icon-xs": "size-6 rounded-segment p-0 has-[>svg]:p-0",
+        "icon-sm": "size-7 rounded-segment p-0 has-[>svg]:p-0",
       },
     },
     defaultVariants: {

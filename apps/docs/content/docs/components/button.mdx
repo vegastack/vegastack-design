@@ -80,10 +80,13 @@ correct spacing.
 
 ### Rounded
 
-Every button is a pill (`rounded-control`) at every size, and an icon-only button (`size="icon*"`)
-is a circle (`rounded-icon`), so its hover is round too. There is no shape to opt into: don't add
-`rounded-full` or another radius class to a Button. The one exception is a Button acting as a
-full-width row in a list or menu, which takes the row's `rounded-item`.
+In the page every button is a rounded rectangle (`rounded-control`, 8px) at every size, and an
+icon-only button (`size="icon*"`) is a rounded square with the same corner (`rounded-icon`), so a
+toolbar reads as one family. The container decides the exceptions, never the button: inside a
+floating bar or over media a button is a circle or capsule (the bar sets `rounded-capsule` on its
+buttons), inside a field it is concentric (`rounded-segment`), and a Button acting as a full-width row
+in a list or menu takes the row's `rounded-item`. Don't add `rounded-full` to a Button. See
+[Radius](/docs/foundations/radius#capsule-or-rounded-rectangle).
 
 <ComponentPreview name="buttonRounded" file="components/preview/button.tsx" />
 

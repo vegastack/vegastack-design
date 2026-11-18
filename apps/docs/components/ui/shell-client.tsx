@@ -1,4 +1,4 @@
-// @vegastack shell@0.114.0 sha256-GENDr2oW1SUNCg5bqk3jihScFRNSubt6W3pI45kZ1Fk=
+// @vegastack shell@0.114.0 sha256-ewGui6XznP0hQF1hq4uq3g+zJclWkhEUHfgrhckyz3E=
 
 "use client";
 
@@ -707,7 +707,7 @@ export function ShellSkipLink() {
           ?.querySelector<HTMLElement>('[data-slot="shell-content"]')
           ?.focus();
       }}
-      className="sr-only rounded-control bg-background px-3 py-1.5 text-sm font-medium shadow-md focus:not-sr-only focus:absolute focus:start-2 focus:top-2 focus:z-50"
+      className="sr-only rounded-capsule bg-background px-3 py-1.5 text-sm font-medium shadow-md focus:not-sr-only focus:absolute focus:start-2 focus:top-2 focus:z-50"
     >
       Skip to content
     </a>

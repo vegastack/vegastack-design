@@ -1,4 +1,4 @@
-// @vegastack comments@0.114.0 sha256-VkZchqY1NB1BmKv5f7Rj9oB98jnRPWT6RqTMA8Wq9e0=
+// @vegastack comments@0.114.0 sha256-5F3YWqiCJm3w/ZJHzjamT7cd+wTvU6haqk3WdaI6/Is=
 
 "use client";
 
@@ -79,7 +79,7 @@ import { useMediaQuery } from "@/components/ui/use-media-query";
  * relative time, "(edited)", hover actions (add reaction, a ⋯ menu with Reply / Copy link / Copy
  * text / Edit / Delete), in-place editing with ✕ / ✓ in the header, files and reaction pills under
  * the body. `CommentComposer` is a bordered card: the text on top and a toolbar row (attach, a
- * round ↑ send) under it; Cmd/Ctrl+Enter sends and files drop onto it. `CommentList` is the
+ * ↑ send icon button) under it; Cmd/Ctrl+Enter sends and files drop onto it. `CommentList` is the
  * section: "Comments N", an Oldest / Newest first toggle, day dividers, older pages on scroll, and the
  * composer at the end (at the top while newest first). The parts hold only transient UI state —
  * the host owns the data and persists through callbacks; a callback that returns a promise drives
@@ -922,7 +922,7 @@ export function CommentMedia({
                 size="icon-xs"
                 aria-label={`Remove ${item.name}`}
                 onClick={item.onRemove}
-                className="absolute end-1 top-1 z-10 shadow-sm"
+                className="absolute end-1 top-1 z-10 rounded-capsule shadow-sm"
               >
                 <X aria-hidden />
               </Button>
@@ -1295,7 +1295,7 @@ function CommentBox({
 }
 
 /**
- * The round ↑ send button. Disabled (nothing to send) it turns into a quiet grey disc with a
+ * The ↑ send icon button (`rounded-icon`). Disabled (nothing to send) it turns into a quiet grey square with a
  * full-strength muted arrow rather than a half-transparent primary one, so it still reads clearly.
  */
 function SendButton({
@@ -1440,7 +1440,7 @@ export interface CommentComposerProps {
 /**
  * `CommentComposer` — a bordered card holding a Markdown editor that grows with its text (two
  * lines at rest, about twelve before it scrolls inside), the draft's files under it, and a toolbar
- * row with the attach button and a round ↑ send button at its end, disabled while the box is
+ * row with the attach button and an ↑ send icon button at its end, disabled while the box is
  * empty; Cmd/Ctrl+Enter sends too. Files dragged over it show "Drop files to attach".
  *
  * @example

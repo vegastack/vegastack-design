@@ -54,7 +54,7 @@ point of the release, not side effects.
 | A warm neutral ramp (OKLCH hue 75)                                          | shadcn's own `neutral` — pure achromatic. Light `background` is white                                                                                                                                                                                                                                                      |
 | A three-rung surface ladder (`surface-1/2/3`) driving every hover and press | `muted` for a well or track, `accent` for a hover; each component writes its own hover and press                                                                                                                                                                                                                           |
 | Every control had a pressed step, enforced by lint                          | A hover with no pressed step is upstream's own behaviour and is fine                                                                                                                                                                                                                                                       |
-| Radius capped at `rounded-lg`; `rounded-xl` banned                          | Corner roles (BRD-12): a single-line control is a pill (`rounded-control`), a row `rounded-item`, a card `rounded-card`, a dialog `rounded-overlay`                                                                                                                                                                        |
+| Radius capped at `rounded-lg`; `rounded-xl` banned                          | Corner roles (BRD-12): an in-page control is an 8px rounded rectangle (`rounded-control`), a floating bar a capsule (`rounded-capsule`), a row `rounded-item`, a card `rounded-card`, a dialog `rounded-overlay`                                                                                                           |
 | One sanctioned shadow (`--shadow-overlay`), everything else flat            | `shadow-sm` / `shadow-md` / `shadow-lg`, per component, as shadcn uses them                                                                                                                                                                                                                                                |
 | A 14px product type scale bound onto every `text-*` utility                 | Tailwind's stock scale. `text-sm` is 14px, `text-base` is 16px — see section 5                                                                                                                                                                                                                                             |
 | Weight ladder 400/500; `font-semibold` and `font-bold` were lint errors     | Ordinary utilities. `blur-*`, `shadow-*` and `text-4xl` are ordinary too; the ramp owns tracking                                                                                                                                                                                                                           |
@@ -62,7 +62,7 @@ point of the release, not side effects.
 | Three named z-bands (`--z-raised/overlay/toast`)                            | `z-50` and DOM order; only the Toast viewport sits above it, at `z-60`                                                                                                                                                                                                                                                     |
 | The modal scrim was `--overlay` at 28% alpha                                | Upstream's `bg-black/10` with a `backdrop-blur-xs` — noticeably lighter                                                                                                                                                                                                                                                    |
 | `Sheet` ran on Base UI **Drawer** (swipe, snap points)                      | `Sheet` is Base UI **Dialog** with `side` on the content; the gesture work moved to the new `Drawer`                                                                                                                                                                                                                       |
-| Tabs' default list was the underline                                        | Tabs' default list is upstream's grey pill track; `line` is the alternative                                                                                                                                                                                                                                                |
+| Tabs' default list was the underline                                        | Tabs' default list is upstream's grey segmented track (`rounded-control`, triggers `rounded-segment`); `line` is the alternative                                                                                                                                                                                           |
 | Table body cells wrapped                                                    | Every cell is `whitespace-nowrap`; a wide table scrolls in a plain container                                                                                                                                                                                                                                               |
 
 Three of those can read as regressions and are not:
@@ -437,17 +437,17 @@ survive, because in several cases something real did.
 
 ### 8.1 `IconButton` → `Button` at an icon size
 
-| `IconButton`                                                 | `Button`                                                 |
-| ------------------------------------------------------------ | -------------------------------------------------------- |
-| `size="xs"`                                                  | `size="icon-xs"` (24px)                                  |
-| `size="sm"`                                                  | `size="icon-sm"` (28px)                                  |
-| `size="md"`                                                  | `size="icon"` (32px, the default)                        |
-| `size="lg"`                                                  | `size="icon-lg"` (36px)                                  |
-| `shape="round"`                                              | nothing — every icon button is a circle (`rounded-icon`) |
-| `shape="square"`                                             | the default — drop it                                    |
-| `iconButtonGeometry(size, shape)`                            | `buttonVariants({ size: "icon-sm" })` (already a circle) |
-| `tone="…"`                                                   | see section 10.1 — the tone axis is gone                 |
-| everything else (`variant`, `loading`, `disabled`, `render`) | unchanged                                                |
+| `IconButton`                                                 | `Button`                                                                                            |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| `size="xs"`                                                  | `size="icon-xs"` (24px)                                                                             |
+| `size="sm"`                                                  | `size="icon-sm"` (28px)                                                                             |
+| `size="md"`                                                  | `size="icon"` (32px, the default)                                                                   |
+| `size="lg"`                                                  | `size="icon-lg"` (36px)                                                                             |
+| `shape="round"`                                              | nothing — every icon button is a rounded square (`rounded-icon`); only a floating bar's are circles |
+| `shape="square"`                                             | the default — drop it                                                                               |
+| `iconButtonGeometry(size, shape)`                            | `buttonVariants({ size: "icon-sm" })` (already `rounded-icon`)                                      |
+| `tone="…"`                                                   | see section 10.1 — the tone axis is gone                                                            |
+| everything else (`variant`, `loading`, `disabled`, `render`) | unchanged                                                                                           |
 
 ```tsx
 // Before
@@ -892,7 +892,7 @@ never the signal.
 
 ### 10.4 Tabs
 
-`variant` on `TabsList` is `default` (upstream's grey pill track) and `line`. `pill` and `chip` are
+`variant` on `TabsList` is `default` (upstream's grey segmented track) and `line`. `pill` and `chip` are
 gone, as is `TabsTrigger`'s `count` badge — compose a `Badge` inside the trigger instead. There is no
 `loading` prop: a tab reveals a panel that is already mounted.
 

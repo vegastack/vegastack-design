@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.114.0 sha256-sp/iFKnw+lub72ZEsR326xrE+LknJ77O4H7WuOSVVA4=
+// @vegastack markdown-view@0.114.0 sha256-QU0brMYk4cj1DiKzJ0KvSMC3shaP+PQjxuI6fRTnzUw=
 
 "use client";
 
@@ -567,7 +567,7 @@ export function MarkdownViewEffects({
           data-slot="markdown-find-bar"
           role="search"
           aria-label={labels.label}
-          className="fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] z-50 flex h-8 items-center gap-0.5 rounded-control border border-border bg-popover ps-2.5 pe-0.5 font-sans text-sm text-popover-foreground shadow-md print:hidden"
+          className="fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom))] z-50 flex h-8 items-center gap-0.5 rounded-capsule border capsule-scope border-border bg-popover ps-2.5 pe-0.5 font-sans text-sm text-popover-foreground shadow-md print:hidden"
           // Escape closes; Enter and Space stay the buttons' own (activate the focused one).
           onKeyDown={(event) => {
             if (event.key === "Escape" && onFindClose) {
@@ -867,7 +867,7 @@ const SELECTION_GAP = 8;
 
 /** `TextEdit`'s menu surface: a single-line floating bar, so a pill. */
 const MENU_SURFACE =
-  "z-50 rounded-control border border-border bg-popover p-1 text-popover-foreground shadow-md";
+  "z-50 rounded-capsule border border-border bg-popover p-1 text-popover-foreground shadow-md capsule-scope";
 
 /** Every scrolling ancestor's visible box, intersected with the viewport inside its safe area. */
 function visibleArea(root: HTMLElement, safeTop: number, safeBottom: number) {

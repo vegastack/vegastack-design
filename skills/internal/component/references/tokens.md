@@ -110,8 +110,12 @@ AA-gated rather than eyeballed.
 ## Radius
 
 **A corner is a role** (BRD-12, `design.md` § Corners). Write the role the element plays:
-`rounded-control` (pill: every single-line control, Button at every size), `rounded-icon` (circle:
-icon-only buttons), `rounded-chip` (pill), `rounded-inline` (6px: tokens in running text),
+`rounded-control` (8px: every in-page control — Button at every size, Input, Select, search fields,
+Toggle, TabsList), `rounded-icon` (8px rounded square: icon-only buttons), `rounded-segment` (6px: a
+control nested in a control — tab triggers, buttons inside a field), `rounded-capsule` (pill: only what
+floats or sits on media, and every button inside it — `capsule-scope` turns them into circles; a
+floating panel that wraps or holds a form is `rounded-card`),
+`rounded-chip` (pill: chips, badges, counts), `rounded-inline` (6px: tokens in running text),
 `rounded-mark` (4px: highlights, the checkbox, chart swatches), `rounded-item` (10px: every row with
 a fill, tooltips), `rounded-block` (12px: blocks in content, nested cards), `rounded-card` (16px),
 `rounded-bubble` (20px), `rounded-overlay` (24px), `rounded-tile` (25%: square media). Side forms

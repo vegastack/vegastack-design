@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.114.0 sha256-DoLA1dbXSjvb2CGbCDghKukia+a9cpGaFkhpp7+TLdI=
+// @vegastack media-player-controls@0.114.0 sha256-ySWHhtALHv1jZobBBH6uaTHv+yn5tdv8XCOE5ukq2K8=
 
 "use client";
 
@@ -125,7 +125,7 @@ const MEDIA_SUBMENU_RADIO_ITEM_CLASS =
  * are authored once and never overridden per theme, so chrome over video always reads dark-scrim +
  * light-ink.
  *
- * The buttons are plain `Button variant="ghost" size="icon-*"` (round, `rounded-icon`; D16 — there is
+ * The buttons are plain `Button variant="ghost" size="icon-*"` (rounded squares, `rounded-icon`; circles over video, `rounded-capsule`; D16 — there is
  * no `glass` variant). Their REST ink is inherited: upstream's `ghost` sets no colour of its own, so
  * it picks up the container's `text-media-foreground`. Their HOVER and PRESSED steps have to be
  * named here, because upstream's `ghost` hovers to `bg-muted`/`text-foreground` — theme tokens that
@@ -1210,7 +1210,7 @@ export function MediaPlayerControls({
             data-slot="media-player-volume-surface"
             data-variant={variant}
             className={cn(
-              "flex items-center rounded-control",
+              "flex items-center rounded-capsule",
               isOverlay
                 ? "h-20 bg-media-scrim-strong px-1 py-1 text-media-foreground"
                 : "h-28 border border-border bg-popover px-2 py-3 text-popover-foreground",
@@ -1277,7 +1277,7 @@ export function MediaPlayerControls({
           aria-label={`${label} media controls`}
           onKeyDown={handleKeyDown}
           className={cn(
-            "@container/media-controls w-full min-w-0 p-2",
+            "@container/media-controls w-full min-w-0 p-2 capsule-scope",
             MEDIA_OVERLAY_CHROME_CLASS,
             MEDIA_INSET_FOCUS_CLASS,
             className,
