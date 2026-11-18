@@ -9,6 +9,34 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.119.0] — November 18, 2026
+
+<!-- assembled from 1 changeset: aea92cfc03e6 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.118.0 → 0.119.0.
+
+### 🐛 Fixed
+
+- `CommandSearch` with `placement="bar"` opens on the global bar's search box itself: it measures the box (or the `anchor` you pass), so its field lands exactly on the box (same left edge, width and vertical centre) at every window size, and a box too narrow for results gets a wider palette centred on it. The field takes the box's pill shape, concentric with the palette's 20px corners, and the palette grows out of the box's shape and closes back into it (`duration-state` / `ease-enter`, `duration-state-exit` / `ease-exit`; reduced motion drops it). Before, it was centred on the window, so it opened 40–80px left of the box. `CommandInput` takes `shape="pill"` and `CommandDialog` passes a `style` to its surface.
+
+  `CommandSearchInput`'s loading line is quiet: a 1px line in `muted-foreground` at 80% instead of a 2px `primary` one (3.6:1 on the field in light, 4.5:1 in dark), and it runs under the text only — inside the pill's corners and short of a trailing control such as the Ask chip.
+  [`328045d`](https://github.com/VegaStack/vegastack-design/commit/328045d)
+
+## [0.118.0] — November 18, 2026
+
+<!-- assembled from 1 changeset: ccad7993aa49 -->
+
+### 🧩 New components
+
+- Side panel polish (Regent side panel and top bar polish A1, A3, A4, C3, C4, D, B4). `RecordPanelSection` puts the fold chevron after the title and count ("Files 4 ⌄"), pointing on while folded and down while open; same 32px trigger and actions. `RecordPanelProvider` takes `dockAt` (`69` · `74` · `75` · `95` rem, default `69`, new `RecordPanelDock` type): the record width from which the panel docks, set per page type so the main column keeps its measure; the panel writes it as `data-dock` and its container queries and measured mode both follow it (the default threshold moves from 68rem to 69rem). `Toggle` gains `variant="bare"` for a page bar's star or bell: no pressed fill, only the icon changes, with the hover layer kept (API-39 amended). `MembersStack` gains `variant="viewers"` — 22px faces overlapped by 8px, who is viewing now first with a 1.5px ring in their hue, three then "+N", a popover grouped "Viewing now" and "Viewed" (new `viewedAt` on `MembersStackPerson`, `groupLabels`) ending in `footer`. `FileCard` gains `variant="row"` — a 44px borderless panel row with a 20px icon or thumbnail, the name, one muted meta line, an optional `source` icon with its tooltip and actions on hover or focus (always on touch), in its own `<li>` for a `RecordPanelList`. `ContextPanel` gains `variant="panel"` — one line "9% · 37.5k / 400k" (the summary note in its tooltip), the bar and compact rows (swatch · label · tokens, the share in a tooltip, Free muted last), with no title or button.
+  [`9389129`](https://github.com/VegaStack/vegastack-design/commit/9389129)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.117.0 → 0.118.0.
+
 ## [0.117.0] — November 18, 2026
 
 <!-- assembled from 1 changeset: cbc0e3bfe91b -->

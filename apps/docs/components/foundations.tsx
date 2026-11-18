@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import corners from "@vegastack/design-tokens/corners.json";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Kbd } from "@/components/ui/kbd";
@@ -182,103 +183,103 @@ export function TypeScale() {
  * circle for an icon button, a square for a tile).
  */
 const CORNER_ROLES: {
-  role: string;
-  value: string;
+  role: keyof typeof corners.pointer;
   usedBy: string;
   className: string;
 }[] = [
   {
     role: "control",
-    value: "8px",
-    usedBy: "In-page controls: buttons, fields, tabs",
+    usedBy:
+      "Actions and inputs in the page: buttons, fields, selects, tab tracks",
     className: "h-8 w-24 rounded-control",
   },
   {
     role: "segment",
-    value: "6px",
-    usedBy: "A control inside a control",
-    className: "h-7 w-20 rounded-segment",
+    usedBy: "A control inside a control; every 24px control",
+    className: "h-6 w-20 rounded-segment",
   },
   {
     role: "icon",
-    value: "8px",
-    usedBy: "Icon-only buttons",
+    usedBy: "Icon-only buttons in the page",
     className: "size-8 rounded-icon",
   },
   {
     role: "capsule",
-    value: "pill",
-    usedBy: "What floats or stands alone",
+    usedBy: "The app's frame (top bar) and what floats",
     className: "h-9 w-28 rounded-capsule",
   },
   {
     role: "chip",
-    value: "pill",
-    usedBy: "Chips, badges, counts",
-    className: "h-6 w-16 rounded-chip",
+    usedBy: "Tokens and states: chips, badges, filters, reactions",
+    className: "h-7 w-16 rounded-chip",
   },
   {
     role: "inline",
-    value: "6px",
     usedBy: "Tokens in running text",
     className: "h-6 w-20 rounded-inline",
   },
   {
     role: "mark",
-    value: "4px",
     usedBy: "Highlights, checkbox",
     className: "size-5 rounded-mark",
   },
   {
     role: "item",
-    value: "10px",
-    usedBy: "Rows with a fill, tooltips",
+    usedBy: "Rows in a list without dividers, tooltips",
     className: "h-9 w-28 rounded-item",
   },
   {
     role: "block",
-    value: "12px",
     usedBy: "Blocks in content, nested cards",
     className: "h-14 w-24 rounded-block",
   },
   {
     role: "card",
-    value: "16px",
     usedBy: "Cards, menus, popovers",
     className: "h-16 w-28 rounded-card",
   },
   {
     role: "bubble",
-    value: "20px",
     usedBy: "Chat bubbles, command",
     className: "h-14 w-28 rounded-bubble",
   },
   {
     role: "overlay",
-    value: "24px",
     usedBy: "Dialogs, drawers, sheets",
     className: "h-20 w-32 rounded-overlay",
   },
   {
     role: "tile",
-    value: "25% of size",
     usedBy: "Thumbnails, logos, team avatars",
     className: "size-14 rounded-tile",
   },
 ];
 
+/**
+ * A role's value as the reader should see it — read from the token package's own corner table
+ * (`corners.json`, the pointer platform), so the specimen can never state a stale number.
+ */
+function cornerValue(role: keyof typeof corners.pointer) {
+  const value = corners.pointer[role];
+  if (value >= corners.capsule) return "pill";
+  if (value < 1) return `${value * 100}% of size`;
+  return `${value}px`;
+}
+
 /** Live corner-role specimen — each shape is rounded with its role's own utility. */
 export function RadiusScale() {
   return (
     <div className="not-prose my-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {CORNER_ROLES.map(({ role, value, usedBy, className }) => (
+      {CORNER_ROLES.map(({ role, usedBy, className }) => (
         <div key={role} className="flex flex-col items-center gap-2">
           <div className="flex h-20 items-center justify-center">
             <div className={`border border-border bg-muted ${className}`} />
           </div>
           <div className="text-center">
             <p className="font-mono text-xs text-foreground">rounded-{role}</p>
-            <p className="font-mono text-xs text-muted-foreground">{value}</p>
+            <p className="font-mono text-xs text-muted-foreground">
+              {cornerValue(role)}
+            </p>
             <p className="text-xs text-muted-foreground">{usedBy}</p>
           </div>
         </div>

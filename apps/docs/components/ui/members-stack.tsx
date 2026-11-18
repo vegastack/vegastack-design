@@ -1,4 +1,4 @@
-// @vegastack members-stack@0.117.0 sha256-6ozlkgwPu1mgJ6bfYxpVZxQf5rksCjIck0i9mErFNx8=
+// @vegastack members-stack@0.118.0 sha256-2iRScuEBhquP3B2sn2vz5s1qidMnXVaZzFkVGCHpknA=
 
 "use client";
 
@@ -10,6 +10,7 @@ import {
   PERSON_AVATAR_STACK_ITEM,
   PERSON_AVATAR_STACK_RING,
   PersonAvatar,
+  PersonName,
   personAccessibleName,
   type Person,
 } from "@/components/ui/person-avatar";
@@ -19,6 +20,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { RelativeTime } from "@/components/ui/relative-time";
 import {
   Tooltip,
   TooltipContent,
@@ -38,6 +40,11 @@ import {
  *   "Everyone in <name>"; a team → its tile and "<name> · <count>"; nobody → nothing.
  * - Hover names them (up to ten, then "and N more"); a click opens the one members popover, which
  *   lists everyone and ends in the host's `footer` (Manage access, Manage members).
+ *
+ * `variant="viewers"` is the page bar's compact viewers stack (who has seen the record): 22px
+ * faces overlapped by 8px, at most three then "+N"; a person viewing now leads, with a thin 1.5px
+ * ring in their own hue instead of a dot. Its popover groups them — "Viewing now", then "Viewed"
+ * with when each last looked — and ends in the `footer` (Manage access).
  * ----------------------------------------------------------------------------------------------*/
 
 /** The most faces a stack shows before "+N" (M2). */
@@ -53,11 +60,33 @@ const MEMBERS_COUNT_TEXT = "text-[0.6875rem]";
 
 /** A person in a `MembersStack`. */
 export interface MembersStackPerson extends Person {
-  /** On the page now: drawn first, with a green dot. @default false */
+  /** On the page now: drawn first, with a green dot (`viewers`: a ring in their hue). @default false */
   active?: boolean;
   /** The viewer: never the first face unless alone. @default false */
   you?: boolean;
+  /** `viewers`: when they last looked, shown under "Viewed" as "3h ago". @default undefined */
+  viewedAt?: Date | string | number | null;
 }
+
+/**
+ * `members` — who has access (24px faces, a green dot for who is here); `viewers` — the page bar's
+ * compact stack of who has seen the record (22px faces, a hue ring for who is viewing now).
+ */
+export type MembersStackVariant = "members" | "viewers";
+
+/** A viewer's ring in their own hue (ten tag hues), else the muted ink. Literal for Tailwind. */
+const VIEWER_RING: Record<NonNullable<Person["hue"]>, string> = {
+  blue: "ring-tag-blue",
+  cyan: "ring-tag-cyan",
+  green: "ring-tag-green",
+  lime: "ring-tag-lime",
+  yellow: "ring-tag-yellow",
+  orange: "ring-tag-orange",
+  red: "ring-tag-red",
+  pink: "ring-tag-pink",
+  magenta: "ring-tag-magenta",
+  purple: "ring-tag-purple",
+};
 
 /**
  * Who the stack stands for. `people` — the faces; `only-you` — a lock and "Only you";
@@ -80,8 +109,17 @@ export interface MembersStackProps {
   audience?: MembersStackAudience;
   /** The space, workspace or team for `everyone` and `team`, drawn as its tile. @default undefined */
   group?: Person;
-  /** The stack's accessible name and the popover list's title. @default "Members" */
+  /** The stack's accessible name and the popover list's title. @default "Members" (`viewers`: "Viewers") */
   label?: string;
+  /**
+   * `members` — who has access; `viewers` — the page bar's compact viewers stack: 22px faces, a
+   * 1.5px ring in the person's hue for who is viewing now, and a popover grouped "Viewing now" and
+   * "Viewed" (with each `viewedAt`). `audience` and `count` apply to `members` only.
+   * @default "members"
+   */
+  variant?: MembersStackVariant;
+  /** `viewers`: the popover groups' headings. @default { now: "Viewing now", viewed: "Viewed" } */
+  groupLabels?: { now?: string; viewed?: string };
   /**
    * The count after the faces, 8px on (a list row's Members cell): `true` reads "N members", a
    * function writes it.
@@ -136,17 +174,25 @@ function defaultCount(total: number): string {
  * <MembersStack audience="everyone" group={{ name: "General", kind: "workspace", hue: "blue" }} />
  * @example
  * <MembersStack people={members} total={23} count />
+ * @example
+ * <MembersStack variant="viewers" people={viewers} footer={<Button variant="ghost" size="sm">Manage access</Button>} />
  */
 export function MembersStack({
   people = [],
   total,
-  audience = "people",
+  audience: audienceProp = "people",
   group,
-  label = "Members",
-  count = false,
+  label: labelProp,
+  count: countProp = false,
   footer,
+  variant = "members",
+  groupLabels,
   className,
 }: MembersStackProps) {
+  const viewers = variant === "viewers";
+  const audience = viewers ? "people" : audienceProp;
+  const count = viewers ? false : countProp;
+  const label = labelProp ?? (viewers ? "Viewers" : "Members");
   const all = Math.max(total ?? people.length, people.length);
   const ordered = orderMembers(people);
 
@@ -198,11 +244,15 @@ export function MembersStack({
       aria-hidden
       data-slot="avatar-group"
       data-members-stack-faces=""
-      className="flex items-center -space-x-1.5"
+      className={cn(
+        "flex items-center",
+        viewers ? "-space-x-2" : "-space-x-1.5",
+      )}
     >
       {shown.map((person, i) => (
         <span
           key={`${person.id ?? person.name}-${i}`}
+          data-active={viewers && person.active ? "" : undefined}
           className={cn(
             "inline-flex",
             PERSON_AVATAR_STACK_ITEM,
@@ -213,10 +263,23 @@ export function MembersStack({
         >
           <PersonAvatar
             person={person}
-            size="sm"
-            className={PERSON_AVATAR_STACK_RING}
+            // `viewers`: 22px, between the 20px row step and the 24px stack (its one initial
+            // sizes to the circle); a thin ring — the surface's, or the hue's for who is here.
+            size={viewers ? "xs" : "sm"}
+            className={
+              viewers
+                ? person.active
+                  ? cn(
+                      "size-5.5 ring-[1.5px]",
+                      person.hue
+                        ? VIEWER_RING[person.hue]
+                        : "ring-muted-foreground",
+                    )
+                  : cn(PERSON_AVATAR_STACK_RING, "size-5.5 ring-[1.5px]")
+                : PERSON_AVATAR_STACK_RING
+            }
             indicator={
-              person.active ? (
+              person.active && !viewers ? (
                 <span
                   data-slot="members-stack-active"
                   className="size-full rounded-full bg-success"
@@ -233,6 +296,7 @@ export function MembersStack({
             "relative inline-flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-muted px-1.5 font-semibold text-muted-foreground tabular-nums",
             MEMBERS_COUNT_TEXT,
             PERSON_AVATAR_STACK_RING,
+            viewers && "h-5.5 min-w-5.5 px-1 ring-[1.5px]",
           )}
         >
           {membersOverflowLabel(hidden)}
@@ -249,6 +313,7 @@ export function MembersStack({
             tooltip={groupText ?? namesLine(ordered, all)}
             aria-label={accessible}
             data-audience={audience}
+            data-variant={variant}
             className={className}
           />
         }
@@ -277,7 +342,9 @@ export function MembersStack({
         // must not open the row from inside its list.
         onClick={(event) => event.stopPropagation()}
       >
-        {ordered.length > 0 ? (
+        {viewers ? (
+          <ViewersGroups people={ordered} labels={groupLabels} />
+        ) : ordered.length > 0 ? (
           <ul
             aria-label={label}
             className="relative flex max-h-80 flex-col gap-2 overflow-y-auto"
@@ -339,5 +406,81 @@ function MembersStackTrigger({
       />
       <TooltipContent>{tooltip}</TooltipContent>
     </Tooltip>
+  );
+}
+
+/** One viewer row: the face, the name and a muted line (when they last looked). */
+function ViewerRow({
+  person,
+  line,
+}: {
+  person: MembersStackPerson;
+  line?: React.ReactNode;
+}) {
+  return (
+    <li
+      data-slot="members-stack-viewer"
+      className="flex min-w-0 items-center gap-2 px-1"
+    >
+      <PersonAvatar person={person} size="sm" />
+      <span className="flex min-w-0 flex-col">
+        <PersonName person={person} className="truncate text-sm font-medium" />
+        {line != null ? (
+          <span className="truncate text-xs text-muted-foreground">{line}</span>
+        ) : null}
+      </span>
+    </li>
+  );
+}
+
+/** The viewers popover: "Viewing now", then "Viewed" with when each last looked. */
+function ViewersGroups({
+  people,
+  labels,
+}: {
+  people: readonly MembersStackPerson[];
+  labels?: { now?: string; viewed?: string };
+}) {
+  const id = React.useId();
+  const now = people.filter((p) => p.active);
+  const viewed = people.filter((p) => !p.active);
+  const groups = [
+    { key: "now", title: labels?.now ?? "Viewing now", people: now },
+    { key: "viewed", title: labels?.viewed ?? "Viewed", people: viewed },
+  ].filter((g) => g.people.length > 0);
+  return (
+    <div className="relative flex max-h-80 flex-col gap-3 overflow-y-auto">
+      {groups.map((g) => (
+        <div
+          key={g.key}
+          data-slot="members-stack-group"
+          data-group={g.key}
+          className="flex flex-col gap-2"
+        >
+          <p
+            id={`${id}-${g.key}`}
+            className="px-1 text-xs font-medium text-muted-foreground"
+          >
+            {g.title}
+          </p>
+          <ul
+            aria-labelledby={`${id}-${g.key}`}
+            className="flex flex-col gap-2"
+          >
+            {g.people.map((person, i) => (
+              <ViewerRow
+                key={`${person.id ?? person.name}-${i}`}
+                person={person}
+                line={
+                  g.key === "viewed" && person.viewedAt != null ? (
+                    <RelativeTime date={person.viewedAt} />
+                  ) : undefined
+                }
+              />
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
   );
 }

@@ -208,3 +208,64 @@ test("an agent in the stack gets its shaped halo", async () => {
     getComputedStyle(agent).getPropertyValue("--person-avatar-halo").trim(),
   ).not.toBe("");
 });
+
+test("viewers: 22px faces overlapped by 8px, the one viewing now first with a 1.5px ring in their hue, three then +N", async () => {
+  const screen = await render(
+    <MembersStack
+      variant="viewers"
+      people={[
+        { name: "Dev Menon", hue: "green", viewedAt: Date.now() - 3_600_000 },
+        { name: "Asha Rao", hue: "blue", active: true },
+        { name: "Kavya Iyer", viewedAt: Date.now() - 86_400_000 },
+        { name: "Ravi Shah", viewedAt: Date.now() - 172_800_000 },
+      ]}
+    />,
+  );
+  const faces = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-members-stack-faces] [data-slot="avatar"]',
+    ),
+  ];
+  expect(faces).toHaveLength(3);
+  const [a, b] = faces.map((f) => f.getBoundingClientRect());
+  expect(a!.width).toBe(22);
+  expect(Math.round(a!.right - b!.left)).toBe(8);
+  // The viewer here now leads, ringed in their own hue; no dot.
+  expect(faces[0]!.closest("[data-active]")).not.toBeNull();
+  expect(faces[0]!.className).toContain("ring-tag-blue");
+  expect(getComputedStyle(faces[0]!).boxShadow).toContain("1.5px");
+  expect(
+    screen.container.querySelector('[data-slot="members-stack-active"]'),
+  ).toBeNull();
+  const pill = screen.container.querySelector<HTMLElement>(
+    '[data-slot="members-stack-overflow"]',
+  )!;
+  expect(pill.textContent).toBe("+1");
+  expect(pill.getBoundingClientRect().height).toBe(22);
+});
+
+test("viewers: the popover groups Viewing now and Viewed, with when each last looked, then the footer", async () => {
+  const screen = await render(
+    <MembersStack
+      variant="viewers"
+      people={[
+        { name: "Asha Rao", hue: "blue", active: true },
+        { name: "Dev Menon", viewedAt: Date.now() - 3 * 3_600_000 },
+      ]}
+      footer={<button type="button">Manage access</button>}
+    />,
+  );
+  await screen
+    .getByRole("button", { name: /^Viewers: Asha Rao, Dev Menon$/ })
+    .click();
+  const now = screen.getByRole("list", { name: "Viewing now" });
+  await expect.element(now).toBeVisible();
+  expect(now.element().textContent).toContain("Asha Rao");
+  const viewed = screen.getByRole("list", { name: "Viewed" });
+  expect(viewed.element().textContent).toContain("Dev Menon");
+  expect(viewed.element().textContent).toContain("3h ago");
+  await expect
+    .element(screen.getByRole("button", { name: "Manage access" }))
+    .toBeVisible();
+  await expectNoA11yViolations(document.body);
+});

@@ -30979,7 +30979,7 @@
         "dimensions": [
           {
             "name": "variant",
-            "values": ["default", "outline"],
+            "values": ["default", "outline", "bare"],
             "evidence": "packages/ui/registry/ui/toggle.tsx: cva variant"
           }
         ]
@@ -35901,9 +35901,14 @@
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["default", "panel"],
+            "evidence": "packages/ui/registry/ui/context-panel.tsx: ContextPanelProps variant union"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -35948,7 +35953,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/context-panel",
-      "registryDependencies": ["@vegastack/button", "@vegastack/text-spinner"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/text-spinner",
+        "@vegastack/tooltip"
+      ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.27.0",
         "@vegastack/design@^0.27.0"
@@ -35967,16 +35976,24 @@
         "ContextPanel": {
           "attributes": [
             {
+              "name": "data-free",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "context-panel",
-                "context-panel-bar",
+                "context-panel-part",
                 "context-panel-parts",
                 "context-panel-summarize",
                 "context-panel-threshold",
                 "context-panel-title",
                 "context-panel-used"
               ]
+            },
+            {
+              "name": "data-variant",
+              "values": ["panel"]
             }
           ],
           "cssVariables": []
@@ -38320,12 +38337,26 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "FileCardSource",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No local variants; the look is Attachment's, and the layout is the enclosing AttachmentGroup's."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["card", "row"],
+            "evidence": "packages/ui/registry/ui/file-card.tsx: FileCardProps variant union"
+          }
+        ]
       },
       "sizes": {
         "status": "observed",
@@ -38389,7 +38420,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
-        "@vegastack/image"
+        "@vegastack/image",
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -38406,7 +38438,21 @@
         "vrt": "required"
       },
       "previewModule": "file-card",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "FileCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["file-card-row", "file-card-source"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "record-chip",
@@ -40173,12 +40219,26 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "RecordPanelDock",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "A layout frame; no local axis."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "dockAt",
+            "values": ["69", "74", "75", "95"],
+            "evidence": "packages/ui/registry/ui/record-layout-side.tsx: RecordPanelDock union (DOCK_CLASSES)"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
@@ -40282,6 +40342,10 @@
         "RecordPanel": {
           "attributes": [
             {
+              "name": "data-dock",
+              "values": []
+            },
+            {
               "name": "data-motion",
               "values": ["enter"]
             },
@@ -40311,6 +40375,7 @@
               "values": [
                 "record-panel-section",
                 "record-panel-section-action",
+                "record-panel-section-chevron",
                 "record-panel-section-content",
                 "record-panel-section-header",
                 "record-panel-section-trigger"
@@ -44352,7 +44417,7 @@
       "name": "members-stack",
       "registryType": "registry:ui",
       "title": "Members Stack",
-      "summary": "Who has access, drawn one way everywhere: 24px faces overlapped 6px, at most three and a \"+N\" pill of the same height, active people first; only you, everyone in a space and a team as their own forms; names on hover and one members popover.",
+      "summary": "Who has access, drawn one way everywhere: 24px faces overlapped 6px, at most three and a \"+N\" pill of the same height, active people first; only you, everyone in a space and a team as their own forms; names on hover and one members popover. A compact viewers variant (22px faces, a hue ring for who is here, grouped Viewing now / Viewed popover).",
       "status": "stable",
       "since": "0.110.0",
       "family": "data",
@@ -44412,17 +44477,31 @@
             "status": "not-applicable",
             "rationale": "A plain function; renders nothing."
           }
+        },
+        {
+          "name": "MembersStackVariant",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/members-stack.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "One shape; `audience` picks the form (people, only you, everyone, team), not a style axis."
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["members", "viewers"],
+            "evidence": "packages/ui/registry/ui/members-stack.tsx: MembersStackVariant union"
+          }
+        ]
       },
       "sizes": {
         "status": "not-applicable-or-inherited",
         "dimensions": [],
-        "rationale": "One size: 24px faces on the 28px bar line (UI ground rules M2)."
+        "rationale": "One size per variant: 24px faces on the 28px bar line (UI ground rules M2); viewers 22px faces."
       },
       "states": {
         "behavior": {
@@ -44476,7 +44555,8 @@
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
         "@vegastack/popover",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.27.0",
@@ -44497,6 +44577,10 @@
         "MembersStack": {
           "attributes": [
             {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
               "name": "data-audience",
               "values": ["only-you"]
             },
@@ -44515,6 +44599,10 @@
                 "members-stack-overflow",
                 "members-stack-popover"
               ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []

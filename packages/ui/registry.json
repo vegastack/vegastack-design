@@ -386,7 +386,7 @@
       "meta": {
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -1488,7 +1488,7 @@
       "meta": {
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
-        "version": "0.117.0"
+        "version": "0.119.0"
       }
     },
     {
@@ -14052,7 +14052,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
-        "@vegastack/image"
+        "@vegastack/image",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -14064,7 +14065,7 @@
       "meta": {
         "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
         "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -14541,6 +14542,7 @@
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
         "@vegastack/popover",
+        "@vegastack/relative-time",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -14553,7 +14555,7 @@
       "meta": {
         "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
         "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -15914,7 +15916,7 @@
       "meta": {
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -16835,7 +16837,11 @@
         "@vegastack/design@^0.27.0",
         "@vegastack/design-tokens@^0.27.0"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/text-spinner"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/text-spinner",
+        "@vegastack/tooltip"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/context-panel.tsx",
@@ -16846,7 +16852,7 @@
       "meta": {
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
-        "version": "0.117.0"
+        "version": "0.118.0"
       }
     },
     {
@@ -20057,7 +20063,7 @@
       "meta": {
         "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
         "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (ListToolbar's search).",
-        "version": "0.117.0"
+        "version": "0.119.0"
       }
     },
     {

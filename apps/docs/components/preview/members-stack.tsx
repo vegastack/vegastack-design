@@ -94,3 +94,35 @@ export function membersStackRow(): ReactNode {
     </Wrapper>
   );
 }
+
+/** The page bar's viewers stack: who has seen the record, the one viewing now first and ringed. */
+export function membersStackViewers(): ReactNode {
+  const now = Date.now();
+  return (
+    <Wrapper>
+      <MembersStack
+        variant="viewers"
+        people={[
+          {
+            name: "Asha Rao",
+            email: "asha@acme.com",
+            hue: "green",
+            active: true,
+          },
+          {
+            name: "Dev Menon",
+            image: "/preview/avatar-2.svg",
+            viewedAt: now - 2 * 3_600_000,
+          },
+          { name: "Lena Ortiz", hue: "purple", viewedAt: now - 26 * 3_600_000 },
+          { name: "Yuki Tan", hue: "orange", viewedAt: now - 9 * 86_400_000 },
+        ]}
+        footer={
+          <Button variant="ghost" size="sm" className="w-full justify-start">
+            Manage access
+          </Button>
+        }
+      />
+    </Wrapper>
+  );
+}

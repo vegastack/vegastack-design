@@ -1,7 +1,14 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { DownloadIcon, LinkIcon, TrashIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  LibraryIcon,
+  LinkIcon,
+  MessageSquareIcon,
+  TrashIcon,
+} from "lucide-react";
+import { AttachmentPreview } from "@/components/ui/attachment";
 import { Wrapper } from "./wrapper";
 import { AttachmentGroup } from "@/components/ui/attachment";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
@@ -161,6 +168,39 @@ export function uploadCard(): ReactNode {
             onRetry={() => {}}
           />
         </AttachmentGroup>
+      </div>
+    </Wrapper>
+  );
+}
+
+/** Rows in a side panel's Files section: 44px, the name, one meta line, the source as an icon. */
+export function fileCardRow(): ReactNode {
+  return (
+    <Wrapper className="items-start">
+      <div className="w-80 border-s bg-background px-4 py-3">
+        <AttachmentPreview>
+          <ul role="list" className="-mx-2 flex min-w-0 flex-col gap-0.5">
+            <FileCard
+              variant="row"
+              name="spec-sheet.pdf"
+              contentType="application/pdf"
+              descriptions={["2.2 MB", "3w ago"]}
+              source={{ icon: <MessageSquareIcon />, label: "From a comment" }}
+              file={SPEC}
+              actions={menuFor("/preview/spec-sheet.pdf")}
+            />
+            <FileCard
+              variant="row"
+              name="landscape.svg"
+              contentType="image/svg+xml"
+              thumb={LANDSCAPE.thumb}
+              descriptions={["48 KB", "2d ago"]}
+              source={{ icon: <LibraryIcon />, label: "From the Library" }}
+              file={LANDSCAPE}
+              actions={menuFor("/preview/landscape.svg")}
+            />
+          </ul>
+        </AttachmentPreview>
       </div>
     </Wrapper>
   );

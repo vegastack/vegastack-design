@@ -433,3 +433,33 @@ export function toggleGroupCheckboxChips(): ReactNode {
     </Wrapper>
   );
 }
+
+/** Quick filters and choice chips are pills; a joined mode switch stays a segmented rectangle. */
+export function shapeToggles(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-start">
+      <ToggleGroup
+        shape="pill"
+        variant="outline"
+        size="sm"
+        aria-label="Show by date"
+        defaultValue={["all"]}
+      >
+        <ToggleGroupItem value="all">All 52</ToggleGroupItem>
+        <ToggleGroupItem value="overdue">Overdue 17</ToggleGroupItem>
+        <ToggleGroupItem value="today">Today 8</ToggleGroupItem>
+      </ToggleGroup>
+      <ToggleGroup
+        spacing={0}
+        variant="outline"
+        size="sm"
+        aria-label="Theme"
+        defaultValue={["system"]}
+      >
+        <ToggleGroupItem value="light">Light</ToggleGroupItem>
+        <ToggleGroupItem value="dark">Dark</ToggleGroupItem>
+        <ToggleGroupItem value="system">System</ToggleGroupItem>
+      </ToggleGroup>
+    </Wrapper>
+  );
+}

@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.117.0 sha256-huw5zMvzHEhogxqB4JMMb3H+PhiAQvaX1QhiypYvs9A=
+// @vegastack record-layout@0.118.0 sha256-a2m42RYSMZtfpxnIzxUGr2RUOrWktkjuUDmuWvP4pfc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -18,6 +18,7 @@ export {
   useRecordPanel,
   type RecordPanelActionProps,
   type RecordPanelControls,
+  type RecordPanelDock,
   type RecordPanelEmptyProps,
   type RecordPanelItemProps,
   type RecordPanelListProps,
@@ -38,9 +39,12 @@ export {
  * column takes the gutter back as its padding and scrolls on its own, as the panel does.
  *
  *   record width     side panel                                    content
- *   ≥ 68rem (1088)   docks beside the main column (remembered)    keeps its width, re-centred
- *   40–68rem         ▥ floats it over the page, edge to edge      stays where it was
+ *   ≥ dockAt         docks beside the main column (open on load)  keeps its width, re-centred
+ *   below it         ▥ floats it over the page, edge to edge      stays where it was
  *   < 640px window   a bottom sheet from the "Details" button     full width
+ *
+ * `RecordPanelProvider`'s `dockAt` (69rem by default; 74, 75 or 95 for wider pages) is the record
+ * width the main column's measure and the panel need side by side.
  *
  * The content keeps its own width and centres itself in the main column (`ShellSection`
  * `measure="prose"`, 720px; `DocumentLayout` for a page read as a document). A docked panel narrows

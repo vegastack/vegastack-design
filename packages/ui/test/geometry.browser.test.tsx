@@ -59,7 +59,17 @@ import {
   MultiStepFormStep,
 } from "../registry/ui/multi-step-form";
 import { InputGroup, InputGroupInput } from "../registry/ui/input-group";
-import { GlobalBar, GlobalBarCenter } from "../registry/ui/global-bar";
+import {
+  GlobalBar,
+  GlobalBarCenter,
+  GlobalBarLeading,
+  GlobalBarTrailing,
+} from "../registry/ui/global-bar";
+import {
+  CommandSearch,
+  CommandSearchInput,
+  CommandSearchResults,
+} from "../registry/ui/command-search";
 import { Board } from "../registry/ui/board";
 import { GlobalBarSearch } from "../registry/ui/global-bar-client";
 import { SortableList } from "../registry/ui/sortable-list";
@@ -5188,6 +5198,99 @@ test("the top bar's search: a capsule whose search and Ask sit 3px in on every s
   expectConcentric(box, search);
   expectConcentric(box, ask);
   await bar.unmount();
+});
+
+test("the bar's search palette opens on its box: same left edge and width at every size (LAY-26, 2026-11-19)", async () => {
+  // History sits before the box, so the box is right of the window's centre (the operator's
+  // report: the palette, centred on the window, opened 40-80px left of it).
+  // 600px: the box shrinks to its icon, so the palette is wider and centred on it. `rtl`: the bar
+  // alone is right-to-left while the palette is portalled into a left-to-right body.
+  for (const [width, ask, rtl] of [
+    [1512, true, false],
+    [1512, false, false],
+    [1280, true, false],
+    [1024, true, false],
+    [800, true, false],
+    [600, true, false],
+    [1280, true, true],
+  ] as const) {
+    await page.viewport(width, 800);
+    const screen = await render(
+      <>
+        <div dir={rtl ? "rtl" : undefined}>
+          <GlobalBar>
+            <GlobalBarLeading>
+              <Button size="icon-sm" aria-label="Columns">
+                C
+              </Button>
+            </GlobalBarLeading>
+            <GlobalBarCenter>
+              <Button size="sm">History</Button>
+              <GlobalBarSearch
+                label="Search or ask anything…"
+                ask={
+                  ask
+                    ? { label: "Ask William", onClick: () => undefined }
+                    : undefined
+                }
+              />
+            </GlobalBarCenter>
+            <GlobalBarTrailing>
+              <Button size="sm">Help</Button>
+            </GlobalBarTrailing>
+          </GlobalBar>
+        </div>
+        <CommandSearch open onOpenChange={() => undefined} placement="bar">
+          <CommandSearchInput />
+          <CommandSearchResults>
+            <CommandGroup heading="Places">
+              <CommandItem>Home</CommandItem>
+            </CommandGroup>
+          </CommandSearchResults>
+        </CommandSearch>
+      </>,
+    );
+    await expect.element(screen.getByText("Home")).toBeVisible();
+    await settled();
+    const label = `${width}px${ask ? ", ask" : ""}${rtl ? ", rtl" : ""}`;
+    const box = document
+      .querySelector('[data-slot="global-bar-search"]')!
+      .getBoundingClientRect();
+    const palette = document.querySelector('[data-slot="dialog-content"]')!;
+    const field = palette.querySelector('[data-slot="input-group"]')!;
+    const p = palette.getBoundingClientRect();
+    const f = field.getBoundingClientRect();
+    if (box.width + 8 >= 320) {
+      // The field lands on the box (centred on the plain 28px box): the text doesn't move.
+      expect({
+        label,
+        left: f.left,
+        middle: f.top + f.height / 2,
+        width: f.width,
+      }).toEqual({
+        label,
+        left: box.left,
+        middle: box.top + box.height / 2,
+        width: box.width,
+      });
+      expectConcentric(palette, field, "x");
+    } else {
+      // A box too narrow for results: a 320px palette centred on it, held inside the window's
+      // 16px gutters.
+      const expected = Math.min(
+        Math.max(box.left + box.width / 2 - 160, 16),
+        width - 16 - 320,
+      );
+      expect({ label, left: p.left, width: p.width }).toEqual({
+        label,
+        left: expected,
+        width: 320,
+      });
+    }
+    expect(p.left, label).toBeGreaterThanOrEqual(16);
+    expect(p.right, label).toBeLessThanOrEqual(width - 16);
+    await screen.unmount();
+  }
 });
 
 test('a "fill" board ends where its page scrolls: one vertical scroller, never two (BRD-SCR, 2026-11-19)', async () => {

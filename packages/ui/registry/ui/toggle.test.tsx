@@ -155,6 +155,32 @@ test("API-39 + COL-24: pressed takes the selected step, and hover is the shared 
   expect(outline).toContain("border-input");
 });
 
+test("API-39 (C3): a bare toggle takes no pressed fill — its icon carries the state — and keeps the hover layer while pressed", async () => {
+  const screen = await render(
+    <Toggle variant="bare" size="sm" aria-label="Star" defaultPressed>
+      <svg data-testid="star" className="text-warning" />
+    </Toggle>,
+  );
+  const toggle = screen.getByRole("button", { name: "Star" }).element();
+  expect(toggle).toHaveAttribute("aria-pressed", "true");
+  const classes = toggle.className.split(" ");
+  expect(classes).not.toContain("aria-pressed:bg-state-selected");
+  expect(classes).not.toContain("data-[state=on]:bg-state-selected");
+  expect(classes).toContain("aria-pressed:bg-transparent");
+  expect(classes).toContain(
+    "aria-pressed:not-focus-visible:not-disabled:hover:layer-hover",
+  );
+  // An icon with its own ink keeps it when pressed (a gold star).
+  expect(screen.getByTestId("star").element().getAttribute("class")).toContain(
+    "text-warning",
+  );
+  // Every other variant keeps the pressed fill.
+  expect(toggleVariants({ variant: "default" })).toContain(
+    "aria-pressed:bg-state-selected",
+  );
+  await expectNoA11yViolations(screen.container);
+});
+
 test("no a11y violations — rest", async () => {
   const screen = await render(
     <div>
