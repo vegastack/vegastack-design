@@ -81,6 +81,19 @@ When only the first people are loaded, pass `total`: "+N", the count and the lis
 count from it. `footer` ends the members popover with the host's action, such as "Manage access"
 or "Manage members". The popover is the same everywhere: a click on any stack opens it.
 
+### Viewers
+
+`variant="viewers"` is the page bar's compact stack of who has seen a record: 22px faces overlapped
+by 8px, at most three, then "+N". Someone viewing now (`active`) leads, ringed with a thin 1.5px ring
+in their own hue instead of a dot. A click opens the popover grouped "Viewing now", then "Viewed",
+each with when they last looked (`viewedAt`, "2h ago"), and ends in the `footer` ("Manage access").
+`audience` and `count` don't apply.
+
+<ComponentPreview
+  name="membersStackViewers"
+  file="components/preview/members-stack.tsx"
+/>
+
 ## API Reference
 
 <ApiTable

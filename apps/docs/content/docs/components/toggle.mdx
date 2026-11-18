@@ -1,6 +1,6 @@
 ---
 title: Toggle
-description: A two-state button that can be either on or off — two variants, three sizes, and a loading state that keeps its width.
+description: A two-state button that can be either on or off — three variants, three sizes, and a loading state that keeps its width.
 audience: public
 registry: toggle
 status: stable
@@ -30,6 +30,14 @@ import { Toggle } from "@/components/ui/toggle";
 Use `variant="outline"` for an outline style.
 
 <ComponentPreview name="toggleOutline" file="components/preview/toggle.tsx" />
+
+### Bare
+
+Use `variant="bare"` for a page bar's star or bell: pressed takes no fill, so the icon carries the
+state (a filled gold star, a ringing bell) and the hover layer still answers the pointer. Editor
+toggles (bold, italic) keep the pressed fill.
+
+<ComponentPreview name="toggleBare" file="components/preview/toggle.tsx" />
 
 ### With Text
 
@@ -114,7 +122,9 @@ Upstream's file plus `packages/ui/upstream/patches/toggle.patch`. Every hunk:
   `data-[state=on]` take `bg-state-selected` (COL-24; was `bg-primary/10`), hovering a pressed
   toggle holds its fill through hover, and the `outline` variant's pressed border is
   `border-primary/30`. The ink stays `text-foreground`, icons included. An unpressed toggle keeps
-  upstream's transparent fill and the `state-layer` hover. ToggleGroup items inherit it.
+  upstream's transparent fill and the `state-layer` hover. ToggleGroup items inherit it. The
+  `bare` variant (amended 2026-11-19) takes no pressed fill — a page bar's star or bell, whose icon
+  says it — and keeps the hover layer while pressed.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
 - **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
   foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step

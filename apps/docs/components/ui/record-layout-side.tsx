@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.117.0 sha256-huw5zMvzHEhogxqB4JMMb3H+PhiAQvaX1QhiypYvs9A=
+// @vegastack record-layout@0.117.0 sha256-cHo/81G/8QbEU6xL0tu915Sv09qyE1E9dym7Aqd0+2Y=
 
 "use client";
 
@@ -36,9 +36,13 @@ import {
  * Where it sits follows the record layout's own width, not the window's:
  *
  *   record width     panel                                             open on load
- *   ≥ 68rem (1088)   docks beside the main column                     the person's remembered choice
- *   40–68rem         opens over the page, edge to edge, on ▥ (Esc)     closed
+ *   ≥ dockAt         docks beside the main column                     `open` (the app's choice)
+ *   below it         opens over the page, edge to edge, on ▥ (Esc)     closed
  *   < 640px window   a bottom sheet the "Details" button opens         closed
+ *
+ * `dockAt` is the record width, in rem, from which it docks — per page type, so the main column
+ * never shrinks below its measure: 69 (prose, the default), 74, 75 (a document) or 95 (a document
+ * with its comment margin). The server draws it, so nothing jumps on hydration.
  *
  * `RecordPanelProvider` holds the state the toggle, the phone button and the panel share; the app
  * owns the remembered choice (`open`, `onOpenChange`) and each section's fold (`sections`,
@@ -48,12 +52,27 @@ import {
  * ----------------------------------------------------------------------------------------------*/
 
 const PHONE_QUERY = "(max-width: 639px)";
-/** The record width, in rem, from which the panel docks beside the page. */
 /**
- * The record width, in rem, from which the panel docks: the 720px reading column, its gutters and the
- * 320px panel side by side (a 1440px window with the column open docks; a 1024px tablet floats).
+ * The record widths, in rem, from which the panel may dock (`dockAt`): the page's measure, its
+ * gutters and the 320px panel side by side. 69 — a 720px reading column (task, meeting, chat);
+ * 74 — a wider record (customer, project, product, folder, file); 75 — a document (page, row,
+ * skill); 95 — a document with its comment margin.
  */
-const DOCK_REM = 68;
+export type RecordPanelDock = 69 | 74 | 75 | 95;
+/** The default `dockAt`: a 720px reading column (a 1440px window with the sidebar open docks). */
+const DOCK_REM: RecordPanelDock = 69;
+
+/**
+ * Each threshold's container queries, written out whole because Tailwind reads class names, not
+ * variables: docked and open from `dockAt`, floating over the page below it, and the open motion
+ * of each. Chosen by the panel's `data-dock`.
+ */
+const DOCK_CLASSES: Record<RecordPanelDock, string> = {
+  69: "@min-[69rem]/record-layout:data-open:flex @max-[69rem]/record-layout:absolute @max-[69rem]/record-layout:inset-y-0 @max-[69rem]/record-layout:end-0 @max-[69rem]/record-layout:z-20 @max-[69rem]/record-layout:max-w-full @max-[69rem]/record-layout:shadow-xl @max-[69rem]/record-layout:data-overlay:flex @min-[69rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[69rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[69rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
+  74: "@min-[74rem]/record-layout:data-open:flex @max-[74rem]/record-layout:absolute @max-[74rem]/record-layout:inset-y-0 @max-[74rem]/record-layout:end-0 @max-[74rem]/record-layout:z-20 @max-[74rem]/record-layout:max-w-full @max-[74rem]/record-layout:shadow-xl @max-[74rem]/record-layout:data-overlay:flex @min-[74rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[74rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[74rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
+  75: "@min-[75rem]/record-layout:data-open:flex @max-[75rem]/record-layout:absolute @max-[75rem]/record-layout:inset-y-0 @max-[75rem]/record-layout:end-0 @max-[75rem]/record-layout:z-20 @max-[75rem]/record-layout:max-w-full @max-[75rem]/record-layout:shadow-xl @max-[75rem]/record-layout:data-overlay:flex @min-[75rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[75rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[75rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
+  95: "@min-[95rem]/record-layout:data-open:flex @max-[95rem]/record-layout:absolute @max-[95rem]/record-layout:inset-y-0 @max-[95rem]/record-layout:end-0 @max-[95rem]/record-layout:z-20 @max-[95rem]/record-layout:max-w-full @max-[95rem]/record-layout:shadow-xl @max-[95rem]/record-layout:data-overlay:flex @min-[95rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[95rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[95rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
+};
 /** Popups a panel row may open, which a press in never counts as outside the panel. */
 const POPUPS =
   "[role='menu'], [role='listbox'], [role='dialog'], [role='alertdialog'], [data-slot='popover-content'], [data-slot='tooltip-content'], [data-base-ui-portal]";
@@ -66,6 +85,8 @@ interface PanelContextValue {
   /** The panel element's id (the toggle's `aria-controls`). */
   id: string;
   label: string;
+  /** The record width, in rem, from which the panel docks. */
+  dockAt: RecordPanelDock;
   /** The remembered choice: whether the panel is open where it docks. */
   open: boolean;
   /** Whether this record is wide enough to dock: `null` until measured. */
@@ -117,6 +138,14 @@ export interface RecordPanelProviderProps {
   /** Whether ⌘. (Ctrl+. elsewhere) shows and hides the panel. @default true */
   shortcut?: boolean;
   /**
+   * The record width, in rem, from which the panel docks beside the main column — per page type,
+   * so the main column keeps its measure: `69` a reading column (task, meeting, chat), `74` a wider
+   * record (customer, project, product, folder, file), `75` a document (page, row, skill), `95` a
+   * document with its comment margin. Narrower, ▥ floats it over the page.
+   * @default 69
+   */
+  dockAt?: RecordPanelDock;
+  /**
    * Each section's fold, by its `value` (controlled): `true` open, `false` folded; a section not
    * in it takes its `defaultOpen`. The app keeps it per record type. @default undefined
    */
@@ -133,7 +162,7 @@ export interface RecordPanelProviderProps {
  * may portal into the bar: context follows it).
  *
  * @example
- * <RecordPanelProvider open={open} onOpenChange={remember} sections={folds} onSectionOpenChange={fold}>
+ * <RecordPanelProvider dockAt={74} open onOpenChange={setOpen} sections={folds} onSectionOpenChange={fold}>
  *   <PageBarSlot><RecordPanelToggle /></PageBarSlot>
  *   <RecordLayout>…<RecordPanel>…</RecordPanel></RecordLayout>
  * </RecordPanelProvider>
@@ -144,6 +173,7 @@ export function RecordPanelProvider({
   onOpenChange,
   label = "Details",
   shortcut = true,
+  dockAt = DOCK_REM,
   sections: sectionsProp,
   onSectionOpenChange,
   children,
@@ -321,6 +351,7 @@ export function RecordPanelProvider({
     () => ({
       id,
       label,
+      dockAt,
       open,
       docked,
       setDocked,
@@ -340,6 +371,7 @@ export function RecordPanelProvider({
     [
       id,
       label,
+      dockAt,
       open,
       docked,
       overlay,
@@ -495,8 +527,8 @@ export type RecordPanelProps = Omit<React.ComponentPropsWithRef<"aside">, "id">;
 
 /**
  * `RecordPanel` — the side panel itself, after `RecordLayoutMain` inside `RecordLayout`: an
- * `aside` of stacked `RecordPanelSection`s on the page's own ground, behind a hairline. It docks from 1088px (68rem) of record
- * width, floats over the page below that (Escape or a click on the page closes it, and focus
+ * `aside` of stacked `RecordPanelSection`s on the page's own ground, behind a hairline. It docks from the
+ * provider's `dockAt` of record width (69rem, 1104px, by default), floats over the page below that (Escape or a click on the page closes it, and focus
  * returns to ▥), and is a bottom sheet on a phone. Never on a list page: rows open in `Peek`.
  *
  * @example
@@ -519,7 +551,7 @@ export function RecordPanel({
     [refProp],
   );
   const titleId = `${ctx.id}-title`;
-  const { setDocked, mode, overlay, dismiss } = ctx;
+  const { setDocked, mode, overlay, dismiss, dockAt } = ctx;
   const sheet = mode === "sheet";
 
   // Whether this record docks: its layout's own width, as the panel's container query reads it.
@@ -529,14 +561,14 @@ export function RecordPanel({
     const observer = new ResizeObserver(([entry]) => {
       const rem =
         parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-      setDocked((entry?.contentRect.width ?? 0) >= DOCK_REM * rem);
+      setDocked((entry?.contentRect.width ?? 0) >= dockAt * rem);
     });
     observer.observe(layout);
     return () => {
       observer.disconnect();
       setDocked(null);
     };
-  }, [setDocked, sheet]);
+  }, [setDocked, sheet, dockAt]);
 
   // Floating over the page: it takes focus when it opens, and Escape or a click on the page
   // closes it (never a click in a menu or dialog it opened).
@@ -631,6 +663,7 @@ export function RecordPanel({
       tabIndex={-1}
       data-slot="record-panel"
       data-surface={mode === "overlay" ? "overlay" : "docked"}
+      data-dock={ctx.dockAt}
       data-open={ctx.open ? "" : undefined}
       data-overlay={ctx.overlay ? "" : undefined}
       data-motion={ctx.motion && ctx.shown ? "enter" : undefined}
@@ -640,14 +673,12 @@ export function RecordPanel({
       }}
       className={cn(
         "relative hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-background text-foreground outline-none",
-        // From 68rem (1088px) of record width it docks: in the flow, as tall as the record, while open.
-        "@min-[68rem]/record-layout:data-open:flex",
+        // From `dockAt` of record width it docks: in the flow, as tall as the record, while open.
         // Narrower, ▥ floats it over the page, edge to edge under the bar, with a shadow.
-        "@max-[68rem]/record-layout:absolute @max-[68rem]/record-layout:inset-y-0 @max-[68rem]/record-layout:end-0 @max-[68rem]/record-layout:z-20 @max-[68rem]/record-layout:max-w-full @max-[68rem]/record-layout:shadow-xl @max-[68rem]/record-layout:data-overlay:flex",
         // A person's open: docked, it grows from nothing so the work beside it slides to stay
         // centred; floating, it slides in from the edge. Never on load; reduced motion: none.
         "data-[motion=enter]:transition-[width,translate,opacity] data-[motion=enter]:duration-panel data-[motion=enter]:ease-enter data-[motion=enter]:starting:opacity-0",
-        "@min-[68rem]/record-layout:data-[motion=enter]:starting:w-0 @max-[68rem]/record-layout:data-[motion=enter]:starting:translate-x-4 rtl:@max-[68rem]/record-layout:data-[motion=enter]:starting:-translate-x-4",
+        DOCK_CLASSES[ctx.dockAt],
         className,
       )}
     >
@@ -678,8 +709,8 @@ export interface RecordPanelSectionProps extends Omit<
 }
 
 /**
- * `RecordPanelSection` — one stacked section: a 40px header (fold chevron, title, muted count and
- * an optional action on hover) over its rows, 16px in from the panel's edges, with a hairline
+ * `RecordPanelSection` — one stacked section: a 40px header (title, muted count, then the fold
+ * chevron — "Files 4 ⌄" — and an optional action on hover) over its rows, 16px in from the panel's edges, with a hairline
  * under it. Its rows are a `PropertyList variant="panel"` (key and value) or a `RecordPanelList`.
  *
  * @example
@@ -729,10 +760,6 @@ export function RecordPanelSection({
             data-slot="record-panel-section-trigger"
             className="group/fold state-layer flex h-8 min-w-0 flex-1 items-center gap-1.5 rounded-item px-2 text-start outline-none"
           >
-            <ChevronRight
-              aria-hidden
-              className="size-3 shrink-0 text-muted-foreground transition-transform duration-state group-data-panel-open/fold:rotate-90 rtl:rotate-180 rtl:group-data-panel-open/fold:rotate-90"
-            />
             <span id={headingId} className="min-w-0 truncate">
               {title}
             </span>
@@ -744,6 +771,12 @@ export function RecordPanelSection({
                 </span>
               </>
             ) : null}
+            {/* After the name and count ("Files 4 ⌄"): pointing on while folded, down while open. */}
+            <ChevronRight
+              aria-hidden
+              data-slot="record-panel-section-chevron"
+              className="size-3 shrink-0 text-muted-foreground transition-transform duration-state group-data-panel-open/fold:rotate-90 rtl:rotate-180 rtl:group-data-panel-open/fold:rotate-90"
+            />
           </CollapsibleTrigger>
         </h3>
         {action ? (

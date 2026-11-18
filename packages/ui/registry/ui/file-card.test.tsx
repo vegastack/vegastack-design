@@ -413,3 +413,39 @@ test("a menu action's shortcut key picks it", async () => {
   await userEvent.keyboard("r");
   expect(onSelect).toHaveBeenCalledTimes(1);
 });
+
+test("row: 44px and borderless, a 20px icon, one meta line, a named source, and actions only on hover or focus", async () => {
+  const screen = await render(
+    <ul>
+      <FileCard
+        variant="row"
+        name="spec.pdf"
+        contentType="application/pdf"
+        descriptions={["2.2 MB", null, "3w ago"]}
+        file={fileOf("spec.pdf")}
+        source={{ icon: <TrashIcon />, label: "From a comment" }}
+        actions={[{ label: "Remove", onSelect: () => {} }]}
+      />
+    </ul>,
+  );
+  const row = slot(screen.container, "attachment")!;
+  expect(row.parentElement!.tagName).toBe("LI");
+  const box = row.getBoundingClientRect();
+  expect(Math.round(box.height)).toBe(44);
+  expect(getComputedStyle(row).borderTopWidth).toBe("0px");
+  const media = slot(row, "attachment-media")!.getBoundingClientRect();
+  expect(media.width).toBe(20);
+  // RecordPanelItem's edge: 8px in.
+  expect(Math.round(media.left - box.left)).toBe(8);
+  const lines = row.querySelectorAll('[data-slot="attachment-description"]');
+  expect(lines).toHaveLength(1);
+  expect(lines[0]!.textContent).toBe("2.2 MB · 3w ago");
+  await expect
+    .element(screen.getByRole("img", { name: "From a comment" }))
+    .toBeVisible();
+  const actions = slot(row, "attachment-actions")!;
+  expect(getComputedStyle(actions).opacity).toBe("0");
+  await userEvent.tab();
+  await expect.poll(() => getComputedStyle(actions).opacity).toBe("1");
+  await expectNoA11yViolations(screen.container);
+});

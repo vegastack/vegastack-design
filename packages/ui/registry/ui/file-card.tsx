@@ -1,6 +1,7 @@
-// @vegastack file-card@0.117.0 sha256-HjSPY41MDueRl44GSyMhjR5fsREg5Qzi9zbsPnEbpFM=
+// @vegastack file-card@0.117.0 sha256-5hdB6QfCWHyxFAOIcOEkXCsqlhV3S6BEuhwMiGMrZaE=
 
 import * as React from "react";
+import { cn } from "@vegastack/design";
 import { MoreHorizontal, RefreshCwIcon, XIcon } from "lucide-react";
 
 import {
@@ -26,6 +27,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import { Image } from "@/components/ui/image";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { FileTypeIcon } from "@/lib/file-kind";
 
 /** A file's small preview image: structurally the same as a `FileViewerItem`'s `thumb`. */
@@ -123,6 +129,29 @@ export interface FileCardProps {
    * @default undefined
    */
   labels?: FileCardLabels;
+  /**
+   * `card` — a bordered tile for a grid or list of files; `row` — a side panel's file row: 44px,
+   * borderless, a 20px type icon or thumbnail, the name, one muted meta line (`descriptions`
+   * joined with " · "), an optional `source` icon, and its actions only on hover or focus (always
+   * on touch). A row renders its own `<li>`: put rows in a `RecordPanelList`, so they share the
+   * other rows' left edge.
+   * @default "card"
+   */
+  variant?: "card" | "row";
+  /**
+   * `row`: where the file came from — a comment, the Library — as an icon after the name, named
+   * by its tooltip.
+   * @default undefined
+   */
+  source?: FileCardSource | null;
+}
+
+/** Where a `FileCard` row's file came from: an icon, named by its tooltip ("From a comment"). */
+export interface FileCardSource {
+  /** The 16px icon. */
+  icon: React.ReactNode;
+  /** Its tooltip and accessible name. */
+  label: string;
 }
 
 /** The names `FileCard` gives its link and menu; override them through `labels`. */
@@ -143,6 +172,18 @@ export interface FileCardLabels {
  * the whole card is a link (a download, or a page elsewhere). Put cards in an `AttachmentGroup`
  * (`layout="cards"` for a responsive grid) with `role="list"`; each card is a `listitem`.
  *
+ * @example
+ * <RecordPanelList>
+ *   <FileCard
+ *     variant="row"
+ *     name="spec-sheet.pdf"
+ *     contentType="application/pdf"
+ *     descriptions={["2.2 MB", "3w ago"]}
+ *     source={{ icon: <MessageSquare />, label: "From a comment" }}
+ *     file={file}
+ *     actions={[{ label: "Remove", onSelect: remove, destructive: true }]}
+ *   />
+ * </RecordPanelList>
  * @example
  * <AttachmentGroup layout="cards" role="list">
  *   <FileCard
@@ -172,18 +213,40 @@ export function FileCard({
   preview,
   size,
   labels,
+  variant = "card",
+  source,
 }: FileCardProps) {
   const src = thumb?.src ?? preview;
   const link = href !== undefined && file === undefined;
-  return (
+  const row = variant === "row";
+  const lines = descriptions?.filter((line) => line != null) ?? [];
+  const card = (
     <Attachment
-      role="listitem"
+      role={row ? undefined : "listitem"}
       muted={muted}
       file={file}
       onOpen={onOpen}
-      size={size}
+      size={row ? "default" : size}
+      data-variant={variant}
+      className={
+        row
+          ? // 44px and borderless, 8px in (RecordPanelItem's edge); its padding overrides the
+            // tile's own, which is set per part present.
+            "h-11 w-full min-w-0 flex-nowrap items-center gap-2 rounded-item border-0 bg-transparent has-data-[slot=attachment-content]:px-2 has-data-[slot=attachment-content]:py-0 has-data-[slot=attachment-media]:px-2 has-data-[slot=attachment-media]:py-0"
+          : undefined
+      }
     >
-      <AttachmentMedia variant={!icon && src ? "image" : "icon"}>
+      <AttachmentMedia
+        variant={!icon && src ? "image" : "icon"}
+        className={
+          row
+            ? cn(
+                "w-5",
+                (icon || !src) && "bg-transparent text-muted-foreground",
+              )
+            : undefined
+        }
+      >
         {icon ??
           (src ? (
             // Eager: a list that scrolls on its own never starts loading a lazy image below its
@@ -201,14 +264,48 @@ export function FileCard({
           ))}
       </AttachmentMedia>
       <AttachmentContent>
-        <AttachmentTitle>{name}</AttachmentTitle>
-        {descriptions?.map((line, i) =>
-          line == null ? null : (
-            // Every line reads in tabular figures (AttachmentDescription's own, API-36).
-            <AttachmentDescription key={i}>{line}</AttachmentDescription>
-          ),
+        <AttachmentTitle className={row ? "font-normal" : undefined}>
+          {name}
+        </AttachmentTitle>
+        {row ? (
+          lines.length > 0 ? (
+            <AttachmentDescription className="mt-0">
+              {lines.map((line, i) => (
+                <React.Fragment key={i}>
+                  {i > 0 ? " · " : null}
+                  {line}
+                </React.Fragment>
+              ))}
+            </AttachmentDescription>
+          ) : null
+        ) : (
+          descriptions?.map((line, i) =>
+            line == null ? null : (
+              // Every line reads in tabular figures (AttachmentDescription's own, API-36).
+              <AttachmentDescription key={i}>{line}</AttachmentDescription>
+            ),
+          )
         )}
       </AttachmentContent>
+      {row && source ? (
+        // Over the row's open button, so its tooltip answers hover and focus.
+        <Tooltip>
+          <TooltipTrigger
+            render={
+              <span
+                role="img"
+                tabIndex={0}
+                aria-label={source.label}
+                data-slot="file-card-source"
+                className="relative z-20 inline-flex size-6 shrink-0 items-center justify-center rounded-icon text-muted-foreground outline-none [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
+              />
+            }
+          >
+            {source.icon}
+          </TooltipTrigger>
+          <TooltipContent>{source.label}</TooltipContent>
+        </Tooltip>
+      ) : null}
       {link ? (
         <AttachmentTrigger
           render={
@@ -230,7 +327,14 @@ export function FileCard({
         />
       ) : null}
       {actions.length > 0 || extra ? (
-        <AttachmentActions>
+        <AttachmentActions
+          className={
+            row
+              ? // A row's actions show on hover or focus, while their menu is open, and always on touch.
+                "opacity-0 transition-opacity duration-state group-focus-within/attachment:opacity-100 group-hover/attachment:opacity-100 has-aria-expanded:opacity-100 pointer-coarse:opacity-100"
+              : undefined
+          }
+        >
           {extra}
           {actions.length > 0 ? (
             <DropdownMenu>
@@ -253,6 +357,13 @@ export function FileCard({
         </AttachmentActions>
       ) : null}
     </Attachment>
+  );
+  return row ? (
+    <li data-slot="file-card-row" className="min-w-0">
+      {card}
+    </li>
+  ) : (
+    card
   );
 }
 

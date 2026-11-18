@@ -100,15 +100,21 @@ bottom. There is no strip of icons. Never on a list page: a list's rows open in
 The page bar's **▥** (`RecordPanelToggle`) is its last control, after ⋯ and a divider
 (`ShellTopBarPanel`), and **⌘.** (Ctrl+. elsewhere) does the same from anywhere on the page.
 
-| Record width        | Panel                                                                                 | On load                        |
-| ------------------- | ------------------------------------------------------------------------------------- | ------------------------------ |
-| from 1088px (68rem) | docks beside the main column, which re-centres its content in the room left           | the person's remembered choice |
-| 640–1088px          | ▥ floats it over the page, edge to edge under the bar, with a shadow on its left      | closed                         |
-| under 640px         | the "Details" button (`RecordPanelTrigger`) opens the same sections as a bottom sheet | closed                         |
+| Record width      | Panel                                                                                 | On load                 |
+| ----------------- | ------------------------------------------------------------------------------------- | ----------------------- |
+| from `dockAt`     | docks beside the main column, which re-centres its content in the room left           | `open` (the app's call) |
+| 640px to `dockAt` | ▥ floats it over the page, edge to edge under the bar, with a shadow on its left      | closed                  |
+| under 640px       | the "Details" button (`RecordPanelTrigger`) opens the same sections as a bottom sheet | closed                  |
 
-- The app owns the remembered choice (`open`, `onOpenChange` on `RecordPanelProvider`) and keeps
-  it per person; only the docked panel is remembered. A floating panel and a phone sheet are
-  never remembered and never open on their own.
+- `dockAt` on `RecordPanelProvider` is the record width, in rem, from which the panel docks, set
+  per page type so the main column never shrinks below its measure: `69` (1104px, the default) for
+  a 720px reading column (a task, a meeting, a chat), `74` for a wider record (a customer, a
+  project, a product, a folder, a file), `75` for a document (a page, a table row, a skill) and
+  `95` for a document with its comment margin. The panel writes it as `data-dock`; the container
+  queries and the measured mode both read it, so the server and the client agree.
+- The app owns the open state (`open`, `onOpenChange` on `RecordPanelProvider`): pass `open` true
+  on load to show it wherever it docks, and keep `onOpenChange` for ▥ within the visit. A
+  floating panel and a phone sheet are never reported and never open on their own.
 - A docked panel that is open on load is drawn by the server, so nothing moves when the page
   hydrates. A person's open plays the motion once (`duration-panel`): docked, the panel grows
   from nothing and the work slides to stay centred; floating, it slides in from the edge.
@@ -128,8 +134,8 @@ The page bar's **▥** (`RecordPanelToggle`) is its last control, after ⋯ and 
 
 ### Sections and rows
 
-Each `RecordPanelSection` is a 40px header — fold chevron, title (14/600), a muted count and one
-optional action (`RecordPanelAction`, "+" by default) that shows on hover or focus — over its
+Each `RecordPanelSection` is a 40px header — the title (14/600), a muted count, then the fold
+chevron ("Files 4 ⌄", pointing on while folded, down while open) and one optional action (`RecordPanelAction`, "+" by default) that shows on hover or focus — over its
 rows, 16px in from the panel's edges, with a hairline under it. The app keeps each section's fold
 per record type (`sections`, `onSectionOpenChange` on `RecordPanelProvider`); `defaultOpen`
 stands until the person folds it. `useRecordPanel()` gives the page around the panel its controls —

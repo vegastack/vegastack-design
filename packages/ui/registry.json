@@ -14052,7 +14052,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
-        "@vegastack/image"
+        "@vegastack/image",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -14541,6 +14542,7 @@
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
         "@vegastack/popover",
+        "@vegastack/relative-time",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -16835,7 +16837,11 @@
         "@vegastack/design@^0.27.0",
         "@vegastack/design-tokens@^0.27.0"
       ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/text-spinner"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/text-spinner",
+        "@vegastack/tooltip"
+      ],
       "files": [
         {
           "path": "packages/ui/registry/ui/context-panel.tsx",

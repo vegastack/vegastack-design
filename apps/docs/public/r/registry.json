@@ -427,7 +427,7 @@
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
         "version": "0.117.0",
-        "integrity": "sha256-huw5zMvzHEhogxqB4JMMb3H+PhiAQvaX1QhiypYvs9A="
+        "integrity": "sha256-cHo/81G/8QbEU6xL0tu915Sv09qyE1E9dym7Aqd0+2Y="
       }
     },
     {
@@ -17313,7 +17313,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
-        "@vegastack/image"
+        "@vegastack/image",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -17326,7 +17327,7 @@
         "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
         "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
         "version": "0.117.0",
-        "integrity": "sha256-HjSPY41MDueRl44GSyMhjR5fsREg5Qzi9zbsPnEbpFM="
+        "integrity": "sha256-5hdB6QfCWHyxFAOIcOEkXCsqlhV3S6BEuhwMiGMrZaE="
       }
     },
     {
@@ -17866,6 +17867,7 @@
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
         "@vegastack/popover",
+        "@vegastack/relative-time",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -17879,7 +17881,7 @@
         "whenToUse": "Show who has access to or is in a place: the page bar's members slot, a space or record header, the Share button, a list row's Members cell (with count).",
         "whenNotToUse": "A picker of people (PeoplePicker) or a full member list (DataList).",
         "version": "0.117.0",
-        "integrity": "sha256-6ozlkgwPu1mgJ6bfYxpVZxQf5rksCjIck0i9mErFNx8="
+        "integrity": "sha256-L4F5RcaJNPVTpEkZu78m5w0NNSioLZr5l6Br9dVC3g0="
       }
     },
     {
@@ -19419,7 +19421,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.117.0",
-        "integrity": "sha256-S4jhcwby/wPWEYfFzohC2/MeEHN5n1n4Rv9VQauBTQ0="
+        "integrity": "sha256-P7fjzL7wWwyrmzD1mqnv25dWDE9PGEUmEbkRwWXteXA="
       }
     },
     {
@@ -20459,7 +20461,8 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
-        "@vegastack/text-spinner"
+        "@vegastack/text-spinner",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -20472,7 +20475,7 @@
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.117.0",
-        "integrity": "sha256-2er41OkZS46x5Sih1Q0EmoJiJG7YbfsCpOxm4cay3mY="
+        "integrity": "sha256-9HaRsmqrmnKWWN40iX4YpOYZx1zcsWI+9dHgs4EiRp0="
       }
     },
     {

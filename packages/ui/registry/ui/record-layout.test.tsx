@@ -40,6 +40,7 @@ const frames = () =>
 
 function Record({
   width,
+  dockAt,
   open,
   defaultOpen,
   onOpenChange,
@@ -47,6 +48,7 @@ function Record({
   onSectionOpenChange,
 }: {
   width: number;
+  dockAt?: 69 | 74 | 75 | 95;
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
@@ -55,6 +57,7 @@ function Record({
 }) {
   return (
     <RecordPanelProvider
+      dockAt={dockAt}
       open={open}
       defaultOpen={defaultOpen}
       onOpenChange={onOpenChange}
@@ -100,7 +103,7 @@ function Record({
   );
 }
 
-test("from 68rem the panel docks, 320px wide, open on first render, and the main column takes the rest", async () => {
+test("from 69rem (the default dockAt) the panel docks, 320px wide, open on first render, and the main column takes the rest", async () => {
   await page.viewport(1440, 900);
   const screen = await render(<Record width={1300} />);
   const panel = slot("record-panel")!;
@@ -116,6 +119,22 @@ test("from 68rem the panel docks, 320px wide, open on first render, and the main
     screen.getByRole("button", { name: "Hide details" }).element(),
   ).toHaveAttribute("aria-expanded", "true");
   await expectNoA11yViolations(screen.container);
+});
+
+test("dockAt moves the threshold: a 1150px record docks at the default 69rem and floats at 74rem", async () => {
+  await page.viewport(1440, 900);
+  const docked = await render(<Record width={1150} />);
+  await frames();
+  expect(slot("record-panel")!.getAttribute("data-dock")).toBe("69");
+  expect(getComputedStyle(slot("record-panel")!).display).toBe("flex");
+  await docked.unmount();
+  const screen = await render(<Record width={1150} dockAt={74} open />);
+  await frames();
+  const panel = slot("record-panel")!;
+  expect(panel.getAttribute("data-dock")).toBe("74");
+  expect(getComputedStyle(panel).display).toBe("none");
+  await screen.getByRole("button", { name: "Show details" }).click();
+  expect(getComputedStyle(slot("record-panel")!).position).toBe("absolute");
 });
 
 test("▥ hides and shows the docked panel, reporting each choice, and ⌘. does the same", async () => {
@@ -136,7 +155,7 @@ test("▥ hides and shows the docked panel, reporting each choice, and ⌘. does
   expect(changes).toEqual([false, true, false]);
 });
 
-test("below 68rem it starts closed even when remembered open, ▥ floats it over the page, and Escape closes it with focus back on ▥", async () => {
+test("below 69rem it starts closed even when remembered open, ▥ floats it over the page, and Escape closes it with focus back on ▥", async () => {
   await page.viewport(1440, 900);
   const changes: boolean[] = [];
   const screen = await render(
@@ -203,6 +222,11 @@ test("sections fold on their header and report each fold; an app's fold state wi
   }
   const screen = await render(<Folding />);
   const files = screen.getByRole("button", { name: "Files 1", exact: true });
+  // The name first, then the count, then the fold chevron ("Files 1 ⌄").
+  expect(files.element().lastElementChild).toHaveAttribute(
+    "data-slot",
+    "record-panel-section-chevron",
+  );
   expect(files.element()).toHaveAttribute("aria-expanded", "false");
   await files.click();
   expect(files.element()).toHaveAttribute("aria-expanded", "true");
