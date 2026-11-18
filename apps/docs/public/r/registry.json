@@ -1067,7 +1067,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.116.0",
-        "integrity": "sha256-UNuFkcBUtuO73EzinIphjmfUwRir9VG0soQ+xthXV2c="
+        "integrity": "sha256-7Wb/cbv0t65vSCGFGditlPsRwT03GtBBteJQGVuHe1U="
       }
     },
     {
