@@ -1663,7 +1663,7 @@
         "whenToUse": "A keyboard-first command palette — global ⌘K, action launchers, a filtered list of things to do or go to — including a large palette over server results, with a loading status, two-line results and a footer of key hints.",
         "whenNotToUse": "Picking a form value, and never a multi-select — Command's check mark is visual only (Select, SearchableSelect or Combobox) — or a small static action menu (DropdownMenu).",
         "version": "0.117.0",
-        "integrity": "sha256-Csr90DX6u77cjZ8Cr2RrYklrtCipDIC98JOJ3gRaKjc="
+        "integrity": "sha256-gY1oGOGaOEU0zj7q7Sa/GITbbMYmaoMGXzofOpu/+o4="
       }
     },
     {
@@ -24389,7 +24389,7 @@
         "whenToUse": "App-wide search behind ⌘K: scopes, results from your search call (with useAsyncSearch), recents and places when empty.",
         "whenNotToUse": "A command menu of actions only (Command), or filtering one list in place (ListToolbar's search).",
         "version": "0.117.0",
-        "integrity": "sha256-GYwq+/BbZWeu+5oYZHmmzvLje3Btz3qFuFf+4HFpaZ4="
+        "integrity": "sha256-2ggXz+Rd46mBcvEFs3LK3MVELCNPdUyVdF3P/Dq/bfs="
       }
     },
     {

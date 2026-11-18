@@ -266,11 +266,14 @@ function CommandDialog({
   className,
   showCloseButton = false,
   size = "default",
+  style,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, "children"> & {
   title?: string;
   description?: string;
   className?: string;
+  /** Inline style for the palette's surface (where an anchored palette writes its position). */
+  style?: React.CSSProperties;
   showCloseButton?: boolean;
   size?: CommandDialogSize;
   children: React.ReactNode;
@@ -290,6 +293,7 @@ function CommandDialog({
         )}
         showCloseButton={showCloseButton}
         size={size}
+        style={style}
       >
         <CommandDialogSizeContext.Provider value={size}>
           {children}
@@ -301,11 +305,25 @@ function CommandDialog({
 
 function CommandInput({
   className,
+  shape = "rect",
   ...props
-}: React.ComponentProps<typeof CommandPrimitive.Input>) {
+}: React.ComponentProps<typeof CommandPrimitive.Input> & {
+  /**
+   * `pill` takes a top-bar search box's shape (a capsule whose buttons are capsules, BRD-12):
+   * the palette opened over the global bar's box.
+   * @default 'rect'
+   */
+  shape?: "rect" | "pill";
+}) {
   return (
     <div data-slot="command-input-wrapper" className="p-1.25 pb-0">
-      <InputGroup className="h-8! rounded-item! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:ps-2!">
+      <InputGroup
+        shape={shape}
+        className={cn(
+          "h-8! border-input/30 bg-input/30 shadow-none! *:data-[slot=input-group-addon]:ps-2!",
+          shape === "rect" && "rounded-item!",
+        )}
+      >
         <CommandPrimitive.Input
           data-slot="command-input"
           className={cn(
