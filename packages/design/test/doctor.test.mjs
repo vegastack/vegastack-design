@@ -359,7 +359,7 @@ test("`doctor` fails with file:line when retired vocabulary is present, passes w
   );
   assert.match(
     dirtyRun.output,
-    /src\/app\/page\.tsx:2 {2}text-h1 {2}→ {2}PageHeader \(font-heading text-2xl font-semibold/,
+    /src\/app\/page\.tsx:2 {2}text-h1 {2}→ {2}PageHeader \(font-heading text-page-title font-semibold/,
   );
 });
 
