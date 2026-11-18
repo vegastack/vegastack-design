@@ -1,4 +1,4 @@
-// @vegastack command-search@0.117.0 sha256-2ggXz+Rd46mBcvEFs3LK3MVELCNPdUyVdF3P/Dq/bfs=
+// @vegastack command-search@0.117.0 sha256-pnh4O+xyjEuqxhJyHGCHFO961EphDp5AQd5rpOd5fg0=
 
 "use client";
 
@@ -322,9 +322,17 @@ export function CommandSearchInput({
         <div
           aria-hidden
           data-slot="command-search-progress"
-          className="pointer-events-none absolute inset-x-3 bottom-0 h-0.5 overflow-hidden rounded-full"
+          className={cn(
+            "pointer-events-none absolute bottom-0 h-0.5 overflow-hidden rounded-full",
+            // Inside the field's corners (the pill's 16px curve over the bar's box), and short of
+            // a trailing control: it runs under the text being searched, never under Ask.
+            bar ? "start-4" : "start-3",
+            trailing ? "end-32" : bar ? "end-4" : "end-3",
+          )}
         >
-          <span className="absolute inset-y-0 w-1/3 rounded-full bg-primary motion-indeterminate" />
+          {/* Quiet, not primary (operator, 2026-11-19): `muted-foreground` at 80%, 3.6:1 on the
+              field in light and 4.5:1 in dark — seen, but never the loudest thing in the palette. */}
+          <span className="absolute inset-y-0 w-1/3 rounded-full bg-muted-foreground/80 motion-indeterminate" />
         </div>
       ) : null}
     </div>
