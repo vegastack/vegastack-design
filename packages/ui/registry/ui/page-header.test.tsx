@@ -373,7 +373,7 @@ test("DS-03: the title renders the one page-heading face", async () => {
   const title = screen.getByRole("heading", { level: 1, name: "Profile" });
   const classes = title.element().className;
   expect(classes).toContain("font-heading");
-  expect(classes).toContain("text-2xl");
+  expect(classes).toContain("text-page-title");
   expect(classes).toContain("font-semibold");
 });
 
