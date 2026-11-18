@@ -34,21 +34,24 @@ pair `text-xs` with `leading-*` there). Everything from `text-lg` up carries opt
 metrics declared as per-size `--text-*--line-height` and `--text-*--letter-spacing` in the
 `@theme` bridge:
 
-| Step        | Size | Line-height | Letter-spacing |
-| ----------- | ---- | ----------- | -------------- |
-| `text-xs`   | 12px | stock       | 0              |
-| `text-sm`   | 14px | stock       | 0              |
-| `text-base` | 16px | stock       | 0              |
-| `text-lg`   | 18px | 26px        | −0.012em       |
-| `text-xl`   | 20px | 26px        | −0.02em        |
-| `text-2xl`  | 24px | 32px        | −0.04em        |
-| `text-3xl`  | 30px | 38px        | −0.04em        |
-| `text-4xl`  | 36px | 44px        | −0.05em        |
-| `text-5xl`  | 48px | 56px        | −0.06em        |
-| `text-6xl`  | 60px | 64px        | −0.06em        |
-| `text-7xl`  | 72px | 72px        | −0.06em        |
+| Step              | Size | Line-height | Letter-spacing |
+| ----------------- | ---- | ----------- | -------------- |
+| `text-xs`         | 12px | stock       | 0              |
+| `text-sm`         | 14px | stock       | 0              |
+| `text-base`       | 16px | stock       | 0              |
+| `text-lg`         | 18px | 26px        | −0.012em       |
+| `text-xl`         | 20px | 26px        | −0.02em        |
+| `text-2xl`        | 24px | 32px        | −0.04em        |
+| `text-page-title` | 26px | 32px        | −0.04em        |
+| `text-3xl`        | 30px | 38px        | −0.04em        |
+| `text-4xl`        | 36px | 44px        | −0.05em        |
+| `text-5xl`        | 48px | 56px        | −0.06em        |
+| `text-6xl`        | 60px | 64px        | −0.06em        |
+| `text-7xl`        | 72px | 72px        | −0.06em        |
 
-Sizes never move, so a pasted shadcn snippet still renders at the size shadcn drew it. Two of the
+Sizes never move, so a pasted shadcn snippet still renders at the size shadcn drew it.
+`text-page-title` is the one named step (TYP-21): 26px, between `text-2xl` and `text-3xl`, worn
+only by `PageHeader`'s title. Two of the
 line-heights get **looser**, not tighter: Tailwind's stock ratios collapse toward 1.0 at display
 sizes, which clips Geist's descenders once negative tracking pulls the glyphs together.
 
@@ -91,7 +94,7 @@ Only an identifier that happens to contain digits stays mono.
 
 ## Weight and roles
 
-There are no named role tokens. `text-h1`…`text-h4`, `text-label`, `text-code`, `text-mono-label`
+There are no named role tokens but one: `text-page-title`, the size of a page's title (TYP-21). `text-h1`…`text-h4`, `text-label`, `text-code`, `text-mono-label`
 and the `text-display-*` tier were utilities that baked size, line-height, weight and tracking
 together; they are replaced by the two or three stock utilities each one stood for — a section
 title is `font-heading text-base font-medium`, a control label is `text-sm font-medium`, inline code is
@@ -104,7 +107,7 @@ does the rest of the hierarchy work.
 
 | Role                | Utilities                                                                    |
 | ------------------- | ---------------------------------------------------------------------------- |
-| Page heading        | `font-heading text-2xl font-semibold`, through `PageHeader`                  |
+| Page heading        | `font-heading text-page-title font-semibold` (26/600), through `PageHeader`  |
 | Section heading     | `font-heading text-base font-medium` (an `h2`)                               |
 | Card / dialog title | `font-heading text-base font-medium`                                         |
 | Group label         | `text-xs font-medium text-muted-foreground`                                  |
@@ -115,7 +118,7 @@ does the rest of the hierarchy work.
 | Numbers             | `tabular-nums` in the regular font — counts, dates, amounts, quantities      |
 | Identifiers         | `font-mono` — references and keys such as `SYS-1042`, never a count or a sum |
 
-**One page heading.** A page's title goes through `PageHeader`, at `font-heading text-2xl font-semibold`;
+**One page heading.** A page's title goes through `PageHeader`, at `font-heading text-page-title font-semibold` (26/600);
 never hand-size an `h1`. Below it, a section is `font-heading text-base font-medium` and a group
 label inside a list or a menu is `text-xs font-medium text-muted-foreground`.
 

@@ -1292,7 +1292,7 @@ FRM-4 · FRM-15`
 
 ### 4. Tokens and semantics we add
 
-`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · COL-25 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 ·
+`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · COL-25 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 · TYP-21 ·
 ICO-1 · ICO-3 · ICO-6 · ICO-8`
 
 Four status families written in upstream's own `destructive` shape (COL-12); a status hue means
@@ -1611,7 +1611,9 @@ There is almost no doctrine in this section, and that is the point. These are pl
 utilities: `h-8`, `size-4`, `shadow-md`, `z-50`, `bg-foreground/10`, `opacity-50`,
 `font-semibold`, `text-4xl`, `transition-all duration-100 ease-in-out`. Corners are the exception
 above. Type SIZES are Tailwind's stock scale —
-`text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell.
+`text-sm` is 14px and `text-base` is 16px, everywhere, including the docs shell. One named step
+sits on top of it: `text-page-title`, 26/32 at the heading tier's −0.04em, the size of a page's
+title in `PageHeader` and of nothing else (TYP-21, Regent UI ground rules T1, 2026-11-18).
 
 **Type metrics are the one exception, and they are global** (TYP-15/16/17/18, MK 2026-09-22).
 Geist's own spec splits a COPY tier from a HEADING tier, and so does this system:

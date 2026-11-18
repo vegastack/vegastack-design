@@ -1,4 +1,4 @@
-// @vegastack page-header@0.111.0 sha256-tR6eQoOFjpI0vrZooO8ajFx2fUkdvs8l5N0rWl2lnDg=
+// @vegastack page-header@0.111.0 sha256-cgDk2PoSi3KwkA27sPAW+2O3lndDIXjsaKhSFZ0fhTc=
 
 "use client";
 
@@ -245,8 +245,9 @@ export function PageHeader({
               className={cn(
                 // A title never pushes the page sideways: an unbroken token breaks anywhere, both
                 // when it wraps freely and inside a multi-line clamp (where a token wider than
-                // the line was clipped with no ellipsis).
-                "min-w-0 font-heading text-2xl font-semibold wrap-anywhere text-foreground",
+                // the line was clipped with no ellipsis). The size is the page-title step, 26/32
+                // (TYP-21, UI ground rules T1).
+                "min-w-0 font-heading text-page-title font-semibold wrap-anywhere text-foreground",
               )}
             >
               {titleLines === "none" ? (

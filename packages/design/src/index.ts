@@ -16,8 +16,9 @@ import {
 // knows the stock radius scale, so without this `cn("rounded-item", "rounded-card")` kept BOTH and
 // the role that sorts later in the stylesheet won regardless of order. Teaching its `radius` theme
 // the role names makes a later role replace an earlier one, like any other conflicting utility.
-// (Before the shadcn reset this was an `extendTailwindMerge` for the deleted font-size role tokens;
-// TYP-1 = shadcn, so there is no custom font size left to teach it.)
+// TYP-21 (ours, Regent operator 2026-11-18): `text-page-title` is the one named font-size step.
+// Untaught, tailwind-merge reads it as a text COLOUR, so `cn("text-page-title", "text-foreground")`
+// dropped the size; taught, it conflicts only with other font sizes, as `text-2xl` does.
 const CORNER_ROLES = [
   "control",
   "icon",
@@ -32,7 +33,7 @@ const CORNER_ROLES = [
   "tile",
 ] as const;
 const twMerge = extendTailwindMerge({
-  extend: { theme: { radius: [...CORNER_ROLES] } },
+  extend: { theme: { radius: [...CORNER_ROLES], text: ["page-title"] } },
 });
 
 /**

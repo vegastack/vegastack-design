@@ -446,6 +446,12 @@ const TYPE_STEPS: { token: string; px: string; ls?: string; note?: string }[] =
     { token: "text-5xl", px: "48 / 56", ls: "−0.06em", note: "display" },
     { token: "text-4xl", px: "36 / 44", ls: "−0.05em" },
     { token: "text-3xl", px: "30 / 38", ls: "−0.04em" },
+    {
+      token: "text-page-title",
+      px: "26 / 32",
+      ls: "−0.04em",
+      note: "a page's title only (TYP-21)",
+    },
     { token: "text-2xl", px: "24 / 32", ls: "−0.04em" },
     { token: "text-xl", px: "20 / 26", ls: "−0.02em" },
     { token: "text-lg", px: "18 / 26", ls: "−0.012em" },
