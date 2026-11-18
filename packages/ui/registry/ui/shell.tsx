@@ -1,4 +1,4 @@
-// @vegastack shell@0.115.0 sha256-VU60HAAd6Qe08CcP+6elxCi/Nxk2qGkMAFfd1bxwKuw=
+// @vegastack shell@0.115.0 sha256-UuvG63TO+bIXjkFHiM1mk5us6/kozfytmH2odmdnKBY=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -592,7 +592,7 @@ export type ShellTopBarProps = React.ComponentProps<"header">;
  * <ShellTopBar>
  *   <ShellTopBarTitle parents={<a href="/spaces/general">General</a>}>Q3 pricing</ShellTopBarTitle>
  *   <ShellTopBarMembers><MembersStack people={members} /></ShellTopBarMembers>
- *   <ShellTopBarShare><Button variant="ghost" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
+ *   <ShellTopBarShare><Button variant="ghost" size="sm"><Lock /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
  *   <ShellTopBarFavorite><Button variant="ghost" size="icon-sm" aria-label="Favourite"><Star /></Button></ShellTopBarFavorite>
  *   <ShellTopBarMore><MoreMenu /></ShellTopBarMore>
  * </ShellTopBar>
@@ -604,7 +604,7 @@ export function ShellTopBar({ className, ...props }: ShellTopBarProps) {
       data-shell-region="topbar"
       tabIndex={-1}
       className={cn(
-        "@container/shell-topbar flex h-(--shell-topbar-height) min-w-0 items-center gap-2 ps-3.5 pe-2.5 outline-none",
+        "@container/shell-topbar flex h-(--shell-topbar-height) min-w-0 items-center gap-1 border-b ps-3.5 pe-2.5 outline-none",
         className,
       )}
       {...props}
@@ -637,7 +637,7 @@ export function ShellTopBarTitle({
     <div
       data-slot="shell-topbar-title"
       className={cn(
-        "order-1 flex min-w-0 flex-1 items-center gap-1 text-sm",
+        "order-1 flex min-w-0 flex-1 items-center gap-1 pe-1 text-sm",
         className,
       )}
       {...props}
@@ -691,7 +691,14 @@ function topBarSlot(slot: string, order: string, extra = "") {
     return (
       <div
         data-slot={slot}
-        className={cn("flex flex-none items-center", order, extra, className)}
+        className={cn(
+          // An empty slot, or one whose only child is empty (an app's portal target), takes no
+          // room and no gap, so the controls that are there keep one 4px rhythm.
+          "flex flex-none items-center empty:hidden has-[>:only-child:empty]:hidden",
+          order,
+          extra,
+          className,
+        )}
         style={
           reserve
             ? {
@@ -743,7 +750,7 @@ export const ShellTopBarMembers = topBarSlot(
  * `ShellTopBarLabel` and a narrow bar shows its icon alone.
  *
  * @example
- * <ShellTopBarShare><Button variant="ghost" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
+ * <ShellTopBarShare><Button variant="ghost" size="sm"><Lock /><ShellTopBarLabel>Share</ShellTopBarLabel></Button></ShellTopBarShare>
  */
 export const ShellTopBarShare = topBarSlot(
   "shell-topbar-share",
@@ -800,7 +807,7 @@ export const ShellTopBarPanel = topBarSlot(
   "order-7",
   cn(
     // A phone's bar has no ▥ (the page's Details button opens the panel), so no divider either.
-    "gap-1 empty:hidden has-[>:only-child:empty]:hidden max-sm:hidden before:mx-1 before:h-4.5 before:w-px before:bg-border",
+    "gap-1 max-sm:hidden before:mx-1 before:h-4.5 before:w-px before:bg-border",
     BUTTON_SHAPE,
   ),
 );
@@ -833,7 +840,7 @@ export function ShellTopBarAccount({
 const AccountSlot = topBarSlot(
   "shell-topbar-account",
   "order-8",
-  "hidden gap-2 @max-[40rem]/shell:flex",
+  "ms-1 hidden gap-2 @max-[40rem]/shell:flex",
 );
 
 /**
@@ -841,7 +848,7 @@ const AccountSlot = topBarSlot(
  * has room; below it the button shows its icon alone.
  *
  * @example
- * <Button variant="ghost" size="sm"><Share2 /><ShellTopBarLabel>Share</ShellTopBarLabel></Button>
+ * <Button variant="ghost" size="sm"><Lock /><ShellTopBarLabel>Share</ShellTopBarLabel></Button>
  */
 export function ShellTopBarLabel({
   className,

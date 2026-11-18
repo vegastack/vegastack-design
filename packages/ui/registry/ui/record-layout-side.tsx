@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.115.0 sha256-oDJoJbbD0L7FZntNF2/8539SJEX5VEUlMKDgfybx7fs=
+// @vegastack record-layout@0.115.0 sha256-FHVrQZgY+c6WqSi+QQy1qWjAGxpx7mbeidfZFrsOzDU=
 
 "use client";
 
@@ -495,7 +495,7 @@ export type RecordPanelProps = Omit<React.ComponentPropsWithRef<"aside">, "id">;
 
 /**
  * `RecordPanel` — the side panel itself, after `RecordLayoutMain` inside `RecordLayout`: an
- * `aside` of stacked `RecordPanelSection`s on the `panel` surface. It docks from 1088px (68rem) of record
+ * `aside` of stacked `RecordPanelSection`s on the page's own ground, behind a hairline. It docks from 1088px (68rem) of record
  * width, floats over the page below that (Escape or a click on the page closes it, and focus
  * returns to ▥), and is a bottom sheet on a phone. Never on a list page: rows open in `Peek`.
  *
@@ -580,9 +580,8 @@ export function RecordPanel({
   if (mode === "sheet")
     return (
       <PeekSheet
-        // A side surface, as where it docks (LAY-26: the page is the extreme, side surfaces one
-        // notch in), not the popover lift of a menu.
-        className="bg-panel [--drawer-bleed-background:var(--panel)]"
+        // The page's own ground, as where it docks (COL-26), not the popover lift of a menu.
+        className="bg-background [--drawer-bleed-background:var(--background)]"
         open={ctx.sheet}
         onOpenChange={(next) => {
           if (!next) ctx.setSheet(false);
@@ -640,7 +639,7 @@ export function RecordPanel({
         if (event.target === event.currentTarget) ctx.clearMotion();
       }}
       className={cn(
-        "hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-panel text-foreground outline-none",
+        "hidden min-h-0 w-80 shrink-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain border-s bg-background text-foreground outline-none",
         // From 68rem (1088px) of record width it docks: in the flow, as tall as the record, while open.
         "@min-[68rem]/record-layout:data-open:flex",
         // Narrower, ▥ floats it over the page, edge to edge under the bar, with a shadow.

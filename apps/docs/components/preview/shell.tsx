@@ -1,7 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Bell, MoreHorizontal, Share2, Star } from "lucide-react";
+import { Bell, Lock, MoreHorizontal, Star } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import Shell01Page from "../../../../packages/ui/registry/blocks/shell-01/page";
 // Copied INTO apps/docs via `shadcn add @vegastack/shell` (dogfoods the registry) → auto-scanned.
@@ -69,7 +69,7 @@ function Bar() {
       </ShellTopBarWatch>
       <ShellTopBarShare>
         <Button variant="ghost" size="sm">
-          <Share2 />
+          <Lock />
           <ShellTopBarLabel>Share</ShellTopBarLabel>
         </Button>
       </ShellTopBarShare>

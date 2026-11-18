@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 42422
-      sha256: "1e604fa9e1a29e3b8192708c11f2b130272fd19929e15518e179c39c704962cb"
+      bytes: 41829
+      sha256: "359adccdb18ec22d11a4aa97fb8f79ab8d7b36657645a453f7c186ae8fc95330"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 14508
-      sha256: "53d16637c0bc84842deaf163a11a97d0cecfec4e7e1070b2339bcacdab3c7edd"
+      bytes: 14365
+      sha256: "0fbe07b372ccc51b854cfe6cd72dc2833f28d4c52c465851186dfc1f8c739e98"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -310,10 +310,6 @@ themes:
     muted-foreground:
       type: "color"
       value: "oklch(0.5 0 0)"
-    panel:
-      type: "color"
-      value: "oklch(0.985 0 0)"
-      description: "COL-26 (ours, operator 2026-11-18, record side panel): the record page's side panel surface, a hair off the page so the panel reads as reference beside the work — the sidebar's tint in light; in dark one notch from the page toward the canvas, the same step as `shell-column` (oklch(0.165 0 0)), per the frame's rule (LAY-26). Opaque, because below 68rem of record width the panel floats over the page. Read it as `bg-panel`."
     popover:
       type: "color"
       value: "oklch(1 0 0)"
@@ -363,11 +359,11 @@ themes:
     shell-canvas:
       type: "color"
       value: "oklch(0.964 0 0)"
-      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the window's ground around the frame's card. The global bar and the rail sit on it: the outermost step (light about #F3F3F3, a step under `muted`; dark oklch(0.205 0 0), about #171717, the value of `card` and `sidebar`). The frame's rule: the page is the extreme (white in light, near-black in dark) and each step out from the work moves one notch toward the middle: page, then the side surfaces (`shell-column`, `panel`), then the canvas. Read it as `bg-shell-canvas`."
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the window's ground around the frame's card. The global bar and the rail sit on it: the outermost step (light about #F3F3F3, a step under `muted`; dark oklch(0.205 0 0), about #171717, the value of `card` and `sidebar`). The frame's rule: the page is the extreme (white in light, near-black in dark) and each step out from the work moves one notch toward the middle: page, then the module column (`shell-column`), then the canvas. Read it as `bg-shell-canvas`."
     shell-card:
       type: "color"
       value: "oklch(1 0 0)"
-      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, and the docked assistant's card: the extreme of the frame (light white; dark oklch(0.145 0 0), about #0A0A0A, the value of `background`), so cards and menus (`card`, `popover`, 0.205 in dark) sit lifted on it. The frame's rule: the page is the extreme (white in light, near-black in dark) and each step out from the work moves one notch toward the middle: page, then the side surfaces (`shell-column`, `panel`), then the canvas. The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, and the docked assistant's card: the extreme of the frame (light white; dark oklch(0.145 0 0), about #0A0A0A, the value of `background`), so cards and menus (`card`, `popover`, 0.205 in dark) sit lifted on it. The frame's rule: the page is the extreme (white in light, near-black in dark) and each step out from the work moves one notch toward the middle: page, then the module column (`shell-column`), then the canvas. The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
     shell-card-inset:
       type: "dimension"
       value: "0.5rem"
@@ -379,7 +375,7 @@ themes:
     shell-column:
       type: "color"
       value: "oklch(0.985 0 0)"
-      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the module column inside the card: one notch from the page toward the canvas, the same step as the record side panel's `panel` (light 0.985, the value of `sidebar`; dark oklch(0.165 0 0), about #0E0E0E). The shell sets `--sidebar` to it inside the column. Read it as `bg-shell-column`."
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the module column inside the card: one notch from the page toward the canvas (light 0.985, the value of `sidebar`; dark oklch(0.165 0 0), about #0E0E0E). The shell sets `--sidebar` to it inside the column. Read it as `bg-shell-column`."
     shell-column-width:
       type: "dimension"
       value: "15rem"
@@ -828,9 +824,6 @@ themes:
     muted-foreground:
       type: "color"
       value: "oklch(0.708 0 0)"
-    panel:
-      type: "color"
-      value: "oklch(0.165 0 0)"
     popover:
       type: "color"
       value: "oklch(0.205 0 0)"
