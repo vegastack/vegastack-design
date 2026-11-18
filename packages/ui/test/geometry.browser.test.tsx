@@ -5216,6 +5216,7 @@ test('a "fill" board ends where its page scrolls: one vertical scroller, never t
         getItemId={(card) => card.id}
         getItemLabel={(card) => card.name}
         renderCard={(card) => <span>{card.name}</span>}
+        onMove={() => undefined}
       />
       {/* A footer after the board, flattened through a display:contents wrapper. */}
       <div className="contents">

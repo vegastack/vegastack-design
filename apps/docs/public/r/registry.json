@@ -1067,7 +1067,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.116.0",
-        "integrity": "sha256-M3iwCYw/sAqExyxdH452wvU9u2scc7xo52oDdTR2R5E="
+        "integrity": "sha256-mauHlLXZeUbK5+NUMzjs4CHBpMAARQBjMUy1k3gzabI="
       }
     },
     {
@@ -1775,7 +1775,7 @@
         "whenToUse": "Record tables that need grouping, inline cell editing, multi-key sort, column management, frozen or resizable columns, or 10k+ rows and 100+ columns via row and column virtualization — the CRM pipeline-table and spreadsheet tier.",
         "whenNotToUse": "Simple presentational record lists — DataList is lighter and still the right default; kanban views (Board).",
         "version": "0.116.0",
-        "integrity": "sha256-/MyCtawOc1rW0/zz9Y5Wdh8yhobBkR8+TGhA4nOvxeI="
+        "integrity": "sha256-hi+0/4FZ9cSlJcFCaWhKob868lry+nN/ZqTVEp45Nfs="
       }
     },
     {
@@ -23615,7 +23615,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.115.0",
-        "integrity": "sha256-b8QbyRL5lKSQ9G7bzN3OIaKojhs/asum4CKzLZOZDJw="
+        "integrity": "sha256-IYcUTLvmplyUbfTJA0eoDgbBE1BhtodN17P0O2TCaoM="
       }
     },
     {
