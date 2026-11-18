@@ -1,9 +1,9 @@
-// @vegastack version-compare@0.116.0 sha256-QJAgGJtiNiB3zi7e9/jY9uAuYoR/SJ63o26UW1RNzqM=
+// @vegastack version-compare@0.116.0 sha256-3hgsZIKc2ccaNdMiePz3gfkYQUtTYIYtsc4pdFxRFAk=
 
 "use client";
 
 import * as React from "react";
-import { cn } from "@vegastack/design";
+import { cn, mergeRefs } from "@vegastack/design";
 import { ChevronLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DiffView } from "@/components/ui/diff-view";
@@ -25,6 +25,17 @@ import {
  * VersionCompare — a document's history at full size: the selected version on the start side,
  * the versions beside it, and the actions on it (Restore this version, Copy) pinned at the foot.
  * ----------------------------------------------------------------------------------------------*/
+
+/** Holds the 40rem probe out of the layout: no box, nothing seen, nothing hit. */
+const PROBE_FRAME: React.CSSProperties = {
+  position: "absolute",
+  insetInline: 0,
+  top: 0,
+  height: 0,
+  overflow: "hidden",
+  visibility: "hidden",
+  pointerEvents: "none",
+};
 
 /** Props accepted by `VersionCompare`. */
 export interface VersionCompareProps
@@ -95,8 +106,9 @@ export interface VersionCompareProps
  * size="fullscreen"`: the selected version's text on the start side (its changes through
  * `DiffView` while `showChanges` is on), the versions in a `VersionList` beside it — grouped by
  * day, an agent's versions under the agent avatar — on `ResizablePanels`, and `actions` (Restore
- * this version, Copy) in a footer that stays put while both sides scroll. Below 640px the list
- * comes first and picking a version pushes its preview in, with a back button to the list;
+ * this version, Copy) in a footer that stays put while both sides scroll. Narrower than 640px (its
+ * own width, so a side panel on a wide window counts as narrow) the list comes first and picking a
+ * version pushes its preview in, with a back button to the list;
  * `phoneView` / `defaultPhoneView` open it on the preview instead.
  *
  * @example
@@ -137,10 +149,40 @@ export function VersionCompare({
   defaultPhoneView = "list",
   onPhoneViewChange,
   className,
+  ref,
   ...props
 }: VersionCompareProps) {
   const switchId = React.useId();
-  const wide = useMediaQuery("(min-width: 40rem)");
+  // Side by side only when the component itself has room: a 320px side panel on a wide window
+  // gets the one-side-at-a-time layout. Until it is measured, the window's width stands in. The
+  // layout widths (`offsetWidth`) ignore a dialog's opening zoom, and a hidden 40rem probe, watched
+  // with the root, notices a root font-size change that leaves the root's own box as it was.
+  const windowWide = useMediaQuery("(min-width: 40rem)");
+  const [ownWide, setOwnWide] = React.useState<boolean | null>(null);
+  const rootRef = React.useRef<HTMLDivElement>(null);
+  const probeRef = React.useRef<HTMLDivElement>(null);
+  const setRootRef = React.useMemo(() => mergeRefs(rootRef, ref), [ref]);
+  /** Focus was inside when the layout flipped: the flip unmounts it, so it is put back. */
+  const refocus = React.useRef(false);
+  React.useLayoutEffect(() => {
+    const root = rootRef.current;
+    const probe = probeRef.current;
+    if (!root || !probe || typeof ResizeObserver === "undefined") return;
+    const measure = () => {
+      const next = root.offsetWidth >= probe.offsetWidth;
+      setOwnWide((was) => {
+        if (was !== null && was !== next)
+          refocus.current = root.contains(document.activeElement);
+        return next;
+      });
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(root);
+    observer.observe(probe);
+    return () => observer.disconnect();
+  }, []);
+  const wide = ownWide ?? windowWide;
   // On a phone one side shows at a time: the list first (unless the host opens the preview), a
   // picked version's preview pushed in.
   const [viewState, setViewState] = React.useState(defaultPhoneView);
@@ -172,6 +214,21 @@ export function VersionCompare({
         )
         ?.focus();
   }, [view, requests]);
+  // A flip between the layouts (the box resized) keeps focus inside: on the selected version (else
+  // the first), or on Back when only the preview shows.
+  React.useLayoutEffect(() => {
+    if (!refocus.current) return;
+    refocus.current = false;
+    const root = rootRef.current;
+    if (!root || root.contains(document.activeElement)) return;
+    (
+      root.querySelector<HTMLElement>(
+        "[data-slot=version-list-item][data-selected]",
+      ) ??
+      root.querySelector<HTMLElement>("[data-slot=version-list-item]") ??
+      back.current
+    )?.focus();
+  }, [wide]);
 
   const list = (
     <VersionList
@@ -241,11 +298,18 @@ export function VersionCompare({
 
   return (
     <div
+      ref={setRootRef}
       data-slot="version-compare"
       data-view={wide ? undefined : view}
-      className={cn("flex min-h-0 min-w-0 flex-1 flex-col gap-4", className)}
+      className={cn(
+        "relative flex min-h-0 min-w-0 flex-1 flex-col gap-4",
+        className,
+      )}
       {...props}
     >
+      <div aria-hidden style={PROBE_FRAME}>
+        <div ref={probeRef} style={{ width: "40rem", height: 0 }} />
+      </div>
       {wide ? (
         <ResizablePanelGroup
           orientation="horizontal"

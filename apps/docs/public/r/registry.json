@@ -609,7 +609,7 @@
         "whenToUse": "A document's full history in DialogContent size=\"fullscreen\": read a version or its changes beside the list, and restore or copy it.",
         "whenNotToUse": "A short history beside a page (VersionList alone), an activity feed (ActivityFeed), or comparing two arbitrary texts (DiffView).",
         "version": "0.116.0",
-        "integrity": "sha256-QJAgGJtiNiB3zi7e9/jY9uAuYoR/SJ63o26UW1RNzqM="
+        "integrity": "sha256-3hgsZIKc2ccaNdMiePz3gfkYQUtTYIYtsc4pdFxRFAk="
       }
     },
     {

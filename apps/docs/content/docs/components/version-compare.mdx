@@ -67,7 +67,8 @@ import { VersionCompare } from "@/components/ui/version-compare";
 - **`actions`** — Restore this version, Copy — sit in the footer.
 
 The preview and the list share a [`ResizablePanels`](/docs/components/resizable) group: drag the
-handle to give the list more room (it keeps at least 240px). Below 640px one side shows at a time:
+handle to give the list more room (it keeps at least 240px). When it is narrower than 640px itself
+(a phone, or a side panel on a wide window) one side shows at a time:
 the list first; a tap (or Enter) on a version pushes its preview in, with the actions, and a
 "Versions" button goes back.
 

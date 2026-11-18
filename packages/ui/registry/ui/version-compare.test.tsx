@@ -1,6 +1,6 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
@@ -26,35 +26,27 @@ const versions: VersionItem[] = [
   },
 ];
 
-/** Answer `(min-width: 40rem)` as a wide screen or a phone. */
-function mockWide(wide: boolean) {
-  const spy = vi.spyOn(window, "matchMedia").mockImplementation(
-    (query: string) =>
-      ({
-        matches: wide && query.includes("min-width: 40rem"),
-        media: query,
-        onchange: null,
-        addEventListener: () => {},
-        removeEventListener: () => {},
-        addListener: () => {},
-        removeListener: () => {},
-        dispatchEvent: () => false,
-      }) as MediaQueryList,
-  );
-  onTestFinished(() => spy.mockRestore());
+/** A wide window or a phone: the component goes side by side only when it is wide itself. */
+async function viewport(wide: boolean) {
+  await page.viewport(wide ? 1280 : 390, 800);
 }
 
 function Harness({
   diff,
   preview = <p>Text of the selected version</p>,
+  width,
 }: {
   diff?: { before: string; after: string };
   preview?: React.ReactNode;
+  /** The box it sits in, e.g. a 320px side panel. @default the window's width */
+  width?: number;
 }) {
   const [selected, setSelected] = React.useState("v3");
   const [showChanges, setShowChanges] = React.useState(false);
   return (
-    <div style={{ height: 600, display: "flex" }}>
+    <div
+      style={{ height: 600, display: "flex", flexDirection: "column", width }}
+    >
       <VersionCompare
         versions={versions}
         selectedId={selected}
@@ -82,7 +74,7 @@ function Harness({
 }
 
 test("wide: the preview and the day-grouped list side by side on resizable panels, the actions pinned below", async () => {
-  mockWide(true);
+  await viewport(true);
   const screen = await render(<Harness />);
   const root = screen.container.querySelector<HTMLElement>(
     "[data-slot=version-compare]",
@@ -110,7 +102,7 @@ test("wide: the preview and the day-grouped list side by side on resizable panel
 });
 
 test("Show changes: the switch toggles it; with a diff the preview is a DiffView, without one the host's preview stays", async () => {
-  mockWide(true);
+  await viewport(true);
   const screen = await render(
     <Harness
       diff={{
@@ -141,8 +133,118 @@ test("Show changes: the switch toggles it; with a diff the preview is a DiffView
   expect(host.container.textContent).toContain("Text of the selected version");
 });
 
+test("a narrow box on a wide window (a side panel): one side at a time, like a phone", async () => {
+  await viewport(true);
+  const screen = await render(<Harness width={320} />);
+  const root = () =>
+    screen.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+  await vi.waitFor(() => expect(root().dataset.view).toBe("list"));
+  expect(root().querySelector("[data-slot=version-compare-panels]")).toBeNull();
+  await screen.getByRole("option", { name: /Before review/ }).click();
+  expect(root().dataset.view).toBe("preview");
+  await expect
+    .element(screen.getByRole("button", { name: "Versions" }))
+    .toBeInTheDocument();
+});
+
+test("the box resizing flips the layout and keeps focus; so does a root font-size change", async () => {
+  await viewport(true);
+  function Resizable() {
+    const [width, setWidth] = React.useState(800);
+    return (
+      <>
+        <Button onClick={() => setWidth((w) => (w === 800 ? 320 : 800))}>
+          Resize
+        </Button>
+        <Harness width={width} />
+      </>
+    );
+  }
+  const screen = await render(<Resizable />);
+  const root = () =>
+    screen.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+  await vi.waitFor(() =>
+    expect(
+      root().querySelector("[data-slot=version-compare-panels]"),
+    ).not.toBeNull(),
+  );
+  const row = root().querySelector<HTMLElement>(
+    "[data-slot=version-list-item][data-selected]",
+  )!;
+  row.focus();
+  // Shrink from outside, without moving focus off the row.
+  (screen.container.querySelector("button") as HTMLButtonElement).dispatchEvent(
+    new MouseEvent("click", { bubbles: true }),
+  );
+  await vi.waitFor(() => expect(root().dataset.view).toBe("list"));
+  await vi.waitFor(() =>
+    expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
+      "version-list-item",
+    ),
+  );
+  await screen.unmount();
+
+  // With nothing selected, focus lands on the first version.
+  function Unselected() {
+    const [width, setWidth] = React.useState(800);
+    return (
+      <>
+        <Button onClick={() => setWidth(320)}>Shrink</Button>
+        <div
+          style={{
+            height: 600,
+            display: "flex",
+            flexDirection: "column",
+            width,
+          }}
+        >
+          <VersionCompare versions={versions} currentId="v3" now={now} />
+        </div>
+      </>
+    );
+  }
+  const unselected = await render(<Unselected />);
+  const first = await vi.waitFor(() => {
+    const item = unselected.container.querySelector<HTMLElement>(
+      "[data-slot=version-compare-panels] [data-slot=version-list-item]",
+    );
+    expect(item).not.toBeNull();
+    return item!;
+  });
+  first.focus();
+  (
+    unselected.container.querySelector("button") as HTMLButtonElement
+  ).dispatchEvent(new MouseEvent("click", { bubbles: true }));
+  await vi.waitFor(() =>
+    expect(
+      unselected.container.querySelector<HTMLElement>(
+        "[data-slot=version-compare]",
+      )!.dataset.view,
+    ).toBe("list"),
+  );
+  // The flip remounted the list: focus is on its new first row, not the removed one.
+  expect(first.isConnected).toBe(false);
+  expect((document.activeElement as HTMLElement | null)?.dataset.slot).toBe(
+    "version-list-item",
+  );
+  await unselected.unmount();
+
+  // 40rem grows past a 700px box when the root font goes from 16px to 20px.
+  const html = document.documentElement;
+  const before = html.style.fontSize;
+  onTestFinished(() => {
+    html.style.fontSize = before;
+  });
+  const fixed = await render(<Harness width={700} />);
+  const fixedRoot = () =>
+    fixed.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
+  await vi.waitFor(() => expect(fixedRoot().dataset.view).toBeUndefined());
+  html.style.fontSize = "20px";
+  await vi.waitFor(() => expect(fixedRoot().dataset.view).toBe("list"));
+});
+
 test("phone: the list first; a picked version pushes its preview in, with the actions; Back returns to the list", async () => {
-  mockWide(false);
+  await viewport(false);
   const screen = await render(<Harness />);
   const root = () =>
     screen.container.querySelector<HTMLElement>("[data-slot=version-compare]")!;
@@ -190,7 +292,7 @@ test("phone: the list first; a picked version pushes its preview in, with the ac
 });
 
 test('phone, defaultPhoneView="preview": opens straight on the selected version; Back returns to the list and reports it', async () => {
-  mockWide(false);
+  await viewport(false);
   const onPhoneViewChange = vi.fn();
   const screen = await render(
     <div style={{ height: 600, display: "flex" }}>
@@ -234,7 +336,7 @@ test('phone, defaultPhoneView="preview": opens straight on the selected version;
 });
 
 test("phone, controlled phoneView: the host decides the side; a pick and Back report it", async () => {
-  mockWide(false);
+  await viewport(false);
   const onPhoneViewChange = vi.fn();
   function Controlled() {
     const [view, setView] = React.useState<"list" | "preview">("preview");
