@@ -3022,7 +3022,7 @@
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
         "version": "0.116.0",
-        "integrity": "sha256-546wBXGnEJkfwzDIhJOricDlV9gnZIPmsZmS26GmcM0="
+        "integrity": "sha256-7Lx6ebMwysITRshR8mhDeUPMS+i8f14tODBN0+At9ts="
       }
     },
     {
@@ -18679,7 +18679,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.116.0",
-        "integrity": "sha256-rmUj/DKjaTg6WnHLjM7P5i7M+9j7dErAtf4DTpaPik4="
+        "integrity": "sha256-EN+LdPyL0K7HKL+p6MOMt+yAcRdbnmZsVNg+XAq2QYI="
       }
     },
     {

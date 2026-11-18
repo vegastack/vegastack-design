@@ -243,7 +243,8 @@ Upstream's file plus `packages/ui/upstream/patches/drawer.patch`. Every hunk:
   rather than running past its edge. MK, 2026-10-13.
 - **LAY-24** — in the desktop app (`data-desktop-titlebar` on `<html>`) a side or top drawer starts
   below the window's title row (`--shell-globalbar-height`), so it never sits under the window's own
-  buttons; bottom drawers are unchanged. Regent operator, 2026-11-19.
+  buttons, and a top drawer's viewport is clipped at that row so its bleed and snap points never
+  cross it; bottom drawers are unchanged. Regent operator, 2026-11-19.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of its
   own.
