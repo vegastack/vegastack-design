@@ -54,7 +54,8 @@ The header's `actions` take the chat's own tools — New chat, Chats — as
 Omit `onOpenFull` to hide it (no Agents module, no full chat).
 
 The card grows out of the same corner, about 380 × 520 and never larger than its container less a
-gutter. It renders nothing until it first opens, so the chat you put in it costs nothing until
+gutter. Floating, it can be resized from its top-start corner (pointer, or the grip's arrow keys) to
+no less than 320 × 320; once dragged, the window bounds it instead of the container. It renders nothing until it first opens, so the chat you put in it costs nothing until
 asked for; after that it stays mounted while closed, so a draft survives. Both parts are
 presentational: the host fetches and sends.
 

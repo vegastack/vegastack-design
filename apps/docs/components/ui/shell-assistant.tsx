@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.117.0 sha256-/Qx1p84Z0BzKZpR9HxZMerU2Na2MW9gvuq7MfbSZPAc=
+// @vegastack shell-assistant@0.117.0 sha256-94lQqZb4CopPR1F+nrqNXVLB7pb2PgubA7vzIfo9BUc=
 
 "use client";
 
@@ -75,6 +75,16 @@ function focusInto(card: HTMLElement, first?: HTMLElement | null) {
   card.focus({ preventScroll: true });
 }
 
+/**
+ * Before a card at the page area's corner first moves, pins the size it has there: once it is
+ * placed in the window its container's limits no longer size it, so it would otherwise jump.
+ */
+function pinSize(card: HTMLElement) {
+  // Its layout size: the opening scale doesn't count.
+  card.style.width = `${card.offsetWidth}px`;
+  card.style.height = `${card.offsetHeight}px`;
+}
+
 /** Keeps a dragged card's top-left corner inside the window. */
 function clampToWindow(
   x: number,
@@ -129,6 +139,12 @@ function AssistantCard({
   const onOpenChangeRef = React.useRef(onOpenChange);
   onOpenChangeRef.current = onOpenChange;
   const cardRef = React.useRef<HTMLElement | null>(null);
+  // Ends a drag or resize in progress (its window listeners), on pointer up, docking or unmount.
+  const gesture = React.useRef<(() => void) | null>(null);
+  React.useEffect(() => () => gesture.current?.(), []);
+  React.useEffect(() => {
+    if (!open) gesture.current?.();
+  }, [open]);
   const returnTo = React.useRef<HTMLElement | null>(null);
   const lastOutside = React.useRef<HTMLElement | null>(null);
   const setRef = React.useMemo(
@@ -192,6 +208,7 @@ function AssistantCard({
     lastPlace.current = place;
     const card = cardRef.current;
     if (place === "dock") {
+      gesture.current?.();
       setAt(null);
       card?.style.removeProperty("width");
       card?.style.removeProperty("height");
@@ -213,6 +230,21 @@ function AssistantCard({
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, [place, at]);
+
+  /** Follows the pointer with `move` until it is let go (or the card docks, closes, unmounts). */
+  const follow = React.useCallback((move: (e: PointerEvent) => void) => {
+    gesture.current?.();
+    const end = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      if (gesture.current === end) gesture.current = null;
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+    gesture.current = end;
+  }, []);
 
   // The card's own keys and drag listen on the window, after the page's handlers, for events from
   // inside the card: what it holds may be portalled in from another React tree (a chat moved
@@ -241,6 +273,7 @@ function AssistantCard({
         )
       ) {
         event.preventDefault();
+        if (!card.style.top) pinSize(card);
         const box = card.getBoundingClientRect();
         const step = event.shiftKey ? 64 : 16;
         const dx =
@@ -278,19 +311,11 @@ function AssistantCard({
       )
         return;
       event.preventDefault();
+      if (!card.style.top) pinSize(card);
       const box = card.getBoundingClientRect();
       const dx = event.clientX - box.left;
       const dy = event.clientY - box.top;
-      const move = (e: PointerEvent) =>
-        setAt(clampToWindow(e.clientX - dx, e.clientY - dy, card));
-      const end = () => {
-        window.removeEventListener("pointermove", move);
-        window.removeEventListener("pointerup", end);
-        window.removeEventListener("pointercancel", end);
-      };
-      window.addEventListener("pointermove", move);
-      window.addEventListener("pointerup", end);
-      window.addEventListener("pointercancel", end);
+      follow((e) => setAt(clampToWindow(e.clientX - dx, e.clientY - dy, card)));
     };
     window.addEventListener("keydown", onKey);
     window.addEventListener("pointerdown", onDown);
@@ -298,50 +323,69 @@ function AssistantCard({
       window.removeEventListener("keydown", onKey);
       window.removeEventListener("pointerdown", onDown);
     };
-  }, []);
+  }, [follow]);
 
   /**
-   * Resizes a floating card from its top-start corner. At the page area's corner it grows up and
-   * toward the start; dragged somewhere, its top-start corner follows the pointer and the opposite
-   * corner stays put.
+   * Resizes a floating card from its top-start corner to `width` × `height` (px), within MIN_SIZE
+   * and the room the window gives. At the page area's corner it grows up and toward the start;
+   * dragged somewhere, its opposite corner stays where `from` had it.
    */
+  const resizeTo = (
+    card: HTMLElement,
+    from: DOMRect,
+    width: number,
+    height: number,
+  ) => {
+    const rtl = getComputedStyle(card).direction === "rtl";
+    const room = (max: number) => Math.max(0, max - 8);
+    const fit = (value: number, max: number) =>
+      Math.round(Math.max(Math.min(MIN_SIZE, max), Math.min(value, max)));
+    card.style.width = `${fit(width, room(rtl ? window.innerWidth - from.left : from.right))}px`;
+    card.style.height = `${fit(height, room(from.bottom))}px`;
+    if (!card.style.top) return;
+    // The size CSS let it take (its own limits may be tighter): the opposite corner stays put.
+    setAt({
+      x: rtl ? from.left : from.right - card.offsetWidth,
+      y: from.bottom - card.offsetHeight,
+    });
+  };
+
   const startResize = (event: React.PointerEvent<HTMLElement>) => {
     const card = cardRef.current;
     if (!card || event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
-    const box = card.getBoundingClientRect();
+    const from = card.getBoundingClientRect();
     const rtl = getComputedStyle(card).direction === "rtl";
-    const placed = at !== null;
-    const fromX = event.clientX;
-    const fromY = event.clientY;
-    // The most it can grow: to the window's edge on the side that moves.
-    const roomX = rtl ? window.innerWidth - box.left : box.right;
-    const roomY = box.bottom;
-    const clamp = (value: number, max: number) =>
-      Math.round(Math.max(Math.min(MIN_SIZE, max), Math.min(value, max)));
-    const move = (e: PointerEvent) => {
-      const width = clamp(
-        box.width + (rtl ? e.clientX - fromX : fromX - e.clientX),
-        roomX - 8,
-      );
-      const height = clamp(box.height + (fromY - e.clientY), roomY - 8);
-      card.style.width = `${width}px`;
-      card.style.height = `${height}px`;
-      if (placed)
-        setAt({
-          x: rtl ? box.left : box.right - width,
-          y: box.bottom - height,
-        });
-    };
-    const end = () => {
-      window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerup", end);
-      window.removeEventListener("pointercancel", end);
-    };
-    window.addEventListener("pointermove", move);
-    window.addEventListener("pointerup", end);
-    window.addEventListener("pointercancel", end);
+    const x0 = event.clientX;
+    const y0 = event.clientY;
+    const width = card.offsetWidth;
+    const height = card.offsetHeight;
+    follow((e) =>
+      resizeTo(
+        card,
+        from,
+        width + (rtl ? e.clientX - x0 : x0 - e.clientX),
+        height + (y0 - e.clientY),
+      ),
+    );
+  };
+
+  /** The grip from the keyboard: arrows away from the card grow it, toward it shrink it. */
+  const resizeByKey = (event: React.KeyboardEvent<HTMLElement>) => {
+    const card = cardRef.current;
+    if (!card || !event.key.startsWith("Arrow")) return;
+    event.preventDefault();
+    event.stopPropagation();
+    const from = card.getBoundingClientRect();
+    const rtl = getComputedStyle(card).direction === "rtl";
+    const step = event.shiftKey ? 64 : 16;
+    const grow = rtl ? "ArrowRight" : "ArrowLeft";
+    const shrink = rtl ? "ArrowLeft" : "ArrowRight";
+    const dw = event.key === grow ? step : event.key === shrink ? -step : 0;
+    const dh =
+      event.key === "ArrowUp" ? step : event.key === "ArrowDown" ? -step : 0;
+    resizeTo(card, from, card.offsetWidth + dw, card.offsetHeight + dh);
   };
 
   if (!opened) return null;
@@ -386,7 +430,7 @@ function AssistantCard({
           // Floating: it drags by its header and resizes from its top-start corner, never smaller
           // than MIN_SIZE (or the room there is).
           floating &&
-            "min-h-[min(20rem,calc(100%-2rem))] min-w-[min(20rem,calc(100%-2rem))] overflow-hidden [&_[data-slot=assistant-card-header]]:cursor-grab [&_[data-slot=assistant-card-header]]:select-none",
+            "min-h-[min(20rem,calc(100%-2rem))] min-w-[min(20rem,calc(100%-2rem))] [&_[data-slot=assistant-card-header]]:cursor-grab [&_[data-slot=assistant-card-header]]:select-none",
           // Dragged: a window of its own over the app (z-40, the slide-over's layer, under menus
           // and dialogs), kept inside the window.
           moved &&
@@ -397,11 +441,17 @@ function AssistantCard({
         {...props}
       >
         {floating ? (
+          // Sticky at the card's top-start corner, taking no room: it stays put while a short card
+          // scrolls. 24px, the smallest target; its arrow keys resize from the keyboard.
           <div
-            aria-hidden
+            role="button"
+            tabIndex={0}
+            aria-label="Resize"
+            aria-keyshortcuts="ArrowUp ArrowDown ArrowLeft ArrowRight"
             data-slot="assistant-card-resize"
             onPointerDown={startResize}
-            className="absolute start-0 top-0 z-10 size-4 cursor-nwse-resize touch-none rtl:cursor-nesw-resize"
+            onKeyDown={resizeByKey}
+            className="sticky top-0 z-10 -mb-6 size-6 shrink-0 cursor-nwse-resize touch-none self-start outline-none rtl:cursor-nesw-resize"
           />
         ) : null}
         {children}

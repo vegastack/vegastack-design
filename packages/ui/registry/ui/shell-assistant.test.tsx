@@ -263,11 +263,9 @@ test("floating, the card drags by its header and stays inside the window", async
     new PointerEvent("pointermove", { clientX: x - 5000, clientY: y - 5000 }),
   );
   window.dispatchEvent(new PointerEvent("pointerup", {}));
-  await expect
-    .poll(() => card.getBoundingClientRect().left)
-    .not.toBe(start.left);
-  expect(card.getBoundingClientRect().left).toBe(0);
+  await expect.poll(() => card.getBoundingClientRect().left).toBe(0);
   expect(card.getBoundingClientRect().top).toBe(0);
+  expect(start.left).toBeGreaterThan(0);
 });
 
 test("floating, Alt and an arrow key move the card", async () => {
@@ -281,11 +279,42 @@ test("floating, Alt and an arrow key move the card", async () => {
     '[data-slot="assistant-card"]',
   )!;
   card.focus();
+  // Once it has finished opening (its scale is part of the box).
+  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
   const before = card.getBoundingClientRect().left;
   await userEvent.keyboard("{Alt>}{ArrowRight}{/Alt}");
   await expect
     .poll(() => Math.round(card.getBoundingClientRect().left))
     .toBe(Math.round(before + 16));
+});
+
+test("floating, the corner grip resizes the card from the keyboard, never under 320px", async () => {
+  await page.viewport(1280, 800);
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  const screen = await render(<Places />);
+  const card = document.querySelector<HTMLElement>(
+    '[data-slot="assistant-card"]',
+  )!;
+  const grip = screen.getByRole("button", { name: "Resize" });
+  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
+  const before = card.getBoundingClientRect();
+  (grip.element() as HTMLElement).focus();
+  await userEvent.keyboard("{ArrowUp}{ArrowLeft}");
+  await expect
+    .poll(() => Math.round(card.getBoundingClientRect().height))
+    .toBe(Math.round(before.height + 16));
+  expect(Math.round(card.getBoundingClientRect().width)).toBe(
+    Math.round(before.width + 16),
+  );
+  // Its bottom-end corner stays where it was.
+  expect(Math.round(card.getBoundingClientRect().right)).toBe(
+    Math.round(before.right),
+  );
+  for (let i = 0; i < 30; i++) await userEvent.keyboard("{ArrowDown}");
+  expect(Math.round(card.getBoundingClientRect().height)).toBe(320);
 });
 
 test("Escape closes the card from content portalled in from another React tree", async () => {
