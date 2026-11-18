@@ -1,4 +1,4 @@
-// @vegastack version-compare@0.116.2 sha256-i9oFlVGpas5yriT74Alc1mL7rsebIYHZ/RYSlluif0s=
+// @vegastack version-compare@0.116.2 sha256-IrI4KaUYpczmdK2W12bZZZA8QY0e/YlQiQX2EPZ6A6M=
 
 "use client";
 
@@ -50,6 +50,7 @@ export interface VersionCompareProps
       | "loading"
       | "emptyState"
       | "heading"
+      | "headingHidden"
       | "now"
     > {
   /** The versions, newest first — grouped by day in the list. */
@@ -135,6 +136,7 @@ export function VersionCompare({
   loading,
   emptyState,
   heading,
+  headingHidden,
   now,
   showChanges = false,
   onShowChangesChange,
@@ -242,6 +244,7 @@ export function VersionCompare({
       loading={loading}
       emptyState={emptyState}
       heading={heading}
+      headingHidden={headingHidden}
       now={now}
       groupBy="day"
     />
