@@ -50,3 +50,19 @@ export function contextPanelEmpty(): ReactNode {
     </Frame>
   );
 }
+
+/** `variant="panel"`: a side panel's Details — one line, the bar, compact rows. */
+export function contextPanelSide(): ReactNode {
+  return (
+    <Wrapper className="items-start">
+      <div className="w-80 border-s bg-background px-4 py-3">
+        <ContextPanel
+          variant="panel"
+          used={37_500}
+          window={400_000}
+          parts={PARTS}
+        />
+      </div>
+    </Wrapper>
+  );
+}

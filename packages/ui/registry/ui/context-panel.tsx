@@ -1,4 +1,4 @@
-// @vegastack context-panel@0.117.0 sha256-2er41OkZS46x5Sih1Q0EmoJiJG7YbfsCpOxm4cay3mY=
+// @vegastack context-panel@0.117.0 sha256-ePTi3OQTfl/GxxlcOBd6SwsFCVQbvxKgS6F5b3xh7RA=
 
 "use client";
 
@@ -7,13 +7,20 @@ import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
 import { TextSpinner } from "@/components/ui/text-spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------------------------------------
  * ContextPanel — what fills a chat's working memory, adding up to its window: "26% used  25.9k /
  * 200k", one segmented bar, and a legend (swatch, label, tokens, share) in tabular columns that ends
  * with what's free. Then where older messages get summarised, and Summarize now for whoever may send.
- * It is the body of `ContextRing`'s hover panel and of a phone's or a side panel's Context section.
- * Tokens and shares only, never money.
+ * It is the body of `ContextRing`'s hover panel and of a phone's Context sheet. `variant="panel"`
+ * is the record side panel's compact form: one line ("9% · 37.5k / 400k"), the bar, and the parts as
+ * rows (swatch · label · tokens) with each share and the summary note in tooltips; the host puts
+ * Summarize in the section header. Tokens and shares only, never money.
  * ----------------------------------------------------------------------------------------------*/
 
 /** One part of what fills the window: "Conversation", 6,900 tokens. */
@@ -71,6 +78,15 @@ export interface ContextPanelProps extends Omit<
   formatTokens?: (tokens: number) => string;
   /** The panel's words. @default undefined */
   labels?: ContextPanelLabels;
+  /**
+   * `default` — the hover panel: title, "26% used", the bar, a legend with shares, the note and
+   * Summarize now. `panel` — a side panel's Details: one line "9% · 37.5k / 400k" (the summary note
+   * in its tooltip), the bar and compact rows (swatch · label · tokens, the share in a tooltip, Free
+   * muted last). No title and no button: put Summarize in the section header (`onSummarize` is
+   * ignored).
+   * @default "default"
+   */
+  variant?: "default" | "panel";
 }
 
 const compact = new Intl.NumberFormat("en", {
@@ -134,6 +150,7 @@ export function ContextPanel({
   summarizing = false,
   formatTokens = formatContextTokens,
   labels,
+  variant = "default",
   className,
   ...props
 }: ContextPanelProps) {
@@ -167,6 +184,103 @@ export function ContextPanel({
   }
   const free = measured ? windowTokens - total : 0;
   const thresholdPercent = Math.round(threshold * 100);
+  const note =
+    labels?.threshold?.(thresholdPercent) ??
+    `Older messages are summarised at ${thresholdPercent}%.`;
+
+  if (variant === "panel")
+    return (
+      <div
+        data-slot="context-panel"
+        data-variant="panel"
+        className={cn("flex min-w-0 flex-col gap-2 text-sm", className)}
+        {...props}
+      >
+        {measured ? (
+          <>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <p
+                    tabIndex={0}
+                    data-slot="context-panel-used"
+                    className="self-start tabular-nums outline-none"
+                  />
+                }
+              >
+                {percent}%{" "}
+                <span className="text-muted-foreground">
+                  · {formatTokens(total)} / {formatTokens(windowTokens)}
+                </span>
+                <span className="sr-only">. {note}</span>
+              </TooltipTrigger>
+              <TooltipContent>{note}</TooltipContent>
+            </Tooltip>
+            <ContextBar rows={rows} windowTokens={windowTokens} />
+            <ul
+              data-slot="context-panel-parts"
+              aria-label={labels?.title ?? "Chat memory"}
+              className="-mx-2 flex min-w-0 flex-col"
+            >
+              {[
+                ...rows.map((row, index) => ({
+                  ...row,
+                  swatch: SWATCHES[index % SWATCHES.length] as string,
+                  free: false,
+                })),
+                {
+                  id: "free",
+                  label: labels?.free ?? "Free",
+                  tokens: free,
+                  swatch: "border border-muted-foreground/50",
+                  free: true,
+                },
+              ].map((row) => (
+                <li key={row.id} className="min-w-0">
+                  <Tooltip>
+                    <TooltipTrigger
+                      render={
+                        <span
+                          tabIndex={0}
+                          data-slot="context-panel-part"
+                          data-free={row.free ? "" : undefined}
+                          className={cn(
+                            "flex min-h-7 min-w-0 items-center gap-2 rounded-item px-2 text-xs tabular-nums outline-none",
+                            row.free && "text-muted-foreground",
+                          )}
+                        />
+                      }
+                    >
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "size-1.5 shrink-0 rounded-mark",
+                          row.swatch,
+                        )}
+                      />
+                      <span className="min-w-0 flex-1 truncate">
+                        {row.label}
+                      </span>
+                      <span>{formatTokens(row.tokens)}</span>
+                      <span className="sr-only">
+                        , {share(row.tokens, windowTokens)}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {share(row.tokens, windowTokens)} of the window
+                    </TooltipContent>
+                  </Tooltip>
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            {labels?.empty ?? "Measured after the first answer."}
+          </p>
+        )}
+      </div>
+    );
 
   return (
     <div
@@ -188,24 +302,7 @@ export function ContextPanel({
               {formatTokens(total)} / {formatTokens(windowTokens)}
             </span>
           </p>
-          <span
-            aria-hidden
-            data-slot="context-panel-bar"
-            className="flex h-1.5 w-full gap-px overflow-hidden rounded-full bg-muted"
-          >
-            {rows.map((row, index) =>
-              row.tokens > 0 ? (
-                <span
-                  key={row.id}
-                  className={cn(
-                    "block h-full shrink-0",
-                    SWATCHES[index % SWATCHES.length],
-                  )}
-                  style={{ width: `${(row.tokens / windowTokens) * 100}%` }}
-                />
-              ) : null,
-            )}
-          </span>
+          <ContextBar rows={rows} windowTokens={windowTokens} />
           <dl
             data-slot="context-panel-parts"
             className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto] items-center gap-x-2.5 gap-y-1 text-xs"
@@ -252,8 +349,7 @@ export function ContextPanel({
         data-slot="context-panel-threshold"
         className="text-xs text-muted-foreground"
       >
-        {labels?.threshold?.(thresholdPercent) ??
-          `Older messages are summarised at ${thresholdPercent}%.`}
+        {note}
       </p>
       {onSummarize ? (
         <Button
@@ -273,5 +369,35 @@ export function ContextPanel({
         </Button>
       ) : null}
     </div>
+  );
+}
+
+/** The one segmented bar: each part's share of the window, in order, on the muted track. */
+function ContextBar({
+  rows,
+  windowTokens,
+}: {
+  rows: readonly { id: string; tokens: number }[];
+  windowTokens: number;
+}) {
+  return (
+    <span
+      aria-hidden
+      data-slot="context-panel-bar"
+      className="flex h-1.5 w-full gap-px overflow-hidden rounded-full bg-muted"
+    >
+      {rows.map((row, index) =>
+        row.tokens > 0 ? (
+          <span
+            key={row.id}
+            className={cn(
+              "block h-full shrink-0",
+              SWATCHES[index % SWATCHES.length],
+            )}
+            style={{ width: `${(row.tokens / windowTokens) * 100}%` }}
+          />
+        ) : null,
+      )}
+    </span>
   );
 }

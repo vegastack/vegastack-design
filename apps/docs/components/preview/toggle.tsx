@@ -1,7 +1,15 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { BoldIcon, BookmarkIcon, ItalicIcon } from "lucide-react";
+import {
+  BellIcon,
+  BellRingIcon,
+  BoldIcon,
+  BookmarkIcon,
+  ItalicIcon,
+  StarIcon,
+} from "lucide-react";
+import { useState } from "react";
 import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/toggle` (dogfoods the registry) → auto-scanned.
 import { Toggle } from "@/components/ui/toggle";
@@ -115,6 +123,44 @@ export function toggleLoading(): ReactNode {
       </Toggle>
       <Toggle variant="outline" loading aria-label="Toggle italic">
         Italic
+      </Toggle>
+    </Wrapper>
+  );
+}
+
+/** `variant="bare"`: a page bar's star and bell — pressed changes the icon, never the fill. */
+export function toggleBare(): ReactNode {
+  return <BarToggles />;
+}
+
+function BarToggles(): ReactNode {
+  const [starred, setStarred] = useState(true);
+  const [watching, setWatching] = useState(false);
+  return (
+    <Wrapper>
+      <Toggle
+        variant="bare"
+        size="sm"
+        aria-label="Watch"
+        pressed={watching}
+        onPressedChange={setWatching}
+      >
+        {watching ? (
+          <BellRingIcon className="fill-foreground text-foreground" />
+        ) : (
+          <BellIcon />
+        )}
+      </Toggle>
+      <Toggle
+        variant="bare"
+        size="sm"
+        aria-label="Star"
+        pressed={starred}
+        onPressedChange={setStarred}
+      >
+        <StarIcon
+          className={starred ? "fill-warning text-warning" : undefined}
+        />
       </Toggle>
     </Wrapper>
   );

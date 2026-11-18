@@ -35948,7 +35948,11 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/context-panel",
-      "registryDependencies": ["@vegastack/button", "@vegastack/text-spinner"],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/text-spinner",
+        "@vegastack/tooltip"
+      ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.27.0",
         "@vegastack/design@^0.27.0"
@@ -35967,16 +35971,24 @@
         "ContextPanel": {
           "attributes": [
             {
+              "name": "data-free",
+              "values": [""]
+            },
+            {
               "name": "data-slot",
               "values": [
                 "context-panel",
-                "context-panel-bar",
+                "context-panel-part",
                 "context-panel-parts",
                 "context-panel-summarize",
                 "context-panel-threshold",
                 "context-panel-title",
                 "context-panel-used"
               ]
+            },
+            {
+              "name": "data-variant",
+              "values": ["panel"]
             }
           ],
           "cssVariables": []
@@ -38320,6 +38332,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "FileCardSource",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/file-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -38389,7 +38410,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/file-kind",
         "@vegastack/file-viewer",
-        "@vegastack/image"
+        "@vegastack/image",
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "lucide-react@^1.47.0",
@@ -38406,7 +38428,21 @@
         "vrt": "required"
       },
       "previewModule": "file-card",
-      "dataAttributes": {}
+      "dataAttributes": {
+        "FileCard": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["file-card-row", "file-card-source"]
+            },
+            {
+              "name": "data-variant",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     },
     {
       "name": "record-chip",
@@ -40173,6 +40209,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "RecordPanelDock",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/record-layout-side.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -40282,6 +40327,10 @@
         "RecordPanel": {
           "attributes": [
             {
+              "name": "data-dock",
+              "values": []
+            },
+            {
               "name": "data-motion",
               "values": ["enter"]
             },
@@ -40311,6 +40360,7 @@
               "values": [
                 "record-panel-section",
                 "record-panel-section-action",
+                "record-panel-section-chevron",
                 "record-panel-section-content",
                 "record-panel-section-header",
                 "record-panel-section-trigger"
@@ -44412,6 +44462,15 @@
             "status": "not-applicable",
             "rationale": "A plain function; renders nothing."
           }
+        },
+        {
+          "name": "MembersStackVariant",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/members-stack.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -44476,7 +44535,8 @@
         "@vegastack/person-avatar",
         "@vegastack/person-hover-card",
         "@vegastack/popover",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/relative-time"
       ],
       "npmDependencies": [
         "@vegastack/design@^0.27.0",
@@ -44497,6 +44557,10 @@
         "MembersStack": {
           "attributes": [
             {
+              "name": "data-active",
+              "values": [""]
+            },
+            {
               "name": "data-audience",
               "values": ["only-you"]
             },
@@ -44515,6 +44579,10 @@
                 "members-stack-overflow",
                 "members-stack-popover"
               ]
+            },
+            {
+              "name": "data-variant",
+              "values": []
             }
           ],
           "cssVariables": []

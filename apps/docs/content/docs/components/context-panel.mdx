@@ -64,6 +64,18 @@ With `used={null}` the panel says it is measured after the first answer and Summ
   file="components/preview/context-panel.tsx"
 />
 
+### In a side panel
+
+`variant="panel"` is the compact form for a record side panel's Details: one line, "9% · 37.5k /
+400k", whose tooltip says where older messages get summarised; the bar; then each part as a row —
+swatch, label, tokens — with its share of the window in a tooltip, and Free muted last. It has no
+title and no button: put Summarize in the section header (`RecordPanelAction`).
+
+<ComponentPreview
+  name="contextPanelSide"
+  file="components/preview/context-panel.tsx"
+/>
+
 ## API Reference
 
 <ApiTable

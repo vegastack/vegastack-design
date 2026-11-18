@@ -107,3 +107,38 @@ test("parts that say more than the measure, or than the window, never break the 
     ["Free", "0", "0.0%"],
   ]);
 });
+
+test("panel: one line, the bar and compact rows with Free last, shares in tooltips, no title or button", async () => {
+  const screen = await render(
+    <ContextPanel
+      variant="panel"
+      used={37_500}
+      window={400_000}
+      parts={PARTS}
+      onSummarize={() => {}}
+    />,
+  );
+  const root = screen.container.querySelector("[data-slot=context-panel]")!;
+  const used = root.querySelector("[data-slot=context-panel-used]")!;
+  expect(used.textContent).toMatch(/^9% · 37\.5k \/ 400k/);
+  expect(root.querySelector("[data-slot=context-panel-bar]")).not.toBeNull();
+  expect(root.querySelector("[data-slot=context-panel-title]")).toBeNull();
+  expect(root.querySelector("button")).toBeNull();
+  const parts = [
+    ...root.querySelectorAll<HTMLElement>("[data-slot=context-panel-part]"),
+  ];
+  expect(
+    parts.map((p) => p.firstElementChild!.nextElementSibling!.textContent),
+  ).toEqual([
+    "Instructions and tools",
+    "Memory",
+    "Conversation",
+    "Tool results",
+    "Other",
+    "Free",
+  ]);
+  expect(parts.at(-1)!.hasAttribute("data-free")).toBe(true);
+  await page.getByText("Memory").hover();
+  await expect.element(page.getByText("0.5% of the window")).toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});
