@@ -1,4 +1,4 @@
-// @vegastack sheet@0.116.0 sha256-TfF8u6Lkk6XhBQdNAf5pXTsCBmrBW/MJpAHKDEvgVaM=
+// @vegastack sheet@0.116.0 sha256-rmUj/DKjaTg6WnHLjM7P5i7M+9j7dErAtf4DTpaPik4=
 
 "use client";
 
@@ -111,6 +111,9 @@ function SheetContent({
           // clears it already) keeps clear of it, so a long title wraps before the ×.
           showCloseButton &&
             "**:data-[slot=sheet-header]:not-has-data-[slot=sheet-action]:pe-12",
+          // LAY-24: in the desktop app a sheet on the left, right or top edge starts below the
+          // window's title row, so its header never sits under the traffic lights or caption buttons.
+          "in-data-desktop-titlebar:data-[side=left]:top-(--shell-globalbar-height) in-data-desktop-titlebar:data-[side=left]:h-auto in-data-desktop-titlebar:data-[side=right]:top-(--shell-globalbar-height) in-data-desktop-titlebar:data-[side=right]:h-auto in-data-desktop-titlebar:data-[side=top]:top-(--shell-globalbar-height)",
           className,
         )}
         {...props}

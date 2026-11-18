@@ -1443,7 +1443,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   docks beside the main column from 1200px of record width and floats over it below. The
   phone bar steps aside as the browser's own bars compact and while the keyboard is open (LAY-23), the
   desktop app's title row is the global bar, which drags the window and clears the traffic lights or
-  caption buttons (LAY-24), and on a tablet the column slides over the page (LAY-25). From 40rem
+  caption buttons, and edge-anchored overlays (`Sheet`, `Drawer`, the file viewer) start below it (LAY-24), and on a tablet the column slides over the page (LAY-25). From 40rem
   the frame is a rounded card (LAY-26): the global bar and the rail sit on the window's canvas, the
   column and the page share one card inset 8px from the window's end and bottom, the rail's ends
   are the workspace's tile and the person's avatar, and the assistant docks beside the page as a

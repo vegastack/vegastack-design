@@ -1,4 +1,4 @@
-// @vegastack drawer@0.116.0 sha256-UmFa7Uk2ilLjsFNcdY8+MtxX5Pl3MezDsljHC+IgVL8=
+// @vegastack drawer@0.116.0 sha256-546wBXGnEJkfwzDIhJOricDlV9gnZIPmsZmS26GmcM0=
 
 "use client";
 
@@ -161,6 +161,8 @@ function DrawerContent({
             "data-[swipe-axis=y]:inset-x-0 data-[swipe-axis=y]:data-nested-drawer-open:h-(--stack-height)",
             // Axis: x.
             "data-[swipe-axis=x]:inset-y-0 data-[swipe-axis=x]:flex-row",
+            // LAY-24: in the desktop app a side or top drawer starts below the window's title row.
+            "in-data-desktop-titlebar:data-[swipe-axis=x]:top-(--shell-globalbar-height) in-data-desktop-titlebar:data-[swipe-direction=up]:top-(--shell-globalbar-height)",
             // Direction: down.
             "data-[swipe-direction=down]:bottom-0 data-[swipe-direction=down]:origin-bottom data-[swipe-direction=down]:[--closed-transform:translate3d(0,calc(100%+var(--drawer-inset,0px)+2px),0)] data-[swipe-direction=down]:[--translate-y:calc(var(--drawer-snap-point-offset,0px)+var(--drawer-swipe-movement-y)-var(--stack-peek-offset)-(var(--stack-shrink)*var(--stack-height)))]",
             // Direction: up.

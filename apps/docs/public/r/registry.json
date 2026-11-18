@@ -3022,7 +3022,7 @@
         "whenToUse": "A touch-first panel the user drags — a mobile action sheet, a half-height detail panel, a stack of nested steps.",
         "whenNotToUse": "A desktop side panel with no gesture (Sheet), or a centred modal (Dialog).",
         "version": "0.116.0",
-        "integrity": "sha256-UmFa7Uk2ilLjsFNcdY8+MtxX5Pl3MezDsljHC+IgVL8="
+        "integrity": "sha256-546wBXGnEJkfwzDIhJOricDlV9gnZIPmsZmS26GmcM0="
       }
     },
     {
@@ -16628,7 +16628,7 @@
         "whenToUse": "Opening stored files full screen from attachment tiles, a product's files or a gallery — images to zoom, PDFs to read, video and audio to play, text, CSV, Markdown, Excel and Word files to read, other Office files as a card (or the app's own parsed preview through loadPreview).",
         "whenNotToUse": "An inline player on a page (VideoPlayer, AudioPlayer), or a general-purpose modal (Dialog).",
         "version": "0.116.0",
-        "integrity": "sha256-mXnLInjswMLaAT4YSlvZtSRzrK9vJ8ycQRbnguuEMxM="
+        "integrity": "sha256-rJ7n//9Amvt6GFtrLRl05scfnvfg3etqx42UcRvYz3o="
       }
     },
     {
@@ -18679,7 +18679,7 @@
         "whenToUse": "Secondary content beside the page — filters, details, a settings panel, a long record form — that should not take the centre of the screen. Side sheets take size sm/default/lg/xl (Dialog's width scale); put long content in SheetBody so the footer stays on screen.",
         "whenNotToUse": "A decision (AlertDialog), a centred form (Dialog), or a touch-first panel with snap points (Drawer).",
         "version": "0.116.0",
-        "integrity": "sha256-TfF8u6Lkk6XhBQdNAf5pXTsCBmrBW/MJpAHKDEvgVaM="
+        "integrity": "sha256-rmUj/DKjaTg6WnHLjM7P5i7M+9j7dErAtf4DTpaPik4="
       }
     },
     {

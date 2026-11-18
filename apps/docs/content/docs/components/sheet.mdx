@@ -253,3 +253,7 @@ justify-end`) at every width, not upstream's full-width `flex-col` stack; a dire
   own.
 - **OVL-22** — below the `tablet` tier (40rem) a side sheet is the whole screen: full width, no
   side border, and padded by the top and bottom safe-area insets. MK, 2026-10-26.
+- **LAY-24** — in the desktop app (`data-desktop-titlebar` on `<html>`) a left, right or top sheet
+  starts below the window's title row (`--shell-globalbar-height`), so its header never sits under
+  the traffic lights or the Windows caption buttons; the backdrop still covers the whole window.
+  Regent operator, 2026-11-19.
