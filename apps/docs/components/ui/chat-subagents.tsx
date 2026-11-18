@@ -1,4 +1,4 @@
-// @vegastack chat-subagents@0.114.0 sha256-NaQgMXgZ8aQyCkhIbGik7ZBIvn6TdL0GQDiga+hsMg0=
+// @vegastack chat-subagents@0.114.0 sha256-KrhnI/ViTZHuxYFi8k2E0yKD5V9fQLNj1qHBVRCTBuU=
 
 "use client";
 
@@ -184,7 +184,7 @@ function SubagentRow({
     <li
       data-slot="subagent-row"
       data-status={view.status}
-      className="flex min-h-9 min-w-0 items-center gap-1 px-1 py-0.5"
+      className="flex min-h-9 min-w-0 items-center gap-1 p-1.25"
     >
       <Button
         variant="ghost"

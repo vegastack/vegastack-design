@@ -1,8 +1,8 @@
 # component: calendar
 # decisions: A11Y-2, A11Y-25, DOC-1, DOC-2, FOC-1, FOC-6, TYP-18, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1, FOC-6: the focused day's `group-data-[focused=true]/day:border-ring`, `:ring-[3px]` and
 #     `:ring-ring/50` glow is removed. The day button is a real `<button>`, so the global
 #     `:focus-visible` outline in `base.css` marks it; the `relative z-10` that lifts the focused

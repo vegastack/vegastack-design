@@ -1,8 +1,8 @@
 # component: menubar
 # decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FOC-1, FRM-4, INT-1, OVL-13, COL-24, INT-4, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1: `outline-hidden` is dropped from `MenubarTrigger`. A trigger is a real focusable
 #     control (`role="menuitem"`, in the bar's roving tab order), and upstream's class suppressed
 #     the one 2px `:focus-visible` outline `base.css` owns, leaving it with no focus indicator at
@@ -40,7 +40,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/menubar.tsx b/menubar.tsx
-index de8698e..841c6d8 100644
+index de8698e..a898201 100644
 --- a/menubar.tsx
 +++ b/menubar.tsx
 @@ -1,9 +1,9 @@
@@ -79,7 +79,7 @@ index de8698e..841c6d8 100644
        className={cn(
 -        "flex h-8 items-center gap-0.5 rounded-lg border p-[3px]",
 -        className
-+        "flex h-8 items-center gap-0.5 rounded-control border p-0.5",
++        "flex h-8 items-center gap-0.5 rounded-control border p-px",
 +        className,
        )}
        {...props}
@@ -114,7 +114,7 @@ index de8698e..841c6d8 100644
        className={cn(
 -        "flex items-center rounded-sm px-1.5 py-[2px] text-sm font-medium outline-hidden select-none hover:bg-muted aria-expanded:bg-muted",
 -        className
-+        "flex items-center rounded-segment px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
++        "flex h-full items-center rounded-segment px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
 +        className,
        )}
        {...props}

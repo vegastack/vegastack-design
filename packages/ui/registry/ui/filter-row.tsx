@@ -1,4 +1,4 @@
-// @vegastack filter-row@0.114.0 sha256-8dGhNlTfScrFlpYf6TBUcvp+9ApEnEsWXR2P3AjSWW8=
+// @vegastack filter-row@0.114.0 sha256-vSme+6aTk3CkKotICEOLjyagsBQQPgu5uy5LwyW7I5Y=
 
 "use client";
 
@@ -1576,7 +1576,7 @@ export function DateRangeFilter({
         <PopoverContent
           align="start"
           data-slot="date-range-filter-content"
-          className={cn("gap-0 p-1", custom ? "w-auto" : "w-56")}
+          className={cn("gap-0 p-1.25", custom ? "w-auto" : "w-56")}
         >
           {custom ? (
             <div data-slot="date-range-filter-custom" className="flex flex-col">

@@ -1,8 +1,8 @@
 # component: select
 # decisions: API-19, API-24, API-26, BRD-1, DOC-1, DOC-2, FOC-1, FOC-3, FOC-4, FOC-5, FOC-6, FRM-4, INT-1, OVL-13, FOC-14, API-35, API-38, COL-24, INT-4, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-38 (MK 2026-10-26, Regent product-cohesion W1-DS2): `SelectContent` takes `loading`, `error`,
 #     `onRetry` and their labels: a `select-status` row (`role="status"`) after the list — a spinner
 #     while loading, the error with a Try again button — so an async list never shows an empty popup.
@@ -61,7 +61,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/select.tsx b/select.tsx
-index e8a22e1..d2296a1 100644
+index e8a22e1..d708f8b 100644
 --- a/select.tsx
 +++ b/select.tsx
 @@ -1,20 +1,52 @@
@@ -117,7 +117,7 @@ index e8a22e1..d2296a1 100644
      <SelectPrimitive.Group
        data-slot="select-group"
 -      className={cn("scroll-my-1 p-1", className)}
-+      className={cn("scroll-my-1.25 p-1.25", className)}
++      className={cn("scroll-my-1.25", className)}
        {...props}
      />
 -  )
@@ -240,7 +240,8 @@ index e8a22e1..d2296a1 100644
            {...props}
          >
            <SelectScrollUpButton />
-           <SelectPrimitive.List>{children}</SelectPrimitive.List>
+-          <SelectPrimitive.List>{children}</SelectPrimitive.List>
++          <SelectPrimitive.List className="scroll-my-1.25 p-1.25">{children}</SelectPrimitive.List>
 +          {loading || error ? (
 +            <div
 +              data-slot="select-status"

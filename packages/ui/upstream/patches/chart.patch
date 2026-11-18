@@ -1,8 +1,8 @@
 # component: chart
 # decisions: API-43, DOC-1, DOC-2, FOC-1, FOC-9, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-43: typed `tone` in `ChartConfig` (+ `CHART_TONE_COLORS`, `ChartStyle` resolves it); the tooltip row is a
 #     grid with a gap, the label truncates, the value is right-aligned `tabular-nums`; `valueFormatter`;
 #     `max-w-80`; the legend wraps and truncates.

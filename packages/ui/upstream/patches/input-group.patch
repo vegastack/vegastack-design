@@ -1,8 +1,8 @@
 # component: input-group
 # decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-14, FRM-16, INT-14, FOC-16, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1, FOC-3, FOC-6: the group's `has-[[data-slot=input-group-control]:focus-visible]:border-ring`
 #     plus `ring-3 ring-ring/50` becomes `has-[[data-slot=input-group-control]:focus]:border-ring/70`
 #     — the text-entry border tint on the GROUP, on `:focus`, and no glow. Batch 4 added the same

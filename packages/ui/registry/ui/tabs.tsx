@@ -1,4 +1,4 @@
-// @vegastack tabs@0.114.0 sha256-0LopL6/azGZSDfQ2kJM3YXxGJ1+d2KkXN/A/Q537j6E=
+// @vegastack tabs@0.114.0 sha256-ict8EoUA49Sq7mC7KQXHPH+tMwieCZkEJgC9dPowN0I=
 
 "use client";
 
@@ -37,12 +37,12 @@ function Tabs({
 }
 
 const tabsListVariants = cva(
-  "group/tabs-list inline-flex w-fit items-center justify-center rounded-control group-data-vertical/tabs:rounded-card p-0.5 data-[variant=line]:p-[3px] text-muted-foreground group-not-data-vertical/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
+  "group/tabs-list inline-flex w-fit items-center justify-center rounded-control group-data-vertical/tabs:rounded-card text-muted-foreground group-not-data-vertical/tabs:h-8 group-data-vertical/tabs:h-fit group-data-vertical/tabs:flex-col data-[variant=line]:rounded-none",
   {
     variants: {
       variant: {
-        default: "bg-muted",
-        line: "gap-1 bg-transparent",
+        default: "bg-muted p-0.5 group-data-vertical/tabs:p-1.5",
+        line: "gap-1 bg-transparent p-[3px]",
       },
       size: {
         default: "",
@@ -283,7 +283,7 @@ function TabsFoldList({
 }
 
 const tabsTriggerVariants = cva([
-  "relative inline-flex h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-segment group-data-vertical/tabs:rounded-item border border-transparent px-2 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start not-data-active:state-layer hover:text-foreground disabled:opacity-50 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "relative inline-flex h-full group-data-[variant=line]/tabs-list:h-[calc(100%-1px)] flex-1 items-center justify-center gap-1.5 rounded-segment group-data-vertical/tabs:rounded-item border border-transparent px-2 py-0.5 text-sm font-medium whitespace-nowrap text-foreground/60 transition-all group-data-vertical/tabs:w-full group-data-vertical/tabs:justify-start not-data-active:state-layer hover:text-foreground disabled:opacity-50 has-data-[icon=inline-end]:pe-1 has-data-[icon=inline-start]:ps-1 aria-disabled:opacity-50 dark:text-muted-foreground dark:hover:text-foreground group-data-[variant=default]/tabs-list:data-active:shadow-sm group-data-[variant=line]/tabs-list:data-active:shadow-none [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   "group-data-[variant=line]/tabs-list:bg-transparent group-data-[variant=line]/tabs-list:data-active:bg-transparent dark:group-data-[variant=line]/tabs-list:data-active:border-transparent dark:group-data-[variant=line]/tabs-list:data-active:bg-transparent",
   "data-active:bg-background data-active:text-foreground dark:data-active:border-input dark:data-active:bg-input/30 dark:data-active:text-foreground",
   "group-data-[size=sm]/tabs-list:px-2 group-data-[size=sm]/tabs-list:[&_svg:not([class*='size-'])]:size-3.5",

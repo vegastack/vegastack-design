@@ -1,8 +1,8 @@
 # component: questionnaire
 # decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-13, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, TYP-18, FOC-14, COL-24, INT-4, FOC-15, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   TYP-18: the shortcut badge's `text-[0.625rem]` (10px) becomes `text-xs` (12px). An
 #     arbitrary value receives neither half of the type ramp, and 10px is below every tier
 #     the system names. The box does not move: `kbd` already pairs `text-xs` with the same

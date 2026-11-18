@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.114.0 sha256-897ijRKbBMVr443BEBoICRG9+ZrvT1glXxAu7A4M7yY=
+// @vegastack text-edit@0.114.0 sha256-chCX0mTdb6XLqPR7Q8RaeA5haAbXILbkXc139bO7tfU=
 
 "use client";
 
@@ -6434,9 +6434,12 @@ const LINK_INVALID =
  * Styling
  * ----------------------------------------------------------------------------------------------*/
 
-/** A floating panel or menu: the card corner (`rounded-card`). */
+/**
+ * A floating panel: the card corner (`rounded-card`), its 8px controls 1 + 7px in (16 − 8 = 8). A
+ * list of `rounded-item` rows on it takes `p-1.25` instead (16 − 6 = 10).
+ */
 const MENU_SURFACE =
-  "z-50 rounded-card border border-border bg-popover p-1 text-popover-foreground shadow-md";
+  "z-50 rounded-card border border-border bg-popover p-1.75 text-popover-foreground shadow-md";
 /**
  * A single-line floating toolbar (the paste offers, the link card): a capsule (`rounded-capsule`, it
  * floats) whose controls are capsules and circles (`capsule-scope`). The selection bubble can wrap
@@ -7264,7 +7267,7 @@ function MediaPanel({
       onKeyDown={escapeTo(editor, onClose)}
       className={cn(
         MENU_SURFACE,
-        "flex w-80 max-w-[calc(100vw-1rem)] flex-col p-2",
+        "flex w-80 max-w-[calc(100vw-1rem)] flex-col p-1.75",
       )}
     >
       {onUpload ? (
@@ -8955,7 +8958,7 @@ function FindBar({
             findRef.current?.select();
           }
         }}
-        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-card border bg-popover p-1.25 text-popover-foreground shadow-md print:hidden"
+        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-card border bg-popover p-1.75 text-popover-foreground shadow-md print:hidden"
       >
         <div className="flex flex-wrap items-center gap-1">
           <label htmlFor={inputId} className="sr-only">

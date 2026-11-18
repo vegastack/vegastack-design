@@ -1,8 +1,8 @@
 # component: button
 # decisions: A11Y-12, A11Y-13, API-5, API-29, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, A11Y-24, COL-24, INT-4, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-29: the root writes `data-variant`, so a tinted container (a status Alert) can give its
 #     non-primary buttons a variant-aware hover without touching the primary one (MK, 2026-09-25).
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-3

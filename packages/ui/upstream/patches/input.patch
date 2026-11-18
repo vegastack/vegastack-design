@@ -1,8 +1,8 @@
 # component: input
 # decisions: API-26, DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-8, FRM-4, FOC-14, FRM-17, FOC-16, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FRM-17 (MK 2026-10-26, Regent product-cohesion W1-DS2): `Input` takes `credential` (default
 #     `true`); `false` sets `autoComplete="off"`, `data-1p-ignore`, `data-lpignore="true"` and
 #     `data-bwignore` before the caller's props, so an explicit `autoComplete` still wins.

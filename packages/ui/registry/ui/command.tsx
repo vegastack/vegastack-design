@@ -1,4 +1,4 @@
-// @vegastack command@0.114.0 sha256-+PDS2RrunPFRQdhfTIsImukgTfOufeCT/8Pr7N9Qyaw=
+// @vegastack command@0.114.0 sha256-Jze4IE1+ErWGCXUzqdWTkChm7oN0LIfVuTcAa5hFf8Y=
 
 "use client";
 
@@ -591,7 +591,7 @@ function CommandActions({
         ref={setRef}
         forceMount
         className={cn(
-          "sticky bottom-0 z-10 border-t border-border bg-popover p-1 text-foreground",
+          "sticky bottom-0 z-10 border-t border-border bg-popover p-1.25 text-foreground",
           className,
         )}
         {...props}

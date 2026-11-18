@@ -99,15 +99,19 @@ plus its padding (plus any wrapper's padding). When the result reaches half the 
 part is simply round. When the inset is larger than the container's corner, the part is free and
 takes its own role.
 
-| Part                       | Container    | Inset (border + padding) | Corner                                          |
-| -------------------------- | ------------ | ------------------------ | ----------------------------------------------- |
-| Menu, Select, Combobox row | `card` 16    | 1 + 5 = 6                | 16 − 6 = **10** (`item`)                        |
-| Command palette row        | `bubble` 20  | 1 + 4 + 5 = 10           | 20 − 10 = **10** (`item`)                       |
-| Command palette search box | `bubble` 20  | 1 + 4 + 5 = 10           | 20 − 10 = **10** (`item`)                       |
-| Dialog close (28px)        | `overlay` 24 | 1 + 8 = 9                | 24 − 9 = 15 ≥ 14 → **circle** (`capsule`)       |
-| Composer +, @, Send (32px) | `overlay` 24 | 1 + 6 = 7                | 24 − 7 = 17 ≥ 16 → **circle** (`capsule-scope`) |
-| Tab trigger                | `control` 8  | 2                        | 8 − 2 = **6** (`segment`)                       |
-| Card action, toast ×       | `card` 16    | 17, or centred           | free → `icon` 8                                 |
+| Part                                                    | Container    | Inset (border + padding) | Corner                                          |
+| ------------------------------------------------------- | ------------ | ------------------------ | ----------------------------------------------- |
+| Menu, Select, Combobox row (the list carries the inset) | `card` 16    | 1 + 5 = 6                | 16 − 6 = **10** (`item`)                        |
+| Command palette row                                     | `bubble` 20  | 1 + 4 + 5 = 10           | 20 − 10 = **10** (`item`)                       |
+| Command palette search box                              | `bubble` 20  | 1 + 4 + 5 = 10           | 20 − 10 = **10** (`item`)                       |
+| Dialog close (28px)                                     | `overlay` 24 | 1 + 8 = 9                | 24 − 9 = 15 ≥ 14 → **circle** (`capsule`)       |
+| Composer +, @, Send (32px)                              | `overlay` 24 | 1 + 6 = 7                | 24 − 7 = 17 ≥ 16 → **circle** (`capsule-scope`) |
+| Tab trigger                                             | `control` 8  | 2                        | 8 − 2 = **6** (`segment`)                       |
+| Vertical tab trigger                                    | `card` 16    | 6                        | 16 − 6 = **10** (`item`)                        |
+| Menubar item                                            | `control` 8  | 1 + 1 = 2                | 8 − 2 = **6** (`segment`)                       |
+| Editor panel's buttons                                  | `card` 16    | 1 + 7 = 8                | 16 − 8 = **8** (`control`, `icon`)              |
+| Assistant card's close                                  | `overlay` 24 | 1 + 8 = 9                | 15 ≥ 14 → **circle** (`capsule-scope`)          |
+| Card action, toast ×                                    | `card` 16    | 1 + 16 = 17              | past the corner: free → `icon` 8                |
 
 `geometry.browser.test.tsx` measures the painted boxes of a menu, a select, the dialog's close and
 the command palette against this rule, so a padding or border change that breaks it fails the build.

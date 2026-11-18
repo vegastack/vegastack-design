@@ -1,8 +1,8 @@
 # component: table
 # decisions: API-16, DOC-1, DOC-2, COL-24, INT-4, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   One styling hunk, COL-24 (below); before it there was none. Every other row this component could have argued with resolves as **shadcn** and
 #     therefore ships verbatim: LAY-6 (cells stay `whitespace-nowrap`, the head stays `h-10`
 #     `font-medium text-foreground` with no `--table-cell-min-width` wrap), COL-6 (the row hover is

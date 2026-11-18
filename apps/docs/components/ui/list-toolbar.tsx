@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.114.0 sha256-0WLUa87UUh6j+TwVPYTI2PYsk9gII57v3mYtFVTcHio=
+// @vegastack list-toolbar@0.114.0 sha256-JsIcpvTlHp4p49ejxmtpIdPYBFyDt4DPJOalJ1+i3wU=
 
 "use client";
 
@@ -583,7 +583,7 @@ export function ListToolbarPopover({
         aria-label={title}
         data-slot={dataSlot}
         className={cn(
-          "max-w-[calc(100vw-2rem)] gap-0 p-1.5",
+          "max-w-[calc(100vw-2rem)] gap-0 p-1.25",
           size === "lg" && "w-144",
           className,
         )}

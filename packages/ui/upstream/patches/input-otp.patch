@@ -1,8 +1,8 @@
 # component: input-otp
 # decisions: DOC-1, DOC-2, FOC-1, FOC-3, FOC-5, FOC-6, FOC-14, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1, FOC-3, FOC-6: the active slot's `data-[active=true]:border-ring` plus
 #     `ring-3 ring-ring/50` becomes `data-[active=true]:border-ring/70` — the same border tint the
 #     rest of the text-entry family uses, and no glow.

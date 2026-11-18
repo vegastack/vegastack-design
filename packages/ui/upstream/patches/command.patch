@@ -1,8 +1,8 @@
 # component: command
 # decisions: A11Y-2, A11Y-3, A11Y-4, A11Y-7, API-18, API-19, DOC-1, DOC-2, INT-1, LAY-10, OVL-16, OVL-20, VOI-1, COL-24, BRD-12
 # hunks:
-#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|icon|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16);
-#     rows with a fill are `rounded-item`, menus `rounded-card p-1.5`, table rows `row-fill`.
+#   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
+#     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   INT-1: `cursor-default` is removed from `CommandItem`, so a row shows the hand cursor the one
 #     global rule gives every `[role="option"]`.
 #   A11Y-2: `CommandInput` gains `min-h-6`. cmdk's input carries no height of its own, so it
@@ -76,7 +76,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/command.tsx b/command.tsx
-index 5cb64c9..3485fdf 100644
+index 5cb64c9..fcc97dc 100644
 --- a/command.tsx
 +++ b/command.tsx
 @@ -1,8 +1,8 @@
@@ -709,7 +709,7 @@ index 5cb64c9..3485fdf 100644
 +        ref={setRef}
 +        forceMount
 +        className={cn(
-+          "sticky bottom-0 z-10 border-t border-border bg-popover p-1 text-foreground",
++          "sticky bottom-0 z-10 border-t border-border bg-popover p-1.25 text-foreground",
 +          className,
 +        )}
 +        {...props}

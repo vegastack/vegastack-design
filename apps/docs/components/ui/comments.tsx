@@ -1,4 +1,4 @@
-// @vegastack comments@0.114.0 sha256-5F3YWqiCJm3w/ZJHzjamT7cd+wTvU6haqk3WdaI6/Is=
+// @vegastack comments@0.114.0 sha256-uPYaxNpdVX3WHa46l3BhjhVXl4qmvEnop09iCRZ0c08=
 
 "use client";
 
@@ -498,7 +498,7 @@ export function CommentItem({
         // 16px in from the card's sides, 12px above and below. An agent's comment has a violet
         // bar at its start, a question an amber one — on this row only, never on its replies.
         className={cn(
-          "group/comment m-1 flex min-w-0 flex-col rounded-item px-3 py-2 transition-colors data-[highlighted]:bg-state-hover",
+          "group/comment m-1.25 flex min-w-0 flex-col rounded-item px-3 py-2 transition-colors data-[highlighted]:bg-state-hover",
           (agent || question) &&
             "relative before:absolute before:inset-y-2 before:start-0 before:w-0.5 before:rounded-full",
           question ? "before:bg-warning" : agent && "before:bg-tag-purple",

@@ -1,4 +1,4 @@
-// @vegastack menubar@0.114.0 sha256-/Rs9Oy7Ninb/H5IU1a2MkTuym0+GYVZI/OXgW1XWXtw=
+// @vegastack menubar@0.114.0 sha256-UD/vJ3Gz1QOP0yq1Iu4EbWjKyx55x2RmOT0ZNQA4duY=
 
 "use client";
 
@@ -34,7 +34,7 @@ function Menubar({ className, ...props }: MenubarPrimitive.Props) {
     <MenubarPrimitive
       data-slot="menubar"
       className={cn(
-        "flex h-8 items-center gap-0.5 rounded-control border p-0.5",
+        "flex h-8 items-center gap-0.5 rounded-control border p-px",
         className,
       )}
       {...props}
@@ -66,7 +66,7 @@ function MenubarTrigger({
     <DropdownMenuTrigger
       data-slot="menubar-trigger"
       className={cn(
-        "flex items-center rounded-segment px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
+        "flex h-full items-center rounded-segment px-2.5 py-[2px] text-sm font-medium select-none state-layer aria-expanded:bg-state-selected",
         className,
       )}
       {...props}
