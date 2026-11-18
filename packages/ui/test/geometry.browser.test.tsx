@@ -5275,14 +5275,17 @@ test("the bar's search palette opens on its box: same left edge and width at eve
       });
       expectConcentric(palette, field, "x");
     } else {
-      // A box too narrow for results: a wider palette centred on it, unless that would cross
-      // the window's 16px gutter.
-      expect(p.width, label).toBeGreaterThan(box.width + 8);
-      if (p.left > 16 && p.right < width - 16)
-        expect({ label, centre: p.left + p.width / 2 }).toEqual({
-          label,
-          centre: box.left + box.width / 2,
-        });
+      // A box too narrow for results: a 320px palette centred on it, held inside the window's
+      // 16px gutters.
+      const expected = Math.min(
+        Math.max(box.left + box.width / 2 - 160, 16),
+        width - 16 - 320,
+      );
+      expect({ label, left: p.left, width: p.width }).toEqual({
+        label,
+        left: expected,
+        width: 320,
+      });
     }
     expect(p.left, label).toBeGreaterThanOrEqual(16);
     expect(p.right, label).toBeLessThanOrEqual(width - 16);

@@ -1,4 +1,4 @@
-// @vegastack command-search@0.117.0 sha256-GGQIs8oZMFbX0DFX4aUizkebykVlE5Od5CIRXUfrC1o=
+// @vegastack command-search@0.117.0 sha256-2ZC5XnNdJJdI0M+nVEvTyWqxZogv7xa2OJyygm8XSbA=
 
 "use client";
 
@@ -184,9 +184,14 @@ function useBarPlacement(
     measure();
     const observer = new ResizeObserver(measure);
     // The box moves without resizing when a control beside it does (the bar centres its group),
-    // so its group is watched as well as the box and the window.
+    // so its group and every control in it are watched as well as the box and the window.
     observer.observe(box);
-    if (box.parentElement) observer.observe(box.parentElement);
+    const group = box.parentElement;
+    if (group) {
+      observer.observe(group);
+      for (const sibling of Array.from(group.children))
+        observer.observe(sibling);
+    }
     observer.observe(document.documentElement);
     window.addEventListener("resize", measure);
     return () => {
