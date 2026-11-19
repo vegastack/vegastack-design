@@ -1,4 +1,4 @@
-// @vegastack run-timeline@0.123.2 sha256-7k+owuWAr6AE1ZEsXpdOTNUEdH/71H7ccN8eUT5Xj24=
+// @vegastack run-timeline@0.123.2 sha256-2PDHzkuh8ARrTdjOluWX4ClMV93cRzOfenrD5lyVriQ=
 
 "use client";
 
@@ -403,7 +403,7 @@ function StepList({
     }));
   const row = (step: RunTimelineStep) => (
     <StepRow
-      key={step.id}
+      key={`step:${step.id}`}
       step={step}
       collapseRuns={collapseRuns}
       onExpand={onExpand}
@@ -423,7 +423,7 @@ function StepList({
           row(part.item)
         ) : (
           <MoreSteps
-            key={`fold-${part.items[0]!.id}`}
+            key={`fold:${part.items[0]!.id}`}
             count={part.items.length}
             onOpen={() => open("folds", part.items)}
           />
@@ -432,12 +432,15 @@ function StepList({
   };
   const entries = fold(steps, collapseRuns);
   entries.slice(0, ROW_BUDGET).forEach(addEntry);
-  // Past the budget, rows wait behind one "N more steps", except a step that stays open.
+  // Past the budget, rows wait behind one "N more steps", except a step that stays open and
+  // anything already opened (a fold whose split pushed it past the budget stays open).
   for (const part of hideBetween(
     entries.slice(ROW_BUDGET),
     (entry) =>
       (entry.type === "step" && staysOpen(entry.step)) ||
-      entrySteps(entry).some((step) => opened.rest.has(step.id)),
+      entrySteps(entry).some(
+        (step) => opened.rest.has(step.id) || opened.folds.has(step.id),
+      ),
   )) {
     if (part.shown) {
       addEntry(part.item);
@@ -446,7 +449,7 @@ function StepList({
     const hidden = part.items.flatMap(entrySteps);
     rows.push(
       <MoreSteps
-        key={`rest-${hidden[0]!.id}`}
+        key={`rest:${hidden[0]!.id}`}
         count={hidden.length}
         onOpen={() => open("rest", hidden)}
       />,

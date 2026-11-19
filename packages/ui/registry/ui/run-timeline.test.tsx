@@ -283,13 +283,23 @@ test("running, waiting and failed steps never fold; the fold splits around them"
 });
 
 test("an opened fold stays open when a step in it turns live; a branch opens when it turns live", async () => {
-  const run = (live: boolean) =>
-    Array.from({ length: 12 }, (_, index) =>
-      tool(String(index), {
+  // 19 turns put the tool run's fold at the row budget's edge: when it splits, part of it lands
+  // past the budget and must stay open there too.
+  const run = (live: boolean): RunTimelineStep[] => [
+    ...Array.from({ length: 19 }, (_, index) => ({
+      id: `t${index}`,
+      kind: "turn" as const,
+      title: `Thought ${index}`,
+      status: "done" as const,
+      startedAt: at,
+    })),
+    ...Array.from({ length: 12 }, (_, index) =>
+      tool(`fold:${index}`, {
         status: live && index === 8 ? "running" : "done",
         detail: index === 10 ? <p>Step ten's output</p> : undefined,
       }),
-    );
+    ),
+  ];
   const branch = (live: boolean): RunTimelineStep[] => [
     {
       id: "s",
