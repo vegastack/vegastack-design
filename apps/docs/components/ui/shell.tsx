@@ -1,4 +1,4 @@
-// @vegastack shell@0.117.0 sha256-Ui+xVmHSWEQA+iHWRgddU3ODxneGAVRUgQoY275ww1c=
+// @vegastack shell@0.117.0 sha256-Gwp2zH3yeqqQB4qOfNkHX55TK3rfTEVhv92XmmnDVdw=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -710,7 +710,7 @@ const BUTTON_SHAPE =
  * carries the same rule, so a record's controls look alike in the bar and in the peek's header.
  */
 const CONTROL_TYPE =
-  "[&_:is(button,[role=button])]:text-sm [&_:is(button,a,[role=button])_svg:not([class*='size-'])]:size-4";
+  "[&_:is(button,a,[role=button])]:text-sm [&_:is(button,a,[role=button])_svg:not([class*='size-'])]:size-4";
 
 function topBarSlot(slot: string, order: string, extra = "") {
   return function ShellTopBarSlot({

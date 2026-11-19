@@ -655,6 +655,11 @@ test("every control at the bar's end reads 14px with a 16px icon, whatever size 
           Share
         </Button>
       </ShellTopBarShare>
+      <ShellTopBarWatch>
+        <Button variant="ghost" size="sm" render={<a href="/share" />}>
+          Open
+        </Button>
+      </ShellTopBarWatch>
       <ShellTopBarFavorite>
         <Toggle variant="bare" size="sm" aria-label="Favourite">
           <Star />
@@ -673,6 +678,9 @@ test("every control at the bar's end reads 14px with a 16px icon, whatever size 
       </ShellTopBarMore>
     </ShellTopBar>,
   );
+  // A Button rendered as a link holds the size too.
+  const link = screen.container.querySelector<HTMLElement>('a[href="/share"]')!;
+  expect(getComputedStyle(link).fontSize).toBe("14px");
   // A trigger renames the Button's slot; the bar's size still holds.
   const more = screen.getByRole("button", { name: "More" }).element();
   expect(getComputedStyle(more).fontSize).toBe("14px");
