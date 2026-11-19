@@ -1,4 +1,4 @@
-// @vegastack resource-pill@0.117.0 sha256-7RoKHHmxGA9lJHLa3EaYOoyacvIALatNy2w4efzPHm4=
+// @vegastack resource-pill@0.123.2 sha256-pYmWKCBZvhyy4TOs5n+RIkluT0G0r6b/GPaKajIcfUU=
 
 "use client";
 

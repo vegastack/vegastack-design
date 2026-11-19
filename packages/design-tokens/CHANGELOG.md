@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.28.0
+
+### Minor Changes
+
+- [#1055](https://github.com/vegastack/vegastack-design/pull/1055) [`8ef7303`](https://github.com/vegastack/vegastack-design/commit/8ef73039d967d6c05f9a90dab012b5af0cb74669) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📦 Corners on touch follow the web's thesis (BRD-12, amended 2026-11-20): in `corners.dart` and `corners.json`, touch `control`, `icon` and `field` are 12pt rounded rectangles and `segment` is 8pt (it was 6). Buttons, icon buttons, inputs and segmented controls on the phone stop being capsules; the frame, the tab bar and floating controls read `capsule`. Web and desktop values are unchanged.
+
 ## 0.27.0
 
 ### Minor Changes
