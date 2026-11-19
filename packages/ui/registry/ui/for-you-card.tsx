@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.120.0 sha256-aDh8Z8iDa0VtfKurlDiwUtsSx/tSFoV0sFVnqrt+1KU=
+// @vegastack for-you-card@0.120.0 sha256-pz/KoFFGaPlxCN+6OkO2F1ElldXWkmtmTtsHhW0Dm1Y=
 
 "use client";
 
@@ -418,7 +418,7 @@ export function ForYouCard({
                 }}
                 className={cn(
                   buttonVariants({ variant: "outline", size: "sm" }),
-                  "h-auto min-h-7 max-w-full py-1 text-start whitespace-normal no-underline aria-disabled:opacity-50",
+                  "h-auto min-h-7 max-w-full py-1 text-start whitespace-normal wrap-anywhere no-underline aria-disabled:opacity-50",
                 )}
               >
                 {option.label}
@@ -431,7 +431,7 @@ export function ForYouCard({
               variant={optionVariant(option.kind)}
               className={cn(
                 // A long server label wraps inside the panel instead of running past it.
-                "h-auto min-h-7 max-w-full py-1 text-start whitespace-normal",
+                "h-auto min-h-7 max-w-full py-1 text-start whitespace-normal wrap-anywhere",
                 // Skip leaves For you without deciding: quieter than Decline.
                 option.kind === "skip" && "text-muted-foreground",
               )}
@@ -482,7 +482,11 @@ export function ForYouCard({
           />
         ) : (
           // The app's own body holds with the card: a fieldset disables every control inside it.
-          <fieldset disabled={hold} className="m-0 min-w-0 border-0 p-0">
+          <fieldset
+            disabled={hold}
+            inert={hold}
+            className="m-0 min-w-0 border-0 p-0"
+          >
             {renderBody?.(sourceBody)}
           </fieldset>
         )}

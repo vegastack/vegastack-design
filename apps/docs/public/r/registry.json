@@ -19680,7 +19680,7 @@
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
         "version": "0.120.0",
-        "integrity": "sha256-aDh8Z8iDa0VtfKurlDiwUtsSx/tSFoV0sFVnqrt+1KU="
+        "integrity": "sha256-pz/KoFFGaPlxCN+6OkO2F1ElldXWkmtmTtsHhW0Dm1Y="
       }
     },
     {
