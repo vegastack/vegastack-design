@@ -144,6 +144,7 @@ test("a subagent's steps nest under it; waiting pulses in the header; empty says
       <RunTimeline steps={[]} />
     </>,
   );
+  // A waiting branch starts open.
   await expect
     .element(page.getByRole("list", { name: "Steps of Supplier research" }))
     .toBeVisible();
@@ -153,4 +154,57 @@ test("a subagent's steps nest under it; waiting pulses in the header; empty says
   expect(waiting!.getAttribute("data-live")).toBe("waiting");
   expect(empty!.textContent).toBe("No steps yet");
   await expectNoA11yViolations(screen.container);
+});
+
+test("a mixed run of 1,000 steps also stays small until opened; delivery unknown says it in words", async () => {
+  const steps: RunTimelineStep[] = Array.from({ length: 1000 }, (_, index) =>
+    index % 2
+      ? tool(String(index))
+      : {
+          id: String(index),
+          kind: "turn",
+          title: `Thought ${index}`,
+          status: "done",
+          startedAt: at,
+        },
+  );
+  const screen = await render(
+    <>
+      <RunTimeline steps={steps} />
+      <RunTimeline steps={[tool("d", { status: "delivery_unknown" })]} />
+    </>,
+  );
+  const [root, delivery] = screen.container.querySelectorAll(
+    '[data-slot="run-timeline"]',
+  );
+  expect(root!.querySelectorAll("*").length).toBeLessThan(200);
+  expect(delivery!.querySelector('[data-slot="status-glyph"]')).toBeNull();
+  await page.getByRole("button", { name: "975 more steps" }).click();
+  expect(
+    root!.querySelectorAll('[data-slot="run-timeline-step"]'),
+  ).toHaveLength(1000);
+});
+
+test("a finished subagent's steps start folded; opening shows them", async () => {
+  await render(
+    <RunTimeline
+      steps={[
+        {
+          id: "s",
+          kind: "subagent",
+          title: "Research",
+          status: "done",
+          startedAt: at,
+          children: [tool("a"), tool("b")],
+        },
+      ]}
+    />,
+  );
+  await expect
+    .element(page.getByRole("list", { name: "Steps of Research" }))
+    .not.toBeInTheDocument();
+  await page.getByRole("button", { name: "Show 2 steps" }).click();
+  await expect
+    .element(page.getByRole("list", { name: "Steps of Research" }))
+    .toBeVisible();
 });

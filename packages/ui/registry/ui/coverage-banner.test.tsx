@@ -31,6 +31,9 @@ test("a banner states who covers, with one action; warning marks an urgent step"
   );
   expect(info!.getAttribute("role")).toBe("status");
   expect(warning!.dataset.tone).toBe("warning");
+  // An urgent step shows a glyph, never a tinted strip.
+  expect(warning!.className).not.toMatch(/bg-warning/);
+  expect(warning!.querySelector('[aria-label="Urgent"]')).not.toBeNull();
   await page.getByRole("button", { name: "Change" }).click();
   expect(onClick).toHaveBeenCalled();
   await expectNoA11yViolations(screen.container);

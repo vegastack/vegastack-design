@@ -16250,7 +16250,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/tooltip"
+        "@vegastack/truncated-text"
       ],
       "files": [
         {

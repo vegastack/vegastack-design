@@ -1,4 +1,4 @@
-// @vegastack delegate-row@0.120.0 sha256-JQwHj9OCYXdb2/2xeDjmjpYnxOjnIUeNF846wXEuxnI=
+// @vegastack delegate-row@0.120.0 sha256-runmGANSELcLUlMyFPxoaOkYbCYC4RmvsHbFDzwvMCE=
 
 "use client";
 
@@ -14,11 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { TruncatedText } from "@/components/ui/truncated-text";
 
 /* ------------------------------------------------------------------------------------------------
  * DelegateRow — one person covering for another: their avatar and name over a muted line of what
@@ -165,20 +161,13 @@ export function DelegateRow({
         ) : null}
       </div>
       {note ? (
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <p
-                tabIndex={0}
-                data-slot="delegate-row-note"
-                className="ms-10 line-clamp-2 min-w-0 rounded-mark text-xs text-muted-foreground"
-              />
-            }
-          >
-            {note}
-          </TooltipTrigger>
-          <TooltipContent className="max-w-80">{note}</TooltipContent>
-        </Tooltip>
+        <TruncatedText
+          lines={2}
+          data-slot="delegate-row-note"
+          className="ms-10 min-w-0 text-xs text-muted-foreground"
+        >
+          {note}
+        </TruncatedText>
       ) : null}
     </div>
   );

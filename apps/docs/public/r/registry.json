@@ -19744,7 +19744,7 @@
         "whenToUse": "A run's own page: what an agent did, step by step, with what it cost.",
         "whenNotToUse": "A chat turn's work (WorkLog), or a list of runs (DataList).",
         "version": "0.120.0",
-        "integrity": "sha256-kTT4TM86Uesz2Y9RxyURz41Y85DcGdokpkSeubVOUoc="
+        "integrity": "sha256-jmtYTYk9UeHV1r+XirBzbyD+Mq7vj8CSDZzcSujAkXE="
       }
     },
     {
@@ -19778,7 +19778,7 @@
         "whenToUse": "A list of an agent's or a person's routines.",
         "whenNotToUse": "A one-off scheduled run (a task with a due date), or a trigger's settings (SettingsRow).",
         "version": "0.120.0",
-        "integrity": "sha256-0Zk5njrVeLATz7MsrkhphWnJCTq8LPhAI1cE61ax7Dg="
+        "integrity": "sha256-/3ptcnAxawew7IGbktWvRMCi9L9ejm3Od5R1djFrj28="
       }
     },
     {
@@ -19797,7 +19797,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/dropdown-menu",
-        "@vegastack/tooltip"
+        "@vegastack/truncated-text"
       ],
       "files": [
         {
@@ -19810,7 +19810,7 @@
         "whenToUse": "A list of who covers for a person: delegates in Settings, on a profile.",
         "whenNotToUse": "Members of a place (MemberList), or handing a record to an agent (DelegatePopover).",
         "version": "0.120.0",
-        "integrity": "sha256-JQwHj9OCYXdb2/2xeDjmjpYnxOjnIUeNF846wXEuxnI="
+        "integrity": "sha256-runmGANSELcLUlMyFPxoaOkYbCYC4RmvsHbFDzwvMCE="
       }
     },
     {
@@ -19841,7 +19841,7 @@
         "whenToUse": "Saying that a delegate covers a step: on an approval page, under a name in a picker.",
         "whenNotToUse": "A list of delegates (DelegateRow), or a general notice (Alert).",
         "version": "0.120.0",
-        "integrity": "sha256-YxUBiJH3v+gjJ6kKA/CVg7xjIWyyKcSoaXxLEgZXL+k="
+        "integrity": "sha256-2b92Sucr1hO8n2VwTzkxkaqgJc+m1zziNKmXx/FzfB8="
       }
     },
     {

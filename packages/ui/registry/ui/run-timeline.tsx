@@ -1,4 +1,4 @@
-// @vegastack run-timeline@0.120.0 sha256-kTT4TM86Uesz2Y9RxyURz41Y85DcGdokpkSeubVOUoc=
+// @vegastack run-timeline@0.120.0 sha256-jmtYTYk9UeHV1r+XirBzbyD+Mq7vj8CSDZzcSujAkXE=
 
 "use client";
 
@@ -157,6 +157,10 @@ function StepRow({
   onExpand?: (stepId: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
+  // A running branch starts open: what is happening now is never hidden.
+  const [nestedOpen, setNestedOpen] = React.useState(
+    () => step.status === "running" || step.status === "waiting",
+  );
   const detailId = React.useId();
   const failed = step.status === "failed" || step.kind === "error";
   const words = STATUS_WORDS[step.status];
@@ -207,13 +211,6 @@ function StepRow({
         <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
           {words ? (
             <span data-slot="run-timeline-status" className="min-w-0">
-              {step.status === "delivery_unknown" ? (
-                <StatusGlyph
-                  status="pending"
-                  label={null}
-                  className="me-1 inline align-[-2px]"
-                />
-              ) : null}
               {words}
             </span>
           ) : null}
@@ -275,13 +272,31 @@ function StepRow({
         </div>
       ) : null}
       {step.children?.length ? (
-        <StepList
-          steps={step.children}
-          collapseRuns={collapseRuns}
-          onExpand={onExpand}
-          nested
-          label={step.title}
-        />
+        // A subagent's own steps start folded, as the chat's Subagents block does, so a deep run
+        // draws only its top level until someone opens a branch.
+        nestedOpen ? (
+          <StepList
+            steps={step.children}
+            collapseRuns={collapseRuns}
+            onExpand={onExpand}
+            nested
+            label={step.title}
+          />
+        ) : (
+          <div className="flex min-w-0">
+            <Button
+              size="xs"
+              variant="ghost"
+              aria-expanded={false}
+              className="-ms-2 text-muted-foreground"
+              onClick={() => setNestedOpen(true)}
+            >
+              {step.children.length === 1
+                ? "Show 1 step"
+                : `Show ${step.children.length} steps`}
+            </Button>
+          </div>
+        )
       ) : null}
     </li>
   );
@@ -325,29 +340,23 @@ function Fold({
   );
 }
 
-function StepList({
-  steps,
+/** Rows a list draws before the rest wait behind "N more steps", so any long run stays small. */
+const ROW_BUDGET = 25;
+
+type Entry = ReturnType<typeof fold>[number];
+
+function EntryRows({
+  entries,
   collapseRuns,
   onExpand,
-  nested = false,
-  label,
 }: {
-  steps: RunTimelineStep[];
+  entries: Entry[];
   collapseRuns: number;
   onExpand?: (stepId: string) => void;
-  nested?: boolean;
-  label?: string;
 }) {
   return (
-    <ol
-      aria-label={nested ? `Steps of ${label}` : "Steps"}
-      data-slot="run-timeline-steps"
-      className={cn(
-        "flex min-w-0 flex-col gap-1 border-s border-chat-hairline ps-4",
-        nested ? "ms-1 mt-1" : "ms-1.5",
-      )}
-    >
-      {fold(steps, collapseRuns).map((entry) =>
+    <>
+      {entries.map((entry) =>
         entry.type === "step" ? (
           <StepRow
             key={entry.step.id}
@@ -364,6 +373,82 @@ function StepList({
           />
         ),
       )}
+    </>
+  );
+}
+
+/** The rows past the budget, behind one "N more steps" until opened. */
+function Rest({
+  entries,
+  collapseRuns,
+  onExpand,
+}: {
+  entries: Entry[];
+  collapseRuns: number;
+  onExpand?: (stepId: string) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  if (open)
+    return (
+      <EntryRows
+        entries={entries}
+        collapseRuns={collapseRuns}
+        onExpand={onExpand}
+      />
+    );
+  const count = entries.reduce(
+    (n, entry) => n + (entry.type === "step" ? 1 : entry.steps.length),
+    0,
+  );
+  return (
+    <li data-slot="run-timeline-fold" className="flex min-w-0">
+      <Button
+        size="xs"
+        variant="ghost"
+        className="-ms-2 text-muted-foreground"
+        onClick={() => setOpen(true)}
+      >
+        {count === 1 ? "1 more step" : `${count} more steps`}
+      </Button>
+    </li>
+  );
+}
+
+function StepList({
+  steps,
+  collapseRuns,
+  onExpand,
+  nested = false,
+  label,
+}: {
+  steps: RunTimelineStep[];
+  collapseRuns: number;
+  onExpand?: (stepId: string) => void;
+  nested?: boolean;
+  label?: string;
+}) {
+  const entries = fold(steps, collapseRuns);
+  return (
+    <ol
+      aria-label={nested ? `Steps of ${label}` : "Steps"}
+      data-slot="run-timeline-steps"
+      className={cn(
+        "flex min-w-0 flex-col gap-1 border-s border-chat-hairline ps-4",
+        nested ? "ms-1 mt-1" : "ms-1.5",
+      )}
+    >
+      <EntryRows
+        entries={entries.slice(0, ROW_BUDGET)}
+        collapseRuns={collapseRuns}
+        onExpand={onExpand}
+      />
+      {entries.length > ROW_BUDGET ? (
+        <Rest
+          entries={entries.slice(ROW_BUDGET)}
+          collapseRuns={collapseRuns}
+          onExpand={onExpand}
+        />
+      ) : null}
     </ol>
   );
 }

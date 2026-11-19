@@ -1,7 +1,8 @@
-// @vegastack coverage-banner@0.120.0 sha256-YxUBiJH3v+gjJ6kKA/CVg7xjIWyyKcSoaXxLEgZXL+k=
+// @vegastack coverage-banner@0.120.0 sha256-2b92Sucr1hO8n2VwTzkxkaqgJc+m1zziNKmXx/FzfB8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
+import { TriangleAlert } from "lucide-react";
 
 import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -66,8 +67,9 @@ export function CoverageBanner({
       </span>
     );
   return (
+    // Neutral in both tones: an urgent step shows the warning glyph, never a tinted strip (COL-25).
     <Alert
-      variant={tone === "warning" ? "warning" : "default"}
+      variant="default"
       data-slot="coverage-banner"
       data-variant="banner"
       data-tone={tone}
@@ -78,6 +80,13 @@ export function CoverageBanner({
           {person.avatar}
         </span>
         <span className="min-w-0 wrap-anywhere">{text}</span>
+        {tone === "warning" ? (
+          <TriangleAlert
+            role="img"
+            aria-label="Urgent"
+            className="size-4 shrink-0 text-warning-text"
+          />
+        ) : null}
       </AlertDescription>
       {action ? (
         <AlertAction>

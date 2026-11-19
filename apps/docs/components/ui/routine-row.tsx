@@ -1,4 +1,4 @@
-// @vegastack routine-row@0.120.0 sha256-0Zk5njrVeLATz7MsrkhphWnJCTq8LPhAI1cE61ax7Dg=
+// @vegastack routine-row@0.120.0 sha256-/3ptcnAxawew7IGbktWvRMCi9L9ejm3Od5R1djFrj28=
 
 "use client";
 
@@ -218,10 +218,7 @@ export function RoutineRow({
         </div>
         <p
           data-slot="routine-row-meta"
-          className={cn(
-            "min-w-0 truncate text-xs",
-            paused ? "text-muted-foreground/80" : "text-muted-foreground",
-          )}
+          className={cn("min-w-0 truncate text-xs", "text-muted-foreground")}
         >
           {[
             !paused && next.length ? `Next ${next.join(", ")}` : null,
