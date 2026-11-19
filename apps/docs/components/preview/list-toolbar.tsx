@@ -172,7 +172,7 @@ function TasksToolbar({ width }: { width?: number }) {
     >
       <ListToolbar
         primary={
-          <Button size="sm">
+          <Button>
             <Plus aria-hidden />
             New task
           </Button>
@@ -419,7 +419,7 @@ export function listToolbarTable(): ReactNode {
       <PageFrame title="Requests">
         <ListToolbar
           primary={
-            <Button size="sm">
+            <Button>
               <Plus aria-hidden />
               New row
             </Button>
@@ -570,7 +570,7 @@ export function listToolbarSettings(): ReactNode {
       <PageFrame title="Members">
         <ListToolbar
           primary={
-            <Button size="sm">
+            <Button>
               <Plus aria-hidden />
               Invite member
             </Button>

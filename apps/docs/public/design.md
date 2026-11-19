@@ -1698,7 +1698,10 @@ rows". Three rules: **one shape per row** (a button added to a row takes the row
   `control`, `segment` and `icon` to the capsule for a subtree), never an ad-hoc `rounded-*` in app
   code; **height alone never picks the shape**, except the 24px compact tier, which takes `segment`
   (10px on 24px reads as a pill). The filter row is one chip tier: every facet, chip, + Filter and
-  Clear is a 28px pill with 12px medium text (`FILTER_ROW_ACTION`). The top bar's search is a capsule
+  Clear is a 28px pill with 12px medium text (`FILTER_ROW_ACTION`), at every width. The list toolbar row
+  above it is one 32px line — search field, icon tools, state button and the filled primary, a default
+  `Button` (the `primary` and `state` slots hold their child to the row's height); a compact toolbar is
+  one 28px line. The top bar's search is a capsule
   whose search and Ask fills sit 3px in on every side (1px border + `p-0.5`). A floating panel that
   wraps or holds a form stays `rounded-card`. Calendar days, colour swatches and a chip's remove button
   are circles; indicators (progress, meters, grips, connectors, scrollbar thumbs) have pill ends;

@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.117.0 sha256-G9+ifMgn5z5r5PzCGrMDVFFRDHI+Y8/RAj7PUism4ZI=
+// @vegastack list-toolbar@0.117.0 sha256-Sd8l8yxzt2Ggizlab8D4WsZgbh/a/y5TbSyDGbo9I/E=
 
 "use client";
 
@@ -302,8 +302,9 @@ export interface ListToolbarProps extends Omit<
    */
   more?: React.ReactNode;
   /**
-   * A state button before the edit group and the tools ("Save view" on a changed table view).
-   * It leaves the row at the last collapse step, so keep its action in ⋯ too.
+   * A state button before the edit group and the tools ("Save view" on a changed table view): a
+   * default-size `<Button>` (`size="sm"` in a compact toolbar), held to the row's height like
+   * `primary`. It leaves the row at the last collapse step, so keep its action in ⋯ too.
    * @default undefined
    */
   state?: React.ReactNode;
@@ -314,9 +315,10 @@ export interface ListToolbarProps extends Omit<
    */
   edit?: readonly ListToolbarMenuItem[];
   /**
-   * The page's one primary button, the row's last control after the tools: a filled
-   * `<Button size="sm">` (28px) with a verb and a noun ("New task"), or a "New ▾" menu trigger.
-   * It never folds away.
+   * The page's one primary button, the row's last control after the tools: a filled `<Button>`
+   * (32px, the row's height; `size="sm"`, 28px, in a compact toolbar) with a verb and a noun
+   * ("New task"), or a "New ▾" menu trigger. The slot holds it to the row's height either way. It
+   * never folds away.
    * @default undefined
    */
   primary?: React.ReactNode;
@@ -1286,7 +1288,10 @@ export function ListToolbar({
           data-slot="list-toolbar-row"
           className={cn(
             "relative flex w-full min-w-0 items-center gap-2",
-            compact ? "h-7" : "h-8",
+            // A compact row's search folded to its icon is a 28px tool like the rest.
+            compact
+              ? "h-7 [&_[data-slot=list-toolbar-search-toggle]]:size-7"
+              : "h-8",
           )}
         >
           {searchField}
@@ -1297,7 +1302,12 @@ export function ListToolbar({
             {state != null && level < 4 ? (
               <div
                 data-slot="list-toolbar-state"
-                className="flex shrink-0 items-center"
+                className={cn(
+                  "flex shrink-0 items-center",
+                  // One line, one height: whatever button the host passes stands as tall as the
+                  // search field and the tools.
+                  compact ? "*:h-7" : "*:h-8",
+                )}
               >
                 {state}
               </div>
@@ -1316,7 +1326,10 @@ export function ListToolbar({
             {primary != null ? (
               <div
                 data-slot="list-toolbar-primary"
-                className="flex shrink-0 items-center"
+                className={cn(
+                  "flex shrink-0 items-center",
+                  compact ? "*:h-7" : "*:h-8",
+                )}
               >
                 {primary}
               </div>
