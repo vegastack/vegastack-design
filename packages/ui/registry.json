@@ -15530,7 +15530,7 @@
       "meta": {
         "whenToUse": "Indicate the workflow state of a task or issue — backlog, todo, in progress, in review, done, canceled, duplicate, triage — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
-        "version": "0.117.0"
+        "version": "0.121.0"
       }
     },
     {
@@ -16049,7 +16049,7 @@
       "meta": {
         "whenToUse": "Listing agents people can use: the agents directory, a templates list.",
         "whenNotToUse": "A person or space directory (the app's DirectoryCard), or an agent's own page header (RecordHeader).",
-        "version": "0.120.0"
+        "version": "0.121.0"
       }
     },
     {
@@ -16080,7 +16080,7 @@
       "meta": {
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (SuggestionCard), or a question with answers to fill (AgentQuestionForm).",
-        "version": "0.120.0"
+        "version": "0.121.0"
       }
     },
     {
@@ -16114,7 +16114,7 @@
       "meta": {
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
-        "version": "0.120.0"
+        "version": "0.121.0"
       }
     },
     {

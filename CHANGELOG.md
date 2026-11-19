@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.121.0] — November 19, 2026
+
+<!-- assembled from 1 changeset: e1dc2be63e8f -->
+
+### 🧩 New components
+
+- **AskCard**, **ToolPermissionList**, **AgentDirectoryCard** — the agents' first parts. `AskCard` is the one card an agent uses to ask a person's OK, in a chat (`density="card"`) or inside a host card (`"inline"`): it draws only the server's choices, in its order and with their ids (`once` secondary, the rest outline, `never` in the destructive ink, past two Always choices one "Always…" menu), never a filled primary; a "Delete or send" action shows its preview before the buttons; a `bundle` answers each call on its own and offers "Answer all" only from the server's shared choices and never with a send in it; settled, it reads as one muted line with Undo. `ToolPermissionList` sets Allow, Auto-check, Ask or Block per class and per tool from each row's `answersAllowed`, with inherited answers muted, locks, an admin's lock toggle, the rules at this layer, search past 50 tools and "Show all" past 50 in a class. `AgentDirectoryCard` is one agent in the directory, drawn like the app's directory cards: its name the one link, status and verified mark, place, job, example asks, apps, maintainers and a secondary Chat, as a grid card or a list row. **StatusIcon** gains `planned` (the dashed ring in body ink) and `paused` (a ring with two bars) for plans such as an initiative.
+  [`523ad55`](https://github.com/VegaStack/vegastack-design/commit/523ad55)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.120.0 → 0.121.0.
+
 ## [0.120.0] — November 18, 2026
 
 <!-- assembled from 1 changeset: becb7e687c6d -->

@@ -18986,8 +18986,8 @@
       "meta": {
         "whenToUse": "Indicate the workflow state of a task or issue — backlog, todo, in progress, in review, done, canceled, duplicate, triage — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
-        "version": "0.117.0",
-        "integrity": "sha256-TgXHfl684LW1Gv2utny1WOLnAKV7SAhm3zDRm5MIegM="
+        "version": "0.121.0",
+        "integrity": "sha256-WVXdUzhcHFYiTGWGG6kW4wNWkSTVNwrDj7yjb+9GnPM="
       }
     },
     {
@@ -19572,8 +19572,8 @@
       "meta": {
         "whenToUse": "Listing agents people can use: the agents directory, a templates list.",
         "whenNotToUse": "A person or space directory (the app's DirectoryCard), or an agent's own page header (RecordHeader).",
-        "version": "0.120.0",
-        "integrity": "sha256-7ikPZzMUXENsenKxvH5iTFKSN+RaT5rfGzwka9Lv4ZA="
+        "version": "0.121.0",
+        "integrity": "sha256-KsWXXCPH9H0Pwll+1s5kj0rwIztAisRwtKbCK+ViQrE="
       }
     },
     {
@@ -19606,8 +19606,8 @@
       "meta": {
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (SuggestionCard), or a question with answers to fill (AgentQuestionForm).",
-        "version": "0.120.0",
-        "integrity": "sha256-HL34/2Q1YD5nYpwdnrSeAo71ChhT9aCdiAAUuAG1MAg="
+        "version": "0.121.0",
+        "integrity": "sha256-fXj3C9W38+oXBaxkLQixVTAwagZVJo0nmjtNJCiDKbc="
       }
     },
     {
@@ -19643,8 +19643,8 @@
       "meta": {
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
-        "version": "0.120.0",
-        "integrity": "sha256-ziKQF/zzphYQjJwjhJ0prAqMlMafTZU/vawlYapS/xQ="
+        "version": "0.121.0",
+        "integrity": "sha256-NNWi/T+QPepOl7HSx0rZaatsEs7MdbRU5Ag1tH+kzbk="
       }
     },
     {
