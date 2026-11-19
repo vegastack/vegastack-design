@@ -48062,7 +48062,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["space-picker", "space-picker-item"]
+              "values": [
+                "space-picker",
+                "space-picker-clear",
+                "space-picker-item"
+              ]
             }
           ],
           "cssVariables": []

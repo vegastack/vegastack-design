@@ -187,3 +187,43 @@ test("a ghost SpaceChip in a panel row starts where other values do, a capsule, 
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test('placement="property" is the ghost chip, a dashed pill while empty, and onClear offers "No space"', async () => {
+  const onClear = vi.fn();
+  const screen = await render(
+    <PropertyList variant="panel" style={{ width: 320 }}>
+      <PropertyRow>
+        <PropertyLabel>Status</PropertyLabel>
+        <PropertyValue>Open</PropertyValue>
+      </PropertyRow>
+      <PropertyRow>
+        <PropertyLabel>Space</PropertyLabel>
+        <PropertyValue>
+          <SpacePicker
+            spaces={SPACES}
+            value={null}
+            placement="property"
+            placeholder="Add space"
+            onClear={onClear}
+          />
+        </PropertyValue>
+      </PropertyRow>
+    </PropertyList>,
+  );
+  // The popover trigger takes the chip's slot name; find it by its name.
+  const chip = screen
+    .getByRole("button", { name: "Space: none chosen" })
+    .element() as HTMLElement;
+  expect(chip.getAttribute("data-chip")).toBe("ghost");
+  expect(getComputedStyle(chip).borderTopStyle).toBe("dashed");
+  expect(chip.querySelector('[data-slot="space-chip-icon"]')).toBeNull();
+  // Hung like every ghost value: the prompt starts on the value column (5px + 1px border = 6px).
+  const column = screen.container
+    .querySelector('[data-slot="property-value"]')!
+    .getBoundingClientRect().left;
+  const prompt = chip.querySelector("span")!.getBoundingClientRect().left;
+  expect(Math.round(prompt - column)).toBe(0);
+  await userEvent.click(chip);
+  await userEvent.click(screen.getByRole("option", { name: "No space" }));
+  expect(onClear).toHaveBeenCalledOnce();
+});

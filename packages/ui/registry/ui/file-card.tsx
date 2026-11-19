@@ -1,4 +1,4 @@
-// @vegastack file-card@0.118.0 sha256-O5QkyoR05VZHjwZlKolIzAFaTg3cSrE6J0YsF019qdQ=
+// @vegastack file-card@0.118.0 sha256-coSzlD7Gwd1YqVXWPm/h9dTpooHvvpu3iUFtyz4JPMM=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -335,9 +335,15 @@ export function FileCard({
         <AttachmentActions
           className={
             row
-              ? // A row's actions show on hover or focus, while their menu is open, and always on
-                // touch — and take no room until then, so a row's name runs to its end at rest.
-                "hidden group-focus-within/attachment:flex group-hover/attachment:flex has-aria-expanded:flex pointer-coarse:flex"
+              ? cn(
+                  // A row's actions show on hover or focus, while their menu is open, and always
+                  // on touch.
+                  "opacity-0 transition-opacity duration-state group-focus-within/attachment:opacity-100 group-hover/attachment:opacity-100 has-aria-expanded:opacity-100 pointer-coarse:opacity-100",
+                  // And take no room until then, so the name runs to the row's end at rest —
+                  // where the row has a tab stop before them (its open button, its source), whose
+                  // focus brings them in. A row with neither keeps their room: Tab reaches them.
+                  "pointer-fine:group-has-[[data-slot=attachment-trigger],[data-slot=file-card-source]]/attachment:not-group-hover/attachment:not-group-focus-within/attachment:not-has-aria-expanded:hidden",
+                )
               : undefined
           }
         >

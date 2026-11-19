@@ -1,4 +1,4 @@
-// @vegastack peek@0.117.0 sha256-fYahhr9MT0GRefPJp8HixtmqtkcdEgRlmFRL/PJnwOw=
+// @vegastack peek@0.117.0 sha256-P4+It1yzwpc9THQh5QTbNtHRFRfxBaNbKDJijv0emtw=
 
 "use client";
 
@@ -777,7 +777,7 @@ export function PeekActions({ className, ...props }: PeekActionsProps) {
         "ms-auto flex shrink-0 items-center gap-1",
         // The top bar's one type size (`ShellTopBar`): a record's Share, Watch and ☆ read 14px with
         // 16px icons here too, beside ⤢ and ✕, whichever button size the app passes.
-        "[&_:is([data-slot=button],[data-slot=toggle])]:text-sm [&_[data-slot]_svg:not([class*='size-'])]:size-4",
+        "[&_:is(button,[role=button])]:text-sm [&_:is(button,a,[role=button])_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}

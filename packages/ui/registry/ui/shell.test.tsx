@@ -8,6 +8,12 @@ import { resolveShellLayout } from "../lib/shell-layout";
 import { Button } from "./button";
 import { Toggle } from "./toggle";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+import {
   GlobalBar,
   GlobalBarCenter,
   GlobalBarLeading,
@@ -654,8 +660,25 @@ test("every control at the bar's end reads 14px with a 16px icon, whatever size 
           <Star />
         </Toggle>
       </ShellTopBarFavorite>
+      <ShellTopBarMore>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button variant="ghost" size="sm" />}>
+            <Lock data-icon="inline-start" />
+            More
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Copy</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </ShellTopBarMore>
     </ShellTopBar>,
   );
+  // A trigger renames the Button's slot; the bar's size still holds.
+  const more = screen.getByRole("button", { name: "More" }).element();
+  expect(getComputedStyle(more).fontSize).toBe("14px");
+  expect(
+    Math.round(more.querySelector("svg")!.getBoundingClientRect().width),
+  ).toBe(16);
   const share = screen.getByRole("button", { name: "Share" }).element();
   expect(getComputedStyle(share).fontSize).toBe("14px");
   expect(

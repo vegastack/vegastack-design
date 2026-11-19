@@ -195,7 +195,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.117.0",
-        "integrity": "sha256-KU4T7Ur4z0BuONtLIhCP0YBjowDcI7dg6p7caVd7kq8="
+        "integrity": "sha256-Ui+xVmHSWEQA+iHWRgddU3ODxneGAVRUgQoY275ww1c="
       }
     },
     {
@@ -385,7 +385,7 @@
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
         "version": "0.117.0",
-        "integrity": "sha256-fYahhr9MT0GRefPJp8HixtmqtkcdEgRlmFRL/PJnwOw="
+        "integrity": "sha256-P4+It1yzwpc9THQh5QTbNtHRFRfxBaNbKDJijv0emtw="
       }
     },
     {
@@ -17327,7 +17327,7 @@
         "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
         "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
         "version": "0.118.0",
-        "integrity": "sha256-O5QkyoR05VZHjwZlKolIzAFaTg3cSrE6J0YsF019qdQ="
+        "integrity": "sha256-coSzlD7Gwd1YqVXWPm/h9dTpooHvvpu3iUFtyz4JPMM="
       }
     },
     {
@@ -17845,7 +17845,7 @@
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
         "version": "0.117.0",
-        "integrity": "sha256-S6fEHDI9wOf4uVFV1FEeUO7s7UbVvKe6xMfNH0N2D9g="
+        "integrity": "sha256-2smUI/klrKrKgDTkr7YBCxzSZItVljorWDoLslY6dmk="
       },
       "registryDependencies": []
     },
@@ -18151,7 +18151,7 @@
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
         "version": "0.117.0",
-        "integrity": "sha256-YqK4qbH1P75Y3TI+GlDDsFaKfmoqkZf44e+I+tWdT70="
+        "integrity": "sha256-w3LUPeaSel2EP9aK2EspAy+Cg7TvN7dW83DRSEsl7TU="
       }
     },
     {

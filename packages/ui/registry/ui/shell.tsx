@@ -1,4 +1,4 @@
-// @vegastack shell@0.117.0 sha256-KU4T7Ur4z0BuONtLIhCP0YBjowDcI7dg6p7caVd7kq8=
+// @vegastack shell@0.117.0 sha256-Ui+xVmHSWEQA+iHWRgddU3ODxneGAVRUgQoY275ww1c=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -705,11 +705,12 @@ const BUTTON_SHAPE =
 /**
  * One type size for the bar's controls: a `size="sm"` Share or Toggle would otherwise read 12px
  * with a 14px icon beside a 14px breadcrumb and the 16px icons of ⋯ and ▥. Every label is 14px
- * and every icon without its own size 16px, whichever button size a page passes. `PeekActions`
+ * and every icon without its own size 16px, whichever button size a page passes — matched on the
+ * element, not its slot name, since a menu or popover trigger renames a Button's slot. `PeekActions`
  * carries the same rule, so a record's controls look alike in the bar and in the peek's header.
  */
 const CONTROL_TYPE =
-  "[&_:is([data-slot=button],[data-slot=toggle])]:text-sm [&_[data-slot]_svg:not([class*='size-'])]:size-4";
+  "[&_:is(button,[role=button])]:text-sm [&_:is(button,a,[role=button])_svg:not([class*='size-'])]:size-4";
 
 function topBarSlot(slot: string, order: string, extra = "") {
   return function ShellTopBarSlot({

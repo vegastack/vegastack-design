@@ -1,4 +1,4 @@
-// @vegastack property-list@0.117.0 sha256-S6fEHDI9wOf4uVFV1FEeUO7s7UbVvKe6xMfNH0N2D9g=
+// @vegastack property-list@0.117.0 sha256-2smUI/klrKrKgDTkr7YBCxzSZItVljorWDoLslY6dmk=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -180,7 +180,7 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         "[&>[data-slot=record-chip][data-variant=ghost]]:-my-0.5 [&>[data-slot=record-chip][data-variant=ghost]]:-ms-1.5",
         // A ghost SpaceChip is the same 24px capsule with 6px of padding: hung the same way, so its
         // tile starts where a status icon or an avatar does.
-        "[&>[data-slot=space-chip][data-chip=ghost]]:-my-0.5 [&>[data-slot=space-chip][data-chip=ghost]]:-ms-1.5",
+        "[&>[data-chip=ghost]]:-my-0.5 [&>[data-chip=ghost]]:-ms-1.5",
         // An inline EditableCell gets the same compact box as a ghost chip, in every state: 6px and
         // 2px of padding hung outside the value by equal negative margins, so its text starts, sits
         // and wraps exactly where a read-only value's does, and the hover/focus tint extends just

@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.117.0 sha256-YqK4qbH1P75Y3TI+GlDDsFaKfmoqkZf44e+I+tWdT70=
+// @vegastack space-picker@0.117.0 sha256-w3LUPeaSel2EP9aK2EspAy+Cg7TvN7dW83DRSEsl7TU=
 
 "use client";
 
@@ -134,7 +134,8 @@ export function SpaceChip({
       data-slot="space-chip-icon"
       className="text-muted-foreground"
     />
-  ) : (
+  ) : ghost ? null : (
+    // A ghost chip's empty state is the dashed pill alone, like every other empty property.
     <Layers
       aria-hidden
       data-slot="space-chip-icon"
@@ -229,6 +230,12 @@ export function SpaceChip({
         // at rest (so nothing moves) and shows on hover, focus or while the picker is open.
         ghost &&
           "group/space-chip h-6 rounded-chip border-0 px-1.5 has-data-[icon=inline-end]:pe-1.5",
+        // Ghost with nothing chosen: the dashed empty pill every property picker shares, its 5px
+        // padding plus the 1px border keeping the prompt where values start.
+        ghost &&
+          !space &&
+          !hint &&
+          "border border-dashed border-border px-1.25 text-muted-foreground has-data-[icon=inline-end]:pe-1.25",
         className,
       )}
       {...props}
@@ -279,10 +286,18 @@ export interface SpacePickerProps {
   onValueChange?: (id: string) => void;
   /**
    * `title` — the outlined chip that leads a create dialog's header. `field` — the quiet chip
-   * for a form or property row.
+   * for a form. `property` — a side panel's property value: `SpaceChip variant="ghost"`, and
+   * the dashed empty pill while nothing is chosen.
    * @default "field"
    */
-  placement?: "title" | "field";
+  placement?: "title" | "field" | "property";
+  /**
+   * Offer "no space" as the list's last row (its label `clearLabel`); called when it is picked.
+   * Omit for a record that must live in a space. @default undefined
+   */
+  onClear?: () => void;
+  /** The "no space" row's label. @default "No space" */
+  clearLabel?: string;
   /** Shown on the chip while nothing is chosen. @default "Choose a space" */
   placeholder?: React.ReactNode;
   /** Disable the chip. @default false */
@@ -315,6 +330,8 @@ export function SpacePicker({
   disabled = false,
   open: openProp,
   onOpenChange,
+  onClear,
+  clearLabel = "No space",
   className,
 }: SpacePickerProps) {
   const [openState, setOpenState] = React.useState(false);
@@ -374,6 +391,7 @@ export function SpacePicker({
             space={current?.space}
             placeholder={placeholder}
             size={placement === "title" ? "title" : "sm"}
+            variant={placement === "property" ? "ghost" : "default"}
             aria-label={`Space: ${current?.space.name ?? "none chosen"}`}
             className={className}
           />
@@ -400,6 +418,22 @@ export function SpacePicker({
             ) : null}
             {shared.length > 0 ? (
               <CommandGroup heading="Spaces">{shared.map(row)}</CommandGroup>
+            ) : null}
+            {onClear ? (
+              <CommandGroup>
+                <CommandItem
+                  value={clearLabel}
+                  data-checked={value == null ? "true" : undefined}
+                  data-slot="space-picker-clear"
+                  onSelect={() => {
+                    onClear();
+                    setOpen(false);
+                  }}
+                >
+                  <Layers aria-hidden className="text-muted-foreground" />
+                  <span className="min-w-0 flex-1 truncate">{clearLabel}</span>
+                </CommandItem>
+              </CommandGroup>
             ) : null}
           </CommandList>
         </Command>

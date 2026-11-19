@@ -457,3 +457,22 @@ test("row: 44px and borderless, a 20px icon, one meta line, the source beside th
   await expect.poll(() => getComputedStyle(actions).display).toBe("flex");
   await expectNoA11yViolations(screen.container);
 });
+
+test("a row that opens nothing keeps its actions reachable by Tab", async () => {
+  const screen = await render(
+    <ul>
+      <FileCard
+        variant="row"
+        name="notes.txt"
+        descriptions={["1 KB"]}
+        actions={[{ label: "Remove", onSelect: () => {} }]}
+      />
+    </ul>,
+  );
+  const actions = slot(screen.container, "attachment-actions")!;
+  expect(getComputedStyle(actions).display).not.toBe("none");
+  await userEvent.tab();
+  await expect
+    .element(screen.getByRole("button", { name: "Actions for notes.txt" }))
+    .toHaveFocus();
+});
