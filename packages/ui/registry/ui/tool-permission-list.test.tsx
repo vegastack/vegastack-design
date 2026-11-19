@@ -253,3 +253,26 @@ test("empty and loading", async () => {
       .getAttribute("aria-hidden"),
   ).toBe("true");
 });
+
+test("a locked row's rules can't be edited or removed", async () => {
+  const screen = await render(
+    <ToolPermissionList
+      title="GitHub"
+      rows={[
+        tool("send", "GitHub › Send", {
+          locked: { by: "your admin" },
+          rules: [
+            { key: "r1", answer: "block", condition: null, editable: true },
+          ],
+        }),
+      ]}
+      onChange={vi.fn()}
+      onEditRule={vi.fn()}
+      onRemoveRule={vi.fn()}
+    />,
+  );
+  const rule = screen.container.querySelector(
+    '[data-slot="tool-permission-rule"]',
+  )!;
+  expect(rule.querySelector("button")).toBeNull();
+});

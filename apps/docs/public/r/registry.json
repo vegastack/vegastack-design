@@ -19607,7 +19607,7 @@
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (SuggestionCard), or a question with answers to fill (AgentQuestionForm).",
         "version": "0.120.0",
-        "integrity": "sha256-Sff5bAh2FB3iaEpue3fckD8qMVn3gEOQD3ic9AAtbT0="
+        "integrity": "sha256-alwxDtCZ3n62qEO0eSBzYz5yjSMVbkHdVXR8dtBYBN0="
       }
     },
     {
@@ -19643,7 +19643,7 @@
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
         "version": "0.120.0",
-        "integrity": "sha256-sdhuPnSw3t8CA2YkS2nC6Bst+psvkZvdrD9w+1fdGOE="
+        "integrity": "sha256-i6OARDTyg5tl7+oPL7vz7avks7Nco7d1lmkcXZmFXlU="
       }
     },
     {

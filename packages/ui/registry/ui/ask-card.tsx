@@ -1,4 +1,4 @@
-// @vegastack ask-card@0.120.0 sha256-Sff5bAh2FB3iaEpue3fckD8qMVn3gEOQD3ic9AAtbT0=
+// @vegastack ask-card@0.120.0 sha256-alwxDtCZ3n62qEO0eSBzYz5yjSMVbkHdVXR8dtBYBN0=
 
 "use client";
 
@@ -173,8 +173,13 @@ const VIA_WORDS: Record<AskAnsweredVia, string> = {
   auto_check: "by the quick check",
 };
 
-/** The fixed words of a state that has no answer line. */
+/** The words of a settled state, used when there is no `answered` line to say more. */
 const CLOSED_WORDS: Partial<Record<AskState, string>> = {
+  allowed: "Allowed",
+  allowed_always: "Always allowed",
+  declined: "Declined",
+  blocked: "Never allowed",
+  skipped: "Skipped",
   expired: "Not answered in time",
   stale: "This changed. Review the new version.",
   cancelled: "No longer needed",
@@ -257,13 +262,36 @@ function AskChoices({
   /** The group's accessible name: "Answer: Email sm@vegastack.com". */
   label: string;
 }) {
-  const [noting, setNoting] = React.useState<AskChoice | null>(null);
+  const [notingId, setNotingId] = React.useState<string | null>(null);
   const [note, setNote] = React.useState("");
+  const group = React.useRef<HTMLDivElement>(null);
+  const returnTo = React.useRef<string | null>(null);
+  // A choice the server withdrew while its note was open can't be sent.
+  const noting = notingId
+    ? (choices.find((choice) => choice.id === notingId) ?? null)
+    : null;
   const always = choices.filter((choice) => choice.kind === "always");
   const folded = always.length > 2;
+  // Every press reads the hold when it lands, so a menu left open can't answer late.
+  const answer = (choiceId: string, text?: string) => {
+    if (!disabled) onAnswer(choiceId, text);
+  };
+
+  React.useEffect(() => {
+    if (noting || !returnTo.current) return;
+    const id = returnTo.current;
+    returnTo.current = null;
+    group.current
+      ?.querySelector<HTMLElement>(`[data-choice-id="${CSS.escape(id)}"]`)
+      ?.focus();
+  }, [noting]);
 
   if (noting) {
-    const send = () => onAnswer(noting.id, note.trim() || undefined);
+    const send = () => answer(noting.id, note.trim() || undefined);
+    const back = () => {
+      returnTo.current = noting.id;
+      setNotingId(null);
+    };
     return (
       <div
         data-slot="ask-card-note"
@@ -287,7 +315,7 @@ function AskChoices({
               event.preventDefault();
               send();
             }
-            if (event.key === "Escape") setNoting(null);
+            if (event.key === "Escape") back();
           }}
         />
         <div className="flex items-center gap-2">
@@ -300,12 +328,7 @@ function AskChoices({
           >
             {noting.label}
           </Button>
-          <Button
-            size="sm"
-            variant="ghost"
-            disabled={disabled}
-            onClick={() => setNoting(null)}
-          >
+          <Button size="sm" variant="ghost" disabled={disabled} onClick={back}>
             Back
           </Button>
         </div>
@@ -320,6 +343,7 @@ function AskChoices({
   let menuDrawn = false;
   return (
     <div
+      ref={group}
       role="group"
       aria-label={label}
       data-slot="ask-card-choices"
@@ -350,7 +374,8 @@ function AskChoices({
                   <DropdownMenuItem
                     key={option.id}
                     data-choice-id={option.id}
-                    onClick={() => onAnswer(option.id)}
+                    disabled={disabled}
+                    onClick={() => answer(option.id)}
                   >
                     {option.scopeLabel ? (
                       <ItemContent className="gap-0">
@@ -381,9 +406,13 @@ function AskChoices({
             data-choice={choice.kind}
             data-choice-id={choice.id}
             title={choice.scopeLabel}
-            onClick={() =>
-              choice.needsNote ? setNoting(choice) : onAnswer(choice.id)
-            }
+            onClick={() => {
+              if (disabled) return;
+              if (choice.needsNote) {
+                setNote("");
+                setNotingId(choice.id);
+              } else answer(choice.id);
+            }}
           >
             {choice.label}
           </Button>
@@ -393,6 +422,24 @@ function AskChoices({
   );
 }
 
+/**
+ * The choices a person may press. A delete or send with nothing to preview keeps only its refusals
+ * (Never, Decline): every surface that can allow a send shows its words first.
+ */
+function pressable(
+  choices: AskChoice[],
+  toolClass: ToolClass,
+  preview: React.ReactNode,
+): { choices: AskChoice[]; withheld: boolean } {
+  if (toolClass !== "delete_send" || preview != null)
+    return { choices, withheld: false };
+  const refusals = choices.filter(
+    (choice) => choice.kind === "never" || choice.kind === "decline",
+  );
+  return { choices: refusals, withheld: refusals.length < choices.length };
+}
+
+const WITHHELD = "There's nothing to preview, so it can't be allowed here.";
 /** Labels and values, two columns that wrap. */
 function AskFacts({ facts }: { facts: AskFact[] }) {
   return (
@@ -529,15 +576,23 @@ function AskBundleRow({
   item,
   offline,
   holdAll,
+  onPendingChange,
 }: {
   item: AskBundleItem;
   offline: boolean;
   holdAll: boolean;
+  /** Tells the card an answer for this item is in flight, so Answer all holds meanwhile. */
+  onPendingChange: (id: string, pending: boolean) => void;
 }) {
   const { pending, failed, run } = useOneAnswer(item.onAnswer);
   const busy = Boolean(item.busy) || pending;
   const open = item.state === "pending";
-  const answerable = open && item.onAnswer && item.choices.length > 0;
+  const offer = pressable(item.choices, item.toolClass, item.preview);
+  const answerable = open && item.onAnswer && offer.choices.length > 0;
+  React.useEffect(() => {
+    onPendingChange(item.id, busy);
+    return () => onPendingChange(item.id, false);
+  }, [busy, item.id, onPendingChange]);
   return (
     <li
       data-slot="ask-card-item"
@@ -552,7 +607,7 @@ function AskBundleRow({
       ) : null}
       {answerable ? (
         <AskChoices
-          choices={item.choices}
+          choices={offer.choices}
           onAnswer={(id, note) => void run(id, note)}
           disabled={busy || offline || holdAll}
           label={`Answer: ${item.title}`}
@@ -560,6 +615,9 @@ function AskBundleRow({
       ) : open ? null : (
         <SettledLine state={item.state} answered={item.answered} />
       )}
+      {open && offer.withheld ? (
+        <p className="text-xs text-muted-foreground">{WITHHELD}</p>
+      ) : null}
       {failed ? (
         <p role="alert" className="text-xs text-destructive-text">
           {FAILED}
@@ -568,7 +626,6 @@ function AskBundleRow({
     </li>
   );
 }
-
 /**
  * `AskCard` — an agent asks a person's OK. The choices are the server's, in its order, each passed
  * back by `id`; the preferred one is secondary and none is filled. A "Delete or send" action shows
@@ -610,7 +667,20 @@ export function AskCard({
   const { pending, failed, run } = useOneAnswer(onAnswer);
   const busy = busyProp || pending;
   const open = state === "pending";
-  const answerable = open && Boolean(onAnswer) && choices.length > 0;
+  const offer = pressable(choices, action.toolClass, action.preview);
+  const answerable = open && Boolean(onAnswer) && offer.choices.length > 0;
+  const [itemsPending, setItemsPending] = React.useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const onItemPending = React.useCallback((id: string, value: boolean) => {
+    setItemsPending((current) => {
+      if (current.has(id) === value) return current;
+      const next = new Set(current);
+      if (value) next.add(id);
+      else next.delete(id);
+      return next;
+    });
+  }, []);
   const hasSend = bundle?.items.some(
     (item) => item.toolClass === "delete_send",
   );
@@ -705,7 +775,8 @@ export function AskCard({
               key={item.id}
               item={item}
               offline={offline}
-              holdAll={answerAll.pending}
+              holdAll={holdAll}
+              onPendingChange={onItemPending}
             />
           ))}
         </ul>
@@ -717,28 +788,20 @@ export function AskCard({
           className="flex min-w-0 flex-wrap items-center gap-2 border-t border-chat-hairline pt-3"
         >
           <span className="text-xs text-muted-foreground">Answer all</span>
-          {bundle.sharedChoices.map((choice) => (
-            <Button
-              key={choice.id}
-              size="sm"
-              variant={choice.kind === "once" ? "secondary" : "outline"}
-              className={
-                choice.kind === "never" ? "text-destructive-text" : undefined
-              }
-              disabled={holdAll || offline}
-              data-choice={choice.kind}
-              data-choice-id={choice.id}
-              onClick={() => void answerAll.run(choice.id)}
-            >
-              {choice.label}
-            </Button>
-          ))}
+          <AskChoices
+            choices={bundle.sharedChoices.map(
+              ({ needsNote: _note, ...choice }) => choice,
+            )}
+            onAnswer={(id) => void answerAll.run(id)}
+            disabled={holdAll || offline || itemsPending.size > 0}
+            label="Answer all"
+          />
         </div>
       ) : null}
 
       {answerable ? (
         <AskChoices
-          choices={choices}
+          choices={offer.choices}
           onAnswer={(id, note) => void run(id, note)}
           disabled={holdAll || offline}
           label={`Answer: ${action.title}`}
@@ -761,6 +824,15 @@ export function AskCard({
           refusal={refusal}
         />
       )}
+
+      {open && offer.withheld ? (
+        <p
+          data-slot="ask-card-withheld"
+          className="min-w-0 text-xs text-muted-foreground"
+        >
+          {WITHHELD}
+        </p>
+      ) : null}
 
       {open && (offline || failed || answerAll.failed || noAlways) ? (
         <p

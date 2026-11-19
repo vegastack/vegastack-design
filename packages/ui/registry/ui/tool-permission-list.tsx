@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.120.0 sha256-sdhuPnSw3t8CA2YkS2nC6Bst+psvkZvdrD9w+1fdGOE=
+// @vegastack tool-permission-list@0.120.0 sha256-i6OARDTyg5tl7+oPL7vz7avks7Nco7d1lmkcXZmFXlU=
 
 "use client";
 
@@ -435,7 +435,7 @@ export function ToolPermissionRow({
           />
         ) : null}
       </div>
-      {row.warningOnAllow && row.answer === "allow" && !row.inherited ? (
+      {row.warningOnAllow && row.answer === "allow" ? (
         <p
           data-slot="tool-permission-warning"
           className="flex min-w-0 items-start gap-1.5 text-xs text-foreground"
@@ -460,7 +460,7 @@ export function ToolPermissionRow({
               rule={rule}
               onEditRule={onEditRule}
               onRemoveRule={onRemoveRule}
-              readOnly={readOnly}
+              readOnly={readOnly || Boolean(row.locked)}
             />
           ))}
         </ul>

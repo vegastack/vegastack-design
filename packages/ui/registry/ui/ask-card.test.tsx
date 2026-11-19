@@ -346,3 +346,31 @@ test("read-only, offline and busy hold the buttons", async () => {
   );
   await expectNoA11yViolations(screen.container);
 });
+
+test("a send with nothing to preview keeps only its refusals; settled states without an answer line still say what happened", async () => {
+  const screen = await render(
+    <>
+      <AskCard
+        agent={agent}
+        action={{ title: "Delete branch main", toolClass: "delete_send" }}
+        state="pending"
+        choices={CHOICES}
+        onAnswer={vi.fn()}
+      />
+      <AskCard agent={agent} action={action} state="blocked" choices={[]} />
+    </>,
+  );
+  const [withheld, blocked] = screen.container.querySelectorAll(
+    '[data-slot="ask-card"]',
+  );
+  const ids = [...withheld!.querySelectorAll("[data-choice-id]")].map(
+    (el) => (el as HTMLElement).dataset.choiceId,
+  );
+  expect(ids).toEqual(["never", "decline"]);
+  expect(
+    withheld!.querySelector('[data-slot="ask-card-withheld"]'),
+  ).not.toBeNull();
+  expect(
+    blocked!.querySelector('[data-slot="ask-card-settled"]')!.textContent,
+  ).toBe("Never allowed");
+});

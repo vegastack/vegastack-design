@@ -32020,14 +32020,6 @@
         "AskCard": {
           "attributes": [
             {
-              "name": "data-choice",
-              "values": []
-            },
-            {
-              "name": "data-choice-id",
-              "values": []
-            },
-            {
               "name": "data-density",
               "values": []
             },
@@ -32043,7 +32035,8 @@
                 "ask-card-items",
                 "ask-card-readonly",
                 "ask-card-shared",
-                "ask-card-why"
+                "ask-card-why",
+                "ask-card-withheld"
               ]
             },
             {
