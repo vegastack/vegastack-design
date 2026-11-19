@@ -1,0 +1,117 @@
+---
+title: Agent Directory Card
+description: One agent in the directory, drawn like the app's directory cards — name as the one link, status, job, example asks, apps, maintainers and Chat.
+audience: public
+registry: agent-directory-card
+status: stable
+since: 0.121.0
+a11y: one link per card; Chat and examples outside it
+preview: agentDirectoryCard
+---
+
+## Install
+
+<InstallSteps name="agent-directory-card" />
+
+## Usage
+
+```tsx
+import { AgentDirectoryCard } from "@/components/ui/agent-directory-card";
+
+<AgentDirectoryCard
+  name="Expense checker"
+  href="/agents/expense-checker"
+  linkRender={<Link href="/agents/expense-checker" />}
+  avatar={<PersonAvatar person={agent} size="lg" />}
+  job="Checks expense claims against the travel policy and flags what needs a receipt."
+  examples={["Check this week's claims", "Which claims lack a receipt?"]}
+  onExample={startChat}
+  place="Workspace · Finance team"
+  verified={{ by: "Asha", at: "12 Nov", version: 4 }}
+  chat={{ href: chatHref }}
+  people={<MembersStack people={maintainers} label="Maintainers" />}
+  actions={<AgentMenu />}
+/>;
+```
+
+The card reads as one family with the app's other directories (Browse spaces, Settings › Teams):
+the agent's avatar as the tile, its name as the card's one link, the place it lives as the muted
+line, its job in up to two lines, then the people and the action. Chat is the card's main action,
+a secondary button; the examples, the verified mark and the ⋯ sit above the link, so nothing
+interactive nests inside it.
+
+<ComponentPreview
+  name="agentDirectoryCard"
+  file="components/preview/agent-directory-card.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="agent-directory-card" />
+
+## Examples
+
+### Status
+
+`live` draws no badge. `draft` shows an outline "Draft"; `paused` shows "Paused" and mutes the
+card. `AgentDirectoryCardSkeleton` holds a card's shape while the directory loads.
+
+<ComponentPreview
+  name="agentDirectoryCardStates"
+  file="components/preview/agent-directory-card.tsx"
+/>
+
+### Verified
+
+`verified` adds a check after the name with its words in a tooltip: "Verified by Asha · v4 · 12
+Nov". When the agent changed after it was verified (`changedSince`), the check turns muted and the
+words end "changed since".
+
+### Apps
+
+Up to four app icons show, then "+n"; their names are read as one label ("Uses Gmail, Slack…").
+
+### In a list
+
+`layout="row"` is the list form: avatar, name with its tags, place and job on one muted line, the
+apps and maintainers (hidden on a phone), Chat and the ⋯.
+
+<ComponentPreview
+  name="agentDirectoryCardRow"
+  file="components/preview/agent-directory-card.tsx"
+/>
+
+### On a phone
+
+<ComponentPreview
+  name="agentDirectoryCardNarrow"
+  file="components/preview/agent-directory-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-directory-card.tsx"
+  name="AgentDirectoryCardProps"
+/>
+
+## Accessibility
+
+- The name is the card's only link; the whole card is its hit area, and its focus tints the card.
+- Chat is named "Chat with {name}"; each example is its own button.
+- The verified mark is a named image and a keyboard stop for its tooltip.
+- The apps read as one label.
+
+| Key              | Action                          |
+| ---------------- | ------------------------------- |
+| <kbd>Tab</kbd>   | Name, examples, Chat, then ⋯    |
+| <kbd>Enter</kbd> | Open the agent, or start a chat |
+
+<StatesTested name="agent-directory-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the maintainers as a MembersStack and keep Chat the card's one main action."
+  dont="Make Chat a filled primary, or nest a button inside the name's link."
+/>

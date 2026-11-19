@@ -1,0 +1,348 @@
+import { render } from "vitest-browser-react";
+import { page, userEvent } from "vitest/browser";
+import { expect, test, vi } from "vitest";
+import { expectNoA11yViolations } from "../../test/a11y";
+import "../../test/geometry.css";
+import {
+  AskCard,
+  type AskBundleItem,
+  type AskCardProps,
+  type AskChoice,
+} from "./ask-card";
+
+const agent = {
+  name: "Donna",
+  avatar: <span aria-hidden>D</span>,
+  onBehalfOf: "Anu's Assistant",
+};
+
+const CHOICES: AskChoice[] = [
+  { id: "once", label: "Allow once", kind: "once" },
+  {
+    id: "always:thread",
+    label: "Always in this thread",
+    kind: "always",
+    scopeLabel: "only in this thread",
+  },
+  { id: "never", label: "Never", kind: "never" },
+  { id: "decline", label: "Decline", kind: "decline", needsNote: true },
+];
+
+const action: AskCardProps["action"] = {
+  title: "Email sm@vegastack.com",
+  toolClass: "delete_send",
+  facts: [{ label: "Subject", value: "Weekly summary" }],
+  preview: "Hi team, the weekly summary is attached.",
+};
+
+const item = (
+  id: string,
+  overrides: Partial<AskBundleItem> = {},
+): AskBundleItem => ({
+  id,
+  title: `Create task ${id}`,
+  toolClass: "write",
+  state: "pending",
+  choices: [
+    { id: "once", label: "Allow once", kind: "once" },
+    { id: "decline", label: "Decline", kind: "decline" },
+  ],
+  onAnswer: vi.fn(),
+  ...overrides,
+});
+
+/** Every rendered button's variant: the card never draws a filled primary. */
+function filled(root: ParentNode) {
+  return [...root.querySelectorAll<HTMLElement>('[data-slot="button"]')].filter(
+    (button) => button.dataset.variant === "default",
+  );
+}
+
+test("a pending ask names itself by its action, shows the preview first and the server's choices in order", async () => {
+  const screen = await render(
+    <AskCard
+      agent={agent}
+      action={action}
+      state="pending"
+      choices={CHOICES}
+      onAnswer={vi.fn()}
+      deadline="Until 17:00"
+      ifNobodyAnswers="It won't send."
+    />,
+  );
+  await expect
+    .element(page.getByRole("region", { name: "Email sm@vegastack.com" }))
+    .toBeVisible();
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="ask-card"]',
+  )!;
+  expect(root.dataset.state).toBe("pending");
+  const preview = root.querySelector('[data-slot="ask-card-preview"]')!;
+  const choices = root.querySelector('[data-slot="ask-card-choices"]')!;
+  expect(
+    preview.compareDocumentPosition(choices) & Node.DOCUMENT_POSITION_FOLLOWING,
+  ).toBeTruthy();
+  const ids = [...choices.querySelectorAll("[data-choice-id]")].map(
+    (el) => (el as HTMLElement).dataset.choiceId,
+  );
+  expect(ids).toEqual(["once", "always:thread", "never", "decline"]);
+  expect(
+    root.querySelector('[data-choice="once"]')!.getAttribute("data-variant"),
+  ).toBe("secondary");
+  expect(
+    root.querySelector('[data-choice="never"]')!.getAttribute("data-variant"),
+  ).toBe("outline");
+  expect(
+    root.querySelector('[data-slot="ask-card-deadline"]')!.textContent,
+  ).toBe("Until 17:00 · If nobody answers: It won't send.");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("an answer passes the choice id back unchanged; a decline with a note sends the note", async () => {
+  const onAnswer = vi.fn();
+  await render(
+    <AskCard
+      agent={agent}
+      action={action}
+      state="pending"
+      choices={CHOICES}
+      onAnswer={onAnswer}
+    />,
+  );
+  await page.getByRole("button", { name: "Always in this thread" }).click();
+  expect(onAnswer).toHaveBeenLastCalledWith("always:thread");
+  await page.getByRole("button", { name: "Decline" }).click();
+  const note = page.getByRole("textbox", { name: /note to the agent/i });
+  await expect.element(note).toBeVisible();
+  await userEvent.type(note, "Send it Monday");
+  await page.getByRole("button", { name: "Decline" }).click();
+  expect(onAnswer).toHaveBeenLastCalledWith("decline", "Send it Monday");
+});
+
+test("past two Always choices fold into one Always… menu listing every scope", async () => {
+  const onAnswer = vi.fn();
+  const screen = await render(
+    <AskCard
+      agent={agent}
+      action={{ ...action, toolClass: "write", preview: undefined }}
+      state="pending"
+      choices={[
+        { id: "once", label: "Allow once", kind: "once" },
+        { id: "always:a", label: "Always in #ops", kind: "always" },
+        { id: "always:b", label: "Always in this space", kind: "always" },
+        { id: "always:c", label: "Always", kind: "always" },
+      ]}
+      onAnswer={onAnswer}
+    />,
+  );
+  expect(
+    screen.container.querySelectorAll('[data-choice="always"]'),
+  ).toHaveLength(1);
+  await page.getByRole("button", { name: "Always…" }).click();
+  await page.getByRole("menuitem", { name: "Always in this space" }).click();
+  expect(onAnswer).toHaveBeenCalledWith("always:b");
+});
+
+test("no state draws a filled primary button, in either density or in a bundle", async () => {
+  const bundle = {
+    items: [item("1"), item("2")],
+    sharedChoices: [
+      { id: "once", label: "Allow all once", kind: "once" as const },
+      { id: "decline", label: "Decline all", kind: "decline" as const },
+    ],
+    onAnswerAll: vi.fn(),
+  };
+  const screen = await render(
+    <>
+      {(["card", "inline"] as const).map((density) => (
+        <div key={density}>
+          <AskCard
+            agent={agent}
+            action={action}
+            state="pending"
+            choices={CHOICES}
+            onAnswer={vi.fn()}
+            density={density}
+          />
+          <AskCard
+            agent={agent}
+            action={{ title: "Create 2 tasks", toolClass: "write" }}
+            state="pending"
+            choices={[]}
+            bundle={bundle}
+            density={density}
+          />
+          <AskCard
+            agent={agent}
+            action={action}
+            state="allowed"
+            choices={CHOICES}
+            answered={{
+              choiceLabel: "Allowed once",
+              by: "Priya",
+              via: "slack",
+              at: "14:02",
+              undo: vi.fn(),
+            }}
+            density={density}
+          />
+        </div>
+      ))}
+    </>,
+  );
+  expect(
+    screen.container.querySelectorAll('[data-slot="button"]').length,
+  ).toBeGreaterThan(10);
+  expect(filled(screen.container)).toEqual([]);
+});
+
+test("a bundle answers each item on its own and offers only the server's shared choices", async () => {
+  const one = item("1");
+  const two = item("2");
+  const onAnswerAll = vi.fn();
+  const screen = await render(
+    <AskCard
+      agent={agent}
+      action={{ title: "Create 2 tasks", toolClass: "write" }}
+      state="pending"
+      choices={[]}
+      bundle={{
+        items: [one, two],
+        sharedChoices: [{ id: "once", label: "Allow all once", kind: "once" }],
+        onAnswerAll,
+      }}
+    />,
+  );
+  const rows = screen.container.querySelectorAll('[data-slot="ask-card-item"]');
+  expect(rows).toHaveLength(2);
+  await page
+    .getByRole("group", { name: "Answer: Create task 2" })
+    .getByRole("button", { name: "Allow once" })
+    .click();
+  expect(two.onAnswer).toHaveBeenCalledWith("once");
+  expect(one.onAnswer).not.toHaveBeenCalled();
+  await page.getByRole("button", { name: "Allow all once" }).click();
+  expect(onAnswerAll).toHaveBeenCalledWith("once");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a bundle with a send hides Answer all: those are answered one by one", async () => {
+  const screen = await render(
+    <AskCard
+      agent={agent}
+      action={{ title: "Two actions", toolClass: "delete_send" }}
+      state="pending"
+      choices={[]}
+      bundle={{
+        items: [
+          item("1"),
+          item("2", { toolClass: "delete_send", preview: "Hello Acme" }),
+        ],
+        sharedChoices: [{ id: "once", label: "Allow all once", kind: "once" }],
+        onAnswerAll: vi.fn(),
+      }}
+    />,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="ask-card-shared"]'),
+  ).toBeNull();
+  expect(
+    screen.container.querySelectorAll('[data-slot="ask-card-preview"]'),
+  ).toHaveLength(1);
+});
+
+test("settled states read as one muted line, with Undo when offered and the way out of a refusal", async () => {
+  const undo = vi.fn();
+  const screen = await render(
+    <>
+      <AskCard
+        agent={agent}
+        action={action}
+        state="allowed_always"
+        choices={CHOICES}
+        answered={{
+          choiceLabel: "Always in this thread",
+          by: "Priya",
+          via: "slack",
+          at: "14:02",
+          undo,
+        }}
+      />
+      <AskCard
+        agent={agent}
+        action={action}
+        state="refused"
+        choices={[]}
+        refusal={{
+          words: "Sending outside the workspace is blocked.",
+          way: { label: "Ask an admin", href: "/settings/agents" },
+        }}
+      />
+      <AskCard agent={agent} action={action} state="expired" choices={[]} />
+      <AskCard agent={agent} action={action} state="stale" choices={[]} />
+      <AskCard agent={agent} action={action} state="cancelled" choices={[]} />
+    </>,
+  );
+  const lines = [
+    ...screen.container.querySelectorAll('[data-slot="ask-card-settled"]'),
+  ].map((line) => line.textContent);
+  expect(lines[0]).toContain("Always in this thread · Priya in Slack · 14:02");
+  expect(lines[1]).toContain("Sending outside the workspace is blocked.");
+  expect(lines[1]).toContain("Ask an admin ›");
+  expect(lines.slice(2)).toEqual([
+    "Not answered in time",
+    "This changed. Review the new version.",
+    "No longer needed",
+  ]);
+  expect(
+    screen.container.querySelectorAll('[data-slot="ask-card-choices"]'),
+  ).toHaveLength(0);
+  await page.getByRole("button", { name: "Undo" }).click();
+  expect(undo).toHaveBeenCalled();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("read-only, offline and busy hold the buttons", async () => {
+  const screen = await render(
+    <>
+      <AskCard
+        agent={agent}
+        action={action}
+        state="pending"
+        choices={CHOICES}
+      />
+      <AskCard
+        agent={agent}
+        action={action}
+        state="pending"
+        choices={CHOICES}
+        onAnswer={vi.fn()}
+        offline
+      />
+      <AskCard
+        agent={agent}
+        action={action}
+        state="pending"
+        choices={CHOICES}
+        onAnswer={vi.fn()}
+        busy
+        noAlways={{ words: "Always isn't offered for sends to new people." }}
+      />
+    </>,
+  );
+  const [readOnly, offline, busy] = screen.container.querySelectorAll(
+    '[data-slot="ask-card"]',
+  );
+  expect(readOnly!.querySelector('[data-slot="ask-card-choices"]')).toBeNull();
+  expect(readOnly!.textContent).toContain("Waiting for an answer");
+  expect(offline!.textContent).toContain("Connect to answer");
+  for (const button of offline!.querySelectorAll(
+    '[data-slot="ask-card-choices"] button',
+  ))
+    expect(button.hasAttribute("data-disabled")).toBe(true);
+  expect(busy!.getAttribute("aria-busy")).toBe("true");
+  expect(busy!.textContent).toContain(
+    "Always isn't offered for sends to new people.",
+  );
+  await expectNoA11yViolations(screen.container);
+});

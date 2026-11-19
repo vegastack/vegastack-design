@@ -1,6 +1,6 @@
 ---
 title: Status Icon
-description: A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, and triage.
+description: A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate and triage — plus planned and paused for plans.
 audience: public
 registry: status-icon
 status: stable
@@ -31,6 +31,8 @@ semantic color tokens: `backlog` (dashed ring, `muted-foreground`), `todo` (empt
 three-quarter pie, `info-text`), `done` (filled disc with a check, `primary` — checks are primary, never green), `canceled`
 (filled disc with a cross, `muted-foreground`), `duplicate` (ring with two diagonal strokes,
 `muted-foreground`) and `triage` (filled disc with a left-right arrow, `tag-orange-text`).
+Plans such as an initiative add two: `planned` (the dashed ring in `foreground`: decided, not
+started) and `paused` (a ring with two upright bars, `muted-foreground`: on hold).
 `blocked` and `cancelled` remain as deprecated aliases: `cancelled` renders `canceled`, and
 `blocked` draws a slashed ring in `warning-text`.
 

@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "4bb3b95ef78385ede162845755d2408c37d0f6b66a72583840eaa303f7336746",
+  "contractSha256": "15ccf5b580d7b5451632be42251eddedc579781550b56bb1341a3722be641616",
   "expectedCounts": {
-    "totalRegistryItems": 817,
-    "components": 228,
+    "totalRegistryItems": 820,
+    "components": 231,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -1508,6 +1508,39 @@
         "packages/ui/registry/ui/suggestion-card.tsx"
       ],
       "docsSlug": "/docs/components/suggestion-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-directory-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-directory-card.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-directory-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "ask-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/ask-card.tsx"
+      ],
+      "docsSlug": "/docs/components/ask-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "tool-permission-list",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/tool-permission-list.tsx"
+      ],
+      "docsSlug": "/docs/components/tool-permission-list",
       "contractStatus": "reconciled"
     },
     {

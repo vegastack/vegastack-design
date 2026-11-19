@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 817,
-    "components": 228,
+    "totalRegistryItems": 820,
+    "components": 231,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 49,
     "Content/marketing": 14,
     "Shared internals": 6,
-    "AI/chat": 46,
+    "AI/chat": 49,
     "Hooks": 16,
     "Block": 15,
     "Animated icons": 467
@@ -276,7 +276,10 @@
       "file-preview",
       "source-list",
       "resource-pill",
-      "shell-assistant"
+      "shell-assistant",
+      "agent-directory-card",
+      "ask-card",
+      "tool-permission-list"
     ],
     "Hooks": [
       "use-announcer",
@@ -27954,7 +27957,7 @@
       "name": "status-icon",
       "registryType": "registry:ui",
       "title": "Status Icon",
-      "summary": "A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — each a hand-drawn 16-unit glyph in a semantic color.",
+      "summary": "A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — plus planned and paused for plans, each a hand-drawn 16-unit glyph in a semantic color.",
       "status": "stable",
       "since": "0.1.0",
       "family": "data-display",
@@ -28002,6 +28005,8 @@
               "cancelled",
               "done",
               "duplicate",
+              "paused",
+              "planned",
               "progress",
               "review",
               "todo",
@@ -31630,6 +31635,618 @@
             {
               "name": "data-variant",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "agent-directory-card",
+      "registryType": "registry:ui",
+      "title": "Agent Directory Card",
+      "summary": "One agent in the directory: its name the card's one link, status and verified mark, where it lives, its job, example asks, apps, maintainers and Chat; a grid card or a list row.",
+      "status": "stable",
+      "since": "0.121.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/agent-directory-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AgentDirectoryCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-directory-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AgentDirectoryCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-directory-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AgentDirectoryCardSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/agent-directory-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AgentDirectoryCardSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/agent-directory-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AgentDirectoryStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/agent-directory-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "layout",
+            "values": ["grid", "row"]
+          },
+          {
+            "name": "status",
+            "values": ["draft", "live", "paused"]
+          }
+        ],
+        "rationale": "A card in a grid, a row in a list; draft and paused carry a badge, paused mutes."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "live",
+            "draft",
+            "paused",
+            "verified",
+            "changed-since",
+            "examples",
+            "no-examples",
+            "skeleton"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-directory-card.tsx + packages/ui/registry/ui/agent-directory-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "one-link",
+            "separate-chat-target",
+            "named-verified-mark",
+            "apps-label",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/agent-directory-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["grid", "row", "paused", "skeleton"],
+          "evidence": "packages/ui/registry/ui/agent-directory-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The name and place truncate, the job clamps to two lines, examples truncate to one; the row hides apps and maintainers on a phone."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/agent-directory-card",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/agent-directory-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "agent-directory-card",
+      "dataAttributes": {
+        "AgentDirectoryCard": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": ["grid", "row"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "agent-directory-card",
+                "agent-directory-card-avatar",
+                "agent-directory-card-examples",
+                "agent-directory-card-job",
+                "agent-directory-card-place"
+              ]
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "AgentDirectoryCardSkeleton": {
+          "attributes": [
+            {
+              "name": "data-layout",
+              "values": ["grid", "row"]
+            },
+            {
+              "name": "data-slot",
+              "values": ["agent-directory-card-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "ask-card",
+      "registryType": "registry:ui",
+      "title": "Ask Card",
+      "summary": "The one card an agent uses to ask a person's OK: the server's choices in its order (never a filled primary), the preview of what it would send first, bundles answered item by item, and one muted line once settled.",
+      "status": "stable",
+      "since": "0.121.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/ask-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "AskAnsweredVia",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AskAnswerHandler",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AskBundleItem",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AskCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AskCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AskChoice",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AskFact",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AskState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolClass",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/ask-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "density",
+            "values": ["card", "inline"]
+          }
+        ],
+        "rationale": "Its own surface in a chat; no surface inside a host card such as ForYouCard."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "pending",
+            "allowed",
+            "allowed_always",
+            "declined",
+            "blocked",
+            "skipped",
+            "expired",
+            "stale",
+            "cancelled",
+            "refused",
+            "read-only",
+            "offline",
+            "busy",
+            "bundle",
+            "always-menu",
+            "decline-note"
+          ],
+          "evidence": "packages/ui/registry/ui/ask-card.tsx + packages/ui/registry/ui/ask-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-region",
+            "choices-group",
+            "preview-region",
+            "failed-alert",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/ask-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["card", "inline", "settled", "bundle"],
+          "evidence": "packages/ui/registry/ui/ask-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Buttons wrap; a long title wraps whole; a long preview scrolls inside its block."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/ask-card",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/item",
+        "@vegastack/status-glyph",
+        "@vegastack/textarea"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/ask-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "ask-card",
+      "dataAttributes": {
+        "AskCard": {
+          "attributes": [
+            {
+              "name": "data-choice",
+              "values": []
+            },
+            {
+              "name": "data-choice-id",
+              "values": []
+            },
+            {
+              "name": "data-density",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "ask-card",
+                "ask-card-avatar",
+                "ask-card-body",
+                "ask-card-deadline",
+                "ask-card-footnote",
+                "ask-card-header",
+                "ask-card-items",
+                "ask-card-readonly",
+                "ask-card-shared",
+                "ask-card-why"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "tool-permission-list",
+      "registryType": "registry:ui",
+      "title": "Tool Permission List",
+      "summary": "What an agent may do with one source's tools: Allow, Auto-check, Ask or Block per class and per tool, inherited answers muted, locks, an admin's lock toggle and the rules at this layer.",
+      "status": "stable",
+      "since": "0.121.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/tool-permission-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ToolAnswer",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolPermissionList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolPermissionListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolPermissionListSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolPermissionListSkeletonProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolPermissionRow",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolPermissionRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ToolRuleView",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One list; its modes are props (readOnly, searchable)."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "inherited",
+            "locked",
+            "lockable",
+            "narrowed-answers",
+            "rules",
+            "pending-rule",
+            "warning-on-allow",
+            "read-only",
+            "search",
+            "no-match",
+            "show-all",
+            "empty",
+            "skeleton"
+          ],
+          "evidence": "packages/ui/registry/ui/tool-permission-list.tsx + packages/ui/registry/ui/tool-permission-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-region",
+            "labelled-answer-menus",
+            "group-toggle-expanded",
+            "lock-toggle-pressed",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/tool-permission-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["class-rows", "tool-rows", "rules", "skeleton"],
+          "evidence": "packages/ui/registry/ui/tool-permission-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Labels truncate with their full text as a title; the answer stays at the row's end; the search box goes full width on a phone."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/tool-permission-list",
+      "registryDependencies": [
+        "@vegastack/ask-card",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/permission-menu",
+        "@vegastack/search-input",
+        "@vegastack/skeleton",
+        "@vegastack/toggle"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/tool-permission-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "tool-permission-list",
+      "dataAttributes": {
+        "ToolPermissionList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "tool-permission-empty",
+                "tool-permission-icon",
+                "tool-permission-list"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ToolPermissionListSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["tool-permission-list-skeleton"]
             }
           ],
           "cssVariables": []

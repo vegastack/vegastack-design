@@ -15512,7 +15512,7 @@
       "name": "status-icon",
       "type": "registry:ui",
       "title": "Status Icon",
-      "description": "A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — each a hand-drawn 16-unit glyph in a semantic color.",
+      "description": "A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — plus planned and paused for plans, each a hand-drawn 16-unit glyph in a semantic color.",
       "categories": ["data-display"],
       "dependencies": [
         "class-variance-authority@^0.7.1",
@@ -16019,6 +16019,101 @@
         "whenToUse": "An agent offering a next step the person may ignore: tasks from a chat, a draft, a follow-up.",
         "whenNotToUse": "A risky action that waits for a decision (RequestCard), or a change already made (AgentEditBanner).",
         "version": "0.117.0"
+      }
+    },
+    {
+      "name": "agent-directory-card",
+      "type": "registry:ui",
+      "title": "Agent Directory Card",
+      "description": "One agent in the directory: its name the card's one link, status and verified mark, where it lives, its job, example asks, apps, maintainers and Chat; a grid card or a list row.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/card",
+        "@vegastack/skeleton",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/agent-directory-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/agent-directory-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Listing agents people can use: the agents directory, a templates list.",
+        "whenNotToUse": "A person or space directory (the app's DirectoryCard), or an agent's own page header (RecordHeader).",
+        "version": "0.120.0"
+      }
+    },
+    {
+      "name": "ask-card",
+      "type": "registry:ui",
+      "title": "Ask Card",
+      "description": "The one card an agent uses to ask a person's OK: the server's choices in its order (never a filled primary), the preview of what it would send first, bundles answered item by item, and one muted line once settled.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/item",
+        "@vegastack/status-glyph",
+        "@vegastack/textarea"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/ask-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/ask-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
+        "whenNotToUse": "An agent offering a next step the person may ignore (SuggestionCard), or a question with answers to fill (AgentQuestionForm).",
+        "version": "0.120.0"
+      }
+    },
+    {
+      "name": "tool-permission-list",
+      "type": "registry:ui",
+      "title": "Tool Permission List",
+      "description": "What an agent may do with one source's tools: Allow, Auto-check, Ask or Block per class and per tool, inherited answers muted, locks, an admin's lock toggle and the rules at this layer.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/ask-card",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/permission-menu",
+        "@vegastack/search-input",
+        "@vegastack/skeleton",
+        "@vegastack/toggle"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/tool-permission-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
+        "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
+        "version": "0.120.0"
       }
     },
     {

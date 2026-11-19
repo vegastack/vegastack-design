@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.117.0 sha256-8U7WlM7JBi74yacQppA/wLIY0Z4GbOfZosPmK9KDmPM=
+// @vegastack status-icon@0.117.0 sha256-TgXHfl684LW1Gv2utny1WOLnAKV7SAhm3zDRm5MIegM=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -13,7 +13,9 @@ import { cn } from "@vegastack/design";
  * through `currentColor`, so every status maps to one of the system's standard semantic text tokens
  * (operator, 09-10-2026 — Linear's shapes, not its palette): `backlog`, `canceled` and `duplicate` →
  * `text-muted-foreground`, `todo` → `text-foreground`, `progress` → `text-warning-text`, `review` →
- * `text-info-text`, `done` → `text-primary` (COL-25: checks are primary, never green), `triage` → `text-tag-orange-text`. The marks
+ * `text-info-text`, `done` → `text-primary` (COL-25: checks are primary, never green), `triage` → `text-tag-orange-text`.
+ * `planned` (a dashed ring in body ink) and `paused` (a ring with two bars, muted) serve plans that
+ * are not underway yet or are on hold, such as an initiative. The marks
  * drawn on a filled disc (`done`'s check, `canceled`'s cross, `triage`'s arrow) take `stroke-background`.
  *
  * `blocked` and `cancelled` are deprecated aliases kept so the change ships without a break:
@@ -30,6 +32,8 @@ export const statusIconVariants = cva("inline-block shrink-0", {
       canceled: "text-muted-foreground",
       duplicate: "text-muted-foreground",
       triage: "text-tag-orange-text",
+      planned: "text-foreground",
+      paused: "text-muted-foreground",
       blocked: "text-warning-text",
       cancelled: "text-muted-foreground",
     },
@@ -55,6 +59,8 @@ const STATUS_LABEL: Record<Status, string> = {
   canceled: "Canceled",
   duplicate: "Duplicate",
   triage: "Triage",
+  planned: "Planned",
+  paused: "Paused",
   blocked: "Blocked",
   cancelled: "Canceled",
 };
@@ -124,6 +130,15 @@ const STATUS_GLYPH: Record<Status, React.ReactNode> = {
       />
     </>
   ),
+  // `backlog`'s ten dashes in body ink: decided, not started.
+  planned: <circle cx="8" cy="8" r="6" pathLength={20} strokeDasharray="1 1" />,
+  // The ring with two upright bars: on hold.
+  paused: (
+    <>
+      {ring}
+      <path d="M6.5 5.75V10.25M9.5 5.75V10.25" />
+    </>
+  ),
   blocked: (
     <>
       {ring}
@@ -148,6 +163,8 @@ export interface StatusIconProps
    * - `canceled` → filled disc with a cross, `text-muted-foreground`
    * - `duplicate` → ring with two diagonal strokes, `text-muted-foreground`
    * - `triage` → filled disc with a left-right arrow, `text-tag-orange-text`
+   * - `planned` → dashed ring, `text-foreground`
+   * - `paused` → ring with two upright bars, `text-muted-foreground`
    * - `blocked` (deprecated) → slashed ring, `text-warning-text`
    * - `cancelled` (deprecated) → renders `canceled`
    * @default 'todo'
@@ -161,6 +178,8 @@ export interface StatusIconProps
     | "canceled"
     | "duplicate"
     | "triage"
+    | "planned"
+    | "paused"
     | "blocked"
     | "cancelled";
   /**
@@ -186,7 +205,8 @@ export interface StatusIconProps
 
 /**
  * `StatusIcon` — a small status indicator for Linear's workflow states: `backlog` / `todo` /
- * `progress` / `review` / `done` / `canceled` / `duplicate` / `triage`. Each status draws its own
+ * `progress` / `review` / `done` / `canceled` / `duplicate` / `triage`, plus `planned` and `paused`
+ * for plans. Each status draws its own
  * 16-unit glyph in `currentColor` over a semantic colour token (no hardcoded colours).
  *
  * Accessible by default: it renders `role="img"` with an `aria-label` derived
