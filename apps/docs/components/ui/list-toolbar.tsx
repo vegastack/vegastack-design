@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.117.0 sha256-1t6pLnxtpA/s1TIriPaxTP4r8p+xRAOa1jMlzNlamsA=
+// @vegastack list-toolbar@0.117.0 sha256-Sd8l8yxzt2Ggizlab8D4WsZgbh/a/y5TbSyDGbo9I/E=
 
 "use client";
 
@@ -1288,7 +1288,10 @@ export function ListToolbar({
           data-slot="list-toolbar-row"
           className={cn(
             "relative flex w-full min-w-0 items-center gap-2",
-            compact ? "h-7" : "h-8",
+            // A compact row's search folded to its icon is a 28px tool like the rest.
+            compact
+              ? "h-7 [&_[data-slot=list-toolbar-search-toggle]]:size-7"
+              : "h-8",
           )}
         >
           {searchField}
