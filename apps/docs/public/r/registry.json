@@ -19573,7 +19573,7 @@
         "whenToUse": "Listing agents people can use: the agents directory, a templates list.",
         "whenNotToUse": "A person or space directory (the app's DirectoryCard), or an agent's own page header (RecordHeader).",
         "version": "0.120.0",
-        "integrity": "sha256-5FklvM3uZnptyPNGx9KFDbJTPyrXrcSS9TrkGC5yhZ4="
+        "integrity": "sha256-7ikPZzMUXENsenKxvH5iTFKSN+RaT5rfGzwka9Lv4ZA="
       }
     },
     {
@@ -19630,7 +19630,8 @@
         "@vegastack/permission-menu",
         "@vegastack/search-input",
         "@vegastack/skeleton",
-        "@vegastack/toggle"
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
@@ -19643,7 +19644,7 @@
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
         "version": "0.120.0",
-        "integrity": "sha256-i6OARDTyg5tl7+oPL7vz7avks7Nco7d1lmkcXZmFXlU="
+        "integrity": "sha256-ziKQF/zzphYQjJwjhJ0prAqMlMafTZU/vawlYapS/xQ="
       }
     },
     {

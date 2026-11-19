@@ -1,4 +1,4 @@
-// @vegastack agent-directory-card@0.120.0 sha256-5FklvM3uZnptyPNGx9KFDbJTPyrXrcSS9TrkGC5yhZ4=
+// @vegastack agent-directory-card@0.120.0 sha256-7ikPZzMUXENsenKxvH5iTFKSN+RaT5rfGzwka9Lv4ZA=
 
 "use client";
 
@@ -264,16 +264,16 @@ export function AgentDirectoryCard({
     <ul
       data-slot="agent-directory-card-examples"
       aria-label={`Try asking ${name}`}
-      className="flex min-w-0 flex-col items-start gap-0.5"
+      className="flex w-full min-w-0 flex-col gap-0.5"
     >
       {shownExamples.map((example) => (
-        <li key={example} className="flex max-w-full min-w-0">
+        <li key={example} className="flex min-w-0">
           {onExample ? (
             <Button
               size="xs"
               variant="ghost"
               title={example}
-              className="relative z-10 -mx-2 max-w-full min-w-0 justify-start font-normal text-muted-foreground"
+              className="relative z-10 -ms-2 max-w-[calc(100%+--spacing(2))] min-w-0 justify-start font-normal text-muted-foreground"
               onClick={() => onExample(example)}
             >
               <span className="truncate">“{example}”</span>

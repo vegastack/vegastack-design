@@ -32204,7 +32204,8 @@
         "@vegastack/permission-menu",
         "@vegastack/search-input",
         "@vegastack/skeleton",
-        "@vegastack/toggle"
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.27.0",

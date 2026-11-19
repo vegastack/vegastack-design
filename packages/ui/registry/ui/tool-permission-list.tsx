@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.120.0 sha256-i6OARDTyg5tl7+oPL7vz7avks7Nco7d1lmkcXZmFXlU=
+// @vegastack tool-permission-list@0.120.0 sha256-ziKQF/zzphYQjJwjhJ0prAqMlMafTZU/vawlYapS/xQ=
 
 "use client";
 
@@ -7,9 +7,11 @@ import { cn } from "@vegastack/design";
 import {
   ChevronRight,
   Ellipsis,
+  ListFilterPlus,
   Lock,
   LockOpen,
   TriangleAlert,
+  Undo2,
 } from "lucide-react";
 
 import type { ToolClass } from "@/components/ui/ask-card";
@@ -27,6 +29,11 @@ import {
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toggle } from "@/components/ui/toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------------------------------------
  * ToolPermissionList — what an agent may do with one source's tools, answered per class and per
@@ -200,7 +207,10 @@ function AnswerControl({
   );
 }
 
-/** A row's ⋯: "Add a condition" and "Use inherited"; one item is its own quiet button. */
+/**
+ * A row's ⋯: "Add a condition" and "Use inherited". One item is its own quiet icon button with its
+ * name in a tooltip, so a long list doesn't repeat a word on every row.
+ */
 function RowMore({
   row,
   onAddRule,
@@ -210,23 +220,40 @@ function RowMore({
   onAddRule?: RowHandlers["onAddRule"];
   onUseInherited?: RowHandlers["onUseInherited"];
 }) {
-  const items: { label: string; run: () => void }[] = [];
+  const items: { label: string; icon: React.ReactNode; run: () => void }[] = [];
   if (onAddRule && row.conditionEditable !== false && !row.locked)
-    items.push({ label: "Add a condition", run: () => onAddRule(row.id) });
+    items.push({
+      label: "Add a condition",
+      icon: <ListFilterPlus aria-hidden />,
+      run: () => onAddRule(row.id),
+    });
   if (onUseInherited && row.rules && row.rules.length > 0 && !row.locked)
-    items.push({ label: "Use inherited", run: () => onUseInherited(row.id) });
+    items.push({
+      label: "Use inherited",
+      icon: <Undo2 aria-hidden />,
+      run: () => onUseInherited(row.id),
+    });
   if (items.length === 0) return null;
-  if (items.length === 1)
+  if (items.length === 1) {
+    const only = items[0]!;
     return (
-      <Button
-        size="xs"
-        variant="ghost"
-        className="shrink-0 text-muted-foreground"
-        onClick={items[0]!.run}
-      >
-        {items[0]!.label}
-      </Button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              size="icon-xs"
+              variant="ghost"
+              aria-label={`${only.label}: ${row.label}`}
+              onClick={only.run}
+            />
+          }
+        >
+          {only.icon}
+        </TooltipTrigger>
+        <TooltipContent>{only.label}</TooltipContent>
+      </Tooltip>
     );
+  }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -297,7 +324,7 @@ function RuleLine({
         ) : null}
         {rule.pending ? (
           <span className="shrink-0 text-muted-foreground">
-            Waiting to be published
+            · Waiting to be published
           </span>
         ) : null}
       </span>
@@ -385,7 +412,7 @@ export function ToolPermissionRow({
       data-locked={row.locked ? "" : undefined}
       className="flex min-w-0 flex-col gap-1"
     >
-      <div className="flex min-h-9 min-w-0 items-center gap-2">
+      <div className="flex min-h-10 min-w-0 items-center gap-2 py-1">
         <div className="flex min-w-0 flex-1 flex-col">
           <span
             data-slot="tool-permission-label"
@@ -427,13 +454,20 @@ export function ToolPermissionRow({
           onChange={onChange}
           readOnly={readOnly && !row.locked}
         />
-        {editable ? (
-          <RowMore
-            row={row}
-            onAddRule={onAddRule}
-            onUseInherited={onUseInherited}
-          />
-        ) : null}
+        {readOnly ? null : (
+          <span
+            data-slot="tool-permission-more"
+            className="flex w-6 shrink-0 justify-end"
+          >
+            {editable ? (
+              <RowMore
+                row={row}
+                onAddRule={onAddRule}
+                onUseInherited={onUseInherited}
+              />
+            ) : null}
+          </span>
+        )}
       </div>
       {row.warningOnAllow && row.answer === "allow" ? (
         <p
@@ -503,7 +537,7 @@ function ClassGroup({
             aria-expanded={shown}
             aria-controls={panelId}
             aria-label={`${shown ? "Hide" : "Show"} ${row.label}`}
-            className="mt-1.5 shrink-0"
+            className="mt-2 shrink-0 aria-expanded:bg-transparent"
             onClick={() => setOpen((value) => !value)}
           >
             <ChevronRight

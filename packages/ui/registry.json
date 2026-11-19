@@ -16101,7 +16101,8 @@
         "@vegastack/permission-menu",
         "@vegastack/search-input",
         "@vegastack/skeleton",
-        "@vegastack/toggle"
+        "@vegastack/toggle",
+        "@vegastack/tooltip"
       ],
       "files": [
         {
