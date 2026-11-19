@@ -95,8 +95,9 @@ its first control; no picker or menu opens by itself. Its Clear closes it again.
 `filter.storageKey` remembers the open state per page.
 
 **The page's primary button is the toolbar's last control** (`primary`): after search · filter ·
-sort · layout · display · ⋯, filled and 28px (`<Button size="sm">` with a verb and a noun, or a
-"New ▾" menu). It never folds away, and the row measures it with the tools. The page bar never
+sort · layout · display · ⋯, filled and 32px like the search field and the tools (a default
+`<Button>` with a verb and a noun, or a "New ▾" menu). The slot holds whatever it is given to the
+row's height, so the line never breaks. It never folds away, and the row measures it with the tools. The page bar never
 holds a primary; a record page's or a form's main action sits in the content, beside the work.
 
 ## Scope
@@ -182,8 +183,12 @@ No tabs, so no tab row: the search left and the tools right. No Display, so Sort
 
 ### Compact, inside a record tab
 
-`size="compact"` is the toolbar of a short list inside a record's tab: 28px tools and filter chips,
-and no shortcuts.
+`size="compact"` is the toolbar of a short list inside a record's tab: a 28px row — search, tools
+and primary (`<Button size="sm">`) — and no shortcuts.
+
+**Heights.** The toolbar row is one height: 32px for the search field, every tool, the state button
+and the primary (28px in a compact toolbar). The filter row under it is the lighter 28px tier at
+every size and every width: facets, applied chips, + Filter and Clear.
 
 <ComponentPreview
   name="listToolbarCompact"

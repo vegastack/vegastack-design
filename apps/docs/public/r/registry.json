@@ -2229,7 +2229,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.117.0",
-        "integrity": "sha256-G9+ifMgn5z5r5PzCGrMDVFFRDHI+Y8/RAj7PUism4ZI="
+        "integrity": "sha256-1t6pLnxtpA/s1TIriPaxTP4r8p+xRAOa1jMlzNlamsA="
       }
     },
     {
