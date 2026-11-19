@@ -1,4 +1,4 @@
-// @vegastack routine-row@0.120.0 sha256-/3ptcnAxawew7IGbktWvRMCi9L9ejm3Od5R1djFrj28=
+// @vegastack routine-row@0.120.0 sha256-IdYhb6XbHbrRstIg0PTlIgS4NumbVKbXKO/P5kO/Bio=
 
 "use client";
 
@@ -209,18 +209,13 @@ export function RoutineRow({
               Paused
             </Badge>
           ) : null}
-          <span
-            data-slot="routine-row-schedule"
-            className="min-w-0 truncate text-xs text-muted-foreground"
-          >
-            {schedule}
-          </span>
         </div>
         <p
           data-slot="routine-row-meta"
-          className={cn("min-w-0 truncate text-xs", "text-muted-foreground")}
+          className="line-clamp-2 min-w-0 text-xs text-muted-foreground"
         >
           {[
+            schedule,
             !paused && next.length ? `Next ${next.join(", ")}` : null,
             owner,
             destination ? `to ${destination}` : null,

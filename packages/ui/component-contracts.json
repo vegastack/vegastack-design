@@ -32923,8 +32923,7 @@
                 "routine-row",
                 "routine-row-last",
                 "routine-row-meta",
-                "routine-row-paused",
-                "routine-row-schedule"
+                "routine-row-paused"
               ]
             },
             {
@@ -33063,6 +33062,7 @@
                 "delegate-row-area",
                 "delegate-row-avatar",
                 "delegate-row-more",
+                "delegate-row-more-spacer",
                 "delegate-row-note",
                 "delegate-row-state"
               ]

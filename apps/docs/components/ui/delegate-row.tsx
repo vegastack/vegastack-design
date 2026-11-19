@@ -1,4 +1,4 @@
-// @vegastack delegate-row@0.120.0 sha256-runmGANSELcLUlMyFPxoaOkYbCYC4RmvsHbFDzwvMCE=
+// @vegastack delegate-row@0.120.0 sha256-0oso4R60r9NzjcWkd0HKxtac53As9e5jkyO+1c/Bf6w=
 
 "use client";
 
@@ -117,7 +117,7 @@ export function DelegateRow({
           </span>
           <span
             data-slot="delegate-row-area"
-            className="truncate text-xs text-muted-foreground"
+            className="text-xs wrap-anywhere text-muted-foreground"
           >
             {[area, dates].filter(Boolean).join(" · ")}
           </span>
@@ -158,7 +158,14 @@ export function DelegateRow({
               ) : null}
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : null}
+        ) : (
+          // Keeps the ⋯ column on a row without actions, so every state lines up.
+          <span
+            aria-hidden
+            data-slot="delegate-row-more-spacer"
+            className="size-7 shrink-0"
+          />
+        )}
       </div>
       {note ? (
         <TruncatedText

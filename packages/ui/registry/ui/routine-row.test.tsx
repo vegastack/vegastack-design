@@ -34,7 +34,9 @@ test("an active routine: the name is the link, three next runs, owner, destinati
   expect(
     screen.container.querySelector('[data-slot="routine-row-meta"]')!
       .textContent,
-  ).toBe("Next Mon 24 Nov, Mon 1 Dec, Mon 8 Dec · Anu · to #ops");
+  ).toBe(
+    "Mondays at 9:00 · Next Mon 24 Nov, Mon 1 Dec, Mon 8 Dec · Anu · to #ops",
+  );
   expect(
     screen.container.querySelector('[data-slot="routine-row-last"]')!
       .textContent,

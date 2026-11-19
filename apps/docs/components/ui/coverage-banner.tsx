@@ -1,4 +1,4 @@
-// @vegastack coverage-banner@0.120.0 sha256-2b92Sucr1hO8n2VwTzkxkaqgJc+m1zziNKmXx/FzfB8=
+// @vegastack coverage-banner@0.120.0 sha256-FJ6xbd86CzGKd0tbsZmpEZn73lF/v9ImRem5VUNd1L4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -73,9 +73,10 @@ export function CoverageBanner({
       data-slot="coverage-banner"
       data-variant="banner"
       data-tone={tone}
-      className={cn("items-center", className)}
+      // One row that wraps: the words take the room, the action keeps the strip's end.
+      className={cn("flex flex-wrap items-center gap-x-3 gap-y-2", className)}
     >
-      <AlertDescription className="flex min-w-0 items-center gap-2 text-sm text-current">
+      <AlertDescription className="flex min-w-0 flex-1 basis-60 items-center gap-2 text-sm text-current">
         <span aria-hidden className="inline-flex shrink-0">
           {person.avatar}
         </span>
@@ -89,7 +90,7 @@ export function CoverageBanner({
         ) : null}
       </AlertDescription>
       {action ? (
-        <AlertAction>
+        <AlertAction className="ms-auto mt-0">
           <Button size="sm" variant="outline" onClick={action.onClick}>
             {action.label}
           </Button>

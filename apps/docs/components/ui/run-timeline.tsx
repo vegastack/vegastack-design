@@ -1,4 +1,4 @@
-// @vegastack run-timeline@0.120.0 sha256-jmtYTYk9UeHV1r+XirBzbyD+Mq7vj8CSDZzcSujAkXE=
+// @vegastack run-timeline@0.120.0 sha256-cSTDwhvAN4eXdmk42JP12nW4Tts+DdTZk7iDWfLGDFM=
 
 "use client";
 
@@ -201,7 +201,7 @@ function StepRow({
             <span data-slot="run-timeline-cost">{step.cost}</span>
           ) : null}
           {step.status === "running" ? (
-            <ChatClock startedAt={step.startedAt} />
+            <ChatClock startedAt={step.startedAt} className="text-end" />
           ) : step.durationMs != null ? (
             <span>{formatChatDuration(step.durationMs)}</span>
           ) : null}
