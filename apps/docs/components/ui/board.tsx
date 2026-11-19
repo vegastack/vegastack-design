@@ -1,4 +1,4 @@
-// @vegastack board@0.123.2 sha256-ojKYsxi6ViR4jatPptigil7nBwG8X/tKtS53iOqyhGI=
+// @vegastack board@0.123.2 sha256-T5tI1E4oPyiaAHoOOq+mBoh2yVxLNhczFTZOWqoneOY=
 
 "use client";
 
@@ -84,8 +84,9 @@ Space drops it and Escape puts it back — nothing is committed until the drop, 
 announced. `canMoveItem` locks single cards (view-only records): they open but never lift.
 `M` opens the card's ⋯ menu (its own actions — the menu lists no Move items).
 
-Moves are optimistic: the card lands at once, `onMove` runs, and when its promise rejects the card
-snaps back, the rejection is announced and an error toast says so (the app mounts `Toaster`).
+Moves are optimistic: the card lands at once and the lane counts move with it, `onMove` runs, and
+when its promise rejects the card and the counts snap back, the rejection is announced and an error
+toast says so (the app mounts `Toaster`).
 
 Deliberately NOT done here:
 - No data behaviour: ordering, persistence and the move command are the host's.
@@ -140,7 +141,8 @@ export interface BoardColumn<T> {
   items: readonly T[];
   /**
    * The lane's total, when it holds more than it has loaded. Shown as the
-   * lane's muted count and spoken in its name ("Open, 14 tasks").
+   * lane's muted count and spoken in its name ("Open, 14 tasks"); while an
+   * optimistic move holds, the shown count moves with the cards.
    * @default items.length
    */
   count?: number;
@@ -709,7 +711,7 @@ export function Board<T>({
 
   /** "Open, 14 tasks" — the lane's accessible name, from its total. */
   const laneName = (column: BoardColumn<T>) =>
-    `${laneLabel(column)}, ${countLabel(column.count ?? column.items.length)}`;
+    `${laneLabel(column)}, ${countLabel(laneCount(column))}`;
 
   // A lane whose title is a node has no name to read unless the host gives one.
   React.useEffect(() => {
@@ -761,6 +763,18 @@ export function Board<T>({
       : baseLists;
   const listsRef = React.useRef(lists);
   listsRef.current = lists;
+  /**
+   * A lane's count as shown (header, phone lane strip, accessible name): the host's total moved by
+   * what an optimistic move took out of or put into the lane, so the counts travel with the cards
+   * until the host confirms, and snap back with them when the move is rejected.
+   */
+  const laneCount = (column: BoardColumn<T>) =>
+    Math.max(
+      0,
+      (column.count ?? column.items.length) +
+        (lists[column.id]?.length ?? 0) -
+        (baseLists[column.id]?.length ?? 0),
+    );
   const [pendingIds, setPendingIds] = React.useState<ReadonlySet<string>>(
     () => new Set(),
   );
@@ -1101,7 +1115,7 @@ export function Board<T>({
   const isEmptyLane = (column: BoardColumn<T>) =>
     !column.loading &&
     !column.loadMore?.hasMore &&
-    (column.count ?? 0) === 0 &&
+    laneCount(column) === 0 &&
     (lists[column.id]?.length ?? 0) === 0 &&
     (display[column.id]?.length ?? 0) === 0;
   /** `emptyLane="collapse"`: an empty lane waits in the Hidden columns list instead. */
@@ -1627,7 +1641,7 @@ export function Board<T>({
   const renderLane = (column: BoardColumn<T>) => {
     const readOnly = isReadOnly(column);
     const receivable = canReceive(column);
-    const count = column.count ?? column.items.length;
+    const count = laneCount(column);
     // A lane still fetching its first cards has no count to show yet (never "0" over skeletons).
     const countPending = column.loading === true && column.items.length === 0;
     const dropOver = drag?.over?.container === column.id;
@@ -2045,11 +2059,9 @@ export function Board<T>({
                 aria-hidden="true"
                 className="text-xs text-muted-foreground tabular-nums"
               >
-                {displayCount(column.count ?? column.items.length)}
+                {displayCount(laneCount(column))}
               </span>
-              <span className="sr-only">
-                , {countLabel(column.count ?? column.items.length)}
-              </span>
+              <span className="sr-only">, {countLabel(laneCount(column))}</span>
             </Button>
           ))}
         </div>

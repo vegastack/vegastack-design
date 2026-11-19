@@ -208,3 +208,128 @@ test("a finished subagent's steps start folded; opening shows them", async () =>
     .element(page.getByRole("list", { name: "Steps of Research" }))
     .toBeVisible();
 });
+
+test("running, waiting and failed steps never fold; the fold splits around them", async () => {
+  const steps = Array.from({ length: 40 }, (_, index) => tool(String(index)));
+  steps[20] = tool("20", { status: "failed" });
+  steps[39] = tool("39", { status: "running" });
+  const mixed: RunTimelineStep[] = Array.from({ length: 1000 }, (_, index) =>
+    index % 2
+      ? tool(`m${index}`)
+      : {
+          id: `m${index}`,
+          kind: "turn",
+          title: `Thought ${index}`,
+          status: "done",
+          startedAt: at,
+        },
+  );
+  mixed[900] = {
+    id: "m900",
+    kind: "error",
+    title: "Gmail refused the send",
+    status: "failed",
+    startedAt: at,
+  };
+  mixed[999] = tool("m999", { status: "waiting" });
+  const screen = await render(
+    <>
+      <RunTimeline steps={steps} />
+      <RunTimeline steps={mixed} />
+      <RunTimeline
+        steps={[
+          {
+            id: "s",
+            kind: "subagent",
+            title: "Supplier research",
+            status: "done",
+            startedAt: at,
+            children: [tool("a"), tool("b", { status: "failed" })],
+          },
+        ]}
+      />
+    </>,
+  );
+  const [run, long] = screen.container.querySelectorAll(
+    '[data-slot="run-timeline"]',
+  );
+  const ids = (root: Element) =>
+    [...root.querySelectorAll('[data-slot="run-timeline-step"]')].map(
+      (row) =>
+        row.querySelector('[data-slot="run-timeline-title"]')!.textContent,
+    );
+  expect(ids(run!)).toEqual([
+    "Read file 0",
+    "Read file 1",
+    "Read file 2",
+    "Read file 3",
+    "Read file 4",
+    "Read file 20",
+    "Read file 39",
+  ]);
+  expect(
+    [...run!.querySelectorAll('[data-slot="run-timeline-fold"]')].map(
+      (fold) => fold.textContent,
+    ),
+  ).toEqual(["15 more steps", "18 more steps"]);
+  expect(ids(long!)).toContain("Gmail refused the send");
+  expect(ids(long!)).toContain("Read file m999");
+  expect(long!.querySelectorAll("*").length).toBeLessThan(250);
+  // A finished branch that holds a broken step starts open.
+  await expect
+    .element(page.getByRole("list", { name: "Steps of Supplier research" }))
+    .toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("an opened fold stays open when a step in it turns live; a branch opens when it turns live", async () => {
+  // 19 turns put the tool run's fold at the row budget's edge: when it splits, part of it lands
+  // past the budget and must stay open there too.
+  const run = (live: boolean): RunTimelineStep[] => [
+    ...Array.from({ length: 19 }, (_, index) => ({
+      id: `t${index}`,
+      kind: "turn" as const,
+      title: `Thought ${index}`,
+      status: "done" as const,
+      startedAt: at,
+    })),
+    ...Array.from({ length: 12 }, (_, index) =>
+      tool(`fold:${index}`, {
+        status: live && index === 8 ? "running" : "done",
+        detail: index === 10 ? <p>Step ten's output</p> : undefined,
+      }),
+    ),
+  ];
+  const branch = (live: boolean): RunTimelineStep[] => [
+    {
+      id: "s",
+      kind: "subagent",
+      title: "Supplier research",
+      status: "done",
+      startedAt: at,
+      children: [tool("a"), tool("b", { status: live ? "failed" : "done" })],
+    },
+  ];
+  const screen = await render(
+    <>
+      <RunTimeline steps={run(false)} />
+      <RunTimeline steps={branch(false)} />
+    </>,
+  );
+  await page.getByRole("button", { name: "7 more steps" }).click();
+  await page.getByRole("button", { name: "Details" }).click();
+  await expect.element(page.getByText("Step ten's output")).toBeVisible();
+  await screen.rerender(
+    <>
+      <RunTimeline steps={run(true)} />
+      <RunTimeline steps={branch(true)} />
+    </>,
+  );
+  await expect.element(page.getByText("Step ten's output")).toBeVisible();
+  expect(
+    screen.container.querySelectorAll('[data-slot="run-timeline-fold"]'),
+  ).toHaveLength(0);
+  await expect
+    .element(page.getByRole("list", { name: "Steps of Supplier research" }))
+    .toBeVisible();
+});

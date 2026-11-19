@@ -50,7 +50,9 @@ Pulse while the run waits. A running step's time counts up.
 ### Folding
 
 Consecutive tool steps past `collapseRuns` (5) fold into "38 more steps", opened in place, so a
-thousand steps stay a short page until someone asks for them.
+thousand steps stay a short page until someone asks for them. A step that is running, waiting or
+failed never folds: the fold splits around it, and a subagent holding one opens, so what is
+happening now and what broke stay in view. Finished steps fold as before.
 
 <ComponentPreview
   name="runTimelineFolded"

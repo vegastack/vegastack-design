@@ -155,8 +155,10 @@ no counts. A single lane still fetching its first cards shows no count until the
 
 ### Server-gated moves
 
-Moves are optimistic: the card lands at once and shimmers while `onMove`'s promise is pending. A
-rejection snaps it back, announces it, and raises an error toast (`moveErrorToast` sets its
+Moves are optimistic: the card lands at once and shimmers while `onMove`'s promise is pending,
+and the lane counts (header, phone lane strip and the lane's spoken name) move with it: the host's
+`count` plus what the move put into the lane or took out. A rejection snaps the card and the counts
+back, announces it, and raises an error toast (`moveErrorToast` sets its
 title, or `false` turns it off; the app mounts [`Toaster`](/docs/components/toast)).
 
 <ComponentPreview name="boardGated" file="components/preview/board.tsx" />

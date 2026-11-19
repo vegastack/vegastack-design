@@ -1,4 +1,4 @@
-// @vegastack searchable-select@0.123.2 sha256-Y/2BCzGHlVoX/ozdgON2OBQi1vYf+RBIy1u0j8twQs8=
+// @vegastack searchable-select@0.123.2 sha256-ciTKuXQgUZKipH3H1I9MdimxDImHE7JuSt/QeicXyek=
 
 "use client";
 
@@ -981,7 +981,11 @@ export function SearchableSelect<
         }
         open={open}
         defaultOpen={defaultSearch ? true : undefined}
-        defaultInputValue={defaultSearch}
+        // The query starts empty (or at `defaultSearch`), never at the selection's label. Left
+        // unset, Base UI seeds it with the label of the value at mount and only the in-panel
+        // search field clears it, so a list with no search field (`searchable={false}`) kept
+        // filtering by that first label after another pick: reopened, it listed only the old one.
+        defaultInputValue={defaultSearch ?? ""}
         onOpenChange={onOpenChange}
         autoHighlight
         disabled={disabled}

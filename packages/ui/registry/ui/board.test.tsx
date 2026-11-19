@@ -261,6 +261,42 @@ test("moves are optimistic; a rejection snaps back, announces and stops pending"
   expect(announcement()).toContain("Move rejected");
 });
 
+test("lane counts move with an optimistic move and snap back with a rejection", async () => {
+  await onDesktop();
+  let reject!: (e?: unknown) => void;
+  const gate = () =>
+    new Promise<void>((_, rej) => {
+      reject = rej;
+    });
+  const initial = makeColumns().map((column) =>
+    column.id === "lead"
+      ? { ...column, count: 14 }
+      : column.id === "won"
+        ? { ...column, count: 3 }
+        : column,
+  );
+  await render(<Controlled gate={gate} initial={initial} />);
+  const counts = () =>
+    ["lead", "won", "parked"].map(
+      (id) =>
+        document.querySelector(
+          `[data-column="${id}"] [data-slot="board-column-count"]`,
+        )?.textContent,
+    );
+  expect(counts()).toEqual(["14", "3", "0"]);
+  surface("d1").focus();
+  await userEvent.keyboard(" ");
+  await userEvent.keyboard("{ArrowRight}");
+  await userEvent.keyboard(" ");
+  // The counts travel with the card while the host decides, in the lane's name too.
+  expect(counts()).toEqual(["13", "4", "0"]);
+  await expect
+    .element(page.getByRole("region", { name: "Won, 4 cards" }))
+    .toBeInTheDocument();
+  reject(new Error("stage gate"));
+  await expect.poll(counts).toEqual(["14", "3", "0"]);
+});
+
 test("Enter activates a button card", async () => {
   const onCardActivate = vi.fn();
   await render(<Controlled onCardActivate={onCardActivate} />);
