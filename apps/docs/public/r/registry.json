@@ -19679,8 +19679,8 @@
       "meta": {
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
-        "version": "0.120.0",
-        "integrity": "sha256-pz/KoFFGaPlxCN+6OkO2F1ElldXWkmtmTtsHhW0Dm1Y="
+        "version": "0.122.0",
+        "integrity": "sha256-hmuYlrrXaELPQhPSrAW4yFmIChJG0w5k00UEOV+E0fM="
       }
     },
     {
@@ -19710,8 +19710,8 @@
       "meta": {
         "whenToUse": "A group of rows in a digest or summary: Overdue, Due this week, Waiting on others.",
         "whenNotToUse": "A plain list with no group action or paging (ItemGroup), or a table (DataList).",
-        "version": "0.120.0",
-        "integrity": "sha256-8oaV0SpXWf1v8kzjc8LsREFmTH6w6pGTjFN54duGldI="
+        "version": "0.122.0",
+        "integrity": "sha256-DUR04sy6VEOSHwCIy7z1w9UOj7H3rv52hUmJ+M5e14g="
       }
     },
     {
@@ -19739,8 +19739,8 @@
       "meta": {
         "whenToUse": "A request's status in a row, a header or a card.",
         "whenNotToUse": "A task's workflow status (StatusIcon), or any other record's tag (Badge).",
-        "version": "0.120.0",
-        "integrity": "sha256-+vkftQ7tl8Pm2NXxaxQLdUlcb2GrlBqCVBPEOdiUkQE="
+        "version": "0.122.0",
+        "integrity": "sha256-jMp4uuBkx7xuatKN4MOoeKNJaF224Z6HFZJ9ZofjCyA="
       }
     },
     {
@@ -24449,8 +24449,8 @@
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (RequestCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
-        "version": "0.117.0",
-        "integrity": "sha256-NkWhkv9jL1LADOgLIcjafbrTzImtXHJY9dpG7GVG2d4="
+        "version": "0.122.0",
+        "integrity": "sha256-MQnJF/0liWL8PZF2VKd6pwwOgi8pT/LP8wMb3+sZUUg="
       }
     },
     {

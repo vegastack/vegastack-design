@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.122.0] — November 19, 2026
+
+<!-- assembled from 2 changesets: 753a574e38c1 -->
+
+### 🧩 New components
+
+- **ForYouCard**, **DigestGroup**, **RequestStatusChip**. `ForYouCard` is one thing waiting on a person in For you, laid out for the 26rem Inbox panel and the phone: the verb (Answer, Approve, Review, Fix, Suggest), who asks, the deciding facts, what happens if nobody answers, the source's body (`question_form` renders `AgentQuestionForm`, other kinds go through `renderBody`) and its options in server order with K-FY's kinds — the preferred `primary` drawn secondary, never filled; `sending`, `submit_failed`, `stale`, `withdrawn` (with `access_lost` showing nothing of the source) and the settled outcomes. `DigestGroup` is one composed digest group: title, count, urgent mark, header extra, one group action, the caller's rows and a controlled "Show N more" footer. `RequestStatusChip` shows a request's lifecycle state (Draft · Open · In progress · Awaiting approval · Approved · Declined · Completed · Cancelled) with a tone fixed by state and words the table may rename.
+  [`143c469`](https://github.com/VegaStack/vegastack-design/commit/143c469)
+
+### 🔧 Changed components
+
+- **AgentQuestionForm** — `actionVariant="secondary"` draws Send, Next and Submit as secondary, for a host card that holds no filled primary (ForYouCard uses it).
+  [`143c469`](https://github.com/VegaStack/vegastack-design/commit/143c469)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.121.0 → 0.122.0.
+
 ## [0.121.0] — November 19, 2026
 
 <!-- assembled from 1 changeset: e1dc2be63e8f -->
