@@ -352,7 +352,11 @@ test("a send with nothing to preview keeps only its refusals; settled states wit
     <>
       <AskCard
         agent={agent}
-        action={{ title: "Delete branch main", toolClass: "delete_send" }}
+        action={{
+          title: "Delete branch main",
+          toolClass: "delete_send",
+          preview: "",
+        }}
         state="pending"
         choices={CHOICES}
         onAnswer={vi.fn()}

@@ -1,4 +1,4 @@
-// @vegastack ask-card@0.120.0 sha256-alwxDtCZ3n62qEO0eSBzYz5yjSMVbkHdVXR8dtBYBN0=
+// @vegastack ask-card@0.120.0 sha256-HL34/2Q1YD5nYpwdnrSeAo71ChhT9aCdiAAUuAG1MAg=
 
 "use client";
 
@@ -422,6 +422,12 @@ function AskChoices({
   );
 }
 
+/** A preview that draws something: not null, false, an empty string or an empty list. */
+function hasPreview(preview: React.ReactNode): boolean {
+  if (preview == null || preview === false || preview === "") return false;
+  return !(Array.isArray(preview) && preview.length === 0);
+}
+
 /**
  * The choices a person may press. A delete or send with nothing to preview keeps only its refusals
  * (Never, Decline): every surface that can allow a send shows its words first.
@@ -431,7 +437,7 @@ function pressable(
   toolClass: ToolClass,
   preview: React.ReactNode,
 ): { choices: AskChoice[]; withheld: boolean } {
-  if (toolClass !== "delete_send" || preview != null)
+  if (toolClass !== "delete_send" || hasPreview(preview))
     return { choices, withheld: false };
   const refusals = choices.filter(
     (choice) => choice.kind === "never" || choice.kind === "decline",
@@ -602,7 +608,7 @@ function AskBundleRow({
     >
       <ActionTitle title={item.title} toolClass={item.toolClass} />
       {item.facts?.length ? <AskFacts facts={item.facts} /> : null}
-      {item.preview != null && open ? (
+      {hasPreview(item.preview) && open ? (
         <AskPreview toolClass={item.toolClass}>{item.preview}</AskPreview>
       ) : null}
       {answerable ? (
@@ -759,7 +765,7 @@ export function AskCard({
           toolClass={action.toolClass}
         />
         {action.facts?.length ? <AskFacts facts={action.facts} /> : null}
-        {action.preview != null && open ? (
+        {hasPreview(action.preview) && open ? (
           <AskPreview toolClass={action.toolClass}>{action.preview}</AskPreview>
         ) : null}
       </div>
