@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.123.2 sha256-vl75DoPt+ofaz29NKESYVk+tT6LG637WF2p5fadq9CA=
+// @vegastack record-layout@0.123.2 sha256-kA8indcmySxEdlRotaw/e7JpKyxsI2uNnFbcen94QVY=
 
 "use client";
 
@@ -876,6 +876,13 @@ export interface RecordPanelItemProps extends Omit<
   icon?: React.ReactNode;
   /** The muted trailing detail: a size, a relation, a role, a time. @default undefined */
   detail?: React.ReactNode;
+  /**
+   * One trailing action (a 24px ghost icon button: ×, ⋯) shown on hover, on focus within the row
+   * or while its menu is open, always on touch. It takes the detail's place rather than a column
+   * of its own: at rest the row's end is the detail, on hover the action. It sits beside the row's
+   * link or button, never inside it. @default undefined
+   */
+  action?: React.ReactNode;
   /** The row's text; it truncates. @default undefined */
   children?: React.ReactNode;
 }
@@ -887,15 +894,18 @@ export interface RecordPanelItemProps extends Omit<
  *
  * @example
  * <RecordPanelItem render={<a href="/files/1" />} icon={<FileText />} detail="420 KB">Rate contract.pdf</RecordPanelItem>
+ * <RecordPanelItem icon={<PersonAvatar person={me} size="xs" />} detail="Created" action={<Button variant="ghost" size="icon-xs" aria-label="Stop watching"><X /></Button>}>You</RecordPanelItem>
  */
 export function RecordPanelItem({
   icon,
   detail,
+  action,
   className,
   children,
   render,
   ...props
 }: RecordPanelItemProps) {
+  const hasAction = action !== undefined && action !== null && action !== false;
   const row = useRender({
     defaultTagName: "div",
     render,
@@ -904,6 +914,8 @@ export function RecordPanelItem({
         className: cn(
           "flex min-h-7.5 min-w-0 items-center gap-2 rounded-item px-2 text-sm text-foreground no-underline outline-none [&_svg]:shrink-0 [&_svg]:text-muted-foreground [&_svg:not([class*='size-'])]:size-4",
           render !== undefined && "state-layer cursor-pointer",
+          // While the action shows, the row's end makes room for it (the detail steps aside).
+          hasAction && shownAction("pe-8"),
           className,
         ),
         children: (
@@ -913,7 +925,10 @@ export function RecordPanelItem({
             {detail !== undefined && detail !== null ? (
               <span
                 data-slot="record-panel-item-detail"
-                className="max-w-1/2 min-w-0 shrink-0 truncate text-xs text-muted-foreground tabular-nums"
+                className={cn(
+                  "max-w-1/2 min-w-0 shrink-0 truncate text-xs text-muted-foreground tabular-nums",
+                  hasAction && HIDDEN_DETAIL,
+                )}
               >
                 {detail}
               </span>
@@ -926,11 +941,39 @@ export function RecordPanelItem({
     state: { slot: "record-panel-item" },
   });
   return (
-    <li data-slot="record-panel-list-item" className="min-w-0">
+    <li
+      data-slot="record-panel-list-item"
+      className={cn("min-w-0", hasAction && "group/record-panel-item relative")}
+    >
       {row}
+      {hasAction ? (
+        <span
+          data-slot="record-panel-item-action"
+          className={cn(
+            "absolute inset-y-0 end-1 flex items-center opacity-0 transition-opacity duration-state",
+            shownAction("opacity-100"),
+          )}
+        >
+          {action}
+        </span>
+      ) : null}
     </li>
   );
 }
+
+/**
+ * The states a row shows its action in: hovered, focus inside it, its menu open, or a touch
+ * screen (no hover to reveal it). Tailwind needs each class written out whole.
+ */
+function shownAction(shown: "pe-8" | "opacity-100") {
+  return shown === "pe-8"
+    ? "group-hover/record-panel-item:pe-8 group-focus-within/record-panel-item:pe-8 group-has-aria-expanded/record-panel-item:pe-8 pointer-coarse:pe-8"
+    : "group-hover/record-panel-item:opacity-100 group-focus-within/record-panel-item:opacity-100 group-has-aria-expanded/record-panel-item:opacity-100 pointer-coarse:opacity-100";
+}
+
+/** The detail gives the action its place, but stays on touch, where the action always shows. */
+const HIDDEN_DETAIL =
+  "pointer-fine:group-hover/record-panel-item:hidden pointer-fine:group-focus-within/record-panel-item:hidden pointer-fine:group-has-aria-expanded/record-panel-item:hidden";
 
 /** Native paragraph props for `RecordPanelEmpty`. */
 export type RecordPanelEmptyProps = React.ComponentPropsWithRef<"p">;

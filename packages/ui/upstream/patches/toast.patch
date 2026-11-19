@@ -3,6 +3,8 @@
 # hunks:
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
+#     The toast's content row pads 12px, not upstream's 16px (operator 2026-11-20: "same height etc for toast card, as its
+#     there in staging"); its close is centred on the row, clear of the card's corner either way.
 #   COL-25 (operator, 2026-11-13, agent chat ground up: "stop using green checks everywhere"): the
 #     success toast's check is primary, `text-primary`, never `text-success-text`.
 #   OVL-15: the bottom viewport positions also rise by `--toaster-offset-bottom` (default `0px`),
@@ -103,7 +105,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..8529e5c 100644
+index 325d01b..367e5d2 100644
 --- a/toast.tsx
 +++ b/toast.tsx
 @@ -1,60 +1,273 @@
@@ -423,7 +425,7 @@ index 325d01b..8529e5c 100644
        className={cn(
 -        "flex h-full items-center gap-3 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
 -        className
-+        "flex h-full items-center gap-2.5 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
++        "flex h-full items-center gap-2.5 overflow-hidden p-3 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
 +        className,
        )}
        {...props}

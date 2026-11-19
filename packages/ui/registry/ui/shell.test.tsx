@@ -2,10 +2,17 @@ import * as React from "react";
 import { render } from "vitest-browser-react";
 import { afterEach, expect, test } from "vitest";
 import { userEvent } from "vitest/browser";
-import { CircleHelp, Home, ListChecks } from "lucide-react";
+import { CircleHelp, Home, ListChecks, Lock, Star } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { resolveShellLayout } from "../lib/shell-layout";
 import { Button } from "./button";
+import { Toggle } from "./toggle";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 import {
   GlobalBar,
   GlobalBarCenter,
@@ -636,4 +643,57 @@ test("the assistant docked beside the page is a second card, the page giving it 
       .querySelector('[data-slot="assistant-card"]')!
       .getAttribute("role"),
   ).toBe("region");
+});
+
+test("every control at the bar's end reads 14px with a 16px icon, whatever size the page passes", async () => {
+  const screen = await render(
+    <ShellTopBar>
+      <ShellTopBarTitle>Q3 pricing</ShellTopBarTitle>
+      <ShellTopBarShare>
+        <Button variant="ghost" size="sm">
+          <Lock data-icon="inline-start" />
+          Share
+        </Button>
+      </ShellTopBarShare>
+      <ShellTopBarWatch>
+        <Button variant="ghost" size="sm" render={<a href="/share" />}>
+          Open
+        </Button>
+      </ShellTopBarWatch>
+      <ShellTopBarFavorite>
+        <Toggle variant="bare" size="sm" aria-label="Favourite">
+          <Star />
+        </Toggle>
+      </ShellTopBarFavorite>
+      <ShellTopBarMore>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button variant="ghost" size="sm" />}>
+            <Lock data-icon="inline-start" />
+            More
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem>Copy</DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </ShellTopBarMore>
+    </ShellTopBar>,
+  );
+  // A Button rendered as a link holds the size too.
+  const link = screen.container.querySelector<HTMLElement>('a[href="/share"]')!;
+  expect(getComputedStyle(link).fontSize).toBe("14px");
+  // A trigger renames the Button's slot; the bar's size still holds.
+  const more = screen.getByRole("button", { name: "More" }).element();
+  expect(getComputedStyle(more).fontSize).toBe("14px");
+  expect(
+    Math.round(more.querySelector("svg")!.getBoundingClientRect().width),
+  ).toBe(16);
+  const share = screen.getByRole("button", { name: "Share" }).element();
+  expect(getComputedStyle(share).fontSize).toBe("14px");
+  expect(
+    Math.round(share.querySelector("svg")!.getBoundingClientRect().width),
+  ).toBe(16);
+  const star = screen.getByRole("button", { name: "Favourite" }).element();
+  expect(
+    Math.round(star.querySelector("svg")!.getBoundingClientRect().width),
+  ).toBe(16);
 });

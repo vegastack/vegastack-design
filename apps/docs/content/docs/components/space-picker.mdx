@@ -84,6 +84,13 @@ shows it above the title when the viewer cannot move the record; pass `tabIndex=
 
 ### SpaceChip
 
+`variant="ghost"` is the chip in a `PropertyValue`: the space's name in the value's ink and size,
+the ghost Record Chip's 24px capsule tint on hover, its ▾ shown only on hover, focus or while the
+picker is open, hung into the gutter so its tile starts where other values do. Read-only it is the
+same box without a ▾, and with `href` a link. `SpacePicker placement="property"` uses it as its
+trigger (the dashed empty pill while nothing is chosen), and `onClear` adds a "No space" row for a
+record whose space is optional.
+
 <ApiTable
   path="../../packages/ui/registry/ui/space-picker.tsx"
   name="SpaceChipProps"

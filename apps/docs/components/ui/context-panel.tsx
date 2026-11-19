@@ -1,4 +1,4 @@
-// @vegastack context-panel@0.123.2 sha256-cU8u/PlhNR/d0QEo1fXdh3V9/T/Vs1ATWOmA5b8No+s=
+// @vegastack context-panel@0.123.2 sha256-LuDUpyikuBQ8OtGdsPJm/LYwL7jF+AZgA20PqleEws8=
 
 "use client";
 
@@ -245,7 +245,9 @@ export function ContextPanel({
                           data-slot="context-panel-part"
                           data-free={row.free ? "" : undefined}
                           className={cn(
-                            "flex min-h-7 min-w-0 items-center gap-2 rounded-item px-2 text-xs tabular-nums outline-none",
+                            // A side panel's list row (RecordPanelItem): the name at 14px, at
+                            // least 30px tall, the count as its muted detail.
+                            "flex min-h-7.5 min-w-0 items-center gap-2 rounded-item px-2 text-sm tabular-nums outline-none",
                             row.free && "text-muted-foreground",
                           )}
                         />
@@ -261,7 +263,9 @@ export function ContextPanel({
                       <span className="min-w-0 flex-1 truncate">
                         {row.label}
                       </span>
-                      <span>{formatTokens(row.tokens)}</span>
+                      <span className="text-xs text-muted-foreground">
+                        {formatTokens(row.tokens)}
+                      </span>
                       <span className="sr-only">
                         , {share(row.tokens, windowTokens)}
                       </span>
@@ -275,7 +279,7 @@ export function ContextPanel({
             </ul>
           </>
         ) : (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             {labels?.empty ?? "Measured after the first answer."}
           </p>
         )}

@@ -42123,7 +42123,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["record-panel-item-detail", "record-panel-list-item"]
+              "values": [
+                "record-panel-item-action",
+                "record-panel-item-detail",
+                "record-panel-list-item"
+              ]
             }
           ],
           "cssVariables": []
@@ -48024,6 +48028,10 @@
         "SpaceChip": {
           "attributes": [
             {
+              "name": "data-chip",
+              "values": []
+            },
+            {
               "name": "data-empty",
               "values": [""]
             },
@@ -48054,7 +48062,11 @@
             },
             {
               "name": "data-slot",
-              "values": ["space-picker", "space-picker-item"]
+              "values": [
+                "space-picker",
+                "space-picker-clear",
+                "space-picker-item"
+              ]
             }
           ],
           "cssVariables": []

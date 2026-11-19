@@ -1,3 +1,4 @@
+import "../../test/geometry.css";
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { expect, test } from "vitest";
@@ -9,6 +10,7 @@ import {
   PropertyRow,
   PropertyValue,
 } from "./property-list";
+import { EditableCell } from "./editable-cell";
 
 function Example() {
   return (
@@ -125,4 +127,43 @@ test("each property is one grid row of exactly one dt and one dd", async () => {
       1,
     );
   }
+});
+
+test("in a panel, an editable value with nothing in it is a dashed capsule; one with a value is plain", async () => {
+  const screen = await render(
+    <PropertyList variant="panel" style={{ width: 320 }}>
+      <PropertyRow>
+        <PropertyLabel>Value</PropertyLabel>
+        <PropertyValue>
+          <EditableCell
+            variant="inline"
+            label="Value"
+            emptyText="Add value"
+            value=""
+            onSave={async () => {}}
+          />
+        </PropertyValue>
+      </PropertyRow>
+      <PropertyRow>
+        <PropertyLabel>Code</PropertyLabel>
+        <PropertyValue>
+          <EditableCell
+            variant="inline"
+            label="Code"
+            value="RL-26-104"
+            onSave={async () => {}}
+          />
+        </PropertyValue>
+      </PropertyRow>
+    </PropertyList>,
+  );
+  const [empty, filled] = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="editable-cell-display"]',
+  );
+  expect(empty!.hasAttribute("data-empty")).toBe(true);
+  expect(getComputedStyle(empty!).borderTopStyle).toBe("dashed");
+  expect(Math.round(empty!.getBoundingClientRect().height)).toBe(24);
+  expect(filled!.hasAttribute("data-empty")).toBe(false);
+  expect(getComputedStyle(filled!).borderTopStyle).not.toBe("dashed");
+  await expectNoA11yViolations(screen.container);
 });

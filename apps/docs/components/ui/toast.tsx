@@ -1,4 +1,4 @@
-// @vegastack toast@0.123.2 sha256-BYHeCtI5NgfMeIs/6GucH1RAM+08zD1/mMuOq0PWkv4=
+// @vegastack toast@0.123.2 sha256-0YnBjFZB7YV9pRMGxEIP8qsrUxPwbRB0WhPuZBGVyXI=
 
 "use client";
 
@@ -277,7 +277,7 @@ function ToastContent({ className, ...props }: ToastPrimitive.Content.Props) {
     <ToastPrimitive.Content
       data-slot="toast-content"
       className={cn(
-        "flex h-full items-center gap-2.5 overflow-hidden p-4 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
+        "flex h-full items-center gap-2.5 overflow-hidden p-3 transition-opacity duration-250 ease-[cubic-bezier(0.22,1,0.36,1)] data-behind:opacity-0 data-expanded:opacity-100",
         className,
       )}
       {...props}

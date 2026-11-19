@@ -146,11 +146,14 @@ Two row shapes, the same everywhere:
 
 - **Key and value** — `PropertyList variant="panel"`: a 92px muted key, the value at the same
   size, rows at least 30px tall; a plain value truncates, an editable one is a quiet picker or a
-  ghost Record Chip in place.
+  ghost Record Chip in place (a space is a `SpaceChip variant="ghost"`). An editable value with
+  nothing in it is one dashed capsule around its prompt, whichever control holds it.
 - **A list of records** — `RecordPanelList` of `RecordPanelItem`s (files, contacts, related
   records, transcript lines): an optional icon, the text truncating, a muted trailing detail
   (a size, a relation, a role, a time). A row that opens something takes `render` (a link or a
-  button) and the hover layer, which runs 8px past the text with the item radius.
+  button) and the hover layer, which runs 8px past the text with the item radius. A row's one
+  action (`action`: ×, ⋯) takes the detail's place on hover, on focus or while its menu is open,
+  and always shows on touch: no row reserves an empty column for a hidden button.
   `RecordPanelEmpty` is a section's one-line empty state.
 
 The panel shares the page's ground (`bg-background`, COL-26), set off from the work by its

@@ -1,4 +1,4 @@
-// @vegastack file-card@0.123.2 sha256-Io0g9wldYx0IVVuEWL30t4se2P6yTwmW/Y0KZpWpAXQ=
+// @vegastack file-card@0.123.2 sha256-/lH5CnNBGiF70n+i5gH4MAcvP3SwW7WoLGTQw0mb4uw=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -132,15 +132,15 @@ export interface FileCardProps {
   /**
    * `card` — a bordered tile for a grid or list of files; `row` — a side panel's file row: 44px,
    * borderless, a 20px type icon or thumbnail, the name, one muted meta line (`descriptions`
-   * joined with " · "), an optional `source` icon, and its actions only on hover or focus (always
-   * on touch). A row renders its own `<li>`: put rows in a `RecordPanelList`, so they share the
+   * joined with " · "), an optional `source` icon just before the name, and its actions only on
+   * hover or focus (always on touch), taking no room until then. A row renders its own `<li>`: put rows in a `RecordPanelList`, so they share the
    * other rows' left edge.
    * @default "card"
    */
   variant?: "card" | "row";
   /**
-   * `row`: where the file came from — a comment, the Library — as an icon after the name, named
-   * by its tooltip.
+   * `row`: where the file came from — a comment, the Library — as a 14px icon on the name's line,
+   * just before the name, named by its tooltip.
    * @default undefined
    */
   source?: FileCardSource | null;
@@ -264,9 +264,34 @@ export function FileCard({
           ))}
       </AttachmentMedia>
       <AttachmentContent>
-        <AttachmentTitle className={row ? "font-normal" : undefined}>
-          {name}
-        </AttachmentTitle>
+        {row && source ? (
+          // The source rides the name's line, a 14px mark just before the name: no column of its
+          // own, and never at the row's centre, where the row's open button must own the pointer.
+          <span className="flex min-w-0 items-center gap-1">
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  // Over the row's open button, so its tooltip answers hover and focus.
+                  <span
+                    role="img"
+                    tabIndex={0}
+                    aria-label={source.label}
+                    data-slot="file-card-source"
+                    className="relative z-20 inline-flex size-4.5 shrink-0 items-center justify-center rounded-icon text-muted-foreground outline-none after:absolute after:-inset-0.75 after:content-[''] [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5"
+                  />
+                }
+              >
+                {source.icon}
+              </TooltipTrigger>
+              <TooltipContent>{source.label}</TooltipContent>
+            </Tooltip>
+            <AttachmentTitle className="font-normal">{name}</AttachmentTitle>
+          </span>
+        ) : (
+          <AttachmentTitle className={row ? "font-normal" : undefined}>
+            {name}
+          </AttachmentTitle>
+        )}
         {row ? (
           lines.length > 0 ? (
             <AttachmentDescription className="mt-0">
@@ -287,25 +312,6 @@ export function FileCard({
           )
         )}
       </AttachmentContent>
-      {row && source ? (
-        // Over the row's open button, so its tooltip answers hover and focus.
-        <Tooltip>
-          <TooltipTrigger
-            render={
-              <span
-                role="img"
-                tabIndex={0}
-                aria-label={source.label}
-                data-slot="file-card-source"
-                className="relative z-20 inline-flex size-6 shrink-0 items-center justify-center rounded-icon text-muted-foreground outline-none [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4"
-              />
-            }
-          >
-            {source.icon}
-          </TooltipTrigger>
-          <TooltipContent>{source.label}</TooltipContent>
-        </Tooltip>
-      ) : null}
       {link ? (
         <AttachmentTrigger
           render={
@@ -330,8 +336,15 @@ export function FileCard({
         <AttachmentActions
           className={
             row
-              ? // A row's actions show on hover or focus, while their menu is open, and always on touch.
-                "opacity-0 transition-opacity duration-state group-focus-within/attachment:opacity-100 group-hover/attachment:opacity-100 has-aria-expanded:opacity-100 pointer-coarse:opacity-100"
+              ? cn(
+                  // A row's actions show on hover or focus, while their menu is open, and always
+                  // on touch.
+                  "opacity-0 transition-opacity duration-state group-focus-within/attachment:opacity-100 group-hover/attachment:opacity-100 has-aria-expanded:opacity-100 pointer-coarse:opacity-100",
+                  // And take no room until then, so the name runs to the row's end at rest —
+                  // where the row has a tab stop before them (its open button, its source), whose
+                  // focus brings them in. A row with neither keeps their room: Tab reaches them.
+                  "pointer-fine:group-has-[[data-slot=attachment-trigger],[data-slot=file-card-source]]/attachment:not-group-hover/attachment:not-group-focus-within/attachment:not-has-aria-expanded:hidden",
+                )
               : undefined
           }
         >
