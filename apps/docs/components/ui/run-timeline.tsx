@@ -1,4 +1,4 @@
-// @vegastack run-timeline@0.123.2 sha256-L3EdWnSgyESj56QW4metBjplULdAnFMsKqoIRd2A9hY=
+// @vegastack run-timeline@0.123.2 sha256-7k+owuWAr6AE1ZEsXpdOTNUEdH/71H7ccN8eUT5Xj24=
 
 "use client";
 
@@ -352,39 +352,17 @@ function StepRow({
   );
 }
 
-/** The fold: "38 more steps", opened in place. */
-function Fold({
-  steps,
-  collapseRuns,
-  onExpand,
-}: {
-  steps: RunTimelineStep[];
-  collapseRuns: number;
-  onExpand?: (stepId: string) => void;
-}) {
-  const [open, setOpen] = React.useState(false);
-  if (open)
-    return (
-      <>
-        {steps.map((step) => (
-          <StepRow
-            key={step.id}
-            step={step}
-            collapseRuns={collapseRuns}
-            onExpand={onExpand}
-          />
-        ))}
-      </>
-    );
+/** A fold: "38 more steps", opened in place. */
+function MoreSteps({ count, onOpen }: { count: number; onOpen: () => void }) {
   return (
     <li data-slot="run-timeline-fold" className="flex min-w-0">
       <Button
         size="xs"
         variant="ghost"
         className="-ms-2 text-muted-foreground"
-        onClick={() => setOpen(true)}
+        onClick={onOpen}
       >
-        {steps.length === 1 ? "1 more step" : `${steps.length} more steps`}
+        {count === 1 ? "1 more step" : `${count} more steps`}
       </Button>
     </li>
   );
@@ -395,77 +373,8 @@ const ROW_BUDGET = 25;
 
 type Entry = ReturnType<typeof fold>[number];
 
-const entryKey = (entry: Entry) =>
-  entry.type === "step" ? entry.step.id : entry.key;
-
-function EntryRows({
-  entries,
-  collapseRuns,
-  onExpand,
-}: {
-  entries: Entry[];
-  collapseRuns: number;
-  onExpand?: (stepId: string) => void;
-}) {
-  return (
-    <>
-      {entries.map((entry) =>
-        entry.type === "step" ? (
-          <StepRow
-            key={entry.step.id}
-            step={entry.step}
-            collapseRuns={collapseRuns}
-            onExpand={onExpand}
-          />
-        ) : (
-          <Fold
-            key={entry.key}
-            steps={entry.steps}
-            collapseRuns={collapseRuns}
-            onExpand={onExpand}
-          />
-        ),
-      )}
-    </>
-  );
-}
-
-/** Rows past the budget, behind one "N more steps" until opened; steps that stay open sit between. */
-function Rest({
-  entries,
-  collapseRuns,
-  onExpand,
-}: {
-  entries: Entry[];
-  collapseRuns: number;
-  onExpand?: (stepId: string) => void;
-}) {
-  const [open, setOpen] = React.useState(false);
-  if (open)
-    return (
-      <EntryRows
-        entries={entries}
-        collapseRuns={collapseRuns}
-        onExpand={onExpand}
-      />
-    );
-  const count = entries.reduce(
-    (n, entry) => n + (entry.type === "step" ? 1 : entry.steps.length),
-    0,
-  );
-  return (
-    <li data-slot="run-timeline-fold" className="flex min-w-0">
-      <Button
-        size="xs"
-        variant="ghost"
-        className="-ms-2 text-muted-foreground"
-        onClick={() => setOpen(true)}
-      >
-        {count === 1 ? "1 more step" : `${count} more steps`}
-      </Button>
-    </li>
-  );
-}
+const entrySteps = (entry: Entry) =>
+  entry.type === "step" ? [entry.step] : entry.steps;
 
 function StepList({
   steps,
@@ -480,7 +389,69 @@ function StepList({
   nested?: boolean;
   label?: string;
 }) {
+  // What someone opened, by step id: the steps of a fold (`folds`) and the rows past the budget
+  // (`rest`). Kept by id, and every row is one keyed child of this list, so when a fold splits
+  // around a step that turns live or fails, nothing re-folds or remounts (open details, focus).
+  const [opened, setOpened] = React.useState<{
+    folds: ReadonlySet<string>;
+    rest: ReadonlySet<string>;
+  }>(() => ({ folds: new Set(), rest: new Set() }));
+  const open = (key: "folds" | "rest", from: RunTimelineStep[]) =>
+    setOpened((prev) => ({
+      ...prev,
+      [key]: new Set([...prev[key], ...from.map((step) => step.id)]),
+    }));
+  const row = (step: RunTimelineStep) => (
+    <StepRow
+      key={step.id}
+      step={step}
+      collapseRuns={collapseRuns}
+      onExpand={onExpand}
+    />
+  );
+  const rows: React.ReactNode[] = [];
+  const addEntry = (entry: Entry) => {
+    if (entry.type === "step") {
+      rows.push(row(entry.step));
+      return;
+    }
+    for (const part of hideBetween(entry.steps, (step) =>
+      opened.folds.has(step.id),
+    ))
+      rows.push(
+        part.shown ? (
+          row(part.item)
+        ) : (
+          <MoreSteps
+            key={`fold-${part.items[0]!.id}`}
+            count={part.items.length}
+            onOpen={() => open("folds", part.items)}
+          />
+        ),
+      );
+  };
   const entries = fold(steps, collapseRuns);
+  entries.slice(0, ROW_BUDGET).forEach(addEntry);
+  // Past the budget, rows wait behind one "N more steps", except a step that stays open.
+  for (const part of hideBetween(
+    entries.slice(ROW_BUDGET),
+    (entry) =>
+      (entry.type === "step" && staysOpen(entry.step)) ||
+      entrySteps(entry).some((step) => opened.rest.has(step.id)),
+  )) {
+    if (part.shown) {
+      addEntry(part.item);
+      continue;
+    }
+    const hidden = part.items.flatMap(entrySteps);
+    rows.push(
+      <MoreSteps
+        key={`rest-${hidden[0]!.id}`}
+        count={hidden.length}
+        onOpen={() => open("rest", hidden)}
+      />,
+    );
+  }
   return (
     <ol
       aria-label={nested ? `Steps of ${label}` : "Steps"}
@@ -490,31 +461,7 @@ function StepList({
         nested ? "ms-1 mt-1" : "ms-1.5",
       )}
     >
-      <EntryRows
-        entries={entries.slice(0, ROW_BUDGET)}
-        collapseRuns={collapseRuns}
-        onExpand={onExpand}
-      />
-      {hideBetween(
-        entries.slice(ROW_BUDGET),
-        (entry) => entry.type === "step" && staysOpen(entry.step),
-      ).map((part) =>
-        part.shown ? (
-          <EntryRows
-            key={entryKey(part.item)}
-            entries={[part.item]}
-            collapseRuns={collapseRuns}
-            onExpand={onExpand}
-          />
-        ) : (
-          <Rest
-            key={entryKey(part.items[0]!)}
-            entries={part.items}
-            collapseRuns={collapseRuns}
-            onExpand={onExpand}
-          />
-        ),
-      )}
+      {rows}
     </ol>
   );
 }

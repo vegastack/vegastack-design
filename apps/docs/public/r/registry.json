@@ -19744,7 +19744,7 @@
         "whenToUse": "A run's own page: what an agent did, step by step, with what it cost.",
         "whenNotToUse": "A chat turn's work (WorkLog), or a list of runs (DataList).",
         "version": "0.123.2",
-        "integrity": "sha256-L3EdWnSgyESj56QW4metBjplULdAnFMsKqoIRd2A9hY="
+        "integrity": "sha256-7k+owuWAr6AE1ZEsXpdOTNUEdH/71H7ccN8eUT5Xj24="
       }
     },
     {

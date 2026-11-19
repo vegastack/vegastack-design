@@ -281,3 +281,45 @@ test("running, waiting and failed steps never fold; the fold splits around them"
     .toBeVisible();
   await expectNoA11yViolations(screen.container);
 });
+
+test("an opened fold stays open when a step in it turns live; a branch opens when it turns live", async () => {
+  const run = (live: boolean) =>
+    Array.from({ length: 12 }, (_, index) =>
+      tool(String(index), {
+        status: live && index === 8 ? "running" : "done",
+        detail: index === 10 ? <p>Step ten's output</p> : undefined,
+      }),
+    );
+  const branch = (live: boolean): RunTimelineStep[] => [
+    {
+      id: "s",
+      kind: "subagent",
+      title: "Supplier research",
+      status: "done",
+      startedAt: at,
+      children: [tool("a"), tool("b", { status: live ? "failed" : "done" })],
+    },
+  ];
+  const screen = await render(
+    <>
+      <RunTimeline steps={run(false)} />
+      <RunTimeline steps={branch(false)} />
+    </>,
+  );
+  await page.getByRole("button", { name: "7 more steps" }).click();
+  await page.getByRole("button", { name: "Details" }).click();
+  await expect.element(page.getByText("Step ten's output")).toBeVisible();
+  await screen.rerender(
+    <>
+      <RunTimeline steps={run(true)} />
+      <RunTimeline steps={branch(true)} />
+    </>,
+  );
+  await expect.element(page.getByText("Step ten's output")).toBeVisible();
+  expect(
+    screen.container.querySelectorAll('[data-slot="run-timeline-fold"]'),
+  ).toHaveLength(0);
+  await expect
+    .element(page.getByRole("list", { name: "Steps of Supplier research" }))
+    .toBeVisible();
+});
