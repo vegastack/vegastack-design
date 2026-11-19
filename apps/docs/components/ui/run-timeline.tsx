@@ -1,4 +1,4 @@
-// @vegastack run-timeline@0.123.2 sha256-3AFuEhwW+hSds3NOIviiZBxg8Dd6euHzbuvCtOuS02k=
+// @vegastack run-timeline@0.123.2 sha256-L3EdWnSgyESj56QW4metBjplULdAnFMsKqoIRd2A9hY=
 
 "use client";
 
@@ -17,7 +17,8 @@ import { TextSpinner } from "@/components/ui/text-spinner";
  * guide down the side and no per-row icon. A run page adds only what it needs on top: an ordered
  * list, per-step cost, the permission decision with "Why?", Undo, a delivery that isn't known yet,
  * and folding. The run's live state is one bolt in its header line, never one per row. Long runs of
- * tool steps fold, so a thousand steps stay a short page until opened.
+ * tool steps fold, so a thousand steps stay a short page until opened; a step that is running,
+ * waiting or broke never folds, so what is happening now and what went wrong stay in view.
  * ----------------------------------------------------------------------------------------------*/
 
 /** What a step is. */
@@ -73,7 +74,7 @@ export interface RunTimelineProps {
   steps: RunTimelineStep[];
   /** The run's summary at the header's end, such as a `RunUsageChip`. @default undefined */
   summary?: React.ReactNode;
-  /** Consecutive tool steps shown before the rest fold into "N more steps". @default 5 */
+  /** Consecutive tool steps shown before the rest fold into "N more steps"; running, waiting and failed steps never fold. @default 5 */
   collapseRuns?: number;
   /** A step's detail was opened. @default undefined */
   onExpand?: (stepId: string) => void;
@@ -110,7 +111,44 @@ const STATUS_WORDS: Partial<Record<RunStepStatus, string>> = {
   delivery_unknown: "Delivery unknown · checking before any retry",
 };
 
-/** Turns a step list into rows and folds: tool steps past `limit` in a row fold together. */
+/**
+ * True when a step must stay in view: it is running or waiting (what is happening now), it broke,
+ * or one of its own steps is in one of those states.
+ */
+function staysOpen(step: RunTimelineStep): boolean {
+  return (
+    step.status === "running" ||
+    step.status === "waiting" ||
+    step.status === "failed" ||
+    step.kind === "error" ||
+    (step.children?.some(staysOpen) ?? false)
+  );
+}
+
+/** Splits `items` into the ones shown and runs of the rest, kept in order. */
+function hideBetween<T>(
+  items: T[],
+  shown: (item: T, index: number) => boolean,
+): ({ shown: true; item: T } | { shown: false; items: T[] })[] {
+  const out: ({ shown: true; item: T } | { shown: false; items: T[] })[] = [];
+  let hidden: T[] = [];
+  items.forEach((item, index) => {
+    if (!shown(item, index)) {
+      hidden.push(item);
+      return;
+    }
+    if (hidden.length) out.push({ shown: false, items: hidden });
+    hidden = [];
+    out.push({ shown: true, item });
+  });
+  if (hidden.length) out.push({ shown: false, items: hidden });
+  return out;
+}
+
+/**
+ * Turns a step list into rows and folds: tool steps past `limit` in a row fold together, except a
+ * step that stays open, which splits the fold around itself.
+ */
 function fold(
   steps: RunTimelineStep[],
   limit: number,
@@ -121,9 +159,15 @@ function fold(
   const out: ReturnType<typeof fold> = [];
   let run: RunTimelineStep[] = [];
   const flush = () => {
-    run.slice(0, limit).forEach((step) => out.push({ type: "step", step }));
-    if (run.length > limit)
-      out.push({ type: "fold", key: run[limit]!.id, steps: run.slice(limit) });
+    for (const part of hideBetween(
+      run,
+      (step, index) => index < limit || staysOpen(step),
+    ))
+      out.push(
+        part.shown
+          ? { type: "step", step: part.item }
+          : { type: "fold", key: part.items[0]!.id, steps: part.items },
+      );
     run = [];
   };
   for (const step of steps) {
@@ -157,10 +201,16 @@ function StepRow({
   onExpand?: (stepId: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
-  // A running branch starts open: what is happening now is never hidden.
-  const [nestedOpen, setNestedOpen] = React.useState(
-    () => step.status === "running" || step.status === "waiting",
-  );
+  // A branch that is running or waiting, or holds a step that is or broke, opens and stays open:
+  // what is happening now and what went wrong are never hidden, including when it starts later.
+  const [nestedOpen, setNestedOpen] = React.useState(false);
+  if (
+    !nestedOpen &&
+    (step.status === "running" ||
+      step.status === "waiting" ||
+      (step.children?.some(staysOpen) ?? false))
+  )
+    setNestedOpen(true);
   const detailId = React.useId();
   const failed = step.status === "failed" || step.kind === "error";
   const words = STATUS_WORDS[step.status];
@@ -345,6 +395,9 @@ const ROW_BUDGET = 25;
 
 type Entry = ReturnType<typeof fold>[number];
 
+const entryKey = (entry: Entry) =>
+  entry.type === "step" ? entry.step.id : entry.key;
+
 function EntryRows({
   entries,
   collapseRuns,
@@ -377,7 +430,7 @@ function EntryRows({
   );
 }
 
-/** The rows past the budget, behind one "N more steps" until opened. */
+/** Rows past the budget, behind one "N more steps" until opened; steps that stay open sit between. */
 function Rest({
   entries,
   collapseRuns,
@@ -442,13 +495,26 @@ function StepList({
         collapseRuns={collapseRuns}
         onExpand={onExpand}
       />
-      {entries.length > ROW_BUDGET ? (
-        <Rest
-          entries={entries.slice(ROW_BUDGET)}
-          collapseRuns={collapseRuns}
-          onExpand={onExpand}
-        />
-      ) : null}
+      {hideBetween(
+        entries.slice(ROW_BUDGET),
+        (entry) => entry.type === "step" && staysOpen(entry.step),
+      ).map((part) =>
+        part.shown ? (
+          <EntryRows
+            key={entryKey(part.item)}
+            entries={[part.item]}
+            collapseRuns={collapseRuns}
+            onExpand={onExpand}
+          />
+        ) : (
+          <Rest
+            key={entryKey(part.items[0]!)}
+            entries={part.items}
+            collapseRuns={collapseRuns}
+            onExpand={onExpand}
+          />
+        ),
+      )}
     </ol>
   );
 }

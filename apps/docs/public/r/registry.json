@@ -1067,7 +1067,7 @@
         "whenToUse": "Cross-column card movement — pipelines, kanban, staged workflows — where the host owns ordering and the move can be refused by a server gate; lanes may be partially loaded (count shows the total) and cards may be links to their records.",
         "whenNotToUse": "Single-list reordering (sortable-list), tabular data (data-list/data-grid), or static column layouts with no movement (plain Cards in a flex row).",
         "version": "0.123.2",
-        "integrity": "sha256-ojKYsxi6ViR4jatPptigil7nBwG8X/tKtS53iOqyhGI="
+        "integrity": "sha256-T5tI1E4oPyiaAHoOOq+mBoh2yVxLNhczFTZOWqoneOY="
       }
     },
     {
@@ -18498,7 +18498,7 @@
         "whenToUse": "A Select-shaped searchable picker: one or several values, option descriptions and disabled reasons, and server search with paging (remote + useAsyncSearch).",
         "whenNotToUse": "A short fixed option set (Select), free text with suggestions (Combobox directly), or multi-select (Combobox with chips).",
         "version": "0.123.2",
-        "integrity": "sha256-Y/2BCzGHlVoX/ozdgON2OBQi1vYf+RBIy1u0j8twQs8="
+        "integrity": "sha256-ciTKuXQgUZKipH3H1I9MdimxDImHE7JuSt/QeicXyek="
       }
     },
     {
@@ -19744,7 +19744,7 @@
         "whenToUse": "A run's own page: what an agent did, step by step, with what it cost.",
         "whenNotToUse": "A chat turn's work (WorkLog), or a list of runs (DataList).",
         "version": "0.123.2",
-        "integrity": "sha256-3AFuEhwW+hSds3NOIviiZBxg8Dd6euHzbuvCtOuS02k="
+        "integrity": "sha256-L3EdWnSgyESj56QW4metBjplULdAnFMsKqoIRd2A9hY="
       }
     },
     {

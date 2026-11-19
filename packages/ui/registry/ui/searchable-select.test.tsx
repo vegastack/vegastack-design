@@ -97,6 +97,32 @@ test("pointer click and keyboard Enter report the same value", async () => {
   expect(onKeyboard.mock.calls).toEqual(onPointer.mock.calls);
 });
 
+test("with no search field, a reopened list shows every option after another pick", async () => {
+  function Controlled() {
+    const [value, setValue] = React.useState<Project | null>(PROJECTS[0]!);
+    return (
+      <Picker
+        aria-label="Group by"
+        searchable={false}
+        value={value}
+        onValueChange={(next) => setValue(next as Project | null)}
+      />
+    );
+  }
+  const screen = await render(<Controlled />);
+  const trigger = screen.getByRole("combobox", { name: "Group by" });
+  const options = () =>
+    [...document.querySelectorAll('[role="option"]')].map(
+      (option) => option.textContent,
+    );
+  await trigger.click();
+  await screen.getByRole("option", { name: "Cinder" }).click();
+  await expect.element(trigger).toHaveTextContent("Cinder");
+  await trigger.click();
+  await expect.poll(options).toEqual(["Atlas", "Borealis", "Cinder"]);
+  await userEvent.keyboard("{Escape}");
+});
+
 test("the clear control appears only when clearable AND a value is set", async () => {
   const screen = await render(
     <>

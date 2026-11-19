@@ -208,3 +208,76 @@ test("a finished subagent's steps start folded; opening shows them", async () =>
     .element(page.getByRole("list", { name: "Steps of Research" }))
     .toBeVisible();
 });
+
+test("running, waiting and failed steps never fold; the fold splits around them", async () => {
+  const steps = Array.from({ length: 40 }, (_, index) => tool(String(index)));
+  steps[20] = tool("20", { status: "failed" });
+  steps[39] = tool("39", { status: "running" });
+  const mixed: RunTimelineStep[] = Array.from({ length: 1000 }, (_, index) =>
+    index % 2
+      ? tool(`m${index}`)
+      : {
+          id: `m${index}`,
+          kind: "turn",
+          title: `Thought ${index}`,
+          status: "done",
+          startedAt: at,
+        },
+  );
+  mixed[900] = {
+    id: "m900",
+    kind: "error",
+    title: "Gmail refused the send",
+    status: "failed",
+    startedAt: at,
+  };
+  mixed[999] = tool("m999", { status: "waiting" });
+  const screen = await render(
+    <>
+      <RunTimeline steps={steps} />
+      <RunTimeline steps={mixed} />
+      <RunTimeline
+        steps={[
+          {
+            id: "s",
+            kind: "subagent",
+            title: "Supplier research",
+            status: "done",
+            startedAt: at,
+            children: [tool("a"), tool("b", { status: "failed" })],
+          },
+        ]}
+      />
+    </>,
+  );
+  const [run, long] = screen.container.querySelectorAll(
+    '[data-slot="run-timeline"]',
+  );
+  const ids = (root: Element) =>
+    [...root.querySelectorAll('[data-slot="run-timeline-step"]')].map(
+      (row) =>
+        row.querySelector('[data-slot="run-timeline-title"]')!.textContent,
+    );
+  expect(ids(run!)).toEqual([
+    "Read file 0",
+    "Read file 1",
+    "Read file 2",
+    "Read file 3",
+    "Read file 4",
+    "Read file 20",
+    "Read file 39",
+  ]);
+  expect(
+    [...run!.querySelectorAll('[data-slot="run-timeline-fold"]')].map(
+      (fold) => fold.textContent,
+    ),
+  ).toEqual(["15 more steps", "18 more steps"]);
+  expect(ids(long!)).toContain("Gmail refused the send");
+  expect(ids(long!)).toContain("Read file m999");
+  expect(long!.querySelectorAll("*").length).toBeLessThan(250);
+  // A finished branch that holds a broken step starts open.
+  await expect
+    .element(page.getByRole("list", { name: "Steps of Supplier research" }))
+    .toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});
