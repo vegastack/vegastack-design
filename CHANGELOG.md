@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.123.0] — November 19, 2026
+
+<!-- assembled from 1 changeset: f3e181f2166c -->
+
+### 🧩 New components
+
+- **RunTimeline**, **RoutineRow**, **DelegateRow**, **CoverageBanner**. `RunTimeline` shows an agent run's steps in the chat work log's anatomy, adding only what a run page needs: per-step cost, the permission decision with "Why?", Undo, "Delivery unknown · checking before any retry", nested subagent steps, one live bolt for the whole run and folding of long tool runs ("38 more steps"). `RoutineRow` is one routine: name, schedule, next runs, owner, destination, last run, Run now and a ⋯ with Skip next and Pause or Resume. `DelegateRow` is one delegate in `MemberList`'s 36px row anatomy, with what and when, a note, the state and Edit or End. `CoverageBanner` says who covers, as a quiet strip with one action or a muted line under a name.
+  [`3591b7d`](https://github.com/VegaStack/vegastack-design/commit/3591b7d)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.122.0 → 0.123.0.
+
 ## [0.122.0] — November 19, 2026
 
 <!-- assembled from 2 changesets: 753a574e38c1 -->

@@ -1,4 +1,4 @@
-// @vegastack routine-row@0.120.0 sha256-IdYhb6XbHbrRstIg0PTlIgS4NumbVKbXKO/P5kO/Bio=
+// @vegastack routine-row@0.123.0 sha256-syvcnLiUYvtQxAgT9iZh5py/LGXZAKAm3Fvu6LLYZc4=
 
 "use client";
 
