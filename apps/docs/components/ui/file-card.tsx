@@ -1,4 +1,4 @@
-// @vegastack file-card@0.123.2 sha256-s0shCQ37eD8cqlhXZxbnAvnIreOpEK3p4Ft+hos8ZW8=
+// @vegastack file-card@0.123.2 sha256-/lH5CnNBGiF70n+i5gH4MAcvP3SwW7WoLGTQw0mb4uw=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -132,7 +132,7 @@ export interface FileCardProps {
   /**
    * `card` — a bordered tile for a grid or list of files; `row` — a side panel's file row: 44px,
    * borderless, a 20px type icon or thumbnail, the name, one muted meta line (`descriptions`
-   * joined with " · "), an optional `source` icon right after the name, and its actions only on
+   * joined with " · "), an optional `source` icon just before the name, and its actions only on
    * hover or focus (always on touch), taking no room until then. A row renders its own `<li>`: put rows in a `RecordPanelList`, so they share the
    * other rows' left edge.
    * @default "card"
@@ -140,7 +140,7 @@ export interface FileCardProps {
   variant?: "card" | "row";
   /**
    * `row`: where the file came from — a comment, the Library — as a 14px icon on the name's line,
-   * right after it, named by its tooltip.
+   * just before the name, named by its tooltip.
    * @default undefined
    */
   source?: FileCardSource | null;
@@ -265,9 +265,9 @@ export function FileCard({
       </AttachmentMedia>
       <AttachmentContent>
         {row && source ? (
-          // The source rides the name's line, a 14px mark right after it: no column of its own.
+          // The source rides the name's line, a 14px mark just before the name: no column of its
+          // own, and never at the row's centre, where the row's open button must own the pointer.
           <span className="flex min-w-0 items-center gap-1">
-            <AttachmentTitle className="font-normal">{name}</AttachmentTitle>
             <Tooltip>
               <TooltipTrigger
                 render={
@@ -277,7 +277,7 @@ export function FileCard({
                     tabIndex={0}
                     aria-label={source.label}
                     data-slot="file-card-source"
-                    className="relative z-20 inline-flex size-5 shrink-0 items-center justify-center rounded-icon text-muted-foreground outline-none [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5"
+                    className="relative z-20 inline-flex size-4.5 shrink-0 items-center justify-center rounded-icon text-muted-foreground outline-none after:absolute after:-inset-0.75 after:content-[''] [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-3.5"
                   />
                 }
               >
@@ -285,6 +285,7 @@ export function FileCard({
               </TooltipTrigger>
               <TooltipContent>{source.label}</TooltipContent>
             </Tooltip>
+            <AttachmentTitle className="font-normal">{name}</AttachmentTitle>
           </span>
         ) : (
           <AttachmentTitle className={row ? "font-normal" : undefined}>

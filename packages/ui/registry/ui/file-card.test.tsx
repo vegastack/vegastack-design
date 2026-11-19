@@ -443,13 +443,16 @@ test("row: 44px and borderless, a 20px icon, one meta line, the source beside th
   await expect
     .element(screen.getByRole("img", { name: "From a comment" }))
     .toBeVisible();
-  // The source rides the name's line, right after the name.
+  // The source rides the name's line, just before the name.
   const title = slot(row, "attachment-title")!.getBoundingClientRect();
   const source = slot(row, "file-card-source")!.getBoundingClientRect();
   expect(
     Math.abs(source.top + source.height / 2 - (title.top + title.height / 2)),
   ).toBeLessThan(2);
-  expect(Math.round(source.left - title.right)).toBe(4);
+  expect(Math.round(title.left - source.right)).toBe(4);
+  // With the pointer away from the row, its actions are at rest.
+  await userEvent.unhover(row);
+
   // At rest the actions take no room at all; focus within the row brings them in.
   const actions = slot(row, "attachment-actions")!;
   expect(getComputedStyle(actions).display).toBe("none");
