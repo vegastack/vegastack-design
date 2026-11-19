@@ -89,10 +89,10 @@ describe("toast content geometry", () => {
         '[data-slot="toast-close"]',
       );
       expect(root && row && copy && close).toBeTruthy();
-      // Upstream pads the CONTENT row (`p-4`), not the root — the root owns the stack
-      // transform and the measured height. Same claim, the element that actually carries it.
-      // 16px is also BRD-12's arithmetic: 1 + 16 puts the close past the card's 16px corner.
-      expect(getComputedStyle(row!).paddingTop).toBe("16px");
+      // Upstream pads the CONTENT row, not the root — the root owns the stack transform and the
+      // measured height. 12px, not upstream's 16px (BRD-12, operator 2026-11-20: the toast keeps
+      // staging's height); the close sits centred on the row, well clear of the card's corner.
+      expect(getComputedStyle(row!).paddingTop).toBe("12px");
       const center = (element: Element) => {
         const rect = element.getBoundingClientRect();
         return rect.top + rect.height / 2;

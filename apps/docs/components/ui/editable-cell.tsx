@@ -1,4 +1,4 @@
-// @vegastack editable-cell@0.117.0 sha256-PCJ5LiY1ZbZhMDE/n032ZJp1uJsyRki+tMCh4xot/WA=
+// @vegastack editable-cell@0.117.0 sha256-78XtSnKDvCu5j9JWyffYUCQQyo8n+0PJUa8RYofHjxE=
 
 "use client";
 
@@ -804,6 +804,9 @@ function InlineTextBody({
       data-editing={isEditing ? "" : undefined}
       data-read-only-hint={readOnlyHint && interactive ? "" : undefined}
       data-variant={fill ? "cell" : wrapping ? "wrap" : "inline"}
+      // An editable value with nothing in it: a host can draw it as its empty picker (a side
+      // panel's dashed capsule, `PropertyList variant="panel"`).
+      data-empty={interactive && !hasDisplayValue ? "" : undefined}
       role={interactive ? "button" : undefined}
       tabIndex={interactive ? (disabled ? -1 : tabIndex) : undefined}
       aria-disabled={disabled && !readOnly ? true : undefined}

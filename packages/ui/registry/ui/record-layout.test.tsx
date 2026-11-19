@@ -342,3 +342,44 @@ test("a reveal asked before the record is measured opens where it ends up: float
   expect(panel.getAttribute("data-surface")).toBe("overlay");
   expect(screen.getByText("rollout-plan.pdf").element()).toBeVisible();
 });
+
+test("a row's action takes the detail's place on hover or focus, and no room at rest", async () => {
+  const screen = await render(
+    <RecordPanelList style={{ width: 288 }}>
+      <RecordPanelItem
+        detail="Created"
+        action={
+          <button
+            type="button"
+            aria-label="Stop watching"
+            style={{ width: 24, height: 24 }}
+          >
+            ×
+          </button>
+        }
+      >
+        You
+      </RecordPanelItem>
+    </RecordPanelList>,
+  );
+  const item = screen.container.querySelector<HTMLElement>(
+    '[data-slot="record-panel-item"]',
+  )!;
+  const detail = screen.container.querySelector<HTMLElement>(
+    '[data-slot="record-panel-item-detail"]',
+  )!;
+  const action = screen.container.querySelector<HTMLElement>(
+    '[data-slot="record-panel-item-action"]',
+  )!;
+  // At rest: the detail ends the row, 8px in; the action is transparent and takes no layout room.
+  expect(
+    Math.round(
+      item.getBoundingClientRect().right - detail.getBoundingClientRect().right,
+    ),
+  ).toBe(8);
+  expect(getComputedStyle(action).opacity).toBe("0");
+  await userEvent.tab();
+  await expect.poll(() => getComputedStyle(action).opacity).toBe("1");
+  expect(getComputedStyle(detail).display).toBe("none");
+  await expectNoA11yViolations(screen.container);
+});

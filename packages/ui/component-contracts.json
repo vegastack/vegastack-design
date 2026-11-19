@@ -42123,7 +42123,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["record-panel-item-detail", "record-panel-list-item"]
+              "values": [
+                "record-panel-item-action",
+                "record-panel-item-detail",
+                "record-panel-list-item"
+              ]
             }
           ],
           "cssVariables": []
@@ -48023,6 +48027,10 @@
       "dataAttributes": {
         "SpaceChip": {
           "attributes": [
+            {
+              "name": "data-chip",
+              "values": []
+            },
             {
               "name": "data-empty",
               "values": [""]

@@ -1,8 +1,15 @@
+import "../../test/geometry.css";
 import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { SpaceChip, SpacePicker, type SpacePickerItem } from "./space-picker";
+import {
+  PropertyLabel,
+  PropertyList,
+  PropertyRow,
+  PropertyValue,
+} from "./property-list";
 
 const SPACES: SpacePickerItem[] = [
   { id: "general", space: { name: "General", access: "open", hue: "blue" } },
@@ -126,4 +133,57 @@ test("a read-only title chip keeps the outlined shape without a chevron, and tak
   expect(chip.getAttribute("aria-describedby")).toBe("why");
   chip.focus();
   expect(onFocus).toHaveBeenCalled();
+});
+
+test("a ghost SpaceChip in a panel row starts where other values do, a capsule, its ▾ shown only on hover; read-only it is a link in the text colour", async () => {
+  const screen = await render(
+    <PropertyList variant="panel" style={{ width: 320 }}>
+      <PropertyRow>
+        <PropertyLabel>Status</PropertyLabel>
+        <PropertyValue>Open</PropertyValue>
+      </PropertyRow>
+      <PropertyRow>
+        <PropertyLabel>Space</PropertyLabel>
+        <PropertyValue>
+          <SpaceChip variant="ghost" space={SPACES[0]!.space} />
+        </PropertyValue>
+      </PropertyRow>
+      <PropertyRow>
+        <PropertyLabel>In</PropertyLabel>
+        <PropertyValue>
+          <SpaceChip
+            variant="ghost"
+            readOnly
+            href="/spaces/general"
+            space={SPACES[0]!.space}
+          />
+        </PropertyValue>
+      </PropertyRow>
+    </PropertyList>,
+  );
+  const values = screen.container.querySelectorAll(
+    '[data-slot="property-value"]',
+  );
+  const column = values[0]!.getBoundingClientRect().left;
+  const [chip, link] = screen.container.querySelectorAll<HTMLElement>(
+    '[data-slot="space-chip"]',
+  );
+  // 6px of padding hung outside the value: the tile starts on the value column.
+  const tile = chip!.firstElementChild!.getBoundingClientRect().left;
+  expect(Math.round(tile - column)).toBe(0);
+  // The ghost chips' capsule, not a button's 8px corner.
+  expect(
+    parseFloat(getComputedStyle(chip!).borderTopLeftRadius),
+  ).toBeGreaterThanOrEqual(12);
+  expect(Math.round(chip!.getBoundingClientRect().height)).toBe(24);
+  const chevron = chip!.querySelector('[data-slot="space-chip-chevron"]')!;
+  expect(getComputedStyle(chevron).opacity).toBe("0");
+  await userEvent.hover(chip!);
+  await expect.poll(() => getComputedStyle(chevron).opacity).toBe("1");
+  expect(link!.tagName).toBe("A");
+  expect(link!.getAttribute("href")).toBe("/spaces/general");
+  expect(getComputedStyle(link!).color).toBe(
+    getComputedStyle(values[0]!).color,
+  );
+  await expectNoA11yViolations(screen.container);
 });

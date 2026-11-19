@@ -414,7 +414,7 @@ test("a menu action's shortcut key picks it", async () => {
   expect(onSelect).toHaveBeenCalledTimes(1);
 });
 
-test("row: 44px and borderless, a 20px icon, one meta line, a named source, and actions only on hover or focus", async () => {
+test("row: 44px and borderless, a 20px icon, one meta line, the source beside the name, and actions only on hover or focus", async () => {
   const screen = await render(
     <ul>
       <FileCard
@@ -443,9 +443,17 @@ test("row: 44px and borderless, a 20px icon, one meta line, a named source, and 
   await expect
     .element(screen.getByRole("img", { name: "From a comment" }))
     .toBeVisible();
+  // The source rides the name's line, right after the name.
+  const title = slot(row, "attachment-title")!.getBoundingClientRect();
+  const source = slot(row, "file-card-source")!.getBoundingClientRect();
+  expect(
+    Math.abs(source.top + source.height / 2 - (title.top + title.height / 2)),
+  ).toBeLessThan(2);
+  expect(Math.round(source.left - title.right)).toBe(4);
+  // At rest the actions take no room at all; focus within the row brings them in.
   const actions = slot(row, "attachment-actions")!;
-  expect(getComputedStyle(actions).opacity).toBe("0");
+  expect(getComputedStyle(actions).display).toBe("none");
   await userEvent.tab();
-  await expect.poll(() => getComputedStyle(actions).opacity).toBe("1");
+  await expect.poll(() => getComputedStyle(actions).display).toBe("flex");
   await expectNoA11yViolations(screen.container);
 });

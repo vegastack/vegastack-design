@@ -1,4 +1,4 @@
-// @vegastack space-picker@0.117.0 sha256-9D8QPy/gwNuF1zvfvMS1GU69KdLzyyAJ05Raykv1UuQ=
+// @vegastack space-picker@0.117.0 sha256-YqK4qbH1P75Y3TI+GlDDsFaKfmoqkZf44e+I+tWdT70=
 
 "use client";
 
@@ -81,6 +81,16 @@ export interface SpaceChipProps extends Omit<
    * shape, without the ▾. @default false
    */
   readOnly?: boolean;
+  /**
+   * `ghost` — the space as a `PropertyValue`, the `RecordChip variant="ghost"` look: the name in
+   * the value's ink and size, a 24px capsule tint just around it on hover, the ▾ laid out but
+   * shown only on hover, focus or while its picker is open. `PropertyValue` hangs it into the
+   * gutter, so its tile starts where every other value's text or icon does. Read-only, it is the
+   * same box without a ▾; give it an `href` and it is a link with the same hover. @default "default"
+   */
+  variant?: "default" | "ghost";
+  /** Read-only only: where the space opens; the chip renders as a link. @default undefined */
+  href?: string;
 }
 
 /**
@@ -90,6 +100,7 @@ export interface SpaceChipProps extends Omit<
  * @example
  * <SpaceChip space={{ name: "General", access: "open", hue: "blue" }} />
  * <SpaceChip size="xs" readOnly space={task.space} hint={task.spaceHint} />
+ * <PropertyValue><SpaceChip variant="ghost" readOnly href="/spaces/general" space={space} /></PropertyValue>
  */
 export function SpaceChip({
   space,
@@ -97,10 +108,13 @@ export function SpaceChip({
   placeholder = "Choose a space",
   size = "sm",
   readOnly = false,
+  variant = "default",
+  href,
   className,
   type = "button",
   ...props
 }: SpaceChipProps) {
+  const ghost = variant === "ghost";
   const tile = space ? (
     <IconGlyph
       fallback={
@@ -138,23 +152,24 @@ export function SpaceChip({
     // so a read-only chip can carry a tooltip that explains where the record lives.
     const { ref, ...spanProps } = props;
     void type;
-    return (
-      <span
-        ref={ref as React.Ref<HTMLSpanElement>}
-        {...(spanProps as React.HTMLAttributes<HTMLSpanElement>)}
-        data-slot="space-chip"
-        data-size={size}
-        data-readonly=""
-        className={cn(
-          "inline-flex max-w-full min-w-0 items-center gap-1.5 text-muted-foreground [&_svg:not([class*='size-'])]:size-3.5",
-          size === "xs" ? "text-xs" : "text-sm",
-          // `title`: the outlined chip's shape without its ▾ — the same chip a create dialog's
-          // header leads with, shown where the record cannot be moved.
-          size === "title" &&
-            "h-7 rounded-chip border border-border bg-background ps-1.5 pe-2.5 font-medium text-foreground dark:border-input dark:bg-input/30",
-          className,
-        )}
-      >
+    const readOnlyClassName = cn(
+      "inline-flex max-w-full min-w-0 items-center gap-1.5 text-muted-foreground [&_svg:not([class*='size-'])]:size-3.5",
+      size === "xs" ? "text-xs" : "text-sm",
+      // `title`: the outlined chip's shape without its ▾ — the same chip a create dialog's
+      // header leads with, shown where the record cannot be moved.
+      size === "title" &&
+        "h-7 rounded-chip border border-border bg-background ps-1.5 pe-2.5 font-medium text-foreground dark:border-input dark:bg-input/30",
+      // Ghost: a value like any other — the text colour at the value's size, in the ghost chip's
+      // 24px capsule (a tint on hover only where it is a link or a tooltip's trigger).
+      ghost &&
+        "h-6 rounded-chip px-1.5 text-sm text-foreground no-underline outline-none",
+      ghost &&
+        (href !== undefined || spanProps.tabIndex !== undefined) &&
+        "state-layer",
+      className,
+    );
+    const content = (
+      <>
         {tile}
         {name}
         {space?.access === "private" ? (
@@ -164,6 +179,34 @@ export function SpaceChip({
             className="size-3 shrink-0 text-muted-foreground"
           />
         ) : null}
+      </>
+    );
+    if (href !== undefined)
+      return (
+        <a
+          ref={ref as React.Ref<HTMLAnchorElement>}
+          {...(spanProps as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+          href={href}
+          data-slot="space-chip"
+          data-size={size}
+          data-chip={variant}
+          data-readonly=""
+          className={readOnlyClassName}
+        >
+          {content}
+        </a>
+      );
+    return (
+      <span
+        ref={ref as React.Ref<HTMLSpanElement>}
+        {...(spanProps as React.HTMLAttributes<HTMLSpanElement>)}
+        data-slot="space-chip"
+        data-size={size}
+        data-chip={variant}
+        data-readonly=""
+        className={readOnlyClassName}
+      >
+        {content}
       </span>
     );
   }
@@ -175,12 +218,17 @@ export function SpaceChip({
       type={type}
       data-slot="space-chip"
       data-size={size}
+      data-chip={variant}
       data-empty={space ? undefined : ""}
       className={cn(
         "max-w-full min-w-0 justify-start gap-1.5 px-1.5 font-normal text-foreground has-data-[icon=inline-end]:pe-1",
         size === "sm" && "text-sm",
         // The outlined chip a create dialog leads with: the read-only chip's pill shape.
         size === "title" && "rounded-chip ps-1.5 pe-2 text-sm font-medium",
+        // Ghost: `RecordChip variant="ghost"`'s 24px capsule and 6px padding; its ▾ is laid out
+        // at rest (so nothing moves) and shows on hover, focus or while the picker is open.
+        ghost &&
+          "group/space-chip h-6 rounded-chip border-0 px-1.5 has-data-[icon=inline-end]:pe-1.5",
         className,
       )}
       {...props}
@@ -198,7 +246,11 @@ export function SpaceChip({
         aria-hidden
         data-icon="inline-end"
         data-slot="space-chip-chevron"
-        className="size-3.5 text-muted-foreground"
+        className={cn(
+          "size-3.5 text-muted-foreground",
+          ghost &&
+            "opacity-0 transition-opacity duration-state group-hover/space-chip:opacity-100 group-focus-visible/space-chip:opacity-100 group-aria-expanded/space-chip:opacity-100 group-data-popup-open/space-chip:opacity-100 pointer-coarse:opacity-100",
+        )}
       />
     </Button>
   );

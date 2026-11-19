@@ -179,7 +179,8 @@ A record page adds one control after ⋯: ▥ (`RecordPanelToggle` in `ShellTopB
 hairline divider), which shows and hides its side panel ([Record Layout](/docs/components/record-layout)).
 
 Every control in the bar is ghost and 28px: Share, the Watch and ☆ toggles (the same 28px
-circle) and ⋯. Nothing in the bar is filled or outlined. A ⋯ with one action is that action's own
+circle) and ⋯, each label 14px and each icon 16px — the breadcrumb's size — whatever button size
+the page passes (the peek's `PeekActions` hold the same). Nothing in the bar is filled or outlined. A ⋯ with one action is that action's own
 button instead, and Copy link lives in Share, never alone in ⋯. Narrow, Share shows its icon alone
 (`ShellTopBarLabel`) and the members leave. There is no save status in the bar: saving is silent,
 and a failed save shows an alert with a retry in the page.

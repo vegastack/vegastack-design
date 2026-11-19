@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.117.0 sha256-aMSJ4QZ4Utlhvtmue5cmwlOUzTpokxmOurwyTPHwe2U=
+// @vegastack agent-panel@0.117.0 sha256-6NV0/J8PzB8X680nnVSaSSbX2XejU8irGx0cGsb3ojs=
 
 "use client";
 
@@ -499,7 +499,8 @@ export interface AgentSlotProps extends Omit<
 /**
  * `AgentSlot` — the Delegate property's value, on one line: the agent's hexagon, its name (which
  * gets the room and truncates last) and its state as an icon, with the word in its tooltip and
- * for screen readers. Empty, it is a ghost "Delegate to an agent…"; when
+ * for screen readers. Empty, it is the dashed "Delegate to an agent…" pill of an empty ghost
+ * `RecordChip`; when
  * the viewer can't delegate, the muted reason instead. It is a ghost button sized like a ghost
  * `RecordChip`, and hangs the same way inside a `PropertyValue`; every other prop, and the ref, go
  * (to the span in its text forms)
@@ -579,11 +580,15 @@ export function AgentSlot({
       data-state={state}
       data-empty={agent ? undefined : ""}
       className={cn(
-        "h-6 max-w-full min-w-0 justify-start gap-1.5 px-1.5 text-sm font-normal active:not-aria-[haspopup]:translate-y-0",
+        // A ghost RecordChip's 24px capsule: its tint is a pill like every other property picker's.
+        "h-6 max-w-full min-w-0 justify-start gap-1.5 rounded-chip px-1.5 text-sm font-normal active:not-aria-[haspopup]:translate-y-0",
         // Inside a PropertyValue it hangs like a ghost RecordChip: its text starts where plain
         // values do and the row keeps a text row's height.
         "in-data-[slot=property-value]:-my-0.5 in-data-[slot=property-value]:-ms-1.5",
-        !agent && "text-muted-foreground",
+        // Empty, it is the one empty picker every property shares: a dashed pill around the muted
+        // prompt, 5px of padding plus the 1px border keeping the prompt where values start.
+        !agent &&
+          "border border-dashed border-border px-1.25 text-muted-foreground",
         className,
       )}
       {...props}

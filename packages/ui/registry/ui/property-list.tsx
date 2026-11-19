@@ -1,4 +1,4 @@
-// @vegastack property-list@0.117.0 sha256-qInms7xJJ7U3pIHh2Q3rgbRHfL0wnFRGAPn1+8G0dHU=
+// @vegastack property-list@0.117.0 sha256-S6fEHDI9wOf4uVFV1FEeUO7s7UbVvKe6xMfNH0N2D9g=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -178,6 +178,9 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // status icon or avatar) starts where plain values do and its tint sits in the gutter. A row
         // holding a chip is exactly as tall as a row holding text, whatever the pane's width.
         "[&>[data-slot=record-chip][data-variant=ghost]]:-my-0.5 [&>[data-slot=record-chip][data-variant=ghost]]:-ms-1.5",
+        // A ghost SpaceChip is the same 24px capsule with 6px of padding: hung the same way, so its
+        // tile starts where a status icon or an avatar does.
+        "[&>[data-slot=space-chip][data-chip=ghost]]:-my-0.5 [&>[data-slot=space-chip][data-chip=ghost]]:-ms-1.5",
         // An inline EditableCell gets the same compact box as a ghost chip, in every state: 6px and
         // 2px of padding hung outside the value by equal negative margins, so its text starts, sits
         // and wraps exactly where a read-only value's does, and the hover/focus tint extends just
@@ -195,6 +198,10 @@ export function PropertyValue({ className, ...props }: PropertyValueProps) {
         // Panel: a plain-text value stays on its line and truncates; a value made of controls
         // (a picker, chips) keeps them unclipped, and a quiet picker hangs into the gutter as inline.
         "group-data-[variant=panel]/property-list:not-has-[>*]:truncate group-data-[variant=panel]/property-list:[&>[data-slot=button]]:-ms-2",
+        // Panel: an editable value with nothing in it is the one empty picker every panel row uses
+        // (RecordChip ghost's): a dashed capsule around the muted prompt, 24px tall, its 5px
+        // padding plus the 1px border keeping the prompt where plain values start.
+        "group-data-[variant=panel]/property-list:[&_[data-slot=editable-cell-display][data-empty]:not([data-editing])]:rounded-chip group-data-[variant=panel]/property-list:[&_[data-slot=editable-cell-display][data-empty]:not([data-editing])]:border group-data-[variant=panel]/property-list:[&_[data-slot=editable-cell-display][data-empty]:not([data-editing])]:border-dashed group-data-[variant=panel]/property-list:[&_[data-slot=editable-cell-display][data-empty]:not([data-editing])]:border-border group-data-[variant=panel]/property-list:[&_[data-slot=editable-cell-display][data-empty]:not([data-editing])]:px-1.25 group-data-[variant=panel]/property-list:[&_[data-slot=editable-cell-display][data-empty]:not([data-editing])]:py-px group-data-[variant=panel]/property-list:[&_[data-slot=editable-cell-display][data-empty]:not([data-editing])]:text-muted-foreground",
         className,
       )}
       {...props}

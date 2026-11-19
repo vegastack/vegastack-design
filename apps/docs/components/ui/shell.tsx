@@ -1,4 +1,4 @@
-// @vegastack shell@0.117.0 sha256-veSbJXbzs0c3Er2fu9UCYcrQUAfT7I2+S2cC7XcfUHM=
+// @vegastack shell@0.117.0 sha256-KU4T7Ur4z0BuONtLIhCP0YBjowDcI7dg6p7caVd7kq8=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -702,6 +702,15 @@ export interface ShellTopBarSlotProps extends React.ComponentProps<"div"> {
 const BUTTON_SHAPE =
   "*:data-[slot=button]:h-7 *:[&[aria-pressed]]:size-7 *:[&[aria-pressed]]:min-w-7 *:[&[aria-pressed]]:px-0";
 
+/**
+ * One type size for the bar's controls: a `size="sm"` Share or Toggle would otherwise read 12px
+ * with a 14px icon beside a 14px breadcrumb and the 16px icons of ⋯ and ▥. Every label is 14px
+ * and every icon without its own size 16px, whichever button size a page passes. `PeekActions`
+ * carries the same rule, so a record's controls look alike in the bar and in the peek's header.
+ */
+const CONTROL_TYPE =
+  "[&_:is([data-slot=button],[data-slot=toggle])]:text-sm [&_[data-slot]_svg:not([class*='size-'])]:size-4";
+
 function topBarSlot(slot: string, order: string, extra = "") {
   return function ShellTopBarSlot({
     reserve,
@@ -776,7 +785,7 @@ export const ShellTopBarMembers = topBarSlot(
 export const ShellTopBarShare = topBarSlot(
   "shell-topbar-share",
   "order-3",
-  BUTTON_SHAPE,
+  cn(BUTTON_SHAPE, CONTROL_TYPE),
 );
 
 /**
@@ -788,7 +797,7 @@ export const ShellTopBarShare = topBarSlot(
 export const ShellTopBarWatch = topBarSlot(
   "shell-topbar-watch",
   "order-4",
-  BUTTON_SHAPE,
+  cn(BUTTON_SHAPE, CONTROL_TYPE),
 );
 
 /**
@@ -800,7 +809,7 @@ export const ShellTopBarWatch = topBarSlot(
 export const ShellTopBarFavorite = topBarSlot(
   "shell-topbar-favorite",
   "order-5",
-  BUTTON_SHAPE,
+  cn(BUTTON_SHAPE, CONTROL_TYPE),
 );
 
 /**
@@ -813,7 +822,7 @@ export const ShellTopBarFavorite = topBarSlot(
 export const ShellTopBarMore = topBarSlot(
   "shell-topbar-more",
   "order-6",
-  BUTTON_SHAPE,
+  cn(BUTTON_SHAPE, CONTROL_TYPE),
 );
 
 /**
@@ -830,6 +839,7 @@ export const ShellTopBarPanel = topBarSlot(
     // A phone's bar has no ▥ (the page's Details button opens the panel), so no divider either.
     "gap-1 max-sm:hidden before:mx-1 before:h-4.5 before:w-px before:bg-border",
     BUTTON_SHAPE,
+    CONTROL_TYPE,
   ),
 );
 
