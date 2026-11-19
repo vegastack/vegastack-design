@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.123.4] — November 19, 2026
+
+<!-- assembled from 1 changeset: eef13d8e503c -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.123.3 → 0.123.4.
+
+### 🐛 Fixed
+
+- `run-timeline`: a step that is running, waiting or failed never folds away, in a long run of tool steps, past the row budget or inside a subagent; the fold splits around it. `board`: lane counts (header, phone lane strip, the lane's spoken name) move with an optimistic move and snap back with a rejection, instead of staying stale until the host confirms. `searchable-select` (and `ListFacet`): with no search field, a reopened list shows every option after another pick; the hidden query no longer keeps the first selection's label.
+  [`b92c45e`](https://github.com/VegaStack/vegastack-design/commit/b92c45e)
+
 ## [0.123.3] — November 19, 2026
 
 <!-- assembled from 1 changeset: f48c3f554f62 -->

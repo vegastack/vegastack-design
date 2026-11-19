@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.123.4
+
+### Patch Changes
+
+- [#1057](https://github.com/vegastack/vegastack-design/pull/1057) [`b92c45e`](https://github.com/vegastack/vegastack-design/commit/b92c45ec70b7ebce7948404e6e54508a68379184) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `run-timeline`: a step that is running, waiting or failed never folds away, in a long run of tool steps, past the row budget or inside a subagent; the fold splits around it. `board`: lane counts (header, phone lane strip, the lane's spoken name) move with an optimistic move and snap back with a rejection, instead of staying stale until the host confirms. `searchable-select` (and `ListFacet`): with no search field, a reopened list shows every option after another pick; the hidden query no longer keeps the first selection's label.
+
 ## 0.123.3
 
 ### Patch Changes
