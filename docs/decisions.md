@@ -105,8 +105,8 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   (4), `-block` (12), `-card` (16), `-bubble` (20), `-overlay` (24), `-tile` (25%). Rules: one shape
   per row; shape comes from the component and its context (`shape` on Button, Input, InputGroup,
   ToggleGroup; `capsule-scope`), never ad-hoc `rounded-*` in app code; height never picks the shape
-  except the 24px tier. Touch (`corner-platforms.json`): `control`/`icon` capsule, `field` 12,
-  `segment` 6. The tokens are `--corner-*`; `--radius` and its derived ramp stay for upstream parity
+  except the 24px tier. Touch (`corner-platforms.json`, amended 2026-11-20): the same thesis,
+  `control`/`icon`/`field` 12, `segment` 8; capsules for the frame, tab bar and floating controls. The tokens are `--corner-*`; `--radius` and its derived ramp stay for upstream parity
   only. Enforced by design-lint `no-radius-ramp` and `floating-capsule`,
   `packages/ui/test/geometry.browser.test.tsx` and the `row-fill` utility (`design.md` § Corners,
   Foundations › Radius).

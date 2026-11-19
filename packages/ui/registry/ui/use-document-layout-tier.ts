@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.117.0 sha256-SZ2d+cQbtB9Ro11dU7vYUYeZ/qfqmP+gup6CNh/Apkk=
+// @vegastack document-layout@0.123.2 sha256-J2jdSwswtZ1iKyXM0BxaZpVzssCRVOibyTGsxKIiGcA=
 
 "use client";
 

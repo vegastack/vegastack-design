@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.117.0 sha256-tOS0fTH5u50AlbuNZe4xoyTXgh0cPYKkpyBGJUHVypU=
+// @vegastack kpi-card@0.123.2 sha256-oZ2vMcUWFxxkSoGfbtAhLsIuWeKHtg/ruYEYPpFtIy8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

@@ -1708,8 +1708,9 @@ rows". Three rules: **one shape per row** (a button added to a row takes the row
   people are circles and agents keep their hexagon. `none`, `full` (a dot or a true circle that is not
   a button) and `[inherit]` stay structural.
 
-The Flutter app is a touch platform (`corner-platforms.json`): `control` and `icon` are capsules,
-form fields are 12px (`field`), and `segment` stays 6px (the button inside a 12px field). Continuous
+The Flutter app is a touch platform (`corner-platforms.json`) and follows the same thesis with touch
+numbers: `control`, `icon` and `field` are 12pt (a field and its button share one shape), `segment` is
+8pt, and only the frame, the tab bar and floating controls are capsules. Continuous
 corners (squircles) are drawn natively on mobile; on the web they wait for stable Safari to ship CSS
 `corner-shape`. `--radius` and its derived ramp remain only so upstream's math still holds.
 

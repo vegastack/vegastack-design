@@ -9,6 +9,18 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.123.2] — November 19, 2026
+
+<!-- assembled from 1 changeset: 87a04cda6c0b -->
+
+### 📦 npm
+
+- Corners on touch follow the web's thesis (BRD-12, amended 2026-11-20): in `corners.dart` and `corners.json`, touch `control`, `icon` and `field` are 12pt rounded rectangles and `segment` is 8pt (it was 6). Buttons, icon buttons, inputs and segmented controls on the phone stop being capsules; the frame, the tab bar and floating controls read `capsule`. Web and desktop values are unchanged.
+  [`8ef7303`](https://github.com/VegaStack/vegastack-design/commit/8ef7303)
+- **`@vegastack/design-tokens`** → **`0.28.0`** (was `0.27.0`).
+- **`@vegastack/design`** → **`0.28.0`** (was `0.27.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.123.1 → 0.123.2.
+
 ## [0.123.1] — November 19, 2026
 
 <!-- assembled from 1 changeset: 0180579bf391 -->
