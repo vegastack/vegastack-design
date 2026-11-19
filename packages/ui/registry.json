@@ -16118,6 +16118,88 @@
       }
     },
     {
+      "name": "for-you-card",
+      "type": "registry:ui",
+      "title": "For You Card",
+      "description": "One thing waiting on a person in For you: the verb, who asks, the deciding facts, what happens if nobody answers, the source's body and options (the preferred one secondary, never filled), its outcome once settled.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/agent-question-form",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/skeleton",
+        "@vegastack/status-glyph",
+        "@vegastack/text-spinner",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/for-you-card.tsx",
+          "type": "registry:ui",
+          "target": "@ui/for-you-card.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
+        "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
+        "version": "0.120.0"
+      }
+    },
+    {
+      "name": "digest-group",
+      "type": "registry:ui",
+      "title": "Digest Group",
+      "description": "One group in a digest: title and count, an urgent mark, a header extra, one group action, the caller's rows and a controlled Show N more footer.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": ["@vegastack/button", "@vegastack/item"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/digest-group.tsx",
+          "type": "registry:ui",
+          "target": "@ui/digest-group.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A group of rows in a digest or summary: Overdue, Due this week, Waiting on others.",
+        "whenNotToUse": "A plain list with no group action or paging (ItemGroup), or a table (DataList).",
+        "version": "0.120.0"
+      }
+    },
+    {
+      "name": "request-status-chip",
+      "type": "registry:ui",
+      "title": "Request Status Chip",
+      "description": "Where a request stands, as one chip: the tone follows the lifecycle state, the words are the state's, the table's renamed label or a stage name.",
+      "categories": ["chat"],
+      "dependencies": [
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": ["@vegastack/badge"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/request-status-chip.tsx",
+          "type": "registry:ui",
+          "target": "@ui/request-status-chip.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A request's status in a row, a header or a card.",
+        "whenNotToUse": "A task's workflow status (StatusIcon), or any other record's tag (Badge).",
+        "version": "0.120.0"
+      }
+    },
+    {
       "name": "memory-note",
       "type": "registry:ui",
       "title": "Memory Note",

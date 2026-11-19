@@ -1,0 +1,71 @@
+---
+title: Request Status Chip
+description: Where a request stands, as one chip — the tone follows the lifecycle state and the words can be the table's own label or a stage name.
+audience: public
+registry: request-status-chip
+status: stable
+since: 0.122.0
+a11y: plain text in a chip; tone is never the only cue
+preview: requestStatusChip
+---
+
+## Install
+
+<InstallSteps name="request-status-chip" />
+
+## Usage
+
+```tsx
+import { RequestStatusChip } from "@/components/ui/request-status-chip";
+
+<RequestStatusChip state={row.state} label={row.statusLabel} />;
+```
+
+The eight states are the request lifecycle's: Draft, Open, In progress, Awaiting approval,
+Approved, Declined, Completed and Cancelled. The tone always follows `state`; `label` swaps the
+words for a table's renamed Status label or the name of a stage inside In progress. The chip shows
+the status only: the request's ID sits beside it in your row.
+
+<ComponentPreview
+  name="requestStatusChip"
+  file="components/preview/request-status-chip.tsx"
+/>
+
+## Examples
+
+### Labels
+
+<ComponentPreview
+  name="requestStatusChipLabels"
+  file="components/preview/request-status-chip.tsx"
+/>
+
+### Sizes
+
+`sm` fits a dense table row.
+
+<ComponentPreview
+  name="requestStatusChipSizes"
+  file="components/preview/request-status-chip.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/request-status-chip.tsx"
+  name="RequestStatusChipProps"
+/>
+
+## Accessibility
+
+- The chip is text: its words say the status, so the tone is never the only cue.
+- A status family's ink sits on its own tint (A11Y-13).
+
+<StatesTested name="request-status-chip" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the lifecycle state and let the tone follow it; rename only the words."
+  dont="Pick a tone by the label, or put the request's ID inside the chip."
+/>
