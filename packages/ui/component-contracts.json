@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 820,
-    "components": 231,
+    "totalRegistryItems": 823,
+    "components": 234,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 49,
     "Content/marketing": 14,
     "Shared internals": 6,
-    "AI/chat": 49,
+    "AI/chat": 52,
     "Hooks": 16,
     "Block": 15,
     "Animated icons": 467
@@ -279,7 +279,10 @@
       "shell-assistant",
       "agent-directory-card",
       "ask-card",
-      "tool-permission-list"
+      "tool-permission-list",
+      "digest-group",
+      "for-you-card",
+      "request-status-chip"
     ],
     "Hooks": [
       "use-announcer",
@@ -32241,6 +32244,528 @@
             {
               "name": "data-slot",
               "values": ["tool-permission-list-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "for-you-card",
+      "registryType": "registry:ui",
+      "title": "For You Card",
+      "summary": "One thing waiting on a person in For you: the verb, who asks, the deciding facts, what happens if nobody answers, the source's body and options (the preferred one secondary, never filled), its outcome once settled.",
+      "status": "stable",
+      "since": "0.122.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/for-you-card.tsx"],
+      "publicSymbols": [
+        {
+          "name": "ForYouCard",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ForYouCardProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ForYouCardSkeleton",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ForYouFact",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ForYouOption",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ForYouSourceBody",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ForYouState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ForYouVerb",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "verb",
+            "values": ["answer", "approve", "fix", "review", "suggest"]
+          }
+        ],
+        "rationale": "The verb's label and icon; the layout is one."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "open",
+            "sending",
+            "done",
+            "declined",
+            "skipped",
+            "stale",
+            "expired",
+            "withdrawn",
+            "withdrawn-access-lost",
+            "submit_failed",
+            "offline",
+            "selected",
+            "question-form-body",
+            "render-body",
+            "inspect",
+            "navigate",
+            "skeleton"
+          ],
+          "evidence": "packages/ui/registry/ui/for-you-card.tsx + packages/ui/registry/ui/for-you-card.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-article",
+            "options-group",
+            "named-glyphs",
+            "failed-alert",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/for-you-card.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["open", "settled", "withdrawn", "skeleton"],
+          "evidence": "packages/ui/registry/ui/for-you-card.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "One column for the 26rem panel; facts flow in a grid that wraps; options wrap; the title wraps whole."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/for-you-card",
+      "registryDependencies": [
+        "@vegastack/agent-question-form",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/skeleton",
+        "@vegastack/status-glyph",
+        "@vegastack/text-spinner",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/for-you-card.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "for-you-card",
+      "dataAttributes": {
+        "ForYouCard": {
+          "attributes": [
+            {
+              "name": "data-option",
+              "values": []
+            },
+            {
+              "name": "data-option-id",
+              "values": []
+            },
+            {
+              "name": "data-selected",
+              "values": [""]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "for-you-card",
+                "for-you-card-body",
+                "for-you-card-children",
+                "for-you-card-deadline",
+                "for-you-card-evidence",
+                "for-you-card-facts",
+                "for-you-card-failed",
+                "for-you-card-header",
+                "for-you-card-if-nobody",
+                "for-you-card-options",
+                "for-you-card-outcome",
+                "for-you-card-skip",
+                "for-you-card-title",
+                "for-you-card-verb"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-urgent",
+              "values": [""]
+            },
+            {
+              "name": "data-variant",
+              "values": ["outline"]
+            },
+            {
+              "name": "data-verb",
+              "values": []
+            },
+            {
+              "name": "data-withdrawn",
+              "values": ["access_lost"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "ForYouCardSkeleton": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["for-you-card-skeleton"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "digest-group",
+      "registryType": "registry:ui",
+      "title": "Digest Group",
+      "summary": "One group in a digest: title and count, an urgent mark, a header extra, one group action, the caller's rows and a controlled Show N more footer.",
+      "status": "stable",
+      "since": "0.122.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/digest-group.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DigestGroup",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/digest-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DigestGroupProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/digest-group.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One group; urgent is a prop."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "urgent",
+            "header-extra",
+            "group-action",
+            "footer-more",
+            "footer-loading",
+            "no-footer"
+          ],
+          "evidence": "packages/ui/registry/ui/digest-group.tsx + packages/ui/registry/ui/digest-group.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-region",
+            "named-list",
+            "busy-footer",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/digest-group.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["header", "rows", "footer"],
+          "evidence": "packages/ui/registry/ui/digest-group.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The header wraps its extra and action under the title; rows are the caller's."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/digest-group",
+      "registryDependencies": ["@vegastack/button", "@vegastack/item"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/digest-group.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "digest-group",
+      "dataAttributes": {
+        "DigestGroup": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "digest-group",
+                "digest-group-action",
+                "digest-group-count",
+                "digest-group-extra",
+                "digest-group-footer",
+                "digest-group-header"
+              ]
+            },
+            {
+              "name": "data-urgent",
+              "values": [""]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "request-status-chip",
+      "registryType": "registry:ui",
+      "title": "Request Status Chip",
+      "summary": "Where a request stands, as one chip: the tone follows the lifecycle state, the words are the state's, the table's renamed label or a stage name.",
+      "status": "stable",
+      "since": "0.122.0",
+      "family": "data-display",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/request-status-chip.tsx"],
+      "publicSymbols": [
+        {
+          "name": "REQUEST_STATE_LABEL",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/request-status-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RequestState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/request-status-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RequestStatusChip",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/request-status-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RequestStatusChipProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/request-status-chip.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": [
+              "approved",
+              "awaiting_approval",
+              "cancelled",
+              "completed",
+              "declined",
+              "draft",
+              "in_progress",
+              "open"
+            ]
+          },
+          {
+            "name": "size",
+            "values": ["default", "sm"]
+          }
+        ],
+        "rationale": "The tone follows the lifecycle state; sm for dense rows."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["label-override"],
+          "evidence": "packages/ui/registry/ui/request-status-chip.tsx + packages/ui/registry/ui/request-status-chip.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["text-status", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/request-status-chip.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["tones", "sizes"],
+          "evidence": "packages/ui/registry/ui/request-status-chip.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The words truncate inside the chip."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/request-status-chip",
+      "registryDependencies": ["@vegastack/badge"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/request-status-chip.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "request-status-chip",
+      "dataAttributes": {
+        "RequestStatusChip": {
+          "attributes": [
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["request-status-chip"]
+            },
+            {
+              "name": "data-state",
+              "values": []
             }
           ],
           "cssVariables": []

@@ -1,0 +1,89 @@
+---
+title: Digest Group
+description: One group in a digest — its title and count, an urgent mark, one group action, the caller's rows and a controlled Show N more footer.
+audience: public
+registry: digest-group
+status: stable
+since: 0.122.0
+a11y: named region; the rows are one named list
+preview: digestGroup
+---
+
+## Install
+
+<InstallSteps name="digest-group" />
+
+## Usage
+
+```tsx
+import { DigestGroup } from "@/components/ui/digest-group";
+
+<DigestGroup
+  title="Overdue"
+  count={87}
+  urgent
+  groupAction={{ label: "Update all…", onClick: openBulkUpdate }}
+  footer={{ hasMore, remaining: 75, loading, onLoadMore }}
+>
+  {tasks.map((task) => (
+    <Item key={task.id} size="sm">
+      …
+    </Item>
+  ))}
+</DigestGroup>;
+```
+
+The group is composed: you build each row from `Item` and `ItemActions` with that row's own
+authorized actions, and the group draws the header, the one group action and the footer. It holds
+no rows or actions of its own.
+
+<ComponentPreview
+  name="digestGroup"
+  file="components/preview/digest-group.tsx"
+/>
+
+## Examples
+
+### Header
+
+`urgent` adds a warning glyph before the title. `headerExtra` holds more after the count, such as a
+blocker chip and its line.
+
+### Footer
+
+The footer is controlled. While `hasMore`, it reads "Show 75 more" (`remaining`) or "Show more";
+`loading` holds the button with its spinner. Without `footer`, there is none.
+
+### On a phone
+
+<ComponentPreview
+  name="digestGroupNarrow"
+  file="components/preview/digest-group.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/digest-group.tsx"
+  name="DigestGroupProps"
+/>
+
+## Accessibility
+
+- The group is a region named by its title and count; its rows are a list named the same way.
+- The urgent glyph is named "Needs attention".
+- The footer button reports `aria-busy` while it loads.
+
+| Key                                 | Action                     |
+| ----------------------------------- | -------------------------- |
+| <kbd>Tab</kbd>                      | Group action, rows, footer |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Run the focused action     |
+
+<StatesTested name="digest-group" />
+
+## Do / Don't
+
+<DoDont
+  do="Give each row only the actions its person may take."
+  dont="Put a bulk action on every row: the one group action covers the group."
+/>

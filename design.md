@@ -1642,7 +1642,12 @@ its words before its buttons. What an agent may do with a source's tools is one
 `ToolPermissionList`: Allow, Auto-check, Ask or Block per class and per tool, inherited answers
 muted with their source, locks read-only with who set them. An agent in a directory is an
 `AgentDirectoryCard`, drawn as the app's other directory cards so agents, spaces and teams read as
-one family: one link, tags on the name line, the people, and one secondary action.
+one family: one link, tags on the name line, the people, and one secondary action. What waits on
+one person is a `ForYouCard`, laid out for the 26rem Inbox panel first: it names the kind of ask,
+says what happens if nobody answers, and draws the source's options by the server's kinds, the
+preferred one secondary. A card whose source the person can no longer see shows one line and
+nothing of the source. A digest is `DigestGroup`s of the caller's own rows, each with only the
+actions its person may take, and one group action.
 
 A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
 fill sits 8px inside its container (LAY-20: `ItemGroup variant="flush"`, the Inbox list); menus keep

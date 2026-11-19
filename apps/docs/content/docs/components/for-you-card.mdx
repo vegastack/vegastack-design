@@ -1,0 +1,120 @@
+---
+title: For You Card
+description: One thing waiting on a person in For you — what kind of ask, who asks, the deciding facts, what happens if nobody answers, and the source's options.
+audience: public
+registry: for-you-card
+status: stable
+since: 0.122.0
+a11y: named article; options are one labelled group
+preview: forYouCard
+---
+
+## Install
+
+<InstallSteps name="for-you-card" />
+
+## Usage
+
+```tsx
+import { ForYouCard } from "@/components/ui/for-you-card";
+
+<ForYouCard
+  verb="approve"
+  from={{
+    name: "Expense checker",
+    avatar: <PersonAvatar person={agent} size="2xs" />,
+  }}
+  title="Ravi's taxi claim, ₹4,200"
+  facts={[{ label: "Over policy by", value: "₹1,200", tone: "warning" }]}
+  deadline={{ label: "Due today", urgent: true }}
+  ifNobodyAnswers="It goes to Finance on Friday."
+  state={card.state}
+  options={card.options}
+  onOption={(optionId) => answer(card.id, optionId)}
+  onSnooze={snooze}
+  onSkip={skip}
+/>;
+```
+
+The card is laid out for the 26rem Inbox panel first and the phone's For you page: one column,
+facts and buttons wrap, nothing wider than the panel. It sits in `InboxList` as a row's content, so
+the panel's keyboard and active row still apply (`selected`). Every card says what happens if nobody
+answers.
+
+<ComponentPreview
+  name="forYouCard"
+  file="components/preview/for-you-card.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="for-you-card" />
+
+## Examples
+
+### Verbs and bodies
+
+The verb shows as a small label with its icon: Answer, Approve, Review, Fix or Suggest. The body is
+the source's own: a `question_form` source renders `AgentQuestionForm`, other `sourceBody` kinds
+render through `renderBody`, and `children` holds an inline `AskCard`, a draft or a
+`SuggestionCard` for a suggestion. "Fewer like this" is offered on suggestions only.
+
+<ComponentPreview
+  name="forYouCardVerbs"
+  file="components/preview/for-you-card.tsx"
+/>
+
+### Options
+
+The options are the source's, in its order, with their kinds as the server names them. The
+preferred one (`primary`) is drawn secondary: nothing on the card is a filled primary. `decline`,
+`skip` and `neutral` are outline; `navigate` is a link; `inspect` opens the evidence and never
+settles the card. Skip leaves For you without deciding, so it reads apart from Decline.
+
+### States
+
+`sending` keeps the pressed option's label with the bolt and holds everything else. `submit_failed`
+says the answer didn't save and frees the options again. Settled, the card reads as its outcome
+("Approved by Priya in Slack · 14:02"); a skip reads "Skipped", not as a decline. `stale` keeps
+only its links to the new version. `withdrawn` with `access_lost` shows only "No longer available
+to you": nothing of the source and no action.
+
+<ComponentPreview
+  name="forYouCardStates"
+  file="components/preview/for-you-card.tsx"
+/>
+
+### On a phone
+
+<ComponentPreview
+  name="forYouCardNarrow"
+  file="components/preview/for-you-card.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/for-you-card.tsx"
+  name="ForYouCardProps"
+/>
+
+## Accessibility
+
+- The card is an article named by its title; withdrawn because access was lost, by its one line.
+- The options are one group named "Options:" and the title.
+- An urgent deadline and a fact's tone carry a named glyph, never colour alone.
+- A failed answer is announced (`role="alert"`).
+
+| Key                                 | Action                   |
+| ----------------------------------- | ------------------------ |
+| <kbd>Tab</kbd>                      | Move through the options |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Choose an option         |
+
+<StatesTested name="for-you-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the source's options with their kinds as the server sends them, and say what happens if nobody answers."
+  dont="Draw a filled primary on the card, or show the source's words on a card withdrawn because access was lost."
+/>
