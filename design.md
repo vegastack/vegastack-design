@@ -1633,6 +1633,17 @@ task list, a file preview — and it is `ChatCard`: `bg-chat-card`, `border-chat
 `rounded-card`, `p-4` (`p-3` under 640px), no shadow. Work, memory saves, answered asks and
 errors are flat lines in the column.
 
+**Agents and work: the server decides, the card draws (operator 19-11-2026, AI teammates).** An agent
+asking a person's OK is one `AskCard` everywhere — a chat, For you, a phone's push preview. It draws
+only the choices the server offered, in its order and with their ids, so a press can never be refused:
+the preferred choice is `secondary`, the others outline (`never` in the destructive ink), and no card,
+row or bundle in agent UI draws a filled primary, which belongs to the page. A send or delete shows
+its words before its buttons. What an agent may do with a source's tools is one
+`ToolPermissionList`: Allow, Auto-check, Ask or Block per class and per tool, inherited answers
+muted with their source, locks read-only with who set them. An agent in a directory is an
+`AgentDirectoryCard`, drawn as the app's other directory cards so agents, spaces and teams read as
+one family: one link, tags on the name line, the people, and one secondary action.
+
 A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
 fill sits 8px inside its container (LAY-20: `ItemGroup variant="flush"`, the Inbox list); menus keep
 their 4px, and table rows stay full-bleed. `surfaceInteractive`, `fillInteractive`,

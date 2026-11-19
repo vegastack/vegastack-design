@@ -18,6 +18,8 @@ const STATUS_OPTIONS = [
   { value: "canceled", label: "Canceled" },
   { value: "duplicate", label: "Duplicate" },
   { value: "triage", label: "Triage" },
+  { value: "planned", label: "Planned" },
+  { value: "paused", label: "Paused" },
 ] as const;
 
 const SIZE_OPTIONS = [

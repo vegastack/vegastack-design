@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 148,
+    "total": 151,
     "fromExtras": 40
   },
   "items": {
@@ -16,11 +16,23 @@
       "source": "Operator brief 2026-10-04 (Regent activity timeline) — approved by MK 2026-10-04",
       "rationale": "Upstream ships no record history. A list of events and comment threads composing upstream button, select and skeleton with our person-hover-card, person-avatar and relative-time; no patch."
     },
+    "agent-directory-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no agent directory entry. A card or list row that matches the app's directory cards (one link, tags on the name line, people and one secondary action) over upstream card, badge, button, tooltip and skeleton; no patch."
+    },
     "agent-edit-banner": {
       "disposition": "keep",
       "family": "chat",
       "source": "Regent Phase 3 Pages x Agents plan (.vegastack/plans/pages-connections/13-phase3-pages-agents.md §7.1, §7.7, slice S5a; issue #481) — operator go-dark mandate 14-10-2026 under the standing DS authorization (AGENTS.md, 8 October 2026)",
       "rationale": "Upstream ships no agent-edit notice. A fixed composition of alert, button, popover, person-avatar and relative-time: the strip under a document's header after an agent changed it, with View changes, Undo, the refused and undoing states, the created state and the other agents behind +N; it carries no patch."
+    },
+    "ask-card": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no permission ask. The one Ask card draws only the server's choices with their ids (never a filled primary), previews sends before the buttons, answers bundle items one by one and settles to one line; composes button, dropdown-menu, item, status-glyph and textarea; no patch."
     },
     "audio-player": {
       "disposition": "keep",
@@ -498,6 +510,12 @@
       "disposition": "keep",
       "family": "chat",
       "source": "extras.md"
+    },
+    "tool-permission-list": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no tool permission list. Class rows group their tools, each answered through permission-menu with only its allowed answers, with inherited, locked, lock-toggle and rule lines; composes button, dropdown-menu, permission-menu, search-input, skeleton and toggle; no patch."
     },
     "transcript": {
       "disposition": "keep",

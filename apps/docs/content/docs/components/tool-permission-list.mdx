@@ -1,0 +1,136 @@
+---
+title: Tool Permission List
+description: What an agent may do with one source's tools — Allow, Auto-check, Ask or Block per class and per tool, with inherited answers, locks and rules.
+audience: public
+registry: tool-permission-list
+status: stable
+since: 0.121.0
+a11y: named region; labelled answer menus; folding groups
+preview: toolPermissionList
+---
+
+## Install
+
+<InstallSteps name="tool-permission-list" />
+
+## Usage
+
+```tsx
+import { ToolPermissionList } from "@/components/ui/tool-permission-list";
+
+<ToolPermissionList
+  title="GitHub"
+  meta="Connected · company GitHub App"
+  rows={rows}
+  onChange={(rowId, change) => save(rowId, change)}
+  onAddRule={(rowId) => openConditionEditor(rowId)}
+  onEditRule={(rowId, ruleKey) => openConditionEditor(rowId, ruleKey)}
+  onRemoveRule={removeRule}
+  onUseInherited={useInherited}
+/>;
+```
+
+One list per source of tools. A class row ("Write · 31") is the group: its answer covers its tools,
+which sit under it, and changing it is `onChange("class:<class>", { answer })`. Each row's menu
+offers only its `answersAllowed`, with the exact words: Allow ("Runs without asking"), Auto-check
+("A quick model check decides; asks when unsure"), Ask ("Asks a person") and Block ("Never runs").
+The list keeps no answers of its own: every change goes to `onChange` and the caller's rows come
+back.
+
+<ComponentPreview
+  name="toolPermissionList"
+  file="components/preview/tool-permission-list.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="tool-permission-list" />
+
+## Examples
+
+### Inherited, locked and rules
+
+An inherited answer is muted with where it comes from ("Inherited from workspace"). A locked row
+shows the lock and who locked it, read-only. The rules at this layer list under their row, each
+with its answer, its condition, its note, "Waiting to be published" while pending, and Edit or
+Remove when editable. A row's ⋯ offers "Add a condition" and, when the row has rules here, "Use
+inherited"; with only one of them it is a quiet button of its own. Picking Allow on a row with
+`warningOnAllow` shows that line under it.
+
+### An admin's view
+
+`lockable` rows show the lock toggle: `onChange(rowId, { locked })`.
+
+<ComponentPreview
+  name="toolPermissionListAdmin"
+  file="components/preview/tool-permission-list.tsx"
+/>
+
+### Read-only
+
+`readOnly` shows every answer as text: members see the workspace's tools this way.
+
+<ComponentPreview
+  name="toolPermissionListReadOnly"
+  file="components/preview/tool-permission-list.tsx"
+/>
+
+### Many tools
+
+Over 50 tool rows a search box appears (`searchable` overrides it). A class with over 50 tools
+shows the first 50, then "Show all 88". A search with no match says so.
+
+<ComponentPreview
+  name="toolPermissionListMany"
+  file="components/preview/tool-permission-list.tsx"
+/>
+
+### Loading and empty
+
+`ToolPermissionListSkeleton` holds the list's shape while it loads; a source with no tools says
+"No tools".
+
+<ComponentPreview
+  name="toolPermissionListStates"
+  file="components/preview/tool-permission-list.tsx"
+/>
+
+### On a phone
+
+At 390px labels truncate and the answer stays at the row's end.
+
+<ComponentPreview
+  name="toolPermissionListNarrow"
+  file="components/preview/tool-permission-list.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/tool-permission-list.tsx"
+  name="ToolPermissionListProps"
+/>
+
+## Accessibility
+
+- The list is a region named by the source.
+- Each answer is a labelled menu (“GitHub › Send answer: Ask”) offering only the allowed answers.
+- A class group's toggle is a button with `aria-expanded` and `aria-controls`.
+- The lock toggle is a pressed/unpressed button named for its tool (“Lock GitHub › Send for every agent”).
+- A row's rules are a list named for its tool (“Rules for GitHub › Send”).
+
+| Key                                 | Action                                   |
+| ----------------------------------- | ---------------------------------------- |
+| <kbd>Tab</kbd>                      | Move between toggles, menus and buttons  |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open a menu, fold a class, toggle a lock |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Move through a menu's answers            |
+| <kbd>Esc</kbd>                      | Close the menu                           |
+
+<StatesTested name="tool-permission-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass each row's answersAllowed and its rules from the server, and answer a class with its class row's id."
+  dont="Add a tool row for new tools waiting for review: that is the caller's banner above the list."
+/>

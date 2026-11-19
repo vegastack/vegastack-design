@@ -14,6 +14,8 @@ test("maps each status to the system's standard semantic text token", async () =
     ["canceled", "text-muted-foreground"],
     ["duplicate", "text-muted-foreground"],
     ["triage", "text-tag-orange-text"],
+    ["planned", "text-foreground"],
+    ["paused", "text-muted-foreground"],
     ["cancelled", "text-muted-foreground"],
     ["blocked", "text-warning-text"],
   ] as const;
@@ -55,6 +57,8 @@ test("names every Linear status and keeps the deprecated aliases", async () => {
     ["canceled", "Canceled"],
     ["duplicate", "Duplicate"],
     ["triage", "Triage"],
+    ["planned", "Planned"],
+    ["paused", "Paused"],
     ["blocked", "Blocked"],
     ["cancelled", "Canceled"],
   ] as const;

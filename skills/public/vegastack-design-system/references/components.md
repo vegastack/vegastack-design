@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**228 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 817 registry items in total.
+**231 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 820 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -100,7 +100,7 @@ starts with `icon-` is a component and never an icon.
 - **`markdown-view`** — Render a markdown string to safe, token-styled HTML — headings (with optional ids and copy links), lists, code, blockquotes, links, GFM tables that fade at a scrolling edge, mention and file chips, callouts and toggles — XSS-safe; at the document type scale, a page's read view with comment highlights, an outline, per-reader toggles and find.
 - **`priority-icon`** — A flag marking priority — urgent, high, medium, low, none — each in a semantic color with filled, outline or dashed fill.
 - **`relative-time`** — One Intl-based dates & times module — formatRelative, formatDuration, formatDate, formatDateTime, formatDateRange, formatTimeOfDay, formatDueLabel, groupByDay, time-zone cookie + provider — and the RelativeTime, DateTime, Duration and DueLabel components with absolute-time tooltips.
-- **`status-icon`** — A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — each a hand-drawn 16-unit glyph in a semantic color.
+- **`status-icon`** — A small workflow status icon in Linear's set — backlog, todo, in progress, in review, done, canceled, duplicate, triage — plus planned and paused for plans, each a hand-drawn 16-unit glyph in a semantic color.
 - **`table`** — A responsive table component — caption, header, body, footer, row, head and cell parts over semantic table markup.
 - **`truncated-text`** — Truncate text to one line or N lines with an ellipsis, revealing the full text in a tooltip only when it overflows — with per-region control over the tab stop.
 
@@ -220,9 +220,11 @@ starts with `icon-` is a component and never an icon.
 
 ## Chat
 
+- **`agent-directory-card`** — One agent in the directory: its name the card's one link, status and verified mark, where it lives, its job, example asks, apps, maintainers and Chat; a grid card or a list row.
 - **`agent-edit-banner`** — The strip under a document's header after an agent changed it: the agent's hexagon, "Edited by Claude for Manoj · 3 changes · 2m ago", View changes, Approve, Undo and a dismiss — with the approving, undoing, refused, created and read-only states and the other agents behind +N.
 - **`agent-panel`** — An agent on a record: identity, acting for, state with its actions, instructions, latest, reply and runs with Undo; plus slot, chip, badge, ring and hover card.
 - **`agent-question-form`** — An agent asks one to five questions at once: options with their descriptions in view, the first recommended unless turned off, own words and a note per question, previews, steps and a review; and the read-only answers.
+- **`ask-card`** — The one card an agent uses to ask a person's OK: the server's choices in its order (never a filled primary), the preview of what it would send first, bundles answered item by item, and one muted line once settled.
 - **`chat-card`** — The chat's one card surface (ChatCard), one line of work (ChatRow) and a fold of work that opens and closes smoothly (ChatGroup).
 - **`chat-chip`** — A compact pill for background work and counts on the chat card surface, with an attention tone that never fills.
 - **`chat-composer`** — The box a person talks to an agent in, as a compound: an optional context strip, files above an auto-growing text, and an actions row with round + and @, the model, and a round Send that morphs into Stop.
@@ -259,6 +261,7 @@ starts with `icon-` is a component and never an icon.
 - **`task-list`** — An agent's live checklist for a longer job: the live item on top, the next two, finished items folded into a count and the rest into +N more, a waiting badge, Subagent progress, and a sticky progress bar.
 - **`text-spinner`** — The one inline text loader: a dot-matrix bolt as tall as capital letters, Strike while working and Pulse while waiting, CSS only, a still bolt under reduced motion.
 - **`tool-call-chip`** — An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.
+- **`tool-permission-list`** — What an agent may do with one source's tools: Allow, Auto-check, Ask or Block per class and per tool, inherited answers muted, locks, an admin's lock toggle and the rules at this layer.
 
 ## Communication
 

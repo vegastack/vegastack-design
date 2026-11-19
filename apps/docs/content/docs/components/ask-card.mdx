@@ -1,0 +1,134 @@
+---
+title: Ask Card
+description: The one card an agent uses to ask a person's OK — the server's choices in its order, the preview of what it would send first, and one muted line once settled.
+audience: public
+registry: ask-card
+status: stable
+since: 0.121.0
+a11y: named region; labelled choices; preview is a stop
+preview: askCard
+---
+
+## Install
+
+<InstallSteps name="ask-card" />
+
+## Usage
+
+```tsx
+import { AskCard } from "@/components/ui/ask-card";
+
+<AskCard
+  agent={{
+    name: "Donna",
+    avatar: <PersonAvatar person={donna} size="xs" />,
+    onBehalfOf: "Anu's Assistant",
+  }}
+  action={{
+    title: "Email sm@vegastack.com",
+    toolClass: "delete_send",
+    preview: body,
+  }}
+  state="pending"
+  choices={offer.choices.map(toAskChoice)}
+  onAnswer={(choiceId, note) => answer(request.id, choiceId, note)}
+  deadline="Until 17:00"
+  ifNobodyAnswers="It won't send."
+/>;
+```
+
+One card for every place an agent waits on a person: a chat (`density="card"`, its own surface),
+For you (`density="inline"`, inside `ForYouCard`) and a phone's push preview. The card never builds
+a choice. Map the server's offer one to one — `once`, any number of `always:<scope>`, `never`,
+`decline` — and every `id` comes back to `onAnswer` unchanged, so nothing on the card can be
+something the server won't accept.
+
+<ComponentPreview name="askCard" file="components/preview/ask-card.tsx" />
+
+## Anatomy
+
+<Anatomy name="ask-card" />
+
+## Examples
+
+### Choices
+
+The choices keep the server's order, with Decline last. The preferred one, `once`, is a
+**secondary** button; every other choice is outline and `never` takes the destructive ink. Nothing
+on the card is ever a filled primary: the page's primary lives elsewhere. Past two Always choices
+they fold into one "Always…" menu that lists each scope under its label. When the server offers no
+Always, `noAlways` says why in its own words.
+
+<ComponentPreview
+  name="askCardChoices"
+  file="components/preview/ask-card.tsx"
+/>
+
+### Settled
+
+Answered, refused, expired, changed or no longer needed, the buttons give way to one muted line:
+what was chosen, by whom, where and when, with Undo when `answered.undo` is set. A refusal carries
+its way out ("Ask an admin ›").
+
+<ComponentPreview name="askCardStates" file="components/preview/ask-card.tsx" />
+
+### Read-only, offline and busy
+
+With no `onAnswer` the card is read-only: it isn't the viewer's to answer, so it reads "Waiting for
+an answer". Offline, the buttons are disabled and "Connect to answer" shows; nothing is queued.
+While an answer is in flight every button holds.
+
+<ComponentPreview name="askCardHeld" file="components/preview/ask-card.tsx" />
+
+### Several calls at once
+
+`bundle` puts several calls in one card. Each item shows its own facts, preview, choices, busy
+state and answered line, and is answered on its own. The "Answer all" row draws only the server's
+`sharedChoices`, and is hidden while any item deletes or sends: those are answered one by one.
+
+<ComponentPreview name="askCardBundle" file="components/preview/ask-card.tsx" />
+
+### Inside a For you card
+
+`density="inline"` drops the card's own surface, for a host card such as `ForYouCard` in the 26rem
+Inbox panel.
+
+<ComponentPreview name="askCardInline" file="components/preview/ask-card.tsx" />
+
+### On a phone
+
+At 390px the buttons wrap and a long title wraps whole.
+
+<ComponentPreview name="askCardNarrow" file="components/preview/ask-card.tsx" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/ask-card.tsx"
+  name="AskCardProps"
+/>
+
+## Accessibility
+
+- The card is a region named by the action's title.
+- The choices are one group named "Answer:" and the action; in a bundle each item has its own group.
+- A preview is a named region ("What it would send") and a keyboard stop, so a long one can be read
+  to the end before answering.
+- A failed answer is announced (`role="alert"`) and the buttons are released.
+- The Always menu, a decline's note and Undo are all reachable by keyboard.
+
+| Key                                 | Action                               |
+| ----------------------------------- | ------------------------------------ |
+| <kbd>Tab</kbd>                      | Move between the preview and choices |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Answer, or open the Always menu      |
+| <kbd>Enter</kbd> in the note        | Send the decline with its note       |
+| <kbd>Esc</kbd> in the note          | Back to the choices                  |
+
+<StatesTested name="ask-card" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the server's choices one to one and send each id back unchanged."
+  dont="Build an Allow all, an Always or any other choice the server didn't offer, or draw a filled primary on the card."
+/>

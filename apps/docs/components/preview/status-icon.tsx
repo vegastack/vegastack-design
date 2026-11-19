@@ -43,6 +43,9 @@ export function statusIconStates(): ReactNode {
       {STATUSES.map((s) => (
         <StatusIcon key={s.value} status={s.value} />
       ))}
+      {PLAN_STATUSES.map((status) => (
+        <StatusIcon key={status} status={status} />
+      ))}
     </Wrapper>
   );
 }
@@ -119,6 +122,9 @@ const STATUSES: { value: Status; label: string; key: string }[] = [
   { value: "duplicate", label: "Duplicate", key: "7" },
   { value: "triage", label: "Triage", key: "0" },
 ];
+
+/** The two statuses for plans (an initiative): not started yet, and on hold. */
+const PLAN_STATUSES = ["planned", "paused"] as const;
 
 /**
  * Recipe: Status menu — DropdownMenu + StatusIcon + DropdownMenuShortcut. Keys 1–7 and 0 pick a
