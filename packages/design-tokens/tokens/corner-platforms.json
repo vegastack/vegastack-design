@@ -1,12 +1,11 @@
 {
-  "$description": "BRD-12 (amended 2026-11-18 and 2026-11-19, corner shapes): how each platform reads the corner roles. `pointer` (web and the desktop app) takes every `corner-*` token as it is. `touch` (the Flutter app) overrides only what touch changes — Apple's guidance that capsules suit touch layouts: buttons, icon buttons, segmented controls, chips and search fields stay capsules, and form fields are their own 12px role (a quarter of the 48px field). On touch, `segment` is 6: it is the button inside a 12px field (12 − 6), while a touch segmented control's thumb is itself a `control` capsule. Every other role is the same number on every platform. The build writes dist/corners.json and dist/corners.dart from this file and the tokens.",
+  "$description": "BRD-12 (amended 2026-11-18, 2026-11-19 and 2026-11-20, corner shapes): how each platform reads the corner roles. Every platform follows the same thesis — the shape says what a thing is: tokens and states are pills (chips, badges, filter chips, switches, avatars), the app frame and anything floating is a capsule, actions and inputs in the page are rounded rectangles, and rows are an inset item fill or a square band between dividers. `pointer` (web and the desktop app) takes every `corner-*` token as it is. `touch` (the Flutter app) changes only the numbers its taller 44–48pt controls need: `control` is 12 (a quarter of the 48pt field, so a field and the button beside it share one shape), `icon` and `field` follow `control`, and `segment` stays 8 (a control inside a control, or any control 28pt or shorter; the button inside a 12pt field sits 4pt in). Frame and floating controls on touch read `capsule`, never `control`. Every other role is the same number on every platform. The build writes dist/corners.json and dist/corners.dart from this file and the tokens.",
   "pointer": {
     "field": "control"
   },
   "touch": {
-    "control": "capsule",
-    "icon": "capsule",
-    "segment": 6,
-    "field": 12
+    "control": 12,
+    "icon": "control",
+    "field": "control"
   }
 }
