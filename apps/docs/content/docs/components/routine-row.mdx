@@ -1,0 +1,77 @@
+---
+title: Routine Row
+description: One routine in a list — its name and schedule, the next runs, owner and destination, the last run, Run now and a menu with Skip next and Pause.
+audience: public
+registry: routine-row
+status: stable
+since: 0.123.0
+a11y: one link per row; actions named for the routine
+preview: routineRow
+---
+
+## Install
+
+<InstallSteps name="routine-row" />
+
+## Usage
+
+```tsx
+import { RoutineRow } from "@/components/ui/routine-row";
+
+<RoutineRow
+  name="Monday supplier check"
+  href="/agents/assistant/routines/r1"
+  schedule="Mondays at 9:00"
+  nextRuns={["Mon 24 Nov", "Mon 1 Dec", "Mon 8 Dec"]}
+  owner="Anu"
+  destination="#ops"
+  lastRun={{ status: "done", cost: "₹1.20", at: "Mon 17 Nov" }}
+  state="active"
+  onRunNow={runNow}
+  onSkipNext={skipNext}
+  onPause={pause}
+/>;
+```
+
+The name is the row's link. Under it, the next runs (up to three), the owner and where the result
+goes, then how the last run went with its cost. Run now is the row's one outline button; Skip next
+and Pause sit in its ⋯, or as one quiet icon when only one applies. A paused routine says so,
+drops Run now and its next runs, and offers Resume.
+
+<ComponentPreview name="routineRow" file="components/preview/routine-row.tsx" />
+
+## Examples
+
+### On a phone
+
+<ComponentPreview
+  name="routineRowNarrow"
+  file="components/preview/routine-row.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/routine-row.tsx"
+  name="RoutineRowProps"
+/>
+
+## Accessibility
+
+- The name is the row's only link; its focus tints the row.
+- Run now, the ⋯ and a lone action are named for the routine ("More for Monday supplier check").
+- The last run's glyph sits beside its words, never alone.
+
+| Key                                 | Action                      |
+| ----------------------------------- | --------------------------- |
+| <kbd>Tab</kbd>                      | Name, Run now, then the ⋯   |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open, run, or open the menu |
+
+<StatesTested name="routine-row" />
+
+## Do / Don't
+
+<DoDont
+  do="Format the next runs and the last run's time in the workspace's format before passing them."
+  dont="Make Run now a filled primary: rows hold outline actions."
+/>

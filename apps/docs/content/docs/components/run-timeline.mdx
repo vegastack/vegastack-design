@@ -1,0 +1,100 @@
+---
+title: Run Timeline
+description: What an agent's run did, step by step, in the chat work log's anatomy — cost, decisions with Why?, Undo, delivery unknown and folding.
+audience: public
+registry: run-timeline
+status: stable
+since: 0.123.0
+a11y: named region; steps are an ordered list
+preview: runTimeline
+---
+
+## Install
+
+<InstallSteps name="run-timeline" />
+
+## Usage
+
+```tsx
+import { RunTimeline } from "@/components/ui/run-timeline";
+
+<RunTimeline
+  steps={run.steps}
+  summary={<RunUsageChip usage={run.usage} />}
+  onExpand={(stepId) => loadStepDetail(stepId)}
+/>;
+```
+
+Not a second step vocabulary: each step reads as the chat work log does — a muted verb, the
+subject in the body ink, muted meta and duration, one hairline guide and no per-row icon. A run page
+adds only an ordered list, per-step cost, the permission decision with "Why?", Undo, a delivery
+that isn't confirmed yet, and folding.
+
+<ComponentPreview
+  name="runTimeline"
+  file="components/preview/run-timeline.tsx"
+/>
+
+## Examples
+
+### Live
+
+The run's live state is one bolt in the header line, never one per row: Strike while a step runs,
+Pulse while the run waits. A running step's time counts up.
+
+<ComponentPreview
+  name="runTimelineLive"
+  file="components/preview/run-timeline.tsx"
+/>
+
+### Folding
+
+Consecutive tool steps past `collapseRuns` (5) fold into "38 more steps", opened in place, so a
+thousand steps stay a short page until someone asks for them.
+
+<ComponentPreview
+  name="runTimelineFolded"
+  file="components/preview/run-timeline.tsx"
+/>
+
+### Decisions, Undo and delivery
+
+`decision` adds what was decided, by whom or which rule, and "Why?". `onUndo` adds Undo, and
+`undoneBy` strikes the step through with who undid it. `delivery_unknown` reads "Delivery unknown ·
+checking before any retry", so nobody resends what may have gone. A failed step carries the amber
+glyph and its words, never a red fill. A subagent's or hand-off's own steps nest under it.
+
+### On a phone
+
+<ComponentPreview
+  name="runTimelineNarrow"
+  file="components/preview/run-timeline.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/run-timeline.tsx"
+  name="RunTimelineProps"
+/>
+
+## Accessibility
+
+- The timeline is a region named "Run steps"; the steps are an ordered list, and nested steps a
+  list named for their parent.
+- Details open in place with `aria-expanded`; the fold is a button naming how many steps it hides.
+- A failed step's glyph is named "Couldn't finish".
+
+| Key                                 | Action                           |
+| ----------------------------------- | -------------------------------- |
+| <kbd>Tab</kbd>                      | Why?, Undo, Details and the fold |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open details or the fold         |
+
+<StatesTested name="run-timeline" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the steps in order with their costs formatted, and let the timeline fold long runs."
+  dont="Put a spinner on every running row: the run has one live bolt."
+/>

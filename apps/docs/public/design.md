@@ -1647,7 +1647,9 @@ one person is a `ForYouCard`, laid out for the 26rem Inbox panel first: it names
 says what happens if nobody answers, and draws the source's options by the server's kinds, the
 preferred one secondary. A card whose source the person can no longer see shows one line and
 nothing of the source. A digest is `DigestGroup`s of the caller's own rows, each with only the
-actions its person may take, and one group action.
+actions its person may take, and one group action. A run's page reads its steps as the chat's work
+log does (`RunTimeline`), with one live bolt for the run, never one per row; a delegate is a
+`DelegateRow` in a member row's anatomy, and cover is said once, as a `CoverageBanner`.
 
 A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
 fill sits 8px inside its container (LAY-20: `ItemGroup variant="flush"`, the Inbox list); menus keep

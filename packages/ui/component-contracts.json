@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 823,
-    "components": 234,
+    "totalRegistryItems": 827,
+    "components": 238,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -28,7 +28,7 @@
     "Data display": 49,
     "Content/marketing": 14,
     "Shared internals": 6,
-    "AI/chat": 52,
+    "AI/chat": 56,
     "Hooks": 16,
     "Block": 15,
     "Animated icons": 467
@@ -282,7 +282,11 @@
       "tool-permission-list",
       "digest-group",
       "for-you-card",
-      "request-status-chip"
+      "request-status-chip",
+      "coverage-banner",
+      "delegate-row",
+      "routine-row",
+      "run-timeline"
     ],
     "Hooks": [
       "use-announcer",
@@ -32620,6 +32624,579 @@
             {
               "name": "data-urgent",
               "values": [""]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "run-timeline",
+      "registryType": "registry:ui",
+      "title": "Run Timeline",
+      "summary": "An agent run's steps in the chat work log's anatomy: per-step cost, the permission decision with Why?, Undo, delivery unknown, nested subagent steps, one live bolt for the run and folding of long tool runs.",
+      "status": "stable",
+      "since": "0.123.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/run-timeline.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RunStepKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/run-timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunStepStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/run-timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunTimeline",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/run-timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunTimelineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/run-timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RunTimelineStep",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/run-timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "One timeline; a step's kind picks its verb."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "running",
+            "done",
+            "failed",
+            "waiting",
+            "skipped",
+            "stopped",
+            "delivery_unknown",
+            "decision",
+            "undo",
+            "undone",
+            "detail",
+            "nested",
+            "folded",
+            "empty"
+          ],
+          "evidence": "packages/ui/registry/ui/run-timeline.tsx + packages/ui/registry/ui/run-timeline.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-region",
+            "ordered-steps",
+            "expanded-details",
+            "named-fold",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/run-timeline.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["steps", "live-header", "fold", "nested"],
+          "evidence": "packages/ui/registry/ui/run-timeline.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "A step's subject truncates and its meta stays whole; status lines wrap."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/run-timeline",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-card",
+        "@vegastack/chat-work-log",
+        "@vegastack/status-glyph",
+        "@vegastack/text-spinner"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/run-timeline.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "run-timeline",
+      "dataAttributes": {
+        "RunTimeline": {
+          "attributes": [
+            {
+              "name": "data-live",
+              "values": ["running", "waiting"]
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "run-timeline",
+                "run-timeline-header",
+                "run-timeline-summary"
+              ]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "routine-row",
+      "registryType": "registry:ui",
+      "title": "Routine Row",
+      "summary": "One routine in a list: name and schedule, the next runs, owner and destination, the last run, Run now and a ⋯ with Skip next and Pause or Resume.",
+      "status": "stable",
+      "since": "0.123.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/routine-row.tsx"],
+      "publicSymbols": [
+        {
+          "name": "RoutineLastRunStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/routine-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RoutineRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/routine-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RoutineRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/routine-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": ["active", "paused"]
+          }
+        ],
+        "rationale": "Paused mutes and offers Resume."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "active",
+            "paused",
+            "last-done",
+            "last-failed",
+            "last-skipped",
+            "last-no-reply",
+            "single-action",
+            "menu"
+          ],
+          "evidence": "packages/ui/registry/ui/routine-row.tsx + packages/ui/registry/ui/routine-row.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": ["one-link", "named-actions", "browser-accessibility-test"],
+          "evidence": "packages/ui/registry/ui/routine-row.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["row", "paused"],
+          "evidence": "packages/ui/registry/ui/routine-row.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "The name, schedule and meta truncate; actions stay at the end."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/routine-row",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/status-glyph",
+        "@vegastack/tooltip"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/routine-row.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "routine-row",
+      "dataAttributes": {
+        "RoutineRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "routine-row",
+                "routine-row-last",
+                "routine-row-meta",
+                "routine-row-paused"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-status",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "delegate-row",
+      "registryType": "registry:ui",
+      "title": "Delegate Row",
+      "summary": "One person covering for another, in MemberList's row anatomy: avatar and name over what and when, a note, the state and a ⋯ with Edit and End.",
+      "status": "stable",
+      "since": "0.123.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/delegate-row.tsx"],
+      "publicSymbols": [
+        {
+          "name": "DelegateRow",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/delegate-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DelegateRowProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/delegate-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DelegateState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/delegate-row.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": ["active", "ended", "upcoming"]
+          }
+        ],
+        "rationale": "Upcoming and ended mute; ended has no actions."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["active", "upcoming", "ended", "read-only", "long-note"],
+          "evidence": "packages/ui/registry/ui/delegate-row.tsx + packages/ui/registry/ui/delegate-row.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-menu",
+            "focusable-note",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/delegate-row.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["row", "muted"],
+          "evidence": "packages/ui/registry/ui/delegate-row.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Name and area truncate; the note clamps to two lines."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/delegate-row",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/truncated-text"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/delegate-row.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "delegate-row",
+      "dataAttributes": {
+        "DelegateRow": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "delegate-row",
+                "delegate-row-area",
+                "delegate-row-avatar",
+                "delegate-row-more",
+                "delegate-row-more-spacer",
+                "delegate-row-note",
+                "delegate-row-state"
+              ]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "coverage-banner",
+      "registryType": "registry:ui",
+      "title": "Coverage Banner",
+      "summary": "Someone covering for someone: a quiet strip on a page with the delegate and one action, or one muted line under a name.",
+      "status": "stable",
+      "since": "0.123.0",
+      "family": "chat",
+      "wave": "AI/chat",
+      "sourceFiles": ["packages/ui/registry/ui/coverage-banner.tsx"],
+      "publicSymbols": [
+        {
+          "name": "CoverageBanner",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/coverage-banner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "CoverageBannerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/coverage-banner.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "variant",
+            "values": ["banner", "inline"]
+          },
+          {
+            "name": "tone",
+            "values": ["info", "warning"]
+          }
+        ],
+        "rationale": "A strip on a page or a line under a name; warning for an urgent step."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["banner", "inline", "warning", "action", "long-text"],
+          "evidence": "packages/ui/registry/ui/coverage-banner.tsx + packages/ui/registry/ui/coverage-banner.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "status-strip",
+            "decorative-avatar",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/coverage-banner.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["banner", "inline"],
+          "evidence": "packages/ui/registry/ui/coverage-banner.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Banner text wraps; inline text truncates with its full words on hover."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/coverage-banner",
+      "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/button",
+        "@vegastack/truncated-text"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.27.0",
+        "@vegastack/design@^0.27.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/coverage-banner.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "coverage-banner",
+      "dataAttributes": {
+        "CoverageBanner": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["coverage-banner"]
+            },
+            {
+              "name": "data-tone",
+              "values": []
+            },
+            {
+              "name": "data-variant",
+              "values": ["banner", "inline"]
             }
           ],
           "cssVariables": []
