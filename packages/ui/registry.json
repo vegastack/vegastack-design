@@ -1984,7 +1984,7 @@
       "meta": {
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
-        "version": "0.117.0"
+        "version": "0.123.1"
       }
     },
     {

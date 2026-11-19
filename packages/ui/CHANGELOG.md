@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.123.1
+
+### Patch Changes
+
+- [#1054](https://github.com/vegastack/vegastack-design/pull/1054) [`3a943cc`](https://github.com/vegastack/vegastack-design/commit/3a943cc0f1055f2e577a26c4f5397357593bd781) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `ListToolbar`'s row is one height again: its `primary` and `state` slots hold the button they are given to the row's height (32px; 28px with `size="compact"`), so the primary stands as tall as the search field and the icon tools. The primary is documented as a default `<Button>` (it was `size="sm"`, 28px, four pixels short of everything beside it); `size="sm"` only in a compact toolbar. The filter row stays the 28px tier at every width.
+
 ## 0.123.0
 
 ### Minor Changes

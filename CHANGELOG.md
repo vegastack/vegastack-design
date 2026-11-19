@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.123.1] — November 19, 2026
+
+<!-- assembled from 1 changeset: 0180579bf391 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.123.0 → 0.123.1.
+
+### 🐛 Fixed
+
+- `ListToolbar`'s row is one height again: its `primary` and `state` slots hold the button they are given to the row's height (32px; 28px with `size="compact"`), so the primary stands as tall as the search field and the icon tools. The primary is documented as a default `<Button>` (it was `size="sm"`, 28px, four pixels short of everything beside it); `size="sm"` only in a compact toolbar. The filter row stays the 28px tier at every width.
+  [`3a943cc`](https://github.com/VegaStack/vegastack-design/commit/3a943cc)
+
 ## [0.123.0] — November 19, 2026
 
 <!-- assembled from 1 changeset: f3e181f2166c -->
