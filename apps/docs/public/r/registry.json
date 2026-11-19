@@ -194,8 +194,8 @@
       "meta": {
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.123.2",
-        "integrity": "sha256-tIpF5pXCGaMB9Eb04mQWdkVaC6oJG/Zu26jt8z2hulg="
+        "version": "0.123.3",
+        "integrity": "sha256-3/nxlj9VPp4m1nyrz9exeFvdJcnIPy3MOSw691lzShs="
       }
     },
     {
@@ -384,8 +384,8 @@
       "meta": {
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
-        "version": "0.123.2",
-        "integrity": "sha256-6bUtYhBCn8mRCEvvwsaKjGy4jif0Jr8IQnN+lCnTs0U="
+        "version": "0.123.3",
+        "integrity": "sha256-77Tehn7XjyhZLB0Dv2uIwBDV80c569y+fFmgJJs9c9U="
       }
     },
     {
@@ -426,8 +426,8 @@
       "meta": {
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
-        "version": "0.123.2",
-        "integrity": "sha256-kA8indcmySxEdlRotaw/e7JpKyxsI2uNnFbcen94QVY="
+        "version": "0.123.3",
+        "integrity": "sha256-OJ2wBPvGByrIyyHkRObusviWOjEfFIYWi9f45sINp3c="
       }
     },
     {
@@ -3160,8 +3160,8 @@
       "meta": {
         "whenToUse": "Any optimistic inline edit of a single value — grid cells (focusMode=managed), record-page property lists, settings rows — where the write is async and can fail.",
         "whenNotToUse": "Debounced save-as-you-type on a standing form field (AutoSaveInput), or whole forms (Field).",
-        "version": "0.123.2",
-        "integrity": "sha256-RBpDanK3PBwXYL41abtHdziHZnIY2pfehnQPOVTBb5c="
+        "version": "0.123.3",
+        "integrity": "sha256-dQsUUYw45TVBhAriq6I7gU0QVPUAoAKXFdNU4QeI+OQ="
       }
     },
     {
@@ -17326,8 +17326,8 @@
       "meta": {
         "whenToUse": "A record's or task's files as a list or grid of cards (put them in AttachmentGroup layout=\"cards\" or list): a thumbnail or type icon, name, size and who/when, a ⋯ menu, opening the viewer or linking to a download or page; UploadCard for the files still uploading.",
         "whenNotToUse": "A square tile grid or a scrolling strip (compose Attachment with orientation=\"vertical\"), or a single inline chip in chat.",
-        "version": "0.123.2",
-        "integrity": "sha256-/lH5CnNBGiF70n+i5gH4MAcvP3SwW7WoLGTQw0mb4uw="
+        "version": "0.123.3",
+        "integrity": "sha256-wJpUSLL4Om69aoEAeCGPD6H6Umq21YOitYpjtuzX10Q="
       }
     },
     {
@@ -17844,8 +17844,8 @@
       "meta": {
         "whenToUse": "Heterogeneous key→value panes (record details, metadata sidebars).",
         "whenNotToUse": "Homogeneous collections (DataList/Table) or form editing (Field).",
-        "version": "0.123.2",
-        "integrity": "sha256-/+Z/sA8Xt2ab15XSsKJBvWwiMOMfFv5p46HFndqkHtc="
+        "version": "0.123.3",
+        "integrity": "sha256-wvz168aRID7aLM7YT49+GmpBAnDV1qjMITSG1UnogLg="
       },
       "registryDependencies": []
     },
@@ -18150,8 +18150,8 @@
       "meta": {
         "whenToUse": "Choosing or showing which space a record lives in, in a create dialog title or a property row.",
         "whenNotToUse": "Choosing anything that is not a space (SearchableSelect, Combobox).",
-        "version": "0.123.2",
-        "integrity": "sha256-uv+AQA1UD5Fn7KOnXH8hOZV+LZQys+/qveC3eU9CkI4="
+        "version": "0.123.3",
+        "integrity": "sha256-tORhyM8xW7sMLh+VlM/VXrlJdMxFuTTYBWF8ayt3RyM="
       }
     },
     {
@@ -19389,8 +19389,8 @@
       "meta": {
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
-        "version": "0.123.2",
-        "integrity": "sha256-0YnBjFZB7YV9pRMGxEIP8qsrUxPwbRB0WhPuZBGVyXI="
+        "version": "0.123.3",
+        "integrity": "sha256-E581NPF8kT62FbDkT8C8oani1OPXWw86ev3Gnr7V7S4="
       }
     },
     {
@@ -20805,8 +20805,8 @@
       "meta": {
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
-        "version": "0.123.2",
-        "integrity": "sha256-LuDUpyikuBQ8OtGdsPJm/LYwL7jF+AZgA20PqleEws8="
+        "version": "0.123.3",
+        "integrity": "sha256-aZSuUNI+Octn9vhFdCZ+cE3L0PjKaOt+gVlFLIjHxBw="
       }
     },
     {
@@ -24546,8 +24546,8 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
-        "version": "0.123.2",
-        "integrity": "sha256-gFd7b4ZNy80AEG46OsBVQ56vnbARkBgROvSJ36ze7As="
+        "version": "0.123.3",
+        "integrity": "sha256-f1GUo6aQErq/BEOoMXQTXCIn/C6huFNXl6i3q94zrNQ="
       }
     },
     {

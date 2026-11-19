@@ -10,6 +10,17 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.123.3] — November 19, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.123.2 → 0.123.3.
+
+### 🐛 Fixed
+
+- Side panel and top bar tidy. The top bar's and the peek header's controls read one size — 14px labels and 16px icons — so Share, Watch and ☆ match ⋯, ▥ and the breadcrumb. `SpaceChip variant="ghost"` is a space as a property value: the value's ink and size, the ghost Record Chip's capsule and hang, its ▾ only on hover, and `href` for a read-only link; `SpacePicker placement="property"` uses it (dashed while empty) and `onClear` offers "No space". In a panel `PropertyList`, an editable value with nothing in it is the dashed empty capsule (`EditableCell` marks it `data-empty`), and so is an empty `AgentSlot`, whose hover is a capsule too. `RecordPanelItem` takes an `action` that replaces its detail on hover or focus instead of reserving a column. A `FileCard` row shows its source just before the name and its actions take no room until hover where the row has a tab stop before them. `ContextPanel variant="panel"` rows read 14px like every panel row, their count the muted detail. A toast's content pads 12px again (staging's height).
+  [`5e1df54`](https://github.com/VegaStack/vegastack-design/commit/5e1df54)
+
 ## [0.123.2] — November 19, 2026
 
 ### 📦 npm
