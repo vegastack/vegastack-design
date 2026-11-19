@@ -19680,7 +19680,7 @@
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
         "version": "0.120.0",
-        "integrity": "sha256-F/DIJNsvmRdriQm7DFXsJILoFfQ3+q50tXYGoJXgspk="
+        "integrity": "sha256-aDh8Z8iDa0VtfKurlDiwUtsSx/tSFoV0sFVnqrt+1KU="
       }
     },
     {
@@ -24450,7 +24450,7 @@
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (RequestCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
         "version": "0.117.0",
-        "integrity": "sha256-8d/rHLfgdMZjwpD20RERDIZbvTX2bj7j3MZybLvMLjU="
+        "integrity": "sha256-NkWhkv9jL1LADOgLIcjafbrTzImtXHJY9dpG7GVG2d4="
       }
     },
     {

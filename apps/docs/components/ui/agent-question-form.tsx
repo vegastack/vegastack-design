@@ -1,4 +1,4 @@
-// @vegastack agent-question-form@0.117.0 sha256-8d/rHLfgdMZjwpD20RERDIZbvTX2bj7j3MZybLvMLjU=
+// @vegastack agent-question-form@0.117.0 sha256-NkWhkv9jL1LADOgLIcjafbrTzImtXHJY9dpG7GVG2d4=
 
 "use client";
 
@@ -134,6 +134,11 @@ export interface AgentQuestionFormProps {
   recommended?: boolean;
   /** The words, each with an English default. @default {} */
   labels?: Partial<AgentQuestionFormLabels>;
+  /**
+   * The look of Send, Next and Submit. `secondary` inside a card that holds no filled primary,
+   * such as `ForYouCard`. @default "default"
+   */
+  actionVariant?: "default" | "secondary";
   /** Classes on the root. @default undefined */
   className?: string;
 }
@@ -303,6 +308,7 @@ function CompactForm({
   disabled,
   recommended,
   labels,
+  actionVariant,
   className,
 }: {
   question: AgentQuestionFormQuestion;
@@ -311,6 +317,7 @@ function CompactForm({
   disabled: boolean;
   recommended: boolean;
   labels: AgentQuestionFormLabels;
+  actionVariant: "default" | "secondary";
   className?: string;
 }) {
   const { status, error, submit } = useSubmission(onSubmit);
@@ -445,6 +452,7 @@ function CompactForm({
               />
               <Button
                 size="sm"
+                variant={actionVariant}
                 data-slot="agent-question-form-send"
                 loading={picked === "other" && status === "submitting"}
                 disabled={locked || other.trim().length === 0}
@@ -709,6 +717,7 @@ function FullForm({
   disabled,
   recommended,
   labels,
+  actionVariant,
   className,
 }: {
   questions: AgentQuestionFormQuestion[];
@@ -717,6 +726,7 @@ function FullForm({
   disabled: boolean;
   recommended: boolean;
   labels: AgentQuestionFormLabels;
+  actionVariant: "default" | "secondary";
   className?: string;
 }) {
   const { status, error, submit } = useSubmission(onSubmit);
@@ -848,11 +858,15 @@ function FullForm({
         <QuestionnairePrevious disabled={locked}>
           {labels.back}
         </QuestionnairePrevious>
-        <QuestionnaireNext disabled={locked || !answered[step]}>
+        <QuestionnaireNext
+          variant={actionVariant}
+          disabled={locked || !answered[step]}
+        >
           {step === reviewStep - 1 ? labels.review : labels.next}
         </QuestionnaireNext>
         {step === reviewStep ? (
           <Button
+            variant={actionVariant}
             data-slot="agent-question-form-submit"
             loading={status === "submitting"}
             disabled={locked || !allAnswered}
@@ -896,6 +910,7 @@ function AgentQuestionForm({
   disabled = false,
   recommended = true,
   labels,
+  actionVariant = "default",
   className,
 }: AgentQuestionFormProps) {
   const words = { ...DEFAULT_LABELS, ...labels };
@@ -919,6 +934,7 @@ function AgentQuestionForm({
         disabled={disabled}
         recommended={recommended}
         labels={words}
+        actionVariant={actionVariant}
         className={className}
       />
     );
@@ -931,6 +947,7 @@ function AgentQuestionForm({
       disabled={disabled}
       recommended={recommended}
       labels={words}
+      actionVariant={actionVariant}
       className={className}
     />
   );

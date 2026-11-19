@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.120.0 sha256-F/DIJNsvmRdriQm7DFXsJILoFfQ3+q50tXYGoJXgspk=
+// @vegastack for-you-card@0.120.0 sha256-aDh8Z8iDa0VtfKurlDiwUtsSx/tSFoV0sFVnqrt+1KU=
 
 "use client";
 
@@ -371,9 +371,11 @@ export function ForYouCard({
 
   const Verb = VERB[verb];
   const closedLine = (() => {
-    if (state === "stale") return "This changed. Review the new version.";
-    if (state === "expired") return "Not answered in time";
-    if (state === "withdrawn") return "No longer needed";
+    const more = outcome ? ` · ${outcomeWords(outcome)}` : "";
+    if (state === "stale")
+      return `This changed. Review the new version.${more}`;
+    if (state === "expired") return `Not answered in time${more}`;
+    if (state === "withdrawn") return `No longer needed${more}`;
     if (state === "done" || state === "declined" || state === "skipped")
       return outcome
         ? outcomeWords(outcome)
@@ -393,69 +395,76 @@ export function ForYouCard({
           (option) => option.kind === "navigate" || option.kind === "inspect",
         )
       : undefined;
-  const optionButtons = shownOptions?.length ? (
-    <div
-      role="group"
-      aria-label={`Options: ${title}`}
-      data-slot="for-you-card-options"
-      className="flex min-w-0 flex-wrap items-center gap-2"
-    >
-      {shownOptions.map((option) => {
-        const inFlight = sending && sendingOptionId === option.id;
-        if (option.kind === "navigate" && option.href)
+  const optionButtons =
+    shownOptions?.length || (live && (actions != null || onSkip)) ? (
+      <div
+        role="group"
+        aria-label={`Options: ${title}`}
+        data-slot="for-you-card-options"
+        className="flex min-w-0 flex-wrap items-center gap-2"
+      >
+        {(shownOptions ?? []).map((option) => {
+          const inFlight = sending && sendingOptionId === option.id;
+          if (option.kind === "navigate" && option.href)
+            return (
+              <a
+                key={option.id}
+                href={option.href}
+                data-option={option.kind}
+                data-variant="outline"
+                aria-disabled={hold || undefined}
+                onClick={(event) => {
+                  if (hold) event.preventDefault();
+                }}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                  "h-auto min-h-7 max-w-full py-1 text-start whitespace-normal no-underline aria-disabled:opacity-50",
+                )}
+              >
+                {option.label}
+              </a>
+            );
           return (
-            <a
+            <Button
               key={option.id}
-              href={option.href}
-              data-option={option.kind}
-              data-variant="outline"
-              aria-disabled={hold || undefined}
-              onClick={(event) => {
-                if (hold) event.preventDefault();
-              }}
+              size="sm"
+              variant={optionVariant(option.kind)}
               className={cn(
-                buttonVariants({ variant: "outline", size: "sm" }),
-                "no-underline aria-disabled:opacity-50",
+                // A long server label wraps inside the panel instead of running past it.
+                "h-auto min-h-7 max-w-full py-1 text-start whitespace-normal",
+                // Skip leaves For you without deciding: quieter than Decline.
+                option.kind === "skip" && "text-muted-foreground",
               )}
+              data-option={option.kind}
+              data-option-id={option.id}
+              disabled={hold && !inFlight}
+              aria-busy={inFlight || undefined}
+              onClick={() => {
+                if (hold) return;
+                if (option.kind === "inspect") onInspect?.(option.id);
+                else void onOption?.(option.id);
+              }}
             >
+              {inFlight ? <TextSpinner variant="waiting" label="" /> : null}
               {option.label}
-            </a>
+            </Button>
           );
-        return (
+        })}
+        {live ? actions : null}
+        {onSkip && live ? (
           <Button
-            key={option.id}
             size="sm"
-            variant={optionVariant(option.kind)}
-            data-option={option.kind}
-            data-option-id={option.id}
-            disabled={hold && !inFlight}
-            aria-busy={inFlight || undefined}
-            onClick={() => {
-              if (hold) return;
-              if (option.kind === "inspect") onInspect?.(option.id);
-              else void onOption?.(option.id);
-            }}
+            variant="ghost"
+            data-slot="for-you-card-skip"
+            disabled={hold}
+            className="text-muted-foreground"
+            onClick={onSkip}
           >
-            {inFlight ? <TextSpinner variant="waiting" label="" /> : null}
-            {option.label}
+            Skip
           </Button>
-        );
-      })}
-      {live ? actions : null}
-      {onSkip && live ? (
-        <Button
-          size="sm"
-          variant="ghost"
-          data-slot="for-you-card-skip"
-          disabled={hold}
-          className="text-muted-foreground"
-          onClick={onSkip}
-        >
-          Skip
-        </Button>
-      ) : null}
-    </div>
-  ) : null;
+        ) : null}
+      </div>
+    ) : null;
 
   const body =
     sourceBody && live ? (
@@ -463,6 +472,7 @@ export function ForYouCard({
         {sourceBody.kind === "question_form" ? (
           <AgentQuestionForm
             questions={sourceBody.questions}
+            actionVariant="secondary"
             disabled={hold}
             onSubmit={(answers) =>
               onSubmitBody
@@ -471,7 +481,10 @@ export function ForYouCard({
             }
           />
         ) : (
-          renderBody?.(sourceBody)
+          // The app's own body holds with the card: a fieldset disables every control inside it.
+          <fieldset disabled={hold} className="m-0 min-w-0 border-0 p-0">
+            {renderBody?.(sourceBody)}
+          </fieldset>
         )}
         {sourceBody.kind === "memory_review" &&
         sourceBody.unavailableCount > 0 ? (

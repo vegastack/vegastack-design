@@ -248,3 +248,46 @@ test("offline holds the options; fewer-like-this only on suggest; selected and s
     .element(page.getByRole("menuitem", { name: "Fewer like this" }))
     .toBeVisible();
 });
+
+test("a body-only card keeps Skip; its question form draws no filled primary; a custom body holds while sending", async () => {
+  const screen = await render(
+    <>
+      <ForYouCard
+        {...base}
+        verb="answer"
+        options={undefined}
+        onSkip={vi.fn()}
+        sourceBody={{
+          kind: "question_form",
+          questions: [
+            {
+              header: "Colour",
+              question: "Which colour temperature?",
+              options: [{ label: "3000 K" }, { label: "4000 K" }],
+            },
+          ],
+        }}
+        onSubmitBody={vi.fn(async () => null)}
+      />
+      <ForYouCard
+        {...base}
+        state="sending"
+        sendingOptionId="body"
+        options={undefined}
+        sourceBody={{ kind: "checkin", v: 1, checkinId: "c1" }}
+        renderBody={() => <button type="button">Send check-in</button>}
+      />
+    </>,
+  );
+  const [bodyOnly, sending] = screen.container.querySelectorAll(
+    '[data-slot="for-you-card"]',
+  );
+  expect(
+    bodyOnly!.querySelector('[data-slot="for-you-card-skip"]'),
+  ).not.toBeNull();
+  expect(filled(bodyOnly!)).toEqual([]);
+  await expect
+    .element(page.getByRole("button", { name: "Send check-in" }))
+    .toBeDisabled();
+  expect(sending).toBeDefined();
+});
