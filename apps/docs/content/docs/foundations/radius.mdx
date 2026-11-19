@@ -168,10 +168,20 @@ pills. **Enforced by:** design-lint `no-radius-ramp` and `floating-capsule` on r
 **Enforced by:** design-lint `no-radius-ramp` and `floating-capsule`; `geometry.browser.test.tsx`
 (rule 2 and 6, below); the `row-fill` utility (rule 6, tables).
 
-**Touch platforms.** The mobile app reads the same roles from `corner-platforms.json`: buttons, icon
-buttons, segmented controls, chips and search fields are capsules (`control`, `icon` → capsule), form
-fields are 12px (`field`, a quarter of the 48px field), and `segment` stays 6px — the button inside a
-12px field.
+**Touch platforms.** The mobile app follows the same thesis and reads the same roles from
+`corner-platforms.json`; only the numbers change for its taller 44–48pt controls:
+
+| Role      | Web and desktop | Touch | What it is on a phone                                                                                                    |
+| --------- | --------------- | ----- | ------------------------------------------------------------------------------------------------------------------------ |
+| `control` | 10px            | 12pt  | Buttons, inputs, selects, segmented tracks, in-page search                                                               |
+| `icon`    | 10px            | 12pt  | Icon buttons in the page (a row's ⋯, Share, Details, toolbar buttons)                                                    |
+| `field`   | = `control`     | 12pt  | Form fields, a quarter of the 48pt field                                                                                 |
+| `segment` | 8px             | 8pt   | A control inside a control (a send button 4pt inside a field, a segmented thumb) and any control 28pt or shorter         |
+| `capsule` | pill            | pill  | The frame (back button, header cluster, the Search screen's box), the tab bar and everything floating (FAB, mic, Latest) |
+
+A field and the button beside it share one shape, as on the web. Chips, badges, switches and avatars
+stay pills; rows follow rule 6 (an inset `item` fill in an undivided list, a square band between
+dividers — grouped Settings cards included).
 
 **Squircles.** A squircle is how a rounded corner is drawn (a continuous curve), not a different
 radius. The mobile app draws its rounded rectangles that way. The web waits until stable Safari
@@ -228,7 +238,7 @@ Every number above lives once, in `@vegastack/design-tokens` (`tokens/semantic.t
 reads `corner-*` from the package (its floating windows' native glass corners), and the Flutter app
 pulls `corners.dart` (generated as `DesignCorners`) with `scripts/pull-design-corners.sh`.
 `corners.json` lists both tables: **pointer** (web, desktop) and **touch** (mobile), where touch
-overrides only `control`, `icon` (capsules), `segment` (6px) and `field` (12px). Change a corner in
+overrides only `control` (12pt) and the roles that follow it, `icon` and `field`. Change a corner in
 the design system, release, and pull it; never type a radius in an app.
 
 ## Overriding shape
