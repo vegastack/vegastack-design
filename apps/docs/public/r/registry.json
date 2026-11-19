@@ -19740,7 +19740,7 @@
         "whenToUse": "A request's status in a row, a header or a card.",
         "whenNotToUse": "A task's workflow status (StatusIcon), or any other record's tag (Badge).",
         "version": "0.120.0",
-        "integrity": "sha256-32hjPl1sHqJ4WPAGRcxzUqWA+FWrG382zpO4Tg2njr8="
+        "integrity": "sha256-+vkftQ7tl8Pm2NXxaxQLdUlcb2GrlBqCVBPEOdiUkQE="
       }
     },
     {

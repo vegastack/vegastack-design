@@ -1,4 +1,4 @@
-// @vegastack request-status-chip@0.120.0 sha256-32hjPl1sHqJ4WPAGRcxzUqWA+FWrG382zpO4Tg2njr8=
+// @vegastack request-status-chip@0.120.0 sha256-+vkftQ7tl8Pm2NXxaxQLdUlcb2GrlBqCVBPEOdiUkQE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -85,7 +85,7 @@ export function RequestStatusChip({
       data-size={size}
       className={cn(
         "max-w-full min-w-0",
-        size === "sm" && "h-4.5 px-1.5",
+        size === "sm" && "h-4 px-1.5",
         state === "cancelled" && "text-muted-foreground",
         className,
       )}
