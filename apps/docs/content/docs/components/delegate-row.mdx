@@ -1,0 +1,82 @@
+---
+title: Delegate Row
+description: One person covering for another, as a member row — avatar and name over what they cover and when, a note, the state and a ⋯ with Edit and End.
+audience: public
+registry: delegate-row
+status: stable
+since: 0.123.0
+a11y: menu named for the delegation; note readable on focus
+preview: delegateRow
+---
+
+## Install
+
+<InstallSteps name="delegate-row" />
+
+## Usage
+
+```tsx
+import { DelegateRow } from "@/components/ui/delegate-row";
+
+<DelegateRow
+  area="Approvals · Expenses, Travel"
+  person={{
+    name: "Rohan Mehta",
+    avatar: <PersonAvatar person={rohan} size="sm" />,
+  }}
+  until="30 Nov"
+  note="Rohan approves anything under ₹50,000."
+  state="active"
+  onEdit={edit}
+  onEnd={end}
+/>;
+```
+
+The row keeps `MemberList`'s 36px anatomy — avatar, name over a muted line, trailing state, ⋯ — so
+a delegates list beside a members list reads the same. Add a delegate with `MemberListAdd`, not a
+row of this component. The note clamps to two lines with the rest on hover and focus.
+
+<ComponentPreview
+  name="delegateRow"
+  file="components/preview/delegate-row.tsx"
+/>
+
+## Examples
+
+### States
+
+`active` reads "Active"; `upcoming` mutes its dates and its ⋯ offers Cancel; `ended` mutes and has
+no actions. A row with no handlers is read-only.
+
+### On a phone
+
+<ComponentPreview
+  name="delegateRowNarrow"
+  file="components/preview/delegate-row.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/delegate-row.tsx"
+  name="DelegateRowProps"
+/>
+
+## Accessibility
+
+- The ⋯ is named for the delegation ("More for Rohan Mehta's delegation").
+- A clamped note is a keyboard stop that shows the whole note in its tooltip.
+
+| Key                                 | Action               |
+| ----------------------------------- | -------------------- |
+| <kbd>Tab</kbd>                      | The note, then the ⋯ |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the menu        |
+
+<StatesTested name="delegate-row" />
+
+## Do / Don't
+
+<DoDont
+  do="Word the area for the person reading it: “Approvals · Expenses, Travel”."
+  dont="Add a second add-row: the list's add row is MemberListAdd."
+/>

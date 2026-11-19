@@ -1,0 +1,91 @@
+// @vegastack coverage-banner@0.120.0 sha256-YxUBiJH3v+gjJ6kKA/CVg7xjIWyyKcSoaXxLEgZXL+k=
+
+import * as React from "react";
+import { cn } from "@vegastack/design";
+
+import { Alert, AlertAction, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { TruncatedText } from "@/components/ui/truncated-text";
+
+/* ------------------------------------------------------------------------------------------------
+ * CoverageBanner — someone is covering: "Rohan covers expense approvals until 30 Nov". As a banner
+ * it is a quiet strip on a page with the delegate's avatar, the words and one action ("Change",
+ * "End"); a warning tone marks an urgent covered step. Inline, it is one muted line under a name,
+ * in a people picker or an approval step, cut with its full text on hover.
+ * ----------------------------------------------------------------------------------------------*/
+
+/** Props accepted by `CoverageBanner`. */
+export interface CoverageBannerProps {
+  /** The delegate who covers. */
+  person: { name: string; avatar: React.ReactNode };
+  /** The words, from the caller: "Rohan covers expense approvals until 30 Nov". */
+  text: string;
+  /** `banner` — a strip on a page. `inline` — one muted line under a name. @default "banner" */
+  variant?: "banner" | "inline";
+  /** `warning` when the covered step is urgent. @default "info" */
+  tone?: "info" | "warning";
+  /** One action, banner only: "Change", "End". @default undefined */
+  action?: { label: string; onClick: () => void };
+  /** Classes for the root. @default undefined */
+  className?: string;
+}
+
+/**
+ * `CoverageBanner` — who covers for whom, as a banner on a page or one line under a name.
+ *
+ * @example
+ * <CoverageBanner
+ *   person={{ name: "Rohan", avatar: <PersonAvatar person={rohan} size="xs" /> }}
+ *   text="Rohan covers expense approvals until 30 Nov"
+ *   action={{ label: "Change", onClick: edit }}
+ * />
+ */
+export function CoverageBanner({
+  person,
+  text,
+  variant = "banner",
+  tone = "info",
+  action,
+  className,
+}: CoverageBannerProps) {
+  if (variant === "inline")
+    return (
+      <span
+        data-slot="coverage-banner"
+        data-variant="inline"
+        data-tone={tone}
+        className={cn(
+          "flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground",
+          className,
+        )}
+      >
+        <span aria-hidden className="inline-flex shrink-0">
+          {person.avatar}
+        </span>
+        <TruncatedText className="min-w-0 flex-1">{text}</TruncatedText>
+      </span>
+    );
+  return (
+    <Alert
+      variant={tone === "warning" ? "warning" : "default"}
+      data-slot="coverage-banner"
+      data-variant="banner"
+      data-tone={tone}
+      className={cn("items-center", className)}
+    >
+      <AlertDescription className="flex min-w-0 items-center gap-2 text-sm text-current">
+        <span aria-hidden className="inline-flex shrink-0">
+          {person.avatar}
+        </span>
+        <span className="min-w-0 wrap-anywhere">{text}</span>
+      </AlertDescription>
+      {action ? (
+        <AlertAction>
+          <Button size="sm" variant="outline" onClick={action.onClick}>
+            {action.label}
+          </Button>
+        </AlertAction>
+      ) : null}
+    </Alert>
+  );
+}

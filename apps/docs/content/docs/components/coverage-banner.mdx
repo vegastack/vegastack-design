@@ -1,0 +1,74 @@
+---
+title: Coverage Banner
+description: Someone is covering for someone — a quiet strip on a page with the delegate and one action, or one muted line under a name.
+audience: public
+registry: coverage-banner
+status: stable
+since: 0.123.0
+a11y: a status strip; inline text cut with its full words on hover
+preview: coverageBanner
+---
+
+## Install
+
+<InstallSteps name="coverage-banner" />
+
+## Usage
+
+```tsx
+import { CoverageBanner } from "@/components/ui/coverage-banner";
+
+<CoverageBanner
+  person={{ name: "Rohan", avatar: <PersonAvatar person={rohan} size="xs" /> }}
+  text="Rohan covers your expense approvals until 30 Nov"
+  action={{ label: "Change", onClick: edit }}
+/>;
+```
+
+The words are yours: say who covers what and until when. A banner sits on a page with one action
+("Change", "End"); `tone="warning"` marks a covered step that is urgent.
+
+<ComponentPreview
+  name="coverageBanner"
+  file="components/preview/coverage-banner.tsx"
+/>
+
+## Examples
+
+### Inline
+
+`variant="inline"` is one muted line under a name, in a people picker or an approval step. It cuts
+with its full words on hover and has no action.
+
+<ComponentPreview
+  name="coverageBannerInline"
+  file="components/preview/coverage-banner.tsx"
+/>
+
+### On a phone
+
+<ComponentPreview
+  name="coverageBannerNarrow"
+  file="components/preview/coverage-banner.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/coverage-banner.tsx"
+  name="CoverageBannerProps"
+/>
+
+## Accessibility
+
+- The banner is a polite status (`Alert`); it never interrupts.
+- The avatar is decorative: the words name the delegate.
+
+<StatesTested name="coverage-banner" />
+
+## Do / Don't
+
+<DoDont
+  do="Name the delegate, what they cover and until when."
+  dont="Show a banner and an inline line for the same cover on one screen."
+/>

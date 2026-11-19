@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 154,
+    "total": 158,
     "fromExtras": 40
   },
   "items": {
@@ -120,6 +120,12 @@
       "family": "actions",
       "source": "extras.md"
     },
+    "coverage-banner": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no coverage notice. Upstream alert (banner) or a muted truncated line (inline) with the delegate's avatar and caller words; no patch."
+    },
     "data-grid": {
       "disposition": "keep",
       "family": "data",
@@ -147,6 +153,12 @@
       "family": "form",
       "source": "extras.md",
       "rationale": "Batch 7b rebuilt it on upstream `calendar`: the grid, the day button, the captions and the nav are imported from `@/components/ui/calendar`, and this module is the Popover/Button composition plus `Intl` formatting and the preset rails. `react-day-picker` survives here as TYPES (`DateRange`, `Matcher`, `DayButton`) plus its two matcher EVALUATORS (`dateMatchModifiers`, `rangeContainsModifiers`), which the preset gate calls so a preset obeys exactly the policy the grid enforces; re-deriving Matcher evaluation is the drift the gate exists to prevent, so that import stayed. The one DOM part here is `PopoverDayButton`, which WRAPS upstream's `CalendarDayButton` (never copies it) to focus with `preventScroll` — see its note and `date-picker.test.tsx`'s below-the-fold regression, which fails without it."
+    },
+    "delegate-row": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no delegation row. MemberList's 36px row anatomy for one delegate with what, when, a note, the state and an Edit/End menu; composes button, dropdown-menu and tooltip; no patch."
     },
     "diff-view": {
       "disposition": "keep",
@@ -322,6 +334,18 @@
       "family": "data",
       "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no request status. Upstream badge with the eight lifecycle states mapped to its status tints, words overridable, tone fixed by state; no patch."
+    },
+    "routine-row": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no routine row. A linked row with schedule, next runs, owner, destination, last run, Run now and a Skip/Pause menu; composes badge, button, dropdown-menu, status-glyph and tooltip; no patch."
+    },
+    "run-timeline": {
+      "disposition": "keep",
+      "family": "chat",
+      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no run timeline. The chat work log's step anatomy plus per-step cost, decisions, Undo, delivery unknown, nesting and folding, with one live bolt; composes chat-card, chat-work-log, status-glyph and text-spinner; no patch."
     },
     "suggestion-menu": {
       "disposition": "keep",

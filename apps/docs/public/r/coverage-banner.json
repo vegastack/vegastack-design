@@ -1,0 +1,33 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "coverage-banner",
+  "title": "Coverage Banner",
+  "description": "Someone covering for someone: a quiet strip on a page with the delegate and one action, or one muted line under a name.",
+  "dependencies": [
+    "@vegastack/design@^0.27.0",
+    "@vegastack/design-tokens@^0.27.0"
+  ],
+  "registryDependencies": [
+    "@vegastack/alert",
+    "@vegastack/button",
+    "@vegastack/truncated-text"
+  ],
+  "files": [
+    {
+      "path": "packages/ui/registry/ui/coverage-banner.tsx",
+      "content": "// @vegastack coverage-banner@0.120.0 sha256-YxUBiJH3v+gjJ6kKA/CVg7xjIWyyKcSoaXxLEgZXL+k=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\nimport { Alert, AlertAction, AlertDescription } from \"@/components/ui/alert\";\nimport { Button } from \"@/components/ui/button\";\nimport { TruncatedText } from \"@/components/ui/truncated-text\";\n\n/* ------------------------------------------------------------------------------------------------\n * CoverageBanner — someone is covering: \"Rohan covers expense approvals until 30 Nov\". As a banner\n * it is a quiet strip on a page with the delegate's avatar, the words and one action (\"Change\",\n * \"End\"); a warning tone marks an urgent covered step. Inline, it is one muted line under a name,\n * in a people picker or an approval step, cut with its full text on hover.\n * ----------------------------------------------------------------------------------------------*/\n\n/** Props accepted by `CoverageBanner`. */\nexport interface CoverageBannerProps {\n  /** The delegate who covers. */\n  person: { name: string; avatar: React.ReactNode };\n  /** The words, from the caller: \"Rohan covers expense approvals until 30 Nov\". */\n  text: string;\n  /** `banner` — a strip on a page. `inline` — one muted line under a name. @default \"banner\" */\n  variant?: \"banner\" | \"inline\";\n  /** `warning` when the covered step is urgent. @default \"info\" */\n  tone?: \"info\" | \"warning\";\n  /** One action, banner only: \"Change\", \"End\". @default undefined */\n  action?: { label: string; onClick: () => void };\n  /** Classes for the root. @default undefined */\n  className?: string;\n}\n\n/**\n * `CoverageBanner` — who covers for whom, as a banner on a page or one line under a name.\n *\n * @example\n * <CoverageBanner\n *   person={{ name: \"Rohan\", avatar: <PersonAvatar person={rohan} size=\"xs\" /> }}\n *   text=\"Rohan covers expense approvals until 30 Nov\"\n *   action={{ label: \"Change\", onClick: edit }}\n * />\n */\nexport function CoverageBanner({\n  person,\n  text,\n  variant = \"banner\",\n  tone = \"info\",\n  action,\n  className,\n}: CoverageBannerProps) {\n  if (variant === \"inline\")\n    return (\n      <span\n        data-slot=\"coverage-banner\"\n        data-variant=\"inline\"\n        data-tone={tone}\n        className={cn(\n          \"flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground\",\n          className,\n        )}\n      >\n        <span aria-hidden className=\"inline-flex shrink-0\">\n          {person.avatar}\n        </span>\n        <TruncatedText className=\"min-w-0 flex-1\">{text}</TruncatedText>\n      </span>\n    );\n  return (\n    <Alert\n      variant={tone === \"warning\" ? \"warning\" : \"default\"}\n      data-slot=\"coverage-banner\"\n      data-variant=\"banner\"\n      data-tone={tone}\n      className={cn(\"items-center\", className)}\n    >\n      <AlertDescription className=\"flex min-w-0 items-center gap-2 text-sm text-current\">\n        <span aria-hidden className=\"inline-flex shrink-0\">\n          {person.avatar}\n        </span>\n        <span className=\"min-w-0 wrap-anywhere\">{text}</span>\n      </AlertDescription>\n      {action ? (\n        <AlertAction>\n          <Button size=\"sm\" variant=\"outline\" onClick={action.onClick}>\n            {action.label}\n          </Button>\n        </AlertAction>\n      ) : null}\n    </Alert>\n  );\n}\n",
+      "type": "registry:ui",
+      "target": "@ui/coverage-banner.tsx"
+    }
+  ],
+  "meta": {
+    "whenToUse": "Saying that a delegate covers a step: on an approval page, under a name in a picker.",
+    "whenNotToUse": "A list of delegates (DelegateRow), or a general notice (Alert).",
+    "version": "0.120.0",
+    "integrity": "sha256-YxUBiJH3v+gjJ6kKA/CVg7xjIWyyKcSoaXxLEgZXL+k="
+  },
+  "categories": [
+    "chat"
+  ],
+  "type": "registry:ui"
+}

@@ -16176,6 +16176,124 @@
       }
     },
     {
+      "name": "run-timeline",
+      "type": "registry:ui",
+      "title": "Run Timeline",
+      "description": "An agent run's steps in the chat work log's anatomy: per-step cost, the permission decision with Why?, Undo, delivery unknown, nested subagent steps, one live bolt for the run and folding of long tool runs.",
+      "categories": ["chat"],
+      "dependencies": [
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/chat-card",
+        "@vegastack/chat-work-log",
+        "@vegastack/status-glyph",
+        "@vegastack/text-spinner"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/run-timeline.tsx",
+          "type": "registry:ui",
+          "target": "@ui/run-timeline.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A run's own page: what an agent did, step by step, with what it cost.",
+        "whenNotToUse": "A chat turn's work (WorkLog), or a list of runs (DataList).",
+        "version": "0.120.0"
+      }
+    },
+    {
+      "name": "routine-row",
+      "type": "registry:ui",
+      "title": "Routine Row",
+      "description": "One routine in a list: name and schedule, the next runs, owner and destination, the last run, Run now and a ⋯ with Skip next and Pause or Resume.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/status-glyph",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/routine-row.tsx",
+          "type": "registry:ui",
+          "target": "@ui/routine-row.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A list of an agent's or a person's routines.",
+        "whenNotToUse": "A one-off scheduled run (a task with a due date), or a trigger's settings (SettingsRow).",
+        "version": "0.120.0"
+      }
+    },
+    {
+      "name": "delegate-row",
+      "type": "registry:ui",
+      "title": "Delegate Row",
+      "description": "One person covering for another, in MemberList's row anatomy: avatar and name over what and when, a note, the state and a ⋯ with Edit and End.",
+      "categories": ["chat"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/dropdown-menu",
+        "@vegastack/tooltip"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/delegate-row.tsx",
+          "type": "registry:ui",
+          "target": "@ui/delegate-row.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A list of who covers for a person: delegates in Settings, on a profile.",
+        "whenNotToUse": "Members of a place (MemberList), or handing a record to an agent (DelegatePopover).",
+        "version": "0.120.0"
+      }
+    },
+    {
+      "name": "coverage-banner",
+      "type": "registry:ui",
+      "title": "Coverage Banner",
+      "description": "Someone covering for someone: a quiet strip on a page with the delegate and one action, or one muted line under a name.",
+      "categories": ["chat"],
+      "dependencies": [
+        "@vegastack/design@^0.27.0",
+        "@vegastack/design-tokens@^0.27.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/alert",
+        "@vegastack/button",
+        "@vegastack/truncated-text"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/coverage-banner.tsx",
+          "type": "registry:ui",
+          "target": "@ui/coverage-banner.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Saying that a delegate covers a step: on an approval page, under a name in a picker.",
+        "whenNotToUse": "A list of delegates (DelegateRow), or a general notice (Alert).",
+        "version": "0.120.0"
+      }
+    },
+    {
       "name": "request-status-chip",
       "type": "registry:ui",
       "title": "Request Status Chip",

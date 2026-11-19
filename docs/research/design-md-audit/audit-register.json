@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "eecf96b13cbf062192b33d98dc8f926b0f4728481bb1766358c527a56e2afec2",
+  "contractSha256": "91c616708dc2dad61ca6cbdc01e53d4bd2ccfc9365fbf63a9f6e39f385a06c14",
   "expectedCounts": {
-    "totalRegistryItems": 823,
-    "components": 234,
+    "totalRegistryItems": 827,
+    "components": 238,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -1563,6 +1563,50 @@
         "packages/ui/registry/ui/digest-group.tsx"
       ],
       "docsSlug": "/docs/components/digest-group",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "run-timeline",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/run-timeline.tsx"
+      ],
+      "docsSlug": "/docs/components/run-timeline",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "routine-row",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/routine-row.tsx"
+      ],
+      "docsSlug": "/docs/components/routine-row",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "delegate-row",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/delegate-row.tsx"
+      ],
+      "docsSlug": "/docs/components/delegate-row",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "coverage-banner",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/coverage-banner.tsx"
+      ],
+      "docsSlug": "/docs/components/coverage-banner",
       "contractStatus": "reconciled"
     },
     {
