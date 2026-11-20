@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.123.6] — November 20, 2026
+
+<!-- assembled from 1 changeset: 7303ae7b363a -->
+
+### 🧩 New components
+
+- `ForYouCard` is a full Inbox row: inside an `Inbox` it takes `value` (J / K reach it, the active row selects it with the rows' start bar, Enter or a click opens it through `onOpen`), `unread` (the row's dot and an sr-only "Unread") and `menu` (the row's items after Snooze and Fewer like this, kept on a settled card, opened by a long press on touch). Its outcome says where an answer came from for every K-FY `via`: `app` "on the web", `phone` "in the mobile app", `desktop` "in the desktop app", `slack`, `email`; `system` says nothing. `Inbox` exports the row behaviour it shares with `InboxItem`: `useInboxRow`, `InboxRowTitle` and `InboxRowMenu`. A click on a field or form inside a row no longer opens the row.
+  [`27e08df`](https://github.com/VegaStack/vegastack-design/commit/27e08df)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.123.5 → 0.123.6.
+
 ## [0.123.5] — November 20, 2026
 
 <!-- assembled from 1 changeset: edc0d3311990 -->

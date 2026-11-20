@@ -17610,8 +17610,8 @@
       "meta": {
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread marker (NotificationDot).",
-        "version": "0.123.2",
-        "integrity": "sha256-185CAKXmNa0TTeJIeSUHfjHhK3DpnejcP0NzNa2wF+Y="
+        "version": "0.123.6",
+        "integrity": "sha256-mi2plHSyzV4FVX+drnml0Tt4kRzZ9c+43pUFc/s2GBI="
       }
     },
     {
@@ -19680,8 +19680,8 @@
       "meta": {
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
-        "version": "0.123.2",
-        "integrity": "sha256-q0PQppJqTUfUMLXy9jNRwwBPQv31/Wkhi2ygayrxCY8="
+        "version": "0.123.6",
+        "integrity": "sha256-Zon7Xis+01nuqHy/lgk3tYrt5vkwu4Awrb7S0uwbCYg="
       }
     },
     {
