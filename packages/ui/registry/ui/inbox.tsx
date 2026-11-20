@@ -1,4 +1,4 @@
-// @vegastack inbox@0.123.2 sha256-Na2p8xQ8oNMExAnwJaXv9Z/tpnv425XCvHrgPNWn1fE=
+// @vegastack inbox@0.123.2 sha256-185CAKXmNa0TTeJIeSUHfjHhK3DpnejcP0NzNa2wF+Y=
 
 "use client";
 
@@ -1125,7 +1125,9 @@ export interface InboxRowOptions {
   menu: boolean;
   /** The row's own link; a row with one opens through it, not through a click on the row. */
   href?: string;
+  /** The row's own click handler, run first; `preventDefault` keeps the row closed. */
   onClick?: React.MouseEventHandler<HTMLLIElement>;
+  /** The row's own key handler, run first; `preventDefault` keeps Enter from opening it. */
   onKeyDown?: React.KeyboardEventHandler<HTMLLIElement>;
 }
 
@@ -1235,6 +1237,7 @@ export interface InboxRowTitleProps {
   row: InboxRow;
   /** Classes for the title's button. @default undefined */
   className?: string;
+  /** The title. */
   children: React.ReactNode;
 }
 
