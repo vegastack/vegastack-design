@@ -117,7 +117,7 @@ const TOAST_STACK = [
 ];
 
 const toastVariants = cva(
-  "group/toast pointer-events-auto w-full rounded-card border bg-popover text-popover-foreground shadow-lg select-none",
+  "group/toast pointer-events-auto w-full rounded-card border border-popover-border bg-popover text-popover-foreground shadow-lg select-none",
   {
     variants: {
       // Which edge the stack grows from — sets `origin` so the collapsed scale reads right, and

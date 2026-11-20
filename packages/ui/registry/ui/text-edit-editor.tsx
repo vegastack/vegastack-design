@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.123.2 sha256-FzwBUtXAEt26Vue13QNpSxh7oZBqy8iBzVr+6Ff6AIk=
+// @vegastack text-edit@0.123.2 sha256-HrVay6NuKIovCZWWmFf2c7pyOmc68Nke9NUdQYUx0u0=
 
 "use client";
 
@@ -3537,7 +3537,7 @@ const IMAGE_MENU_SLOT =
 const IMAGE_CAPTION =
   "mt-1.5 max-w-full text-sm leading-snug text-muted-foreground wrap-break-word select-text";
 const IMAGE_SIZE_LABEL =
-  "pointer-events-none absolute bottom-1.5 start-1/2 z-10 hidden -translate-x-1/2 rounded-chip bg-popover px-1.5 py-0.5 text-xs text-popover-foreground tabular-nums shadow-sm border border-border group-data-[resize-state=true]/image:block";
+  "pointer-events-none absolute bottom-1.5 start-1/2 z-10 hidden -translate-x-1/2 rounded-chip bg-popover px-1.5 py-0.5 text-xs text-popover-foreground tabular-nums shadow-sm border border-popover-border group-data-[resize-state=true]/image:block";
 const IMAGE_GUIDE =
   "pointer-events-none absolute top-0 bottom-0 z-10 w-0 border-s border-dashed border-border data-active:border-solid data-active:border-primary";
 
@@ -6440,14 +6440,14 @@ const LINK_INVALID =
  * list of `rounded-item` rows on it takes `p-1.25` instead (16 − 6 = 10).
  */
 const MENU_SURFACE =
-  "z-50 rounded-card border border-border bg-popover p-1.75 text-popover-foreground shadow-md";
+  "z-50 rounded-card border border-popover-border bg-popover p-1.75 text-popover-foreground shadow-md";
 /**
  * A single-line floating toolbar (the paste offers, the link card): a capsule (`rounded-capsule`, it
  * floats) whose controls are capsules and circles (`capsule-scope`). The selection bubble can wrap
  * onto a second row, so it is a floating panel on `MENU_SURFACE` (`rounded-card`), not a capsule.
  */
 const TOOLBAR_SURFACE =
-  "z-50 rounded-capsule border border-border bg-popover p-1 text-popover-foreground shadow-md capsule-scope";
+  "z-50 rounded-capsule border border-popover-border bg-popover p-1 text-popover-foreground shadow-md capsule-scope";
 
 /** Every floating part of the editor — focus moving into one of them stays in the edit session. */
 const FLOATING_SLOTS = TEXT_EDIT_SESSION_SELECTOR;
@@ -8959,7 +8959,7 @@ function FindBar({
             findRef.current?.select();
           }
         }}
-        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-card border bg-popover p-1.75 text-popover-foreground shadow-md print:hidden"
+        className="pointer-events-auto absolute end-0 top-0 flex w-full max-w-[min(100%,28rem)] flex-col gap-1.5 rounded-card border border-popover-border bg-popover p-1.75 text-popover-foreground shadow-md print:hidden"
       >
         <div className="flex flex-wrap items-center gap-1">
           <label htmlFor={inputId} className="sr-only">

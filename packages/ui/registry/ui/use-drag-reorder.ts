@@ -1,4 +1,4 @@
-// @vegastack use-drag-reorder@0.89.0 sha256-F5REXZtWpFFgXGQtLXcGs5e50fXS1Vftp1LDAaJ8Hno=
+// @vegastack use-drag-reorder@0.89.0 sha256-7Vken3wqK7H3968XgTT857Vp3TW2Mjb2VeAS8SepFGA=
 
 "use client";
 
@@ -267,7 +267,7 @@ function renderLabelPreview(label: string, container: HTMLElement) {
   const pill = document.createElement("div");
   pill.setAttribute("data-slot", "drag-preview");
   pill.className =
-    "max-w-64 truncate rounded-chip border border-border bg-popover px-2 py-1 text-sm text-popover-foreground";
+    "max-w-64 truncate rounded-chip border border-popover-border bg-popover px-2 py-1 text-sm text-popover-foreground";
   pill.textContent = label;
   container.append(pill);
   return () => pill.remove();

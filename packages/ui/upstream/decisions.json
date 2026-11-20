@@ -3,8 +3,8 @@
   "_note": "GENERATED from the prose register, which is tracked in git. Regenerate with: node tooling/upstream/verify-parity.mjs --sync-decisions. A gate may only accept an ID whose value here is \"ours\".",
   "counts": {
     "total": 263,
-    "ours": 158,
-    "shadcn": 105
+    "ours": 159,
+    "shadcn": 104
   },
   "decisions": {
     "INT-1": "ours",
@@ -40,7 +40,7 @@
     "FOC-16": "ours",
     "COL-1": "shadcn",
     "COL-2": "shadcn",
-    "COL-3": "shadcn",
+    "COL-3": "ours",
     "COL-4": "shadcn",
     "COL-5": "shadcn",
     "COL-6": "shadcn",

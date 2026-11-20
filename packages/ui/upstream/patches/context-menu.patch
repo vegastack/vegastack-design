@@ -1,6 +1,8 @@
 # component: context-menu
-# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FRM-4, INT-1, OVL-13, OVL-19, COL-24, BRD-12
+# decisions: A11Y-13, API-19, BRD-1, DOC-1, DOC-2, FRM-4, INT-1, OVL-13, OVL-19, COL-24, BRD-12, COL-3
 # hunks:
+#   COL-3 (Regent F32, 2026-11-20): the popup's edge is `border-popover-border`, the anchored-popup edge
+#     token (3:1 over a dialog in dark; the hairline in light), so a popup over a modal reads as raised.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   OVL-13: the same two hosts `dropdown-menu` has — `ContextMenuContent`'s own portal is scoped
@@ -9,7 +11,7 @@
 #     the radio item.
 #   FRM-4: `data-disabled:pointer-events-none` is dropped from the item, the checkbox item and
 #     the radio item, so a disabled row stays hoverable.
-#   BRD-1: `ContextMenuContent` draws a real 1px `border border-border` instead of upstream's
+#   BRD-1: `ContextMenuContent` draws a real 1px `border border-popover-border` instead of upstream's
 #     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
 #     border survives forced colours and matches `foundations/elevation`; nothing else moves.
 #   A11Y-13: the destructive `ContextMenuItem`'s focused ink `focus:text-destructive` becomes
@@ -34,7 +36,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/context-menu.tsx b/context-menu.tsx
-index 38eb2fb..dd552a6 100644
+index 38eb2fb..9372414 100644
 --- a/context-menu.tsx
 +++ b/context-menu.tsx
 @@ -1,18 +1,31 @@
@@ -107,7 +109,7 @@ index 38eb2fb..dd552a6 100644
            data-slot="context-menu-content"
 -          className={cn("z-50 max-h-(--available-height) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover p-1 text-popover-foreground shadow-md ring-1 ring-foreground/10 duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95", className )}
 +          className={cn(
-+            "relative z-50 max-h-(--available-height) w-max max-w-(--available-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-card bg-popover p-1.25 text-popover-foreground shadow-md border border-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            "relative z-50 max-h-(--available-height) w-max max-w-(--available-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-card bg-popover p-1.25 text-popover-foreground shadow-md border border-popover-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +            className,
 +          )}
            {...props}

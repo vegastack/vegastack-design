@@ -68,11 +68,11 @@ function Example({
 const popup = () =>
   document.querySelector('[data-slot="popover-content"]') as HTMLElement | null;
 
-/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+/** BRD-1 + COL-3: a real 1px `border border-popover-border` (the popup edge), never upstream's `ring-1 ring-foreground/10` outline. */
 function expectBorderNotRing(element: HTMLElement) {
   const tokens = element.className.split(/\s+/);
   expect(tokens).toContain("border");
-  expect(tokens).toContain("border-border");
+  expect(tokens).toContain("border-popover-border");
   expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
 }
 

@@ -300,7 +300,11 @@ min-w-32`; `DropdownMenuSubContent`'s `w-auto` becomes `w-max`. A menu is as wid
   every `[role^="menuitem"]`.
 - **FRM-4** — `data-disabled:pointer-events-none` is dropped from the item, the checkbox item and
   the radio item, so a disabled row stays hoverable.
-- **BRD-1** — `DropdownMenuContent` and `DropdownMenuSubContent` draw a real 1px `border border-border` instead of upstream's
+- **COL-3** — the edge is `border-popover-border`, the anchored-popup edge token: 0.52 L in dark
+  (3:1 over a dialog's `card` surface, so a popup opened inside a dialog reads as raised) and the
+  ordinary hairline in light. Regent F32, 2026-11-20; see
+  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal).
+- **BRD-1** — `DropdownMenuContent` and `DropdownMenuSubContent` draw a real 1px `border border-popover-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **A11Y-13** — a focused destructive `DropdownMenuItem` reads `focus:text-destructive-text` on its

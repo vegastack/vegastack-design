@@ -1,6 +1,8 @@
 # component: popover
-# decisions: BRD-1, DOC-1, DOC-2, OVL-13, LAY-17, API-36, BRD-12
+# decisions: BRD-1, DOC-1, DOC-2, OVL-13, LAY-17, API-36, BRD-12, COL-3
 # hunks:
+#   COL-3 (Regent F32, 2026-11-20): the popup's edge is `border-popover-border`, the anchored-popup edge
+#     token (3:1 over a dialog in dark; the hairline in light), so a popup over a modal reads as raised.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-36: `PopoverContent` takes `size` (`default` · `md` · `lg` · `fit`) and forwards `anchor` to the
@@ -10,7 +12,7 @@
 #   OVL-13: `PopoverContent` reads `useInternalThemeScope()` and attaches it to the Positioner
 #     INSIDE the portal — the same host shape `select`, `combobox` and `tooltip` carry.
 #     `tooling/verify-portal-theme-scope.mjs` inventories this host.
-#   BRD-1: `PopoverContent` draws a real 1px `border border-border` instead of upstream's
+#   BRD-1: `PopoverContent` draws a real 1px `border border-popover-border` instead of upstream's
 #     `ring-1 ring-foreground/10` box-shadow outline (MK reversed BRD-1 to ours, 23-09-2026). A
 #     border survives forced colours and matches `foundations/elevation`; nothing else moves.
 #   LAY-17 (MK 2026-10-13, Regent long-names review): `PopoverContent` sets `wrap-break-word`,
@@ -19,7 +21,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/popover.tsx b/popover.tsx
-index 3e7ac5f..68aa320 100644
+index 3e7ac5f..ae450ff 100644
 --- a/popover.tsx
 +++ b/popover.tsx
 @@ -1,29 +1,49 @@
@@ -94,7 +96,7 @@ index 3e7ac5f..68aa320 100644
 -            "z-50 flex w-72 origin-(--transform-origin) flex-col gap-2.5 rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 -            className
 +            POPOVER_SIZES[size],
-+            "z-50 flex origin-(--transform-origin) flex-col gap-2.5 rounded-card bg-popover p-2.5 text-sm wrap-break-word text-popover-foreground shadow-md border border-border outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            "z-50 flex origin-(--transform-origin) flex-col gap-2.5 rounded-card bg-popover p-2.5 text-sm wrap-break-word text-popover-foreground shadow-md border border-popover-border outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +            className,
            )}
            {...props}

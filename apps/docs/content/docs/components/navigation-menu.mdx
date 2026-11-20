@@ -182,7 +182,11 @@ focus-visible:outline-1` goes from `navigationMenuTriggerStyle` and from `Naviga
 - **API-16** — the file gains `'use client'`. Upstream ships none because it calls no hook of its
   own; OVL-13's `useInternalThemeScope()` is a hook, and this file is the lowest leaf that needs the
   boundary.
-- **BRD-1** — The shared viewport popup and the viewport-less (`viewport={false}`) `NavigationMenuContent` draw a real 1px `border border-border` instead of upstream's
+- **COL-3** — the edge is `border-popover-border`, the anchored-popup edge token: 0.52 L in dark
+  (3:1 over a dialog's `card` surface, so a popup opened inside a dialog reads as raised) and the
+  ordinary hairline in light. Regent F32, 2026-11-20; see
+  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal).
+- **BRD-1** — The shared viewport popup and the viewport-less (`viewport={false}`) `NavigationMenuContent` draw a real 1px `border border-popover-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **DOC-2** — `import { cn } from "cn"` becomes `@vegastack/design`; our npm layer owns `cn`.

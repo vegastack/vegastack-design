@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 42749
-      sha256: "bf0bccc7854c7c152e6e8c0c68f7732b1089b5acb36505f219ca653f45bd0d01"
+      bytes: 43512
+      sha256: "43235d26b3bcf84cb77e76e653e21f2ae0af166119e83db85af30a4a7c5f36da"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 14682
-      sha256: "bd1311c88b74158cf4285dccea466ed8651656c7d0b5c89d3994fe65f60acab3"
+      bytes: 15471
+      sha256: "a5fcd91d240c4f5415657f2b5532a920eaa2dfa3d021f38cc0d7b6c94fd037cf"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -313,6 +313,10 @@ themes:
     popover:
       type: "color"
       value: "oklch(1 0 0)"
+    popover-border:
+      type: "color"
+      value: "oklch(0.922 0 0)"
+      description: "COL-3 (ours, Regent F32, AI teammates Release 1, 2026-11-20): the EDGE of an anchored popup (Popover, Select, Combobox, menus, HoverCard, Tooltip, Toast and the floating bars that wear the popover surface). In dark a popup opened over a dialog painted the dialog's own fill behind a 10% hairline and read only faintly; its edge is now a WCAG 1.4.11 boundary, gated at 3:1 by contrast-check on `card` (the modal surfaces), `background` and the shell grounds. In light it is the hairline: the elevation shadow carries the boundary on a white dialog. Read it as `border-popover-border`; internal dividers inside a popup stay `border-border`."
     popover-foreground:
       type: "color"
       value: "oklch(0.145 0 0)"
@@ -371,7 +375,7 @@ themes:
     shell-card:
       type: "color"
       value: "oklch(1 0 0)"
-      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, and the docked assistant's card: the extreme of the frame (light white; dark oklch(0.145 0 0), about #0A0A0A, the value of `background`), so cards and menus (`card`, `popover`, 0.205 in dark) sit lifted on it. The frame's rule: the page is the extreme (white in light, near-black in dark) and each step out from the work moves one notch toward the middle: page, then the module column (`shell-column`), then the canvas. The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
+      description: "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, and the docked assistant's card: the extreme of the frame (light white; dark oklch(0.145 0 0), about #0A0A0A, the value of `background`), so cards (`card`, 0.205 in dark) and menus (`popover`, 0.225 in dark) sit lifted on it. The frame's rule: the page is the extreme (white in light, near-black in dark) and each step out from the work moves one notch toward the middle: page, then the module column (`shell-column`), then the canvas. The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
     shell-card-inset:
       type: "dimension"
       value: "0.5rem"
@@ -834,7 +838,11 @@ themes:
       value: "oklch(0.708 0 0)"
     popover:
       type: "color"
-      value: "oklch(0.205 0 0)"
+      value: "oklch(0.225 0 0)"
+      description: "COL-3 (ours, Regent F32, 2026-11-20): in dark an anchored popup sits one step ABOVE the modal it opens over, because dark elevation reads as lightness: `card` 0.205 for dialogs, sheets and drawers (they read `--popover` re-scoped to `card`, base.css), popover 0.225 for every popup and floating bar, with `popover-border` (0.52) as its 3:1 edge. The lift is held to 0.02 L so every status `-text` stays at AA on its own 30% tint over the popup (4.53:1 at worst); the edge, not the fill, carries the boundary. `muted` (0.269) stays a step above it."
+    popover-border:
+      type: "color"
+      value: "oklch(0.52 0 0)"
     popover-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -1203,8 +1211,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 263 rows, 105 resolved as
-**shadcn** (upstream ships unchanged) and 158 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 263 rows, 104 resolved as
+**shadcn** (upstream ships unchanged) and 159 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1591,6 +1599,7 @@ seven `sidebar-*` tokens all carry upstream's values. On top of it:
 | `brand`, `brand-text`                                      | The phosphor-green marker accent and its page-readable ink. A marker role only — never a functional state colour, and `brand` is not a text ink                                                                                                                                                                                     | `contrast-check.mjs`                                                                             |
 | `media-scrim`, `media-scrim-strong`, `media-foreground`    | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                                                                                                                                         | `media-chrome.browser.test.tsx` on compiled CSS                                                  |
 | `glass-ink`, `glass-ink-muted`, `glass-edge`, `glass-dim`  | Desktop only (operator 2026-11-14): text and edge for a window on native OS glass, read through `surface-glass`, which is transparent only under `data-native-glass` and opaque `popover` otherwise, under Reduce Transparency and under Increase Contrast. Never a CSS blur in a web page; the retired frosted glass stays retired | `contrast-check.mjs` (fallback + modelled worst-case backdrop), `surface-glass.browser.test.tsx` |
+| `popover-border`                                           | The edge of an anchored popup or floating bar, so a popup over a dialog reads as raised in dark: 0.52 L there (a 3:1 boundary on `card` and the page), the `border` hairline in light (COL-3, Regent F32)                                                                                                                           | `contrast-check.mjs` § 4a (dark), `verify-theme-parity`                                          |
 | `duration-*`, `motion-ease-*`                              | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                                                                                                                                          | `verify-token-references`                                                                        |
 | `chat-card`, `chat-hairline`                               | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and the `card` corner (BRD-12), the same formula in both themes, no shadow (COL-25)                                                                                                                                  | `verify-theme-parity`, `design-lint`                                                             |
 | `duration-instant … loader-dots`, `motion-ease-enter`      | The chat motion set: hover, quick (menus, a check appearing), state (folds), layout (arrivals), the streamed-word fade and the loader cadences; all 0ms under reduced motion (MOT-14)                                                                                                                                               | `design-lint` `chat-motion-tokens`                                                               |
@@ -1601,10 +1610,22 @@ seven `sidebar-*` tokens all carry upstream's values. On top of it:
 Using the fill itself as text on its own tint measures 3.98–4.35:1, which is a live AA failure
 (A11Y-13).
 
-**There is no surface ladder.** The surfaces are `background` → `card` (= `popover` = `sidebar`) →
-`muted` (well, track, skeleton). `muted`, `accent` and `secondary` share one value in this base and
+**There is no surface ladder.** The surfaces are `background` → `card` (= `sidebar`) → `popover` →
+`muted` (well, track, skeleton). In light `card` and `popover` are both white; in dark `popover`
+sits one step above `card` (0.225 over 0.205), because dark elevation reads as lightness. `muted`, `accent` and `secondary` share one value in this base and
 all three are kept, so name the one whose **role** you mean and a consumer can retune one without
 moving the others.
+
+**A popup over a modal reads as raised (COL-3; Regent F32, 2026-11-20).** Dialog, AlertDialog,
+Sheet, Drawer and the floating assistant card are modal-level surfaces: they paint `bg-popover`
+as upstream writes it, but `base.css` re-scopes `--popover` to `card` inside them, so the modal and
+everything in it that paints "the surface I'm on" stays at `card`. Anchored popups (Popover,
+Select, Combobox, the menus, HoverCard, Tooltip, NavigationMenu) and floating bars (Toast, the
+editor and find bars, the upload panel, a drag preview) portal out and keep the raised `popover`,
+and their edge is `border-popover-border`: 0.52 L in dark, 3.25:1 on `card` and 3.59:1 on the page
+(WCAG 1.4.11, gated by `contrast-check.mjs`), and the ordinary hairline in light, where the
+elevation shadow is the boundary. Dividers inside a popup stay `border-border`. A new floating
+surface takes the same pair: `bg-popover border border-popover-border`.
 
 **Interaction states are one formula, not a colour (COL-24, INT-4, FOC-15, FOC-16; operator
 2026-10-31).** Every hover, press, selected/current, open and highlighted fill is a TRANSLUCENT

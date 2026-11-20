@@ -171,7 +171,11 @@ Upstream's file plus `packages/ui/upstream/patches/popover.patch`. Every hunk:
 - **OVL-13** — `PopoverContent` reads `useInternalThemeScope()` and attaches it to the Positioner
   INSIDE the portal — the same host shape `select`, `combobox` and `tooltip` carry.
   `tooling/verify-portal-theme-scope.mjs` inventories this host.
-- **BRD-1** — `PopoverContent` draws a real 1px `border border-border` instead of upstream's
+- **COL-3** — the edge is `border-popover-border`, the anchored-popup edge token: 0.52 L in dark
+  (3:1 over a dialog's `card` surface, so a popup opened inside a dialog reads as raised) and the
+  ordinary hairline in light. Regent F32, 2026-11-20; see
+  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal).
+- **BRD-1** — `PopoverContent` draws a real 1px `border border-popover-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
 - **LAY-17** — `PopoverContent` sets `wrap-break-word`, so a long unbroken word breaks inside the

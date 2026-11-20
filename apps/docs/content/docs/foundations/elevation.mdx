@@ -59,6 +59,25 @@ The border takes a pixel of layout on each side and sits inside the radius, so a
 concentric. The avatar group's `ring-2 ring-background` is not an outline — it is the gap that
 separates stacked avatars — and stays a ring.
 
+## A popup over a modal
+
+A Select, Combobox, menu or people picker opened inside a dialog must read as a separate, raised
+surface (decision **COL-3**, Regent F32, 20-11-2026). In light both surfaces are white and the
+popup's shadow carries the boundary. In dark a shadow barely shows, so elevation is lightness:
+
+| Surface                                                         | Dark fill         | Edge                                      |
+| --------------------------------------------------------------- | ----------------- | ----------------------------------------- |
+| Dialog, AlertDialog, Sheet, Drawer, the floating assistant      | `card` (0.205)    | `border-border` (the hairline)            |
+| Popover, Select, Combobox, the menus, HoverCard, Tooltip, Toast | `popover` (0.225) | `popover-border` (0.52): 3.25:1 on `card` |
+
+The modal surfaces paint `bg-popover` as upstream writes it; `base.css` re-scopes `--popover` to
+`card` inside them, so a dialog keeps its fill and so does anything in it that paints the surface it
+sits on. Popups portal out to `body` and keep the raised value. Their edge is a WCAG 1.4.11
+boundary, gated at 3:1 on `card`, the page and the shell grounds by `contrast-check.mjs`; text on
+the raised fill stays at AA (popover-foreground 16.4:1, muted-foreground 6.6:1). A new floating
+surface takes the same pair, `bg-popover border border-popover-border`; a divider inside a popup
+stays `border-border`.
+
 ## Equal-elevation nesting
 
 Do not nest a bordered card inside another bordered card at the same visual elevation. Group the
