@@ -1,4 +1,4 @@
-// @vegastack popover@0.123.2 sha256-jZ2tyblsLdGwQU9ceO/5mR4xKjRofRSvKDXg3Hkdc9Q=
+// @vegastack popover@0.123.2 sha256-+/hJlr2hOSOmpH+gKlDYZ6N5VviM22sqvCDMSBLaM60=
 
 "use client";
 
@@ -60,7 +60,7 @@ function PopoverContent({
           data-slot="popover-content"
           className={cn(
             POPOVER_SIZES[size],
-            "z-50 flex origin-(--transform-origin) flex-col gap-2.5 rounded-card bg-popover p-2.5 text-sm wrap-break-word text-popover-foreground shadow-md border border-border outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "z-50 flex origin-(--transform-origin) flex-col gap-2.5 rounded-card bg-popover p-2.5 text-sm wrap-break-word text-popover-foreground shadow-md border border-popover-border surface-popup outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className,
           )}
           {...props}

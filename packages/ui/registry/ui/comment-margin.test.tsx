@@ -163,7 +163,7 @@ for (const theme of ["light", "dark"]) {
     injectCompiledCss();
     document.documentElement.classList.toggle("dark", theme === "dark");
     onTestFinished(() => document.documentElement.classList.remove("dark"));
-    const fill = resolved("bg-popover", "backgroundColor");
+    const fill = resolved("bg-popover surface-popup", "backgroundColor");
     const ink = resolved("text-popover-foreground", "color");
     const radius = resolved("rounded-card", "borderTopLeftRadius");
 

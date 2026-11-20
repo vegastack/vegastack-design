@@ -184,7 +184,9 @@
       "menubar",
       "navigation-menu",
       "popover",
-      "select"
+      "select",
+      "toast",
+      "tooltip"
     ],
     "API-24": ["select"],
     "API-26": [

@@ -85,3 +85,18 @@ export function isTransparent(computed: string | null | undefined): boolean {
   if (!computed) return true;
   return alphaOf(computed) === 0;
 }
+
+/**
+ * A computed colour as the 8-bit sRGBA pixel Chromium paints for it, so two spellings of one colour
+ * (`oklch(0.205 0 0)` and `oklab(0.205 0 0)`, which Chromium returns depending on how the value was
+ * composed) compare equal. Use it wherever a test means "the same colour", not "the same string".
+ */
+export function paintedColor(computed: string): string {
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = 1;
+  const context = canvas.getContext("2d", { willReadFrequently: true })!;
+  context.clearRect(0, 0, 1, 1);
+  context.fillStyle = computed;
+  context.fillRect(0, 0, 1, 1);
+  return Array.from(context.getImageData(0, 0, 1, 1).data).join(",");
+}
