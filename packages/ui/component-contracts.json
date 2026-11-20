@@ -12789,7 +12789,10 @@
       "since": "0.1.0",
       "family": "form",
       "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/date-picker.tsx"],
+      "sourceFiles": [
+        "packages/ui/registry/ui/date-picker.tsx",
+        "packages/ui/registry/ui/date-range-picker.tsx"
+      ],
       "publicSymbols": [
         {
           "name": "DatePicker",
@@ -12830,16 +12833,16 @@
         {
           "name": "DateRangePicker",
           "kind": "component",
-          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "source": "packages/ui/registry/ui/date-range-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "No stable public ref target is forwarded by DateRangePicker in packages/ui/registry/ui/date-picker.tsx; incidental internal nodes are not part of its API."
+            "rationale": "No stable public ref target is forwarded by DateRangePicker in packages/ui/registry/ui/date-range-picker.tsx; incidental internal nodes are not part of its API."
           }
         },
         {
           "name": "DateRangePickerProps",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "source": "packages/ui/registry/ui/date-range-picker.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -12848,7 +12851,7 @@
         {
           "name": "DateRangePreset",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "source": "packages/ui/registry/ui/date-range-picker.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
@@ -12866,7 +12869,7 @@
         {
           "name": "defaultRangePresets",
           "kind": "function",
-          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "source": "packages/ui/registry/ui/date-range-picker.tsx",
           "ref": {
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
@@ -12911,6 +12914,114 @@
         {
           "name": "DateTimePickerProps",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "addDays",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "CalendarBody",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "CalendarParts",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "DEFAULT_TRIGGER_FORMAT",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "formatDate",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ForwardedCalendarProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "POPOVER_CALENDAR_COMPONENTS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "POPUP_CALENDAR_CLASSES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "POPUP_CLASSES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "prefetchCalendar",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "PresetRail",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/date-picker.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useZonedToday",
+          "kind": "hook",
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
@@ -13018,6 +13129,15 @@
       },
       "previewModule": "date-picker",
       "dataAttributes": {
+        "PresetRail": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["date-picker-presets"]
+            }
+          ],
+          "cssVariables": []
+        },
         "DatePicker": {
           "attributes": [
             {

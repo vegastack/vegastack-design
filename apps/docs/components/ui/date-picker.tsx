@@ -1,4 +1,4 @@
-// @vegastack date-picker@0.123.2 sha256-grNXqK5vFway2+huyxcmml+vbWB3QpF7SecjQx8gwPc=
+// @vegastack date-picker@0.123.2 sha256-dIvmknn8VyJXr93GbjxqQuF+sRArIXnt8HwloYa4izk=
 
 "use client";
 
@@ -18,7 +18,7 @@ import {
   type DateFormat,
   type TimeHourCycle,
 } from "@/lib/date-time";
-import type { DateRange, DayButton, Matcher } from "react-day-picker";
+import type { DayButton, Matcher } from "react-day-picker";
 import {
   Calendar as CalendarIcon,
   CalendarClock,
@@ -43,12 +43,17 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
  * and `Button`. The calendar itself is NOT ours: `@/components/ui/calendar` is shadcn's file plus
  * its patch, and this module imports it rather than restating a single one of its class strings.
  *
- * Three exports:
+ * Two pickers:
  *  - `DatePicker`      — single date; upstream `Calendar` inside a `Popover` triggered by a `Button`
  *                        that shows the formatted date. Optional quick presets (Today / Tomorrow).
  *  - `DateTimePicker`  — a date and a time of day in the same popup: the calendar beside a typed
  *                        time over the day's times, editing an instant on the reader's clock.
- *  - `DateRangePicker` — the same, for a `{ from, to }` range across two months.
+ *
+ * `DateRangePicker` lives in `date-range-picker.tsx`, in the same registry item: a bundler keeps or
+ * drops a module's exports for the whole app, so one range picker anywhere would otherwise ship its
+ * code to every page that shows a single-date picker. It builds on the parts exported below (the
+ * lazy engine, the popup classes, the preset rail, the trigger format); they are shared plumbing,
+ * not part of either picker's API.
  *
  * Formatting uses the native `Intl.DateTimeFormat` (NO date-fns) so there is no extra runtime dep.
  * `react-day-picker` survives here as TYPES plus its two matcher evaluators — see the note on
@@ -65,7 +70,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
  * The lazily loaded calendar engine
  * ----------------------------------------------------------------------------------------------*/
 
-interface CalendarParts {
+export interface CalendarParts {
   Calendar: typeof import("@/components/ui/calendar").Calendar;
   CalendarDayButton: typeof import("@/components/ui/calendar").CalendarDayButton;
   dateMatchModifiers: typeof import("react-day-picker").dateMatchModifiers;
@@ -97,7 +102,8 @@ function loadCalendar(): Promise<CalendarParts> {
   return calendarLoad;
 }
 
-function prefetchCalendar() {
+/** Start fetching the calendar engine (a trigger's hover and focus). */
+export function prefetchCalendar() {
   void loadCalendar().catch(() => {});
 }
 
@@ -112,8 +118,14 @@ const CalendarReady = React.lazy(() =>
   })),
 );
 
-/** The popup's body: the preset rail and the calendar, once the engine is there. */
-function CalendarBody({
+/**
+ * The popup's body: the preset rail and the calendar, once the engine is there. Shared with
+ * `DateRangePicker`; not for app use.
+ *
+ * @example
+ * <CalendarBody>{({ Calendar }) => <Calendar mode="single" />}</CalendarBody>
+ */
+export function CalendarBody({
   children,
 }: {
   children: (parts: CalendarParts) => React.ReactNode;
@@ -130,7 +142,7 @@ function CalendarBody({
  * ----------------------------------------------------------------------------------------------*/
 
 /** Default single-date display format: e.g. "Jun 21, 2026". */
-const DEFAULT_TRIGGER_FORMAT: Intl.DateTimeFormatOptions = {
+export const DEFAULT_TRIGGER_FORMAT: Intl.DateTimeFormatOptions = {
   year: "numeric",
   month: "short",
   day: "numeric",
@@ -140,7 +152,7 @@ const DEFAULT_TRIGGER_FORMAT: Intl.DateTimeFormatOptions = {
  * Format a single date with `Intl.DateTimeFormat`, or — for the default face under a
  * `TimeZoneProvider` `dateFormat` — in the workspace's order ("12 Nov 2026", "2026-11-12").
  */
-function formatDate(
+export function formatDate(
   date: Date,
   options: Intl.DateTimeFormatOptions,
   locale?: string,
@@ -153,19 +165,6 @@ function formatDate(
   );
 }
 
-/** Format a `{ from, to }` range, collapsing to a single date when `to` is absent. */
-function formatRange(
-  range: DateRange,
-  options: Intl.DateTimeFormatOptions,
-  locale?: string,
-  dateFormat?: DateFormat,
-): string {
-  if (!range.from) return "";
-  const one = (date: Date) => formatDate(date, options, locale, dateFormat);
-  if (!range.to) return one(range.from);
-  return `${one(range.from)} – ${one(range.to)}`;
-}
-
 /* ------------------------------------------------------------------------------------------------
  * The calendar inside the popover
  * ----------------------------------------------------------------------------------------------*/
@@ -175,7 +174,7 @@ function formatRange(
  * `footer`, `captionLayout`, `startMonth`, `endMonth`, `labels`, `formatters`, …) minus the four
  * the picker owns.
  */
-type ForwardedCalendarProps = Omit<
+export type ForwardedCalendarProps = Omit<
   React.ComponentProps<typeof Calendar>,
   "mode" | "selected" | "onSelect" | "disabled"
 >;
@@ -193,7 +192,7 @@ type ForwardedCalendarProps = Omit<
  * the `group-data-[focused=true]/day` selector upstream's button carries reads the attribute
  * react-day-picker writes on the parent cell, which is untouched.
  *
- * Inline (an internal part, not an export) because the reason is the popover's, not the calendar's:
+ * Not exported on its own (only through `POPOVER_CALENDAR_COMPONENTS`) because the reason is the popover's, not the calendar's:
  * the inline `<Calendar>` upstream documents has no unpositioned first paint and needs none of it.
  */
 function PopoverDayButton({
@@ -205,10 +204,10 @@ function PopoverDayButton({
     if (modifiers.focused) ref.current?.focus({ preventScroll: true });
   }, [modifiers.focused]);
   // Rendered only by the calendar, so the engine is loaded.
-  const DayButton = calendarParts!.CalendarDayButton as DayButtonWithRef;
+  const EngineDayButton = calendarParts!.CalendarDayButton as DayButtonWithRef;
 
   return (
-    <DayButton
+    <EngineDayButton
       ref={ref}
       modifiers={{ ...modifiers, focused: false }}
       {...props}
@@ -237,7 +236,9 @@ type DayButtonWithRef = (
 ) => React.ReactNode;
 
 /** The `components` override every picker hands its calendar. */
-const POPOVER_CALENDAR_COMPONENTS = { DayButton: PopoverDayButton } as const;
+export const POPOVER_CALENDAR_COMPONENTS = {
+  DayButton: PopoverDayButton,
+} as const;
 
 /* ------------------------------------------------------------------------------------------------
  * Presets
@@ -251,14 +252,6 @@ export interface DatePreset {
   date: Date;
 }
 
-/** A quick-select preset for the `DateRangePicker` — a label and the range it applies. */
-export interface DateRangePreset {
-  /** Button text, e.g. "Last 7 days". */
-  label: string;
-  /** The `{ from, to }` range this preset selects. */
-  range: DateRange;
-}
-
 /** Strip the time component so two dates on the same day compare equal. */
 function startOfDay(date: Date): Date {
   const d = new Date(date);
@@ -267,7 +260,7 @@ function startOfDay(date: Date): Date {
 }
 
 /** Shift a date by `n` days (negative = past). */
-function addDays(date: Date, n: number): Date {
+export function addDays(date: Date, n: number): Date {
   const d = startOfDay(date);
   d.setDate(d.getDate() + n);
   return d;
@@ -289,28 +282,6 @@ function isDateDisabled(
 ): boolean {
   if (!disabledDates) return false;
   return calendarParts!.dateMatchModifiers(date, disabledDates);
-}
-
-/**
- * True when ANY day within `range` (endpoints and every day in between) is blocked by the
- * `disabledDates` matcher. An open-ended range (missing `from`/`to`) falls back to checking the
- * known endpoint so a half-built preset is still gated.
- */
-function isRangeDisabled(
-  range: DateRange | undefined,
-  disabledDates: Matcher | Matcher[] | undefined,
-): boolean {
-  if (!disabledDates || !range) return false;
-  if (range.from && range.to) {
-    return calendarParts!.rangeContainsModifiers(
-      { from: range.from, to: range.to },
-      disabledDates,
-    );
-  }
-  const endpoint = range.from ?? range.to;
-  return endpoint
-    ? calendarParts!.dateMatchModifiers(endpoint, disabledDates)
-    : false;
 }
 
 /** Options for the default preset factories. */
@@ -335,26 +306,10 @@ export function defaultDatePresets(
 }
 
 /**
- * `defaultRangePresets` — Today / Last 7 days / Last 30 days. Pass your own `presets` to override.
- * "Today" is the calendar day in `options.timeZone`.
- */
-export function defaultRangePresets(
-  now: Date = new Date(),
-  options: DatePresetOptions = {},
-): DateRangePreset[] {
-  const today = zonedToday(now, options.timeZone);
-  return [
-    { label: "Today", range: { from: today, to: today } },
-    { label: "Last 7 days", range: { from: addDays(today, -6), to: today } },
-    { label: "Last 30 days", range: { from: addDays(today, -29), to: today } },
-  ];
-}
-
-/**
  * The day the grid marks as today: the provider zone's calendar day, computed when the popup
  * opens. A `calendarProps.today` or `calendarProps.timeZone` wins — the engine then decides.
  */
-function useZonedToday(
+export function useZonedToday(
   open: boolean,
   calendarProps: { today?: Date; timeZone?: string },
 ): Date | undefined {
@@ -377,7 +332,7 @@ function useZonedToday(
  * calendar at every width — which is how its `border-e` ended up drawn along the popup's own
  * edge, a doubled hairline, rather than between the two.
  */
-const POPUP_CLASSES = "w-auto gap-0 p-0";
+export const POPUP_CLASSES = "w-auto gap-0 p-0";
 
 /**
  * The calendar inside the popup is transparent, so it reads as the popup's own surface. Upstream's
@@ -385,10 +340,18 @@ const POPUP_CLASSES = "w-auto gap-0 p-0";
  * popup `date-picker-content` / `date-range-picker-content` (their public hooks), so that selector
  * never matched and the calendar painted `bg-background` over `bg-popover` — two tones in dark.
  */
-const POPUP_CALENDAR_CLASSES = "bg-transparent";
+export const POPUP_CALENDAR_CLASSES = "bg-transparent";
 
-/** Shared preset-sidebar shell — an inline-start rail of `ghost` buttons inside the popover. */
-function PresetRail({ children }: { children: React.ReactNode }) {
+/**
+ * Shared preset-sidebar shell — an inline-start rail of `ghost` buttons inside the popover. Shared
+ * with `DateRangePicker`; not for app use.
+ *
+ * @example
+ * <PresetRail>
+ *   <Button variant="ghost" size="sm">Today</Button>
+ * </PresetRail>
+ */
+export function PresetRail({ children }: { children: React.ReactNode }) {
   return (
     <div
       data-slot="date-picker-presets"
@@ -1285,261 +1248,6 @@ export function DateTimePicker({
         </Button>
       ) : null}
     </div>
-  );
-}
-
-/* ------------------------------------------------------------------------------------------------
- * DateRangePicker
- * ----------------------------------------------------------------------------------------------*/
-
-/** Props accepted by `DateRangePicker`. */
-export interface DateRangePickerProps {
-  /** The selected range (controlled).
-   * @default undefined
-   */
-  value?: DateRange;
-  /** Fires with the new range (or `undefined` when cleared) on selection.
-   * @default undefined
-   */
-  onValueChange?: (range: DateRange | undefined) => void;
-  /**
-   * Trigger text shown when no range is selected.
-   * @default "Pick a date range"
-   */
-  placeholder?: string;
-  /**
-   * `Intl.DateTimeFormat` options for each end of the trigger label.
-   * @default { year: 'numeric', month: 'short', day: 'numeric' }
-   */
-  formatOptions?: Intl.DateTimeFormatOptions;
-  /** BCP-47 locale for formatting (defaults to `DEFAULT_LOCALE`, `en-US`, so the server and the browser agree).
-   * @default undefined
-   */
-  locale?: string;
-  /** Quick-select presets shown in a left rail. Omit for no presets.
-   * @default undefined
-   */
-  presets?: DateRangePreset[];
-  /** Dates to disable, forwarded to the calendar's `disabled` matcher.
-   * @default undefined
-   */
-  disabledDates?: Matcher | Matcher[];
-  /**
-   * Props forwarded to the inner `Calendar` for DayPicker features such as
-   * `timeZone`, `locale`, `footer`, `captionLayout`, `startMonth`,
-   * `endMonth`, `labels`, and `formatters`. Selection ownership stays with
-   * `DateRangePicker`, so `mode`, `selected`, `onSelect`, and `disabled` are
-   * not accepted here.
-
-   * @default undefined
-   */
-  calendarProps?: ForwardedCalendarProps;
-  /** Disable the whole control.
-   * @default undefined
-   */
-  disabled?: boolean;
-  /**
-   * Number of month grids to show side by side.
-   * @default 2
-   */
-  numberOfMonths?: number;
-  /**
-   * Popover side relative to the trigger.
-   * @default "bottom"
-   */
-  side?: React.ComponentProps<typeof PopoverContent>["side"];
-  /**
-   * Popover alignment relative to the trigger.
-   * @default "start"
-   */
-  align?: React.ComponentProps<typeof PopoverContent>["align"];
-  /** Extra classes for the trigger button.
-   * @default undefined
-   */
-  className?: string;
-  /** Accessible name for the trigger (recommended when there is no visible label).
-   * @default undefined
-   */
-  "aria-label"?: string;
-  /**
-   * `id` for the trigger button, so a `FieldLabel htmlFor` (or any `<label for>`) names it and
-   * clicking the label opens the picker — the same binding every other form control takes.
-   * @default undefined
-   */
-  id?: string;
-  /**
-   * Ids of the elements describing the trigger — a `FieldDescription` or `FieldError`.
-   * @default undefined
-   */
-  "aria-describedby"?: string;
-  /**
-   * Marks the trigger invalid; the outline `Button` shows its destructive border, exactly as an
-   * invalid `Input` or `SelectTrigger` does inside a `Field data-invalid`.
-   * @default undefined
-   */
-  "aria-invalid"?: React.AriaAttributes["aria-invalid"];
-}
-
-/**
- * `DateRangePicker` — pick a `{ from, to }` range across two months. Same shape as `DatePicker`:
- * an outline `Button` shows the formatted range and opens a two-month `Calendar` in a `Popover`.
- * The popover stays open until both ends are chosen. Add `presets` for Last 7 / Last 30 day rails.
- *
- * @example
- * const [range, setRange] = React.useState<DateRange>();
- * <DateRangePicker value={range} onValueChange={setRange} />
- */
-export function DateRangePicker({
-  value,
-  onValueChange,
-  placeholder = "Pick a date range",
-  formatOptions = DEFAULT_TRIGGER_FORMAT,
-  locale,
-  presets,
-  disabledDates,
-  calendarProps,
-  disabled,
-  numberOfMonths,
-  side = "bottom",
-  align = "start",
-  className,
-  "aria-label": ariaLabel,
-  id,
-  "aria-describedby": ariaDescribedBy,
-  "aria-invalid": ariaInvalid,
-}: DateRangePickerProps) {
-  const [open, setOpen] = React.useState(false);
-  // react-day-picker may emit a same-day COMPLETE range on the first click. Closing from that
-  // shape makes a two-endpoint gesture impossible, especially when replacing an existing range.
-  // Track the current popover session explicitly and normalize its first day to an open range.
-  const rangeSelectionStartedRef = React.useRef(false);
-  const {
-    defaultMonth,
-    numberOfMonths: calendarNumberOfMonths,
-    autoFocus = true,
-    ...calendarRestProps
-  } = calendarProps ?? {};
-  const today = useZonedToday(open, calendarRestProps);
-  const dateFormat = useDateFormat();
-
-  const handleOpenChange = (nextOpen: boolean) => {
-    rangeSelectionStartedRef.current = false;
-    setOpen(nextOpen);
-  };
-
-  const handleSelect = (range: DateRange | undefined, triggerDate: Date) => {
-    if (!rangeSelectionStartedRef.current) {
-      rangeSelectionStartedRef.current = true;
-      onValueChange?.({ from: triggerDate, to: undefined });
-      return;
-    }
-
-    onValueChange?.(range);
-    // Close only after the SECOND endpoint gesture produces a complete range.
-    if (range?.from && range.to) setOpen(false);
-  };
-
-  const label = value?.from
-    ? formatRange(value, formatOptions, locale, dateFormat)
-    : placeholder;
-
-  return (
-    <Popover open={open} onOpenChange={handleOpenChange}>
-      {/* DS-47: the trigger renders through Base UI `Field.Control`, so inside a `Field` it takes
-          its label, description and error ids and `aria-invalid` from the Field. The explicit
-          props below still win (`id`) or come first (`aria-describedby`). */}
-      <FieldPrimitive.Control
-        id={id}
-        disabled={disabled}
-        aria-describedby={ariaDescribedBy}
-        aria-invalid={ariaInvalid}
-        render={
-          <PopoverTrigger
-            render={
-              <Button
-                variant="outline"
-                onPointerEnter={prefetchCalendar}
-                onFocus={prefetchCalendar}
-                data-slot="date-range-picker-trigger"
-                data-empty={value?.from ? undefined : ""}
-                aria-label={ariaLabel}
-                className={cn(
-                  // `w-full` — see the single DatePicker's note above (audit B8-03).
-                  "w-full justify-start gap-2 font-normal data-[empty]:text-muted-foreground",
-                  className,
-                )}
-              >
-                <CalendarIcon
-                  className="size-4 text-muted-foreground"
-                  aria-hidden
-                />
-                <span className="min-w-0 truncate">{label}</span>
-              </Button>
-            }
-          />
-        }
-      />
-      <PopoverContent
-        data-slot="date-range-picker-content"
-        side={side}
-        align={align}
-        className={cn(POPUP_CLASSES, presets && "flex-row max-sm:flex-col")}
-      >
-        <CalendarBody>
-          {({ Calendar }) => (
-            <>
-              {presets ? (
-                <PresetRail>
-                  {presets.map((preset) => {
-                    // A range preset is blocked when ANY day it spans (endpoints + every day between) is
-                    // disabled — same matcher the calendar uses, so the gate can't drift.
-                    const presetDisabled = isRangeDisabled(
-                      preset.range,
-                      disabledDates,
-                    );
-                    return (
-                      <Button
-                        key={preset.label}
-                        variant="ghost"
-                        size="sm"
-                        disabled={presetDisabled}
-                        aria-disabled={presetDisabled || undefined}
-                        className="justify-start font-normal"
-                        onClick={() => {
-                          // Defense in depth: never emit a range that intersects disabled dates.
-                          if (isRangeDisabled(preset.range, disabledDates))
-                            return;
-                          onValueChange?.(preset.range);
-                          setOpen(false);
-                        }}
-                      >
-                        {preset.label}
-                      </Button>
-                    );
-                  })}
-                </PresetRail>
-              ) : null}
-              <Calendar
-                components={POPOVER_CALENDAR_COMPONENTS}
-                {...calendarRestProps}
-                className={cn(
-                  POPUP_CALENDAR_CLASSES,
-                  calendarRestProps.className,
-                )}
-                today={today}
-                mode="range"
-                selected={value}
-                onSelect={handleSelect}
-                defaultMonth={defaultMonth ?? value?.from ?? today}
-                numberOfMonths={numberOfMonths ?? calendarNumberOfMonths ?? 2}
-                disabled={disabledDates}
-                autoFocus={autoFocus}
-              />
-            </>
-          )}
-        </CalendarBody>
-      </PopoverContent>
-    </Popover>
   );
 }
 
