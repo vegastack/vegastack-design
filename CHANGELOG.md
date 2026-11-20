@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.123.5] — November 20, 2026
+
+<!-- assembled from 1 changeset: edc0d3311990 -->
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.28.1`** (was `0.28.0`).
+- **`@vegastack/design`** → **`0.28.1`** (was `0.28.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.123.4 → 0.123.5.
+
+### 🐛 Fixed
+
+- A popup over a dialog reads as a raised surface in dark (BRD-1, Regent F32). New tokens `popover-raised` (the popup's fill: 0.225 L in dark over the modal's 0.205, white in light) and `popover-border` (its edge: 0.52 L in dark, 3.25:1 on a dialog and 3.59:1 on the page; the `border` hairline in light), and a new `surface-popup` utility that sets `--popover` to `popover-raised` on the popup itself, so the popup and everything inside it that paints the popover surface follow wherever it renders. Every anchored popup and floating bar wears `border-popover-border surface-popup`: `popover`, `select`, `combobox`, the three menus, `hover-card`, `tooltip`, `navigation-menu`, `toast`, and the editor, find, dock, upload, audio, PDF, zoom and drag-preview bars. `contrast-check` gates the dark edge at 3:1 on every surface a popup opens over and the lift's order. Light is unchanged.
+  [`709cf54`](https://github.com/VegaStack/vegastack-design/commit/709cf54)
+
 ## [0.123.4] — November 19, 2026
 
 <!-- assembled from 1 changeset: eef13d8e503c -->
