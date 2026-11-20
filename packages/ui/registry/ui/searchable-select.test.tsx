@@ -12,6 +12,7 @@ import {
 import { PersonAvatar } from "./person-avatar";
 import { Button } from "./button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";
+import { paintedColor } from "../../test/color";
 
 interface Project {
   id: string;
@@ -1129,8 +1130,12 @@ test("selectAll: the checked mark keeps primary-foreground on the fill while the
     probe.className = "bg-primary text-primary-foreground";
     document.body.append(probe);
     const want = getComputedStyle(probe);
-    expect(getComputedStyle(box).backgroundColor).toBe(want.backgroundColor);
-    expect(getComputedStyle(box.querySelector("svg")!).color).toBe(want.color);
+    expect(paintedColor(getComputedStyle(box).backgroundColor)).toBe(
+      paintedColor(want.backgroundColor),
+    );
+    expect(
+      paintedColor(getComputedStyle(box.querySelector("svg")!).color),
+    ).toBe(paintedColor(want.color));
     probe.remove();
   }
 });
