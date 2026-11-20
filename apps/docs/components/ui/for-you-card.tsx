@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.123.2 sha256-BrcFOTcfxFH1u6QUN/ufYplhja9y+j/0HAyHcIo56ZY=
+// @vegastack for-you-card@0.123.2 sha256-BCCWyXG0nvhWIhlduKPig0301obIb6beK2K/vSwaXq8=
 
 "use client";
 
@@ -7,7 +7,6 @@ import { cn } from "@vegastack/design";
 import {
   CircleAlert,
   Clock,
-  Ellipsis,
   Lightbulb,
   MessageCircleQuestion,
   SearchCheck,
@@ -24,11 +23,15 @@ import {
 } from "@/components/ui/agent-question-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+  InboxRowMenu,
+  InboxRowTitle,
+  useInboxRow,
+  type InboxRow,
+} from "@/components/ui/inbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusGlyph } from "@/components/ui/status-glyph";
 import { TextSpinner } from "@/components/ui/text-spinner";
@@ -44,7 +47,10 @@ import {
  * answers, and the source's own options in the server's order. The preferred option is drawn
  * secondary and nothing on the card is ever a filled primary. Laid out for the 26rem Inbox panel
  * first (one column, facts and buttons wrap) and the phone's /inbox. Settled, it reads as its
- * outcome; withdrawn because access was lost, it shows nothing of the source at all.
+ * outcome; withdrawn because access was lost, it shows nothing of the source at all. Inside an
+ * `Inbox` it is that list's row (`useInboxRow`, the same behaviour as `InboxItem`): J / K reach it by
+ * its `value`, the Inbox's active row selects it, and its ⋯ menu carries the row's `menu` (Archive,
+ * Mark read) beside Snooze, opened by a long press on touch.
  * ----------------------------------------------------------------------------------------------*/
 
 /** What kind of ask the card is. */
@@ -88,6 +94,10 @@ export type ForYouSourceBody =
       rows: unknown[];
       unavailableCount: number;
     };
+
+/** Where an answer came from, K-FY `ForYouVia` verbatim; `system` closes a card nobody answered. */
+export type ForYouVia =
+  "app" | "phone" | "desktop" | "slack" | "email" | "system";
 
 /** Props accepted by `ForYouCard`. */
 export interface ForYouCardProps {
@@ -149,7 +159,7 @@ export interface ForYouCardProps {
   outcome?: {
     label: string;
     actorName: string | null;
-    via: string | null;
+    via: ForYouVia | null;
     at: string;
     note?: string;
   };
@@ -163,7 +173,28 @@ export interface ForYouCardProps {
   onFewerLikeThis?: () => void;
   /** No connection: options hold and "Connect to answer" shows. @default false */
   offline?: boolean;
-  /** The Inbox's active row. @default false */
+  /**
+   * The card's identity in an `Inbox` (the card's id): J / K walk to it, the Inbox's `activeId`
+   * selects it and `onOpen` receives it. Without it the card is skipped by J / K.
+   * @default undefined
+   */
+  value?: string;
+  /**
+   * Unread: a 6px dot before the deadline and an sr-only "Unread", as an `InboxItem` shows it.
+   * @default false
+   */
+  unread?: boolean;
+  /**
+   * `DropdownMenuItem`s for the card's ⋯ menu, after Snooze and Fewer like this: the Inbox row's
+   * Archive, Mark read / Mark unread, Unsnooze, Move to Inbox. It stays on a settled card. On a
+   * touch screen a long press on the card opens it.
+   * @default undefined
+   */
+  menu?: React.ReactNode;
+  /**
+   * Selected outside an `Inbox`; inside one, the Inbox's active row is selected.
+   * @default false
+   */
   selected?: boolean;
   /** Classes for the root. @default undefined */
   className?: string;
@@ -177,18 +208,20 @@ const VERB: Record<ForYouVerb, { label: string; icon: LucideIcon }> = {
   suggest: { label: "Suggest", icon: Lightbulb },
 };
 
-const VIA_WORDS: Record<string, string> = {
-  web: "on the web",
-  phone: "on the phone",
+/** Where it was answered, in the app's words; `system` (nobody answered) says nothing. */
+const VIA_WORDS: Record<ForYouVia, string | null> = {
+  app: "on the web",
+  phone: "in the mobile app",
+  desktop: "in the desktop app",
   slack: "in Slack",
   email: "by email",
+  system: null,
 };
 
 /** "Approved by Priya in Slack · 14:02 · Fine for this quarter". */
 function outcomeWords(outcome: NonNullable<ForYouCardProps["outcome"]>) {
-  const via = outcome.via
-    ? ` ${VIA_WORDS[outcome.via.toLowerCase()] ?? `in ${outcome.via}`}`
-    : "";
+  const words = outcome.via ? VIA_WORDS[outcome.via] : null;
+  const via = words ? ` ${words}` : "";
   const by = outcome.actorName ? ` by ${outcome.actorName}` : "";
   return [`${outcome.label}${by}${via}`, outcome.at, outcome.note]
     .filter(Boolean)
@@ -200,19 +233,26 @@ function optionVariant(kind: ForYouOption["kind"]): "secondary" | "outline" {
   return kind === "primary" ? "secondary" : "outline";
 }
 
-/** The ⋯: Snooze and Fewer like this; one item is its own quiet icon button. */
+/**
+ * The ⋯: Snooze and Fewer like this while the card is open, then the row's `menu`. Snooze alone is
+ * its own quiet icon button; a menu opens from the button or a long press on the card.
+ */
 function CardMore({
+  row,
   onSnooze,
   onFewerLikeThis,
-  disabled,
+  menu,
+  hold,
   title,
 }: {
+  row: InboxRow;
   onSnooze?: () => void;
   onFewerLikeThis?: () => void;
-  disabled: boolean;
+  menu?: React.ReactNode;
+  hold: boolean;
   title: string;
 }) {
-  if (onSnooze && !onFewerLikeThis)
+  if (onSnooze && !onFewerLikeThis && menu == null)
     return (
       <Tooltip>
         <TooltipTrigger
@@ -220,7 +260,7 @@ function CardMore({
             <Button
               size="icon-xs"
               variant="ghost"
-              disabled={disabled}
+              disabled={hold}
               aria-label={`Snooze: ${title}`}
               onClick={onSnooze}
             />
@@ -231,33 +271,29 @@ function CardMore({
         <TooltipContent>Snooze</TooltipContent>
       </Tooltip>
     );
-  if (!onSnooze && !onFewerLikeThis) return null;
+  const own = Boolean(onSnooze || onFewerLikeThis);
+  if (!own && menu == null) return null;
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        disabled={disabled}
-        render={
-          <Button
-            size="icon-xs"
-            variant="ghost"
-            disabled={disabled}
-            aria-label={`More for ${title}`}
-          />
-        }
-      >
-        <Ellipsis aria-hidden />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {onSnooze ? (
-          <DropdownMenuItem onClick={onSnooze}>Snooze</DropdownMenuItem>
-        ) : null}
-        {onFewerLikeThis ? (
-          <DropdownMenuItem onClick={onFewerLikeThis}>
-            Fewer like this
-          </DropdownMenuItem>
-        ) : null}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <InboxRowMenu
+      row={row}
+      size="icon-xs"
+      // Held while sending only when the card's own items are all it holds.
+      disabled={hold && menu == null}
+      label={`More for ${title}`}
+    >
+      {onSnooze ? (
+        <DropdownMenuItem disabled={hold} onClick={onSnooze}>
+          Snooze
+        </DropdownMenuItem>
+      ) : null}
+      {onFewerLikeThis ? (
+        <DropdownMenuItem disabled={hold} onClick={onFewerLikeThis}>
+          Fewer like this
+        </DropdownMenuItem>
+      ) : null}
+      {own && menu != null ? <DropdownMenuSeparator /> : null}
+      {menu}
+    </InboxRowMenu>
   );
 }
 
@@ -339,21 +375,68 @@ export function ForYouCard({
   onSkip,
   onFewerLikeThis,
   offline = false,
-  selected = false,
+  value,
+  unread = false,
+  menu,
+  selected: selectedProp = false,
   className,
 }: ForYouCardProps) {
   const titleId = React.useId();
   const sending = state === "sending";
   const live = state === "open" || state === "submit_failed" || sending;
   const hold = sending || offline;
+  const accessLost = state === "withdrawn" && withdrawnReason === "access_lost";
+  const ownMenu =
+    live && Boolean(onFewerLikeThis && verb === "suggest" && !accessLost);
+  // A long press opens the ⋯ whenever it is a menu (more than Snooze alone).
+  const row = useInboxRow({ value, menu: menu != null || ownMenu });
+  const selected = row.inInbox ? row.active : selectedProp;
   const root = cn(
     "flex min-w-0 flex-col gap-3 rounded-card border border-border bg-card p-3 text-sm text-card-foreground",
-    selected && "layer-selected",
-    className,
+    // In an Inbox the row's start bar marks the active card: a fill would sink its options.
+    selected && !row.inInbox && "layer-selected",
+    !row.inInbox && className,
   );
+  const more = (
+    <CardMore
+      row={row}
+      onSnooze={live && !accessLost ? onSnooze : undefined}
+      onFewerLikeThis={ownMenu ? onFewerLikeThis : undefined}
+      menu={menu}
+      hold={hold}
+      title={accessLost ? "No longer available to you" : title}
+    />
+  );
+  /**
+   * In an Inbox the card is its list's row: the `li` is exactly the card's box (spaced by margin),
+   * so the row's focus ring follows the card's corner. Elsewhere it stands alone, with its long press.
+   */
+  const asRow = (
+    article: React.ReactElement<React.HTMLAttributes<HTMLElement>>,
+  ) =>
+    row.inInbox ? (
+      <li
+        {...row.rowProps}
+        data-unread={unread || undefined}
+        className={cn(
+          "relative my-1 scroll-mt-10 rounded-card",
+          // The Inbox's active row: the rows' 2px start bar.
+          "data-active:before:absolute data-active:before:inset-y-2 data-active:before:start-0 data-active:before:z-10 data-active:before:w-0.5 data-active:before:rounded-full data-active:before:bg-primary",
+          row.opens && "cursor-pointer",
+          // A long press opens the ⋯ menu: no text selection or callout under the finger.
+          row.longPress &&
+            "pointer-coarse:[-webkit-touch-callout:none] pointer-coarse:select-none",
+          className,
+        )}
+      >
+        {article}
+      </li>
+    ) : (
+      React.cloneElement(article, row.pressProps)
+    );
 
-  if (state === "withdrawn" && withdrawnReason === "access_lost")
-    return (
+  if (accessLost)
+    return asRow(
       <article
         data-slot="for-you-card"
         data-state={state}
@@ -361,12 +444,13 @@ export function ForYouCard({
         data-withdrawn="access_lost"
         data-selected={selected ? "" : undefined}
         aria-label="No longer available to you"
-        className={root}
+        className={cn(root, "flex-row items-center")}
       >
-        <p className="text-sm text-muted-foreground">
+        <p className="min-w-0 flex-1 text-sm text-muted-foreground">
           No longer available to you
         </p>
-      </article>
+        {more}
+      </article>,
     );
 
   const Verb = VERB[verb];
@@ -506,12 +590,13 @@ export function ForYouCard({
       </div>
     ) : null;
 
-  return (
+  return asRow(
     <article
       data-slot="for-you-card"
       data-state={state}
       data-verb={verb}
       data-selected={selected ? "" : undefined}
+      data-unread={unread || undefined}
       aria-labelledby={titleId}
       aria-busy={sending || undefined}
       className={root}
@@ -553,14 +638,14 @@ export function ForYouCard({
             {deadline.label}
           </span>
         ) : null}
-        {live ? (
-          <CardMore
-            onSnooze={onSnooze}
-            onFewerLikeThis={verb === "suggest" ? onFewerLikeThis : undefined}
-            disabled={hold}
-            title={title}
+        {unread ? (
+          <span
+            data-slot="for-you-card-unread"
+            aria-hidden
+            className="size-1.5 shrink-0 rounded-full bg-info"
           />
         ) : null}
+        {more}
       </header>
 
       <div className="flex min-w-0 flex-col gap-1">
@@ -572,7 +657,10 @@ export function ForYouCard({
             live ? "text-foreground" : "text-muted-foreground",
           )}
         >
-          {title}
+          <InboxRowTitle row={row} className="font-medium">
+            {unread ? <span className="sr-only">Unread: </span> : null}
+            {title}
+          </InboxRowTitle>
         </h3>
         {summary && live ? (
           <p className="line-clamp-2 min-w-0 text-sm text-muted-foreground">
@@ -642,7 +730,7 @@ export function ForYouCard({
             : `If nobody answers: ${ifNobodyAnswers}`}
         </p>
       ) : null}
-    </article>
+    </article>,
   );
 }
 

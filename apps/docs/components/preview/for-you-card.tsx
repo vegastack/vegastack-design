@@ -13,6 +13,8 @@ import {
 import { PersonAvatar } from "@/components/ui/person-avatar";
 import { SuggestionCard } from "@/components/ui/suggestion-card";
 import { Button } from "@/components/ui/button";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Inbox, InboxGroup } from "@/components/ui/inbox";
 
 const agent = (name: string) => (
   <PersonAvatar person={{ name, kind: "agent" }} size="2xs" />
@@ -62,9 +64,9 @@ function Live(): ReactNode {
       sendingOptionId={sending}
       outcome={
         state === "done"
-          ? { label: "Approved", actorName: "You", via: "web", at: "now" }
+          ? { label: "Approved", actorName: "You", via: "app", at: "now" }
           : state === "declined"
-            ? { label: "Declined", actorName: "You", via: "web", at: "now" }
+            ? { label: "Declined", actorName: "You", via: "app", at: "now" }
             : undefined
       }
       onOption={async (id) => {
@@ -188,7 +190,7 @@ export function forYouCardVerbs(): ReactNode {
 const OUTCOME = {
   label: "Approved",
   actorName: "Priya",
-  via: "slack",
+  via: "slack" as const,
   at: "14:02",
 };
 
@@ -229,5 +231,48 @@ export function forYouCardNarrow(): ReactNode {
         onSkip={() => undefined}
       />
     </Panel>
+  );
+}
+
+function RowMenu({ unread }: { unread: boolean }): ReactNode {
+  return (
+    <>
+      <DropdownMenuItem>Archive</DropdownMenuItem>
+      <DropdownMenuItem>
+        {unread ? "Mark read" : "Mark unread"}
+      </DropdownMenuItem>
+    </>
+  );
+}
+
+export function forYouCardInbox(): ReactNode {
+  return (
+    <Wrapper className="items-stretch justify-start">
+      <div className="h-[34rem] w-full max-w-[26rem] overflow-hidden rounded-card border border-border">
+        <Inbox title="Inbox">
+          <InboxGroup label="For you">
+            <ForYouCard
+              {...APPROVE}
+              value="claim"
+              unread
+              onSnooze={() => undefined}
+              menu={<RowMenu unread />}
+            />
+            <ForYouCard
+              {...APPROVE}
+              value="leave"
+              verb="answer"
+              title="Asha's leave on 2 December"
+              summary={undefined}
+              facts={undefined}
+              deadline={undefined}
+              state="done"
+              outcome={{ ...OUTCOME, via: "app" }}
+              menu={<RowMenu unread={false} />}
+            />
+          </InboxGroup>
+        </Inbox>
+      </div>
+    </Wrapper>
   );
 }

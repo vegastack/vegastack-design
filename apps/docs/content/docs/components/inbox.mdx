@@ -185,6 +185,14 @@ dropdown only when they do not fit the row.
 
 <ComponentPreview name="inboxLoading" file="components/preview/inbox.tsx" />
 
+### Rows drawn by another component
+
+A component that draws its own row inside an Inbox (`ForYouCard`) takes the row's behaviour from
+`useInboxRow` rather than restating it: spread its `rowProps` on the row's `li` for J / K, the active
+row, a click or Enter that opens it and a touch's long press; put the title in `InboxRowTitle` (the
+row's button when the Inbox opens rows) and the ⋯ in `InboxRowMenu`. `InboxItem` is built on the
+same three.
+
 ## API Reference
 
 <ApiTable path="../../packages/ui/registry/ui/inbox.tsx" name="InboxProps" />
@@ -208,6 +216,13 @@ dropdown only when they do not fit the row.
 <ApiTable
   path="../../packages/ui/registry/ui/inbox.tsx"
   name="InboxItemProps"
+/>
+
+### InboxRowMenu
+
+<ApiTable
+  path="../../packages/ui/registry/ui/inbox.tsx"
+  name="InboxRowMenuProps"
 />
 
 ### InboxEmpty

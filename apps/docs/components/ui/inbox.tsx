@@ -1,4 +1,4 @@
-// @vegastack inbox@0.123.2 sha256-nQ1PKN5hnoiLw4vi0yen0rqkVd1FHwfFiME50/mgkhM=
+// @vegastack inbox@0.123.2 sha256-T+I4MYEQj2MViyI7ylMYfeDPLcoG0OPOC6jM0unOGME=
 
 "use client";
 
@@ -969,11 +969,16 @@ function metaRepeatsTitle(title: React.ReactNode, meta: React.ReactNode) {
   return false;
 }
 
-/** The click was on one of the row's own controls (a chip, the toggle, the ⋯ menu, a link). */
+/**
+ * A row's own controls: a chip, the toggle, the ⋯ menu, a link, and any field or form a row's
+ * content holds (a For you card's question form). A click or long press on one is never the row's.
+ */
+const ROW_CONTROLS =
+  "button,a,input,textarea,select,label,summary,form,[contenteditable=true],[role=menuitem],[role=button],[role=checkbox],[role=radio],[role=switch],[role=option],[role=combobox],[role=slider],[role=textbox]";
+
+/** The click was on one of the row's own controls. */
 const onControl = (event: React.SyntheticEvent) =>
-  !!(event.target as HTMLElement).closest(
-    "button,a,input,[role=menuitem],[role=button]",
-  );
+  !!(event.target as HTMLElement).closest(ROW_CONTROLS);
 
 /** How long a touch holds still on a row before its ⋯ menu opens (the platforms' long press). */
 const LONG_PRESS_MS = 500;
@@ -1055,9 +1060,7 @@ function useLongPressMenu(enabled: boolean): {
     setOpen(true);
   };
   const ownControl = (event: React.SyntheticEvent) => {
-    const control = (event.target as HTMLElement).closest(
-      "button,a,input,[role=menuitem],[role=button]",
-    );
+    const control = (event.target as HTMLElement).closest(ROW_CONTROLS);
     return !!control && control.getAttribute("data-slot") !== "inbox-item-link";
   };
   if (!enabled) return { open, setOpen, handlers: {} };
@@ -1100,6 +1103,212 @@ function useLongPressMenu(enabled: boolean): {
       },
     },
   };
+}
+
+/** Options for {@link useInboxRow}. */
+export interface InboxRowOptions {
+  /** The row's identity for the {@link Inbox}'s `activeId`, J / K and `onOpen`. */
+  value?: string;
+  /** The row has a ⋯ menu: a touch's long press on the row opens it. */
+  menu: boolean;
+  /** The row's own link; a row with one opens through it, not through a click on the row. */
+  href?: string;
+  onClick?: React.MouseEventHandler<HTMLLIElement>;
+  onKeyDown?: React.KeyboardEventHandler<HTMLLIElement>;
+}
+
+/** What {@link useInboxRow} gives a row. */
+export interface InboxRow {
+  /** Inside an {@link Inbox}: the row is an `li` of its list. */
+  inInbox: boolean;
+  /** Inside an {@link Inbox} with a `value`: J / K reach it and it can be active. */
+  tracked: boolean;
+  /** The Inbox's active row. */
+  active: boolean;
+  /** The Inbox opens rows in place (`onOpen`). */
+  opens: boolean;
+  /** Make it the active row. */
+  activate: () => void;
+  /** Activate it and open it in place. */
+  open: () => void;
+  /** A touch's long press opens the row's ⋯ menu. */
+  longPress: boolean;
+  /** The ⋯ menu's open state, driven by a long press too. */
+  menuOpen: boolean;
+  setMenuOpen: (open: boolean) => void;
+  /** The long press alone, for the same content standing outside an Inbox. */
+  pressProps: React.HTMLAttributes<HTMLElement>;
+  /** Spread on the row's `li`: its slot, value, state, focus and click, Enter and long press. */
+  rowProps: React.HTMLAttributes<HTMLLIElement> & {
+    "data-slot": "inbox-item";
+    "data-value"?: string;
+    "data-active"?: true;
+  };
+}
+
+/**
+ * The one implementation of an Inbox row's behaviour, shared by {@link InboxItem} and any row a
+ * component draws itself (`ForYouCard`): its place in J / K (`data-slot="inbox-item"`,
+ * `data-value`), the active row from the {@link Inbox}, a click anywhere but its controls opening
+ * it, Enter on a self-focused row, and a touch's long press opening its ⋯ menu.
+ *
+ * @example
+ * const row = useInboxRow({ value, menu: Boolean(menu) });
+ * return <li {...row.rowProps}>…<InboxRowMenu row={row}>{menu}</InboxRowMenu></li>;
+ */
+export function useInboxRow({
+  value,
+  menu,
+  href,
+  onClick,
+  onKeyDown,
+}: InboxRowOptions): InboxRow {
+  const inbox = React.useContext(InboxContext);
+  const tracked = !!inbox && value !== undefined;
+  const active = tracked && inbox.activeId === value;
+  const opens = tracked && !!inbox.open;
+  const longPress = useLongPressMenu(menu);
+  const activate = () => {
+    if (tracked) inbox.activate(value);
+  };
+  const open = () => {
+    if (!tracked) return;
+    inbox.activate(value);
+    inbox.open?.(value);
+  };
+  // A row with no link and nothing to open is focused itself while J / K walk the list.
+  const focusesSelf = tracked && !href && !opens;
+  return {
+    inInbox: !!inbox,
+    tracked,
+    active,
+    opens,
+    activate,
+    open,
+    longPress: menu,
+    menuOpen: longPress.open,
+    setMenuOpen: longPress.setOpen,
+    pressProps: longPress.handlers,
+    rowProps: {
+      "data-slot": "inbox-item",
+      "data-value": value,
+      "data-active": active || undefined,
+      tabIndex: focusesSelf ? -1 : undefined,
+      "aria-current": active && focusesSelf ? "true" : undefined,
+      ...longPress.handlers,
+      onClick: (event) => {
+        onClick?.(event);
+        if (event.defaultPrevented || href || onControl(event)) return;
+        open();
+      },
+      onKeyDown: (event) => {
+        onKeyDown?.(event);
+        if (
+          event.defaultPrevented ||
+          href ||
+          event.key !== "Enter" ||
+          event.target !== event.currentTarget
+        )
+          return;
+        event.preventDefault();
+        open();
+      },
+    },
+  };
+}
+
+/** Props for {@link InboxRowTitle}. */
+export interface InboxRowTitleProps {
+  /** The row, from {@link useInboxRow}. */
+  row: InboxRow;
+  /** Classes for the title's button. @default undefined */
+  className?: string;
+  children: React.ReactNode;
+}
+
+/**
+ * A row's title. When the {@link Inbox} opens rows in place it is the row's button — the J / K
+ * focus target (`data-slot="inbox-item-link"`), current while the row is active — a span, so the
+ * sentence wraps like a link's; otherwise the plain title.
+ *
+ * @example
+ * <InboxRowTitle row={row}>{title}</InboxRowTitle>
+ */
+export function InboxRowTitle({
+  row,
+  className,
+  children,
+}: InboxRowTitleProps) {
+  if (!row.opens) return <>{children}</>;
+  return (
+    <Button
+      variant="ghost"
+      nativeButton={false}
+      render={<span />}
+      data-slot="inbox-item-link"
+      aria-current={row.active ? "true" : undefined}
+      onClick={row.open}
+      className={cn(
+        "static inline h-auto rounded-none border-0 p-0 text-start text-sm font-normal whitespace-normal text-inherit select-text hover:not-focus-visible:bg-none active:not-aria-[haspopup]:translate-y-0",
+        className,
+      )}
+    >
+      {children}
+    </Button>
+  );
+}
+
+/** Props for {@link InboxRowMenu}. */
+export interface InboxRowMenuProps {
+  /** The row, from {@link useInboxRow}: a long press opens this menu. */
+  row: InboxRow;
+  /** The ⋯ button's accessible name. @default "More actions" */
+  label?: string;
+  /** The ⋯ button's size. @default "icon-sm" */
+  size?: "icon-sm" | "icon-xs";
+  /** Hold the ⋯ button. @default false */
+  disabled?: boolean;
+  /** Classes for the ⋯ button. @default undefined */
+  className?: string;
+  /** `DropdownMenuItem`s. */
+  children: React.ReactNode;
+}
+
+/**
+ * A row's ⋯ menu, opened by its button or a touch's long press on the row.
+ *
+ * @example
+ * <InboxRowMenu row={row}><DropdownMenuItem onClick={archive}>Archive</DropdownMenuItem></InboxRowMenu>
+ */
+export function InboxRowMenu({
+  row,
+  label = "More actions",
+  size = "icon-sm",
+  disabled = false,
+  className,
+  children,
+}: InboxRowMenuProps) {
+  return (
+    <DropdownMenu open={row.menuOpen} onOpenChange={row.setMenuOpen}>
+      <DropdownMenuTrigger
+        disabled={disabled}
+        render={
+          <Button
+            variant="ghost"
+            size={size}
+            disabled={disabled}
+            aria-label={label}
+            className={className}
+          >
+            <MoreHorizontal />
+          </Button>
+        }
+      />
+      <DropdownMenuContent align="end" className="w-max max-w-80 min-w-56">
+        {children}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 }
 
 /**
@@ -1150,15 +1359,19 @@ export function InboxItem({
   onKeyDown,
   ...props
 }: InboxItemProps) {
-  const inbox = React.useContext(InboxContext);
-  const tracked = !!inbox && value !== undefined;
-  const active = tracked && inbox.activeId === value;
+  const row = useInboxRow({
+    value,
+    menu: Boolean(menu),
+    href,
+    onClick,
+    onKeyDown,
+  });
+  const { tracked, active } = row;
   const [expanded, setExpanded] = React.useState(defaultExpanded);
   const eventsId = React.useId();
   const hasControls = Boolean(onToggleRead || menu);
   // On a touch screen a long press opens the ⋯ menu; a row whose menu holds everything its buttons
   // do shows none of them there, so the title keeps its width.
-  const longPress = useLongPressMenu(Boolean(menu));
   const touchMenuOnly = Boolean(menu) && (readInMenu || !onToggleRead);
   const count = countProp ?? events?.length ?? 0;
   const showCount = count > 1;
@@ -1167,12 +1380,6 @@ export function InboxItem({
   // A meta line that only repeats the title is dropped, so the row reads as one line.
   const showMeta =
     meta != null && meta !== false && !metaRepeatsTitle(title, meta);
-
-  const open = () => {
-    if (!tracked) return;
-    inbox.activate(value);
-    inbox.open?.(value);
-  };
 
   const titleNode = (
     <>
@@ -1185,18 +1392,18 @@ export function InboxItem({
     if (!tracked) return;
     // A modified or middle click keeps the browser's own (a new tab); a plain one opens in place.
     if (
-      !inbox.open ||
+      !row.opens ||
       event.button !== 0 ||
       event.metaKey ||
       event.ctrlKey ||
       event.shiftKey ||
       event.altKey
     ) {
-      inbox.activate(value);
+      row.activate();
       return;
     }
     event.preventDefault();
-    open();
+    row.open();
   };
   const linkProps = {
     href,
@@ -1205,24 +1412,15 @@ export function InboxItem({
   };
 
   let titleContent: React.ReactNode = titleNode;
-  if (!href && tracked && inbox.open) {
-    // No link, but the row opens: the title is the row's button (a span, so the sentence wraps
-    // like a link's), its overlay covering the row.
+  if (!href && row.opens) {
+    // No link, but the row opens: the title is the row's button, its overlay covering the row.
     titleContent = (
-      <Button
-        variant="ghost"
-        nativeButton={false}
-        render={<span />}
-        data-slot="inbox-item-link"
-        aria-current={active ? "true" : undefined}
-        onClick={open}
-        className={cn(
-          "static inline h-auto rounded-none border-0 p-0 text-start text-sm font-normal whitespace-normal text-inherit select-text hover:not-focus-visible:bg-none active:not-aria-[haspopup]:translate-y-0 pointer-coarse:after:inset-0",
-          linkClass,
-        )}
+      <InboxRowTitle
+        row={row}
+        className={cn("pointer-coarse:after:inset-0", linkClass)}
       >
         {titleNode}
-      </Button>
+      </InboxRowTitle>
     );
   } else if (href) {
     titleContent = linkRender ? (
@@ -1254,15 +1452,10 @@ export function InboxItem({
 
   return (
     <li
-      data-slot="inbox-item"
-      data-value={value}
+      {...row.rowProps}
       data-unread={unread || undefined}
-      data-active={active || undefined}
       data-status={status}
       data-single-line={singleLine || undefined}
-      // A row with no link and nothing to open is focused itself while J / K walk the list.
-      tabIndex={tracked && !href && !inbox.open ? -1 : undefined}
-      aria-current={active && !href && !inbox.open ? "true" : undefined}
       className={cn(
         // LAY-20: the row sits 8px inside the pane (the list's `px-2`) on `rounded-item`, so its fill never
         // runs to the pane edge; on a page it pads 8px from a list that reaches 8px into the page's
@@ -1275,30 +1468,12 @@ export function InboxItem({
         "data-single-line:items-center",
         // The active row (the one the peek shows): the selected step and a 2px start bar.
         "data-active:bg-state-selected data-active:before:absolute data-active:before:inset-y-2 data-active:before:start-0 data-active:before:w-0.5 data-active:before:rounded-full data-active:before:bg-primary",
-        tracked && !href && inbox.open && "cursor-pointer",
+        !href && row.opens && "cursor-pointer",
         // A long press opens the ⋯ menu: no text selection or link callout under the finger.
         menu &&
           "pointer-coarse:[-webkit-touch-callout:none] pointer-coarse:select-none",
         className,
       )}
-      {...longPress.handlers}
-      onClick={(event) => {
-        onClick?.(event);
-        if (event.defaultPrevented || href || onControl(event)) return;
-        open();
-      }}
-      onKeyDown={(event) => {
-        onKeyDown?.(event);
-        if (
-          event.defaultPrevented ||
-          href ||
-          event.key !== "Enter" ||
-          event.target !== event.currentTarget
-        )
-          return;
-        event.preventDefault();
-        open();
-      }}
       {...props}
     >
       <div
@@ -1493,28 +1668,9 @@ export function InboxItem({
               </Tooltip>
             ) : null}
             {menu ? (
-              <DropdownMenu
-                open={longPress.open}
-                onOpenChange={longPress.setOpen}
-              >
-                <DropdownMenuTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={menuLabel}
-                    >
-                      <MoreHorizontal />
-                    </Button>
-                  }
-                />
-                <DropdownMenuContent
-                  align="end"
-                  className="w-max max-w-80 min-w-56"
-                >
-                  {menu}
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <InboxRowMenu row={row} label={menuLabel}>
+                {menu}
+              </InboxRowMenu>
             ) : null}
           </div>
         ) : null}
