@@ -380,6 +380,10 @@ test("a row's action takes the detail's place on hover or focus, and no room at 
   expect(getComputedStyle(action).opacity).toBe("0");
   await userEvent.tab();
   await expect.poll(() => getComputedStyle(action).opacity).toBe("1");
-  expect(getComputedStyle(detail).display).toBe("none");
+  // The detail gives way only under a fine pointer; on touch (and in a runner whose browser reports
+  // no fine pointer) the action always shows and the detail stays.
+  expect(getComputedStyle(detail).display).toBe(
+    matchMedia("(pointer: fine)").matches ? "none" : "block",
+  );
   await expectNoA11yViolations(screen.container);
 });

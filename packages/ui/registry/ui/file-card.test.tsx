@@ -453,9 +453,12 @@ test("row: 44px and borderless, a 20px icon, one meta line, the source beside th
   // With the pointer away from the row, its actions are at rest.
   await userEvent.unhover(row);
 
-  // At rest the actions take no room at all; focus within the row brings them in.
+  // At rest the actions take no room at all under a fine pointer (on touch, and in a runner whose
+  // browser reports no fine pointer, they always show); focus within the row brings them in.
   const actions = slot(row, "attachment-actions")!;
-  expect(getComputedStyle(actions).display).toBe("none");
+  expect(getComputedStyle(actions).display).toBe(
+    matchMedia("(pointer: fine)").matches ? "none" : "flex",
+  );
   await userEvent.tab();
   await expect.poll(() => getComputedStyle(actions).display).toBe("flex");
   await expectNoA11yViolations(screen.container);
