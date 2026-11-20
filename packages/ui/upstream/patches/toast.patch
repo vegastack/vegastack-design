@@ -1,8 +1,8 @@
 # component: toast
-# decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15, OVL-17, COL-25, BRD-12, COL-3
+# decisions: A11Y-3, A11Y-4, A11Y-8, A11Y-9, COL-12, COL-23, DOC-1, DOC-2, FOC-1, FOC-6, ICO-8, OVL-13, OVL-15, OVL-17, COL-25, BRD-12, BRD-1
 # hunks:
-#   COL-3 (Regent F32, 2026-11-20): the toast root draws its edge in `border-popover-border`, the anchored-popup
-#     edge token (3:1 over a dialog in dark; the hairline in light), so it reads as raised over a modal.
+#   BRD-1 (amended for Regent F32, 2026-11-20): The toast root draws its edge in `border-popover-border` and wears
+#     `surface-popup` (fill `popover-raised`), so it reads as raised over a dialog in dark; light is unchanged.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #     The toast's content row pads 12px, not upstream's 16px (operator 2026-11-20: "same height etc for toast card, as its
@@ -107,7 +107,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/toast.tsx b/toast.tsx
-index 325d01b..b8aaffa 100644
+index 325d01b..33c7925 100644
 --- a/toast.tsx
 +++ b/toast.tsx
 @@ -1,60 +1,273 @@
@@ -239,7 +239,7 @@ index 325d01b..b8aaffa 100644
 +];
 +
 +const toastVariants = cva(
-+  "group/toast pointer-events-auto w-full rounded-card border border-popover-border bg-popover text-popover-foreground shadow-lg select-none",
++  "group/toast pointer-events-auto w-full rounded-card border border-popover-border surface-popup bg-popover text-popover-foreground shadow-lg select-none",
 +  {
 +    variants: {
 +      // Which edge the stack grows from — sets `origin` so the collapsed scale reads right, and

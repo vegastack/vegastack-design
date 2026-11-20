@@ -1303,6 +1303,19 @@
   stop-color: var(--color-tag-blue);
 }
 
+/* BRD-1 (ours, amended for Regent F32, 2026-11-20) — A POPUP READS AS RAISED OVER WHAT IT OPENS ON.
+   Upstream paints a Dialog, Sheet or Drawer and every anchored popup with the same `popover` fill,
+   so in dark a Select, Combobox, menu or people picker opened inside a dialog was the dialog's own
+   colour behind a faint hairline. `surface-popup` goes on the popup itself (and on every floating
+   bar): it sets `--popover` to `--popover-raised` there, so the popup's own `bg-popover`, and
+   everything inside it that paints the popover surface (a sticky search row, a section header, a
+   footer), resolve one step up — in dark only; both are white in light. Being a class on the popup,
+   it holds wherever the popup renders: portaled to `body`, portaled into a dialog's container, or
+   drawn inline inside a dialog (an editor's find bar). Its edge is `border-popover-border`. */
+@utility surface-popup {
+  --popover: var(--popover-raised);
+}
+
 /* ---------------------------------------------------------------------------------------------
  * Desktop glass (operator 2026-11-14). `surface-glass` is the one class for a surface that sits on
  * a NATIVE OS glass backing: the VegaStack desktop app's floating windows (recording pill,

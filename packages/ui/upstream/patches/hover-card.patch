@@ -1,8 +1,8 @@
 # component: hover-card
-# decisions: BRD-1, DOC-1, DOC-2, OVL-13, BRD-12, COL-3
+# decisions: BRD-1, DOC-1, DOC-2, OVL-13, BRD-12
 # hunks:
-#   COL-3 (Regent F32, 2026-11-20): the popup's edge is `border-popover-border`, the anchored-popup edge
-#     token (3:1 over a dialog in dark; the hairline in light), so a popup over a modal reads as raised.
+#   BRD-1 (amended for Regent F32, 2026-11-20): the edge is `border-popover-border` and the popup wears
+#     `surface-popup` (fill `popover-raised`), so it reads as raised over a dialog in dark; light is unchanged.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   OVL-13: `HoverCardContent` reads `useInternalThemeScope()` and attaches it to the Positioner
@@ -14,7 +14,7 @@
 #   formatting: prettier reflow plus the `registry-stamp.mjs` provenance header (DOC-1); no
 #               decision of their own.
 diff --git a/hover-card.tsx b/hover-card.tsx
-index 1856809..68ddaad 100644
+index 1856809..17d7ad9 100644
 --- a/hover-card.tsx
 +++ b/hover-card.tsx
 @@ -1,16 +1,17 @@
@@ -61,7 +61,7 @@ index 1856809..68ddaad 100644
            className={cn(
 -            "z-50 w-64 origin-(--transform-origin) rounded-lg bg-popover p-2.5 text-sm text-popover-foreground shadow-md ring-1 ring-foreground/10 outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 -            className
-+            "z-50 w-64 origin-(--transform-origin) rounded-card bg-popover p-2.5 text-sm text-popover-foreground shadow-md border border-popover-border outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            "z-50 w-64 origin-(--transform-origin) rounded-card bg-popover p-2.5 text-sm text-popover-foreground shadow-md border border-popover-border surface-popup outline-hidden duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +            className,
            )}
            {...props}

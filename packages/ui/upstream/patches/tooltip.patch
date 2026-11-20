@@ -1,8 +1,8 @@
 # component: tooltip
-# decisions: DOC-2, OVL-13, OVL-14, OVL-24, BRD-12, COL-3
+# decisions: DOC-2, OVL-13, OVL-14, OVL-24, BRD-12, BRD-1
 # hunks:
-#   COL-3 (Regent F32, 2026-11-20): `TooltipContent` draws its edge in `border-popover-border`, the anchored-popup
-#     edge token (3:1 over a dialog in dark; the hairline in light), so it reads as raised over a modal.
+#   BRD-1 (amended for Regent F32, 2026-11-20): `TooltipContent` draws its edge in `border-popover-border` and wears
+#     `surface-popup` (fill `popover-raised`), so it reads as raised over a dialog in dark; light is unchanged.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   OVL-13: `TooltipContent` reads `useInternalThemeScope()` and attaches it to the Positioner
@@ -19,7 +19,7 @@
 #   OVL-24: the tooltip sits on the Popover surface (`bg-popover`, hairline border, `shadow-md`,
 #     `rounded-lg`, one-liner padding) and draws no arrow.
 diff --git a/tooltip.tsx b/tooltip.tsx
-index d980105..7dae614 100644
+index d980105..7b3a4f2 100644
 --- a/tooltip.tsx
 +++ b/tooltip.tsx
 @@ -1,7 +1,8 @@
@@ -83,7 +83,7 @@ index d980105..7dae614 100644
            className={cn(
 -            "z-50 inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-md bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pe-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 -            className
-+            "z-50 inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-item border border-popover-border bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-md has-data-[slot=kbd]:pe-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-inline data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
++            "z-50 inline-flex w-fit max-w-xs origin-(--transform-origin) items-center gap-1.5 rounded-item border border-popover-border surface-popup bg-popover px-2.5 py-1.5 text-xs text-popover-foreground shadow-md has-data-[slot=kbd]:pe-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:rounded-inline data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
 +            className,
            )}
            {...props}

@@ -19,16 +19,19 @@
   },
   "popover": {
     "$type": "color",
-    "$value": {
-      "colorSpace": "oklch",
-      "components": [0.225, 0, 0],
-      "alpha": 1
-    },
-    "$description": "COL-3 (ours, Regent F32, 2026-11-20): in dark an anchored popup sits one step ABOVE the modal it opens over, because dark elevation reads as lightness: `card` 0.205 for dialogs, sheets and drawers (they read `--popover` re-scoped to `card`, base.css), popover 0.225 for every popup and floating bar, with `popover-border` (0.52) as its 3:1 edge. The lift is held to 0.02 L so every status `-text` stays at AA on its own 30% tint over the popup (4.53:1 at worst); the edge, not the fill, carries the boundary. `muted` (0.269) stays a step above it."
+    "$value": "{color.neutral.900}"
   },
   "popover-foreground": {
     "$type": "color",
     "$value": "{color.neutral.50}"
+  },
+  "popover-raised": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.225, 0, 0],
+      "alpha": 1
+    }
   },
   "popover-border": {
     "$type": "color",

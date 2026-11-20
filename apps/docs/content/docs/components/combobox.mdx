@@ -340,13 +340,11 @@ Upstream's file plus `packages/ui/upstream/patches/combobox.patch`. Every hunk:
   addon is not made `inert`, so the mouse still reaches the control.
 - **OVL-13** — `ComboboxContent` reads `useInternalThemeScope()` and attaches it to the positioner
   inside the portal; `tooling/verify-portal-theme-scope.mjs` inventories this host.
-- **COL-3** — the edge is `border-popover-border`, the anchored-popup edge token: 0.52 L in dark
-  (3:1 over a dialog's `card` surface, so a popup opened inside a dialog reads as raised) and the
-  ordinary hairline in light. Regent F32, 2026-11-20; see
-  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal).
 - **BRD-1** — `ComboboxContent` draws a real 1px `border border-popover-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
-  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+  [Elevation](/docs/foundations/elevation). The popup also wears `surface-popup` (fill `popover-raised`), so over a
+  dialog in dark it sits one step up behind a 3:1 edge; see
+  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal) (Regent F32, 2026-11-20).
 - **API-26** — Base UI's `Combobox.Input` reads the `Field` context itself, so inside a `Field` it
   takes its label, the rendered description and error ids, and `aria-invalid`. The addon's "Show
   suggestions" toggle drops the Field label Base UI also hands `Combobox.Trigger`, so the input is

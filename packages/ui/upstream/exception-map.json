@@ -184,16 +184,6 @@
       "menubar",
       "navigation-menu",
       "popover",
-      "select"
-    ],
-    "COL-3": [
-      "combobox",
-      "context-menu",
-      "dropdown-menu",
-      "hover-card",
-      "menubar",
-      "navigation-menu",
-      "popover",
       "select",
       "toast",
       "tooltip"

@@ -233,13 +233,11 @@ focus-visible:ring-3 focus-visible:ring-ring/50` is removed outright, `outline-n
   stays hoverable and a Tooltip can explain it.
 - **OVL-13** — `SelectContent` reads `useInternalThemeScope()` and attaches it to the positioner
   inside the portal; `tooling/verify-portal-theme-scope.mjs` inventories this host.
-- **COL-3** — the edge is `border-popover-border`, the anchored-popup edge token: 0.52 L in dark
-  (3:1 over a dialog's `card` surface, so a popup opened inside a dialog reads as raised) and the
-  ordinary hairline in light. Regent F32, 2026-11-20; see
-  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal).
 - **BRD-1** — `SelectContent` draws a real 1px `border border-popover-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
-  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+  [Elevation](/docs/foundations/elevation). The popup also wears `surface-popup` (fill `popover-raised`), so over a
+  dialog in dark it sits one step up behind a 3:1 edge; see
+  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal) (Regent F32, 2026-11-20).
 - **API-24** — `SelectTrigger` takes `variant="outline" | "ghost"` (reflected as `data-variant`).
   The default trigger is `w-full`, where upstream's is `w-fit`, so a Select takes its width from its
   parent like every other form control; `ghost` keeps `w-fit`, hides its border at rest and shows

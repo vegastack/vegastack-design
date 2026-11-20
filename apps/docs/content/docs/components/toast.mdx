@@ -278,9 +278,9 @@ focus-visible:ring-[3px] focus-visible:ring-ring/50` halo goes; dropping `outlin
   one. Under `VegaStackProvider`, which mounts `ToastProvider toastManager={toast}`, `toast()` and
   `useToastManager()` feed the same queue and there is one viewport. A `Toaster` given its own
   manager still brings its own provider.
-- **COL-3** — the edge is `border-popover-border`, the anchored-popup edge token: 0.52 L in dark
-  (3:1 over a dialog's `card` surface, so a popup opened inside a dialog reads as raised) and the
-  ordinary hairline in light. Regent F32, 2026-11-20; see
+- **BRD-1** — the edge is `border-popover-border` and the surface wears `surface-popup` (fill
+  `popover-raised`): in dark it sits one step above a dialog (0.225 over 0.205) behind a 3:1 edge,
+  so it reads as raised over a modal; light is unchanged. Regent F32, 2026-11-20; see
   [Elevation](/docs/foundations/elevation#a-popup-over-a-modal).
 - **DOC-2** — `cn` is imported from `@vegastack/design`; our npm layer owns `cn`.
 - **DOC-1** — prettier reflow plus the `registry-stamp.mjs` provenance header; no decision of their

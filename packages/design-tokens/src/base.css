@@ -81,27 +81,6 @@
     @apply font-sans;
   }
 
-  /* COL-3 (ours, Regent F32, 2026-11-20) — A POPUP OVER A MODAL READS AS RAISED.
-     Upstream paints the modal surfaces (Dialog, AlertDialog, Sheet, Drawer) and every anchored
-     popup with the same `popover` fill, so in dark a Select, Combobox, menu or people picker
-     opened inside a dialog was the dialog's own colour behind a faint hairline. Dark elevation is
-     lightness: `popover` is one step above `card`, and the modal surfaces (and the floating
-     assistant card, a window-level surface menus open over) re-scope `--popover` to `card`, so
-     the dialog keeps its fill, and so does everything inside it that paints "the
-     surface I'm on" (`bg-popover` in CommandDialog, a sticky search row, a form footer). Popups
-     portal out to `body`, so they keep the raised value and their `popover-border` edge. In light
-     both tokens are white and nothing moves. */
-  :where(
-    [data-slot="dialog-content"],
-    [data-slot="alert-dialog-content"],
-    [data-slot="sheet-content"],
-    [data-slot="drawer-popup"],
-    [data-slot="assistant-card"]
-  ) {
-    --popover: var(--card);
-    --popover-foreground: var(--card-foreground);
-  }
-
   /* FOC-1 + FOC-13 + FOC-14 — the SINGLE focus affordance in the system, and it is NOT a ring.
      No focus ring anywhere, Tabs included (MK 2026-09-25). A keyboard user sees a background TINT —
      `--state-focus`, a soft info-hue wash (FOC-15, operator 2026-10-31: the one cue that differs by HUE

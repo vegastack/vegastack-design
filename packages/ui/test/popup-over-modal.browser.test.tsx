@@ -10,11 +10,11 @@ import {
 } from "../registry/ui/popover";
 
 /**
- * COL-3 (Regent F32, 2026-11-20): a popup opened over a modal reads as a separate, raised surface.
- * Upstream paints the dialog and the popup with the same `popover` fill, so in dark a picker inside
- * a dialog was the dialog's own colour. The fix is two halves no token value can show on its own:
- * `base.css` re-scopes `--popover` to `card` inside the modal, and the popup, portaled out to
- * `body`, keeps the raised value and its `popover-border` edge. This reads what Chromium paints.
+ * BRD-1 (amended for Regent F32, 2026-11-20): a popup opened over a modal reads as a separate,
+ * raised surface. Upstream paints the dialog and the popup with the same `popover` fill, so in dark a
+ * picker inside a dialog was the dialog's own colour. The popup wears `surface-popup`, which sets
+ * `--popover` to `popover-raised` on the popup itself, so it holds portaled to `body` and drawn
+ * inline inside the dialog alike; its edge is `popover-border`. This reads what Chromium paints.
  */
 
 function Fixture() {
@@ -27,10 +27,19 @@ function Fixture() {
             <PopoverTrigger>Choose a person</PopoverTrigger>
             <PopoverContent>Ananya Rao</PopoverContent>
           </Popover>
+          {/* A floating bar drawn inline inside the dialog (an editor's find bar). */}
+          <div
+            data-testid="inline-bar"
+            className="border border-popover-border bg-popover surface-popup"
+          />
         </DialogContent>
       </Dialog>
       {/* References resolved by the same theme, so the test compares meaning, not a spelling. */}
-      <div data-testid="card" style={{ backgroundColor: "var(--card)" }} />
+      <div data-testid="modal" style={{ backgroundColor: "var(--popover)" }} />
+      <div
+        data-testid="raised"
+        style={{ backgroundColor: "var(--popover-raised)" }}
+      />
       <div
         data-testid="edge"
         style={{ borderTop: "1px solid var(--popover-border)" }}
@@ -46,15 +55,18 @@ const id = (name: string) =>
 
 afterEach(() => document.documentElement.classList.remove("dark"));
 
-test("in dark, a popup over a dialog is raised above it and edged in popover-border", async () => {
+test("in dark, a popup over a dialog, portaled or inline, is raised above it and edged in popover-border", async () => {
   document.documentElement.classList.add("dark");
   await render(<Fixture />);
   const dialog = getComputedStyle(slot("dialog-content"));
   const popup = getComputedStyle(slot("popover-content"));
+  const raised = getComputedStyle(id("raised")).backgroundColor;
   expect(dialog.backgroundColor).toBe(
-    getComputedStyle(id("card")).backgroundColor,
+    getComputedStyle(id("modal")).backgroundColor,
   );
+  expect(popup.backgroundColor).toBe(raised);
   expect(popup.backgroundColor).not.toBe(dialog.backgroundColor);
+  expect(getComputedStyle(id("inline-bar")).backgroundColor).toBe(raised);
   expect(popup.borderTopColor).toBe(
     getComputedStyle(id("edge")).borderTopColor,
   );

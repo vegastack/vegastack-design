@@ -32,6 +32,8 @@
 @source './control-paint.browser.test.tsx';
 /* `surface-glass` is a custom @utility; the fixture's class must be scanned for it to compile. */
 @source './surface-glass.browser.test.tsx';
+/* `surface-popup` (BRD-1, Regent F32): the inline floating bar the fixture draws inside a dialog. */
+@source './popup-over-modal.browser.test.tsx';
 /* Blocks (decision D6 of the 00c facelift plan): a block's unit test runs unstyled and skips
    `color-contrast`, and its compiled case in contrast.browser.test.tsx is the compensating gate —
    which only measures real colours if the block's own utilities are generated. */

@@ -195,10 +195,6 @@ Upstream's file plus `packages/ui/upstream/patches/alert-dialog.patch`. Every hu
 - **A11Y-9** — `AlertDialogContent` mirrors Base UI's `data-base-ui-inert` markers onto native
   `inert` through `useModalInert`. No `modal` context here: Base UI's AlertDialog omits the `modal`
   prop from its root, so an alert dialog is always modal and the hook is always enabled.
-- **COL-3** — the popup paints `bg-popover` as upstream writes it, but `base.css` re-scopes
-  `--popover` to `card` inside it, so in dark a Select, Combobox or menu opened over it (raised
-  `popover`, `popover-border` edge) reads as a distinct surface. Light is unchanged. Regent F32,
-  2026-11-20.
 - **BRD-1** — `AlertDialogContent` draws a real 1px `border border-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation); nothing else about the surface moves.

@@ -25,10 +25,15 @@
     "$type": "color",
     "$value": "{color.neutral.950}"
   },
+  "popover-raised": {
+    "$type": "color",
+    "$value": "{color.white}",
+    "$description": "BRD-1 (ours, amended for Regent F32, 2026-11-20): the fill of an anchored popup or floating bar, one step above the surface it opens over. Never read directly: the `surface-popup` utility sets `--popover` to it on the popup, so the popup's own `bg-popover` and everything inside it that paints the popover surface follow, while a Dialog, Sheet or Drawer keeps `popover`. White in light (no change); 0.225 in dark over `popover`/`card` 0.205, because dark elevation is lightness. The lift is held to 0.02 L so every status `-text` stays at AA on its own 30% tint over it (4.53:1 at worst); the edge, not the fill, carries the boundary."
+  },
   "popover-border": {
     "$type": "color",
     "$value": "{color.neutral.200}",
-    "$description": "COL-3 (ours, Regent F32, AI teammates Release 1, 2026-11-20): the EDGE of an anchored popup (Popover, Select, Combobox, menus, HoverCard, Tooltip, Toast and the floating bars that wear the popover surface). In dark a popup opened over a dialog painted the dialog's own fill behind a 10% hairline and read only faintly; its edge is now a WCAG 1.4.11 boundary, gated at 3:1 by contrast-check on `card` (the modal surfaces), `background` and the shell grounds. In light it is the hairline: the elevation shadow carries the boundary on a white dialog. Read it as `border-popover-border`; internal dividers inside a popup stay `border-border`."
+    "$description": "BRD-1 (ours, amended for Regent F32, AI teammates Release 1, 2026-11-20): the EDGE of an anchored popup or floating bar (Popover, Select, Combobox, the menus, HoverCard, Tooltip, NavigationMenu, Toast and the editor, find, upload, audio, PDF and drag-preview bars). In dark a popup opened over a dialog painted the dialog's own fill behind a 10% hairline (about 1.3:1) and read only faintly; this edge is a WCAG 1.4.11 boundary, gated at 3:1 by contrast-check on `card`, `popover` (the modal surfaces), `background` and the shell grounds. In light it is the hairline: the elevation shadow carries the boundary on a white dialog. Read it as `border-popover-border`; dividers inside a popup stay `border-border`."
   },
   "primary": {
     "$type": "color",
@@ -718,7 +723,7 @@
       "components": [1, 0, 0],
       "alpha": 1
     },
-    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, and the docked assistant's card: the extreme of the frame (light white; dark oklch(0.145 0 0), about #0A0A0A, the value of `background`), so cards (`card`, 0.205 in dark) and menus (`popover`, 0.225 in dark) sit lifted on it. The frame's rule: the page is the extreme (white in light, near-black in dark) and each step out from the work moves one notch toward the middle: page, then the module column (`shell-column`), then the canvas. The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
+    "$description": "LAY-26 (ours, Regent operator 2026-11-18, rounded-card frame signed off): the page card's ground, and the docked assistant's card: the extreme of the frame (light white; dark oklch(0.145 0 0), about #0A0A0A, the value of `background`), so cards and menus (`card`, `popover`, 0.205 in dark; a popup's `popover-raised` 0.225) sit lifted on it. The frame's rule: the page is the extreme (white in light, near-black in dark) and each step out from the work moves one notch toward the middle: page, then the module column (`shell-column`), then the canvas. The shell sets `--background` to it inside the card, so every page surface follows. Read it as `bg-shell-card`."
   },
   "shell-column": {
     "$type": "color",
