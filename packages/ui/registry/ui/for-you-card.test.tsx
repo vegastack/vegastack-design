@@ -386,3 +386,31 @@ test("in an Inbox that opens rows, the card's title is the row's button and a cl
   title.click();
   expect(onOpen).toHaveBeenCalledWith("c1");
 });
+
+test("in an Inbox that opens rows, a card withdrawn for lost access is still reached and opened by the keyboard", async () => {
+  const onOpen = vi.fn();
+  const screen = await render(
+    <Inbox onOpen={onOpen}>
+      <InboxGroup label="For you">
+        <InboxItem value="n1" title="First" href="#first" />
+        <ForYouCard
+          {...base}
+          value="c1"
+          state="withdrawn"
+          withdrawnReason="access_lost"
+        />
+      </InboxGroup>
+    </Inbox>,
+  );
+  (
+    screen.getByRole("link", { name: "First" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("jj");
+  const title = screen.container.querySelector<HTMLElement>(
+    '[data-value="c1"] [data-slot="inbox-item-link"]',
+  )!;
+  expect(document.activeElement).toBe(title);
+  expect(title).toHaveAttribute("aria-current", "true");
+  await userEvent.keyboard("{Enter}");
+  expect(onOpen).toHaveBeenCalledWith("c1");
+});

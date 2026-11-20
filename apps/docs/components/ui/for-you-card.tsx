@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.123.2 sha256-BCCWyXG0nvhWIhlduKPig0301obIb6beK2K/vSwaXq8=
+// @vegastack for-you-card@0.123.2 sha256-q0PQppJqTUfUMLXy9jNRwwBPQv31/Wkhi2ygayrxCY8=
 
 "use client";
 
@@ -447,7 +447,8 @@ export function ForYouCard({
         className={cn(root, "flex-row items-center")}
       >
         <p className="min-w-0 flex-1 text-sm text-muted-foreground">
-          No longer available to you
+          {/* Still the row's focus target, so J / K and Enter reach it. */}
+          <InboxRowTitle row={row}>No longer available to you</InboxRowTitle>
         </p>
         {more}
       </article>,
@@ -657,7 +658,11 @@ export function ForYouCard({
             live ? "text-foreground" : "text-muted-foreground",
           )}
         >
-          <InboxRowTitle row={row} className="font-medium">
+          <InboxRowTitle
+            row={row}
+            // Its touch target stays on the title, clear of the header's ⋯ and Snooze.
+            className="relative font-medium"
+          >
             {unread ? <span className="sr-only">Unread: </span> : null}
             {title}
           </InboxRowTitle>

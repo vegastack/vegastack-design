@@ -1,4 +1,4 @@
-// @vegastack inbox@0.123.2 sha256-T+I4MYEQj2MViyI7ylMYfeDPLcoG0OPOC6jM0unOGME=
+// @vegastack inbox@0.123.2 sha256-Na2p8xQ8oNMExAnwJaXv9Z/tpnv425XCvHrgPNWn1fE=
 
 "use client";
 
@@ -976,9 +976,21 @@ function metaRepeatsTitle(title: React.ReactNode, meta: React.ReactNode) {
 const ROW_CONTROLS =
   "button,a,input,textarea,select,label,summary,form,[contenteditable=true],[role=menuitem],[role=button],[role=checkbox],[role=radio],[role=switch],[role=option],[role=combobox],[role=slider],[role=textbox]";
 
+/**
+ * The control an event landed on, the row's own: inside the row, or in a menu it portals out (a
+ * React event bubbles through the portal). A form or field that holds the whole Inbox is not one.
+ */
+function rowControl(event: React.SyntheticEvent): HTMLElement | null {
+  const control = (event.target as HTMLElement).closest<HTMLElement>(
+    ROW_CONTROLS,
+  );
+  return control && !control.contains(event.currentTarget as Node)
+    ? control
+    : null;
+}
+
 /** The click was on one of the row's own controls. */
-const onControl = (event: React.SyntheticEvent) =>
-  !!(event.target as HTMLElement).closest(ROW_CONTROLS);
+const onControl = (event: React.SyntheticEvent) => !!rowControl(event);
 
 /** How long a touch holds still on a row before its ⋯ menu opens (the platforms' long press). */
 const LONG_PRESS_MS = 500;
@@ -1060,7 +1072,7 @@ function useLongPressMenu(enabled: boolean): {
     setOpen(true);
   };
   const ownControl = (event: React.SyntheticEvent) => {
-    const control = (event.target as HTMLElement).closest(ROW_CONTROLS);
+    const control = rowControl(event);
     return !!control && control.getAttribute("data-slot") !== "inbox-item-link";
   };
   if (!enabled) return { open, setOpen, handlers: {} };
