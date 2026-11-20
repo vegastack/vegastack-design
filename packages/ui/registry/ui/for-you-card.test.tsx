@@ -1,8 +1,10 @@
 import { render } from "vitest-browser-react";
-import { page } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import "../../test/geometry.css";
+import { DropdownMenuItem } from "./dropdown-menu";
+import { Inbox, InboxGroup, InboxItem } from "./inbox";
 import {
   ForYouCard,
   ForYouCardSkeleton,
@@ -110,7 +112,7 @@ test("sending holds every other option, Skip and Snooze; the option in flight ke
 });
 
 test("settled states read as their outcome; Skip reads differently from Decline", async () => {
-  const outcome = {
+  const outcome: NonNullable<ForYouCardProps["outcome"]> = {
     label: "Approved",
     actorName: "Priya",
     via: "slack",
@@ -128,6 +130,27 @@ test("settled states read as their outcome; Skip reads differently from Decline"
       <ForYouCard {...base} state="expired" />
       <ForYouCard {...base} state="stale" />
       <ForYouCard {...base} state="withdrawn" />
+      <ForYouCard {...base} state="done" outcome={{ ...outcome, via: "app" }} />
+      <ForYouCard
+        {...base}
+        state="done"
+        outcome={{ ...outcome, via: "desktop" }}
+      />
+      <ForYouCard
+        {...base}
+        state="done"
+        outcome={{ ...outcome, via: "phone" }}
+      />
+      <ForYouCard
+        {...base}
+        state="expired"
+        outcome={{
+          ...outcome,
+          label: "Expired",
+          actorName: null,
+          via: "system",
+        }}
+      />
     </>,
   );
   const lines = [
@@ -140,6 +163,10 @@ test("settled states read as their outcome; Skip reads differently from Decline"
     "Not answered in time",
     "This changed. Review the new version.",
     "No longer needed",
+    "Approved by Priya on the web · 14:02",
+    "Approved by Priya in the desktop app · 14:02",
+    "Approved by Priya in the mobile app · 14:02",
+    "Not answered in time · Expired · 14:02",
   ]);
   const cards = screen.container.querySelectorAll('[data-slot="for-you-card"]');
   // A stale card keeps only its way to the new version.
@@ -290,4 +317,100 @@ test("a body-only card keeps Skip; its question form draws no filled primary; a 
     .element(page.getByRole("button", { name: "Send check-in" }))
     .toBeDisabled();
   expect(sending).toBeDefined();
+});
+
+test("in an Inbox the card is its row: J / K reach it, the active row selects it, unread is read out, its menu stays when settled", async () => {
+  const onActiveChange = vi.fn();
+  const onArchive = vi.fn();
+  const archive = (
+    <DropdownMenuItem onClick={onArchive}>Archive</DropdownMenuItem>
+  );
+  const screen = await render(
+    <Inbox onActiveChange={onActiveChange}>
+      <InboxGroup label="For you">
+        <InboxItem value="n1" title="First" href="#first" />
+        <ForYouCard {...base} value="c1" unread menu={archive} />
+        <ForYouCard
+          {...base}
+          value="c2"
+          title="Done claim"
+          state="done"
+          menu={archive}
+        />
+      </InboxGroup>
+    </Inbox>,
+  );
+  const first = screen.getByRole("link", { name: "First" });
+  (first.element() as HTMLElement).focus();
+  await userEvent.keyboard("jj");
+  expect(onActiveChange).toHaveBeenLastCalledWith("c1");
+  const row = screen.container.querySelector<HTMLElement>('[data-value="c1"]')!;
+  expect(row.tagName).toBe("LI");
+  expect(row.dataset.slot).toBe("inbox-item");
+  expect(document.activeElement).toBe(row);
+  expect(row).toHaveAttribute("aria-current", "true");
+  expect(row).toHaveAttribute("data-unread");
+  const card = row.querySelector('[data-slot="for-you-card"]')!;
+  expect(card).toHaveAttribute("data-selected");
+  await expect
+    .element(screen.getByRole("article", { name: /^Unread: Ravi's taxi/ }))
+    .toBeInTheDocument();
+
+  await userEvent.keyboard("j");
+  expect(onActiveChange).toHaveBeenLastCalledWith("c2");
+  expect(card).not.toHaveAttribute("data-selected");
+  // A settled card keeps the row's menu (Archive, Mark read) though its own items are gone.
+  await screen.getByRole("button", { name: "More for Done claim" }).click();
+  await screen.getByRole("menuitem", { name: "Archive" }).click();
+  expect(onArchive).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container, ["color-contrast"]);
+});
+
+test("in an Inbox that opens rows, the card's title is the row's button and a click on the card opens it, not on its options", async () => {
+  const onOpen = vi.fn();
+  const onOption = vi.fn();
+  const screen = await render(
+    <Inbox onOpen={onOpen}>
+      <InboxGroup label="For you">
+        <ForYouCard {...base} value="c1" onOption={onOption} />
+      </InboxGroup>
+    </Inbox>,
+  );
+  await screen.getByRole("button", { name: "Approve" }).click();
+  expect(onOption).toHaveBeenCalledWith("approve");
+  expect(onOpen).not.toHaveBeenCalled();
+  const title = screen.container.querySelector<HTMLElement>(
+    '[data-slot="inbox-item-link"]',
+  )!;
+  expect(title.textContent).toBe("Ravi's taxi claim, ₹4,200");
+  title.click();
+  expect(onOpen).toHaveBeenCalledWith("c1");
+});
+
+test("in an Inbox that opens rows, a card withdrawn for lost access is still reached and opened by the keyboard", async () => {
+  const onOpen = vi.fn();
+  const screen = await render(
+    <Inbox onOpen={onOpen}>
+      <InboxGroup label="For you">
+        <InboxItem value="n1" title="First" href="#first" />
+        <ForYouCard
+          {...base}
+          value="c1"
+          state="withdrawn"
+          withdrawnReason="access_lost"
+        />
+      </InboxGroup>
+    </Inbox>,
+  );
+  (
+    screen.getByRole("link", { name: "First" }).element() as HTMLElement
+  ).focus();
+  await userEvent.keyboard("jj");
+  const title = screen.container.querySelector<HTMLElement>(
+    '[data-value="c1"] [data-slot="inbox-item-link"]',
+  )!;
+  expect(document.activeElement).toBe(title);
+  expect(title).toHaveAttribute("aria-current", "true");
+  await userEvent.keyboard("{Enter}");
+  expect(onOpen).toHaveBeenCalledWith("c1");
 });

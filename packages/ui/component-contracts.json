@@ -22450,6 +22450,69 @@
             "status": "not-applicable",
             "rationale": "InboxSkeleton does not forward a stable public ref; its root node is incidental."
           }
+        },
+        {
+          "name": "InboxRow",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "InboxRowMenu",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "InboxRowMenuProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "InboxRowOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "InboxRowTitle",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "InboxRowTitleProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useInboxRow",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/inbox.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -22576,12 +22639,17 @@
           ],
           "cssVariables": []
         },
-        "InboxItem": {
+        "InboxRowTitle": {
           "attributes": [
             {
-              "name": "data-active",
-              "values": []
-            },
+              "name": "data-slot",
+              "values": ["inbox-item-link"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "InboxItem": {
+          "attributes": [
             {
               "name": "data-icon",
               "values": ["inline-start"]
@@ -22593,7 +22661,6 @@
             {
               "name": "data-slot",
               "values": [
-                "inbox-item",
                 "inbox-item-actors",
                 "inbox-item-answered",
                 "inbox-item-badge",
@@ -22601,7 +22668,6 @@
                 "inbox-item-count",
                 "inbox-item-event",
                 "inbox-item-events",
-                "inbox-item-link",
                 "inbox-item-rail",
                 "inbox-item-unread"
               ]
@@ -22612,10 +22678,6 @@
             },
             {
               "name": "data-unread",
-              "values": []
-            },
-            {
-              "name": "data-value",
               "values": []
             }
           ],
@@ -32341,6 +32403,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ForYouVia",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -32424,7 +32495,8 @@
         "@vegastack/skeleton",
         "@vegastack/status-glyph",
         "@vegastack/text-spinner",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/inbox"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.28.0",
@@ -32472,11 +32544,16 @@
                 "for-you-card-outcome",
                 "for-you-card-skip",
                 "for-you-card-title",
+                "for-you-card-unread",
                 "for-you-card-verb"
               ]
             },
             {
               "name": "data-state",
+              "values": []
+            },
+            {
+              "name": "data-unread",
               "values": []
             },
             {

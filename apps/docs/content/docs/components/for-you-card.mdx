@@ -37,8 +37,7 @@ import { ForYouCard } from "@/components/ui/for-you-card";
 ```
 
 The card is laid out for the 26rem Inbox panel first and the phone's For you page: one column,
-facts and buttons wrap, nothing wider than the panel. It sits in `InboxList` as a row's content, so
-the panel's keyboard and active row still apply (`selected`). Every card says what happens if nobody
+facts and buttons wrap, nothing wider than the panel. Every card says what happens if nobody
 answers.
 
 <ComponentPreview
@@ -84,6 +83,25 @@ to you": nothing of the source and no action.
   file="components/preview/for-you-card.tsx"
 />
 
+### In the Inbox
+
+Inside an `Inbox`, the card is a row of its `InboxGroup` or `InboxList`, with the same behaviour as
+an `InboxItem` (both use `useInboxRow`). Give it the card's id as `value`: J / K walk to it, the
+Inbox's active row selects it (`selected` is then ignored), Enter or a click on the card opens it
+through the Inbox's `onOpen` (a click on an option, a field or the ⋯ never does), and the app's
+shortcuts act on the active row. `unread` adds the row's dot and an sr-only "Unread". `menu` holds
+the row's items (Archive, Mark read / Mark unread, Unsnooze, Move to Inbox) after Snooze and Fewer
+like this, and stays on a settled card; on a touch screen a long press on the card opens it.
+
+<ComponentPreview
+  name="forYouCardInbox"
+  file="components/preview/for-you-card.tsx"
+/>
+
+A settled card says where it was answered in the app's words: `app` "on the web", `phone` "in the
+mobile app", `desktop` "in the desktop app", `slack` "in Slack", `email` "by email"; `system`
+(nobody answered) says nothing.
+
 ### On a phone
 
 <ComponentPreview
@@ -104,11 +122,15 @@ to you": nothing of the source and no action.
 - The options are one group named "Options:" and the title.
 - An urgent deadline and a fact's tone carry a named glyph, never colour alone.
 - A failed answer is announced (`role="alert"`).
+- In an Inbox, an unread card's name starts with "Unread:"; the active card is the current row
+  (`aria-current`), and its title is the row's button when the Inbox opens rows.
 
-| Key                                 | Action                   |
-| ----------------------------------- | ------------------------ |
-| <kbd>Tab</kbd>                      | Move through the options |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Choose an option         |
+| Key                                 | Action                                        |
+| ----------------------------------- | --------------------------------------------- |
+| <kbd>J</kbd> / <kbd>K</kbd>         | In an Inbox, move to the next or previous row |
+| <kbd>Enter</kbd>                    | In an Inbox that opens rows, open the card    |
+| <kbd>Tab</kbd>                      | Move through the options                      |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Choose an option                              |
 
 <StatesTested name="for-you-card" />
 

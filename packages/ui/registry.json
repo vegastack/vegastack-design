@@ -16121,7 +16121,7 @@
       "name": "for-you-card",
       "type": "registry:ui",
       "title": "For You Card",
-      "description": "One thing waiting on a person in For you: the verb, who asks, the deciding facts, what happens if nobody answers, the source's body and options (the preferred one secondary, never filled), its outcome once settled.",
+      "description": "One thing waiting on a person in For you: the verb, who asks, the deciding facts, what happens if nobody answers, the source's body and options (the preferred one secondary, never filled), its outcome once settled. In an Inbox it is a row like InboxItem.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -16132,6 +16132,7 @@
         "@vegastack/agent-question-form",
         "@vegastack/button",
         "@vegastack/dropdown-menu",
+        "@vegastack/inbox",
         "@vegastack/skeleton",
         "@vegastack/status-glyph",
         "@vegastack/text-spinner",
