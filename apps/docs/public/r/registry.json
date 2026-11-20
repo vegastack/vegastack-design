@@ -2442,13 +2442,18 @@
           "path": "packages/ui/registry/ui/date-picker.tsx",
           "type": "registry:ui",
           "target": "@ui/date-picker.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/date-range-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/date-range-picker.tsx"
         }
       ],
       "meta": {
         "whenToUse": "Selecting a single date, a date with a time of day (DateTimePicker: the calendar and the time in one popup, on the reader's clock), or a range (with optional Today/Last-7-days presets) from a popover. size=\"sm\" + variant=\"ghost\" is the inline row tier; clearable adds a clear control that returns focus to the trigger.",
         "whenNotToUse": "Free-form/partial dates (masked Input) or inline-only calendars (use Calendar directly).",
         "version": "0.123.2",
-        "integrity": "sha256-grNXqK5vFway2+huyxcmml+vbWB3QpF7SecjQx8gwPc="
+        "integrity": "sha256-dIvmknn8VyJXr93GbjxqQuF+sRArIXnt8HwloYa4izk="
       }
     },
     {

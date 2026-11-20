@@ -6,13 +6,15 @@ import { Wrapper } from "./wrapper";
 // Copied INTO apps/docs via `shadcn add @vegastack/date-picker` (dogfoods the registry) → auto-scanned.
 import {
   DatePicker,
-  DateRangePicker,
   DateTimePicker,
   defaultDatePresets,
-  defaultRangePresets,
   type DatePreset,
-  type DateRange,
 } from "@/components/ui/date-picker";
+import {
+  DateRangePicker,
+  defaultRangePresets,
+  type DateRange,
+} from "@/components/ui/date-range-picker";
 import {
   Field,
   FieldDescription,

@@ -9,11 +9,10 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { fieldWiringTests } from "../../test/field-wiring";
 import {
   DatePicker,
-  DateRangePicker,
   DateTimePicker,
-  type DateRange,
   type DateTimePickerProps,
 } from "./date-picker";
+import { DateRangePicker, type DateRange } from "./date-range-picker";
 import { TimeZoneProvider } from "./relative-time";
 import { zonedParts } from "../lib/date-time";
 import { Field, FieldDescription, FieldError, FieldLabel } from "./field";

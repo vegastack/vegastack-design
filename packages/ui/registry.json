@@ -2178,6 +2178,11 @@
           "path": "packages/ui/registry/ui/date-picker.tsx",
           "type": "registry:ui",
           "target": "@ui/date-picker.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/date-range-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/date-range-picker.tsx"
         }
       ],
       "meta": {

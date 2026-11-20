@@ -154,6 +154,11 @@
       "source": "extras.md",
       "rationale": "Batch 7b rebuilt it on upstream `calendar`: the grid, the day button, the captions and the nav are imported from `@/components/ui/calendar`, and this module is the Popover/Button composition plus `Intl` formatting and the preset rails. `react-day-picker` survives here as TYPES (`DateRange`, `Matcher`, `DayButton`) plus its two matcher EVALUATORS (`dateMatchModifiers`, `rangeContainsModifiers`), which the preset gate calls so a preset obeys exactly the policy the grid enforces; re-deriving Matcher evaluation is the drift the gate exists to prevent, so that import stayed. The one DOM part here is `PopoverDayButton`, which WRAPS upstream's `CalendarDayButton` (never copies it) to focus with `preventScroll` — see its note and `date-picker.test.tsx`'s below-the-fold regression, which fails without it."
     },
+    "date-range-picker": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "part of date-picker (the range picker in its own file of the same item, 2026-11-21) so a page without one never ships its code; not listed in extras.md"
+    },
     "delegate-row": {
       "disposition": "keep",
       "family": "chat",
