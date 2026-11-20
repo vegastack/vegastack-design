@@ -218,9 +218,11 @@ Upstream's file plus `packages/ui/upstream/patches/menubar.patch`. Every hunk:
   over `DropdownMenuContent` / `DropdownMenuSubContent` / `DropdownMenuPortal`, which carry the
   scope. `menubar.test.tsx` asserts the rendered popup carries it, so the day that composition
   changes the test fails rather than the scope going quiet.
-- **BRD-1** — `MenubarContent` and `MenubarSubContent` draw a real 1px `border border-border` instead of upstream's
+- **BRD-1** — `MenubarContent` and `MenubarSubContent` draw a real 1px `border border-popover-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
-  [Elevation](/docs/foundations/elevation); nothing else about the surface moves.
+  [Elevation](/docs/foundations/elevation). The popup also wears `surface-popup` (fill `popover-raised`), so over a
+  dialog in dark it sits one step up behind a 3:1 edge; see
+  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal) (Regent F32, 2026-11-20).
 - **A11Y-13** — a focused destructive `MenubarItem` reads `focus:text-destructive-text` on its
   `bg-destructive/10` wash. Upstream inks it with the fill (`focus:text-destructive`), which
   measures 3.99:1 on its own tint in light, under the AA floor. The resting ink measures 4.77:1 in light and

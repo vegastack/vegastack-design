@@ -1,4 +1,4 @@
-// @vegastack comment-margin@0.123.2 sha256-SS0vhCrf+aqHnNFUIxljnWEVOo6ccI9IW5WCcHyhZ04=
+// @vegastack comment-margin@0.123.5 sha256-6k65up1V7OQd+/C4PbbYlcqHIUYRhd55qcWJ/4IzQDk=
 
 "use client";
 
@@ -263,7 +263,7 @@ export function CommentPopover({
             className={cn(
               "z-50 w-80 max-w-[calc(100vw-1rem)] origin-(--transform-origin) outline-hidden duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
               // `PopoverContent`'s surface: a thread's card in the margin is see-through on purpose.
-              "rounded-card border border-border bg-popover text-popover-foreground shadow-md",
+              "rounded-card border border-popover-border surface-popup bg-popover text-popover-foreground shadow-md",
               // One border, one fill, one shadow: the surface is the popup's, not the card's too.
               "[&_:is([data-slot=comment-thread],[data-slot=comment-thread-skeleton])]:border-0 [&_[data-slot=comment-thread]]:bg-transparent [&_[data-slot=comment-thread][data-active]]:shadow-none",
               // A composer alone: its box is its own border, and text entry's focus cue, so the

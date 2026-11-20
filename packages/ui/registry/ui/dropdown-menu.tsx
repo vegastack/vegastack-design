@@ -1,4 +1,4 @@
-// @vegastack dropdown-menu@0.123.2 sha256-he4NlAP+cBhQEmx/vc25BpYNsq0iBYTcGNZOYE8N8x4=
+// @vegastack dropdown-menu@0.123.5 sha256-Vm2Z07sizVmy8fOX5rR2KwNMIW3Tht7wM5/WITPE0hg=
 
 "use client";
 
@@ -62,7 +62,7 @@ function DropdownMenuContent({
         <MenuPrimitive.Popup
           data-slot="dropdown-menu-content"
           className={cn(
-            "relative z-50 max-h-(--available-height) w-max max-w-(--available-width) min-w-[max(--spacing(32),var(--anchor-width))] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-card bg-popover p-1.25 text-popover-foreground shadow-md border border-border duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95",
+            "relative z-50 max-h-(--available-height) w-max max-w-(--available-width) min-w-[max(--spacing(32),var(--anchor-width))] origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-card bg-popover p-1.25 text-popover-foreground shadow-md border border-popover-border surface-popup duration-100 outline-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:overflow-hidden data-closed:fade-out-0 data-closed:zoom-out-95",
             className,
           )}
           {...props}
@@ -163,7 +163,7 @@ function DropdownMenuSubContent({
     <DropdownMenuContent
       data-slot="dropdown-menu-sub-content"
       className={cn(
-        "w-max min-w-[96px] rounded-card bg-popover p-1.25 text-popover-foreground shadow-lg border border-border duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+        "w-max min-w-[96px] rounded-card bg-popover p-1.25 text-popover-foreground shadow-lg border border-popover-border surface-popup duration-100 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
         className,
       )}
       align={align}

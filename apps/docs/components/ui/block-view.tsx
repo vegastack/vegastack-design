@@ -1,4 +1,4 @@
-// @vegastack block-view@0.123.2 sha256-a0fvabKGLdYEKuUiFw9MmKCWCL4jVbFDe/MsCQikXms=
+// @vegastack block-view@0.123.5 sha256-1jiJpNT76BaYSBdt3Por5RmIJNaagotOfYPpNAK5AFA=
 
 "use client";
 
@@ -537,7 +537,7 @@ function PanZoom({
       <div
         role="group"
         aria-label="Zoom"
-        className="absolute end-2 bottom-2 flex items-center gap-0.5 rounded-capsule capsule-scope border border-border bg-popover p-0.5 shadow-sm"
+        className="absolute end-2 bottom-2 flex items-center gap-0.5 rounded-capsule capsule-scope border border-popover-border surface-popup bg-popover p-0.5 shadow-sm"
       >
         <Button
           type="button"

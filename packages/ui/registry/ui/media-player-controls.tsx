@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.123.2 sha256-2yL98+SXDR9mQZFo1dahNfqBAGNbbuaEn4eWo+OiVEc=
+// @vegastack media-player-controls@0.123.5 sha256-7sk8izCPq8lR44B9nWaZyOixTGsMGbTHcQfNl3VQ9EI=
 
 "use client";
 
@@ -1213,7 +1213,7 @@ export function MediaPlayerControls({
               "flex items-center rounded-capsule",
               isOverlay
                 ? "h-20 bg-media-scrim-strong px-1 py-1 text-media-foreground"
-                : "h-28 border border-border bg-popover px-2 py-3 text-popover-foreground",
+                : "h-28 border border-popover-border surface-popup bg-popover px-2 py-3 text-popover-foreground",
             )}
           >
             <Slider

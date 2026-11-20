@@ -1,4 +1,4 @@
-// @vegastack upload-panel@0.123.2 sha256-Kt63PIb7H148C8ebtebUXXUWHklIqx/v4BIw/2YPK7g=
+// @vegastack upload-panel@0.123.5 sha256-ZSru9ukbl08Mz4Nre4wtXwJuzCl0N/65vgTaUYqdqzk=
 
 "use client";
 
@@ -1132,7 +1132,7 @@ export function UploadPanel({
             setFocused(false);
         }}
         className={cn(
-          "fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))] z-50 flex flex-col overflow-hidden rounded-card bg-popover text-popover-foreground border border-border shadow-lg motion-enter-up",
+          "fixed end-4 bottom-[calc(var(--spacing)*4+env(safe-area-inset-bottom)+var(--dock-inset-bottom,0px))] z-50 flex flex-col overflow-hidden rounded-card bg-popover text-popover-foreground border border-popover-border surface-popup shadow-lg motion-enter-up",
           mobile ? "start-4" : "w-90 max-w-[calc(100vw-var(--spacing)*8)]",
           className,
         )}

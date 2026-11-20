@@ -168,5 +168,9 @@ Upstream's file plus `packages/ui/upstream/patches/tooltip.patch`. Every hunk:
   element over; a fullscreen player's control labels rendered invisibly behind it. Leaving
   `container` unset is upstream's own default, so nothing else moves.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
-- **OVL-24** — the tooltip sits on the Popover surface (`bg-popover`, a hairline border, `shadow-
+- **BRD-1** — the edge is `border-popover-border` and the surface wears `surface-popup` (fill
+  `popover-raised`): in dark it sits one step above a dialog (0.225 over 0.205) behind a 3:1 edge,
+  so it reads as raised over a modal; light is unchanged. Regent F32, 2026-11-20; see
+  [Elevation](/docs/foundations/elevation#a-popup-over-a-modal).
+- **OVL-24** — the tooltip sits on the Popover surface (`bg-popover`, a `popover-border` edge, `shadow-
 md`) with no arrow, at the tooltip corner `rounded-item` (BRD-12), so it matches InfoHint. Operator, Regent, 2026-10-31.

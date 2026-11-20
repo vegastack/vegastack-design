@@ -62,11 +62,12 @@ const triggerClasses = (screen: { container: HTMLElement }) =>
     ) as HTMLElement
   ).className;
 
-/** BRD-1: a real 1px `border border-border`, never upstream's `ring-1 ring-foreground/10` outline. */
+/** BRD-1: a real 1px `border border-popover-border` (the popup edge) on the raised `surface-popup`, never upstream's `ring-1 ring-foreground/10` outline. */
 function expectBorderNotRing(element: HTMLElement) {
   const tokens = element.className.split(/\s+/);
   expect(tokens).toContain("border");
-  expect(tokens).toContain("border-border");
+  expect(tokens).toContain("border-popover-border");
+  expect(tokens).toContain("surface-popup");
   expect(element.className).not.toMatch(/(^|\s)ring-1(\s|$)|ring-foreground/);
 }
 

@@ -25,6 +25,22 @@
     "$type": "color",
     "$value": "{color.neutral.50}"
   },
+  "popover-raised": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.225, 0, 0],
+      "alpha": 1
+    }
+  },
+  "popover-border": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.52, 0, 0],
+      "alpha": 1
+    }
+  },
   "primary": {
     "$type": "color",
     "$value": "{color.neutral.200}"

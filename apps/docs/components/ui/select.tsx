@@ -1,4 +1,4 @@
-// @vegastack select@0.123.2 sha256-M5jFdV31TqT0lMmxqO+PDxP3E1xsw7Kt9H1CazFlfPk=
+// @vegastack select@0.123.5 sha256-zFoftXjuBIw80Gx5E4NIdfrKKmT4vdKju+qM+72CMMw=
 
 "use client";
 
@@ -162,7 +162,7 @@ function SelectContent({
           data-align-trigger={alignItemWithTrigger}
           data-wrap={wrap ? "" : undefined}
           className={cn(
-            "group/select-content relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-card bg-popover text-popover-foreground shadow-md border border-border duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "group/select-content relative isolate z-50 max-h-(--available-height) w-(--anchor-width) min-w-36 origin-(--transform-origin) overflow-x-hidden overflow-y-auto rounded-card bg-popover text-popover-foreground shadow-md border border-popover-border surface-popup duration-100 data-[align-trigger=true]:animate-none data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-start-2 data-[side=inline-start]:slide-in-from-end-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className,
           )}
           {...props}

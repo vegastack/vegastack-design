@@ -44,6 +44,8 @@ const NEUTRAL_SURFACES = [
   "background",
   "card",
   "popover",
+  // BRD-1 (Regent F32): the raised fill `surface-popup` gives an anchored popup or floating bar.
+  "popover-raised",
   "muted",
   "accent",
   "secondary",
@@ -80,7 +82,12 @@ const SECONDARY_INK_SURFACES = NEUTRAL_SURFACES;
 // Field and Alert), so it takes the AA text floor on the page surfaces, and the foreground takes it
 // on the fill.
 const STATUS_FAMILIES = ["destructive", "success", "warning", "info"];
-const STATUS_TEXT_SURFACES = ["background", "card", "popover"];
+const STATUS_TEXT_SURFACES = [
+  "background",
+  "card",
+  "popover",
+  "popover-raised",
+];
 // The tint alphas a status surface is actually painted at: `bg-<family>/10` at rest, `/20` on
 // hover, `/30` pressed — upstream's own vocabulary, and what Alert, Badge, Toast and the soft
 // Button wear. It is also the HOVER of every non-primary button inside a status Alert (API-29,
@@ -96,9 +103,27 @@ const TRACK_FILLS = ["warning", "destructive"];
 // text field cannot tell a mouse click from a Tab. FOC-10 gates that border, composited at the
 // token's own alpha, at 3:1 on every neutral surface; FOC-14 holds the three steps in order.
 
+// BRD-1 (Regent F32): the surfaces an anchored popup can open over — a modal (`popover`, `card`), the
+// page and the shell's grounds. Its edge must clear 3:1 on each in dark.
+const POPUP_GROUNDS = [
+  "popover",
+  "card",
+  "background",
+  "shell-canvas",
+  "shell-card",
+  "shell-column",
+];
+
 // Markers only ever sit on resting surfaces — nobody draws a chart or a status dot on a hovered row.
 const MARKERS = ["brand", "chart-single"];
-const MARKER_SURFACES = ["background", "card", "popover", "muted", "sidebar"];
+const MARKER_SURFACES = [
+  "background",
+  "card",
+  "popover",
+  "popover-raised",
+  "muted",
+  "sidebar",
+];
 
 // `brand` is a MARKER value: the cta Button painted its label in `text-brand` over its own wash and
 // measured 3.41:1 in light, a live WCAG 1.4.3 failure on the public docs site (audit 2026-09-09,
@@ -403,6 +428,48 @@ export function checkTheme(css) {
           gate(theme, ink, surface, AA_NONTEXT, `non-text ${part} on ${name}`);
       }
     }
+    // 4a. POPUP OVER A MODAL (BRD-1, Regent F32, 2026-11-20). In dark, elevation is lightness: an
+    //     anchored popup's fill (`popover-raised`, through `surface-popup`) sits above the modal
+    //     surfaces (Dialog, Sheet and Drawer paint `popover`; cards paint `card`), and its edge,
+    //     `popover-border`, is a 1.4.11 boundary at 3:1 on every surface it can open over. In light
+    //     the fills are all white and the elevation shadow is the boundary, so only dark is gated.
+    if (theme === "dark") {
+      const edge = need(theme, vars, "popover-border", "the popup edge");
+      const popup = need(theme, vars, "popover-raised", "the popup edge");
+      const modals = ["popover", "card"].map((name) =>
+        need(theme, vars, name, "the popup lift"),
+      );
+      // The border paints over the popup's own fill (border-box background), so a translucent
+      // edge is measured as that composite, never as if it were solid.
+      const edgeLum =
+        edge && popup
+          ? relLum(compositeLinear(edge, edge[3] ?? 1, popup))
+          : null;
+      if (edgeLum !== null)
+        for (const name of POPUP_GROUNDS) {
+          const surface = need(theme, vars, name, `popover-border on ${name}`);
+          if (!surface) continue;
+          checked++;
+          const a = edgeLum + 0.05;
+          const b = relLum(oklchToLinearSrgb(...surface)) + 0.05;
+          const ratio = Math.max(a, b) / Math.min(a, b);
+          if (ratio < AA_NONTEXT)
+            fail(
+              `${theme}: popover-border on ${name} = ${ratio.toFixed(2)}:1 (needs ${AA_NONTEXT}:1)`,
+            );
+        }
+      for (const [i, modal] of modals.entries()) {
+        if (!popup || !modal) continue;
+        checked++;
+        if (
+          relLum(oklchToLinearSrgb(...popup)) <=
+          relLum(oklchToLinearSrgb(...modal))
+        )
+          fail(
+            `${theme}: popover-raised must sit above ${["popover", "card"][i]} — a popup over a dialog has no lift`,
+          );
+      }
+    }
     for (const part of TRACK_FILLS) {
       const ink = need(theme, vars, part, "a progress fill");
       const track = need(theme, vars, "muted", `progress ${part}`);
@@ -690,6 +757,20 @@ function selfTest(themePath) {
     failsWith(drop("glass-ink")),
   );
   claim(
+    "a dark popup edge too faint to bound a popup over a dialog is rejected",
+    failsWith(swap("popover-border", "oklch(0.985 0 0 / 0.1)", ".dark")),
+  );
+  claim(
+    "a dark popup that does not sit above the modal surface is rejected",
+    failsWith(swap("popover-raised", "oklch(0.205 0 0)", ".dark")),
+  );
+  claim(
+    "a missing popup edge is rejected rather than skipped",
+    failsWith((css) =>
+      drop("popover-border")(drop("popover-border", ".dark")(css)),
+    ),
+  );
+  claim(
     "a DARK-only regression is caught (the light half alone is not enough)",
     failsWith(swap("muted-foreground", "oklch(0.36 0 0)", ".dark")),
   );
@@ -748,5 +829,5 @@ if (clipped.size) {
   );
 }
 console.log(
-  `✓ contrast-check: all ${checked} token contrast checks pass — WCAG 2.2 AA text pairs (${AA_NORMAL}:1) for the neutral core, the secondary-ink sweep and the four status families; WCAG 1.4.11 (${AA_NONTEXT}:1) for the focus ring, the checked fill, 8 chart hues and 10 tag hues; media chrome and desktop glass inks at the AA text floor; both themes, fail-closed on missing tokens`,
+  `✓ contrast-check: all ${checked} token contrast checks pass — WCAG 2.2 AA text pairs (${AA_NORMAL}:1) for the neutral core, the secondary-ink sweep and the four status families; WCAG 1.4.11 (${AA_NONTEXT}:1) for the focus ring, the checked fill, the dark popup edge, 8 chart hues and 10 tag hues; media chrome and desktop glass inks at the AA text floor; both themes, fail-closed on missing tokens`,
 );
