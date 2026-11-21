@@ -1,10 +1,11 @@
-// @vegastack list-toolbar@0.123.2 sha256-z2w5UObGUZrdDaZantb7jGYpIEccjg5/HnsVCgcJpM0=
+// @vegastack list-toolbar@0.123.2 sha256-MupY0C1k4dOtvl1yIAiYMekSSaqMPy8YzGGOzKx/cBk=
 
 "use client";
 
 import * as React from "react";
 import {
   ArrowUpDown,
+  ChartGantt,
   ChevronLeft,
   Columns3,
   Ellipsis,
@@ -62,7 +63,7 @@ sheet.
 --- */
 
 /** A layout a list can switch to. */
-export type ListToolbarLayoutValue = "list" | "board" | "grid";
+export type ListToolbarLayoutValue = "list" | "board" | "grid" | "timeline";
 
 const LAYOUT_META: Record<
   ListToolbarLayoutValue,
@@ -71,6 +72,7 @@ const LAYOUT_META: Record<
   list: { label: "List", icon: <List aria-hidden /> },
   board: { label: "Board", icon: <Columns3 aria-hidden /> },
   grid: { label: "Grid", icon: <LayoutGrid aria-hidden /> },
+  timeline: { label: "Timeline", icon: <ChartGantt aria-hidden /> },
 };
 
 /** The toolbar's search field. */
@@ -205,7 +207,7 @@ export interface ListToolbarSort {
 
 /**
  * The Layout tool: ONE icon button that switches the view — it shows the icon of the layout it
- * switches to. With three layouts it steps through them in order; Display's Layout section (once
+ * switches to. With three or more layouts it steps through them in order; Display's Layout section (once
  * Layout folds into it, or passed to `DisplayMenu`) picks any of them directly.
  */
 export interface ListToolbarLayout<
@@ -213,7 +215,7 @@ export interface ListToolbarLayout<
 > {
   /** The current layout. */
   value: L;
-  /** The layouts offered, in order (two or three). */
+  /** The layouts offered, in order (two to four). */
   options: readonly L[];
   /** Called with the layout picked. */
   onValueChange: (value: L) => void;

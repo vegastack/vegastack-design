@@ -1,9 +1,10 @@
-// @vegastack display-menu@0.123.2 sha256-nYdJr8RB113QJHVOthGpzn8cMfBzxX+cD9P5B0xgSFI=
+// @vegastack display-menu@0.123.2 sha256-zTCVNxcoWXOxX7nK1YxYuCok2fidMP8CH9SNvvK+Om4=
 
 "use client";
 
 import * as React from "react";
 import {
+  ChartGantt,
   ChevronRight,
   Columns3,
   Eye,
@@ -43,6 +44,7 @@ const LAYOUT_META: Record<
   list: { label: "List", icon: <List aria-hidden /> },
   board: { label: "Board", icon: <Columns3 aria-hidden /> },
   grid: { label: "Grid", icon: <LayoutGrid aria-hidden /> },
+  timeline: { label: "Timeline", icon: <ChartGantt aria-hidden /> },
 };
 
 /** Row height: a choice of text-labelled heights. */

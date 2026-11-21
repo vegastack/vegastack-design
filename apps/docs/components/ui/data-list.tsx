@@ -1,4 +1,4 @@
-// @vegastack data-list@0.123.2 sha256-4djDwN4QQzXJ3VmgpSFX4OBQiyzvB8984j1DArVEmGE=
+// @vegastack data-list@0.123.2 sha256-4F5WZoMOzIYKtWKvdKvgyedny6+zxJPPOKEJGaNpsl8=
 
 "use client";
 
@@ -66,6 +66,7 @@ import {
 } from "@/components/ui/board";
 import {
   ListToolbar,
+  type ListToolbarLayoutValue,
   type ListToolbarProps,
 } from "@/components/ui/list-toolbar";
 import {
@@ -3428,7 +3429,13 @@ export function DataList<T>({
         layout:
           listToolbar.props.layout ??
           (onViewChange
-            ? { value: activeView, options: views, onValueChange: changeView }
+            ? {
+                value: activeView,
+                options: views,
+                // The toolbar offers only `views`, so a pick is always a DataListView.
+                onValueChange: (next: ListToolbarLayoutValue) =>
+                  changeView(next as DataListView),
+              }
             : undefined),
         display: injectDisplay(listToolbar.props.display),
       })

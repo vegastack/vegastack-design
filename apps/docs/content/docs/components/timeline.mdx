@@ -1,0 +1,121 @@
+---
+title: Timeline
+description: Dated work against the calendar — status bars, milestone diamonds, a today line, Month and Quarter zoom, and a list grouped by month on a phone.
+audience: public
+registry: timeline
+status: stable
+since: 0.125.0
+a11y: each row is one named button; one Tab stop for the rows
+preview: timeline
+---
+
+## Install
+
+<InstallSteps name="timeline" />
+
+## Usage
+
+```tsx
+import { Timeline } from "@/components/ui/timeline";
+import {
+  HEALTH_LABEL,
+  HealthIndicator,
+} from "@/components/ui/health-indicator";
+
+<Timeline
+  today={workspaceToday}
+  rows={initiatives.map((i) => ({
+    id: i.id,
+    label: i.title,
+    sublabel: i.code,
+    start: i.startDate,
+    end: i.targetDate,
+    status: i.status,
+    leading: <HealthIndicator health={i.health} labelHidden />,
+    leadingLabel: HEALTH_LABEL[i.health],
+    markers: i.milestones,
+  }))}
+  onOpen={openPeek}
+  loadMore={{ hasMore, loading, onLoadMore: fetchNextPage }}
+/>;
+```
+
+Each row is a sticky label (an optional leading glyph, the name and a sublabel), then a bar from
+`start` to `end` with its milestones as diamonds. The bar's colour says the status: active is the
+solid ink, planned an outline, paused and completed step back, canceled fades. Health is never a
+fill: put a `HealthIndicator` with `labelHidden` in `leading` and its words in `leadingLabel`.
+Dates are ISO calendar dates (`2026-03-14`), read without a time zone. Pass `today` from the server
+(the workspace's date) so the server and the browser draw today in the same place.
+
+<ComponentPreview name="timeline" file="components/preview/timeline.tsx" />
+
+## Examples
+
+### Quarter zoom
+
+Month shows about 120px a month; Quarter about 137px a quarter. The zoom is uncontrolled
+(`defaultZoom`) or controlled (`zoom`, `onZoomChange`), and Today scrolls back to today.
+
+<ComponentPreview
+  name="timelineQuarter"
+  file="components/preview/timeline.tsx"
+/>
+
+### One row
+
+<ComponentPreview name="timelineOne" file="components/preview/timeline.tsx" />
+
+### Paging
+
+`loadMore` is the shared keyset tail (`LoadMore`): it asks for the next page as the last row nears
+the screen, with skeleton rows while it loads. Rows skip layout and paint off screen.
+
+<ComponentPreview name="timelinePaged" file="components/preview/timeline.tsx" />
+
+### On a phone
+
+Under 40rem of its own width the timeline is a vertical list grouped by month, each row with its
+dates, status and next milestone in words; rows without dates come last under "No dates".
+
+<ComponentPreview
+  name="timelineNarrow"
+  file="components/preview/timeline.tsx"
+/>
+
+### Empty
+
+<ComponentPreview name="timelineEmpty" file="components/preview/timeline.tsx" />
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/timeline.tsx"
+  name="TimelineProps"
+/>
+
+The label column paints `--timeline-bg` (the page background by default) so bars pass under it;
+on a card, set `className="[--timeline-bg:var(--card)]"`.
+
+## Accessibility
+
+- Each row is a button named with its whole story: "Self-serve onboarding, Oct 1, 2026 to Jan 31,
+  2027, Active, At risk. Milestones: Beta, Nov 2, 2026, done; …". Without `onOpen` it is a named
+  group.
+- The rows are one Tab stop. ←/→ still scroll the calendar sideways.
+- The bars, gridlines and today line are decoration; the names carry every date.
+
+| Key                                 | Action                     |
+| ----------------------------------- | -------------------------- |
+| <kbd>Tab</kbd>                      | Today, zoom, then the rows |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Previous or next row       |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | First or last row          |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Open the row (`onOpen`)    |
+
+<StatesTested name="timeline" />
+
+## Do / Don't
+
+<DoDont
+  do="Show health as a glyph in the leading slot, with its words in leadingLabel."
+  dont="Colour the bars by health, or let the page scroll sideways around the timeline."
+/>

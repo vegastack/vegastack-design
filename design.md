@@ -1679,6 +1679,15 @@ actions its person may take, and one group action. A run's page reads its steps 
 log does (`RunTimeline`), with one live bolt for the run, never one per row; a delegate is a
 `DelegateRow` in a member row's anatomy, and cover is said once, as a `CoverageBanner`.
 
+**Work over time keeps the same quiet language (AI teammates P4.2).** How work is going is a
+`HealthIndicator`: a glyph and its words (On track in primary, At risk and Off track in the warning
+and destructive inks as glyphs, No update grey), never a fill. A `Timeline` colours its bars by the
+work's status only — active the solid ink, planned an outline, paused and completed stepped back,
+canceled faded — and carries health as that glyph in its leading slot; it scrolls sideways inside
+its own box and becomes a list grouped by month under 40rem. Milestones are diamonds everywhere
+(`MilestoneList`, the timeline's markers): filled primary when done, hollow while open, hollow in
+the warning ink once late.
+
 A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
 fill sits 8px inside its container (LAY-20: `ItemGroup variant="flush"`, the Inbox list); menus keep
 their 4px, and table rows stay full-bleed. `surfaceInteractive`, `fillInteractive`,
