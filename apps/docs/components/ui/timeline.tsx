@@ -1,4 +1,4 @@
-// @vegastack timeline@0.124.0 sha256-dK6agOV+FitxrQqnatqGzm7NQCBbdulw/6nC2D2Qgsk=
+// @vegastack timeline@0.124.0 sha256-IfLhe4Dp2uAcktLpb/ekXVyNI2EeM9ZvOdDtf5b/KTI=
 
 "use client";
 
@@ -123,6 +123,15 @@ export interface TimelineLabels {
   range: (start: string | null, end: string | null) => string;
   /** A month heading in the list view ("March 2026"), from the month's first day as an ISO date. */
   monthHeading: (iso: string) => string;
+  /**
+   * A calendar heading over the bars, from its period's first day as an ISO date: a month at Month
+   * zoom ("Feb", or "Jan 2027" with `withYear`), a quarter at Quarter zoom ("Q1 2027").
+   */
+  calendarHeading: (
+    iso: string,
+    period: "month" | "quarter",
+    withYear: boolean,
+  ) => string;
 }
 
 const DEFAULT_LABELS: TimelineLabels = {
@@ -151,6 +160,17 @@ const DEFAULT_LABELS: TimelineLabels = {
   monthHeading: (iso) => {
     const day = dayOf(iso);
     return day == null ? iso : monthName(day, true);
+  },
+  calendarHeading: (iso, period, withYear) => {
+    const day = dayOf(iso);
+    if (day == null) return iso;
+    const date = dateOf(day);
+    const year = date.getUTCFullYear();
+    if (period === "quarter")
+      return `Q${Math.floor(date.getUTCMonth() / 3) + 1} ${year}`;
+    return withYear
+      ? `${monthName(day, false)} ${year}`
+      : monthName(day, false);
   },
 };
 
@@ -555,25 +575,27 @@ function TimelineBars({
     for (let day = range.from; day < range.to; day = monthStart(day, 1)) {
       const date = dateOf(day);
       const month = date.getUTCMonth();
-      const year = date.getUTCFullYear();
+      const iso = date.toISOString().slice(0, 10);
       if (zoom === "month")
         out.push({
           day,
-          label:
-            month === 0 || day === range.from
-              ? `${monthName(day, false)} ${year}`
-              : monthName(day, false),
+          label: labels.calendarHeading(
+            iso,
+            "month",
+            month === 0 || day === range.from,
+          ),
           major: true,
         });
       else
         out.push({
           day,
-          label: month % 3 === 0 ? `Q${month / 3 + 1} ${year}` : "",
+          label:
+            month % 3 === 0 ? labels.calendarHeading(iso, "quarter", true) : "",
           major: month % 3 === 0,
         });
     }
     return out;
-  }, [range, zoom]);
+  }, [range, zoom, labels]);
 
   // Physical scrollLeft for a logical offset from the calendar's start (negative in RTL).
   const toScrollLeft = (scroller: HTMLElement, offset: number) =>
@@ -602,7 +624,12 @@ function TimelineBars({
   );
   React.useLayoutEffect(() => {
     const scroller = scrollerRef.current;
-    if (!scroller || scroller.clientWidth === 0) return;
+    if (!scroller) return;
+    if (scroller.clientWidth === 0) {
+      // Hidden: forget the placement, so the bars open on today when they show again.
+      placed.current = null;
+      return;
+    }
     const last = placed.current;
     if (last && last.zoom === zoom && last.from !== range.from) {
       scroller.scrollLeft += toScrollLeft(
@@ -618,7 +645,11 @@ function TimelineBars({
     const scroller = scrollerRef.current;
     if (!scroller || typeof ResizeObserver === "undefined") return;
     const observer = new ResizeObserver(() => {
-      if (placed.current || scroller.clientWidth === 0) return;
+      if (scroller.clientWidth === 0) {
+        placed.current = null;
+        return;
+      }
+      if (placed.current) return;
       scrollToToday("instant");
       placed.current = { zoom, from: range.from };
     });
@@ -627,10 +658,16 @@ function TimelineBars({
   }, [scrollToToday, zoom, range.from]);
 
   // The hover chip on a milestone hides on Escape (WCAG 1.4.13) until the pointer leaves it.
-  const [chipsDismissed, setChipsDismissed] = React.useState(false);
+  const [hoveredMarker, setHoveredMarker] = React.useState<string | null>(null);
+  const [dismissedMarker, setDismissedMarker] = React.useState<string | null>(
+    null,
+  );
+  const hoveredRef = React.useRef<string | null>(null);
+  hoveredRef.current = hoveredMarker;
   React.useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setChipsDismissed(true);
+      if (event.key === "Escape" && hoveredRef.current)
+        setDismissedMarker(hoveredRef.current);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -713,7 +750,11 @@ function TimelineBars({
                   data-slot="timeline-marker"
                   data-state={marker.state}
                   className="group/marker absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center rtl:translate-x-1/2"
-                  onPointerLeave={() => setChipsDismissed(false)}
+                  onPointerEnter={() => setHoveredMarker(marker.id)}
+                  onPointerLeave={() => {
+                    setHoveredMarker(null);
+                    setDismissedMarker(null);
+                  }}
                   style={{ insetInlineStart: x(day) + dayWidth / 2 }}
                 >
                   <span className="flex rounded-full bg-(--timeline-bg) p-0.5">
@@ -723,13 +764,17 @@ function TimelineBars({
                       label={null}
                     />
                   </span>
+                  {/* The padding bridges the gap, so the pointer can move onto the chip. */}
                   <span
                     className={cn(
-                      "absolute start-full ms-1 hidden rounded-item border border-popover-border bg-popover px-2 py-0.5 text-xs whitespace-nowrap text-popover-foreground shadow-md surface-popup group-hover/marker:block",
-                      chipsDismissed && "group-hover/marker:hidden",
+                      "absolute start-full hidden ps-1 group-hover/marker:block",
+                      dismissedMarker === marker.id &&
+                        "group-hover/marker:hidden",
                     )}
                   >
-                    {marker.label} · {formatDate(marker.date)}
+                    <span className="block rounded-item border border-popover-border bg-popover px-2 py-0.5 text-xs whitespace-nowrap text-popover-foreground shadow-md surface-popup">
+                      {marker.label} · {formatDate(marker.date)}
+                    </span>
                   </span>
                 </span>
               );
@@ -905,7 +950,7 @@ function TimelineMonths({
         label: labels.monthHeading(dateOf(month).toISOString().slice(0, 10)),
         rows,
       }));
-  }, [dated]);
+  }, [dated, labels]);
 
   const all = React.useMemo(
     () => [
@@ -914,7 +959,7 @@ function TimelineMonths({
         ? [{ key: "none", label: labels.noDates, rows: undated }]
         : []),
     ],
-    [groups, undated],
+    [groups, undated, labels],
   );
   const order = all.flatMap((group) => group.rows);
   const nav = useRowNav(order.length);

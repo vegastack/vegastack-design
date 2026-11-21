@@ -1,4 +1,4 @@
-// @vegastack milestone-list@0.124.0 sha256-PxgYJOgW8CSMpmta8xdnaNiKXdcNHGRe7rrjNHLx4gs=
+// @vegastack milestone-list@0.124.0 sha256-b30K8bgpY3tXRFaa3vSl066lIpIt1m/PAUO9ejtPjE4=
 
 "use client";
 
@@ -155,8 +155,12 @@ export interface MilestoneListLabels {
   markNotDone: (name: string) => string;
   /** What the screen reader hears for the weight chip ("Weight 3"). */
   weight: (weight: number) => string;
-  /** What the screen reader hears after "3 of 5" (" tasks done"). */
-  tasksSuffix: string;
+  /** The tasks meta as shown ("3 of 5"). */
+  tasks: (done: number, total: number) => string;
+  /** The tasks meta as the screen reader hears it ("3 of 5 tasks done"). */
+  tasksSpoken: (done: number, total: number) => string;
+  /** The ⋯ menu trigger's name. */
+  actions: (name: string) => string;
 }
 
 const DEFAULT_LABELS: MilestoneListLabels = {
@@ -165,7 +169,9 @@ const DEFAULT_LABELS: MilestoneListLabels = {
   markDone: (name) => `Mark ${name} as done`,
   markNotDone: (name) => `Mark ${name} as not done`,
   weight: (weight) => `Weight ${weight}`,
-  tasksSuffix: " tasks done",
+  tasks: (done, total) => `${done} of ${total}`,
+  tasksSpoken: (done, total) => `${done} of ${total} tasks done`,
+  actions: (name) => `Actions for ${name}`,
 };
 
 /** Props accepted by `MilestoneList`. */
@@ -301,8 +307,12 @@ function MilestoneRow({
         ) : null}
         {item.tasks ? (
           <span data-slot="milestone-list-tasks" className="tabular-nums">
-            {item.tasks.done} of {item.tasks.total}
-            <span className="sr-only">{labels.tasksSuffix}</span>
+            <span aria-hidden>
+              {labels.tasks(item.tasks.done, item.tasks.total)}
+            </span>
+            <span className="sr-only">
+              {labels.tasksSpoken(item.tasks.done, item.tasks.total)}
+            </span>
           </span>
         ) : null}
         {item.warning ? (
@@ -418,6 +428,7 @@ export function MilestoneList({
           />
         )}
         getItemActions={getActions}
+        actionsLabel={labels.actions}
         footer={
           onAdd ? (
             <Button
