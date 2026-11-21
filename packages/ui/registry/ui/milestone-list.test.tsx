@@ -154,7 +154,7 @@ test("empty shows the consumer's words above the add row", async () => {
     <MilestoneList
       items={[]}
       onAdd={() => {}}
-      empty={<p>Add milestones to mark the big steps</p>}
+      emptyState={<p>Add milestones to mark the big steps</p>}
     />,
   );
   await expect

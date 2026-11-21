@@ -98,11 +98,14 @@ on a card, set `className="[--timeline-bg:var(--card)]"`.
 
 ## Accessibility
 
-- Each row is a button named with its whole story: "Self-serve onboarding, Oct 1, 2026 to Jan 31,
-  2027, Active, At risk. Milestones: Beta, Nov 2, 2026, done; …". Without `onOpen` it is a named
+- Each row is a button named with its whole story: "Self-serve onboarding, INI-1, Oct 1, 2026 to Jan
+  31, 2027, Active, At risk. Milestones: Beta, Nov 2, 2026, done; …". Without `onOpen` it is a named
   group.
 - The rows are one Tab stop. ←/→ still scroll the calendar sideways.
 - The bars, gridlines and today line are decoration; the names carry every date.
+- A milestone's hover chip can be hovered and hides on <kbd>Escape</kbd>; its words are in the
+  row's name too.
+- `labels` replaces every word it draws or speaks, including the date range and month headings.
 
 | Key                                 | Action                     |
 | ----------------------------------- | -------------------------- |

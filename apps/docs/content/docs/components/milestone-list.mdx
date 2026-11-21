@@ -30,7 +30,7 @@ import { MilestoneList } from "@/components/ui/milestone-list";
       : undefined
   }
   onAdd={canEdit ? openAddMilestone : undefined}
-  empty={<p>Add milestones to mark the big steps</p>}
+  emptyState={<p>Add milestones to mark the big steps</p>}
 />;
 ```
 
@@ -63,7 +63,7 @@ the row's ⋯ menu, and `onAdd` shows the "Add milestone" row.
 
 ### Empty
 
-The empty words are yours (`empty`); the add row stays under them.
+The empty words are yours (`emptyState`); the add row stays under them.
 
 <ComponentPreview
   name="milestoneListEmpty"
@@ -98,6 +98,7 @@ Long names truncate with the whole name in a tooltip; the meta never shrinks.
   message.
 - Reorder from the grip: <kbd>Space</kbd> lifts, <kbd>↑</kbd>/<kbd>↓</kbd> move, <kbd>Escape</kbd>
   ends; every step is announced.
+- `labels` replaces every word it draws or speaks.
 
 | Key                         | Action                       |
 | --------------------------- | ---------------------------- |

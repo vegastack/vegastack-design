@@ -118,7 +118,7 @@ export function milestoneListEmpty(): ReactNode {
       <MilestoneList
         items={[]}
         onAdd={() => {}}
-        empty={
+        emptyState={
           <p className="px-2 py-1 text-sm text-muted-foreground">
             Add milestones to mark the big steps
           </p>

@@ -1,4 +1,4 @@
-// @vegastack milestone-list@0.124.0 sha256-M6zuiXyhWrrWTE1h6cksFL2JH8CWp/FLwQkQUkFZa6I=
+// @vegastack milestone-list@0.124.0 sha256-PxgYJOgW8CSMpmta8xdnaNiKXdcNHGRe7rrjNHLx4gs=
 
 "use client";
 
@@ -33,7 +33,7 @@ keyboard lifts from the grip (Space, ↑/↓, Space to drop, Escape to cancel), 
 `onDoneChange`, and `onAdd` adds the "Add milestone" row under the list.
 
 Deliberately NOT done here: no inline editing, no data. The host owns the order, the names and
-the empty state's words (`empty`).
+the empty state's words (`emptyState`).
 --- */
 
 /** Where a milestone stands: done, still open, or open past its date. */
@@ -143,6 +143,31 @@ export interface MilestoneMove {
   after?: string;
 }
 
+/** Every word the list draws or speaks; pass any of them to `labels` to replace it. */
+export interface MilestoneListLabels {
+  /** The add row. */
+  add: string;
+  /** Each state in words (the diamond's name). */
+  state: Record<MilestoneState, string>;
+  /** The done toggle's name for an open milestone. */
+  markDone: (name: string) => string;
+  /** The done toggle's name for a done milestone. */
+  markNotDone: (name: string) => string;
+  /** What the screen reader hears for the weight chip ("Weight 3"). */
+  weight: (weight: number) => string;
+  /** What the screen reader hears after "3 of 5" (" tasks done"). */
+  tasksSuffix: string;
+}
+
+const DEFAULT_LABELS: MilestoneListLabels = {
+  add: "Add milestone",
+  state: STATE_LABEL,
+  markDone: (name) => `Mark ${name} as done`,
+  markNotDone: (name) => `Mark ${name} as not done`,
+  weight: (weight) => `Weight ${weight}`,
+  tasksSuffix: " tasks done",
+};
+
 /** Props accepted by `MilestoneList`. */
 export interface MilestoneListProps {
   /** The milestones, in order. Controlled: the host re-orders on `onMove`. */
@@ -169,15 +194,16 @@ export interface MilestoneListProps {
    */
   onAdd?: () => void;
   /**
-   * The add row's words.
-   * @default "Add milestone"
+   * Words to replace: the add row, the state words, the done toggle's name, the weight and tasks
+   * phrases.
+   * @default English
    */
-  addLabel?: string;
+  labels?: Partial<MilestoneListLabels>;
   /**
    * Shown in place of the rows when there are none (the add row stays under it).
    * @default undefined
    */
-  empty?: React.ReactNode;
+  emptyState?: React.ReactNode;
   /**
    * Formats a row's ISO date.
    * @default "Mar 14" this year, "Mar 14, 2027" otherwise
@@ -222,10 +248,12 @@ function MilestoneRow({
   item,
   onDoneChange,
   formatDate,
+  labels,
 }: {
   item: MilestoneListItem;
   onDoneChange?: MilestoneListProps["onDoneChange"];
   formatDate: (iso: string) => string;
+  labels: MilestoneListLabels;
 }) {
   const weight = item.weight ?? 1;
   const glyph = <MilestoneGlyph state={item.state} label={null} />;
@@ -242,8 +270,8 @@ function MilestoneRow({
           size="icon-xs"
           aria-label={
             item.state === "done"
-              ? `Mark ${item.name} as not done`
-              : `Mark ${item.name} as done`
+              ? labels.markNotDone(item.name)
+              : labels.markDone(item.name)
           }
           onClick={() => onDoneChange(item.id, item.state !== "done")}
           className="-ms-1"
@@ -251,10 +279,10 @@ function MilestoneRow({
           {glyph}
         </Button>
       ) : (
-        <MilestoneGlyph state={item.state} />
+        <MilestoneGlyph state={item.state} label={labels.state[item.state]} />
       )}
       {onDoneChange ? (
-        <span className="sr-only">{STATE_LABEL[item.state]}</span>
+        <span className="sr-only">{labels.state[item.state]}</span>
       ) : null}
       <TruncatedText className="min-w-0 flex-1">{item.name}</TruncatedText>
       <span
@@ -267,14 +295,14 @@ function MilestoneRow({
             variant="secondary"
             className="tabular-nums"
           >
-            <span className="sr-only">Weight {weight}</span>
+            <span className="sr-only">{labels.weight(weight)}</span>
             <span aria-hidden>×{weight}</span>
           </Badge>
         ) : null}
         {item.tasks ? (
           <span data-slot="milestone-list-tasks" className="tabular-nums">
             {item.tasks.done} of {item.tasks.total}
-            <span className="sr-only"> tasks done</span>
+            <span className="sr-only">{labels.tasksSuffix}</span>
           </span>
         ) : null}
         {item.warning ? (
@@ -320,7 +348,7 @@ function MilestoneRow({
  *     { label: "Remove", destructive: true, onSelect: () => remove(m.id) },
  *   ]}
  *   onAdd={openAddMilestone}
- *   empty={<p className="text-sm text-muted-foreground">Add milestones to mark the big steps</p>}
+ *   emptyState={<p className="text-sm text-muted-foreground">Add milestones to mark the big steps</p>}
  * />
  */
 export function MilestoneList({
@@ -329,14 +357,22 @@ export function MilestoneList({
   onDoneChange,
   getActions,
   onAdd,
-  addLabel = "Add milestone",
-  empty,
+  labels: labelsProp,
+  emptyState,
   formatDate = defaultFormatDate,
   "aria-label": ariaLabel = "Milestones",
   className,
   ref,
 }: MilestoneListProps) {
   const reorderable = onMove != null;
+  const labels = React.useMemo(
+    () => ({
+      ...DEFAULT_LABELS,
+      ...labelsProp,
+      state: { ...DEFAULT_LABELS.state, ...labelsProp?.state },
+    }),
+    [labelsProp],
+  );
   const rows = React.useMemo(
     () =>
       items.map((item) => ({
@@ -365,8 +401,8 @@ export function MilestoneList({
       data-slot="milestone-list"
       className={cn("flex min-w-0 flex-col", className)}
     >
-      {items.length === 0 && empty != null ? (
-        <div data-slot="milestone-list-empty">{empty}</div>
+      {items.length === 0 && emptyState != null ? (
+        <div data-slot="milestone-list-empty">{emptyState}</div>
       ) : null}
       <SortableList
         aria-label={ariaLabel}
@@ -378,6 +414,7 @@ export function MilestoneList({
             item={item}
             onDoneChange={onDoneChange}
             formatDate={formatDate}
+            labels={labels}
           />
         )}
         getItemActions={getActions}
@@ -391,7 +428,7 @@ export function MilestoneList({
               className="-ms-2 self-start text-muted-foreground"
             >
               <Plus aria-hidden />
-              {addLabel}
+              {labels.add}
             </Button>
           ) : undefined
         }

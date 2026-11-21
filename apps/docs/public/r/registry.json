@@ -19911,7 +19911,7 @@
         "whenToUse": "A list of dated work laid out against the calendar: a space's initiatives, a roadmap, a release plan.",
         "whenNotToUse": "A step-by-step run log (RunTimeline), an activity history (ActivityFeed), or one date range (DatePicker).",
         "version": "0.124.0",
-        "integrity": "sha256-s/DI+TBjICknb+1Qslr133hHceXb/Gt1k05u3qIS0PE="
+        "integrity": "sha256-dK6agOV+FitxrQqnatqGzm7NQCBbdulw/6nC2D2Qgsk="
       }
     },
     {
@@ -19975,7 +19975,7 @@
         "whenToUse": "The big steps of an initiative or project, in order, with their dates and progress.",
         "whenNotToUse": "A checklist of tasks (TaskList), a plain reorderable settings list (SortableList), or a timeline of dated work (Timeline).",
         "version": "0.124.0",
-        "integrity": "sha256-M6zuiXyhWrrWTE1h6cksFL2JH8CWp/FLwQkQUkFZa6I="
+        "integrity": "sha256-PxgYJOgW8CSMpmta8xdnaNiKXdcNHGRe7rrjNHLx4gs="
       }
     },
     {

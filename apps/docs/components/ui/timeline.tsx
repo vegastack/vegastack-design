@@ -1,4 +1,4 @@
-// @vegastack timeline@0.124.0 sha256-s/DI+TBjICknb+1Qslr133hHceXb/Gt1k05u3qIS0PE=
+// @vegastack timeline@0.124.0 sha256-dK6agOV+FitxrQqnatqGzm7NQCBbdulw/6nC2D2Qgsk=
 
 "use client";
 
@@ -101,6 +101,59 @@ export interface TimelineRow {
   markers?: readonly TimelineMarker[];
 }
 
+/** Every word the timeline draws or speaks; pass any of them to `labels` to replace it. */
+export interface TimelineLabels {
+  /** The Today button and the chip on the today line. */
+  today: string;
+  /** The zoom control's name. */
+  zoom: string;
+  /** The Month zoom. */
+  month: string;
+  /** The Quarter zoom. */
+  quarter: string;
+  /** The heading over rows without dates. */
+  noDates: string;
+  /** Opens the milestones in a row's name ("Milestones"). */
+  milestones: string;
+  /** Each status in words. */
+  status: Record<TimelineStatus, string>;
+  /** Each milestone state in words, in a row's name. */
+  marker: Record<MilestoneState, string>;
+  /** A row's dates in words from formatted dates: "Mar 1, 2026 to Jun 30, 2026", "from …", "until …", "no dates". */
+  range: (start: string | null, end: string | null) => string;
+  /** A month heading in the list view ("March 2026"), from the month's first day as an ISO date. */
+  monthHeading: (iso: string) => string;
+}
+
+const DEFAULT_LABELS: TimelineLabels = {
+  today: "Today",
+  zoom: "Zoom",
+  month: "Month",
+  quarter: "Quarter",
+  noDates: "No dates",
+  milestones: "Milestones",
+  status: {
+    planned: "Planned",
+    active: "Active",
+    paused: "Paused",
+    completed: "Completed",
+    canceled: "Canceled",
+  },
+  marker: { done: "done", open: "open", late: "late" },
+  range: (start, end) =>
+    start && end
+      ? `${start} to ${end}`
+      : start
+        ? `from ${start}`
+        : end
+          ? `until ${end}`
+          : "no dates",
+  monthHeading: (iso) => {
+    const day = dayOf(iso);
+    return day == null ? iso : monthName(day, true);
+  },
+};
+
 /** Props accepted by `Timeline`. */
 export interface TimelineProps extends Omit<
   React.ComponentPropsWithRef<"div">,
@@ -142,7 +195,13 @@ export interface TimelineProps extends Omit<
    * Shown in place of the rows when there are none.
    * @default undefined
    */
-  empty?: React.ReactNode;
+  emptyState?: React.ReactNode;
+  /**
+   * Words to replace: Today, Zoom, Month, Quarter, No dates, the status and milestone-state words,
+   * the date range and the month headings.
+   * @default English
+   */
+  labels?: Partial<TimelineLabels>;
   /**
    * Formats a date in rows' names and the list view.
    * @default "Mar 14, 2026"
@@ -155,14 +214,6 @@ export interface TimelineProps extends Omit<
   "aria-label"?: string;
 }
 
-const STATUS_LABEL: Record<TimelineStatus, string> = {
-  planned: "Planned",
-  active: "Active",
-  paused: "Paused",
-  completed: "Completed",
-  canceled: "Canceled",
-};
-
 // The bar's colour by status: one neutral language (COL-25), never a status hue as a fill.
 // Active is the solid ink; planned is an outline; paused and done step back; canceled fades.
 const BAR: Record<TimelineStatus, string> = {
@@ -171,12 +222,6 @@ const BAR: Record<TimelineStatus, string> = {
   paused: "bg-primary/35",
   completed: "bg-muted-foreground/50",
   canceled: "bg-muted-foreground/20",
-};
-
-const MARKER_LABEL: Record<MilestoneState, string> = {
-  done: "done",
-  open: "open",
-  late: "late",
 };
 
 /** Pixels per day at each zoom: a month is about 120px wide, a quarter about 137px. */
@@ -238,28 +283,34 @@ function monthName(day: number, withYear: boolean): string {
 }
 
 /** A row's dates in words, for its name and the list view. */
-function datesInWords(row: TimelineRow, format: (iso: string) => string) {
-  const start = dayOf(row.start) != null ? row.start! : null;
-  const end = dayOf(row.end) != null ? row.end! : null;
-  if (start && end) return `${format(start)} to ${format(end)}`;
-  if (start) return `from ${format(start)}`;
-  if (end) return `until ${format(end)}`;
-  return "no dates";
+function datesInWords(
+  row: TimelineRow,
+  format: (iso: string) => string,
+  labels: TimelineLabels,
+) {
+  const start = dayOf(row.start) != null ? format(row.start!) : null;
+  const end = dayOf(row.end) != null ? format(row.end!) : null;
+  return labels.range(start, end);
 }
 
 /** The row's whole story, as its accessible name. */
-function rowName(row: TimelineRow, format: (iso: string) => string) {
-  const parts = [
-    row.label,
-    datesInWords(row, format),
-    row.statusLabel ?? STATUS_LABEL[row.status],
-  ];
+function rowName(
+  row: TimelineRow,
+  format: (iso: string) => string,
+  labels: TimelineLabels,
+) {
+  const parts = [row.label];
+  if (row.sublabel) parts.push(row.sublabel);
+  parts.push(
+    datesInWords(row, format, labels),
+    row.statusLabel ?? labels.status[row.status],
+  );
   if (row.leadingLabel) parts.push(row.leadingLabel);
   let name = parts.join(", ");
   const markers = row.markers ?? [];
   if (markers.length > 0)
-    name += `. Milestones: ${markers
-      .map((m) => `${m.label}, ${format(m.date)}, ${MARKER_LABEL[m.state]}`)
+    name += `. ${labels.milestones}: ${markers
+      .map((m) => `${m.label}, ${format(m.date)}, ${labels.marker[m.state]}`)
       .join("; ")}`;
   return name;
 }
@@ -343,7 +394,8 @@ export function Timeline({
   onZoomChange,
   today: todayProp,
   loadMore,
-  empty,
+  emptyState,
+  labels: labelsProp,
   formatDate = defaultFormatDate,
   "aria-label": ariaLabel = "Timeline",
   className,
@@ -356,6 +408,15 @@ export function Timeline({
     onZoomChange?.(next);
   };
   const today = dayOf(todayProp) ?? localToday();
+  const labels = React.useMemo(
+    () => ({
+      ...DEFAULT_LABELS,
+      ...labelsProp,
+      status: { ...DEFAULT_LABELS.status, ...labelsProp?.status },
+      marker: { ...DEFAULT_LABELS.marker, ...labelsProp?.marker },
+    }),
+    [labelsProp],
+  );
 
   const { dated, undated } = React.useMemo(() => {
     const dated: TimelineRow[] = [];
@@ -375,8 +436,8 @@ export function Timeline({
       {...props}
     >
       {rows.length === 0 ? (
-        empty != null ? (
-          <div data-slot="timeline-empty">{empty}</div>
+        emptyState != null ? (
+          <div data-slot="timeline-empty">{emptyState}</div>
         ) : null
       ) : (
         <>
@@ -388,6 +449,7 @@ export function Timeline({
             today={today}
             onOpen={onOpen}
             formatDate={formatDate}
+            labels={labels}
             ariaLabel={ariaLabel}
           />
           <TimelineMonths
@@ -395,6 +457,7 @@ export function Timeline({
             undated={undated}
             onOpen={onOpen}
             formatDate={formatDate}
+            labels={labels}
             ariaLabel={ariaLabel}
           />
         </>
@@ -423,6 +486,7 @@ interface TimelineViewProps {
   undated: TimelineRow[];
   onOpen?: (id: string) => void;
   formatDate: (iso: string) => string;
+  labels: TimelineLabels;
   ariaLabel: string;
 }
 
@@ -434,6 +498,7 @@ function TimelineBars({
   today,
   onOpen,
   formatDate,
+  labels,
   ariaLabel,
 }: TimelineViewProps & {
   zoom: TimelineZoom;
@@ -510,27 +575,66 @@ function TimelineBars({
     return out;
   }, [range, zoom]);
 
+  // Physical scrollLeft for a logical offset from the calendar's start (negative in RTL).
+  const toScrollLeft = (scroller: HTMLElement, offset: number) =>
+    getComputedStyle(scroller).direction === "rtl" ? -offset : offset;
+
   const scrollToToday = React.useCallback(
     (behavior: ScrollBehavior) => {
       const scroller = scrollerRef.current;
-      if (!scroller) return;
-      const labels =
+      if (!scroller || scroller.clientWidth === 0) return;
+      const column =
         scroller.querySelector<HTMLElement>(
           '[data-slot="timeline-label-column"]',
         )?.offsetWidth ?? 0;
-      const track = scroller.clientWidth - labels;
-      scroller.scrollTo({
-        left: Math.max(0, (today - range.from) * dayWidth - track / 3),
-        behavior,
-      });
+      const track = scroller.clientWidth - column;
+      const offset = Math.max(0, (today - range.from) * dayWidth - track / 3);
+      scroller.scrollTo({ left: toScrollLeft(scroller, offset), behavior });
     },
     [today, range.from, dayWidth],
   );
 
-  // Open on today, and keep today in view when the zoom changes.
+  // Open on today and come back to it when the zoom changes; a later page that widens the
+  // calendar keeps the date in view where it was. Hidden (the month list is showing), the box has
+  // no width, so it opens on today once it shows.
+  const placed = React.useRef<{ zoom: TimelineZoom; from: number } | null>(
+    null,
+  );
   React.useLayoutEffect(() => {
-    scrollToToday("instant");
-  }, [scrollToToday]);
+    const scroller = scrollerRef.current;
+    if (!scroller || scroller.clientWidth === 0) return;
+    const last = placed.current;
+    if (last && last.zoom === zoom && last.from !== range.from) {
+      scroller.scrollLeft += toScrollLeft(
+        scroller,
+        (last.from - range.from) * dayWidth,
+      );
+    } else if (!last || last.zoom !== zoom) {
+      scrollToToday("instant");
+    }
+    placed.current = { zoom, from: range.from };
+  }, [zoom, range.from, dayWidth, scrollToToday]);
+  React.useEffect(() => {
+    const scroller = scrollerRef.current;
+    if (!scroller || typeof ResizeObserver === "undefined") return;
+    const observer = new ResizeObserver(() => {
+      if (placed.current || scroller.clientWidth === 0) return;
+      scrollToToday("instant");
+      placed.current = { zoom, from: range.from };
+    });
+    observer.observe(scroller);
+    return () => observer.disconnect();
+  }, [scrollToToday, zoom, range.from]);
+
+  // The hover chip on a milestone hides on Escape (WCAG 1.4.13) until the pointer leaves it.
+  const [chipsDismissed, setChipsDismissed] = React.useState(false);
+  React.useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setChipsDismissed(true);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
 
   const all = React.useMemo(() => [...dated, ...undated], [dated, undated]);
   const nav = useRowNav(all.length);
@@ -553,7 +657,7 @@ function TimelineBars({
         <div
           data-slot="timeline-row"
           data-status={row.status}
-          aria-label={rowName(row, formatDate)}
+          aria-label={rowName(row, formatDate, labels)}
           {...item}
           {...open}
           onKeyDown={(event) => {
@@ -609,6 +713,7 @@ function TimelineBars({
                   data-slot="timeline-marker"
                   data-state={marker.state}
                   className="group/marker absolute top-1/2 z-10 flex -translate-x-1/2 -translate-y-1/2 items-center rtl:translate-x-1/2"
+                  onPointerLeave={() => setChipsDismissed(false)}
                   style={{ insetInlineStart: x(day) + dayWidth / 2 }}
                 >
                   <span className="flex rounded-full bg-(--timeline-bg) p-0.5">
@@ -618,7 +723,12 @@ function TimelineBars({
                       label={null}
                     />
                   </span>
-                  <span className="pointer-events-none absolute start-full ms-1 hidden rounded-item border border-popover-border bg-popover px-2 py-0.5 text-xs whitespace-nowrap text-popover-foreground shadow-md surface-popup group-hover/marker:block">
+                  <span
+                    className={cn(
+                      "absolute start-full ms-1 hidden rounded-item border border-popover-border bg-popover px-2 py-0.5 text-xs whitespace-nowrap text-popover-foreground shadow-md surface-popup group-hover/marker:block",
+                      chipsDismissed && "group-hover/marker:hidden",
+                    )}
+                  >
                     {marker.label} · {formatDate(marker.date)}
                   </span>
                 </span>
@@ -642,11 +752,11 @@ function TimelineBars({
           size="sm"
           onClick={() => scrollToToday(reducedMotion ? "instant" : "smooth")}
         >
-          Today
+          {labels.today}
         </Button>
         <ToggleGroup
           data-slot="timeline-zoom"
-          aria-label="Zoom"
+          aria-label={labels.zoom}
           variant="outline"
           size="sm"
           spacing={0}
@@ -657,8 +767,8 @@ function TimelineBars({
             if (value) onZoomChange(value);
           }}
         >
-          <ToggleGroupItem value="month">Month</ToggleGroupItem>
-          <ToggleGroupItem value="quarter">Quarter</ToggleGroupItem>
+          <ToggleGroupItem value="month">{labels.month}</ToggleGroupItem>
+          <ToggleGroupItem value="quarter">{labels.quarter}</ToggleGroupItem>
         </ToggleGroup>
       </div>
       <div
@@ -707,7 +817,7 @@ function TimelineBars({
                   style={{ insetInlineStart: x(today) + dayWidth / 2 }}
                 >
                   <span className="rounded-chip bg-(--timeline-bg) px-1.5 font-medium text-info-text">
-                    Today
+                    {labels.today}
                   </span>
                 </span>
               ) : null}
@@ -755,7 +865,7 @@ function TimelineBars({
                       "sticky start-0 z-20 flex shrink-0 items-center border-e bg-(--timeline-bg) px-3 text-xs font-medium text-muted-foreground",
                     )}
                   >
-                    No dates
+                    {labels.noDates}
                   </p>
                 </div>
                 <ul aria-labelledby={noDatesId} className="flex flex-col">
@@ -777,6 +887,7 @@ function TimelineMonths({
   undated,
   onOpen,
   formatDate,
+  labels,
   ariaLabel,
 }: TimelineViewProps) {
   const groups = React.useMemo(() => {
@@ -791,7 +902,7 @@ function TimelineMonths({
       .sort(([a], [b]) => a - b)
       .map(([month, rows]) => ({
         key: String(month),
-        label: monthName(month, true),
+        label: labels.monthHeading(dateOf(month).toISOString().slice(0, 10)),
         rows,
       }));
   }, [dated]);
@@ -800,7 +911,7 @@ function TimelineMonths({
     () => [
       ...groups,
       ...(undated.length > 0
-        ? [{ key: "none", label: "No dates", rows: undated }]
+        ? [{ key: "none", label: labels.noDates, rows: undated }]
         : []),
     ],
     [groups, undated],
@@ -842,7 +953,7 @@ function TimelineMonths({
                     <div
                       data-slot="timeline-row"
                       data-status={row.status}
-                      aria-label={rowName(row, formatDate)}
+                      aria-label={rowName(row, formatDate, labels)}
                       {...item}
                       {...open}
                       onKeyDown={(event) => {
@@ -885,8 +996,8 @@ function TimelineMonths({
                             )}
                           />
                           <span className="truncate">
-                            {row.statusLabel ?? STATUS_LABEL[row.status]} ·{" "}
-                            {datesInWords(row, formatDate)}
+                            {row.statusLabel ?? labels.status[row.status]} ·{" "}
+                            {datesInWords(row, formatDate, labels)}
                           </span>
                         </span>
                         {next ? (

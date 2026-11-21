@@ -223,7 +223,7 @@ export function timelineEmpty(): ReactNode {
     <Frame>
       <Timeline
         rows={[]}
-        empty={
+        emptyState={
           <p className="py-6 text-center text-sm text-muted-foreground">
             No initiatives in this space yet
           </p>

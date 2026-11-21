@@ -54,7 +54,7 @@ test("wide: bars, diamonds, today line, No dates last; each row names itself who
   expect(getComputedStyle(bars()).display).not.toBe("none");
   expect(getComputedStyle(months()).display).toBe("none");
   const row = screen.getByRole("button", {
-    name: "Self-serve onboarding, Oct 1, 2026 to Jan 31, 2027, Active, At risk. Milestones: Beta, Nov 2, 2026, done; Pricing, Nov 15, 2026, late",
+    name: "Self-serve onboarding, INI-1, Oct 1, 2026 to Jan 31, 2027, Active, At risk. Milestones: Beta, Nov 2, 2026, done; Pricing, Nov 15, 2026, late",
   });
   await expect.element(row).toBeVisible();
   const scope = bars();
@@ -159,7 +159,7 @@ test("under 40rem it is a vertical list grouped by month, No dates last", async 
 test("empty shows the consumer's node; without onOpen rows are named groups", async () => {
   const screen = await render(
     <>
-      <Timeline rows={[]} empty={<p>No initiatives yet</p>} />
+      <Timeline rows={[]} emptyState={<p>No initiatives yet</p>} />
       <div style={{ width: 960 }}>
         <Timeline rows={ROWS.slice(1, 2)} today="2026-11-21" />
       </div>
@@ -193,4 +193,16 @@ test("loadMore asks for the next page when the end comes into view", async () =>
     </div>,
   );
   await vi.waitFor(() => expect(onLoadMore).toHaveBeenCalled());
+});
+
+test("opens on today in RTL too (a negative scroll offset)", async () => {
+  await render(
+    <div dir="rtl" style={{ width: 960 }}>
+      <Timeline rows={ROWS} today="2026-11-21" onOpen={() => {}} />
+    </div>,
+  );
+  const scroller = bars().querySelector<HTMLElement>(
+    '[data-slot="timeline-scroller"]',
+  )!;
+  await vi.waitFor(() => expect(scroller.scrollLeft).toBeLessThan(0));
 });

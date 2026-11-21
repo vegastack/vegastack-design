@@ -33618,6 +33618,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "TimelineLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -33934,6 +33943,15 @@
         {
           "name": "MilestoneState",
           "kind": "type",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MilestoneListLabels",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
