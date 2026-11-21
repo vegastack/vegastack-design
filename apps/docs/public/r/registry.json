@@ -1948,8 +1948,8 @@
       "meta": {
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
-        "version": "0.123.2",
-        "integrity": "sha256-4F5WZoMOzIYKtWKvdKvgyedny6+zxJPPOKEJGaNpsl8="
+        "version": "0.125.0",
+        "integrity": "sha256-MioRkSMKs1zx5022No+Dl2pxiXvv6Z4ZxEtd29koEMw="
       }
     },
     {
@@ -2228,8 +2228,8 @@
       "meta": {
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
-        "version": "0.123.2",
-        "integrity": "sha256-MupY0C1k4dOtvl1yIAiYMekSSaqMPy8YzGGOzKx/cBk="
+        "version": "0.125.0",
+        "integrity": "sha256-QT82oWXk0mpXz5IQVhEVz81nKyLR2Vl4Y2oswpdmQzc="
       }
     },
     {
@@ -2369,8 +2369,8 @@
       "meta": {
         "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
         "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
-        "version": "0.123.2",
-        "integrity": "sha256-zTCVNxcoWXOxX7nK1YxYuCok2fidMP8CH9SNvvK+Om4="
+        "version": "0.125.0",
+        "integrity": "sha256-nJqOpBZGPnh1kXz+CfkLfzmW8GvDgYhNqvhRqPVf5N0="
       }
     },
     {
@@ -19910,8 +19910,8 @@
       "meta": {
         "whenToUse": "A list of dated work laid out against the calendar: a space's initiatives, a roadmap, a release plan.",
         "whenNotToUse": "A step-by-step run log (RunTimeline), an activity history (ActivityFeed), or one date range (DatePicker).",
-        "version": "0.124.0",
-        "integrity": "sha256-IfLhe4Dp2uAcktLpb/ekXVyNI2EeM9ZvOdDtf5b/KTI="
+        "version": "0.125.0",
+        "integrity": "sha256-AecIW6s7gZHdKr5UaP3JOdtUVt0yE1mPvj7Vu+7VNBU="
       }
     },
     {
@@ -19938,8 +19938,8 @@
       "meta": {
         "whenToUse": "The health of an initiative or project in a row, a side panel's details or a timeline's leading slot.",
         "whenNotToUse": "A task's workflow status (StatusIcon), a run step's state (StatusGlyph), or a request's lifecycle (RequestStatusChip).",
-        "version": "0.124.0",
-        "integrity": "sha256-0Jat4RUL/bbZsCyxhZRhfcvhVRY8EJ1ZL6WD/YcOijM="
+        "version": "0.125.0",
+        "integrity": "sha256-Us9vmyg3G89uaXgP/s74SXtGj0zXyGQ0qXBYAu2dKGw="
       }
     },
     {
@@ -19974,8 +19974,8 @@
       "meta": {
         "whenToUse": "The big steps of an initiative or project, in order, with their dates and progress.",
         "whenNotToUse": "A checklist of tasks (TaskList), a plain reorderable settings list (SortableList), or a timeline of dated work (Timeline).",
-        "version": "0.124.0",
-        "integrity": "sha256-b30K8bgpY3tXRFaa3vSl066lIpIt1m/PAUO9ejtPjE4="
+        "version": "0.125.0",
+        "integrity": "sha256-mWTzFv4zJ2okSD2naK3WZBP9z5CvM4hsFYDwP2EBtP0="
       }
     },
     {

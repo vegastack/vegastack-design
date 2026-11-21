@@ -1742,7 +1742,7 @@
       "meta": {
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
-        "version": "0.123.2"
+        "version": "0.125.0"
       }
     },
     {
@@ -1984,7 +1984,7 @@
       "meta": {
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
-        "version": "0.123.2"
+        "version": "0.125.0"
       }
     },
     {
@@ -2111,7 +2111,7 @@
       "meta": {
         "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
         "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
-        "version": "0.123.2"
+        "version": "0.125.0"
       }
     },
     {
@@ -16352,7 +16352,7 @@
       "meta": {
         "whenToUse": "A list of dated work laid out against the calendar: a space's initiatives, a roadmap, a release plan.",
         "whenNotToUse": "A step-by-step run log (RunTimeline), an activity history (ActivityFeed), or one date range (DatePicker).",
-        "version": "0.124.0"
+        "version": "0.125.0"
       }
     },
     {
@@ -16377,7 +16377,7 @@
       "meta": {
         "whenToUse": "The health of an initiative or project in a row, a side panel's details or a timeline's leading slot.",
         "whenNotToUse": "A task's workflow status (StatusIcon), a run step's state (StatusGlyph), or a request's lifecycle (RequestStatusChip).",
-        "version": "0.124.0"
+        "version": "0.125.0"
       }
     },
     {
@@ -16410,7 +16410,7 @@
       "meta": {
         "whenToUse": "The big steps of an initiative or project, in order, with their dates and progress.",
         "whenNotToUse": "A checklist of tasks (TaskList), a plain reorderable settings list (SortableList), or a timeline of dated work (Timeline).",
-        "version": "0.124.0"
+        "version": "0.125.0"
       }
     },
     {
