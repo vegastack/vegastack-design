@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 827,
-    "components": 238,
+    "totalRegistryItems": 830,
+    "components": 241,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 39,
     "Navigation/layout": 27,
     "Overlays": 23,
-    "Data display": 49,
+    "Data display": 52,
     "Content/marketing": 14,
     "Shared internals": 6,
     "AI/chat": 56,
@@ -204,7 +204,10 @@
       "add-filter-menu",
       "sort-menu",
       "display-menu",
-      "floating-cell-editor"
+      "floating-cell-editor",
+      "health-indicator",
+      "milestone-list",
+      "timeline"
     ],
     "Content/marketing": [
       "alert",
@@ -10905,7 +10908,7 @@
       "states": {
         "behavior": {
           "status": "covered",
-          "values": ["default", "open", "changed", "folded"],
+          "values": ["default", "open", "changed", "folded", "timeline-layout"],
           "evidence": "packages/ui/registry/ui/list-toolbar.tsx + packages/ui/registry/ui/list-toolbar.test.tsx"
         },
         "accessibility": {
@@ -33545,6 +33548,523 @@
             {
               "name": "data-state",
               "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "timeline",
+      "registryType": "registry:ui",
+      "title": "Timeline",
+      "summary": "Dated work against the calendar: a sticky label column, status-coloured bars from start to end, milestone diamonds, a today line, Month and Quarter zoom, rows without dates under No dates, and a vertical list grouped by month under 40rem.",
+      "status": "stable",
+      "since": "0.125.0",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/timeline.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Timeline",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TimelineMarker",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TimelineProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TimelineRow",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TimelineStatus",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TimelineZoom",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TimelineLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/timeline.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "status",
+            "values": ["active", "canceled", "completed", "paused", "planned"]
+          },
+          {
+            "name": "zoom",
+            "values": ["month", "quarter"]
+          }
+        ],
+        "rationale": "The status picks the bar's colour; the zoom picks pixels per day."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "open",
+            "keyboard-nav",
+            "zoom-controlled",
+            "zoom-uncontrolled",
+            "no-dates",
+            "month-list",
+            "load-more",
+            "empty",
+            "today"
+          ],
+          "evidence": "packages/ui/registry/ui/timeline.tsx + packages/ui/registry/ui/timeline.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-rows",
+            "one-tab-stop",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/timeline.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["bars", "markers", "today-line", "month-list"],
+          "evidence": "packages/ui/registry/ui/timeline.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": [
+          "responsive-or-container-layout",
+          "text-truncation-and-flex-shrink"
+        ],
+        "rationale": "Bars scroll sideways inside their own box; under the tablet container (40rem) a vertical list grouped by month replaces them; labels truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/timeline",
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/load-more",
+        "@vegastack/milestone-list",
+        "@vegastack/toggle-group",
+        "@vegastack/use-list-nav",
+        "@vegastack/use-media-query"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.28.0",
+        "@vegastack/design@^0.28.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/timeline.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "timeline",
+      "dataAttributes": {
+        "Timeline": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["timeline", "timeline-empty"]
+            },
+            {
+              "name": "data-zoom",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "health-indicator",
+      "registryType": "registry:ui",
+      "title": "Health Indicator",
+      "summary": "How work is going, as its latest update set it: a glyph and its words for On track, At risk, Off track and No update; never a fill.",
+      "status": "stable",
+      "since": "0.125.0",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/health-indicator.tsx"],
+      "publicSymbols": [
+        {
+          "name": "Health",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/health-indicator.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "HEALTH_LABEL",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/health-indicator.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "HealthIndicator",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/health-indicator.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "HealthIndicatorProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/health-indicator.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "health",
+            "values": ["at_risk", "none", "off_track", "on_track"]
+          },
+          {
+            "name": "size",
+            "values": ["14", "16"]
+          }
+        ],
+        "rationale": "The health picks the glyph and its ink; 16 in a row, 14 in a meta line."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["label-override", "label-hidden"],
+          "evidence": "packages/ui/registry/ui/health-indicator.tsx + packages/ui/registry/ui/health-indicator.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "text-status",
+            "named-glyph",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/health-indicator.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["healths", "sizes"],
+          "evidence": "packages/ui/registry/ui/health-indicator.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The words truncate; the glyph never shrinks."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/health-indicator",
+      "registryDependencies": [],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.28.0",
+        "@vegastack/design@^0.28.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/health-indicator.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "health-indicator",
+      "dataAttributes": {
+        "HealthIndicator": {
+          "attributes": [
+            {
+              "name": "data-health",
+              "values": []
+            },
+            {
+              "name": "data-size",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["health-indicator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "milestone-list",
+      "registryType": "registry:ui",
+      "title": "Milestone List",
+      "summary": "The ordered milestones of a piece of work: state diamond, name, weight chip when not 1, tasks done, a warning and the date; editors reorder by drag, long-press and keyboard, toggle done, open a row menu and add.",
+      "status": "stable",
+      "since": "0.125.0",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/milestone-list.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MilestoneGlyph",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MilestoneGlyphProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MilestoneList",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MilestoneListItem",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MilestoneListProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MilestoneMove",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MilestoneState",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MilestoneListLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/milestone-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "state",
+            "values": ["done", "late", "open"]
+          }
+        ],
+        "rationale": "The diamond's fill and ink follow the state."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Fills its container."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "read-only",
+            "reorder-keyboard",
+            "done-toggle",
+            "row-actions",
+            "add",
+            "empty",
+            "warning"
+          ],
+          "evidence": "packages/ui/registry/ui/milestone-list.tsx + packages/ui/registry/ui/milestone-list.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-glyphs",
+            "announced-moves",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/milestone-list.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["states", "weight-chip", "long-names"],
+          "evidence": "packages/ui/registry/ui/milestone-list.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["text-truncation-and-flex-shrink"],
+        "rationale": "The name truncates with a tooltip; the trailing meta never shrinks."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "No component-owned motion."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/milestone-list",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/data-table-parts",
+        "@vegastack/sortable-list",
+        "@vegastack/tooltip",
+        "@vegastack/truncated-text",
+        "@vegastack/use-drag-reorder"
+      ],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.28.0",
+        "@vegastack/design@^0.28.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/milestone-list.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "milestone-list",
+      "dataAttributes": {
+        "MilestoneGlyph": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["milestone-glyph"]
+            },
+            {
+              "name": "data-state",
+              "values": []
+            }
+          ],
+          "cssVariables": []
+        },
+        "MilestoneList": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": [
+                "milestone-list",
+                "milestone-list-add",
+                "milestone-list-empty"
+              ]
             }
           ],
           "cssVariables": []

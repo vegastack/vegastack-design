@@ -86,7 +86,9 @@ as a placeholder. Tools are 32px borderless icon buttons, 4px apart, muted until
 each with a tooltip and an accessible name that carries its state: Filter shows its count ("Filter,
 2 active"), Sort and Display show a 6px dot when they differ from the page's default. **Layout is
 one button** that shows the layout it switches to (a board icon on a list) and switches on a click;
-with three layouts it steps through them, and Display's Layout section picks any one directly.
+with three or more it steps through them, and Display's Layout section picks any one directly. The
+layouts are List, Board, Grid and Timeline (a list of dated work drawn as a `Timeline`, so a list
+switches List ↔ Timeline with `options: ["list", "timeline"]`).
 
 The filter row (`filterRow`, a [`FilterRow`](/docs/components/filter-row)) opens under the row from
 the Filter tool, 8px below it. It stays mounted while closed, so its facets keep reporting, and it

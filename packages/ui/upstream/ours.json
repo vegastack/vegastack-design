@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 158,
+    "total": 161,
     "fromExtras": 40
   },
   "items": {
@@ -237,6 +237,12 @@
       "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no For you card. A card for one ask waiting on a person, laid out for the 26rem Inbox panel, drawing the source's options (never a filled primary) and bodies through agent-question-form; no patch."
     },
+    "health-indicator": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "VegaStack AI teammates P4.2 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no health indicator. A lucide glyph in the status-glyph vocabulary (primary check, warning and destructive inks as glyphs only, COL-25) with its words; server-safe, no patch."
+    },
     "icon-glyph": {
       "disposition": "keep",
       "family": "display",
@@ -308,6 +314,12 @@
       "family": "display",
       "source": "Regent meeting page redesign, approved by MK 2026-09-25",
       "rationale": "Upstream ships no meta line; a small composition with no patch."
+    },
+    "milestone-list": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "VegaStack AI teammates P4.2 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no milestone list. Ordered rows on our sortable-list (drag, long-press and keyboard reorder) with a diamond state glyph, truncated name, weight chip, tasks and warning meta flush right; no patch."
     },
     "multi-step-form": {
       "disposition": "keep",
@@ -552,6 +564,12 @@
       "family": "data",
       "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
       "rationale": "Upstream ships no small cover-fit record image with a fallback (Avatar is for people). Lists and cards need one; no patch."
+    },
+    "timeline": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "VegaStack AI teammates P4.2 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "rationale": "Upstream ships no timeline or Gantt view. Dated rows against the calendar over upstream button and toggle-group, the shared load-more tail, use-list-nav and milestone-list's diamond: a sticky label column, status bars, a today line, Month/Quarter zoom and a vertical month list under the tablet container; no engine and no patch."
     },
     "tool-call-chip": {
       "disposition": "keep",

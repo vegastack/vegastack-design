@@ -1,0 +1,117 @@
+---
+title: Milestone List
+description: The ordered big steps of a piece of work — state diamond, name, weight, tasks done, a warning and the date; editors reorder, mark done and add.
+audience: public
+registry: milestone-list
+status: stable
+since: 0.125.0
+a11y: named glyphs; keyboard reorder, every step announced
+preview: milestoneList
+---
+
+## Install
+
+<InstallSteps name="milestone-list" />
+
+## Usage
+
+```tsx
+import { MilestoneList } from "@/components/ui/milestone-list";
+
+<MilestoneList
+  items={milestones}
+  onMove={
+    canEdit ? (id, { before, after }) => move(id, before, after) : undefined
+  }
+  onDoneChange={canEdit ? setDone : undefined}
+  getActions={
+    canEdit
+      ? (m) => [{ label: "Rename", onSelect: () => rename(m.id) }]
+      : undefined
+  }
+  onAdd={canEdit ? openAddMilestone : undefined}
+  emptyState={<p>Add milestones to mark the big steps</p>}
+/>;
+```
+
+A row reads: the diamond (filled when done, hollow while open, hollow in the warning ink once late),
+the name, then the trailing meta flush right and muted — a weight chip only when the weight is not
+1, the tasks done ("3 of 5"), a ⚠ whose tooltip is its message, and the date. Read-only without the
+editor props.
+
+<ComponentPreview
+  name="milestoneList"
+  file="components/preview/milestone-list.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="milestone-list" />
+
+## Examples
+
+### Editable
+
+`onMove` turns on the grip, a touch long-press and keyboard reorder, and gets the moved milestone's
+new neighbours (`before`, `after`). `onDoneChange` makes the diamond a toggle, `getActions` fills
+the row's ⋯ menu, and `onAdd` shows the "Add milestone" row.
+
+<ComponentPreview
+  name="milestoneListEditable"
+  file="components/preview/milestone-list.tsx"
+/>
+
+### Empty
+
+The empty words are yours (`emptyState`); the add row stays under them.
+
+<ComponentPreview
+  name="milestoneListEmpty"
+  file="components/preview/milestone-list.tsx"
+/>
+
+### Narrow
+
+Long names truncate with the whole name in a tooltip; the meta never shrinks.
+
+<ComponentPreview
+  name="milestoneListNarrow"
+  file="components/preview/milestone-list.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/milestone-list.tsx"
+  name="MilestoneListProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/milestone-list.tsx"
+  name="MilestoneGlyphProps"
+/>
+
+## Accessibility
+
+- The diamond is named by its state (Done, Open, Late); as a toggle it reads "Mark … as done".
+- The weight chip reads "Weight 3" and the tasks "3 of 5 tasks done"; the ⚠ is named by its
+  message.
+- Reorder from the grip: <kbd>Space</kbd> lifts, <kbd>↑</kbd>/<kbd>↓</kbd> move, <kbd>Escape</kbd>
+  ends; every step is announced.
+- `labels` replaces every word it draws or speaks.
+
+| Key                         | Action                       |
+| --------------------------- | ---------------------------- |
+| <kbd>Tab</kbd>              | Grip, done toggle, ⚠, ⋯, add |
+| <kbd>Space</kbd> on grip    | Lift or drop                 |
+| <kbd>↑</kbd> / <kbd>↓</kbd> | Move the lifted milestone    |
+| <kbd>Escape</kbd>           | End move mode                |
+
+<StatesTested name="milestone-list" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the editor props only to people who may edit; the list is read-only without them."
+  dont="Show a weight chip of 1, or colour the row for a late milestone."
+/>

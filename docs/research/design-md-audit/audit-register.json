@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e0b58fcb113bf44585d81fa0876aa8d963910ca8bd8573698bd0a5f662f4f3b6",
+  "contractSha256": "7b57118f82398cf4f9c510ea7afd600ae3fa54b6dbdba11e3df358d50c2d8140",
   "expectedCounts": {
-    "totalRegistryItems": 827,
-    "components": 238,
+    "totalRegistryItems": 830,
+    "components": 241,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -1619,6 +1619,39 @@
         "packages/ui/registry/ui/request-status-chip.tsx"
       ],
       "docsSlug": "/docs/components/request-status-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "timeline",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/timeline.tsx"
+      ],
+      "docsSlug": "/docs/components/timeline",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "health-indicator",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/health-indicator.tsx"
+      ],
+      "docsSlug": "/docs/components/health-indicator",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "milestone-list",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/milestone-list.tsx"
+      ],
+      "docsSlug": "/docs/components/milestone-list",
       "contractStatus": "reconciled"
     },
     {

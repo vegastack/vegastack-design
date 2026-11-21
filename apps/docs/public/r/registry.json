@@ -1949,7 +1949,7 @@
         "whenToUse": "A list of records as a table, a card grid or board lanes (view) with typed columns, selection, click-to-sort, loading/empty states, keyset paging through loadMore, rows as links, sections, thumbnails and a row-actions column.",
         "whenNotToUse": "Full-parity grids with grouping/editing/virtualization (DataGrid), or a simple static table (Table).",
         "version": "0.123.2",
-        "integrity": "sha256-4djDwN4QQzXJ3VmgpSFX4OBQiyzvB8984j1DArVEmGE="
+        "integrity": "sha256-4F5WZoMOzIYKtWKvdKvgyedny6+zxJPPOKEJGaNpsl8="
       }
     },
     {
@@ -2229,7 +2229,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.123.2",
-        "integrity": "sha256-z2w5UObGUZrdDaZantb7jGYpIEccjg5/HnsVCgcJpM0="
+        "integrity": "sha256-MupY0C1k4dOtvl1yIAiYMekSSaqMPy8YzGGOzKx/cBk="
       }
     },
     {
@@ -2370,7 +2370,7 @@
         "whenToUse": "How a list's rows look and which lifecycle states it includes, from a ListToolbar.",
         "whenNotToUse": "Actions on the view (ListToolbarMenu), or filters on rows (FilterRow).",
         "version": "0.123.2",
-        "integrity": "sha256-nYdJr8RB113QJHVOthGpzn8cMfBzxX+cD9P5B0xgSFI="
+        "integrity": "sha256-zTCVNxcoWXOxX7nK1YxYuCok2fidMP8CH9SNvvK+Om4="
       }
     },
     {
@@ -19877,6 +19877,105 @@
         "whenNotToUse": "A task's workflow status (StatusIcon), or any other record's tag (Badge).",
         "version": "0.123.2",
         "integrity": "sha256-blBS3YPahomhzZR4FqcckBzq3tBC8LfFGfAYmNduU8s="
+      }
+    },
+    {
+      "name": "timeline",
+      "type": "registry:ui",
+      "title": "Timeline",
+      "description": "Dated work against the calendar: a sticky label column, status-coloured bars from start to end, milestone diamonds, a today line, Month and Quarter zoom, rows without dates under No dates, and a vertical list grouped by month under 40rem.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.28.0",
+        "@vegastack/design-tokens@^0.28.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/button",
+        "@vegastack/load-more",
+        "@vegastack/milestone-list",
+        "@vegastack/toggle-group",
+        "@vegastack/use-list-nav",
+        "@vegastack/use-media-query"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/timeline.tsx",
+          "type": "registry:ui",
+          "target": "@ui/timeline.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A list of dated work laid out against the calendar: a space's initiatives, a roadmap, a release plan.",
+        "whenNotToUse": "A step-by-step run log (RunTimeline), an activity history (ActivityFeed), or one date range (DatePicker).",
+        "version": "0.124.0",
+        "integrity": "sha256-IfLhe4Dp2uAcktLpb/ekXVyNI2EeM9ZvOdDtf5b/KTI="
+      }
+    },
+    {
+      "name": "health-indicator",
+      "type": "registry:ui",
+      "title": "Health Indicator",
+      "description": "How work is going, as its latest update set it: a glyph and its words for On track, At risk, Off track and No update; never a fill.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.28.0",
+        "@vegastack/design-tokens@^0.28.0"
+      ],
+      "registryDependencies": [],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/health-indicator.tsx",
+          "type": "registry:ui",
+          "target": "@ui/health-indicator.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The health of an initiative or project in a row, a side panel's details or a timeline's leading slot.",
+        "whenNotToUse": "A task's workflow status (StatusIcon), a run step's state (StatusGlyph), or a request's lifecycle (RequestStatusChip).",
+        "version": "0.124.0",
+        "integrity": "sha256-0Jat4RUL/bbZsCyxhZRhfcvhVRY8EJ1ZL6WD/YcOijM="
+      }
+    },
+    {
+      "name": "milestone-list",
+      "type": "registry:ui",
+      "title": "Milestone List",
+      "description": "The ordered milestones of a piece of work: state diamond, name, weight chip when not 1, tasks done, a warning and the date; editors reorder by drag, long-press and keyboard, toggle done, open a row menu and add.",
+      "categories": [
+        "data"
+      ],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.28.0",
+        "@vegastack/design-tokens@^0.28.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/data-table-parts",
+        "@vegastack/sortable-list",
+        "@vegastack/tooltip",
+        "@vegastack/truncated-text",
+        "@vegastack/use-drag-reorder"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/milestone-list.tsx",
+          "type": "registry:ui",
+          "target": "@ui/milestone-list.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "The big steps of an initiative or project, in order, with their dates and progress.",
+        "whenNotToUse": "A checklist of tasks (TaskList), a plain reorderable settings list (SortableList), or a timeline of dated work (Timeline).",
+        "version": "0.124.0",
+        "integrity": "sha256-b30K8bgpY3tXRFaa3vSl066lIpIt1m/PAUO9ejtPjE4="
       }
     },
     {

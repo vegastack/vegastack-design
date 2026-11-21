@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "e0b58fcb113bf44585d81fa0876aa8d963910ca8bd8573698bd0a5f662f4f3b6",
+  "contractSha256": "7b57118f82398cf4f9c510ea7afd600ae3fa54b6dbdba11e3df358d50c2d8140",
   "inventory": {
-    "expected": 827,
-    "actual": 827,
-    "unique": 827
+    "expected": 830,
+    "actual": 830,
+    "unique": 830
   },
   "classes": {
-    "components": 238,
+    "components": 241,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -154,8 +154,8 @@
       ]
     },
     "Data display": {
-      "expected": 49,
-      "actual": 49,
+      "expected": 52,
+      "actual": 52,
       "members": [
         "activity-feed",
         "add-filter-menu",
@@ -179,6 +179,7 @@
         "file-card",
         "filter-row",
         "floating-cell-editor",
+        "health-indicator",
         "heatmap",
         "icon-glyph",
         "inbox",
@@ -190,6 +191,7 @@
         "members-stack",
         "mermaid-block",
         "meta-line",
+        "milestone-list",
         "person-hover-card",
         "property-list",
         "qr-code",
@@ -202,6 +204,7 @@
         "stat",
         "table",
         "thumbnail",
+        "timeline",
         "value-change",
         "version-compare",
         "version-list",
@@ -887,7 +890,7 @@
       ]
     }
   },
-  "componentRoutes": 232,
+  "componentRoutes": 235,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

@@ -1,0 +1,73 @@
+---
+title: Health Indicator
+description: How work is going, as its latest update set it — a glyph and its words for On track, At risk, Off track and No update.
+audience: public
+registry: health-indicator
+status: stable
+since: 0.125.0
+a11y: words beside the glyph; glyph-only is named by them
+preview: healthIndicator
+---
+
+## Install
+
+<InstallSteps name="health-indicator" />
+
+## Usage
+
+```tsx
+import { HealthIndicator } from "@/components/ui/health-indicator";
+
+<HealthIndicator health={initiative.health} />;
+```
+
+On track is a check in primary, never green; at risk takes the warning ink and off track the
+destructive ink, each with its own symbol; no update is grey. The hue is a glyph, never a fill, and
+the words are always there unless the row already carries them.
+
+<ComponentPreview
+  name="healthIndicator"
+  file="components/preview/health-indicator.tsx"
+/>
+
+## Examples
+
+### Sizes
+
+16 in a row or a side panel's details; 14 in a meta line. `label` swaps the words ("No update in 10
+days").
+
+<ComponentPreview
+  name="healthIndicatorSizes"
+  file="components/preview/health-indicator.tsx"
+/>
+
+### Glyph only
+
+`labelHidden` keeps the glyph and makes the words its accessible name, for a timeline's leading slot.
+
+<ComponentPreview
+  name="healthIndicatorGlyphOnly"
+  file="components/preview/health-indicator.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/health-indicator.tsx"
+  name="HealthIndicatorProps"
+/>
+
+## Accessibility
+
+- The words say the health, so colour is never the only cue, and each health has its own symbol.
+- With `labelHidden` the glyph is an image named by the words.
+
+<StatesTested name="health-indicator" />
+
+## Do / Don't
+
+<DoDont
+  do="Show the glyph with its words, beside the name it describes."
+  dont="Paint a row, chip or bar in the health's colour."
+/>

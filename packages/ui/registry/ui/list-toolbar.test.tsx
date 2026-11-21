@@ -154,6 +154,56 @@ test("Layout is one button that shows, and switches to, the other layout", async
   ).toBe(1);
 });
 
+test("Timeline is a layout: the tool switches List ↔ Timeline and Display picks it", async () => {
+  function TimelineHarness() {
+    const [layout, setLayout] = React.useState<ListToolbarLayoutValue>("list");
+    return (
+      <div style={{ width: 1120 }}>
+        <ListToolbar
+          search={{ value: "", onValueChange: () => {} }}
+          layout={{
+            value: layout,
+            options: ["list", "timeline"],
+            onValueChange: setLayout,
+          }}
+          display={
+            <DisplayMenu
+              layout={{
+                value: layout,
+                options: ["list", "timeline"],
+                onValueChange: setLayout,
+              }}
+            />
+          }
+        />
+        <output data-testid="layout">{layout}</output>
+      </div>
+    );
+  }
+  const screen = await render(<TimelineHarness />);
+  const tool = screen.getByRole("button", { name: "Timeline view" });
+  await expect.element(tool).toBeVisible();
+  expect(
+    document
+      .querySelector('[data-slot="list-toolbar-layout"]')
+      ?.getAttribute("data-layout"),
+  ).toBe("timeline");
+  await tool.click();
+  await expect
+    .element(screen.getByTestId("layout"))
+    .toHaveTextContent("timeline");
+  await screen.getByRole("button", { name: "List view" }).click();
+  await screen.getByRole("button", { name: "Display" }).click();
+  const timeline = screen.getByRole("button", { name: "Timeline" });
+  await expect.element(timeline).toBeVisible();
+  await timeline.click();
+  await expect.element(timeline).toHaveAttribute("aria-pressed", "true");
+  await expect
+    .element(screen.getByTestId("layout"))
+    .toHaveTextContent("timeline");
+  await expectNoA11yViolations(screen.container);
+});
+
 test("the cluster is tight: 4px between icon tools, all 32px", async () => {
   await render(<Harness />);
   const cluster = document.querySelector<HTMLElement>(
