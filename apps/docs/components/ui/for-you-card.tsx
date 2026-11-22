@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.129.0 sha256-J3FUwGNeRwDc6WgGyhY4wqfiRLx5f+DBGLnoXKJHCtU=
+// @vegastack for-you-card@0.129.0 sha256-O/FA34ucSKiEaNdxl3Oe5+CuwV6eHnXBY4p71jQ1xyg=
 
 "use client";
 
@@ -278,6 +278,7 @@ function compactActions({
   onInspect,
   onSkip,
   onSnooze,
+  onFewerLikeThis,
   expand,
 }: {
   options: ForYouOption[] | undefined;
@@ -286,6 +287,7 @@ function compactActions({
   onInspect?: (optionId: string) => void;
   onSkip?: () => void;
   onSnooze?: () => void;
+  onFewerLikeThis?: () => void;
   expand?: { label: string; onSelect: () => void };
 }): (ForYouAction | "separator")[] {
   const decisions: ForYouAction[] = (options ?? []).map((option, index) => ({
@@ -318,6 +320,9 @@ function compactActions({
     ...(actions ?? []),
     ...(onSnooze && !actions?.some((a) => a.id === "snooze")
       ? [{ id: "snooze", label: "Snooze", shortcut: "H", onSelect: onSnooze }]
+      : []),
+    ...(onFewerLikeThis
+      ? [{ id: "fewer", label: "Fewer like this", onSelect: onFewerLikeThis }]
       : []),
   ];
   const head = [...decisions, ...own];
@@ -518,11 +523,6 @@ export function ForYouCard({
   };
   const triggerRef = React.useRef<HTMLButtonElement>(null);
   const [menuOwn, setMenuOwn] = React.useState(false);
-  const menuOpen = menuOpenProp ?? menuOwn;
-  const setMenuOpen = (next: boolean) => {
-    if (menuOpenProp === undefined) setMenuOwn(next);
-    onMenuOpenChange?.(next);
-  };
   const titleId = React.useId();
   const sending = state === "sending";
   const live = state === "open" || state === "submit_failed" || sending;
@@ -531,7 +531,14 @@ export function ForYouCard({
   const ownMenu =
     live && Boolean(onFewerLikeThis && verb === "suggest" && !accessLost);
   // A long press opens the ⋯ whenever it is a menu (more than Snooze alone).
+  // A long press opens the row's menu (a compact row's one menu holds everything).
   const row = useInboxRow({ value, menu: menu != null || ownMenu });
+  const menuOpen = menuOpenProp ?? (menuOwn || (compact && row.menuOpen));
+  const setMenuOpen = (next: boolean) => {
+    if (menuOpenProp === undefined) setMenuOwn(next);
+    if (!next) row.setMenuOpen(false);
+    onMenuOpenChange?.(next);
+  };
   const selected = row.inInbox ? row.active : selectedProp;
   const root = cn(
     compact
@@ -806,6 +813,7 @@ export function ForYouCard({
       onInspect,
       onSkip: live ? onSkip : undefined,
       onSnooze: live && !accessLost ? onSnooze : undefined,
+      onFewerLikeThis: ownMenu ? onFewerLikeThis : undefined,
       // A body to fill opens as Answer here…; otherwise the facts and what happens if nobody
       // answers stay one step away as Show details.
       expand: live
@@ -890,7 +898,7 @@ export function ForYouCard({
           >
             <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
               <DropdownMenuTrigger
-                disabled={items.length === 0}
+                disabled={items.length === 0 && menu == null}
                 render={
                   <Button
                     ref={triggerRef}
@@ -963,6 +971,13 @@ export function ForYouCard({
                     </DropdownMenuItem>
                   ),
                 )}
+                {/* The row's own items (the Inbox's Mark done, Mark read, Unsnooze). */}
+                {menu != null ? (
+                  <>
+                    <DropdownMenuSeparator />
+                    {menu}
+                  </>
+                ) : null}
               </DropdownMenuContent>
             </DropdownMenu>
           </h3>

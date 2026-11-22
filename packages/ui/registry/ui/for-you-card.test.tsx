@@ -453,7 +453,9 @@ test("compact: a quiet row with no buttons; the row opens its menu, whose keys a
     .toBeVisible();
   await userEvent.keyboard("1");
   expect(onOption).toHaveBeenCalledWith("approve");
+  await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
   await page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }).click();
+  await expect.element(page.getByRole("menu")).toBeVisible();
   await userEvent.keyboard("e");
   expect(onDone).toHaveBeenCalledTimes(1);
   await expectNoA11yViolations(screen.container);
@@ -563,4 +565,23 @@ test("compact: stale keeps its links to the new version; a failed answer says so
   await expect
     .element(page.getByRole("alert"))
     .toHaveTextContent("Your answer didn't save. Try again.");
+});
+
+test("compact: the row's own menu items and Fewer like this sit in its menu", async () => {
+  const onFewerLikeThis = vi.fn();
+  await render(
+    <ForYouCard
+      {...base}
+      verb="suggest"
+      compact
+      onFewerLikeThis={onFewerLikeThis}
+      menu={<DropdownMenuItem>Mark read</DropdownMenuItem>}
+    />,
+  );
+  await page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }).click();
+  await expect
+    .element(page.getByRole("menuitem", { name: "Mark read" }))
+    .toBeVisible();
+  await page.getByRole("menuitem", { name: "Fewer like this" }).click();
+  expect(onFewerLikeThis).toHaveBeenCalledTimes(1);
 });
