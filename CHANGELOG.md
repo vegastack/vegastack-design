@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.126.1] — November 22, 2026
+
+<!-- assembled from 1 changeset: d04ca8d8c121 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.126.0 → 0.126.1.
+
+### 🐛 Fixed
+
+- `Timeline` under 40rem: a long name no longer pushes the sublabel (an initiative's code and owner) out of view. The sublabel keeps its words up to half the line and the name truncates first; it used to shrink three times faster than the name and vanish.
+  [`4264f50`](https://github.com/VegaStack/vegastack-design/commit/4264f50)
+
 ## [0.126.0] — November 22, 2026
 
 <!-- assembled from 1 changeset: 1bb8b2e1d808 -->

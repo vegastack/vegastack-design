@@ -16377,7 +16377,7 @@
       "meta": {
         "whenToUse": "A list of dated work laid out against the calendar: a space's initiatives, a roadmap, a release plan.",
         "whenNotToUse": "A step-by-step run log (RunTimeline), an activity history (ActivityFeed), or one date range (DatePicker).",
-        "version": "0.125.0"
+        "version": "0.126.1"
       }
     },
     {

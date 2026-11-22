@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.126.1
+
+### Patch Changes
+
+- [#1064](https://github.com/vegastack/vegastack-design/pull/1064) [`4264f50`](https://github.com/vegastack/vegastack-design/commit/4264f507c7b5cdc879c49b5c18c117bb0381b725) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `Timeline` under 40rem: a long name no longer pushes the sublabel (an initiative's code and owner) out of view. The sublabel keeps its words up to half the line and the name truncates first; it used to shrink three times faster than the name and vanish.
+
 ## 0.126.0
 
 ### Minor Changes

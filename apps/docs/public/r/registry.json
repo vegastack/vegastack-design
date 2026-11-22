@@ -19940,8 +19940,8 @@
       "meta": {
         "whenToUse": "A list of dated work laid out against the calendar: a space's initiatives, a roadmap, a release plan.",
         "whenNotToUse": "A step-by-step run log (RunTimeline), an activity history (ActivityFeed), or one date range (DatePicker).",
-        "version": "0.125.0",
-        "integrity": "sha256-pvn4+2tAVhZ3Drq2gRN6b3HBxf2B4HqoO7aZgdGarV0="
+        "version": "0.126.1",
+        "integrity": "sha256-O7KQsXEtzctxUirIfmWGE/Jv3KYXHyZz0HZ4g94+amw="
       }
     },
     {
