@@ -46,6 +46,19 @@ test("decorative by default; a label makes it an image, the spinner too", async 
   expect(screen.container.querySelector('[role="status"]')).toBeNull();
 });
 
+test("forwards its ref to the svg", async () => {
+  const icon = { current: null as SVGSVGElement | null };
+  const action = { current: null as SVGSVGElement | null };
+  await render(
+    <div>
+      <MeetingIcon ref={icon} status="recording" />
+      <RecordingActionIcon ref={action} action="stop" />
+    </div>,
+  );
+  expect(icon.current?.tagName.toLowerCase()).toBe("svg");
+  expect(action.current?.getAttribute("data-action")).toBe("stop");
+});
+
 test("no a11y violations", async () => {
   const screen = await render(
     <div>

@@ -33901,8 +33901,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "status": "observed",
+            "target": "Spinner",
+            "rationale": "Forwards the ref to the Spinner or lucide svg it renders."
           }
         },
         {
@@ -33964,8 +33965,9 @@
           "kind": "component",
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "status": "observed",
+            "target": "Icon",
+            "rationale": "Forwards the ref to the lucide svg of the action."
           }
         },
         {
