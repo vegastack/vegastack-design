@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.127.0] — November 22, 2026
+
+<!-- assembled from 1 changeset: 329842310e12 -->
+
+### 🔧 Changed components
+
+- **InlineChip** state takes an `icon`: the record's own glyph in place of its kind's (a meeting's `MeetingIcon` — one person, a group, or the spinner while it records), from `InlineChipProvider`'s `state(kind, id)`; a done target's check still wins and a surface's own state keeps the kind's glyph.
+  [`4ac7b0f`](https://github.com/VegaStack/vegastack-design/commit/4ac7b0f)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.126.1 → 0.127.0.
+
 ## [0.126.1] — November 22, 2026
 
 <!-- assembled from 1 changeset: d04ca8d8c121 -->

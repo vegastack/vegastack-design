@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.127.0
+
+### Minor Changes
+
+- [#1066](https://github.com/vegastack/vegastack-design/pull/1066) [`4ac7b0f`](https://github.com/vegastack/vegastack-design/commit/4ac7b0f2d8d2042df550d12f5a41a0743c25cf4e) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **InlineChip** state takes an `icon`: the record's own glyph in place of its kind's (a meeting's `MeetingIcon` — one person, a group, or the spinner while it records), from `InlineChipProvider`'s `state(kind, id)`; a done target's check still wins and a surface's own state keeps the kind's glyph.
+
 ## 0.126.1
 
 ### Patch Changes
