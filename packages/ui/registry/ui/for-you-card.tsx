@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.129.0 sha256-m+ao0yCp2tM6FOgSPoNu7iDItu/g/RK/92HJCzmtPho=
+// @vegastack for-you-card@0.129.0 sha256-Mz0gHs3NqcXKI2ATdCvdfK+7SyB4Ka3feEWy8e7OsPU=
 
 "use client";
 
@@ -537,8 +537,11 @@ export function ForYouCard({
   // A long press opens it too, through the owner's callback when the owner holds it.
   const pressed = compact && row.menuOpen;
   React.useEffect(() => {
-    if (pressed && menuOpenProp === false) onMenuOpenChange?.(true);
-  }, [pressed, menuOpenProp, onMenuOpenChange]);
+    if (!pressed || menuOpenProp === undefined) return;
+    // Forwarded once: the press is consumed, so the owner's close stays closed.
+    row.setMenuOpen(false);
+    if (!menuOpenProp) onMenuOpenChange?.(true);
+  }, [pressed, menuOpenProp, onMenuOpenChange, row]);
   const setMenuOpen = (next: boolean) => {
     if (menuOpenProp === undefined) setMenuOwn(next);
     if (!next) row.setMenuOpen(false);
