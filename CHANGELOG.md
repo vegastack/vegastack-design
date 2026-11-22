@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.128.0] — November 22, 2026
+
+<!-- assembled from 1 changeset: 4d3d526c1e89 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.127.0 → 0.128.0.
+
+### ⚠️ Breaking
+
+- `MemoryNote` and `MemoryGroup`: the `notebook` prop (and `MemoryGroup`'s `data.notebook`) is now `memory`, after the product's word: a person's, a space's, the workspace's or an agent's memory. Rename the prop where you pass it; nothing else changes.
+  [`55b5a60`](https://github.com/VegaStack/vegastack-design/commit/55b5a60)
+
 ## [0.127.0] — November 22, 2026
 
 <!-- assembled from 1 changeset: 329842310e12 -->
