@@ -5,7 +5,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import { MemoryGroup } from "./memory-group";
 
 const DATA = {
-  notebook: "Personal memory",
+  memory: "Personal memory",
   items: [
     {
       id: "m1",
@@ -22,7 +22,7 @@ const DATA = {
   ],
 };
 
-test("one quiet fold, no card: the summary counts and names the notebook; Undo and Edit act on their note", async () => {
+test("one quiet fold, no card: the summary counts and names the memory; Undo and Edit act on their note", async () => {
   const onUndo = vi.fn();
   const onEdit = vi.fn();
   const screen = await render(
@@ -49,7 +49,7 @@ test("one quiet fold, no card: the summary counts and names the notebook; Undo a
 test("nothing remembered renders nothing", async () => {
   const screen = await render(
     <MemoryGroup
-      data={{ notebook: "x", items: [] }}
+      data={{ memory: "x", items: [] }}
       onUndo={() => {}}
       onEdit={() => {}}
     />,
