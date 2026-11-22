@@ -40,13 +40,13 @@ function Page({ withContext = true }: { withContext?: boolean }) {
         </div>
         {Array.from({ length: 24 }, (_, i) => (
           <p key={i} className="mb-3">
-            The card opens from the global bar&apos;s Ask or ⌘J and docks
-            beside the page. Paragraph {i + 1}.
+            The card opens from the global bar&apos;s Ask or ⌘J and docks beside
+            the page. Paragraph {i + 1}.
           </p>
         ))}
       </div>
       <AssistantCard
-        className={open ? "w-90 shrink-0" : "hidden"}
+        className={open ? "w-1/2 max-w-90 shrink-0" : "hidden"}
         id="assistant-card-demo"
         open={open}
         onOpenChange={setOpen}

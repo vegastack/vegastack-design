@@ -1,4 +1,4 @@
-// @vegastack shell-assistant@0.123.2 sha256-/0Spsh978ci/Ps1EfJGFJ1GQNsw6uY2CaFsiSvPNT/Q=
+// @vegastack shell-assistant@0.123.2 sha256-5tc0Pc6Z+FZkiilMdju92ryI3SE0xbi8HZ8u/iY9iok=
 
 "use client";
 
@@ -179,7 +179,7 @@ function AssistantCard({
         data-open={open ? "" : undefined}
         inert={!open}
         className={cn(
-          "flex size-full min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-card border border-border bg-card text-card-foreground outline-none print:hidden",
+          "relative flex size-full min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-auto overscroll-contain rounded-card border border-border bg-card text-card-foreground outline-none print:hidden",
           // It only fades in: the shell places it, beside the page.
           "transition-[opacity,visibility]",
           open
