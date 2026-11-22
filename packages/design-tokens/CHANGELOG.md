@@ -1,5 +1,11 @@
 # @vegastack/design-tokens
 
+## 0.28.2
+
+### Patch Changes
+
+- [#1062](https://github.com/vegastack/vegastack-design/pull/1062) [`e29a9ad`](https://github.com/vegastack/vegastack-design/commit/e29a9adfe80507371436fa7192f4cf254728146d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 A popup's edge is the standard hairline again in dark (BRD-1, Regent operator 22-11-2026: "border of popovers is darker color, not standard border color"). `popover-border` in dark is now `border` (white at 10%) instead of 0.52 L, so menus, popovers, selects, tooltips and the floating bars no longer draw a heavier line than every other surface. The raised fill (`popover-raised`, through `surface-popup`) still lifts a popup over a dialog; `contrast-check` now holds `popover-border` equal to `border` in both themes in place of the 3:1 edge gate. Light is unchanged.
+
 ## 0.28.1
 
 ### Patch Changes

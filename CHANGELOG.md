@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.125.1] — November 22, 2026
+
+<!-- assembled from 1 changeset: 55f929567b65 -->
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.28.2`** (was `0.28.1`).
+- **`@vegastack/design`** → **`0.28.2`** (was `0.28.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.125.0 → 0.125.1.
+
+### 🐛 Fixed
+
+- A popup's edge is the standard hairline again in dark (BRD-1, Regent operator 22-11-2026: "border of popovers is darker color, not standard border color"). `popover-border` in dark is now `border` (white at 10%) instead of 0.52 L, so menus, popovers, selects, tooltips and the floating bars no longer draw a heavier line than every other surface. The raised fill (`popover-raised`, through `surface-popup`) still lifts a popup over a dialog; `contrast-check` now holds `popover-border` equal to `border` in both themes in place of the 3:1 edge gate. Light is unchanged.
+  [`e29a9ad`](https://github.com/VegaStack/vegastack-design/commit/e29a9ad)
+
 ## [0.125.0] — November 21, 2026
 
 <!-- assembled from 2 changesets: 185370ded72b -->
