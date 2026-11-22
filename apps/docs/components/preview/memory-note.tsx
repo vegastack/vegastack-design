@@ -23,36 +23,36 @@ const handlers = {
 
 const LINES: Record<
   MemoryNoteTone,
-  { notebook: string; line: string; before?: string; source?: string }
+  { memory: string; line: string; before?: string; source?: string }
 > = {
   remembered: {
-    notebook: "Personal memory",
+    memory: "Personal memory",
     line: "you write to customers informally, first names",
   },
   updated: {
-    notebook: "Sales memory",
+    memory: "Sales memory",
     line: "quotes go out in INR",
     before: "quotes go out in USD",
   },
   suggested: {
-    notebook: "Sales memory",
+    memory: "Sales memory",
     line: "Asha signs off every discount over 10%",
     source: "from an email",
   },
   forgot: {
-    notebook: "Personal memory",
+    memory: "Personal memory",
     line: "you're out on Fridays",
   },
   would: {
-    notebook: "Workspace memory",
+    memory: "Workspace memory",
     line: "the Pune office closes at 6 pm",
   },
   queued: {
-    notebook: "Agent memory",
+    memory: "Agent memory",
     line: "check stock before quoting lead times",
   },
   failed: {
-    notebook: "Personal memory",
+    memory: "Personal memory",
     line: "send the weekly report on Mondays",
   },
 };

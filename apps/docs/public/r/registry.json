@@ -19715,8 +19715,8 @@
       "meta": {
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
-        "version": "0.123.6",
-        "integrity": "sha256-Zon7Xis+01nuqHy/lgk3tYrt5vkwu4Awrb7S0uwbCYg="
+        "version": "0.129.0",
+        "integrity": "sha256-GtCM0PaEKI3kCg1cURb1wfbsN+bhjd1jqekbXC3PICo="
       }
     },
     {
@@ -20012,7 +20012,7 @@
       "name": "memory-note",
       "type": "registry:ui",
       "title": "Memory Note",
-      "description": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory notebook, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
+      "description": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
       "categories": [
         "chat"
       ],
@@ -20035,8 +20035,8 @@
       "meta": {
         "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
         "whenNotToUse": "An agent asking to act (RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
-        "version": "0.123.2",
-        "integrity": "sha256-sXXaX6+RvyR96au8jSiwkZnPpoc6eB1ASEfPzVNdkQ4="
+        "version": "0.128.0",
+        "integrity": "sha256-Lhsdwb21xIUzYNQ792/DD5tZ0j68OySoZl5zC6ToXOI="
       }
     },
     {
@@ -20604,9 +20604,9 @@
       ],
       "meta": {
         "whenToUse": "Notes an agent saved to memory during a chat turn.",
-        "whenNotToUse": "A memory notebook page or a single note card outside a chat.",
-        "version": "0.123.2",
-        "integrity": "sha256-6VJn7KVg9Lrbj/x3dF/xQQjVVW7wBJjS6CWVscnehqo="
+        "whenNotToUse": "A memory page or a single note card outside a chat.",
+        "version": "0.128.0",
+        "integrity": "sha256-fRfhj/X3yTs2Qi0w1YcWLC1WV4RHq9B2gKx5pDXJoNU="
       }
     },
     {

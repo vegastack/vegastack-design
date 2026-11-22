@@ -1,5 +1,17 @@
 # @vegastack/ui
 
+## 0.129.0
+
+### Minor Changes
+
+- [#1067](https://github.com/vegastack/vegastack-design/pull/1067) [`49a090f`](https://github.com/vegastack/vegastack-design/commit/49a090f8d9786753e8c6aa60428fad9fb3d3dbd9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **ForYouCard** takes `compact`: the calm list row — the verb's tile, verb and sender with the `time`, the title, one `why` line and one main button (`primary`) that opens the facts, body and options in place (`expanded`, `defaultExpanded`, `onExpandedChange`; Less folds it back) or acts on its own (`onPress`, `href`). Settled, a compact card is one line with its outcome and title, and `onUndo`'s Undo. `time` also shows in the full card's header.
+
+## 0.128.0
+
+### Minor Changes
+
+- [#1065](https://github.com/vegastack/vegastack-design/pull/1065) [`55b5a60`](https://github.com/vegastack/vegastack-design/commit/55b5a602517e516878ade5731c275bbd38f6f737) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠️ `MemoryNote` and `MemoryGroup`: the `notebook` prop (and `MemoryGroup`'s `data.notebook`) is now `memory`, after the product's word: a person's, a space's, the workspace's or an agent's memory. Rename the prop where you pass it; nothing else changes.
+
 ## 0.127.0
 
 ### Minor Changes

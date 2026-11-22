@@ -12,7 +12,7 @@ export function memoryGroup(): ReactNode {
     <Wrapper className="flex-col flex-nowrap items-stretch gap-3 bg-background">
       <MemoryGroup
         data={{
-          notebook: "Personal memory",
+          memory: "Personal memory",
           items: [
             {
               id: "m1",
@@ -47,7 +47,7 @@ export function memoryGroupStates(): ReactNode {
       <MemoryGroup
         defaultOpen={false}
         data={{
-          notebook: "Sales team",
+          memory: "Sales team",
           items: [
             {
               id: "m4",

@@ -1,10 +1,11 @@
-// @vegastack for-you-card@0.123.6 sha256-Zon7Xis+01nuqHy/lgk3tYrt5vkwu4Awrb7S0uwbCYg=
+// @vegastack for-you-card@0.129.0 sha256-GtCM0PaEKI3kCg1cURb1wfbsN+bhjd1jqekbXC3PICo=
 
 "use client";
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 import {
+  ChevronUp,
   CircleAlert,
   Clock,
   Lightbulb,
@@ -196,6 +197,38 @@ export interface ForYouCardProps {
    * @default false
    */
   selected?: boolean;
+  /**
+   * The calm list row (For you's list, Home's top three): the verb's tile, "Answer · Assistant" and
+   * the time, the title, one `why` line and one main button; the rest (facts, the body, every
+   * option) opens in place under it. Settled, it is one line with `onUndo`'s Undo.
+   * @default false
+   */
+  compact?: boolean;
+  /**
+   * `compact`: one line saying why it is here — who or what asked, and why it waits on the reader.
+   * Falls back to `summary`. @default undefined
+   */
+  why?: string;
+  /** When it arrived ("2h", "Yesterday"), at the header's end. @default undefined */
+  time?: string;
+  /**
+   * `compact`: the one main button. With `onPress` or `href` it acts (a draft opens its page, a
+   * broken connection reconnects); without either it opens the card in place. Its label is the verb's
+   * by default ("Answer", "Approve", "Review", "Fix").
+   * @default { label: the verb's }
+   */
+  primary?: { label?: string; onPress?: () => void; href?: string };
+  /** `compact`: opened in place (controlled). @default undefined */
+  expanded?: boolean;
+  /** `compact`: opened in place at first (uncontrolled). @default false */
+  defaultExpanded?: boolean;
+  /** `compact`: the card opened or closed in place. @default undefined */
+  onExpandedChange?: (expanded: boolean) => void;
+  /**
+   * `compact`, settled: Undo on its one line (the app holds the answer back for a moment before it
+   * sends). @default undefined
+   */
+  onUndo?: () => void;
   /** Classes for the root. @default undefined */
   className?: string;
 }
@@ -379,8 +412,22 @@ export function ForYouCard({
   unread = false,
   menu,
   selected: selectedProp = false,
+  compact = false,
+  why,
+  time,
+  primary,
+  expanded: expandedProp,
+  defaultExpanded = false,
+  onExpandedChange,
+  onUndo,
   className,
 }: ForYouCardProps) {
+  const [expandedOwn, setExpandedOwn] = React.useState(defaultExpanded);
+  const expanded = expandedProp ?? expandedOwn;
+  const setExpanded = (next: boolean) => {
+    if (expandedProp === undefined) setExpandedOwn(next);
+    onExpandedChange?.(next);
+  };
   const titleId = React.useId();
   const sending = state === "sending";
   const live = state === "open" || state === "submit_failed" || sending;
@@ -392,7 +439,10 @@ export function ForYouCard({
   const row = useInboxRow({ value, menu: menu != null || ownMenu });
   const selected = row.inInbox ? row.active : selectedProp;
   const root = cn(
-    "flex min-w-0 flex-col gap-3 rounded-card border border-border bg-card p-3 text-sm text-card-foreground",
+    compact
+      ? // The calm row: an InboxItem's shape (LAY-20), no box of its own.
+        "flex min-w-0 flex-col gap-3 rounded-item px-3 py-3 text-sm text-foreground"
+      : "flex min-w-0 flex-col gap-3 rounded-card border border-border bg-card p-3 text-sm text-card-foreground",
     // In an Inbox the row's start bar marks the active card: a fill would sink its options.
     selected && !row.inInbox && "layer-selected",
     !row.inInbox && className,
@@ -419,7 +469,10 @@ export function ForYouCard({
         {...row.rowProps}
         data-unread={unread || undefined}
         className={cn(
-          "relative my-1 scroll-mt-10 rounded-card",
+          compact
+            ? // As an InboxItem: the row's tint on hover and the selected step when active.
+              "relative scroll-mt-10 rounded-item transition-colors state-layer data-active:bg-state-selected"
+            : "relative my-1 scroll-mt-10 rounded-card",
           // The Inbox's active row: the rows' 2px start bar.
           "data-active:before:absolute data-active:before:inset-y-2 data-active:before:start-0 data-active:before:z-10 data-active:before:w-0.5 data-active:before:rounded-full data-active:before:bg-primary",
           row.opens && "cursor-pointer",
@@ -591,6 +644,269 @@ export function ForYouCard({
       </div>
     ) : null;
 
+  if (compact && !live && state !== "stale") {
+    // Settled: one line — what became of it and the title — with Undo while the app allows it.
+    const word =
+      state === "done"
+        ? "Done"
+        : state === "declined"
+          ? "Declined"
+          : state === "skipped"
+            ? "Skipped"
+            : null;
+    const head = outcome ? outcomeWords(outcome) : (closedLine ?? word ?? "");
+    return asRow(
+      <article
+        data-slot="for-you-card"
+        data-state={state}
+        data-verb={verb}
+        data-compact=""
+        data-selected={selected ? "" : undefined}
+        aria-labelledby={titleId}
+        className={cn(
+          root,
+          "flex-row items-center gap-2 bg-state-tile py-2 text-muted-foreground",
+        )}
+      >
+        {state === "done" ? (
+          <StatusGlyph status="done" label={null} />
+        ) : state === "declined" ? (
+          <StatusGlyph status="skipped" label={null} />
+        ) : null}
+        <p
+          id={titleId}
+          data-slot="for-you-card-outcome"
+          className="min-w-0 flex-1 truncate"
+        >
+          <InboxRowTitle row={row} className="whitespace-nowrap">
+            {head}
+            {head ? ": " : null}
+            {title}
+          </InboxRowTitle>
+        </p>
+        {onUndo ? (
+          <Button
+            size="xs"
+            variant="ghost"
+            data-slot="for-you-card-undo"
+            className="shrink-0"
+            aria-label={`Undo: ${title}`}
+            onClick={onUndo}
+          >
+            Undo
+          </Button>
+        ) : null}
+        {more}
+      </article>,
+    );
+  }
+
+  if (compact) {
+    // Stale: the line says so and the row keeps only its way to the new version.
+    const line = state === "stale" ? closedLine : (why ?? summary);
+    const main = primary?.label ?? Verb.label;
+    const acts = Boolean(primary?.onPress || primary?.href);
+    const mainButton = acts ? (
+      primary?.href ? (
+        <a
+          href={primary.href}
+          data-slot="for-you-card-primary"
+          aria-disabled={hold || undefined}
+          onClick={(event) => {
+            if (hold) event.preventDefault();
+            else primary.onPress?.();
+          }}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "sm" }),
+            "no-underline aria-disabled:opacity-50",
+          )}
+        >
+          {main}
+        </a>
+      ) : (
+        <Button
+          size="sm"
+          variant="outline"
+          data-slot="for-you-card-primary"
+          disabled={hold}
+          onClick={primary?.onPress}
+        >
+          {main}
+        </Button>
+      )
+    ) : (
+      <Button
+        size="sm"
+        variant="outline"
+        data-slot="for-you-card-primary"
+        aria-expanded={false}
+        disabled={offline}
+        onClick={() => setExpanded(true)}
+      >
+        {main}
+      </Button>
+    );
+    return asRow(
+      <article
+        data-slot="for-you-card"
+        data-state={state}
+        data-verb={verb}
+        data-compact=""
+        data-expanded={expanded ? "" : undefined}
+        data-selected={selected ? "" : undefined}
+        data-unread={unread || undefined}
+        aria-labelledby={titleId}
+        aria-busy={sending || undefined}
+        className={cn(
+          root,
+          "grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0",
+        )}
+      >
+        <span
+          aria-hidden
+          className="flex size-7 items-center justify-center rounded-tile bg-state-tile text-muted-foreground [&_svg]:size-4"
+        >
+          <Verb.icon />
+        </span>
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <header
+            data-slot="for-you-card-header"
+            className="flex min-w-0 items-center gap-1.5 text-xs leading-5 text-muted-foreground"
+          >
+            <span className="min-w-0 flex-1 truncate">
+              <span data-slot="for-you-card-verb">{Verb.label}</span>
+              {" · "}
+              {from.name}
+              {from.onBehalfOf ? ` · ${from.onBehalfOf}` : null}
+            </span>
+            {deadline ? (
+              <span
+                data-slot="for-you-card-deadline"
+                data-urgent={deadline.urgent ? "" : undefined}
+                className="flex shrink-0 items-center gap-1 tabular-nums"
+              >
+                {deadline.urgent ? (
+                  <TriangleAlert
+                    role="img"
+                    aria-label="Urgent"
+                    className="size-3.5 text-warning-text"
+                  />
+                ) : null}
+                {deadline.label}
+              </span>
+            ) : time ? (
+              <span className="shrink-0 tabular-nums">{time}</span>
+            ) : null}
+            {unread ? (
+              <span
+                data-slot="for-you-card-unread"
+                aria-hidden
+                className="size-1.5 shrink-0 rounded-full bg-info"
+              />
+            ) : null}
+          </header>
+          <h3
+            id={titleId}
+            data-slot="for-you-card-title"
+            className="min-w-0 text-sm font-medium wrap-anywhere text-foreground"
+          >
+            <InboxRowTitle row={row} className="relative font-medium">
+              {unread ? <span className="sr-only">Unread: </span> : null}
+              {title}
+            </InboxRowTitle>
+          </h3>
+          {line ? (
+            <p
+              data-slot="for-you-card-why"
+              className={cn(
+                "min-w-0 text-sm text-muted-foreground",
+                expanded ? "wrap-anywhere" : "truncate",
+              )}
+            >
+              {line}
+            </p>
+          ) : null}
+          {expanded && live ? (
+            <div
+              data-slot="for-you-card-expanded"
+              className="mt-2 flex min-w-0 flex-col gap-3"
+            >
+              {summary && summary !== line ? (
+                <p className="min-w-0 text-sm text-muted-foreground">
+                  {summary}
+                </p>
+              ) : null}
+              {facts?.length ? (
+                <dl
+                  data-slot="for-you-card-facts"
+                  className="grid min-w-0 grid-cols-[repeat(auto-fill,minmax(7rem,1fr))] gap-x-4 gap-y-2"
+                >
+                  {facts.map((fact, index) => (
+                    <Fact key={`${fact.label}-${index}`} fact={fact} />
+                  ))}
+                </dl>
+              ) : null}
+              {evidence != null ? (
+                <div data-slot="for-you-card-evidence" className="min-w-0">
+                  {evidence}
+                </div>
+              ) : null}
+              {children != null ? (
+                <div data-slot="for-you-card-children" className="min-w-0">
+                  {children}
+                </div>
+              ) : null}
+              {body}
+              {optionButtons}
+              <p
+                data-slot="for-you-card-if-nobody"
+                className="min-w-0 text-xs text-muted-foreground"
+              >
+                {offline
+                  ? `Connect to answer · If nobody answers: ${ifNobodyAnswers}`
+                  : `If nobody answers: ${ifNobodyAnswers}`}
+              </p>
+            </div>
+          ) : null}
+          {state === "submit_failed" ? (
+            // Outside the disclosure: a folded card still says it.
+            <p
+              role="alert"
+              data-slot="for-you-card-failed"
+              className="mt-1 text-xs text-destructive-text"
+            >
+              Your answer didn't save. Try again.
+            </p>
+          ) : null}
+          <div
+            data-slot="for-you-card-actions"
+            className="mt-2 flex min-w-0 items-center gap-2"
+          >
+            {state === "stale" ? (
+              optionButtons
+            ) : expanded ? (
+              <Button
+                size="sm"
+                variant="ghost"
+                aria-expanded
+                className="text-muted-foreground"
+                disabled={sending}
+                onClick={() => setExpanded(false)}
+              >
+                <ChevronUp aria-hidden />
+                Less
+              </Button>
+            ) : (
+              mainButton
+            )}
+            <span className="flex-1" />
+            {more}
+          </div>
+        </div>
+      </article>,
+    );
+  }
+
   return asRow(
     <article
       data-slot="for-you-card"
@@ -637,6 +953,10 @@ export function ForYouCard({
               />
             ) : null}
             {deadline.label}
+          </span>
+        ) : time ? (
+          <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+            {time}
           </span>
         ) : null}
         {unread ? (

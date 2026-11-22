@@ -20,7 +20,7 @@ import { MemoryNote } from "@/components/ui/memory-note";
 
 <MemoryNote
   tone="remembered"
-  notebook="Personal memory"
+  memory="Personal memory"
   line="you write to customers informally, first names"
   onUndo={undo}
   onEdit={edit}
@@ -28,7 +28,7 @@ import { MemoryNote } from "@/components/ui/memory-note";
 />;
 ```
 
-The lead words are the note's own, one set per `tone`. The notebook, the line and any outcome come
+The lead words are the note's own, one set per `tone`. The memory, the line and any outcome come
 from the host. An action shows only when its handler is passed, so a reader who can't undo simply
 gets no Undo. For an agent asking before it acts, use [`RequestCard`](/docs/components/request-card);
 for a next step that isn't a memory line, use
@@ -43,7 +43,7 @@ for a next step that isn't a memory line, use
 `remembered` and `updated` offer Undo · Edit · Why?, and `updated` shows the old line muted.
 `suggested` is the one tone with a filled action, Keep, then Edit · Dismiss. `forgot` offers Undo ·
 Why?. `would` is a dry run: muted, no actions. `queued` is saving and resolves live. `failed` offers
-Retry. Every tone but `would` and `queued` takes Open, which opens the notebook.
+Retry. Every tone but `would` and `queued` takes Open, which opens the memory.
 
 <ComponentPreview
   name="memoryNoteTones"
@@ -108,6 +108,6 @@ inside its word, and the line is never cut.
 ## Do / Don't
 
 <DoDont
-  do="Pass only the handlers this reader may use: no Undo for someone who can't edit the notebook."
+  do="Pass only the handlers this reader may use: no Undo for someone who can't edit the memory."
   dont="Add a second filled button, or put the note in a card: it is a quiet line under the message."
 />

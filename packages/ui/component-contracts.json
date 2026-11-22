@@ -32641,6 +32641,14 @@
         "ForYouCard": {
           "attributes": [
             {
+              "name": "data-compact",
+              "values": [""]
+            },
+            {
+              "name": "data-expanded",
+              "values": [""]
+            },
+            {
               "name": "data-option",
               "values": []
             },
@@ -32656,20 +32664,25 @@
               "name": "data-slot",
               "values": [
                 "for-you-card",
+                "for-you-card-actions",
                 "for-you-card-body",
                 "for-you-card-children",
                 "for-you-card-deadline",
                 "for-you-card-evidence",
+                "for-you-card-expanded",
                 "for-you-card-facts",
                 "for-you-card-failed",
                 "for-you-card-header",
                 "for-you-card-if-nobody",
                 "for-you-card-options",
                 "for-you-card-outcome",
+                "for-you-card-primary",
                 "for-you-card-skip",
                 "for-you-card-title",
+                "for-you-card-undo",
                 "for-you-card-unread",
-                "for-you-card-verb"
+                "for-you-card-verb",
+                "for-you-card-why"
               ]
             },
             {
@@ -34280,7 +34293,7 @@
       "name": "memory-note",
       "registryType": "registry:ui",
       "title": "Memory Note",
-      "summary": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory notebook, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
+      "summary": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
       "status": "stable",
       "since": "0.70.0",
       "family": "chat",
