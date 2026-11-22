@@ -19941,7 +19941,7 @@
         "whenToUse": "A list of dated work laid out against the calendar: a space's initiatives, a roadmap, a release plan.",
         "whenNotToUse": "A step-by-step run log (RunTimeline), an activity history (ActivityFeed), or one date range (DatePicker).",
         "version": "0.125.0",
-        "integrity": "sha256-AecIW6s7gZHdKr5UaP3JOdtUVt0yE1mPvj7Vu+7VNBU="
+        "integrity": "sha256-pvn4+2tAVhZ3Drq2gRN6b3HBxf2B4HqoO7aZgdGarV0="
       }
     },
     {
