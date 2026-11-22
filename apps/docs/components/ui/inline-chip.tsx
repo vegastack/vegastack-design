@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.123.2 sha256-QXi5NdGmvcW99X/nCSZ5xFh9oqgfBqYV5KsdceO3s5I=
+// @vegastack inline-chip@0.123.2 sha256-AUHlWYr0G1vPtDlnREXX6PWESxUSKUqmXF+IVz5KUmg=
 
 "use client";
 
@@ -154,6 +154,11 @@ export interface InlineChipState {
   struck?: boolean;
   /** A small tag after the label ("Canceled", "Duplicate"). @default undefined */
   status?: string;
+  /**
+   * The record's own glyph in place of its kind's (a meeting's `MeetingIcon`: one person, a group,
+   * or the spinner while it records). A finished task's check still wins. @default undefined
+   */
+  icon?: React.ReactElement;
 }
 
 /** What `InlineChipResolver.linkPreview` answers for a link. */
@@ -529,7 +534,8 @@ export function InlineChip({
     }
   };
 
-  const kindIcon = resolver?.kinds?.[kind]?.icon ??
+  const kindIcon = (!own ? given?.icon : undefined) ??
+    resolver?.kinds?.[kind]?.icon ??
     BUILT_IN_KIND[kind]?.icon ?? <Link2 />;
   // A person chip leads with their avatar — the photo, else their initials on their colour — as
   // a comment's avatar does; other chips with a photo show it too.
