@@ -552,12 +552,29 @@ test('OVL-16: size="page" is a 1200px sheet the viewport less a 32px inset, and 
   // Narrower than 1200px plus the inset, the 32px inset holds instead.
   await page.viewport(1024, 768);
   await expect.poll(() => Math.round(box().width)).toBe(1024 - 64);
+  await expect.poll(() => Math.round(box().height)).toBe(768 - 64);
+  expect(Math.round(box().left)).toBe(32);
+  expect(Math.round(box().top)).toBe(32);
 
+  // On a phone it is fullscreen exactly: the whole screen, no border or radius, the safe-area
+  // paddings (env() is 0 here, so the 16px base), and the corner × at fullscreen's offset.
   await page.viewport(390, 844);
   await expect.poll(() => Math.round(box().width)).toBe(390);
   expect(Math.round(box().height)).toBe(844);
+  expect(Math.round(box().left)).toBe(0);
   expect(Math.round(box().top)).toBe(0);
-  expect(getComputedStyle(popup).borderTopWidth).toBe("0px");
+  const style = getComputedStyle(popup);
+  expect(style.borderTopWidth).toBe("0px");
+  expect(style.borderTopLeftRadius).toBe("0px");
+  expect(style.paddingTop).toBe("16px");
+  expect(style.paddingBottom).toBe("16px");
+  const close = popup.querySelector<HTMLElement>(
+    ':scope > [data-slot="dialog-close"]',
+  )!;
+  expect(close.className).toContain(
+    "in-data-[size=page]:max-sm:top-[calc(--spacing(2)+env(safe-area-inset-top))]",
+  );
+  expect(Math.round(close.getBoundingClientRect().top)).toBe(8);
 });
 
 test("no a11y violations — closed", async () => {
