@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "7b57118f82398cf4f9c510ea7afd600ae3fa54b6dbdba11e3df358d50c2d8140",
+  "contractSha256": "1250ef80dbdb2fb042dd5c7de042f26ec65324768404d85b880722d1697a1560",
   "expectedCounts": {
-    "totalRegistryItems": 830,
-    "components": 241,
+    "totalRegistryItems": 831,
+    "components": 242,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -1641,6 +1641,17 @@
         "packages/ui/registry/ui/health-indicator.tsx"
       ],
       "docsSlug": "/docs/components/health-indicator",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "meeting-icon",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/meeting-icon.tsx"
+      ],
+      "docsSlug": "/docs/components/meeting-icon",
       "contractStatus": "reconciled"
     },
     {

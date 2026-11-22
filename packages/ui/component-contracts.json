@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 830,
-    "components": 241,
+    "totalRegistryItems": 831,
+    "components": 242,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -25,7 +25,7 @@
     "Forms/editing": 39,
     "Navigation/layout": 27,
     "Overlays": 23,
-    "Data display": 52,
+    "Data display": 53,
     "Content/marketing": 14,
     "Shared internals": 6,
     "AI/chat": 56,
@@ -206,6 +206,7 @@
       "display-menu",
       "floating-cell-editor",
       "health-indicator",
+      "meeting-icon",
       "milestone-list",
       "timeline"
     ],
@@ -33869,6 +33870,208 @@
             {
               "name": "data-slot",
               "values": ["health-indicator"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
+    },
+    {
+      "name": "meeting-icon",
+      "registryType": "registry:ui",
+      "title": "Meeting Icon",
+      "summary": "A meeting's icon by its speakers — one person, a group — or the loading spinner while it records or is processed; plus the recording controls' words and glyphs.",
+      "status": "stable",
+      "since": "0.126.0",
+      "family": "data-display",
+      "wave": "Data display",
+      "sourceFiles": ["packages/ui/registry/ui/meeting-icon.tsx"],
+      "publicSymbols": [
+        {
+          "name": "MEETING_LIVE_STATUSES",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MeetingIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MeetingIconInput",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "meetingIconKind",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MeetingIconKind",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MeetingIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RECORDING_ACTIONS",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordingAction",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordingActionIcon",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "RecordingActionIconProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/meeting-icon.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "kind",
+            "values": ["group", "live", "person"]
+          },
+          {
+            "name": "action",
+            "values": ["pause", "resume", "start", "stop"]
+          }
+        ],
+        "rationale": "meetingIconKind picks the glyph from status and speaker count; RecordingActionIcon's action picks the control glyph."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "Sizes like any lucide icon (size-4 default), overridable by className."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": ["person", "group", "live", "unknown-count"],
+          "evidence": "packages/ui/registry/ui/meeting-icon.tsx + packages/ui/registry/ui/meeting-icon.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "decorative-by-default",
+            "named-glyph",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/meeting-icon.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["kinds", "recording-actions"],
+          "evidence": "packages/ui/registry/ui/meeting-icon.tsx"
+        }
+      },
+      "responsive": {
+        "status": "not-applicable",
+        "risks": [],
+        "rationale": "A fixed-size glyph that never shrinks."
+      },
+      "motion": {
+        "status": "modeled",
+        "mechanisms": ["loader animation utility"],
+        "reducedMotion": {
+          "status": "observed-or-documented",
+          "rationale": "The live kind is the upstream Spinner (animate-spin); reduced motion follows Spinner."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/meeting-icon",
+      "registryDependencies": ["@vegastack/spinner"],
+      "npmDependencies": [
+        "@vegastack/design-tokens@^0.28.0",
+        "@vegastack/design@^0.28.0",
+        "lucide-react@^1.47.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/meeting-icon.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "meeting-icon",
+      "dataAttributes": {
+        "MeetingIcon": {
+          "attributes": [
+            {
+              "name": "data-kind",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["meeting-icon"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "RecordingActionIcon": {
+          "attributes": [
+            {
+              "name": "data-action",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["recording-action-icon"]
             }
           ],
           "cssVariables": []

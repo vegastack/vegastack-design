@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 161,
+    "total": 162,
     "fromExtras": 40
   },
   "items": {
@@ -308,6 +308,12 @@
       "disposition": "keep",
       "family": "media",
       "source": "extras.md"
+    },
+    "meeting-icon": {
+      "disposition": "keep",
+      "family": "data-display",
+      "source": "VegaStack Create and record — operator batch approval 22-11-2026 (\"Proceed go dark now meticulously and carefully\")",
+      "rationale": "Upstream ships no meeting icon. One rule for a meeting's glyph (person, group, or the upstream-backed Spinner while live) and the recording controls' words and glyphs; no patch."
     },
     "meta-line": {
       "disposition": "keep",

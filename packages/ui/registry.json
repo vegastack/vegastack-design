@@ -15488,6 +15488,31 @@
       "registryDependencies": ["@vegastack/tooltip"]
     },
     {
+      "name": "meeting-icon",
+      "type": "registry:ui",
+      "title": "Meeting Icon",
+      "description": "A meeting's icon by its speakers — one person, a group — or the loading spinner while it records or is processed; plus the recording controls' words and glyphs.",
+      "categories": ["data-display"],
+      "dependencies": [
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.28.0",
+        "@vegastack/design-tokens@^0.28.0"
+      ],
+      "registryDependencies": ["@vegastack/spinner"],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/meeting-icon.tsx",
+          "type": "registry:ui",
+          "target": "@ui/meeting-icon.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "Any place a meeting shows an icon — its row, a search or ⌘K result, a link, a mention, an activity line — and the words and glyph of a recording control.",
+        "whenNotToUse": "Voice input (the microphone) or a generic loading state (Spinner).",
+        "version": "0.0.0"
+      }
+    },
+    {
       "name": "priority-icon",
       "type": "registry:ui",
       "title": "Priority Icon",
