@@ -8,6 +8,7 @@ import {
   Transcript,
   TranscriptList,
   TranscriptSearch,
+  type TranscriptNote,
   type TranscriptSegment,
 } from "@/components/ui/transcript";
 
@@ -178,6 +179,45 @@ export function transcriptStates(): ReactNode {
       >
         <TranscriptList />
       </Transcript>
+    </Wrapper>
+  );
+}
+
+/** Notes typed while recording, in seconds like the segments; one is a marked moment. */
+const NOTES: TranscriptNote[] = [
+  { id: "note-1", time: 9, text: "Check last quarter's event spend" },
+  {
+    id: "note-2",
+    time: 46,
+    text: "Send the numbers to the regional leads",
+    marked: true,
+  },
+  { id: "note-3", time: 70, text: "Two support roles — confirm budget" },
+];
+
+function TranscriptNotesDemo(): ReactNode {
+  const [time, setTime] = useState(16);
+  return (
+    <Transcript
+      aria-label="Budget review transcript"
+      segments={SEGMENTS}
+      notes={NOTES}
+      noteLabel="Your note:"
+      speakerName={speakerName}
+      currentTime={time}
+      onSeek={setTime}
+      className="h-80 w-full max-w-lg rounded-card border border-border"
+    >
+      <TranscriptSearch />
+      <TranscriptList />
+    </Transcript>
+  );
+}
+
+export function transcriptNotes(): ReactNode {
+  return (
+    <Wrapper>
+      <TranscriptNotesDemo />
     </Wrapper>
   );
 }

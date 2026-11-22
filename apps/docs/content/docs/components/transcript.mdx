@@ -50,8 +50,8 @@ Pass `speakerNameMaxLength` (with `speakerNameMaxLengthMessage`) with the limit 
 ## Scope
 
 - **Owns:** the current line, following it, pausing on a user scroll, seek buttons, search with
-  `<mark>` highlights, speaker colours, renaming a speaker in place, progressive mounting, and the empty and loading
-  states.
+  `<mark>` highlights, speaker colours, renaming a speaker in place, notes shown in time order,
+  progressive mounting, and the empty and loading states.
 - **Does not own:** playback or the clock. Pass `currentTime` from your player, and seek it in
   `onSeek`.
 - **Compose with:** [`AudioPlayer`](/docs/components/audio-player) or
@@ -135,6 +135,38 @@ stretches across the toolbar.
   file="components/preview/transcript.tsx"
 />
 
+### Notes
+
+Pass `notes` to show lines that are not speech — notes typed while recording — among the turns.
+Each note is `{ id, time, text, marked? }`, with `time` in seconds like the segments, and goes
+after the last turn that starts at or before it. Its row is quiet and indented: the time, a pen,
+`noteLabel` ("Note:" by default) and the text, smaller than speech on a muted fill. A `marked`
+note — a marked moment — shows a star in the warning ink in place of the pen.
+
+A note is not a turn. It has no speaker, dot or rename, is never the current line, and never moves
+a segment's `start` or `end`, so following, "Back to current line" and `reveal` all step over it.
+With `onSeek` its time is a seek button like a turn's. Search matches speech only: a note is the
+reader's own text, not what was said, so it never takes a match or shifts the count. With no
+segments the list shows its empty state, notes or not.
+
+```tsx
+<Transcript
+  aria-label="Meeting transcript"
+  segments={segments}
+  notes={notes.map((n) => ({ ...n, time: n.atMs / 1000 }))}
+  noteLabel="Your note:"
+  currentTime={time}
+  onSeek={seekTo}
+>
+  <TranscriptList />
+</Transcript>
+```
+
+<ComponentPreview
+  name="transcriptNotes"
+  file="components/preview/transcript.tsx"
+/>
+
 ### Read-only
 
 Without `onSeek` the timestamps are plain text and no row has a button. Without `currentTime`
@@ -190,6 +222,9 @@ the list shows `emptyState` ("No transcript yet" by default).
   from assistive technology and out of the tab order.
 - When "Back to current line" scrolls back, focus moves to the list so it does not fall to the
   page.
+- A note is a `listitem` named by its words — "Your note: Send the deck", starting with
+  `markedNoteLabel` ("Marked moment") when it is marked. Its pen and star are hidden from assistive
+  technology, and it never takes `aria-current`.
 - A turn's speaker name, when renamable, is a field named by `speakerInputLabel` ("Speaker name").
   Speaker colour is never the only cue: every turn
   names its speaker.
