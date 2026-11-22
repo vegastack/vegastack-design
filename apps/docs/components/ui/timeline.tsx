@@ -1,4 +1,4 @@
-// @vegastack timeline@0.125.0 sha256-AecIW6s7gZHdKr5UaP3JOdtUVt0yE1mPvj7Vu+7VNBU=
+// @vegastack timeline@0.125.0 sha256-pvn4+2tAVhZ3Drq2gRN6b3HBxf2B4HqoO7aZgdGarV0=
 
 "use client";
 
@@ -1027,7 +1027,9 @@ function TimelineMonths({
                             {row.label}
                           </span>
                           {row.sublabel ? (
-                            <span className="min-w-0 shrink-[3] truncate text-xs text-muted-foreground">
+                            // Kept whole beside a long name (its code and owner), up to half
+                            // the line; the name truncates first.
+                            <span className="max-w-1/2 shrink-0 truncate text-xs text-muted-foreground">
                               {row.sublabel}
                             </span>
                           ) : null}

@@ -75,7 +75,8 @@ the screen, with skeleton rows while it loads. Rows skip layout and paint off sc
 ### On a phone
 
 Under 40rem of its own width the timeline is a vertical list grouped by month, each row with its
-dates, status and next milestone in words; rows without dates come last under "No dates".
+dates, status and next milestone in words; rows without dates come last under "No dates". A long
+name truncates before the sublabel, which keeps up to half the line, so a code and owner stay in view.
 
 <ComponentPreview
   name="timelineNarrow"
