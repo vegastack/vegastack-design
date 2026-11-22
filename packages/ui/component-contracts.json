@@ -32549,6 +32549,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ForYouAction",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/for-you-card.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -32654,6 +32663,10 @@
         "ForYouCard": {
           "attributes": [
             {
+              "name": "data-action",
+              "values": []
+            },
+            {
               "name": "data-compact",
               "values": [""]
             },
@@ -32677,7 +32690,6 @@
               "name": "data-slot",
               "values": [
                 "for-you-card",
-                "for-you-card-actions",
                 "for-you-card-body",
                 "for-you-card-children",
                 "for-you-card-deadline",
@@ -32687,11 +32699,12 @@
                 "for-you-card-failed",
                 "for-you-card-header",
                 "for-you-card-if-nobody",
+                "for-you-card-menu",
                 "for-you-card-options",
                 "for-you-card-outcome",
-                "for-you-card-primary",
                 "for-you-card-skip",
                 "for-you-card-title",
+                "for-you-card-trigger",
                 "for-you-card-undo",
                 "for-you-card-unread",
                 "for-you-card-verb",

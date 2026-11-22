@@ -301,7 +301,14 @@ function CompactRow({
       state={state}
       onOption={() => setState("done")}
       onSnooze={() => undefined}
-      menu={<RowMenu unread={false} />}
+      menuActions={[
+        {
+          id: "done",
+          label: "Mark done",
+          shortcut: "E",
+          onSelect: () => setState("done"),
+        },
+      ]}
     />
   );
 }
@@ -317,7 +324,7 @@ export function forYouCardCompact(): ReactNode {
               value="claim"
               why="Over the policy cap, so it needs your approval."
               time="2h"
-              primary={{ label: "Review" }}
+              kindLabel="Approval"
             />
             <CompactRow
               {...APPROVE}
@@ -327,7 +334,10 @@ export function forYouCardCompact(): ReactNode {
               why="Meetings after Friday may be missing from Home."
               time="1h"
               deadline={undefined}
-              primary={{ label: "Reconnect", onPress: () => undefined }}
+              kindLabel="Fix"
+              options={[
+                { id: "fix", label: "Reconnect", kind: "navigate", href: "#" },
+              ]}
             />
           </InboxGroup>
         </Inbox>

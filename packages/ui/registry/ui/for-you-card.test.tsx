@@ -415,19 +415,21 @@ test("in an Inbox that opens rows, a card withdrawn for lost access is still rea
   expect(onOpen).toHaveBeenCalledWith("c1");
 });
 
-test("compact: one why line and one main button; the options open in place and fold back", async () => {
+test("compact: a quiet row with no buttons; the row opens its menu, whose keys answer", async () => {
   const onOption = vi.fn();
-  const onExpandedChange = vi.fn();
+  const onDone = vi.fn();
   const screen = await render(
     <ForYouCard
       {...base}
       compact
+      kindLabel="Approval"
       why="Over the policy cap, so it needs your approval."
       time="2h"
-      primary={{ label: "Review" }}
       onOption={onOption}
-      onExpandedChange={onExpandedChange}
       onSnooze={vi.fn()}
+      menuActions={[
+        { id: "done", label: "Mark done", shortcut: "E", onSelect: onDone },
+      ]}
     />,
   );
   const root = screen.container.querySelector<HTMLElement>(
@@ -437,35 +439,52 @@ test("compact: one why line and one main button; the options open in place and f
   expect(
     root.querySelector('[data-slot="for-you-card-why"]')!.textContent,
   ).toBe("Over the policy cap, so it needs your approval.");
-  expect(root.querySelectorAll("[data-option]")).toHaveLength(0);
-  expect(root.querySelector('[data-slot="for-you-card-facts"]')).toBeNull();
-  await page.getByRole("button", { name: "Review" }).click();
-  expect(onExpandedChange).toHaveBeenCalledWith(true);
-  expect(root.dataset.expanded).toBe("");
   expect(
-    [...root.querySelectorAll<HTMLElement>("[data-option]")].map(
-      (el) => el.dataset.option,
-    ),
-  ).toEqual(["primary", "decline", "navigate", "inspect"]);
-  expect(root.querySelector('[data-slot="for-you-card-facts"]')).not.toBeNull();
-  await page.getByRole("button", { name: "Approve" }).click();
+    root.querySelector('[data-slot="for-you-card-verb"]')!.textContent,
+  ).toBe("Approval");
+  // Nothing on the row but its trigger.
+  expect(root.querySelectorAll("button")).toHaveLength(1);
+  expect(root.querySelectorAll("[data-option]")).toHaveLength(0);
+  await page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }).click();
+  const menu = page.getByRole("menu");
+  await expect.element(menu).toBeVisible();
+  await expect
+    .element(page.getByRole("menuitem", { name: "Snooze H" }))
+    .toBeVisible();
+  await userEvent.keyboard("1");
   expect(onOption).toHaveBeenCalledWith("approve");
-  await page.getByRole("button", { name: "Less" }).click();
-  expect(root.dataset.expanded).toBeUndefined();
+  await page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }).click();
+  await userEvent.keyboard("e");
+  expect(onDone).toHaveBeenCalledTimes(1);
   await expectNoA11yViolations(screen.container);
 });
 
-test("compact: a main button with its own action acts instead of opening", async () => {
-  const onPress = vi.fn();
+test("compact: a card with a form opens it in place from the menu, and Less folds it", async () => {
   const screen = await render(
-    <ForYouCard {...base} compact primary={{ label: "Reconnect", onPress }} />,
+    <ForYouCard
+      {...base}
+      compact
+      options={[]}
+      sourceBody={{
+        kind: "question_form",
+        questions: [
+          {
+            header: "Colour",
+            question: "Which colour temperature?",
+            options: [{ label: "3000 K" }, { label: "4000 K" }],
+          },
+        ],
+      }}
+    />,
   );
-  await page.getByRole("button", { name: "Reconnect" }).click();
-  expect(onPress).toHaveBeenCalledTimes(1);
-  expect(
-    screen.container.querySelector<HTMLElement>('[data-slot="for-you-card"]')!
-      .dataset.expanded,
-  ).toBeUndefined();
+  await page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }).click();
+  await page.getByRole("menuitem", { name: "Answer here… A" }).click();
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="for-you-card"]',
+  )!;
+  expect(root.dataset.expanded).toBe("");
+  await page.getByRole("button", { name: "Less" }).click();
+  expect(root.dataset.expanded).toBeUndefined();
 });
 
 test("compact, settled: one line with the outcome and the title, and Undo", async () => {
@@ -504,13 +523,19 @@ test("compact: stale keeps its links to the new version; a failed answer says so
     '[data-slot="for-you-card"]',
   )!;
   expect(
-    [...root.querySelectorAll<HTMLElement>("[data-option]")].map(
-      (el) => el.dataset.option,
-    ),
-  ).toEqual(["navigate", "inspect"]);
-  expect(
     root.querySelector('[data-slot="for-you-card-why"]')!.textContent,
   ).toBe("This changed. Review the new version.");
+  await page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }).click();
+  await expect
+    .element(page.getByRole("menuitem", { name: "Open claim 1" }))
+    .toBeVisible();
+  await expect
+    .element(page.getByRole("menuitem", { name: "Inspect 2" }))
+    .toBeVisible();
+  expect(
+    page.getByRole("menuitem", { name: /Approve/ }).elements(),
+  ).toHaveLength(0);
+  await userEvent.keyboard("{Escape}");
   await screen.rerender(<ForYouCard {...base} compact state="submit_failed" />);
   await expect
     .element(page.getByRole("alert"))
