@@ -32641,6 +32641,14 @@
         "ForYouCard": {
           "attributes": [
             {
+              "name": "data-compact",
+              "values": [""]
+            },
+            {
+              "name": "data-expanded",
+              "values": [""]
+            },
+            {
               "name": "data-option",
               "values": []
             },
@@ -32656,20 +32664,25 @@
               "name": "data-slot",
               "values": [
                 "for-you-card",
+                "for-you-card-actions",
                 "for-you-card-body",
                 "for-you-card-children",
                 "for-you-card-deadline",
                 "for-you-card-evidence",
+                "for-you-card-expanded",
                 "for-you-card-facts",
                 "for-you-card-failed",
                 "for-you-card-header",
                 "for-you-card-if-nobody",
                 "for-you-card-options",
                 "for-you-card-outcome",
+                "for-you-card-primary",
                 "for-you-card-skip",
                 "for-you-card-title",
+                "for-you-card-undo",
                 "for-you-card-unread",
-                "for-you-card-verb"
+                "for-you-card-verb",
+                "for-you-card-why"
               ]
             },
             {
