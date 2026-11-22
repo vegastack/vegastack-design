@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.123.6 sha256-std3OAFVJUg2yyCPqVNSvIHJ63hBKRmLNjG4aTe3r/c=
+// @vegastack for-you-card@0.123.6 sha256-4XsKYH6lLo32DvMhrlGzqwiz9CgNvUKC6rOykVpEV/g=
 
 "use client";
 
@@ -644,7 +644,7 @@ export function ForYouCard({
       </div>
     ) : null;
 
-  if (compact && !live) {
+  if (compact && !live && state !== "stale") {
     // Settled: one line — what became of it and the title — with Undo while the app allows it.
     const word =
       state === "done"
@@ -678,7 +678,7 @@ export function ForYouCard({
           data-slot="for-you-card-outcome"
           className="min-w-0 flex-1 truncate"
         >
-          <InboxRowTitle row={row}>
+          <InboxRowTitle row={row} className="whitespace-nowrap">
             {head}
             {head ? ": " : null}
             {title}
@@ -695,15 +695,15 @@ export function ForYouCard({
           >
             Undo
           </Button>
-        ) : (
-          more
-        )}
+        ) : null}
+        {more}
       </article>,
     );
   }
 
   if (compact) {
-    const line = why ?? summary;
+    // Stale: the line says so and the row keeps only its way to the new version.
+    const line = state === "stale" ? closedLine : (why ?? summary);
     const main = primary?.label ?? Verb.label;
     const acts = Boolean(primary?.onPress || primary?.href);
     const mainButton = acts ? (
@@ -826,7 +826,7 @@ export function ForYouCard({
               {line}
             </p>
           ) : null}
-          {expanded ? (
+          {expanded && live ? (
             <div
               data-slot="for-you-card-expanded"
               className="mt-2 flex min-w-0 flex-col gap-3"
@@ -857,15 +857,6 @@ export function ForYouCard({
                 </div>
               ) : null}
               {body}
-              {state === "submit_failed" ? (
-                <p
-                  role="alert"
-                  data-slot="for-you-card-failed"
-                  className="text-xs text-destructive-text"
-                >
-                  Your answer didn't save. Try again.
-                </p>
-              ) : null}
               {optionButtons}
               <p
                 data-slot="for-you-card-if-nobody"
@@ -877,11 +868,23 @@ export function ForYouCard({
               </p>
             </div>
           ) : null}
+          {state === "submit_failed" ? (
+            // Outside the disclosure: a folded card still says it.
+            <p
+              role="alert"
+              data-slot="for-you-card-failed"
+              className="mt-1 text-xs text-destructive-text"
+            >
+              Your answer didn't save. Try again.
+            </p>
+          ) : null}
           <div
             data-slot="for-you-card-actions"
             className="mt-2 flex min-w-0 items-center gap-2"
           >
-            {expanded ? (
+            {state === "stale" ? (
+              optionButtons
+            ) : expanded ? (
               <Button
                 size="sm"
                 variant="ghost"

@@ -490,3 +490,29 @@ test("compact, settled: one line with the outcome and the title, and Undo", asyn
   expect(onUndo).toHaveBeenCalledTimes(1);
   await expectNoA11yViolations(screen.container);
 });
+
+test("compact: stale keeps its links to the new version; a failed answer says so while folded", async () => {
+  const screen = await render(
+    <ForYouCard
+      {...base}
+      compact
+      state="stale"
+      menu={<DropdownMenuItem>Archive</DropdownMenuItem>}
+    />,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="for-you-card"]',
+  )!;
+  expect(
+    [...root.querySelectorAll<HTMLElement>("[data-option]")].map(
+      (el) => el.dataset.option,
+    ),
+  ).toEqual(["navigate", "inspect"]);
+  expect(
+    root.querySelector('[data-slot="for-you-card-why"]')!.textContent,
+  ).toBe("This changed. Review the new version.");
+  await screen.rerender(<ForYouCard {...base} compact state="submit_failed" />);
+  await expect
+    .element(page.getByRole("alert"))
+    .toHaveTextContent("Your answer didn't save. Try again.");
+});
