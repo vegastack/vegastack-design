@@ -1496,8 +1496,9 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   `ToastPositioner`/`ToastArrow` parts, and a `z-60` viewport band — the one surface above the single
   `z-50` overlay band, so a toast fired over a Dialog is not behind its scrim (OVL-15). A portaled
   tooltip or dropdown accepts a `container`, so chrome over a fullscreen surface portals into it
-  (OVL-14). `DialogContent` takes a `size` prop — `sm`, `default` (upstream's `sm:max-w-sm`), `lg`,
-  `xl` — reflected as `data-size`, the axis `AlertDialogContent` already carries; `CommandDialog`
+  (OVL-14). `DialogContent` takes a `size` prop — `sm`, `default` (upstream's `sm:max-w-sm`), `md`, `lg`,
+  `xl`, `page` (a large sheet at most 1200px wide, the viewport less a 32px inset, fullscreen on a
+  phone), `fullscreen` — reflected as `data-size`, the axis `AlertDialogContent` already carries; `CommandDialog`
   and a side `SheetContent` take the same scale (OVL-16). Overlay footers are as plain as their headers — no muted band, no top border — with actions right-aligned and secondary actions (Cancel, Back, Keep editing) on `variant="secondary"`; a Sheet's Cancel may take the start edge with `data-slot="sheet-cancel"` (OVL-18). A panel's search is a sticky header row with no nested bordered
   input, and it has exactly one owner, the `panel-search` shared-internal item (OVL-11). A searchable
   list's static actions ("Assign to me", "Unassign", "Clear") are a sticky footer of real options

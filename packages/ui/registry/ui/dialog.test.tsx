@@ -509,6 +509,57 @@ test('OVL-16: size="fullscreen" fills the viewport less a 16px inset (none on a 
   expect(Math.round(box().top)).toBe(0);
 });
 
+test('OVL-16: size="page" is a 1200px sheet the viewport less a 32px inset, and fullscreen on a phone', async () => {
+  const sheet = document.createElement("style");
+  sheet.textContent = geometryCss;
+  document.head.append(sheet);
+  onTestFinished(() => sheet.remove());
+  onTestFinished(async () => {
+    await page.viewport(414, 896);
+  });
+  await page.viewport(1440, 900);
+  const screen = await render(
+    <Dialog>
+      <DialogTrigger>Open memory</DialogTrigger>
+      <DialogContent size="page">
+        <DialogHeader>
+          <DialogTitle>Memory</DialogTitle>
+        </DialogHeader>
+        <DialogBody>
+          <div style={{ height: 3000 }}>A long page</div>
+        </DialogBody>
+        <DialogFooter>
+          <DialogClose>Done</DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>,
+  );
+  await screen.getByRole("button", { name: "Open memory" }).click();
+  await expect.element(screen.getByRole("dialog")).toBeInTheDocument();
+  const popup = bySlot("dialog-content")!;
+  expect(popup.getAttribute("data-size")).toBe("page");
+  const box = () => popup.getBoundingClientRect();
+  await expect.poll(() => Math.round(box().width)).toBe(1200);
+  expect(Math.round(box().height)).toBe(900 - 64);
+  expect(Math.round(box().left)).toBe(120);
+  expect(Math.round(box().top)).toBe(32);
+  const body = bySlot("dialog-body")!;
+  expect(body.scrollHeight).toBeGreaterThan(body.clientHeight);
+  const footer = bySlot("dialog-footer")!.getBoundingClientRect();
+  expect(footer.bottom).toBeLessThanOrEqual(box().bottom);
+  await expectNoA11yViolations(document.body);
+
+  // Narrower than 1200px plus the inset, the 32px inset holds instead.
+  await page.viewport(1024, 768);
+  await expect.poll(() => Math.round(box().width)).toBe(1024 - 64);
+
+  await page.viewport(390, 844);
+  await expect.poll(() => Math.round(box().width)).toBe(390);
+  expect(Math.round(box().height)).toBe(844);
+  expect(Math.round(box().top)).toBe(0);
+  expect(getComputedStyle(popup).borderTopWidth).toBe("0px");
+});
+
 test("no a11y violations — closed", async () => {
   const screen = await render(<Subject />);
   await expectNoA11yViolations(screen.container);
