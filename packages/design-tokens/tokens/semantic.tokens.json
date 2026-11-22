@@ -28,12 +28,12 @@
   "popover-raised": {
     "$type": "color",
     "$value": "{color.white}",
-    "$description": "BRD-1 (ours, amended for Regent F32, 2026-11-20): the fill of an anchored popup or floating bar, one step above the surface it opens over. Never read directly: the `surface-popup` utility sets `--popover` to it on the popup, so the popup's own `bg-popover` and everything inside it that paints the popover surface follow, while a Dialog, Sheet or Drawer keeps `popover`. White in light (no change); 0.225 in dark over `popover`/`card` 0.205, because dark elevation is lightness. The lift is held to 0.02 L so every status `-text` stays at AA on its own 30% tint over it (4.53:1 at worst); the edge, not the fill, carries the boundary."
+    "$description": "BRD-1 (ours, amended for Regent F32, 2026-11-20): the fill of an anchored popup or floating bar, one step above the surface it opens over. Never read directly: the `surface-popup` utility sets `--popover` to it on the popup, so the popup's own `bg-popover` and everything inside it that paints the popover surface follow, while a Dialog, Sheet or Drawer keeps `popover`. White in light (no change); 0.225 in dark over `popover`/`card` 0.205, because dark elevation is lightness. The lift is held to 0.02 L so every status `-text` stays at AA on its own 30% tint over it (4.53:1 at worst); with the shadow, the lift carries the boundary; the edge stays the hairline."
   },
   "popover-border": {
     "$type": "color",
     "$value": "{color.neutral.200}",
-    "$description": "BRD-1 (ours, amended for Regent F32, AI teammates Release 1, 2026-11-20): the EDGE of an anchored popup or floating bar (Popover, Select, Combobox, the menus, HoverCard, Tooltip, NavigationMenu, Toast and the editor, find, upload, audio, PDF and drag-preview bars). In dark a popup opened over a dialog painted the dialog's own fill behind a 10% hairline (about 1.3:1) and read only faintly; this edge is a WCAG 1.4.11 boundary, gated at 3:1 by contrast-check on `card`, `popover` (the modal surfaces), `background` and the shell grounds. In light it is the hairline: the elevation shadow carries the boundary on a white dialog. Read it as `border-popover-border`; dividers inside a popup stay `border-border`."
+    "$description": "BRD-1 (ours, amended for Regent F32, 2026-11-20; edge restored to the hairline by the Regent operator, 2026-11-22: “border of popovers is darker color, not standard border color”): the EDGE of an anchored popup or floating bar (Popover, Select, Combobox, the menus, HoverCard, Tooltip, NavigationMenu, Toast and the editor, find, upload, audio, PDF and drag-preview bars). It is the `border` hairline in both themes, held equal to it by contrast-check; in dark the raised fill (`popover-raised`) and the shadow carry a popup's boundary over a dialog, never a heavier line. Read it as `border-popover-border`; dividers inside a popup stay `border-border`."
   },
   "primary": {
     "$type": "color",

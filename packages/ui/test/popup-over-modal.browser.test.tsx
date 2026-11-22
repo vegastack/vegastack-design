@@ -14,7 +14,7 @@ import {
  * raised surface. Upstream paints the dialog and the popup with the same `popover` fill, so in dark a
  * picker inside a dialog was the dialog's own colour. The popup wears `surface-popup`, which sets
  * `--popover` to `popover-raised` on the popup itself, so it holds portaled to `body` and drawn
- * inline inside the dialog alike; its edge is `popover-border`. This reads what Chromium paints.
+ * inline inside the dialog alike; its edge is `popover-border`, the `border` hairline (22-11-2026).
  */
 
 function Fixture() {
@@ -55,7 +55,7 @@ const id = (name: string) =>
 
 afterEach(() => document.documentElement.classList.remove("dark"));
 
-test("in dark, a popup over a dialog, portaled or inline, is raised above it and edged in popover-border", async () => {
+test("in dark, a popup over a dialog, portaled or inline, is raised above it and edged in the hairline", async () => {
   document.documentElement.classList.add("dark");
   await render(<Fixture />);
   const dialog = getComputedStyle(slot("dialog-content"));
@@ -70,7 +70,8 @@ test("in dark, a popup over a dialog, portaled or inline, is raised above it and
   expect(popup.borderTopColor).toBe(
     getComputedStyle(id("edge")).borderTopColor,
   );
-  expect(popup.borderTopColor).not.toBe(dialog.borderTopColor);
+  // Its edge is the same hairline as the dialog's (operator 22-11-2026): the lift is the boundary.
+  expect(popup.borderTopColor).toBe(dialog.borderTopColor);
 });
 
 test("in light, the dialog and the popup keep one white fill", async () => {

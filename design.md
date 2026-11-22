@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 44339
-      sha256: "2e8f63ba6d10d808ab8f0d9a882866df1fbcc1a28cc7405c6222362f2a82142e"
+      bytes: 44318
+      sha256: "57464c19d9e8e8cc9456bc6bce152d6f35c9b0f96ddec0e179c10497f2e6ab74"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 14985
-      sha256: "303b6c41dda3d0ec48aadf26afeac6f3431f1f2c26b2242d32f2664094e0ea45"
+      bytes: 14922
+      sha256: "57edf246f371bde767da73a07841ca047acfb717d768c9136b1f7339e2f89050"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -316,14 +316,14 @@ themes:
     popover-border:
       type: "color"
       value: "oklch(0.922 0 0)"
-      description: "BRD-1 (ours, amended for Regent F32, AI teammates Release 1, 2026-11-20): the EDGE of an anchored popup or floating bar (Popover, Select, Combobox, the menus, HoverCard, Tooltip, NavigationMenu, Toast and the editor, find, upload, audio, PDF and drag-preview bars). In dark a popup opened over a dialog painted the dialog's own fill behind a 10% hairline (about 1.3:1) and read only faintly; this edge is a WCAG 1.4.11 boundary, gated at 3:1 by contrast-check on `card`, `popover` (the modal surfaces), `background` and the shell grounds. In light it is the hairline: the elevation shadow carries the boundary on a white dialog. Read it as `border-popover-border`; dividers inside a popup stay `border-border`."
+      description: "BRD-1 (ours, amended for Regent F32, 2026-11-20; edge restored to the hairline by the Regent operator, 2026-11-22: “border of popovers is darker color, not standard border color”): the EDGE of an anchored popup or floating bar (Popover, Select, Combobox, the menus, HoverCard, Tooltip, NavigationMenu, Toast and the editor, find, upload, audio, PDF and drag-preview bars). It is the `border` hairline in both themes, held equal to it by contrast-check; in dark the raised fill (`popover-raised`) and the shadow carry a popup's boundary over a dialog, never a heavier line. Read it as `border-popover-border`; dividers inside a popup stay `border-border`."
     popover-foreground:
       type: "color"
       value: "oklch(0.145 0 0)"
     popover-raised:
       type: "color"
       value: "oklch(1 0 0)"
-      description: "BRD-1 (ours, amended for Regent F32, 2026-11-20): the fill of an anchored popup or floating bar, one step above the surface it opens over. Never read directly: the `surface-popup` utility sets `--popover` to it on the popup, so the popup's own `bg-popover` and everything inside it that paints the popover surface follow, while a Dialog, Sheet or Drawer keeps `popover`. White in light (no change); 0.225 in dark over `popover`/`card` 0.205, because dark elevation is lightness. The lift is held to 0.02 L so every status `-text` stays at AA on its own 30% tint over it (4.53:1 at worst); the edge, not the fill, carries the boundary."
+      description: "BRD-1 (ours, amended for Regent F32, 2026-11-20): the fill of an anchored popup or floating bar, one step above the surface it opens over. Never read directly: the `surface-popup` utility sets `--popover` to it on the popup, so the popup's own `bg-popover` and everything inside it that paints the popover surface follow, while a Dialog, Sheet or Drawer keeps `popover`. White in light (no change); 0.225 in dark over `popover`/`card` 0.205, because dark elevation is lightness. The lift is held to 0.02 L so every status `-text` stays at AA on its own 30% tint over it (4.53:1 at worst); with the shadow, the lift carries the boundary; the edge stays the hairline."
     primary:
       type: "color"
       value: "oklch(0.205 0 0)"
@@ -845,7 +845,7 @@ themes:
       value: "oklch(0.205 0 0)"
     popover-border:
       type: "color"
-      value: "oklch(0.52 0 0)"
+      value: "oklch(1 0 0 / 0.1)"
     popover-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -1605,7 +1605,7 @@ seven `sidebar-*` tokens all carry upstream's values. On top of it:
 | `brand`, `brand-text`                                      | The phosphor-green marker accent and its page-readable ink. A marker role only — never a functional state colour, and `brand` is not a text ink                                                                                                                                                                                     | `contrast-check.mjs`                                                                             |
 | `media-scrim`, `media-scrim-strong`, `media-foreground`    | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                                                                                                                                         | `media-chrome.browser.test.tsx` on compiled CSS                                                  |
 | `glass-ink`, `glass-ink-muted`, `glass-edge`, `glass-dim`  | Desktop only (operator 2026-11-14): text and edge for a window on native OS glass, read through `surface-glass`, which is transparent only under `data-native-glass` and opaque `popover` otherwise, under Reduce Transparency and under Increase Contrast. Never a CSS blur in a web page; the retired frosted glass stays retired | `contrast-check.mjs` (fallback + modelled worst-case backdrop), `surface-glass.browser.test.tsx` |
-| `popover-raised`, `popover-border`                         | The fill and edge of an anchored popup or floating bar (read through `surface-popup` and `border-popover-border`), so a popup over a dialog reads as raised in dark: 0.225 and 0.52 L there (the edge a 3:1 boundary on the modal and the page); white and the `border` hairline in light (BRD-1, Regent F32)                       | `contrast-check.mjs` § 4a (dark), `verify-theme-parity`                                          |
+| `popover-raised`, `popover-border`                         | The fill and edge of an anchored popup or floating bar (read through `surface-popup` and `border-popover-border`), so a popup over a dialog reads as raised in dark: 0.225 L there; white in light. The edge is the `border` hairline in both themes (BRD-1, Regent F32; operator 2026-11-22)                                       | `contrast-check.mjs` § 4a (dark), `verify-theme-parity`                                          |
 | `duration-*`, `motion-ease-*`                              | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                                                                                                                                          | `verify-token-references`                                                                        |
 | `chat-card`, `chat-hairline`                               | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and the `card` corner (BRD-12), the same formula in both themes, no shadow (COL-25)                                                                                                                                  | `verify-theme-parity`, `design-lint`                                                             |
 | `duration-instant … loader-dots`, `motion-ease-enter`      | The chat motion set: hover, quick (menus, a check appearing), state (folds), layout (arrivals), the streamed-word fade and the loader cadences; all 0ms under reduced motion (MOT-14)                                                                                                                                               | `design-lint` `chat-motion-tokens`                                                               |
@@ -1629,9 +1629,9 @@ floating bar (Toast, the editor, find, upload, audio, PDF and drag-preview bars)
 `surface-popup`, which sets `--popover` to `popover-raised` on the popup itself: 0.225 L over the
 modal's 0.205 in dark, white in light. Its own `bg-popover` and everything inside it that paints the
 popover surface follow, wherever it renders (portaled to `body`, into a dialog, or inline in one).
-Its edge is `border-popover-border`: 0.52 L in dark, 3.25:1 on `popover`/`card` and 3.59:1 on the
-page (WCAG 1.4.11, gated by `contrast-check.mjs`), and the ordinary hairline in light, where the
-elevation shadow is the boundary. Dividers inside a popup stay `border-border`. A new floating
+Its edge is `border-popover-border`, the ordinary `border` hairline in both themes (Regent operator,
+2026-11-22: a heavier 0.52 L edge in dark read as a darker, non-standard border); the lift and the
+elevation shadow carry the boundary, and `contrast-check.mjs` holds the edge equal to `border`. Dividers inside a popup stay `border-border`. A new floating
 surface takes `bg-popover border border-popover-border surface-popup`.
 
 **Interaction states are one formula, not a colour (COL-24, INT-4, FOC-15, FOC-16; operator
