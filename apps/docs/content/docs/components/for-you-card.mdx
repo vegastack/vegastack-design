@@ -100,12 +100,16 @@ like this, and stays on a settled card; on a touch screen a long press on the ca
 
 ### Compact
 
-`compact` is the calm list row For you's list and Home's top three use: the verb's tile, the verb and
-who asks with the time, the title, one `why` line (who or what asked, and why it waits on the reader)
-and one main button. Without its own action the main button opens the card in place — the facts, the
-body and every option — and Less folds it back; with `primary.onPress` or `primary.href` it acts
-instead (a draft opens its page, a broken connection reconnects). Settled, a compact card is one line,
-what became of it and the title, with `onUndo`'s Undo while the app still holds the answer back.
+`compact` is the calm list row For you's list and Home's top items use: the verb's tile, the kind
+(`kindLabel`, else the verb) and who asks with the `time`, the title, and one `why` line (who or what
+asked, and why it waits on the reader). The row carries no buttons. A click on it, or Enter on the
+Inbox's active row (`menuOpen`), opens a menu anchored to it: the card's options numbered 1–9 (a
+link opens its page, Inspect its review), **Answer here…** (A) when the card has a body to fill, else
+**Show details** (A), which opens the card in place under the row (**Less** folds it and returns
+focus to the row), **Skip**, then the app's `menuActions` with
+their keys (Open ↵, Mark done E) and **Snooze** (H). While the menu is open, a key runs its item.
+Settled, a compact card is one line, what became of it and the title, with `onUndo`'s Undo while
+the app still holds the answer back.
 
 <ComponentPreview
   name="forYouCardCompact"

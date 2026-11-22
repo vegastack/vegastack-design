@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.129.0 sha256-GtCM0PaEKI3kCg1cURb1wfbsN+bhjd1jqekbXC3PICo=
+// @vegastack for-you-card@0.129.0 sha256-Mz0gHs3NqcXKI2ATdCvdfK+7SyB4Ka3feEWy8e7OsPU=
 
 "use client";
 
@@ -24,8 +24,12 @@ import {
 } from "@/components/ui/agent-question-form";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
+  DropdownMenuShortcut,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
   InboxRowMenu,
@@ -212,12 +216,20 @@ export interface ForYouCardProps {
   /** When it arrived ("2h", "Yesterday"), at the header's end. @default undefined */
   time?: string;
   /**
-   * `compact`: the one main button. With `onPress` or `href` it acts (a draft opens its page, a
-   * broken connection reconnects); without either it opens the card in place. Its label is the verb's
-   * by default ("Answer", "Approve", "Review", "Fix").
-   * @default { label: the verb's }
+   * `compact`: what the row's kind reads before who sent it ("Question", "Draft", "Approval").
+   * @default the verb's label
    */
-  primary?: { label?: string; onPress?: () => void; href?: string };
+  kindLabel?: string;
+  /**
+   * `compact`: the app's own actions in the row's menu (`menuActions`), after the card's options (Open ↵,
+   * Snooze H, Mark done E). Each `shortcut` is a key that runs it while the menu is open.
+   * @default undefined
+   */
+  menuActions?: ForYouAction[];
+  /** `compact`: the row's menu is open (controlled; the Inbox opens it on Enter). @default undefined */
+  menuOpen?: boolean;
+  /** `compact`: the row's menu opened or closed. @default undefined */
+  onMenuOpenChange?: (open: boolean) => void;
   /** `compact`: opened in place (controlled). @default undefined */
   expanded?: boolean;
   /** `compact`: opened in place at first (uncontrolled). @default false */
@@ -240,6 +252,84 @@ const VERB: Record<ForYouVerb, { label: string; icon: LucideIcon }> = {
   fix: { label: "Fix", icon: Wrench },
   suggest: { label: "Suggest", icon: Lightbulb },
 };
+
+/** One action in a compact card's menu (D16): the app's own, after the card's options. */
+export type ForYouAction = {
+  id: string;
+  label: string;
+  /** A Lucide icon element. */
+  icon?: React.ReactNode;
+  /** A key that runs it while the menu is open ("E", "H"); "↵" is shown only. */
+  shortcut?: string;
+  disabled?: boolean;
+  destructive?: boolean;
+  onSelect: () => void;
+};
+
+/**
+ * A compact card's menu: the decisions first, numbered 1–9 (a link opens its page, Inspect its
+ * review), Answer here… when the card has a body to fill, Skip, then the app's actions with Snooze
+ * (H) unless the app brings its own.
+ */
+function compactActions({
+  options,
+  actions,
+  onOption,
+  onInspect,
+  onSkip,
+  onSnooze,
+  onFewerLikeThis,
+  expand,
+}: {
+  options: ForYouOption[] | undefined;
+  actions: ForYouAction[] | undefined;
+  onOption?: (optionId: string) => void | Promise<void>;
+  onInspect?: (optionId: string) => void;
+  onSkip?: () => void;
+  onSnooze?: () => void;
+  onFewerLikeThis?: () => void;
+  expand?: { label: string; onSelect: () => void };
+}): (ForYouAction | "separator")[] {
+  const decisions: ForYouAction[] = (options ?? []).map((option, index) => ({
+    id: `option:${option.id}`,
+    label: option.label,
+    shortcut: index < 9 ? String(index + 1) : undefined,
+    onSelect: () => {
+      if (option.kind === "navigate" && option.href)
+        window.location.assign(option.href);
+      else if (option.kind === "inspect") onInspect?.(option.id);
+      else void onOption?.(option.id);
+    },
+  }));
+  const own: ForYouAction[] = [
+    ...(expand
+      ? [
+          {
+            id: "expand",
+            label: expand.label,
+            shortcut: "A",
+            onSelect: expand.onSelect,
+          },
+        ]
+      : []),
+    ...(onSkip
+      ? [{ id: "skip", label: "Skip", shortcut: "S", onSelect: onSkip }]
+      : []),
+  ];
+  const app: ForYouAction[] = [
+    ...(actions ?? []),
+    ...(onSnooze && !actions?.some((a) => a.id === "snooze")
+      ? [{ id: "snooze", label: "Snooze", shortcut: "H", onSelect: onSnooze }]
+      : []),
+    ...(onFewerLikeThis
+      ? [{ id: "fewer", label: "Fewer like this", onSelect: onFewerLikeThis }]
+      : []),
+  ];
+  const head = [...decisions, ...own];
+  return head.length && app.length
+    ? [...head, "separator", ...app]
+    : [...head, ...app];
+}
 
 /** Where it was answered, in the app's words; `system` (nobody answered) says nothing. */
 const VIA_WORDS: Record<ForYouVia, string | null> = {
@@ -415,7 +505,10 @@ export function ForYouCard({
   compact = false,
   why,
   time,
-  primary,
+  kindLabel,
+  menuActions,
+  menuOpen: menuOpenProp,
+  onMenuOpenChange,
   expanded: expandedProp,
   defaultExpanded = false,
   onExpandedChange,
@@ -428,6 +521,8 @@ export function ForYouCard({
     if (expandedProp === undefined) setExpandedOwn(next);
     onExpandedChange?.(next);
   };
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
+  const [menuOwn, setMenuOwn] = React.useState(false);
   const titleId = React.useId();
   const sending = state === "sending";
   const live = state === "open" || state === "submit_failed" || sending;
@@ -436,7 +531,22 @@ export function ForYouCard({
   const ownMenu =
     live && Boolean(onFewerLikeThis && verb === "suggest" && !accessLost);
   // A long press opens the ⋯ whenever it is a menu (more than Snooze alone).
+  // A long press opens the row's menu (a compact row's one menu holds everything).
   const row = useInboxRow({ value, menu: menu != null || ownMenu });
+  const menuOpen = menuOpenProp ?? (menuOwn || (compact && row.menuOpen));
+  // A long press opens it too, through the owner's callback when the owner holds it.
+  const pressed = compact && row.menuOpen;
+  React.useEffect(() => {
+    if (!pressed || menuOpenProp === undefined) return;
+    // Forwarded once: the press is consumed, so the owner's close stays closed.
+    row.setMenuOpen(false);
+    if (!menuOpenProp) onMenuOpenChange?.(true);
+  }, [pressed, menuOpenProp, onMenuOpenChange, row]);
+  const setMenuOpen = (next: boolean) => {
+    if (menuOpenProp === undefined) setMenuOwn(next);
+    if (!next) row.setMenuOpen(false);
+    onMenuOpenChange?.(next);
+  };
   const selected = row.inInbox ? row.active : selectedProp;
   const root = cn(
     compact
@@ -702,50 +812,32 @@ export function ForYouCard({
   }
 
   if (compact) {
-    // Stale: the line says so and the row keeps only its way to the new version.
+    // Stale: the line says so and the menu keeps only its way to the new version.
     const line = state === "stale" ? closedLine : (why ?? summary);
-    const main = primary?.label ?? Verb.label;
-    const acts = Boolean(primary?.onPress || primary?.href);
-    const mainButton = acts ? (
-      primary?.href ? (
-        <a
-          href={primary.href}
-          data-slot="for-you-card-primary"
-          aria-disabled={hold || undefined}
-          onClick={(event) => {
-            if (hold) event.preventDefault();
-            else primary.onPress?.();
-          }}
-          className={cn(
-            buttonVariants({ variant: "outline", size: "sm" }),
-            "no-underline aria-disabled:opacity-50",
-          )}
-        >
-          {main}
-        </a>
-      ) : (
-        <Button
-          size="sm"
-          variant="outline"
-          data-slot="for-you-card-primary"
-          disabled={hold}
-          onClick={primary?.onPress}
-        >
-          {main}
-        </Button>
-      )
-    ) : (
-      <Button
-        size="sm"
-        variant="outline"
-        data-slot="for-you-card-primary"
-        aria-expanded={false}
-        disabled={offline}
-        onClick={() => setExpanded(true)}
-      >
-        {main}
-      </Button>
-    );
+    const items = compactActions({
+      options: shownOptions,
+      actions: menuActions,
+      onOption,
+      onInspect,
+      onSkip: live ? onSkip : undefined,
+      onSnooze: live && !accessLost ? onSnooze : undefined,
+      onFewerLikeThis: ownMenu ? onFewerLikeThis : undefined,
+      // A body to fill opens as Answer here…; otherwise the facts and what happens if nobody
+      // answers stay one step away as Show details.
+      expand: live
+        ? {
+            label:
+              sourceBody != null || children != null
+                ? "Answer here…"
+                : "Show details",
+            onSelect: () => setExpanded(true),
+          }
+        : undefined,
+    });
+    const run = (item: ForYouAction) => {
+      setMenuOpen(false);
+      if (!item.disabled && !hold) item.onSelect();
+    };
     return asRow(
       <article
         data-slot="for-you-card"
@@ -759,7 +851,7 @@ export function ForYouCard({
         aria-busy={sending || undefined}
         className={cn(
           root,
-          "grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0",
+          "relative grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-0",
         )}
       >
         <span
@@ -774,7 +866,9 @@ export function ForYouCard({
             className="flex min-w-0 items-center gap-1.5 text-xs leading-5 text-muted-foreground"
           >
             <span className="min-w-0 flex-1 truncate">
-              <span data-slot="for-you-card-verb">{Verb.label}</span>
+              <span data-slot="for-you-card-verb">
+                {kindLabel ?? Verb.label}
+              </span>
               {" · "}
               {from.name}
               {from.onBehalfOf ? ` · ${from.onBehalfOf}` : null}
@@ -810,10 +904,88 @@ export function ForYouCard({
             data-slot="for-you-card-title"
             className="min-w-0 text-sm font-medium wrap-anywhere text-foreground"
           >
-            <InboxRowTitle row={row} className="relative font-medium">
-              {unread ? <span className="sr-only">Unread: </span> : null}
-              {title}
-            </InboxRowTitle>
+            <DropdownMenu open={menuOpen} onOpenChange={setMenuOpen}>
+              <DropdownMenuTrigger
+                disabled={items.length === 0 && menu == null}
+                render={
+                  <Button
+                    ref={triggerRef}
+                    variant="ghost"
+                    // In an Inbox it is the row's focus target: J / K land on it, Enter opens the menu.
+                    data-slot="inbox-item-link"
+                    aria-current={
+                      row.inInbox && row.active ? "true" : undefined
+                    }
+                    // The whole row is the trigger: its hit area covers the row (the row's own tint
+                    // is the cue, so the button draws none).
+                    className="static inline-flex min-h-6 h-auto items-center rounded-none border-0 p-0 text-start text-sm font-medium whitespace-normal text-inherit after:absolute after:inset-0 after:rounded-item hover:not-focus-visible:bg-none active:not-aria-[haspopup]:translate-y-0 disabled:opacity-100"
+                  />
+                }
+              >
+                {unread ? <span className="sr-only">Unread: </span> : null}
+                {title}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="start"
+                side="inline-end"
+                sideOffset={8}
+                data-slot="for-you-card-menu"
+                className="w-72"
+                onKeyDown={(event) => {
+                  if (event.metaKey || event.ctrlKey || event.altKey) return;
+                  const key =
+                    event.key.length === 1
+                      ? event.key.toUpperCase()
+                      : event.key;
+                  const hit = items.find(
+                    (item) => item !== "separator" && item.shortcut === key,
+                  );
+                  if (hit && hit !== "separator") {
+                    event.preventDefault();
+                    run(hit);
+                  }
+                }}
+              >
+                <div className="flex min-w-0 flex-col gap-0.5 px-2 pt-1 pb-2">
+                  <p className="truncate text-xs text-muted-foreground">
+                    {kindLabel ?? Verb.label} · {from.name}
+                    {deadline ? ` · ${deadline.label}` : null}
+                  </p>
+                  <p className="text-sm font-medium wrap-anywhere">{title}</p>
+                </div>
+                <DropdownMenuSeparator />
+                {items.map((item, index) =>
+                  item === "separator" ? (
+                    <DropdownMenuSeparator key={`sep-${index}`} />
+                  ) : (
+                    <DropdownMenuItem
+                      key={item.id}
+                      data-action={item.id}
+                      disabled={item.disabled || hold}
+                      variant={item.destructive ? "destructive" : "default"}
+                      onClick={() => run(item)}
+                    >
+                      {item.icon ?? null}
+                      <span className="min-w-0 flex-1 wrap-anywhere">
+                        {item.label}
+                      </span>
+                      {item.shortcut ? (
+                        <DropdownMenuShortcut>
+                          {item.shortcut}
+                        </DropdownMenuShortcut>
+                      ) : null}
+                    </DropdownMenuItem>
+                  ),
+                )}
+                {/* The row's own items (the Inbox's Mark done, Mark read, Unsnooze). */}
+                {menu != null ? (
+                  <>
+                    <DropdownMenuSeparator />
+                    {menu}
+                  </>
+                ) : null}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </h3>
           {line ? (
             <p
@@ -826,10 +998,21 @@ export function ForYouCard({
               {line}
             </p>
           ) : null}
+          {state === "submit_failed" ? (
+            // Outside the disclosure: a folded card still says it.
+            <p
+              role="alert"
+              data-slot="for-you-card-failed"
+              className="mt-1 text-xs text-destructive-text"
+            >
+              Your answer didn't save. Try again.
+            </p>
+          ) : null}
           {expanded && live ? (
             <div
               data-slot="for-you-card-expanded"
-              className="mt-2 flex min-w-0 flex-col gap-3"
+              // Above the row's trigger, so its fields take their own clicks.
+              className="relative z-10 mt-2 flex min-w-0 flex-col gap-3"
             >
               {summary && summary !== line ? (
                 <p className="min-w-0 text-sm text-muted-foreground">
@@ -857,51 +1040,33 @@ export function ForYouCard({
                 </div>
               ) : null}
               {body}
-              {optionButtons}
-              <p
-                data-slot="for-you-card-if-nobody"
-                className="min-w-0 text-xs text-muted-foreground"
-              >
-                {offline
-                  ? `Connect to answer · If nobody answers: ${ifNobodyAnswers}`
-                  : `If nobody answers: ${ifNobodyAnswers}`}
-              </p>
+              <div className="flex min-w-0 items-center gap-2">
+                <p
+                  data-slot="for-you-card-if-nobody"
+                  className="min-w-0 flex-1 text-xs text-muted-foreground"
+                >
+                  {offline
+                    ? `Connect to answer · If nobody answers: ${ifNobodyAnswers}`
+                    : `If nobody answers: ${ifNobodyAnswers}`}
+                </p>
+                <Button
+                  size="xs"
+                  variant="ghost"
+                  aria-expanded
+                  className="text-muted-foreground"
+                  disabled={sending}
+                  onClick={() => {
+                    setExpanded(false);
+                    // The button goes with the body: focus returns to the row.
+                    requestAnimationFrame(() => triggerRef.current?.focus());
+                  }}
+                >
+                  <ChevronUp aria-hidden />
+                  Less
+                </Button>
+              </div>
             </div>
           ) : null}
-          {state === "submit_failed" ? (
-            // Outside the disclosure: a folded card still says it.
-            <p
-              role="alert"
-              data-slot="for-you-card-failed"
-              className="mt-1 text-xs text-destructive-text"
-            >
-              Your answer didn't save. Try again.
-            </p>
-          ) : null}
-          <div
-            data-slot="for-you-card-actions"
-            className="mt-2 flex min-w-0 items-center gap-2"
-          >
-            {state === "stale" ? (
-              optionButtons
-            ) : expanded ? (
-              <Button
-                size="sm"
-                variant="ghost"
-                aria-expanded
-                className="text-muted-foreground"
-                disabled={sending}
-                onClick={() => setExpanded(false)}
-              >
-                <ChevronUp aria-hidden />
-                Less
-              </Button>
-            ) : (
-              mainButton
-            )}
-            <span className="flex-1" />
-            {more}
-          </div>
         </div>
       </article>,
     );
