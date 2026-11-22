@@ -18964,8 +18964,8 @@
       "meta": {
         "whenToUse": "Any place a meeting shows an icon — its row, a search or ⌘K result, a link, a mention, an activity line — and the words and glyph of a recording control.",
         "whenNotToUse": "Voice input (the microphone) or a generic loading state (Spinner).",
-        "version": "0.0.0",
-        "integrity": "sha256-HNh2CN1DUUqbHyWcl/fJkjCdyDnFVIMR5l78ZOlnTs4="
+        "version": "0.126.0",
+        "integrity": "sha256-gnh/KrNya1wSMrPtFkmIOtt+RTLrYmlvlKO52jVj0Gs="
       }
     },
     {

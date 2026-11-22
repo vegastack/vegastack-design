@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.126.0
+
+### Minor Changes
+
+- [#1063](https://github.com/vegastack/vegastack-design/pull/1063) [`8d963f9`](https://github.com/vegastack/vegastack-design/commit/8d963f9f32464d0dd56927f63a09e6ba5da184ef) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **MeetingIcon** and the recording controls' words. `MeetingIcon` is one rule for a meeting's glyph wherever it shows, mixed lists included: a single person for one speaker, a group for two or more or while unknown, and the loading `Spinner` while it records, uploads or is processed (`meetingIconKind`, `MEETING_LIVE_STATUSES`). `RECORDING_ACTIONS` holds "Start recording", "Pause recording", "Resume recording" and "Stop recording" (Title Case `menuLabel` for macOS menus only), and `RecordingActionIcon` their glyphs: the record dot in the destructive ink for Start, then pause, play and stop.
+
 ## 0.125.1
 
 ### Patch Changes
