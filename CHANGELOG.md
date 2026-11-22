@@ -9,6 +9,24 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.130.0] — November 22, 2026
+
+<!-- assembled from 2 changesets: b6a188f171ce -->
+
+### 🧩 New components
+
+- **Dialog `size="page"`**. A document-sized sheet between `xl` and `fullscreen` that leaves the page visible around it: from `sm` up it is at most 1200px wide (`min(75rem, 100% − 4rem)`) and the viewport less a 32px inset tall (about 1200 × 836 at 1440 × 900), a flex column with the header and footer pinned while a `DialogBody` scrolls. On a phone it is exactly `fullscreen`: the whole screen, no border or radius, padded clear of the safe areas, the corner × below the status bar (OVL-16).
+  [`400f525`](https://github.com/VegaStack/vegastack-design/commit/400f525)
+
+### 🔧 Changed components
+
+- **Transcript** takes `notes`: lines that are not speech (notes typed while recording, `{ id, time, text, marked? }`) shown among the turns at their time as a quiet, indented row with its time, a pen and `noteLabel` — a star in the warning ink when `marked`. A note has no speaker, is never the current line, is not searched, and seeks from its time with `onSeek`; without `notes` nothing changes.
+  [`a7cb1f9`](https://github.com/VegaStack/vegastack-design/commit/a7cb1f9)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.129.1 → 0.130.0.
+
 ## [0.129.1] — November 22, 2026
 
 <!-- assembled from 1 changeset: 6163b8421b2c -->

@@ -1,5 +1,13 @@
 # @vegastack/ui
 
+## 0.130.0
+
+### Minor Changes
+
+- [#1068](https://github.com/vegastack/vegastack-design/pull/1068) [`400f525`](https://github.com/vegastack/vegastack-design/commit/400f525af20e75d9720864a7c51c237405bd6e6b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 **Dialog `size="page"`**. A document-sized sheet between `xl` and `fullscreen` that leaves the page visible around it: from `sm` up it is at most 1200px wide (`min(75rem, 100% − 4rem)`) and the viewport less a 32px inset tall (about 1200 × 836 at 1440 × 900), a flex column with the header and footer pinned while a `DialogBody` scrolls. On a phone it is exactly `fullscreen`: the whole screen, no border or radius, padded clear of the safe areas, the corner × below the status bar (OVL-16).
+
+- [#1069](https://github.com/vegastack/vegastack-design/pull/1069) [`a7cb1f9`](https://github.com/vegastack/vegastack-design/commit/a7cb1f96df606996b53f0f03617f152641a4bda9) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **Transcript** takes `notes`: lines that are not speech (notes typed while recording, `{ id, time, text, marked? }`) shown among the turns at their time as a quiet, indented row with its time, a pen and `noteLabel` — a star in the warning ink when `marked`. A note has no speaker, is never the current line, is not searched, and seeks from its time with `onSeek`; without `notes` nothing changes.
+
 ## 0.129.1
 
 ### Patch Changes

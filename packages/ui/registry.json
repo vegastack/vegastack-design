@@ -2282,7 +2282,7 @@
       "meta": {
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
-        "version": "0.123.2"
+        "version": "0.130.0"
       }
     },
     {
@@ -13964,7 +13964,7 @@
       "meta": {
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
-        "version": "0.123.2"
+        "version": "0.130.0"
       }
     },
     {
