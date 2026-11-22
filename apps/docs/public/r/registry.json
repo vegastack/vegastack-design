@@ -16942,7 +16942,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.123.2",
-        "integrity": "sha256-QXi5NdGmvcW99X/nCSZ5xFh9oqgfBqYV5KsdceO3s5I="
+        "integrity": "sha256-AUHlWYr0G1vPtDlnREXX6PWESxUSKUqmXF+IVz5KUmg="
       }
     },
     {

@@ -403,3 +403,17 @@ test("the provider's state shows on every surface — a bare chip, a rendered bo
   // A restricted target shows no state.
   expect(chips("restricted")).toEqual([[false, false]]);
 });
+
+test("a state's icon replaces the kind's glyph; a surface's own state keeps the kind's", async () => {
+  const state = (kind: string) =>
+    kind === "meeting" ? { icon: <svg data-testid="own-glyph" /> } : null;
+  const screen = await render(
+    <InlineChipProvider value={{ state }}>
+      <InlineChip kind="meeting" targetId="m-1" label="Weekly sync" />
+      <InlineChip kind="meeting" targetId="m-2" label="Review" status="" />
+    </InlineChipProvider>,
+  );
+  expect(
+    screen.container.querySelectorAll('[data-testid="own-glyph"]'),
+  ).toHaveLength(1);
+});

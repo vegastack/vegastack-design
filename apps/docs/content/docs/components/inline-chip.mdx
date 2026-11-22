@@ -120,7 +120,9 @@ was closed without being done, such as a canceled or duplicate task. The chip ke
 link and carries `data-struck`. `TextEdit` and `MarkdownView` set all three from their
 `mentionStatus(kind, id)`. Without one of their own, every chip — a bare one, in a rendered body,
 in an editor, in a comment — takes its state from the `InlineChipProvider`'s `state(kind, id)`, so
-one answer shows a record alike on every surface.
+one answer shows a record alike on every surface. A state's `icon` replaces the kind's glyph with
+the record's own, such as a meeting's `MeetingIcon` (one person, a group, or the spinner while it
+records); a done target's check still wins.
 
 <ComponentPreview
   name="inlineChipClosed"
