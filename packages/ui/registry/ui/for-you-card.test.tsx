@@ -414,3 +414,79 @@ test("in an Inbox that opens rows, a card withdrawn for lost access is still rea
   await userEvent.keyboard("{Enter}");
   expect(onOpen).toHaveBeenCalledWith("c1");
 });
+
+test("compact: one why line and one main button; the options open in place and fold back", async () => {
+  const onOption = vi.fn();
+  const onExpandedChange = vi.fn();
+  const screen = await render(
+    <ForYouCard
+      {...base}
+      compact
+      why="Over the policy cap, so it needs your approval."
+      time="2h"
+      primary={{ label: "Review" }}
+      onOption={onOption}
+      onExpandedChange={onExpandedChange}
+      onSnooze={vi.fn()}
+    />,
+  );
+  const root = screen.container.querySelector<HTMLElement>(
+    '[data-slot="for-you-card"]',
+  )!;
+  expect(root.dataset.compact).toBe("");
+  expect(
+    root.querySelector('[data-slot="for-you-card-why"]')!.textContent,
+  ).toBe("Over the policy cap, so it needs your approval.");
+  expect(root.querySelectorAll("[data-option]")).toHaveLength(0);
+  expect(root.querySelector('[data-slot="for-you-card-facts"]')).toBeNull();
+  await page.getByRole("button", { name: "Review" }).click();
+  expect(onExpandedChange).toHaveBeenCalledWith(true);
+  expect(root.dataset.expanded).toBe("");
+  expect(
+    [...root.querySelectorAll<HTMLElement>("[data-option]")].map(
+      (el) => el.dataset.option,
+    ),
+  ).toEqual(["primary", "decline", "navigate", "inspect"]);
+  expect(root.querySelector('[data-slot="for-you-card-facts"]')).not.toBeNull();
+  await page.getByRole("button", { name: "Approve" }).click();
+  expect(onOption).toHaveBeenCalledWith("approve");
+  await page.getByRole("button", { name: "Less" }).click();
+  expect(root.dataset.expanded).toBeUndefined();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("compact: a main button with its own action acts instead of opening", async () => {
+  const onPress = vi.fn();
+  const screen = await render(
+    <ForYouCard {...base} compact primary={{ label: "Reconnect", onPress }} />,
+  );
+  await page.getByRole("button", { name: "Reconnect" }).click();
+  expect(onPress).toHaveBeenCalledTimes(1);
+  expect(
+    screen.container.querySelector<HTMLElement>('[data-slot="for-you-card"]')!
+      .dataset.expanded,
+  ).toBeUndefined();
+});
+
+test("compact, settled: one line with the outcome and the title, and Undo", async () => {
+  const onUndo = vi.fn();
+  const screen = await render(
+    <ForYouCard
+      {...base}
+      compact
+      state="done"
+      outcome={{ label: "Approved", actorName: null, via: null, at: "14:02" }}
+      onUndo={onUndo}
+    />,
+  );
+  const line = screen.container.querySelector(
+    '[data-slot="for-you-card-outcome"]',
+  )!;
+  expect(line.textContent).toBe("Approved · 14:02: Ravi's taxi claim, ₹4,200");
+  expect(screen.container.querySelectorAll("[data-option]")).toHaveLength(0);
+  await page
+    .getByRole("button", { name: "Undo: Ravi's taxi claim, ₹4,200" })
+    .click();
+  expect(onUndo).toHaveBeenCalledTimes(1);
+  await expectNoA11yViolations(screen.container);
+});

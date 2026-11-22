@@ -276,3 +276,62 @@ export function forYouCardInbox(): ReactNode {
     </Wrapper>
   );
 }
+
+function CompactRow({
+  value,
+  ...props
+}: ForYouCardProps & { value: string }): ReactNode {
+  const [state, setState] = useState<ForYouState>("open");
+  if (state === "done")
+    return (
+      <ForYouCard
+        {...props}
+        value={value}
+        compact
+        state="done"
+        outcome={{ label: "Approved", actorName: null, via: null, at: "now" }}
+        onUndo={() => setState("open")}
+      />
+    );
+  return (
+    <ForYouCard
+      {...props}
+      value={value}
+      compact
+      state={state}
+      onOption={() => setState("done")}
+      onSnooze={() => undefined}
+      menu={<RowMenu unread={false} />}
+    />
+  );
+}
+
+export function forYouCardCompact(): ReactNode {
+  return (
+    <Wrapper className="items-stretch justify-start">
+      <div className="w-full max-w-[26rem] overflow-hidden rounded-card border border-border">
+        <Inbox title="Inbox">
+          <InboxGroup label="Needs you">
+            <CompactRow
+              {...APPROVE}
+              value="claim"
+              why="Over the policy cap, so it needs your approval."
+              time="2h"
+              primary={{ label: "Review" }}
+            />
+            <CompactRow
+              {...APPROVE}
+              value="calendar"
+              verb="fix"
+              title="Calendar stopped syncing"
+              why="Meetings after Friday may be missing from Home."
+              time="1h"
+              deadline={undefined}
+              primary={{ label: "Reconnect", onPress: () => undefined }}
+            />
+          </InboxGroup>
+        </Inbox>
+      </div>
+    </Wrapper>
+  );
+}
