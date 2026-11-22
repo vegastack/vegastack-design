@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.28.3
+
+### Patch Changes
+
+- [#1070](https://github.com/vegastack/vegastack-design/pull/1070) [`ed4d23e`](https://github.com/vegastack/vegastack-design/commit/ed4d23e495edcf6aa202c7a4180121ae49625d0a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 📚 The bundled `vegastack-design-system` skill describes `memory-note` as forgetting "in a memory", matching the `memory` prop (#1065).
+
 ## 0.28.2
 
 ### Patch Changes

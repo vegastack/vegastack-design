@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.129.1] — November 22, 2026
+
+<!-- assembled from 1 changeset: 6163b8421b2c -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.28.3`** (was `0.28.2`).
+- The design-system registry (`@vegastack/ui`) bumps 0.129.0 → 0.129.1.
+
+### 📚 Docs
+
+- The bundled `vegastack-design-system` skill describes `memory-note` as forgetting "in a memory", matching the `memory` prop (#1065).
+  [`ed4d23e`](https://github.com/VegaStack/vegastack-design/commit/ed4d23e)
+
 ## [0.129.0] — November 22, 2026
 
 <!-- assembled from 1 changeset: 8ca67b685b0f -->
