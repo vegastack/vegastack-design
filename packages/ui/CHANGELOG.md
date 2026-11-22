@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.128.0
+
+### Minor Changes
+
+- [#1065](https://github.com/vegastack/vegastack-design/pull/1065) [`55b5a60`](https://github.com/vegastack/vegastack-design/commit/55b5a602517e516878ade5731c275bbd38f6f737) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - ⚠️ `MemoryNote` and `MemoryGroup`: the `notebook` prop (and `MemoryGroup`'s `data.notebook`) is now `memory`, after the product's word: a person's, a space's, the workspace's or an agent's memory. Rename the prop where you pass it; nothing else changes.
+
 ## 0.127.0
 
 ### Minor Changes

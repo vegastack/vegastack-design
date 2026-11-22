@@ -1,4 +1,4 @@
-// @vegastack memory-group@0.123.2 sha256-6VJn7KVg9Lrbj/x3dF/xQQjVVW7wBJjS6CWVscnehqo=
+// @vegastack memory-group@0.128.0 sha256-fRfhj/X3yTs2Qi0w1YcWLC1WV4RHq9B2gKx5pDXJoNU=
 
 "use client";
 
@@ -11,8 +11,8 @@ import { ChatGroup } from "@/components/ui/chat-card";
 
 /** What one turn remembered, as the chat contract carries it (the `data-memory` part). */
 export type MemoryGroupData = {
-  /** The notebook the notes went to ("Personal memory", "Sales team"). */
-  notebook: string;
+  /** The memory the notes went to ("Personal memory", "Sales team"). */
+  memory: string;
   /** The notes, each with whether it can still be undone or edited. */
   items: { id: string; text: string; undoable: boolean; editable: boolean }[];
 };
@@ -36,7 +36,7 @@ export interface MemoryGroupProps {
  * things · Personal memory ⌄", then each note with Undo · Edit. The mark is muted, never green.
  *
  * @example
- * <MemoryGroup data={{ notebook: "Personal memory", items }} onUndo={forget} onEdit={openNote} />
+ * <MemoryGroup data={{ memory: "Personal memory", items }} onUndo={forget} onEdit={openNote} />
  */
 function MemoryGroup({
   data,
@@ -60,7 +60,7 @@ function MemoryGroup({
             />
             <span className="min-w-0 truncate">
               Remembered {count === 1 ? "1 thing" : `${count} things`} ·{" "}
-              {data.notebook}
+              {data.memory}
             </span>
           </span>
         }
