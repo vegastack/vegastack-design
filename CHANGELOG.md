@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.129.0] — November 22, 2026
+
+<!-- assembled from 1 changeset: 8ca67b685b0f -->
+
+### 🔧 Changed components
+
+- **ForYouCard** takes `compact`: the calm list row — the verb's tile, verb and sender with the `time`, the title, one `why` line and one main button (`primary`) that opens the facts, body and options in place (`expanded`, `defaultExpanded`, `onExpandedChange`; Less folds it back) or acts on its own (`onPress`, `href`). Settled, a compact card is one line with its outcome and title, and `onUndo`'s Undo. `time` also shows in the full card's header.
+  [`49a090f`](https://github.com/VegaStack/vegastack-design/commit/49a090f)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.128.0 → 0.129.0.
+
 ## [0.128.0] — November 22, 2026
 
 <!-- assembled from 1 changeset: 4d3d526c1e89 -->
