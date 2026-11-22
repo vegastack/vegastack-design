@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.129.0 sha256-O/FA34ucSKiEaNdxl3Oe5+CuwV6eHnXBY4p71jQ1xyg=
+// @vegastack for-you-card@0.129.0 sha256-m+ao0yCp2tM6FOgSPoNu7iDItu/g/RK/92HJCzmtPho=
 
 "use client";
 
@@ -534,6 +534,11 @@ export function ForYouCard({
   // A long press opens the row's menu (a compact row's one menu holds everything).
   const row = useInboxRow({ value, menu: menu != null || ownMenu });
   const menuOpen = menuOpenProp ?? (menuOwn || (compact && row.menuOpen));
+  // A long press opens it too, through the owner's callback when the owner holds it.
+  const pressed = compact && row.menuOpen;
+  React.useEffect(() => {
+    if (pressed && menuOpenProp === false) onMenuOpenChange?.(true);
+  }, [pressed, menuOpenProp, onMenuOpenChange]);
   const setMenuOpen = (next: boolean) => {
     if (menuOpenProp === undefined) setMenuOwn(next);
     if (!next) row.setMenuOpen(false);
@@ -904,9 +909,7 @@ export function ForYouCard({
                     ref={triggerRef}
                     variant="ghost"
                     // In an Inbox it is the row's focus target: J / K land on it, Enter opens the menu.
-                    data-slot={
-                      row.inInbox ? "inbox-item-link" : "for-you-card-trigger"
-                    }
+                    data-slot="inbox-item-link"
                     aria-current={
                       row.inInbox && row.active ? "true" : undefined
                     }

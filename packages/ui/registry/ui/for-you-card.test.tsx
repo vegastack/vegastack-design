@@ -456,6 +456,10 @@ test("compact: a quiet row with no buttons; the row opens its menu, whose keys a
   await expect.element(page.getByRole("menu")).not.toBeInTheDocument();
   await page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }).click();
   await expect.element(page.getByRole("menu")).toBeVisible();
+  // The keys go to the open menu once it holds focus.
+  await expect
+    .poll(() => document.activeElement?.closest('[role="menu"]') != null)
+    .toBe(true);
   await userEvent.keyboard("e");
   expect(onDone).toHaveBeenCalledTimes(1);
   await expectNoA11yViolations(screen.container);
