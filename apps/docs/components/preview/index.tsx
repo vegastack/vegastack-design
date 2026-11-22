@@ -259,4 +259,5 @@ export * from "./delegate-row";
 export * from "./coverage-banner";
 export * from "./timeline";
 export * from "./health-indicator";
+export * from "./meeting-icon";
 export * from "./milestone-list";

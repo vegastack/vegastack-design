@@ -1854,6 +1854,13 @@ colour and every state. Never inline an ad-hoc `<svg>` as an icon, and never mix
 More — is a `ToolGroup`: ghost `icon-sm` (28px) buttons two pixels apart, each named by its tooltip,
 a count beside its icon rather than a badge floating over it.
 
+**Meetings and recording** (22-11-2026). A meeting's icon follows its speakers — a single person
+for one, a group for two or more or while unknown — and is the loading `Spinner` while it records or
+is processed: `MeetingIcon`, everywhere, mixed lists included. The microphone is only voice input;
+recording is the record dot (`CircleDot`, destructive ink on Start). The controls say "Start
+recording", "Pause recording", "Resume recording" and "Stop recording" (`RECORDING_ACTIONS`), in
+Title Case only in macOS menus.
+
 With text that can wrap, align the icon to the **first line**, not the block midpoint: an
 `items-start` row with a line-height-sized icon wrapper.
 

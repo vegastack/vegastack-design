@@ -1,0 +1,77 @@
+---
+title: Meeting Icon
+description: A meeting's icon by its speakers, one person or a group, or the loading spinner while it records or is processed; plus the recording controls.
+audience: public
+registry: meeting-icon
+status: stable
+since: 0.126.0
+a11y: decorative beside a title; named with label
+preview: meetingIcon
+---
+
+## Install
+
+<InstallSteps name="meeting-icon" />
+
+## Usage
+
+```tsx
+import { MeetingIcon } from "@/components/ui/meeting-icon";
+
+<MeetingIcon status={meeting.status} speakerCount={meeting.speakerCount} />;
+```
+
+One rule everywhere a meeting has an icon, mixed lists included: a single person for one speaker,
+a group for two or more (or while nobody knows yet), and the loading `Spinner` while the meeting
+records, uploads or is processed. `meetingIconKind` returns the same answer as data for places
+that pick a glyph themselves.
+
+<ComponentPreview
+  name="meetingIcon"
+  file="components/preview/meeting-icon.tsx"
+/>
+
+## Anatomy
+
+<Anatomy name="meeting-icon" />
+
+## Examples
+
+### Recording controls
+
+`RECORDING_ACTIONS` holds each control's words — "Start recording", "Pause recording", "Resume
+recording", "Stop recording" — with a Title Case `menuLabel` for macOS menus only.
+`RecordingActionIcon` draws its glyph: the record dot in the destructive ink for Start, then
+pause, play and stop. The microphone is only ever voice input.
+
+<ComponentPreview
+  name="meetingIconRecordingActions"
+  file="components/preview/meeting-icon.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/meeting-icon.tsx"
+  name="MeetingIconProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/meeting-icon.tsx"
+  name="RecordingActionIconProps"
+/>
+
+## Accessibility
+
+- Beside a meeting's title the icon is decorative (`aria-hidden`); pass `label` where it stands
+  alone.
+- The live spinner never announces itself in a list: the meeting's status words say it.
+
+<StatesTested name="meeting-icon" />
+
+## Do / Don't
+
+<DoDont
+  do="Pass the meeting's status and speaker count and let the rule pick the glyph."
+  dont="Use a microphone for a meeting or a recording control."
+/>
