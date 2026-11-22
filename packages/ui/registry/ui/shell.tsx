@@ -1,4 +1,4 @@
-// @vegastack shell@0.123.3 sha256-3/nxlj9VPp4m1nyrz9exeFvdJcnIPy3MOSw691lzShs=
+// @vegastack shell@0.131.0 sha256-+YYLys7L0z9uemfcodQw8OclzEMvqMfiXH5q609CSds=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -139,7 +139,9 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   pointer-events: none;
 }
 [data-slot="shell-floating-area"] > * { pointer-events: auto; }
-[data-slot="shell-main-area"] > [data-slot="assistant-card"] { inset-inline-end: var(--shell-floating-end); }
+/* The assistant (LAY-26) shows only while open, and only from 40rem: a phone puts its parts in a
+   bottom sheet instead. */
+[data-slot="shell-assistant-area"] > [data-slot="assistant-card"] { display: none; }
 [data-slot="shell-scrim"] {
   position: fixed;
   inset: 0;
@@ -250,24 +252,20 @@ ${S}[data-fill="parent"] > [data-slot="shell-room"] { min-height: 0; height: 100
   }
   [data-slot="shell-main-area"] { height: 100%; }
   /* The assistant docked beside the page: a second card with the same inset and corners (split
-     view). Floating and popped out, it places itself (shell-assistant). */
-  [data-slot="shell-assistant-area"] > [data-slot="assistant-card"][data-place="dock"] {
+     view). */
+  [data-slot="shell-assistant-area"] > [data-slot="assistant-card"][data-open] {
     --background: var(--shell-card);
     --color-background: var(--shell-card);
-    position: relative;
-    inset: auto;
+    display: flex;
     flex: none;
     width: min(var(--shell-assistant-width), 45cqw);
     height: auto;
-    max-width: none;
-    max-height: none;
     margin-block: 0 var(--shell-card-inset);
     margin-inline: 0 var(--shell-card-inset);
     border-radius: var(--shell-card-radius);
     background: var(--shell-card);
     box-shadow: 0 1px 2px oklch(0 0 0 / 0.04);
   }
-  [data-slot="shell-assistant-area"] > [data-slot="assistant-card"][data-place="dock"]:not([data-open]) { display: none; }
   [data-slot="shell-content"] { overflow-y: auto; overscroll-behavior-y: contain; }
   ${FLOAT} [data-slot="shell-column-area"] {
     visibility: visible;
@@ -337,9 +335,8 @@ export interface ShellProps extends Omit<
   /** Floating items at the page's bottom-right: a `ShellFloatingArea`. @default undefined */
   floating?: React.ReactNode;
   /**
-   * The assistant: an `AssistantCard`. It renders beside the page card, so one element can dock
-   * there as a second card (`place="dock"`, the split view), float over the page's corner or pop
-   * out, and the chat inside it never remounts when it moves (LAY-26).
+   * The assistant: an `AssistantCard`, docked beside the page card as a second card while open
+   * (the split view, LAY-26). From 40rem only: a phone puts the card's parts in a bottom sheet.
    * @default undefined
    */
   assistant?: React.ReactNode;

@@ -194,8 +194,8 @@
       "meta": {
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.123.3",
-        "integrity": "sha256-3/nxlj9VPp4m1nyrz9exeFvdJcnIPy3MOSw691lzShs="
+        "version": "0.131.0",
+        "integrity": "sha256-+YYLys7L0z9uemfcodQw8OclzEMvqMfiXH5q609CSds="
       }
     },
     {
@@ -21424,8 +21424,8 @@
       "meta": {
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
-        "version": "0.123.2",
-        "integrity": "sha256-MANN0mGyWN4sWZCb8VU78zFOIxg6FW6sVQzGgBGrLXg="
+        "version": "0.131.0",
+        "integrity": "sha256-0ifOh8wHKGSzaOegY47Pk3hLJwidt4KBeQcHa1efrPA="
       }
     },
     {
@@ -24957,7 +24957,7 @@
       "name": "shell-assistant",
       "type": "registry:ui",
       "title": "Shell Assistant",
-      "description": "The compact assistant card at the page area's corner — header actions, a removable context chip, a scrolling body and a composer slot.",
+      "description": "The assistant's chat docked beside the page as a second card (the split view) — header actions, a removable context chip, a scrolling body and a composer slot.",
       "categories": [
         "chat"
       ],
@@ -24981,8 +24981,8 @@
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
-        "version": "0.123.2",
-        "integrity": "sha256-fM/JkMzFe1d7+D5xWJZsJdsvCMy/YdKkTcUsQ2zugiE="
+        "version": "0.131.0",
+        "integrity": "sha256-IHP/WwSgLZd/BVJvkcWO9tEDb+s/hzUBaxYg/emRGPQ="
       }
     }
   ]

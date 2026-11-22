@@ -54619,7 +54619,7 @@
       "name": "shell-assistant",
       "registryType": "registry:ui",
       "title": "Shell Assistant",
-      "summary": "The compact assistant card at the page area's corner, opened from the global bar's Ask or ⌘J.",
+      "summary": "The assistant's chat docked beside the page as a second card (the split view), opened from the global bar's Ask or ⌘J.",
       "status": "stable",
       "since": "0.91.0",
       "family": "chat",
@@ -54697,15 +54697,6 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
-        },
-        {
-          "name": "AssistantPlace",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
         }
       ],
       "variants": {
@@ -54727,7 +54718,7 @@
         "accessibility": {
           "status": "covered",
           "values": [
-            "dialog-labelled",
+            "region-labelled",
             "escape-closes",
             "focus-returns",
             "inert-when-closed"
@@ -54743,10 +54734,10 @@
       "responsive": {
         "status": "modeled",
         "risks": [
-          "viewport-positioning-and-collision",
+          "responsive-or-container-layout",
           "text-truncation-and-flex-shrink"
         ],
-        "rationale": "The card caps at its container less 2rem in both axes, so a short or narrow page area never clips it; the name and context truncate."
+        "rationale": "The shell sizes it beside the page from 40rem (400px, at most 45% of the shell) and shows no card under 40rem; the name and context truncate and the body scrolls."
       },
       "motion": {
         "status": "modeled",
@@ -54790,12 +54781,8 @@
               "values": [""]
             },
             {
-              "name": "data-place",
-              "values": []
-            },
-            {
               "name": "data-slot",
-              "values": ["assistant-card", "assistant-card-resize"]
+              "values": ["assistant-card"]
             }
           ],
           "cssVariables": []

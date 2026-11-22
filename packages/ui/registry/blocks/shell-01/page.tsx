@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.123.2 sha256-MANN0mGyWN4sWZCb8VU78zFOIxg6FW6sVQzGgBGrLXg=
+// @vegastack shell-01@0.131.0 sha256-0ifOh8wHKGSzaOegY47Pk3hLJwidt4KBeQcHa1efrPA=
 
 "use client";
 
@@ -61,7 +61,6 @@ import {
   AssistantCard,
   AssistantCardBody,
   AssistantCardHeader,
-  type AssistantPlace,
 } from "@/components/ui/shell-assistant";
 import {
   Shell,
@@ -113,8 +112,8 @@ function StatusIcon({ status }: { status: Task["status"] }) {
  * one search-or-ask box and "? Help" — then Home's column and the page in one card: Tasks,
  * Meetings and Library nested under Work, the top bar in its fixed order, a task list, and a
  * task opening in a `Peek` over the page's right side (↑ ↓ walk the list, ⤢ opens its page, Esc
- * closes it). The box's Ask chip opens the assistant docked beside the page; its header floats or
- * pops it out. On a phone the peek is a bottom sheet.
+ * closes it). The box's Ask chip opens the assistant docked beside the page. On a phone the peek is
+ * a bottom sheet.
  *
  * @example
  * <Shell01Page fill="parent" />
@@ -128,7 +127,6 @@ export default function Shell01Page({
   const [openId, setOpenId] = React.useState<string | null>(null);
   const [peekWidth, setPeekWidth] = React.useState(520);
   const [askOpen, setAskOpen] = React.useState(false);
-  const [place, setPlace] = React.useState<AssistantPlace>("dock");
   const index = TASKS.findIndex((t) => t.id === openId);
   const task = index >= 0 ? TASKS[index] : null;
 
@@ -180,15 +178,7 @@ export default function Shell01Page({
           </RailBottom>
         </Rail>
       }
-      // One card in every place, so nothing in it remounts when it moves.
-      assistant={
-        <Assistant
-          open={askOpen}
-          onOpenChange={setAskOpen}
-          place={place}
-          onPlaceChange={setPlace}
-        />
-      }
+      assistant={<Assistant open={askOpen} onOpenChange={setAskOpen} />}
       column={
         <ShellColumn label="Home">
           <ShellColumnHeader
@@ -425,29 +415,22 @@ export default function Shell01Page({
   );
 }
 
-/** The assistant's card in whichever place the person put it. */
+/** The assistant's card, docked beside the page. */
 function Assistant({
   open,
   onOpenChange,
-  place,
-  onPlaceChange,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  place: AssistantPlace;
-  onPlaceChange: (place: AssistantPlace) => void;
 }) {
   return (
     <AssistantCard
       id="shell-01-assistant"
       open={open}
       onOpenChange={onOpenChange}
-      place={place}
     >
       <AssistantCardHeader
         title="William"
-        place={place}
-        onPlaceChange={onPlaceChange}
         onClose={() => onOpenChange(false)}
       />
       <AssistantCardBody>

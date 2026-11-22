@@ -265,7 +265,7 @@ starts with `icon-` is a component and never an icon.
 - **`routine-row`** — One routine in a list: name and schedule, the next runs, owner and destination, the last run, Run now and a ⋯ with Skip next and Pause or Resume.
 - **`run-timeline`** — An agent run's steps in the chat work log's anatomy: per-step cost, the permission decision with Why?, Undo, delivery unknown, nested subagent steps, one live bolt for the run and folding of long tool runs.
 - **`run-usage`** — What one agent run used: a chip under the answer (steps, context, cache, optional money), a panel by model with cache per step and Subagents, and a table with one row per model call.
-- **`shell-assistant`** — The compact assistant card at the page area's corner, opened from the global bar's Ask or ⌘J.
+- **`shell-assistant`** — The assistant's chat docked beside the page as a second card (the split view), opened from the global bar's Ask or ⌘J.
 - **`source-list`** — The web pages an answer cites: a quiet Sources fold of one-line numbered rows, the citation card and the MarkdownView wiring.
 - **`status-glyph`** — One glyph per state in agent UI: ✓ done in the blue accent, ◌ not started, ◐ running (still), ⊘ skipped, ✗ failed, ⚠ needs you.
 - **`suggestion-card`** — An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.

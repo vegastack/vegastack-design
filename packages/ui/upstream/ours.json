@@ -1181,7 +1181,7 @@
       "disposition": "keep",
       "family": "chat",
       "source": "VegaStack shell layout overhaul, P0 lane C — Regent operator batch approval 16-11-2026 \"Shell layout overhaul\" (\"Approve, go dark\")",
-      "rationale": "Upstream has no floating assistant. Shell Assistant composes upstream's button, our chip and tool-group; no patch (OVL-26)."
+      "rationale": "Upstream has no docked assistant card. Shell Assistant composes upstream's button, our chip and tool-group; no patch (OVL-26)."
     },
     "data-list-skeleton": {
       "disposition": "keep",
