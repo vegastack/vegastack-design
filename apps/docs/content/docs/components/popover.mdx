@@ -174,7 +174,8 @@ Upstream's file plus `packages/ui/upstream/patches/popover.patch`. Every hunk:
 - **BRD-1** — `PopoverContent` draws a real 1px `border border-popover-border` instead of upstream's
   `ring-1 ring-foreground/10` box-shadow outline. A border survives forced colours and matches
   [Elevation](/docs/foundations/elevation). The popup also wears `surface-popup` (fill `popover-raised`), so over a
-  dialog in dark it sits one step up behind a 3:1 edge; see
+  dialog in dark it sits one step up behind the standard
+  hairline (the edge restored 2026-11-22); see
   [Elevation](/docs/foundations/elevation#a-popup-over-a-modal) (Regent F32, 2026-11-20).
 - **LAY-17** — `PopoverContent` sets `wrap-break-word`, so a long unbroken word breaks inside the
   popover rather than running past its edge. MK, 2026-10-13.
