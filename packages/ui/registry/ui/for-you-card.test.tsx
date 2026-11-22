@@ -485,6 +485,29 @@ test("compact: a card with a form opens it in place from the menu, and Less fold
   expect(root.dataset.expanded).toBe("");
   await page.getByRole("button", { name: "Less" }).click();
   expect(root.dataset.expanded).toBeUndefined();
+  // Focus returns to the row.
+  await expect
+    .element(page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }))
+    .toHaveFocus();
+});
+
+test("compact in an Inbox: the row's trigger is its focus target; with no body, Show details opens the facts", async () => {
+  const screen = await render(
+    <Inbox title="Inbox">
+      <InboxGroup label="Needs you">
+        <ForYouCard {...base} compact value="claim" />
+      </InboxGroup>
+    </Inbox>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="inbox-item-link"]')
+      ?.textContent,
+  ).toContain("Ravi's taxi claim");
+  await page.getByRole("button", { name: "Ravi's taxi claim, ₹4,200" }).click();
+  await page.getByRole("menuitem", { name: "Show details A" }).click();
+  expect(
+    screen.container.querySelector('[data-slot="for-you-card-facts"]'),
+  ).not.toBeNull();
 });
 
 test("compact, settled: one line with the outcome and the title, and Undo", async () => {

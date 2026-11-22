@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.129.0 sha256-uFWWN0tVppdcXHbL2o7hZ5tBnRHX6n04IU0CBBnv8wU=
+// @vegastack for-you-card@0.129.0 sha256-J3FUwGNeRwDc6WgGyhY4wqfiRLx5f+DBGLnoXKJHCtU=
 
 "use client";
 
@@ -278,7 +278,7 @@ function compactActions({
   onInspect,
   onSkip,
   onSnooze,
-  answerHere,
+  expand,
 }: {
   options: ForYouOption[] | undefined;
   actions: ForYouAction[] | undefined;
@@ -286,7 +286,7 @@ function compactActions({
   onInspect?: (optionId: string) => void;
   onSkip?: () => void;
   onSnooze?: () => void;
-  answerHere?: () => void;
+  expand?: { label: string; onSelect: () => void };
 }): (ForYouAction | "separator")[] {
   const decisions: ForYouAction[] = (options ?? []).map((option, index) => ({
     id: `option:${option.id}`,
@@ -300,13 +300,13 @@ function compactActions({
     },
   }));
   const own: ForYouAction[] = [
-    ...(answerHere
+    ...(expand
       ? [
           {
-            id: "answer-here",
-            label: "Answer here…",
+            id: "expand",
+            label: expand.label,
             shortcut: "A",
-            onSelect: answerHere,
+            onSelect: expand.onSelect,
           },
         ]
       : []),
@@ -516,6 +516,7 @@ export function ForYouCard({
     if (expandedProp === undefined) setExpandedOwn(next);
     onExpandedChange?.(next);
   };
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
   const [menuOwn, setMenuOwn] = React.useState(false);
   const menuOpen = menuOpenProp ?? menuOwn;
   const setMenuOpen = (next: boolean) => {
@@ -805,10 +806,17 @@ export function ForYouCard({
       onInspect,
       onSkip: live ? onSkip : undefined,
       onSnooze: live && !accessLost ? onSnooze : undefined,
-      answerHere:
-        live && (sourceBody != null || children != null)
-          ? () => setExpanded(true)
-          : undefined,
+      // A body to fill opens as Answer here…; otherwise the facts and what happens if nobody
+      // answers stay one step away as Show details.
+      expand: live
+        ? {
+            label:
+              sourceBody != null || children != null
+                ? "Answer here…"
+                : "Show details",
+            onSelect: () => setExpanded(true),
+          }
+        : undefined,
     });
     const run = (item: ForYouAction) => {
       setMenuOpen(false);
@@ -885,8 +893,15 @@ export function ForYouCard({
                 disabled={items.length === 0}
                 render={
                   <Button
+                    ref={triggerRef}
                     variant="ghost"
-                    data-slot="for-you-card-trigger"
+                    // In an Inbox it is the row's focus target: J / K land on it, Enter opens the menu.
+                    data-slot={
+                      row.inInbox ? "inbox-item-link" : "for-you-card-trigger"
+                    }
+                    aria-current={
+                      row.inInbox && row.active ? "true" : undefined
+                    }
                     // The whole row is the trigger: its hit area covers the row (the row's own tint
                     // is the cue, so the button draws none).
                     className="static inline-flex min-h-6 h-auto items-center rounded-none border-0 p-0 text-start text-sm font-medium whitespace-normal text-inherit after:absolute after:inset-0 after:rounded-item hover:not-focus-visible:bg-none active:not-aria-[haspopup]:translate-y-0 disabled:opacity-100"
@@ -1019,7 +1034,11 @@ export function ForYouCard({
                   aria-expanded
                   className="text-muted-foreground"
                   disabled={sending}
-                  onClick={() => setExpanded(false)}
+                  onClick={() => {
+                    setExpanded(false);
+                    // The button goes with the body: focus returns to the row.
+                    requestAnimationFrame(() => triggerRef.current?.focus());
+                  }}
                 >
                   <ChevronUp aria-hidden />
                   Less
