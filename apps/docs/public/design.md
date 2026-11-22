@@ -1475,7 +1475,7 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   the frame is a rounded card (LAY-26): the global bar and the rail sit on the window's canvas, the
   column and the page share one card inset 8px from the window's end and bottom, the rail's ends
   are the workspace's tile and the person's avatar, and the assistant docks beside the page as a
-  second card, floats at its corner, or pops out as a window the person drags anywhere.
+  second card (the split view; on a phone its parts sit in a bottom sheet).
 - **Forms** (FRM-9…FRM-13, API-26) — `Field` wires its control through Base UI Field (API-26): the label, the
   description and error ids, and `aria-invalid` from the Field's `data-invalid`, on every control
   including the composite ones (Select, Combobox, RadioGroup, NumberField, DatePicker, TextEdit). Pass

@@ -617,7 +617,7 @@ test("the assistant docked beside the page is a second card, the page giving it 
     <Frame
       width={1440}
       assistant={
-        <AssistantCard open onOpenChange={() => {}} place="dock">
+        <AssistantCard open onOpenChange={() => {}}>
           <p>How can I help?</p>
         </AssistantCard>
       }
@@ -643,6 +643,24 @@ test("the assistant docked beside the page is a second card, the page giving it 
       .querySelector('[data-slot="assistant-card"]')!
       .getAttribute("role"),
   ).toBe("region");
+});
+
+test("on a phone the shell shows no assistant card: its parts go in a sheet", async () => {
+  await render(
+    <Frame
+      width={390}
+      assistant={
+        <AssistantCard open onOpenChange={() => {}}>
+          <p>How can I help?</p>
+        </AssistantCard>
+      }
+    />,
+  );
+  await settled();
+  expect(
+    getComputedStyle(document.querySelector('[data-slot="assistant-card"]')!)
+      .display,
+  ).toBe("none");
 });
 
 test("every control at the bar's end reads 14px with a 16px icon, whatever size the page passes", async () => {

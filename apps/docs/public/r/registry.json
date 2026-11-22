@@ -195,7 +195,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.123.3",
-        "integrity": "sha256-3/nxlj9VPp4m1nyrz9exeFvdJcnIPy3MOSw691lzShs="
+        "integrity": "sha256-Sy3V52RbeqJn222VSN9xWsDxJ5ZNxFYWZA2GzbA5HcU="
       }
     },
     {
@@ -21425,7 +21425,7 @@
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.123.2",
-        "integrity": "sha256-MANN0mGyWN4sWZCb8VU78zFOIxg6FW6sVQzGgBGrLXg="
+        "integrity": "sha256-Qmy0/0p2mqrwlg2IXA2HxhCL0b0pK6gxO+mh3eVqTeA="
       }
     },
     {
@@ -24957,7 +24957,7 @@
       "name": "shell-assistant",
       "type": "registry:ui",
       "title": "Shell Assistant",
-      "description": "The compact assistant card at the page area's corner — header actions, a removable context chip, a scrolling body and a composer slot.",
+      "description": "The assistant's chat docked beside the page as a second card (the split view) — header actions, a removable context chip, a scrolling body and a composer slot.",
       "categories": [
         "chat"
       ],
@@ -24982,7 +24982,7 @@
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
         "version": "0.123.2",
-        "integrity": "sha256-fM/JkMzFe1d7+D5xWJZsJdsvCMy/YdKkTcUsQ2zugiE="
+        "integrity": "sha256-5tc0Pc6Z+FZkiilMdju92ryI3SE0xbi8HZ8u/iY9iok="
       }
     }
   ]

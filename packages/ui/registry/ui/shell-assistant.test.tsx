@@ -1,8 +1,8 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { render } from "vitest-browser-react";
-import { page, userEvent } from "vitest/browser";
-import { expect, onTestFinished, test, vi } from "vitest";
+import { userEvent } from "vitest/browser";
+import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import {
   AssistantCard,
@@ -10,11 +10,8 @@ import {
   AssistantCardComposer,
   AssistantCardContext,
   AssistantCardHeader,
-  type AssistantPlace,
 } from "./shell-assistant";
-import { Peek, PeekBody, PeekTitle } from "./peek";
 import { ToolGroupItem } from "./tool-group";
-import geometryCss from "../../test/geometry.css?inline";
 
 function Host({
   onBody,
@@ -83,7 +80,7 @@ test("opening moves focus to the composer; Escape closes and focus returns to th
   const screen = await render(<Host />);
   const pill = screen.getByRole("button", { name: "Ask William" });
   await pill.click();
-  const card = screen.getByRole("dialog", { name: "William" });
+  const card = screen.getByRole("region", { name: "William" });
   await expect.element(card).toBeVisible();
   await expect.element(pill).toHaveAttribute("aria-expanded", "true");
   await expect
@@ -151,197 +148,6 @@ test("an autofocusing composer keeps focus, and closing still returns to the ope
     "[data-slot=assistant-card]",
   )!;
   expect(card.hasAttribute("inert")).toBe(true);
-});
-
-test("a card opened while a record is peeked sits above the peek", async () => {
-  // The layout's real classes, for this test only (the others check behaviour, not geometry).
-  const sheet = document.createElement("style");
-  sheet.textContent = geometryCss;
-  document.head.append(sheet);
-  onTestFinished(() => sheet.remove());
-  await render(
-    <div style={{ position: "relative", width: 400, height: 600 }}>
-      <div style={{ position: "absolute", inset: 0 }}>
-        <Peek open onOpenChange={() => {}} layout="side">
-          <PeekBody>
-            <PeekTitle>Task 1</PeekTitle>
-          </PeekBody>
-        </Peek>
-      </div>
-      <AssistantCard open onOpenChange={() => {}}>
-        <AssistantCardHeader title="William" onClose={() => {}} />
-        <AssistantCardBody>
-          <p>How can I help?</p>
-        </AssistantCardBody>
-      </AssistantCard>
-    </div>,
-  );
-  const card = document.querySelector<HTMLElement>(
-    '[data-slot="assistant-card"]',
-  )!;
-  await expect
-    .poll(() => card.getBoundingClientRect().width)
-    .toBeGreaterThan(0);
-  await expect.poll(() => getComputedStyle(card).opacity).toBe("1");
-  const r = card.getBoundingClientRect();
-  const hit = document.elementFromPoint(
-    r.left + r.width / 2,
-    r.top + r.height / 2,
-  );
-  expect(
-    card.contains(hit),
-    `${hit?.outerHTML.slice(0, 80)} at ${r.left},${r.top} ${innerWidth}x${innerHeight}`,
-  ).toBe(true);
-});
-
-function Places() {
-  const [place, setPlace] = React.useState<AssistantPlace>("float");
-  return (
-    <div style={{ position: "relative", width: 900, height: 700 }}>
-      <AssistantCard open onOpenChange={() => {}} place={place}>
-        <AssistantCardHeader
-          title="William"
-          place={place}
-          onPlaceChange={setPlace}
-          onClose={() => {}}
-        />
-        <AssistantCardBody>
-          <p>How can I help?</p>
-        </AssistantCardBody>
-      </AssistantCard>
-    </div>
-  );
-}
-
-test("the header offers the other place, and the card moves without losing its content", async () => {
-  const screen = await render(<Places />);
-  const card = () =>
-    document.querySelector<HTMLElement>('[data-slot="assistant-card"]')!;
-  expect(card().dataset.place).toBe("float");
-  await screen.getByRole("button", { name: "Dock beside the page" }).click();
-  expect(card().dataset.place).toBe("dock");
-  expect(card().getAttribute("role")).toBe("region");
-  // The button that moved it is gone: focus stays in the card, not on the page.
-  await expect.poll(() => card().contains(document.activeElement)).toBe(true);
-  // Docked, "Float over the page" floats it again; one move is offered from each place.
-  await screen.getByRole("button", { name: "Float over the page" }).click();
-  expect(card().dataset.place).toBe("float");
-  expect(card().getAttribute("role")).toBe("dialog");
-  expect(
-    screen.getByRole("button", { name: "Float over the page" }).query(),
-  ).toBeNull();
-  await expect.element(screen.getByText("How can I help?")).toBeVisible();
-  await expectNoA11yViolations(screen.container);
-});
-
-test("floating, the card drags by its header and stays inside the window", async () => {
-  await page.viewport(1280, 800);
-  const sheet = document.createElement("style");
-  sheet.textContent = geometryCss;
-  document.head.append(sheet);
-  onTestFinished(() => sheet.remove());
-  await render(<Places />);
-  const card = document.querySelector<HTMLElement>(
-    '[data-slot="assistant-card"]',
-  )!;
-  const header = card.querySelector<HTMLElement>(
-    '[data-slot="assistant-card-header"]',
-  )!;
-  const start = card.getBoundingClientRect();
-  const at = header.getBoundingClientRect();
-  const x = at.left + 8;
-  const y = at.top + at.height / 2;
-  header.dispatchEvent(
-    new PointerEvent("pointerdown", {
-      bubbles: true,
-      button: 0,
-      clientX: x,
-      clientY: y,
-    }),
-  );
-  window.dispatchEvent(
-    new PointerEvent("pointermove", { clientX: x - 5000, clientY: y - 5000 }),
-  );
-  window.dispatchEvent(new PointerEvent("pointerup", {}));
-  await expect.poll(() => card.getBoundingClientRect().left).toBe(0);
-  expect(card.getBoundingClientRect().top).toBe(0);
-  expect(start.left).toBeGreaterThan(0);
-});
-
-test("floating, Alt and an arrow key move the card", async () => {
-  await page.viewport(1280, 800);
-  const sheet = document.createElement("style");
-  sheet.textContent = geometryCss;
-  document.head.append(sheet);
-  onTestFinished(() => sheet.remove());
-  await render(<Places />);
-  const card = document.querySelector<HTMLElement>(
-    '[data-slot="assistant-card"]',
-  )!;
-  card.focus();
-  // Once it has finished opening (its scale is part of the box).
-  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
-  const before = card.getBoundingClientRect().left;
-  await userEvent.keyboard("{Alt>}{ArrowRight}{/Alt}");
-  await expect
-    .poll(() => Math.round(card.getBoundingClientRect().left))
-    .toBe(Math.round(before + 16));
-});
-
-test("floating, the corner grip resizes the card from the keyboard, never under 320px", async () => {
-  await page.viewport(1280, 800);
-  const sheet = document.createElement("style");
-  sheet.textContent = geometryCss;
-  document.head.append(sheet);
-  onTestFinished(() => sheet.remove());
-  const screen = await render(<Places />);
-  const card = document.querySelector<HTMLElement>(
-    '[data-slot="assistant-card"]',
-  )!;
-  const grip = screen.getByRole("separator", { name: "Resize" });
-  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
-  const before = card.getBoundingClientRect();
-  (grip.element() as HTMLElement).focus();
-  await userEvent.keyboard("{ArrowUp}{ArrowLeft}");
-  await expect
-    .poll(() => Math.round(card.getBoundingClientRect().height))
-    .toBe(Math.round(before.height + 16));
-  expect(Math.round(card.getBoundingClientRect().width)).toBe(
-    Math.round(before.width + 16),
-  );
-  // Its bottom-end corner stays where it was.
-  expect(Math.round(card.getBoundingClientRect().right)).toBe(
-    Math.round(before.right),
-  );
-  for (let i = 0; i < 30; i++) await userEvent.keyboard("{ArrowDown}");
-  expect(Math.round(card.getBoundingClientRect().height)).toBe(320);
-});
-
-test("floating in a short container, the first move keeps the card's size", async () => {
-  await page.viewport(1280, 800);
-  const sheet = document.createElement("style");
-  sheet.textContent = geometryCss;
-  document.head.append(sheet);
-  onTestFinished(() => sheet.remove());
-  await render(
-    <div style={{ position: "relative", width: 600, height: 220 }}>
-      <AssistantCard open onOpenChange={() => {}} place="float">
-        <AssistantCardHeader title="William" onClose={() => {}} />
-        <AssistantCardBody>
-          <p>How can I help?</p>
-        </AssistantCardBody>
-      </AssistantCard>
-    </div>,
-  );
-  const card = document.querySelector<HTMLElement>(
-    '[data-slot="assistant-card"]',
-  )!;
-  await expect.poll(() => getComputedStyle(card).scale).toBe("1");
-  const height = card.offsetHeight;
-  card.focus();
-  await userEvent.keyboard("{Alt>}{ArrowLeft}{/Alt}");
-  await expect.poll(() => card.style.top).not.toBe("");
-  expect(card.offsetHeight).toBe(height);
 });
 
 test("Escape closes the card from content portalled in from another React tree", async () => {

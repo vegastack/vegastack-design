@@ -20566,7 +20566,7 @@
       "name": "shell-assistant",
       "type": "registry:ui",
       "title": "Shell Assistant",
-      "description": "The compact assistant card at the page area's corner — header actions, a removable context chip, a scrolling body and a composer slot.",
+      "description": "The assistant's chat docked beside the page as a second card (the split view) — header actions, a removable context chip, a scrolling body and a composer slot.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",

@@ -19,30 +19,34 @@ function Page({ withContext = true }: { withContext?: boolean }) {
   const [open, setOpen] = React.useState(false);
   const [about, setAbout] = React.useState(withContext);
   return (
-    <div className="relative h-150 w-full overflow-hidden rounded-block border border-border bg-background">
-      <div className="h-full overflow-y-auto p-6 text-sm text-muted-foreground">
-        <p className="mb-4 text-base font-semibold text-foreground">
-          #3 Review Q3 pricing
-        </p>
+    // The split view in small: the page, and the card docked beside it while open (as `Shell`
+    // docks it from 40rem).
+    <div className="flex h-150 w-full gap-2 overflow-hidden rounded-block border border-border bg-muted p-2">
+      <div className="min-w-0 flex-1 overflow-y-auto rounded-card border border-border bg-background p-6 text-sm text-muted-foreground">
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <p className="min-w-0 truncate text-base font-semibold text-foreground">
+            #3 Review Q3 pricing
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            aria-expanded={open}
+            aria-controls="assistant-card-demo"
+            aria-keyshortcuts="Meta+J"
+            onClick={() => setOpen(true)}
+          >
+            Ask William
+          </Button>
+        </div>
         {Array.from({ length: 24 }, (_, i) => (
           <p key={i} className="mb-3">
-            The card opens from the global bar&apos;s Ask or ⌘J and grows out of
-            the page area&apos;s corner. Paragraph {i + 1}.
+            The card opens from the global bar&apos;s Ask or ⌘J and docks beside
+            the page. Paragraph {i + 1}.
           </p>
         ))}
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        className="absolute end-4 top-4"
-        aria-expanded={open}
-        aria-controls="assistant-card-demo"
-        aria-keyshortcuts="Meta+J"
-        onClick={() => setOpen(true)}
-      >
-        Ask William
-      </Button>
       <AssistantCard
+        className={open ? "w-1/2 max-w-90 shrink-0" : "hidden"}
         id="assistant-card-demo"
         open={open}
         onOpenChange={setOpen}
