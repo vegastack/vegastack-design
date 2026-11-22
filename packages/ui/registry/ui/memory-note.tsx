@@ -1,4 +1,4 @@
-// @vegastack memory-note@0.123.2 sha256-sXXaX6+RvyR96au8jSiwkZnPpoc6eB1ASEfPzVNdkQ4=
+// @vegastack memory-note@0.123.2 sha256-9sKl//BfB6cFg0SFWtHE41q/TjND7cjyEND2hoepG+o=
 
 "use client";
 
@@ -21,7 +21,7 @@ import { Spinner } from "@/components/ui/spinner";
  * "Remembered in Personal memory: you write to customers informally", with text actions at the
  * row's end (Undo · Edit · Why?). A suggestion is the one tone with a filled action, Keep. Settled
  * states swap the actions for a muted outcome in the same box, so the row never jumps. The words
- * of the lead are the component's own, per tone; the notebook, the line and the outcome are the
+ * of the lead are the component's own, per tone; the memory, the line and the outcome are the
  * host's. In a list (`compact`) it drops its icon and chrome.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -57,8 +57,8 @@ export interface MemoryNoteProps extends Omit<
 > {
   /** What happened: sets the lead words, the icon and which actions show. */
   tone: MemoryNoteTone;
-  /** The notebook's name, as the reader knows it: "Personal memory", "Sales memory". */
-  notebook: string;
+  /** The memory's name, as the reader knows it: "Personal memory", "Sales memory". */
+  memory: string;
   /** The line as saved (at most 160 characters). Wraps; never cut. */
   line: string;
   /** For `updated`: the old line, shown muted as "(was …)". @default undefined */
@@ -83,7 +83,7 @@ export interface MemoryNoteProps extends Omit<
   onKeep?: () => void;
   /** Dismiss a suggestion. Shows on `suggested`. @default undefined */
   onDismiss?: () => void;
-  /** Open the notebook. Shows on every tone but `would` and `queued`. @default undefined */
+  /** Open the memory. Shows on every tone but `would` and `queued`. @default undefined */
   onOpen?: () => void;
   /** Try the save again. Shows on `failed`. @default undefined */
   onRetry?: () => void;
@@ -137,22 +137,22 @@ const ICON: Record<
   failed: { Icon: CircleAlert, className: "text-muted-foreground" },
 };
 
-function leadFor(tone: MemoryNoteTone, notebook: string): string {
+function leadFor(tone: MemoryNoteTone, memory: string): string {
   switch (tone) {
     case "remembered":
-      return `Remembered in ${notebook}:`;
+      return `Remembered in ${memory}:`;
     case "updated":
-      return `Updated ${notebook}:`;
+      return `Updated ${memory}:`;
     case "suggested":
-      return `Suggested for ${notebook}:`;
+      return `Suggested for ${memory}:`;
     case "forgot":
-      return `Forgot from ${notebook}:`;
+      return `Forgot from ${memory}:`;
     case "would":
-      return `Would remember in ${notebook}:`;
+      return `Would remember in ${memory}:`;
     case "queued":
-      return `Saving to ${notebook}…`;
+      return `Saving to ${memory}…`;
     case "failed":
-      return `Couldn't save to ${notebook}.`;
+      return `Couldn't save to ${memory}.`;
   }
 }
 
@@ -163,7 +163,7 @@ function leadFor(tone: MemoryNoteTone, notebook: string): string {
  * @example
  * <MemoryNote
  *   tone="remembered"
- *   notebook="Personal memory"
+ *   memory="Personal memory"
  *   line="You write to customers informally, first names"
  *   onUndo={undo}
  *   onEdit={edit}
@@ -172,11 +172,11 @@ function leadFor(tone: MemoryNoteTone, notebook: string): string {
  *
  * @example
  * // a suggestion: Keep is the one filled action
- * <MemoryNote tone="suggested" notebook="Sales memory" line="Quotes go out in INR" onKeep={keep} onDismiss={dismiss} />
+ * <MemoryNote tone="suggested" memory="Sales memory" line="Quotes go out in INR" onKeep={keep} onDismiss={dismiss} />
  */
 export function MemoryNote({
   tone,
-  notebook,
+  memory,
   line,
   before,
   source,
@@ -198,7 +198,7 @@ export function MemoryNote({
   const actionsRef = React.useRef<HTMLSpanElement>(null);
   const outcomeRef = React.useRef<HTMLSpanElement>(null);
   const hadFocus = React.useRef(false);
-  const lead = leadFor(tone, notebook);
+  const lead = leadFor(tone, memory);
   const leadName = lead.replace(/[:.…]$/, "");
   const busy = state === "busy";
   const settled = SETTLED[state];

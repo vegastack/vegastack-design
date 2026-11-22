@@ -16442,7 +16442,7 @@
       "name": "memory-note",
       "type": "registry:ui",
       "title": "Memory Note",
-      "description": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory notebook, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
+      "description": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -16963,7 +16963,7 @@
       ],
       "meta": {
         "whenToUse": "Notes an agent saved to memory during a chat turn.",
-        "whenNotToUse": "A memory notebook page or a single note card outside a chat.",
+        "whenNotToUse": "A memory page or a single note card outside a chat.",
         "version": "0.123.2"
       }
     },

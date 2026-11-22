@@ -44,7 +44,7 @@ test("every tone leads with its own words and shows only its actions", async () 
     const screen = await render(
       <MemoryNote
         tone={tone}
-        notebook="Personal memory"
+        memory="Personal memory"
         line="You write to customers informally"
         before="formal"
         {...all}
@@ -67,7 +67,7 @@ test("an action shows only when its handler is passed, and calls it", async () =
   const screen = await render(
     <MemoryNote
       tone="remembered"
-      notebook="Personal memory"
+      memory="Personal memory"
       line="First names"
       onUndo={onUndo}
     />,
@@ -83,7 +83,7 @@ test("an action shows only when its handler is passed, and calls it", async () =
 test("Keep is the only filled action of any tone", async () => {
   for (const tone of MEMORY_NOTE_TONES) {
     const screen = await render(
-      <MemoryNote tone={tone} notebook="Sales memory" line="INR" {...all} />,
+      <MemoryNote tone={tone} memory="Sales memory" line="INR" {...all} />,
     );
     const filled = [
       ...screen.container.querySelectorAll<HTMLElement>("[data-slot=button]"),
@@ -99,7 +99,7 @@ test("buttons are named by what they act on and described by the line", async ()
   const screen = await render(
     <MemoryNote
       tone="suggested"
-      notebook="Sales memory"
+      memory="Sales memory"
       line="Quotes go out in INR"
       onKeep={() => {}}
       onDismiss={() => {}}
@@ -126,7 +126,7 @@ const visibleButtons = (root: HTMLElement) =>
 test("a settled state replaces the actions with its outcome, at the same size", async () => {
   const props = {
     tone: "remembered" as const,
-    notebook: "Personal memory",
+    memory: "Personal memory",
     line: "You write to customers informally, first names",
     ...all,
   };
@@ -165,7 +165,7 @@ test("a settled state replaces the actions with its outcome, at the same size", 
 test("busy keeps the actions in place, disabled, behind a spinner", async () => {
   const props = {
     tone: "suggested" as const,
-    notebook: "Sales memory",
+    memory: "Sales memory",
     line: "Asha signs off every discount over 10%",
     ...all,
   };
@@ -199,7 +199,7 @@ test("a note replaces the actions; source and before read as muted suffixes", as
   const screen = await render(
     <MemoryNote
       tone="updated"
-      notebook="Sales memory"
+      memory="Sales memory"
       line="Quotes in INR"
       before="Quotes in USD"
       source="from an email"
@@ -225,18 +225,13 @@ test("a note replaces the actions; source and before read as muted suffixes", as
 
 test("compact drops the icon; queued shows a saving spinner otherwise", async () => {
   const screen = await render(
-    <MemoryNote tone="queued" notebook="Personal memory" line="x" />,
+    <MemoryNote tone="queued" memory="Personal memory" line="x" />,
   );
   await expect
     .element(page.getByRole("status", { name: "Saving" }))
     .toBeVisible();
   await screen.rerender(
-    <MemoryNote
-      tone="remembered"
-      notebook="Personal memory"
-      line="x"
-      compact
-    />,
+    <MemoryNote tone="remembered" memory="Personal memory" line="x" compact />,
   );
   expect(slot(screen.container, "memory-note-icon")).toBeNull();
 });
@@ -246,7 +241,7 @@ test("at 390px the actions take their own line and nothing overflows", async () 
     <div style={{ width: 358 }}>
       <MemoryNote
         tone="remembered"
-        notebook="Personal memory"
+        memory="Personal memory"
         line="You write to customers informally and use first names, never titles"
         source="from an email"
         {...all}
@@ -267,7 +262,7 @@ test("at 390px the actions take their own line and nothing overflows", async () 
     <div style={{ width: 960 }}>
       <MemoryNote
         tone="remembered"
-        notebook="Personal memory"
+        memory="Personal memory"
         line="First names"
         {...all}
       />
@@ -283,7 +278,7 @@ test("at 390px the actions take their own line and nothing overflows", async () 
 test("settling keeps the action nodes and hands focus to the outcome", async () => {
   const props = {
     tone: "remembered" as const,
-    notebook: "Personal memory",
+    memory: "Personal memory",
     line: "First names",
     ...all,
   };

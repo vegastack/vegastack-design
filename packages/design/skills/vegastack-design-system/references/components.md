@@ -256,7 +256,7 @@ starts with `icon-` is a component and never an icon.
 - **`file-preview`** — A file in a chat answer previewed on the chat card — Markdown formatted, a CSV's first rows, a PDF's first page, an image — with Download, Open and a reasoned error with Retry.
 - **`for-you-card`** — One thing waiting on a person in For you: the verb, who asks, the deciding facts, what happens if nobody answers, the source's body and options (the preferred one secondary, never filled), its outcome once settled.
 - **`memory-group`** — What an agent remembered in one turn, as one quiet fold — Remembered 3 things · Personal memory — with Undo and Edit per note.
-- **`memory-note`** — One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory notebook, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.
+- **`memory-note`** — One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.
 - **`message-parts`** — What an agent's answer is made of beyond its text: steps, a plan checklist, status and notice lines, changes with Undo, a hand-off divider, sources, the disclaimer, actions, a version switch and a fold.
 - **`model-effort-menu`** — A chat's model and effort as quiet text opening one compact menu: models with numbers, an Effort submenu, More models.
 - **`plan-card`** — An agent's plan put to the person: goal, steps with effect pills and touches, assumptions, won't do, will ask, risk, a version diff, per-step comments, four answers and settled lines.
