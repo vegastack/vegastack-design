@@ -19715,8 +19715,8 @@
       "meta": {
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
-        "version": "0.129.0",
-        "integrity": "sha256-Mz0gHs3NqcXKI2ATdCvdfK+7SyB4Ka3feEWy8e7OsPU="
+        "version": "0.132.0",
+        "integrity": "sha256-Bbgx+nSvQOiu7s5Dk2u5iR66MJT8voc6kqFbr/YzN98="
       }
     },
     {

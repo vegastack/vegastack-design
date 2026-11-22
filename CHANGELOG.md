@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.132.0] — November 22, 2026
+
+<!-- assembled from 1 changeset: 55c86b3ad6d2 -->
+
+### 🔧 Changed components
+
+- **ForYouCard** `compact` is a quiet row with no buttons (D16): kind (`kindLabel`) · sender · time, title, one `why` line. The row opens a menu anchored to it — the options numbered 1–9, **Answer here…** for a body to fill (opens in place), **Skip**, the app's `menuActions` with shortcut keys, and **Snooze** — controlled with `menuOpen`/`onMenuOpenChange`. `primary` is removed.
+  [`ad16fac`](https://github.com/VegaStack/vegastack-design/commit/ad16fac)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.131.0 → 0.132.0.
+
 ## [0.131.0] — November 22, 2026
 
 <!-- assembled from 1 changeset: 3995822e34b5 -->

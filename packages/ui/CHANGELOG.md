@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.132.0
+
+### Minor Changes
+
+- [#1071](https://github.com/vegastack/vegastack-design/pull/1071) [`ad16fac`](https://github.com/vegastack/vegastack-design/commit/ad16fac448642628bd9a88480d4a2c62f135ca1b) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 **ForYouCard** `compact` is a quiet row with no buttons (D16): kind (`kindLabel`) · sender · time, title, one `why` line. The row opens a menu anchored to it — the options numbered 1–9, **Answer here…** for a body to fill (opens in place), **Skip**, the app's `menuActions` with shortcut keys, and **Snooze** — controlled with `menuOpen`/`onMenuOpenChange`. `primary` is removed.
+
 ## 0.131.0
 
 ### Minor Changes
