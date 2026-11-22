@@ -2556,7 +2556,7 @@
         "whenToUse": "Modal interactions requiring full attention — confirmations, focused forms, destructive-action prompts. size sm/default/lg/xl steps the width; put long content in DialogBody so the header and footer stay in view.",
         "whenNotToUse": "Non-blocking feedback (Toast), inline contextual content (Popover/Tooltip), or a swipeable bottom panel (Drawer).",
         "version": "0.123.2",
-        "integrity": "sha256-jjVlX5m8wngQVBXVObiuK2fN07py86pq/tCYF7YhNBg="
+        "integrity": "sha256-17z3q6Brjh+4W1IkDRGbdYoJSixr/gOStOgT5XKGJwg="
       }
     },
     {

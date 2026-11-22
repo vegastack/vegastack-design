@@ -13728,7 +13728,7 @@
         "dimensions": [
           {
             "name": "size",
-            "values": ["sm", "default", "lg", "xl"],
+            "values": ["sm", "default", "md", "lg", "xl", "page", "fullscreen"],
             "evidence": "packages/ui/registry/ui/dialog.tsx: size prop (OVL-16)"
           }
         ]
