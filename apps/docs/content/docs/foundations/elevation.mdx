@@ -66,16 +66,16 @@ surface (decision **BRD-1**, amended for Regent F32, 20-11-2026). In light every
 and the popup's shadow carries the boundary. In dark a shadow barely shows, so elevation is
 lightness:
 
-| Surface                                                         | Dark fill                  | Edge                                     |
-| --------------------------------------------------------------- | -------------------------- | ---------------------------------------- |
-| Dialog, AlertDialog, Sheet, Drawer, cards                       | `popover` / `card` (0.205) | `border-border` (the hairline)           |
-| Popover, Select, Combobox, the menus, HoverCard, Tooltip, Toast | `popover-raised` (0.225)   | `popover-border` (0.52): 3.25:1 on 0.205 |
+| Surface                                                         | Dark fill                  | Edge                            |
+| --------------------------------------------------------------- | -------------------------- | ------------------------------- |
+| Dialog, AlertDialog, Sheet, Drawer, cards                       | `popover` / `card` (0.205) | `border-border` (the hairline)  |
+| Popover, Select, Combobox, the menus, HoverCard, Tooltip, Toast | `popover-raised` (0.225)   | `popover-border` (the hairline) |
 
 A popup wears `surface-popup`, which sets `--popover` to `popover-raised` on the popup itself, so
 its own `bg-popover` and anything inside it that paints the popover surface (a sticky search row, a
 section header) follow, wherever it renders: portaled to `body`, portaled into a dialog, or drawn
-inline inside one. The edge is a WCAG 1.4.11 boundary, gated at 3:1 on the modal surfaces, the page
-and the shell grounds by `contrast-check.mjs`; text on the raised fill stays at AA
+inline inside one. The edge is the same `border` hairline as every other surface (operator,
+22-11-2026), held equal to it by `contrast-check.mjs`; text on the raised fill stays at AA
 (popover-foreground 16.4:1, muted-foreground 6.6:1). A new floating surface takes the same three
 classes, `bg-popover border border-popover-border surface-popup`; a divider inside a popup stays
 `border-border`.

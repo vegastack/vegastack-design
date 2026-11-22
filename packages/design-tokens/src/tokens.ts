@@ -163,7 +163,7 @@ export const tokens = {
     "popover": "oklch(0.205 0 0)",
     "popover-foreground": "oklch(0.985 0 0)",
     "popover-raised": "oklch(0.225 0 0)",
-    "popover-border": "oklch(0.52 0 0)",
+    "popover-border": "oklch(1 0 0 / 0.1)",
     "primary": "oklch(0.922 0 0)",
     "primary-foreground": "oklch(0.205 0 0)",
     "secondary": "oklch(0.269 0 0)",

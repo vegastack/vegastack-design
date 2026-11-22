@@ -35,11 +35,7 @@
   },
   "popover-border": {
     "$type": "color",
-    "$value": {
-      "colorSpace": "oklch",
-      "components": [0.52, 0, 0],
-      "alpha": 1
-    }
+    "$value": "{color.white-alpha.10}"
   },
   "primary": {
     "$type": "color",
