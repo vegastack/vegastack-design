@@ -656,14 +656,55 @@ test("search matches speech only, never a note's text", async () => {
 });
 
 test("notes follow progressive mounting: each mounts with the turn before it", async () => {
-  const screen = await render(
-    <Harness notes={NOTES} batchSize={2} currentTime={0} />,
+  // No idle callback ever fires, so only the first batch and what currentTime needs are mounted.
+  const idle = vi
+    .spyOn(window, "requestIdleCallback")
+    .mockImplementation(() => 0);
+  try {
+    const screen = await render(
+      <Harness notes={NOTES} batchSize={2} currentTime={0} />,
+    );
+    await frames();
+    expect(order(screen.container)).toEqual([
+      "note:Started late",
+      "s0",
+      "s1",
+      "note:Ask about travel costs",
+    ]);
+    // Mounting the last turn (it becomes current) brings the note after it.
+    await screen.rerender(
+      <Harness notes={NOTES} batchSize={2} currentTime={200} />,
+    );
+    expect(order(screen.container)).toHaveLength(segs.length + NOTES.length);
+    expect(order(screen.container).at(-1)).toBe("note:Send the deck");
+  } finally {
+    idle.mockRestore();
+  }
+});
+
+test("a segment id and a note id that look alike never collide", async () => {
+  const segments = segs.map((s, i) => (i === 1 ? { ...s, id: "note:x" } : s));
+  const notes = [{ id: "x", time: 13, text: "Same-looking id" }];
+  const screen = await render(<Harness segments={segments} notes={notes} />);
+  expect(order(screen.container).slice(0, 4)).toEqual([
+    "s0",
+    "note:x",
+    "note:Same-looking id",
+    "s2",
+  ]);
+  await screen.rerender(
+    <Harness
+      segments={segments}
+      notes={[...notes, { ...notes[0]!, id: "y", time: 1 }]}
+    />,
   );
-  // Every row mounts in the end, notes included, still in time order.
-  await expect
-    .poll(() => order(screen.container).length)
-    .toBe(segs.length + NOTES.length);
-  expect(order(screen.container)[3]).toBe("note:Ask about travel costs");
+  expect(order(screen.container).slice(0, 5)).toEqual([
+    "s0",
+    "note:Same-looking id",
+    "note:x",
+    "note:Same-looking id",
+    "s2",
+  ]);
 });
 
 test("no notes, no change: no note rows and one listitem per segment", async () => {

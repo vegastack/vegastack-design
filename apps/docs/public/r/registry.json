@@ -17214,7 +17214,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
         "version": "0.123.2",
-        "integrity": "sha256-x9QwzFEgHVK549Rvi4yvsdycWFvYLAi35txRpF5A/90="
+        "integrity": "sha256-AV24ZlXDB8iKloAFcXbcQWqgorPng1AldJW1lxfA/40="
       }
     },
     {

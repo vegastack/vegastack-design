@@ -1,4 +1,4 @@
-// @vegastack transcript@0.123.2 sha256-x9QwzFEgHVK549Rvi4yvsdycWFvYLAi35txRpF5A/90=
+// @vegastack transcript@0.123.2 sha256-AV24ZlXDB8iKloAFcXbcQWqgorPng1AldJW1lxfA/40=
 
 "use client";
 
@@ -1213,7 +1213,8 @@ export function TranscriptList({
         const time = formatTime(segment.start);
         return (
           <TranscriptRow
-            key={segment.id}
+            // Namespaced like the notes' keys, so a segment id can never collide with a note's.
+            key={`segment:${segment.id}`}
             segment={segment}
             activeStore={activeStore}
             speaker={speakerName(segment.speaker)}
