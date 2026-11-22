@@ -1,9 +1,15 @@
-// @vegastack transcript@0.123.2 sha256-46/28o97FIY1F58WxVafuAI8reg23/rc3k9463XQsqU=
+// @vegastack transcript@0.123.2 sha256-x9QwzFEgHVK549Rvi4yvsdycWFvYLAi35txRpF5A/90=
 
 "use client";
 
 import * as React from "react";
-import { ChevronDown, ChevronUp, LocateFixed, Pencil } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  LocateFixed,
+  Pencil,
+  Star,
+} from "lucide-react";
 import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
@@ -70,6 +76,25 @@ export type TranscriptSegment = {
   text: string;
 };
 
+/**
+ * A line that is not speech — a note typed while recording — shown in time order among the turns.
+ * It has no speaker, is never the current line, is not searched, and never moves a segment's
+ * `start` or `end`.
+ */
+export type TranscriptNote = {
+  /** Stable id, unique among the notes. */
+  id: string;
+  /** When it was written, in seconds from the start of the recording (the segments' unit). */
+  time: number;
+  /** What was written. */
+  text: string;
+  /**
+   * A marked moment: the row shows a star in the warning ink in place of the pen.
+   * @default false
+   */
+  marked?: boolean;
+};
+
 /** Props accepted by `Transcript`. */
 export interface TranscriptProps extends Omit<
   React.ComponentProps<"div">,
@@ -77,6 +102,25 @@ export interface TranscriptProps extends Omit<
 > {
   /** The segments, sorted by `start`. */
   segments: TranscriptSegment[];
+  /**
+   * Notes shown among the turns, each after the last segment that starts at or before its `time`
+   * (before the first turn when it is earlier). A quiet, indented row: its time (a seek button
+   * with `onSeek`), a pen — or a star when `marked` — then `noteLabel` and the text. Notes are
+   * never current, never searched and have no speaker; with no segments the list stays empty.
+   * @default undefined — no notes
+   */
+  notes?: TranscriptNote[];
+  /**
+   * The words before a note's text, and the start of its row's accessible name — the host's
+   * words, punctuation included.
+   * @default "Note:"
+   */
+  noteLabel?: string;
+  /**
+   * What a marked note's star says to assistive technology; its row's name starts with it.
+   * @default "Marked moment"
+   */
+  markedNoteLabel?: string;
   /**
    * Called when a speaker is renamed — by clicking the name in any turn of `TranscriptList`
    * (every turn with that id takes the new name). Without it, names are read-only.
@@ -270,6 +314,35 @@ function findActiveIndex(segments: TranscriptSegment[], time?: number) {
   return end !== undefined && time >= end ? -1 : found;
 }
 
+type ListEntry =
+  | { kind: "segment"; segment: TranscriptSegment; index: number }
+  | { kind: "note"; note: TranscriptNote; before: number };
+
+/**
+ * Segments and notes in time order. A note goes after every segment that starts at or before its
+ * `time`; `before` is how many segments precede it, which is what progressive mounting counts.
+ */
+function interleave(
+  segments: TranscriptSegment[],
+  notes: TranscriptNote[] | undefined,
+): ListEntry[] {
+  const entries: ListEntry[] = [];
+  const sorted = notes?.length
+    ? [...notes].sort((a, b) => a.time - b.time)
+    : [];
+  let n = 0;
+  segments.forEach((segment, index) => {
+    while (n < sorted.length && sorted[n]!.time < segment.start) {
+      entries.push({ kind: "note", note: sorted[n++]!, before: index });
+    }
+    entries.push({ kind: "segment", segment, index });
+  });
+  while (n < sorted.length) {
+    entries.push({ kind: "note", note: sorted[n++]!, before: segments.length });
+  }
+  return entries;
+}
+
 /**
  * Every occurrence of `needle` in `text`, case-insensitively, as `[start, end)` ranges in `text`
  * itself. Matched on the original string: lower-casing first can change its length ("İ" becomes
@@ -351,6 +424,10 @@ function useActiveId(store: ActiveStore) {
 
 interface TranscriptContextValue {
   segments: TranscriptSegment[];
+  /** Segments and notes in time order. */
+  entries: ListEntry[];
+  noteLabel: string;
+  markedNoteLabel: string;
   activeStore: ActiveStore;
   following: boolean;
   setFollowing: (next: boolean) => void;
@@ -482,6 +559,9 @@ function TranscriptReveal({
  */
 export function Transcript({
   segments,
+  notes,
+  noteLabel = "Note:",
+  markedNoteLabel = "Marked moment",
   onSpeakerRename,
   speakerNameMaxLength,
   speakerNameMaxLengthMessage,
@@ -644,12 +724,20 @@ export function Transcript({
     [hasSeek],
   );
 
+  const entries = React.useMemo(
+    () => interleave(segments, notes),
+    [segments, notes],
+  );
+
   const { announce, Announcer } = useAnnouncer();
   const viewportRef = React.useRef<HTMLDivElement | null>(null);
 
   const context = React.useMemo<TranscriptContextValue>(
     () => ({
       segments,
+      entries,
+      noteLabel,
+      markedNoteLabel,
       activeStore,
       following,
       setFollowing,
@@ -682,6 +770,9 @@ export function Transcript({
     }),
     [
       segments,
+      entries,
+      noteLabel,
+      markedNoteLabel,
       activeStore,
       following,
       setFollowing,
@@ -883,6 +974,83 @@ const TranscriptRow = React.memo(function TranscriptRow({
   );
 });
 
+interface NoteRowProps {
+  note: TranscriptNote;
+  time: string;
+  seekName: string;
+  seek: ((seconds: number) => void) | null;
+  noteLabel: string;
+  markedNoteLabel: string;
+}
+
+/**
+ * A note among the turns: quiet, indented and smaller than speech. It is not a
+ * `MessageScrollerItem` — it carries no `messageId`, so follow, search, reveal and "Back to current
+ * line", which all address rows by id, never land on it — and it never reads the active store.
+ */
+const TranscriptNoteRow = React.memo(function TranscriptNoteRow({
+  note,
+  time,
+  seekName,
+  seek,
+  noteLabel,
+  markedNoteLabel,
+}: NoteRowProps) {
+  const id = React.useId();
+  const marked = note.marked === true;
+  return (
+    <div
+      role="listitem"
+      data-slot="transcript-note"
+      data-marked={marked ? "" : undefined}
+      aria-labelledby={
+        marked ? `${id}-mark ${id}-label ${id}-text` : `${id}-label ${id}-text`
+      }
+      className="ms-6 me-1 flex min-w-0 items-start gap-2 rounded-item bg-muted/50 px-2 py-1 text-xs text-muted-foreground"
+    >
+      {seek ? (
+        <Button
+          variant="ghost"
+          size="xs"
+          aria-label={seekName}
+          className="-ms-1.5 shrink-0 text-muted-foreground tabular-nums"
+          onClick={() => seek(note.time)}
+        >
+          {time}
+        </Button>
+      ) : (
+        <span className="flex h-6 shrink-0 items-center tabular-nums">
+          {time}
+        </span>
+      )}
+      <span className="flex h-6 shrink-0 items-center">
+        {marked ? (
+          <>
+            <Star
+              aria-hidden
+              data-slot="transcript-note-mark"
+              className="size-3.5 fill-current text-warning-text"
+            />
+            <span id={`${id}-mark`} className="sr-only">
+              {markedNoteLabel}
+            </span>
+          </>
+        ) : (
+          <Pencil aria-hidden className="size-3.5" />
+        )}
+      </span>
+      <p className="min-w-0 py-1 wrap-break-word">
+        <span id={`${id}-label`} className="font-medium text-foreground">
+          {noteLabel}
+        </span>{" "}
+        <span id={`${id}-text`} data-slot="transcript-note-text">
+          {note.text}
+        </span>
+      </p>
+    </div>
+  );
+});
+
 // ── back to current line ──────────────────────────────────────────────────────────────────────
 
 /** How long "Back to current line" stays after the reader's last scroll before it fades. */
@@ -978,7 +1146,8 @@ const SCROLL_KEYS = new Set([
 /**
  * `TranscriptList` — the scrollable list of segments inside a `Transcript`: one row per segment
  * with the speaker, the timestamp (a "Play from m:ss" button when the Transcript has `onSeek`)
- * and the text. Also renders the loading and empty states and the "Back to current line" button.
+ * and the text, and a quiet indented row for each of the Transcript's `notes` at its time. Also
+ * renders the loading and empty states and the "Back to current line" button.
  *
  * @example
  * <Transcript aria-label="Transcript" segments={segments} className="h-96">
@@ -991,6 +1160,9 @@ export function TranscriptList({
 }: TranscriptListProps) {
   const {
     segments,
+    entries,
+    noteLabel,
+    markedNoteLabel,
     activeStore,
     setFollowing,
     matches,
@@ -1019,7 +1191,25 @@ export function TranscriptList({
   const current = matches[matchIndex];
   const rows = React.useMemo(
     () =>
-      segments.slice(0, renderedCount).map((segment) => {
+      entries.flatMap((entry) => {
+        if (entry.kind === "note") {
+          // A note mounts with the segment before it (or at once, before the first segment).
+          if (entry.before > renderedCount) return [];
+          const time = formatTime(entry.note.time);
+          return (
+            <TranscriptNoteRow
+              key={`note:${entry.note.id}`}
+              note={entry.note}
+              time={time}
+              seekName={seekLabel(time)}
+              seek={seek}
+              noteLabel={noteLabel}
+              markedNoteLabel={markedNoteLabel}
+            />
+          );
+        }
+        const { segment } = entry;
+        if (entry.index >= renderedCount) return [];
         const time = formatTime(segment.start);
         return (
           <TranscriptRow
@@ -1045,7 +1235,9 @@ export function TranscriptList({
         );
       }),
     [
-      segments,
+      entries,
+      noteLabel,
+      markedNoteLabel,
       renderedCount,
       activeStore,
       formatTime,

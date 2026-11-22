@@ -21791,6 +21791,15 @@
           }
         },
         {
+          "name": "TranscriptNote",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/transcript.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
           "name": "TranscriptSegment",
           "kind": "type",
           "source": "packages/ui/registry/ui/transcript.tsx",
@@ -21821,7 +21830,9 @@
             "searching",
             "no-matches",
             "empty",
-            "loading"
+            "loading",
+            "note",
+            "marked-note"
           ],
           "evidence": "packages/ui/registry/ui/transcript.tsx + packages/ui/registry/ui/transcript.test.tsx"
         },
@@ -21847,9 +21858,11 @@
             "hover",
             "focus",
             "highlighted-match",
-            "current-match"
+            "current-match",
+            "note",
+            "marked-note"
           ],
-          "evidence": "aria-[current=true]:bg-muted on the row; mark tints bg-primary/15 and bg-primary for the current match."
+          "evidence": "aria-[current=true]:bg-muted on the row; mark tints bg-primary/15 and bg-primary for the current match; a note row is indented on bg-muted/50 in text-xs, and a marked one swaps the pen for a star in text-warning-text."
         }
       },
       "responsive": {

@@ -16,6 +16,7 @@ import {
   Transcript,
   TranscriptList,
   TranscriptSearch,
+  type TranscriptNote,
   type TranscriptProps,
   type TranscriptSegment,
 } from "./transcript";
@@ -542,6 +543,163 @@ test("match labels are overridable", async () => {
   await userEvent.clear(input);
   await userEvent.type(input, "zebra");
   await expect.poll(announcerText).toBe("Nothing found");
+});
+
+// ── notes ─────────────────────────────────────────────────────────────────────────────────
+
+/** Out of order on purpose: one before the first turn, one inside s1, one marked after the last. */
+const NOTES: TranscriptNote[] = [
+  { id: "n2", time: 110, text: "Send the deck", marked: true },
+  { id: "n1", time: 20, text: "Ask about travel costs" },
+  { id: "n0", time: -1, text: "Started late" },
+];
+
+const noteRows = (root: Element) => [
+  ...root.querySelectorAll<HTMLElement>('[data-slot="transcript-note"]'),
+];
+
+/** Each listitem's segment id, or `note:<text>` for a note, in DOM order. */
+const order = (root: Element) =>
+  [...root.querySelectorAll<HTMLElement>('[role="listitem"]')].map((row) =>
+    row.dataset.slot === "transcript-note"
+      ? `note:${row.querySelector('[data-slot="transcript-note-text"]')!.textContent}`
+      : row.dataset.messageId,
+  );
+
+test("notes sit among the turns in time order, as named listitems with no speaker", async () => {
+  const screen = await render(<Harness notes={NOTES} noteLabel="Your note:" />);
+  expect(order(screen.container)).toEqual([
+    "note:Started late",
+    "s0",
+    "s1",
+    "note:Ask about travel costs",
+    "s2",
+    "s3",
+    "s4",
+    "s5",
+    "note:Send the deck",
+  ]);
+  expect(screen.getByRole("listitem").all()).toHaveLength(
+    segs.length + NOTES.length,
+  );
+  await expect
+    .element(
+      screen.getByRole("listitem", {
+        name: "Your note: Ask about travel costs",
+      }),
+    )
+    .toBeInTheDocument();
+  await expect
+    .element(
+      screen.getByRole("listitem", {
+        name: "Marked moment Your note: Send the deck",
+      }),
+    )
+    .toBeInTheDocument();
+  for (const row of noteRows(screen.container)) {
+    expect(row.hasAttribute("data-message-id")).toBe(false);
+    expect(
+      row.querySelector('[data-slot="transcript-speaker-dot"]'),
+    ).toBeNull();
+  }
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a marked note shows a star in the warning ink instead of the pen", async () => {
+  const screen = await render(<Harness notes={NOTES} />);
+  const [, , marked] = noteRows(screen.container);
+  expect(marked!.hasAttribute("data-marked")).toBe(true);
+  const star = marked!.querySelector('[data-slot="transcript-note-mark"]')!;
+  expect(star.classList).toContain("text-warning-text");
+  expect(star.getAttribute("aria-hidden")).toBe("true");
+  const plain = noteRows(screen.container)[1]!;
+  expect(plain.hasAttribute("data-marked")).toBe(false);
+  expect(plain.querySelector('[data-slot="transcript-note-mark"]')).toBeNull();
+  // The default label.
+  expect(plain.textContent).toContain("Note: Ask about travel costs");
+});
+
+test("a note is never current: the turn around its time keeps aria-current and 'Now playing'", async () => {
+  const screen = await render(<Harness notes={NOTES} currentTime={20} />);
+  const current = screen.container.querySelectorAll('[aria-current="true"]');
+  expect(current).toHaveLength(1);
+  expect(current[0]!.getAttribute("data-message-id")).toBe("s1");
+  expect(
+    screen.container.querySelectorAll('[data-slot="transcript-now-playing"]'),
+  ).toHaveLength(1);
+  await screen.rerender(<Harness notes={NOTES} currentTime={200} />);
+  expect(
+    screen.container
+      .querySelector('[aria-current="true"]')
+      ?.getAttribute("data-message-id"),
+  ).toBe("s5");
+});
+
+test("a note's time seeks to the note when onSeek is set, and is plain text without it", async () => {
+  const onSeek = vi.fn();
+  const screen = await render(<Harness notes={NOTES} onSeek={onSeek} />);
+  await screen.getByRole("button", { name: "Play from 0:20" }).click();
+  expect(onSeek).toHaveBeenCalledWith(20);
+  await screen.rerender(<Harness notes={NOTES} />);
+  expect(screen.container.querySelector("button")).toBeNull();
+  expect(noteRows(screen.container)[1]!.textContent).toContain("0:20");
+});
+
+test("search matches speech only, never a note's text", async () => {
+  const screen = await render(<Harness notes={NOTES} query="travel" />);
+  const marks = screen.container.querySelectorAll("mark");
+  expect(marks).toHaveLength(1);
+  expect(marks[0]!.closest('[data-slot="transcript-segment"]')).not.toBeNull();
+  for (const row of noteRows(screen.container)) {
+    expect(row.querySelector("mark")).toBeNull();
+  }
+});
+
+test("notes follow progressive mounting: each mounts with the turn before it", async () => {
+  const screen = await render(
+    <Harness notes={NOTES} batchSize={2} currentTime={0} />,
+  );
+  // Every row mounts in the end, notes included, still in time order.
+  await expect
+    .poll(() => order(screen.container).length)
+    .toBe(segs.length + NOTES.length);
+  expect(order(screen.container)[3]).toBe("note:Ask about travel costs");
+});
+
+test("no notes, no change: no note rows and one listitem per segment", async () => {
+  const screen = await render(<Harness notes={[]} />);
+  expect(noteRows(screen.container)).toHaveLength(0);
+  expect(screen.getByRole("listitem").all()).toHaveLength(segs.length);
+});
+
+test("notes with no segments leave the empty state", async () => {
+  const screen = await render(<Harness segments={[]} notes={NOTES} />);
+  await expect
+    .element(screen.getByText("No transcript yet"))
+    .toBeInTheDocument();
+  expect(noteRows(screen.container)).toHaveLength(0);
+});
+
+test("follow centres the current turn with notes among the rows", async () => {
+  const many = makeSegments(40);
+  const notes = many.map((s, i) => ({
+    id: `n${i}`,
+    time: s.start + 1,
+    text: `Note ${i}`,
+    marked: i % 3 === 0,
+  }));
+  const screen = await render(
+    <Harness segments={many} notes={notes} currentTime={0} />,
+  );
+  await screen.rerender(
+    <Harness segments={many} notes={notes} currentTime={many[30]!.start + 2} />,
+  );
+  await expect.poll(() => inView(screen.container, "s30")).toBe(true);
+  expect(
+    screen.container
+      .querySelector('[aria-current="true"]')
+      ?.getAttribute("data-message-id"),
+  ).toBe("s30");
 });
 
 // ── empty, loading ────────────────────────────────────────────────────────────────────────────
