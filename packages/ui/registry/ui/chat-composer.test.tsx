@@ -838,6 +838,30 @@ test("at rest the card is one 48px line: the agent's avatar, the text, Send", as
   await expectNoA11yViolations(screen.container);
 });
 
+test("Send on the resting line sends without opening the card", async () => {
+  const onSubmit = vi.fn();
+  const screen = await mount({ rest: true, defaultValue: "Ship it", onSubmit });
+  const card = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-box]",
+  )!;
+  expect(card.getAttribute("data-rest")).toBe("draft");
+  await userEvent.click(send());
+  await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith("Ship it"));
+  expect(card.getAttribute("data-rest")).toBe("empty");
+  expect(card.getBoundingClientRect().height).toBe(48);
+});
+
+test("a draft that opens with a code block rests with its words", async () => {
+  await mount({
+    rest: true,
+    defaultValue: "```ts\nconst total = 42;\n```",
+    onSubmit: () => {},
+  });
+  await expect
+    .element(page.getByText("const total = 42;", { exact: true }).first())
+    .toBeVisible();
+});
+
 test("a draft rests with its first line; files and a held mode keep the card open", async () => {
   const screen = await mount({
     rest: true,
@@ -849,6 +873,9 @@ test("a draft rests with its first line; files and a held mode keep the card ope
   )!;
   expect(card.getAttribute("data-rest")).toBe("draft");
   expect(card.getBoundingClientRect().height).toBe(48);
+  await expect
+    .element(page.getByText("First line of the draft", { exact: true }).first())
+    .toBeVisible();
   await expect.element(send()).toBeEnabled();
   await screen.rerender(
     <Full

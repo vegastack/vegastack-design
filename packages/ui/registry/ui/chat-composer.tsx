@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.133.0 sha256-bYHfbmjYHUpaUQVLbHsu+2uVj9DARPWqzVSLbXgzbIU=
+// @vegastack chat-composer@0.133.0 sha256-k+fOrLfi7KrXGJMLWTX/Kngoo8DTnl4vkJFQOHF76zg=
 
 "use client";
 
@@ -207,7 +207,32 @@ function takesDrag(
  * own `data-composer-hold` (a mode that is on).
  */
 const HOLDS_OPEN =
-  '[aria-expanded="true"],[data-popup-open],[data-slot="chat-composer-notice"],[data-slot="chat-composer-attachments"],[data-composer-hold]';
+  '[aria-expanded="true"],[data-slot="chat-composer-notice"],[data-slot="chat-composer-attachments"],[data-composer-hold]';
+
+/**
+ * The same holds, read from the parts as given (before anything renders): a notice, chips in the
+ * attachments row, or an element marked `data-composer-hold`, at any depth of the card's children.
+ */
+function holdsOpen(node: React.ReactNode, depth = 0): boolean {
+  if (depth > 6) return false;
+  let found = false;
+  React.Children.forEach(node, (child) => {
+    if (found || !React.isValidElement(child)) return;
+    const props = child.props as {
+      children?: React.ReactNode;
+      "data-composer-hold"?: unknown;
+    };
+    if (
+      child.type === ChatComposerNotice ||
+      props["data-composer-hold"] !== undefined ||
+      (child.type === ChatComposerAttachments && props.children != null)
+    )
+      found = true;
+    else if (props.children != null)
+      found = holdsOpen(props.children, depth + 1);
+  });
+  return found;
+}
 
 /** How long the card takes to grow or rest (`--duration-layout`, `--motion-ease-emphasized`). */
 const REST_MOTION =
@@ -426,7 +451,8 @@ export function ChatComposer({
       replace(since.trim() ? `${value}\n\n${since}` : value, true);
     };
     if (!working) sentAt.current = Date.now();
-    replace("", true);
+    // Sent from the resting line (its Send), the card stays at rest; otherwise the caret stays.
+    replace("", !resting);
     latest.current = "";
     setPending(true);
     try {
@@ -447,19 +473,30 @@ export function ChatComposer({
   };
 
   // At rest: nothing in the card has focus and nothing in it is to be kept in view. Nothing is
-  // focused as it mounts, so the first frame (the server's too) already has the right shape.
+  // focused as it mounts, and what keeps it open is read from its parts as given, so the first
+  // frame (the server's too) already has the right shape.
   const mayRest =
-    rest && !holdOpen && !error && !steers?.length && state !== "sending";
+    rest &&
+    !holdOpen &&
+    !error &&
+    !steers?.length &&
+    !hasAttachments &&
+    state !== "sending" &&
+    !holdsOpen(children);
   const [resting, setResting] = React.useState(mayRest);
   const evaluate = React.useCallback(() => {
     const el = card.current;
     if (!el) return;
     const active = el.ownerDocument.activeElement;
-    setResting(
-      mayRest &&
-        !(active && el.contains(active)) &&
-        !el.querySelector(HOLDS_OPEN),
-    );
+    // A click on what the resting line keeps (Send, Stop, the agent) does its job without opening
+    // the card under the pointer; the text, or a key that moves focus in, opens it.
+    const reached =
+      !!active &&
+      el.contains(active) &&
+      !(
+        active.closest("[data-rest-keep]") && !active.matches(":focus-visible")
+      );
+    setResting(mayRest && !reached && !el.querySelector(HOLDS_OPEN));
   }, [mayRest]);
   React.useLayoutEffect(evaluate, [evaluate, body]);
   React.useEffect(() => {
@@ -471,25 +508,26 @@ export function ChatComposer({
       subtree: true,
       childList: true,
       attributes: true,
-      attributeFilter: [
-        "aria-expanded",
-        "data-popup-open",
-        "data-composer-hold",
-      ],
+      attributeFilter: ["aria-expanded", "data-composer-hold"],
     });
     return () => observer.disconnect();
   }, [rest, evaluate]);
-  // Growing and resting move the card's height, not the page under it in one jump.
+  // Growing and resting move the card's height, not the page under it in one jump: the card
+  // eases from the height it had (or has, mid-move) to its new natural height.
   const height = React.useRef(0);
+  const moving = React.useRef<(() => void) | null>(null);
   React.useEffect(() => {
     const el = card.current;
     if (!rest || !el || typeof ResizeObserver === "undefined") return;
     height.current = el.offsetHeight;
     const observer = new ResizeObserver(() => {
-      if (!el.style.height) height.current = el.offsetHeight;
+      if (!moving.current) height.current = el.offsetHeight;
     });
     observer.observe(el);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      moving.current?.();
+    };
   }, [rest]);
   const firstRest = React.useRef(true);
   React.useLayoutEffect(() => {
@@ -498,11 +536,15 @@ export function ChatComposer({
       firstRest.current = false;
       return;
     }
-    const from = height.current;
+    // Mid-move, start from where it is now; the old move's styles go before measuring the new end.
+    const from = moving.current
+      ? el.getBoundingClientRect().height
+      : height.current;
+    moving.current?.();
     const to = el.offsetHeight;
     if (
       !from ||
-      from === to ||
+      Math.abs(from - to) < 1 ||
       window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
     )
       return;
@@ -510,17 +552,20 @@ export function ChatComposer({
     void el.offsetHeight;
     el.style.transition = REST_MOTION;
     el.style.height = `${to}px`;
-    const done = () => {
+    const stop = () => {
+      window.clearTimeout(timer);
+      el.removeEventListener("transitionend", onEnd);
       el.style.height = "";
       el.style.transition = "";
+      moving.current = null;
       height.current = el.offsetHeight;
     };
-    const timer = window.setTimeout(done, 400);
-    el.addEventListener("transitionend", done, { once: true });
-    return () => {
-      window.clearTimeout(timer);
-      el.removeEventListener("transitionend", done);
+    const onEnd = (event: TransitionEvent) => {
+      if (event.target === el && event.propertyName === "height") stop();
     };
+    const timer = window.setTimeout(stop, 400);
+    el.addEventListener("transitionend", onEnd);
+    moving.current = stop;
   }, [resting]);
   const restKind = resting ? (sendable(body) ? "draft" : "empty") : undefined;
 
@@ -1205,6 +1250,28 @@ export function ChatComposerAttachments({
  * Input
  * ----------------------------------------------------------------------------------------------*/
 
+/**
+ * A draft's first line as plain words, for the resting line: the first line with text, past a
+ * code fence, without its block marks (heading, quote, list, task), links and mentions as their
+ * words, emphasis and code ticks dropped.
+ */
+function firstLine(markdown: string): string {
+  for (const raw of sendable(markdown).split("\n")) {
+    const line = raw
+      .replace(
+        /^\s*(?:```.*|#{1,6}\s+|>\s?|[-*+]\s+(?:\[[ xX]\]\s+)?|\d+[.)]\s+)/u,
+        "",
+      )
+      .replace(/!?\[([^\]]*)\]\([^)]*\)/gu, "$1")
+      .replace(/[*_~`]+/gu, "")
+      .replace(/&#32;/gu, " ")
+      .replace(/\\(.)/gu, "$1")
+      .trim();
+    if (line) return line;
+  }
+  return "";
+}
+
 /** Props accepted by `ChatComposerInput`. */
 export interface ChatComposerInputProps {
   /** Shown while the box is empty: "Ask William anything…", "Type to steer, or wait…". @default undefined */
@@ -1262,45 +1329,59 @@ export function ChatComposerInput({
         data-slot="chat-composer-draft-dot"
         className="hidden size-1.5 shrink-0 rounded-full bg-info group-data-[rest=draft]/composer:ms-2 group-data-[rest=draft]/composer:block"
       />
-      <TextEdit
-        key={composer.draft.generation}
-        handleRef={composer.box}
-        format="markdown"
-        // The card draws the frame and its focus cue; the editor is only the text.
-        variant="document"
-        framed
-        defaultValue={composer.draft.value}
-        placeholder={
-          composer.resting ? (restPlaceholder ?? placeholder) : placeholder
-        }
-        aria-label={composer.labels?.message ?? "Message"}
-        aria-describedby={composer.errorId}
-        onValueChange={composer.onEditorChange}
-        onSubmit={(value) => void composer.submit(value)}
-        submitOnEnter
-        escapeBehavior="blur"
-        slashCommands={[]}
-        slashHint={false}
-        dragHandles={false}
-        inset="none"
-        saving={composer.sending}
-        disabled={composer.disabled}
-        mentions={mentions}
-        mentionHref={mentionHref}
-        mentionImage={mentionImage}
-        mentionStatus={mentionStatus}
-        // `lh` follows the text's own line height, a phone's larger type included.
-        // A resting card sets both to one line through these variables.
-        minHeight={`var(--chat-composer-min-h, ${Math.max(1, minRows)}lh)`}
-        maxHeight={`var(--chat-composer-max-h, ${Math.max(minRows, maxRows)}lh)`}
-        className={cn(
-          "px-3.5 pt-2.5 pb-0.5 text-sm",
-          // At rest: 4px + the 24px field (a 20px line, 2px above and below) + 4px matches the 32px
-          // controls, so the text sits on their centre line; one line, ellipsis.
-          "group-data-rest/composer:min-w-0 group-data-rest/composer:flex-1 group-data-rest/composer:px-[7px] group-data-rest/composer:py-1 group-data-rest/composer:[&_[role=textbox]]:py-0.5 group-data-rest/composer:[&_[data-slot=text-edit-content]]:overflow-hidden group-data-rest/composer:[&_[role=textbox]>*:not(:first-child)]:hidden group-data-rest/composer:[&_[role=textbox]>*:first-child]:truncate group-data-rest/composer:[&_[role=textbox]>*:first-child]:m-0",
-          className,
-        )}
-      />
+      {/* A resting draft shows its first line as plain words over the text (which stays the one
+          textbox, unseen, so a click lands in it): a list, a quote or a code block keeps its
+          words on the line. */}
+      <div className="relative min-w-0 group-data-rest/composer:flex-1">
+        <TextEdit
+          key={composer.draft.generation}
+          handleRef={composer.box}
+          format="markdown"
+          // The card draws the frame and its focus cue; the editor is only the text.
+          variant="document"
+          framed
+          defaultValue={composer.draft.value}
+          placeholder={
+            composer.resting ? (restPlaceholder ?? placeholder) : placeholder
+          }
+          aria-label={composer.labels?.message ?? "Message"}
+          aria-describedby={composer.errorId}
+          onValueChange={composer.onEditorChange}
+          onSubmit={(value) => void composer.submit(value)}
+          submitOnEnter
+          escapeBehavior="blur"
+          slashCommands={[]}
+          slashHint={false}
+          dragHandles={false}
+          inset="none"
+          saving={composer.sending}
+          disabled={composer.disabled}
+          mentions={mentions}
+          mentionHref={mentionHref}
+          mentionImage={mentionImage}
+          mentionStatus={mentionStatus}
+          // `lh` follows the text's own line height, a phone's larger type included.
+          // A resting card sets both to one line through these variables.
+          minHeight={`var(--chat-composer-min-h, ${Math.max(1, minRows)}lh)`}
+          maxHeight={`var(--chat-composer-max-h, ${Math.max(minRows, maxRows)}lh)`}
+          className={cn(
+            "px-3.5 pt-2.5 pb-0.5 text-sm",
+            // At rest: 4px + the 24px field (a 20px line, 2px above and below) + 4px matches the 32px
+            // controls, so the text sits on their centre line; one line, ellipsis.
+            "group-data-rest/composer:px-[7px] group-data-rest/composer:py-1 group-data-rest/composer:[&_[role=textbox]]:py-0.5 group-data-rest/composer:[&_[data-slot=text-edit-content]]:overflow-hidden group-data-[rest=draft]/composer:opacity-0",
+            className,
+          )}
+        />
+        <span
+          aria-hidden
+          data-slot="chat-composer-draft-preview"
+          className="pointer-events-none absolute inset-0 hidden items-center px-[7px] text-sm text-foreground group-data-[rest=draft]/composer:flex"
+        >
+          <span className="min-w-0 truncate">
+            {composer.resting ? firstLine(composer.body) : null}
+          </span>
+        </span>
+      </div>
     </div>
   );
 }

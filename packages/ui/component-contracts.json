@@ -37538,7 +37538,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["chat-composer-draft-dot", "chat-composer-input"]
+              "values": [
+                "chat-composer-draft-dot",
+                "chat-composer-draft-preview",
+                "chat-composer-input"
+              ]
             }
           ],
           "cssVariables": []
