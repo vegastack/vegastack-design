@@ -233,7 +233,7 @@
       "meta": {
         "whenToUse": "The shell's top row (Shell's globalBar), in the browser and as the desktop app's title row.",
         "whenNotToUse": "A page's own header and actions (ShellTopBar), or a phone's top row.",
-        "version": "0.123.2"
+        "version": "0.134.1"
       }
     },
     {

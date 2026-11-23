@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.134.1] — November 23, 2026
+
+<!-- assembled from 1 changeset: 114342ac1562 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.134.0 → 0.134.1.
+
+### 🐛 Fixed
+
+- `GlobalBarSearch` is the same 32px, 580px-at-most capsule with or without `ask`, so the top bar's search doesn't change size from page to page.
+  [`f06ea1d`](https://github.com/VegaStack/vegastack-design/commit/f06ea1d)
+
 ## [0.134.0] — November 23, 2026
 
 <!-- assembled from 2 changesets: 88e482a02887 -->

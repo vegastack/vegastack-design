@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.134.1
+
+### Patch Changes
+
+- [#1076](https://github.com/vegastack/vegastack-design/pull/1076) [`f06ea1d`](https://github.com/vegastack/vegastack-design/commit/f06ea1def2731ea59c8638579968c8a929d9efbc) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `GlobalBarSearch` is the same 32px, 580px-at-most capsule with or without `ask`, so the top bar's search doesn't change size from page to page.
+
 ## 0.134.0
 
 ### Minor Changes
