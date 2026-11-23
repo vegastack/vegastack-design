@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.133.0 sha256-wqjsXsIgEj/8LRDBT9Dc9FcSSzgbvKT9KlV1+1aiSiw=
+// @vegastack chat-composer@0.133.0 sha256-/FbOzhABrSCnneXbof91o3gfCFh1x5d9SOlfwq9CmFE=
 
 "use client";
 
@@ -485,7 +485,7 @@ export function ChatComposer({
   React.useEffect(() => {
     wasResting.current = resting;
   }, [resting]);
-  const evaluate = React.useCallback(() => {
+  const evaluate = () => {
     const el = card.current;
     if (!el) return;
     const active = el.ownerDocument.activeElement;
@@ -501,13 +501,18 @@ export function ChatComposer({
         !active.matches(":focus-visible")
       );
     setResting(mayRest && !reached && !el.querySelector(HOLDS_OPEN));
-  }, [mayRest]);
-  React.useLayoutEffect(evaluate, [evaluate, body]);
+  };
+  // The observers and handlers call the latest `evaluate` (what may rest changes with the props).
+  const evaluateLatest = React.useRef(evaluate);
+  React.useLayoutEffect(() => {
+    evaluateLatest.current = evaluate;
+    evaluate();
+  }, [mayRest, body]); // eslint-disable-line react-hooks/exhaustive-deps -- `evaluate` reads only these and refs
   React.useEffect(() => {
     const el = card.current;
     if (!rest || !el) return;
     // A menu opening or closing, a notice or a chip coming or going.
-    const observer = new MutationObserver(evaluate);
+    const observer = new MutationObserver(() => evaluateLatest.current());
     observer.observe(el, {
       subtree: true,
       childList: true,
@@ -515,7 +520,7 @@ export function ChatComposer({
       attributeFilter: ["aria-expanded", "data-composer-hold"],
     });
     return () => observer.disconnect();
-  }, [rest, evaluate]);
+  }, [rest]);
   // Growing and resting move the card's height, not the page under it in one jump: the card
   // eases from the height it had (or has, mid-move) to its new natural height.
   const height = React.useRef(0);
@@ -654,12 +659,12 @@ export function ChatComposer({
             "data-rest:flex-row data-rest:items-center data-rest:p-[7px]",
             disabled && "bg-muted/40",
           )}
-          onFocus={rest ? evaluate : undefined}
+          onFocus={rest ? () => evaluateLatest.current() : undefined}
           onBlur={
             rest
               ? () => {
                   // Focus moves on after blur: look once it has landed.
-                  requestAnimationFrame(evaluate);
+                  requestAnimationFrame(() => evaluateLatest.current());
                 }
               : undefined
           }
