@@ -851,15 +851,44 @@ test("Send on the resting line sends without opening the card", async () => {
   expect(card.getBoundingClientRect().height).toBe(48);
 });
 
-test("a draft that opens with a code block rests with its words", async () => {
-  await mount({
+test.each([
+  ["~~~ts\nconst total_value = a * b;\n~~~", "const total_value = a * b;"],
+  [
+    "- [ ] **Call** [Simran](https://x.test) about `Q3`",
+    "Call Simran about Q3",
+  ],
+  ["\\*literal\\* and snake_case_name", "*literal* and snake_case_name"],
+])(
+  "a resting draft shows its first line as written: %j",
+  async (draft, line) => {
+    const screen = await mount({
+      rest: true,
+      defaultValue: draft,
+      onSubmit: () => {},
+    });
+    const preview = screen.container.querySelector(
+      "[data-slot=chat-composer-draft-preview]",
+    )!;
+    expect(preview.textContent).toBe(line);
+    // Nothing under the line takes Tab or a press but the text itself.
+    for (const button of screen.container.querySelectorAll<HTMLElement>(
+      "[data-slot=chat-composer-input] button",
+    ))
+      expect(getComputedStyle(button).display).toBe("none");
+  },
+);
+
+test("an empty attachments row leaves the card free to rest", async () => {
+  const screen = await mount({
     rest: true,
-    defaultValue: "```ts\nconst total = 42;\n```",
+    chips: false as unknown as React.ReactNode,
     onSubmit: () => {},
   });
-  await expect
-    .element(page.getByText("const total = 42;", { exact: true }).first())
-    .toBeVisible();
+  expect(
+    screen.container
+      .querySelector("[data-slot=chat-composer-box]")!
+      .getAttribute("data-rest"),
+  ).toBe("empty");
 });
 
 test("a draft rests with its first line; files and a held mode keep the card open", async () => {

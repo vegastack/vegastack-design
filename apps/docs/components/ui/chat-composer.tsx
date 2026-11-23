@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.133.0 sha256-k+fOrLfi7KrXGJMLWTX/Kngoo8DTnl4vkJFQOHF76zg=
+// @vegastack chat-composer@0.133.0 sha256-wqjsXsIgEj/8LRDBT9Dc9FcSSzgbvKT9KlV1+1aiSiw=
 
 "use client";
 
@@ -210,28 +210,25 @@ const HOLDS_OPEN =
   '[aria-expanded="true"],[data-slot="chat-composer-notice"],[data-slot="chat-composer-attachments"],[data-composer-hold]';
 
 /**
- * The same holds, read from the parts as given (before anything renders): a notice, chips in the
- * attachments row, or an element marked `data-composer-hold`, at any depth of the card's children.
+ * The same holds, read from the parts as given (before anything renders), through every level of
+ * plain children: a `ChatComposerNotice`, a `ChatComposerAttachments` with chips in it, or an element
+ * whose `data-composer-hold` is set. Your own component that renders a notice is opaque here: pass
+ * `holdOpen` with it, or a server-rendered card starts at rest until it hydrates.
  */
-function holdsOpen(node: React.ReactNode, depth = 0): boolean {
-  if (depth > 6) return false;
-  let found = false;
-  React.Children.forEach(node, (child) => {
-    if (found || !React.isValidElement(child)) return;
+function holdsOpen(node: React.ReactNode): boolean {
+  return React.Children.toArray(node).some((child) => {
+    if (!React.isValidElement(child)) return false;
     const props = child.props as {
       children?: React.ReactNode;
       "data-composer-hold"?: unknown;
     };
-    if (
-      child.type === ChatComposerNotice ||
-      props["data-composer-hold"] !== undefined ||
-      (child.type === ChatComposerAttachments && props.children != null)
-    )
-      found = true;
-    else if (props.children != null)
-      found = holdsOpen(props.children, depth + 1);
+    const hold = props["data-composer-hold"];
+    if (child.type === ChatComposerNotice) return true;
+    if (hold !== undefined && hold !== null && hold !== false) return true;
+    if (child.type === ChatComposerAttachments)
+      return React.Children.toArray(props.children).length > 0;
+    return props.children != null && holdsOpen(props.children);
   });
-  return found;
 }
 
 /** How long the card takes to grow or rest (`--duration-layout`, `--motion-ease-emphasized`). */
@@ -484,17 +481,24 @@ export function ChatComposer({
     state !== "sending" &&
     !holdsOpen(children);
   const [resting, setResting] = React.useState(mayRest);
+  const wasResting = React.useRef(resting);
+  React.useEffect(() => {
+    wasResting.current = resting;
+  }, [resting]);
   const evaluate = React.useCallback(() => {
     const el = card.current;
     if (!el) return;
     const active = el.ownerDocument.activeElement;
     // A click on what the resting line keeps (Send, Stop, the agent) does its job without opening
-    // the card under the pointer; the text, or a key that moves focus in, opens it.
+    // the card under the pointer; the text, or a key that moves focus in, opens it. An open card
+    // stays open while any of its controls has focus.
     const reached =
       !!active &&
       el.contains(active) &&
       !(
-        active.closest("[data-rest-keep]") && !active.matches(":focus-visible")
+        wasResting.current &&
+        active.closest("[data-rest-keep]") &&
+        !active.matches(":focus-visible")
       );
     setResting(mayRest && !reached && !el.querySelector(HOLDS_OPEN));
   }, [mayRest]);
@@ -1250,22 +1254,44 @@ export function ChatComposerAttachments({
  * Input
  * ----------------------------------------------------------------------------------------------*/
 
+/** Markdown's escapable punctuation: `\\*` is a literal `*`. */
+const ESCAPED = /\\([!-/:-@[-`{-~])/gu;
+
 /**
- * A draft's first line as plain words, for the resting line: the first line with text, past a
- * code fence, without its block marks (heading, quote, list, task), links and mentions as their
- * words, emphasis and code ticks dropped.
+ * A draft's first line as plain words, for the resting line: the first line with text. Inside a
+ * code fence (``` or ~~~) the line shows as written; elsewhere its block marks (heading, quote,
+ * list, task) go, links and mentions show their words, and emphasis marks and code ticks go while
+ * escaped punctuation stays.
  */
 function firstLine(markdown: string): string {
+  let fenced = false;
   for (const raw of sendable(markdown).split("\n")) {
+    if (/^\s*(?:`{3,}|~{3,})/u.test(raw)) {
+      fenced = !fenced;
+      continue;
+    }
+    if (fenced) {
+      const code = raw.trim();
+      if (code) return code;
+      continue;
+    }
+    // Escapes become placeholders first, so stripping marks never touches a literal one.
+    const kept: string[] = [];
     const line = raw
+      .replace(ESCAPED, (_, ch: string) => `\u0000${kept.push(ch) - 1}\u0000`)
+      .replace(/&#32;/gu, " ")
       .replace(
-        /^\s*(?:```.*|#{1,6}\s+|>\s?|[-*+]\s+(?:\[[ xX]\]\s+)?|\d+[.)]\s+)/u,
+        /^\s*(?:#{1,6}\s+|>\s?|[-*+]\s+(?:\[[ xX]\]\s+)?|\d+[.)]\s+)/u,
         "",
       )
       .replace(/!?\[([^\]]*)\]\([^)]*\)/gu, "$1")
-      .replace(/[*_~`]+/gu, "")
-      .replace(/&#32;/gu, " ")
-      .replace(/\\(.)/gu, "$1")
+      .replace(/`([^`]*)`/gu, "$1")
+      .replace(/(\*\*|__|~~)(?=\S)(.+?)(?<=\S)\1/gu, "$2")
+      .replace(
+        /(^|[^\p{L}\p{N}])([*_])(?=\S)(.+?)(?<=\S)\2(?![\p{L}\p{N}])/gu,
+        "$1$3",
+      )
+      .replace(/\u0000(\d+)\u0000/gu, (_, n: string) => kept[Number(n)] ?? "")
       .trim();
     if (line) return line;
   }
@@ -1368,13 +1394,16 @@ export function ChatComposerInput({
             "px-3.5 pt-2.5 pb-0.5 text-sm",
             // At rest: 4px + the 24px field (a 20px line, 2px above and below) + 4px matches the 32px
             // controls, so the text sits on their centre line; one line, ellipsis.
-            "group-data-rest/composer:px-[7px] group-data-rest/composer:py-1 group-data-rest/composer:[&_[role=textbox]]:py-0.5 group-data-rest/composer:[&_[data-slot=text-edit-content]]:overflow-hidden group-data-[rest=draft]/composer:opacity-0",
+            // A resting draft keeps the text as the one textbox, unseen; its rich parts' own
+            // controls (a code block's Copy) leave the Tab order and the pointer while it rests.
+            "group-data-rest/composer:px-[7px] group-data-rest/composer:py-1 group-data-rest/composer:[&_[role=textbox]]:h-6 group-data-rest/composer:[&_[role=textbox]]:overflow-hidden group-data-rest/composer:[&_[role=textbox]]:py-0.5 group-data-rest/composer:[&_[data-slot=text-edit-content]]:overflow-hidden group-data-rest/composer:[&_[role=textbox]_button]:hidden group-data-[rest=draft]/composer:opacity-0",
             className,
           )}
         />
         <span
           aria-hidden
           data-slot="chat-composer-draft-preview"
+          // Presses fall through to the text under it, which takes the caret and opens the card.
           className="pointer-events-none absolute inset-0 hidden items-center px-[7px] text-sm text-foreground group-data-[rest=draft]/composer:flex"
         >
           <span className="min-w-0 truncate">
