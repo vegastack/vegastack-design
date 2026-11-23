@@ -1,4 +1,4 @@
-// @vegastack use-stick-to-bottom@0.64.0 sha256-9PznVQDzAd+nYG0aWq3n57Xt3Q1PRrp83DEH+NeEOeM=
+// @vegastack use-stick-to-bottom@0.133.0 sha256-1ncYXsfseQ6pr+DJ7po7EY0eTmhQ++pwyhx0XZaZP2w=
 
 "use client";
 

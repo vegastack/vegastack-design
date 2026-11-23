@@ -145,8 +145,8 @@
       "meta": {
         "whenToUse": "Code that must know where the shell puts the column without a DOM — a server render, a test, a docs table — or the shell's sizes and cookie format.",
         "whenNotToUse": "Laying the shell out: Shell does that in CSS before hydration; read the live outcome with useShellLayout.",
-        "version": "0.114.0",
-        "integrity": "sha256-G+s/le1/U6IxG13iqFx4SHD8mOVvwkFBK/zfNCunmIw="
+        "version": "0.133.0",
+        "integrity": "sha256-8BQn+7GaxLgj0+1uVtspNzVMywiIdvP2Xm7cqXQj2cQ="
       }
     },
     {
@@ -194,8 +194,8 @@
       "meta": {
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
-        "version": "0.131.0",
-        "integrity": "sha256-XNJq+HztD6qQn0gTVqX5OhqnUtGBo49cDHIG4al6PKI="
+        "version": "0.133.0",
+        "integrity": "sha256-8gf3wtLjMIY/g6POVqJt8Uqm+ty2V3FLDs6A6CKy7NQ="
       }
     },
     {
@@ -384,8 +384,8 @@
       "meta": {
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
-        "version": "0.123.3",
-        "integrity": "sha256-6cc/WqAyEZR0FWSG6CS3wPWZXZxVlpsTuyvpbFzB720="
+        "version": "0.133.0",
+        "integrity": "sha256-AGUXyu7cPVehOszEvKGODt0jHItP6Jnb0aey5OEXVXM="
       }
     },
     {
@@ -2379,8 +2379,8 @@
       "meta": {
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
-        "version": "0.123.2",
-        "integrity": "sha256-M+q/9xJsD97rD54xyrt63bwcQu2j9VIkhox9sIvMH3k="
+        "version": "0.133.0",
+        "integrity": "sha256-eEvzvV6DMEl+Y4tV7atvJhkUsg08C0I2kDvy4eJjbFM="
       }
     },
     {
@@ -2575,8 +2575,8 @@
       "meta": {
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
-        "version": "0.68.0",
-        "integrity": "sha256-hXifI9A9aB4Ffp7T/uwI8NX9Zx8+Bx1RiVG+FfWzpAk="
+        "version": "0.133.0",
+        "integrity": "sha256-ky8Q7UR0LQXtJKnyES7VNVFGhZ8lW4Na3DE7qWxTG4c="
       }
     },
     {
@@ -2719,10 +2719,10 @@
         }
       ],
       "meta": {
-        "version": "0.26.4",
+        "version": "0.133.0",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-rWc4icPXRD76Htbzjzf2u/oty4bjCkzKIA37GALF8S4="
+        "integrity": "sha256-/fAsYSOFLdSHTT62O0ejbROzjrQomEH6jGbSKgiKUIE="
       }
     },
     {
@@ -2743,10 +2743,10 @@
         }
       ],
       "meta": {
-        "version": "0.26.4",
+        "version": "0.133.0",
         "whenToUse": "Deciding whether a URL is an embeddable video (YouTube, Loom) and building its player src — in TextEdit, MarkdownView, a server import, or a Content-Security-Policy's frame-src.",
         "whenNotToUse": "Any other host: the allowlist is the security boundary; add a provider here, never a raw URL as a frame src.",
-        "integrity": "sha256-qivqMYDNt6Cc90z5elUG76hncDbapTVfgreAA7Eswrs="
+        "integrity": "sha256-DBqn588/xTEuFpbwxac4phvvkzlnhah+4e85wT2U9G8="
       }
     },
     {
@@ -3192,8 +3192,8 @@
       "meta": {
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
-        "version": "0.123.2",
-        "integrity": "sha256-4s9T48NzKUnX26RH1Xf5CJ79moLgDfzJr0yjVdcmU6c="
+        "version": "0.133.0",
+        "integrity": "sha256-5gR6apNg/uVB/MpEfRxtqQSrTU0ff+PnWTzArQu/m+4="
       }
     },
     {
@@ -16911,8 +16911,8 @@
       "meta": {
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
-        "version": "0.127.0",
-        "integrity": "sha256-KhuKyH6IjTavD0hltX5a5c7uSPI1D+UwnmF4DQXNYWs="
+        "version": "0.133.0",
+        "integrity": "sha256-sXthY5GTGk7/Q1l1kSA5cNS5ZD5sdi6WXiolcGzhPNQ="
       }
     },
     {
@@ -17144,8 +17144,8 @@
       "meta": {
         "whenToUse": "A MessageScroller thread whose answers stream: pass the reader's newest message id as follow, and keep the engine's autoScroll off.",
         "whenNotToUse": "A list that never grows while read, or a feed that should hold its place (a log the reader pages through).",
-        "version": "0.64.0",
-        "integrity": "sha256-9PznVQDzAd+nYG0aWq3n57Xt3Q1PRrp83DEH+NeEOeM="
+        "version": "0.133.0",
+        "integrity": "sha256-1ncYXsfseQ6pr+DJ7po7EY0eTmhQ++pwyhx0XZaZP2w="
       }
     },
     {
@@ -17335,8 +17335,8 @@
       "meta": {
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
-        "version": "0.123.2",
-        "integrity": "sha256-SosYve2JyqpxQluJjVOPrYNIubA3fKxwn8MkHEXmZUg="
+        "version": "0.133.0",
+        "integrity": "sha256-Z30/yN8Jg7Hr38Na/Bp8+Z9Qlj7q4rCIDqoPvOVRP1A="
       }
     },
     {
@@ -17961,8 +17961,8 @@
       "meta": {
         "whenToUse": "Linking, relating, attaching or inserting records of several kinds: a relation field, a mention target, a block source, a Link to… dialog, an Add from… dialog that browses folders.",
         "whenNotToUse": "A fixed option list (Select, SearchableSelect), people (PeoplePicker) or a place to move something (DestinationPicker).",
-        "version": "0.123.2",
-        "integrity": "sha256-qZfOP9KUDaOa+xrBZ/6K5Ub38JBUz99+t2hHSRn3JPw="
+        "version": "0.133.0",
+        "integrity": "sha256-rTQ2Sm1H72Muc6cfPHgNDHZrpQIrRCNYJNnt1F11Dhg="
       }
     },
     {
@@ -18837,8 +18837,8 @@
       "meta": {
         "whenToUse": "A row of headline numbers at the top of a dashboard or report, each with its own trend, change and optional link to the list behind it.",
         "whenNotToUse": "A compact strip of counts on a home page (StatGroup), the facts of one record (Stat or PropertyList), or a full chart (Chart).",
-        "version": "0.123.2",
-        "integrity": "sha256-MR82AwlCVbvZ37hh0fxhK2kxrYarCGcr65jW0HQlnH8="
+        "version": "0.133.0",
+        "integrity": "sha256-xu0gFoMzBJfVAPnUlBCfqJKz+cwUy6D4HiVW9EZCAPM="
       },
       "registryDependencies": [
         "@vegastack/card",
@@ -19550,8 +19550,8 @@
       "meta": {
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
-        "version": "0.123.2",
-        "integrity": "sha256-ukL7q7PWaFvUfGo5+tukZ8U+y43STxe01j3Q3uedtpI="
+        "version": "0.133.0",
+        "integrity": "sha256-hPlXev6dgkn4DpYZctog+grd30O9dPAuAJhmV4v75hw="
       }
     },
     {
@@ -19624,8 +19624,8 @@
       "meta": {
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
-        "version": "0.132.0",
-        "integrity": "sha256-/APO6qXxXlH8IQhBuPhA0Q19zW3EXPCEzrhYWbce8LM="
+        "version": "0.133.0",
+        "integrity": "sha256-U/t1ofNYYYpyOL+EIgORHLCW+p8u3oxInPHjhZgqVos="
       }
     },
     {
@@ -20392,8 +20392,8 @@
       "meta": {
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
-        "version": "0.123.2",
-        "integrity": "sha256-cMGmkxBSTGZxJ9lVt+Hii9Ty2rT2g8kN92Kw+jnOzio="
+        "version": "0.133.0",
+        "integrity": "sha256-5TtmoUci1Mlx1G0pgD0eavFGeTQG2xr+aHRQlJpppFM="
       }
     },
     {
@@ -20621,8 +20621,8 @@
       "meta": {
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
         "whenNotToUse": "A single action to allow (AskCard), or a live checklist of work in progress (TaskList).",
-        "version": "0.123.2",
-        "integrity": "sha256-y8ynYEzwwuxBBkFG9M144qhjlUgyOnpXz/anFYbsouI="
+        "version": "0.133.0",
+        "integrity": "sha256-R8htjN4ZxrrwpeTA5Q6HhwuyzEaIdubSZKtdjG2YsnQ="
       }
     },
     {
@@ -20725,8 +20725,8 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.123.2",
-        "integrity": "sha256-+GyDwnK3l5aKjDDQK+WiLXd9R+oTw2ggswORpcqelRY="
+        "version": "0.133.0",
+        "integrity": "sha256-gMrnV/Hh6lsee0lLoOx4zQTMwsuQf3mnGGh8e4QwhB0="
       }
     },
     {
@@ -21272,8 +21272,8 @@
       "meta": {
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
-        "version": "0.131.0",
-        "integrity": "sha256-FBavPtT4bxC7d+pLHpgIlha4mfJQXIbxBU7DFciIlpM="
+        "version": "0.133.0",
+        "integrity": "sha256-YJqFx61p0H/Iw8bioS0K9imOfRQPdOb8CALZacDh7Ow="
       }
     },
     {
@@ -24412,8 +24412,8 @@
       "meta": {
         "whenToUse": "An in-page state change should cross-fade or morph instead of jumping — switching a view, reordering, opening a detail pane.",
         "whenNotToUse": "A component's own enter/exit (use Base UI's lifecycle styles or the motion-* utilities), or anything that must animate in every browser.",
-        "version": "0.26.4",
-        "integrity": "sha256-y71We2F6/gb4BhVEL6DiR1RA1PN4cUzo/7d2KMkb76E="
+        "version": "0.133.0",
+        "integrity": "sha256-YBK/txwvxshlH1rtq/sPX1wuZhY/3x1sFe8RwVr052M="
       }
     },
     {
@@ -24446,8 +24446,8 @@
       "meta": {
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
         "whenNotToUse": "An agent asking before it acts (AskCard), a transient result after the viewer's own action (Toast), or a page-wide notice (Alert).",
-        "version": "0.123.2",
-        "integrity": "sha256-x2Yvl25PdkaUoxNGHFkJI3w8nIMI86PrIGyzW3UIPlk="
+        "version": "0.133.0",
+        "integrity": "sha256-w1V5suDKKTeC5oz1nry8ryg3xwHiT00HnqJo8xP06g4="
       }
     },
     {
@@ -24493,8 +24493,8 @@
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (AskCard), or choosing the agent (DelegatePopover).",
-        "version": "0.123.3",
-        "integrity": "sha256-f8e9oEfkydkUWkstMvNFa56PcgoVwopJXtUcfmNV4Mk="
+        "version": "0.133.0",
+        "integrity": "sha256-/ClatLg4pEU89AiG38hW+qosSGzrMdNFYirAl0lsIcc="
       }
     },
     {
@@ -24526,8 +24526,8 @@
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (AskCard), offering a next step the person may ignore (ForYouCard), or a survey the host defines itself (Questionnaire).",
-        "version": "0.123.2",
-        "integrity": "sha256-LyIDKYrQVdN+zvZF6aBRU/+jYt0jO5IMJMj/IM6qIXg="
+        "version": "0.133.0",
+        "integrity": "sha256-GYb4j9PfKNiDp7oN2ePhZCwwH0xdyZaAz9Ow3PRKPD0="
       }
     },
     {
@@ -24756,8 +24756,8 @@
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet holds the chat), or any data fetching — the host owns the chat.",
-        "version": "0.131.0",
-        "integrity": "sha256-LeFlG8QUNZuG/7DYYvv8vWzncfPGvHKvvwjS2IZjfvk="
+        "version": "0.133.0",
+        "integrity": "sha256-4zWJ4PDnz3wjT5z7TuwKc983p0xpuNYSpwIB53Zxyl4="
       }
     }
   ]

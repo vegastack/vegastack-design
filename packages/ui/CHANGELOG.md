@@ -1,5 +1,16 @@
 # @vegastack/ui
 
+## 0.133.0
+
+### Minor Changes
+
+- [#1073](https://github.com/vegastack/vegastack-design/pull/1073) [`1d96802`](https://github.com/vegastack/vegastack-design/commit/1d96802a2808f4b7eb64ab969798d25da4e62cfc) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🗑 **Dead-code sweep — items and exports no app uses are removed**, with no compatibility aliases. Replaced in the apps: `suggestion-card` (by `for-you-card`), `request-card` (by `ask-card`), `memory-note` and `chat-details` (by the record side panel). Never pulled by an app: `data-list-skeleton` and `field-type-picker`. Shell Assistant is the frame only now that the chat draws its own header: `AssistantCardHeader`, `AssistantCardContext`, `AssistantCardBody` and `AssistantCardComposer` are removed with `tool-group`, their only consumer, and the card no longer labels itself (name it with `aria-label` or `aria-labelledby`). Also gone: `ShellTopBarLead`, `inlineChipClassName` and `VEGASTACK_MARKDOWN_VERSION`; helpers used only inside their own file stop being exported (`middleEllipsis`, `COLUMN_RESIZE_STEP`, `READ_ONLY_FIELD_TYPES`, `KPI_SPARK_MIN_POINTS`, `splitChipButtonClassName`, `recordPickerKey`, `SHELL_COOKIE_MAX_AGE`, `timeZoneAbbreviation`, `dayGroupKey`, `EMBED_PROVIDER_IDS`, `trackLexer`, `scrollParentOf`, `supportsViewTransitions`, `toolNameOf`, `humanize` and the `PEEK_*` sizes). A consumer that still holds a copy of a removed item deletes it before `ds:pull`.
+
+### Patch Changes
+
+- Updated dependencies [[`1d96802`](https://github.com/vegastack/vegastack-design/commit/1d96802a2808f4b7eb64ab969798d25da4e62cfc)]:
+  - @vegastack/design@0.28.4
+
 ## 0.132.0
 
 ### Minor Changes
