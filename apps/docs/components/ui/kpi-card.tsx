@@ -1,4 +1,4 @@
-// @vegastack kpi-card@0.123.2 sha256-oZ2vMcUWFxxkSoGfbtAhLsIuWeKHtg/ruYEYPpFtIy8=
+// @vegastack kpi-card@0.123.2 sha256-MR82AwlCVbvZ37hh0fxhK2kxrYarCGcr65jW0HQlnH8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -150,7 +150,7 @@ const TILE_GRID =
 const SPARK_MAX_POINTS = 120;
 const SPARK_HEIGHT = 24;
 /** Fewer points with data than this is not a trend: no sparkline. */
-export const KPI_SPARK_MIN_POINTS = 3;
+const KPI_SPARK_MIN_POINTS = 3;
 
 /** The sparkline's line and area paths, or `null` when there is no trend to draw. */
 export function sparkPaths(

@@ -1852,7 +1852,7 @@ colour and every state. Never inline an ad-hoc `<svg>` as an icon, and never mix
 
 **One "more", one tool cluster** (ICO-9). An overflow menu's trigger is the horizontal ⋯
 (`MoreHorizontal`), never a vertical ellipsis. A run of icon-only tools — Watch, Star, Comments,
-More — is a `ToolGroup`: ghost `icon-sm` (28px) buttons two pixels apart, each named by its tooltip,
+More — is one cluster of ghost `icon-sm` (28px) buttons two pixels apart, each named by its tooltip,
 a count beside its icon rather than a badge floating over it.
 
 **Meetings and recording** (22-11-2026). A meeting's icon follows its speakers — a single person

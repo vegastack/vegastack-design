@@ -1,4 +1,4 @@
-// @vegastack use-stick-to-bottom@0.64.0 sha256-ejV+ihFyAM8WUoL800ZpOuphkmRQdr7qe5ckc3Kbdfk=
+// @vegastack use-stick-to-bottom@0.64.0 sha256-9PznVQDzAd+nYG0aWq3n57Xt3Q1PRrp83DEH+NeEOeM=
 
 "use client";
 
@@ -91,7 +91,7 @@ const GESTURE_SETTLE_MS = 250;
 const OPEN_HOLD_MS = 600;
 
 /** The nearest ancestor of `node` that scrolls vertically, or the document's scrolling element. */
-export function scrollParentOf(node: HTMLElement): HTMLElement {
+function scrollParentOf(node: HTMLElement): HTMLElement {
   const page =
     (document.scrollingElement as HTMLElement | null) ??
     document.documentElement;

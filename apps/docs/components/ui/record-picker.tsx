@@ -1,4 +1,4 @@
-// @vegastack record-picker@0.123.2 sha256-L/7jQ95Efshcx57Iim33OPoipNRA9nMkFyd479mLEyU=
+// @vegastack record-picker@0.123.2 sha256-qZfOP9KUDaOa+xrBZ/6K5Ub38JBUz99+t2hHSRn3JPw=
 
 "use client";
 
@@ -113,7 +113,7 @@ function keepKeys(event: React.KeyboardEvent<HTMLElement>) {
 }
 
 /** A record's key: `kind:id`. */
-export function recordPickerKey(item: Pick<RecordPickerItem, "kind" | "id">) {
+function recordPickerKey(item: Pick<RecordPickerItem, "kind" | "id">) {
   return `${item.kind}:${item.id}`;
 }
 

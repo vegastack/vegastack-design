@@ -1,4 +1,4 @@
-// @vegastack inline-chip@0.127.0 sha256-EyMVnZXgMaWzZcmzZjXF699C7sWEneNmjHvEXIkTk6c=
+// @vegastack inline-chip@0.127.0 sha256-KhuKyH6IjTavD0hltX5a5c7uSPI1D+UwnmF4DQXNYWs=
 
 "use client";
 
@@ -273,11 +273,6 @@ const FACE = cn(AVATAR, "data-[size=xs]:size-[1.1em] [&_svg]:size-[60%]");
  */
 export const inlineChipProseClassName =
   "[&_[data-slot=inline-chip]]:no-underline [&_[data-slot=inline-chip][data-interactive]:hover]:underline";
-
-/** The ground, ink, padding and radius of a chip of `kind` — for a chip the app cannot make an `InlineChip` (a link mark in an editor). */
-export function inlineChipClassName(kind: InlineChipKind): string {
-  return cn(CHIP, toneOf(kind));
-}
 
 /** Props accepted by `InlineChip`. */
 export interface InlineChipProps extends Omit<

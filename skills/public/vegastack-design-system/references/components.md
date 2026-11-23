@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**242 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 831 registry items in total.
+**235 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 824 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -16,7 +16,6 @@ starts with `icon-` is a component and never an icon.
 - **`copy-button`** — Copy a value to the clipboard with transient check feedback — a ghost icon button that swaps Copy → Check and fires onCopied.
 - **`toggle`** — A two-state button that can be pressed on or off, with a loading state (API-5).
 - **`toggle-group`** — Toggle buttons sharing one selection — single or multiple, horizontal or vertical.
-- **`tool-group`** — A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with ⋯ as the one More.
 
 ## Form
 
@@ -117,7 +116,6 @@ starts with `icon-` is a component and never an icon.
 - **`data-grid`** — The full-parity grid — client or host-sorted multi-key sort, frozen, resizable and windowed columns, header reorder, client or host grouping flattened into the row virtualiser, a summary row, cursor paging, and an APG grid keyboard layer with inline cell editing.
 - **`data-list`** — A generic, typed data table — configurable columns, row selection, sortable columns (indicator, custom compare and first direction, client or manual), a standard rowActions ⋯ column always last, untinted-link rows (no underline), loading, and Empty-based emptyState and noResults states.
 - **`data-list-pager`** — A controlled paging footer for DataList — a tabular-numeral range summary, a rows-per-page Select, and a windowed Pagination that hides on a single page.
-- **`data-list-skeleton`** — A DataList and its ListToolbar while they load, in the list's own geometry, without loading the list.
 - **`data-table-parts`** — The chrome DataList and DataGrid share — sort header, selection cells, skeleton rows, the empty row, column class rules, and the selection/sort/controlled-state hooks.
 - **`display-menu`** — The toolbar's Display tool: Layout and Sort once folded in, row height, group by, a Columns drill-in, the Show switches (archived, closed, subtasks) and Reset — one surface, no fills.
 - **`filter-bar-managed`** — The controlled nested and/or filter builder — host-injected field grammar (vocabulary + per-type value editors), depth and condition caps, focus-managed removal, and a removable FilterChip summary.
@@ -233,7 +231,6 @@ starts with `icon-` is a component and never an icon.
 - **`chat-card`** — The chat's one card surface (ChatCard), one line of work (ChatRow) and a fold of work that opens and closes smoothly (ChatGroup).
 - **`chat-chip`** — A compact pill for background work and counts on the chat card surface, with an attention tone that never fills.
 - **`chat-composer`** — The box a person talks to an agent in, as a compound: an optional context strip, files above an auto-growing text, and an actions row with round + and @, the model, and a round Send that morphs into Stop.
-- **`chat-details`** — The chat details panel: sections of outputs, Subagents, context and connectors.
 - **`chat-menu`** — A menu with the chat's density: tight rows, a blue ✓ and a number shortcut in one right slot, submenus that open on hover or →.
 - **`chat-message-parts`** — One agent turn from its AI SDK parts: live line or summary, work log, Subagents, answer, cards.
 - **`chat-plan-card`** — A plan an agent wants approved, as a document inside the turn — steps, Will change, Won't, Needs your OK and what changed since the last version (ChatPlanCard) — and the line it settles into (PlanLine).
@@ -256,11 +253,9 @@ starts with `icon-` is a component and never an icon.
 - **`file-preview`** — A file in a chat answer previewed on the chat card — Markdown formatted, a CSV's first rows, a PDF's first page, an image — with Download, Open and a reasoned error with Retry.
 - **`for-you-card`** — One thing waiting on a person in For you: the verb, who asks, the deciding facts, what happens if nobody answers, the source's body and options (the preferred one secondary, never filled), its outcome once settled.
 - **`memory-group`** — What an agent remembered in one turn, as one quiet fold — Remembered 3 things · Personal memory — with Undo and Edit per note.
-- **`memory-note`** — One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.
 - **`message-parts`** — What an agent's answer is made of beyond its text: steps, a plan checklist, status and notice lines, changes with Undo, a hand-off divider, sources, the disclaimer, actions, a version switch and a fold.
 - **`model-effort-menu`** — A chat's model and effort as quiet text opening one compact menu: models with numbers, an Effort submenu, More models.
 - **`plan-card`** — An agent's plan put to the person: goal, steps with effect pills and touches, assumptions, won't do, will ask, risk, a version diff, per-step comments, four answers and settled lines.
-- **`request-card`** — One card for every question an agent asks before it acts — Allow once · Always allow (one step wider from its menu) · Decline (with a note, or Never allow this) — its settled line in the same words on every channel, and What I've allowed with uses and Revoke.
 - **`resource-pill`** — The person's own thing in an answer — its type icon and real title as an inline chip — never a numbered source.
 - **`routine-row`** — One routine in a list: name and schedule, the next runs, owner and destination, the last run, Run now and a ⋯ with Skip next and Pause or Resume.
 - **`run-timeline`** — An agent run's steps in the chat work log's anatomy: per-step cost, the permission decision with Why?, Undo, delivery unknown, nested subagent steps, one live bolt for the run and folding of long tool runs.
@@ -268,7 +263,6 @@ starts with `icon-` is a component and never an icon.
 - **`shell-assistant`** — The assistant's chat docked beside the page as a second card (the split view), opened from the global bar's Ask or ⌘J.
 - **`source-list`** — The web pages an answer cites: a quiet Sources fold of one-line numbered rows, the citation card and the MarkdownView wiring.
 - **`status-glyph`** — One glyph per state in agent UI: ✓ done in the blue accent, ◌ not started, ◐ running (still), ⊘ skipped, ✗ failed, ⚠ needs you.
-- **`suggestion-card`** — An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.
 - **`task-list`** — An agent's live checklist for a longer job: the live item on top, the next two, finished items folded into a count and the rest into +N more, a waiting badge, Subagent progress, and a sticky progress bar.
 - **`text-spinner`** — The one inline text loader: a dot-matrix bolt as tall as capital letters, Strike while working and Pulse while waiting, CSS only, a still bolt under reduced motion.
 - **`tool-call-chip`** — An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.
@@ -292,6 +286,5 @@ starts with `icon-` is a component and never an icon.
 
 - **`avatar-picker`** — A person's avatar that opens a dialog to upload, change or remove their photo — the file is staged in a 128px drop circle and saved only on Update.
 - **`destination-picker`** — Choose where something goes — spaces, their folders, recents, search, refusals with a reason.
-- **`field-type-picker`** — A searchable, grouped list of field types with icons, and an optional second step.
 - **`record-picker`** — Pick records of the kinds the app passes in — search, kind filter, recents, folder browsing, refused rows — in a popover or a dialog.
 - **`upload-panel`** — The uploads card pinned bottom-end: a header naming the batch with time left, file and folder rows with progress rings, failures with Retry, interrupted rows with Choose file and destination links, a done card that dismisses itself, a confirm before cancelling, and a bottom sheet on phones. Controlled; the host engine uploads.

@@ -11,7 +11,6 @@ import {
   type ForYouState,
 } from "@/components/ui/for-you-card";
 import { PersonAvatar } from "@/components/ui/person-avatar";
-import { SuggestionCard } from "@/components/ui/suggestion-card";
 import { Button } from "@/components/ui/button";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Inbox, InboxGroup } from "@/components/ui/inbox";
@@ -151,15 +150,12 @@ export function forYouCardVerbs(): ReactNode {
         onSnooze={() => undefined}
         onFewerLikeThis={() => undefined}
       >
-        <SuggestionCard
-          variant="row"
-          title="Create 3 tasks in Bay 3"
-          actions={
-            <Button size="sm" variant="secondary">
-              Create 3 tasks
-            </Button>
-          }
-        />
+        <div className="flex items-center justify-between gap-2">
+          <p className="min-w-0 truncate text-sm">Create 3 tasks in Bay 3</p>
+          <Button size="sm" variant="secondary">
+            Create 3 tasks
+          </Button>
+        </div>
       </ForYouCard>
       <ForYouCard
         verb="review"

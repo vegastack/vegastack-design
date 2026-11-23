@@ -1,4 +1,4 @@
-// @vegastack use-view-transition@0.26.4 sha256-4bKlEviOWzR9pQFU7f1QnFphZjvPsRRBph/BznLG1sI=
+// @vegastack use-view-transition@0.26.4 sha256-y71We2F6/gb4BhVEL6DiR1RA1PN4cUzo/7d2KMkb76E=
 
 "use client";
 
@@ -53,7 +53,7 @@ export interface ViewTransitionOptions {
 let running: ViewTransitionLike | null = null;
 
 /** Whether this browser can run a view transition at all. False on the server. */
-export function supportsViewTransitions(): boolean {
+function supportsViewTransitions(): boolean {
   return (
     typeof document !== "undefined" &&
     typeof (document as DocumentWithViewTransition).startViewTransition ===

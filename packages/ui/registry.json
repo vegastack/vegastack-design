@@ -1746,30 +1746,6 @@
       }
     },
     {
-      "name": "data-list-skeleton",
-      "type": "registry:ui",
-      "title": "Data List Skeleton",
-      "description": "A DataList and its ListToolbar while they load, in the list's own geometry (table rows or grid cards), without loading the list.",
-      "categories": ["data"],
-      "dependencies": [
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": ["@vegastack/skeleton", "@vegastack/table"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/data-list-skeleton.tsx",
-          "type": "registry:ui",
-          "target": "@ui/data-list-skeleton.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A route's or Suspense fallback's loading state for a DataList page (rows, grid cards, the toolbar).",
-        "whenNotToUse": "DataList's own `loading` (a list already on screen refetching).",
-        "version": "0.123.2"
-      }
-    },
-    {
       "name": "data-list-pager",
       "type": "registry:ui",
       "title": "Data List Pager",
@@ -14693,31 +14669,6 @@
       }
     },
     {
-      "name": "field-type-picker",
-      "type": "registry:ui",
-      "title": "Field Type Picker",
-      "description": "A searchable, grouped list of field types with icons, and an optional second step.",
-      "categories": ["form"],
-      "dependencies": [
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/command"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/field-type-picker.tsx",
-          "type": "registry:ui",
-          "target": "@ui/field-type-picker.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Choosing a field type: + Add field on a table, a form builder, a field settings Type row.",
-        "whenNotToUse": "Any other fixed list (Select) or record list (RecordPicker).",
-        "version": "0.123.2"
-      }
-    },
-    {
       "name": "permission-menu",
       "type": "registry:ui",
       "title": "Permission Menu",
@@ -16025,33 +15976,6 @@
       }
     },
     {
-      "name": "suggestion-card",
-      "type": "registry:ui",
-      "title": "Suggestion Card",
-      "description": "An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.",
-      "categories": ["chat"],
-      "dependencies": [
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/checkbox",
-        "@vegastack/truncated-text"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/suggestion-card.tsx",
-          "type": "registry:ui",
-          "target": "@ui/suggestion-card.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "An agent offering a next step the person may ignore: tasks from a chat, a draft, a follow-up.",
-        "whenNotToUse": "A risky action that waits for a decision (RequestCard), or a change already made (AgentEditBanner).",
-        "version": "0.123.2"
-      }
-    },
-    {
       "name": "agent-directory-card",
       "type": "registry:ui",
       "title": "Agent Directory Card",
@@ -16109,7 +16033,7 @@
       ],
       "meta": {
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
-        "whenNotToUse": "An agent offering a next step the person may ignore (SuggestionCard), or a question with answers to fill (AgentQuestionForm).",
+        "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
         "version": "0.123.2"
       }
     },
@@ -16439,31 +16363,6 @@
       }
     },
     {
-      "name": "memory-note",
-      "type": "registry:ui",
-      "title": "Memory Note",
-      "description": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
-      "categories": ["chat"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/spinner"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/memory-note.tsx",
-          "type": "registry:ui",
-          "target": "@ui/memory-note.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
-        "whenNotToUse": "An agent asking to act (RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
-        "version": "0.128.0"
-      }
-    },
-    {
       "name": "effect-pill",
       "type": "registry:ui",
       "title": "Effect Pill",
@@ -16742,31 +16641,6 @@
       "meta": {
         "whenToUse": "A file an agent made or a person attached, shown in the chat where it appeared.",
         "whenNotToUse": "A list of a record's files (FileCard), a file named inside running text (InlineChip's file chip), or a file being uploaded (UploadCard).",
-        "version": "0.123.2"
-      }
-    },
-    {
-      "name": "chat-details",
-      "type": "registry:ui",
-      "title": "Chat Details",
-      "description": "The chat details panel beside the thread: quiet sections (Context, Outputs, Subagents and background work, Connectors) of icon, name and meta rows with Show more, and a back header for a Subagent's steps.",
-      "categories": ["chat"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": ["@vegastack/button"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/chat-details.tsx",
-          "type": "registry:ui",
-          "target": "@ui/chat-details.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "The details rail beside an agent chat (≥1280px) or its phone sheet.",
-        "whenNotToUse": "Record detail asides (RecordAside).",
         "version": "0.123.2"
       }
     },
@@ -17116,7 +16990,7 @@
       ],
       "meta": {
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
-        "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
+        "whenNotToUse": "A single action to allow (AskCard), or a live checklist of work in progress (TaskList).",
         "version": "0.123.2"
       }
     },
@@ -20218,39 +20092,6 @@
       }
     },
     {
-      "name": "request-card",
-      "type": "registry:ui",
-      "title": "Request Card",
-      "description": "One card for every question an agent asks before it acts — Allow once · Always allow (one step wider from its menu) · Decline (with a note, or Never allow this) — its settled line in the same words on every channel, and What I've allowed with uses and Revoke.",
-      "categories": ["chat"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/badge",
-        "@vegastack/button",
-        "@vegastack/button-group",
-        "@vegastack/dropdown-menu",
-        "@vegastack/person-avatar",
-        "@vegastack/textarea",
-        "@vegastack/use-announcer"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/request-card.tsx",
-          "type": "registry:ui",
-          "target": "@ui/request-card.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
-        "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.123.2"
-      }
-    },
-    {
       "name": "agent-edit-banner",
       "type": "registry:ui",
       "title": "Agent Edit Banner",
@@ -20277,7 +20118,7 @@
       ],
       "meta": {
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
-        "whenNotToUse": "An agent asking before it acts (RequestCard), a transient result after the viewer's own action (Toast), or a page-wide notice (Alert).",
+        "whenNotToUse": "An agent asking before it acts (AskCard), a transient result after the viewer's own action (Toast), or a page-wide notice (Alert).",
         "version": "0.123.2"
       }
     },
@@ -20321,7 +20162,7 @@
       ],
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
-        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
+        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (AskCard), or choosing the agent (DelegatePopover).",
         "version": "0.123.3"
       }
     },
@@ -20351,7 +20192,7 @@
       ],
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
-        "whenNotToUse": "An agent asking to perform one action (RequestCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
+        "whenNotToUse": "An agent asking to perform one action (AskCard), offering a next step the person may ignore (ForYouCard), or a survey the host defines itself (Questionnaire).",
         "version": "0.123.2"
       }
     },
@@ -20538,45 +20379,14 @@
       }
     },
     {
-      "name": "tool-group",
-      "type": "registry:ui",
-      "title": "Tool Group",
-      "description": "A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with ⋯ as the one More.",
-      "categories": ["actions"],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": ["@vegastack/button", "@vegastack/tooltip"],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/tool-group.tsx",
-          "type": "registry:ui",
-          "target": "@ui/tool-group.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Icon-only tools in a top bar or a card header — Watch, Star, Comments, More.",
-        "whenNotToUse": "Text actions (Share, Approve) or attached segmented buttons (ButtonGroup).",
-        "version": "0.123.2"
-      }
-    },
-    {
       "name": "shell-assistant",
       "type": "registry:ui",
       "title": "Shell Assistant",
-      "description": "The assistant's chat docked beside the page as a second card (the split view) — header actions, a removable context chip, a scrolling body and a composer slot.",
+      "description": "The assistant's chat docked beside the page as a second card (the split view) — the frame the host's chat renders in.",
       "categories": ["chat"],
       "dependencies": [
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.28.0",
         "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/chip",
-        "@vegastack/tool-group"
       ],
       "files": [
         {
@@ -20587,7 +20397,7 @@
       ],
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
-        "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
+        "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet holds the chat), or any data fetching — the host owns the chat.",
         "version": "0.131.0"
       }
     }

@@ -1,4 +1,4 @@
-// @vegastack plan-card@0.123.2 sha256-2JXLiVZ5fzZcMUw4fMtBukLnQHgdy665Sp+xurY1D7E=
+// @vegastack plan-card@0.123.2 sha256-y8ynYEzwwuxBBkFG9M144qhjlUgyOnpXz/anFYbsouI=
 
 "use client";
 
@@ -34,7 +34,7 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
  * plan marks what changed since the last version. Once answered, the card closes to one line in
  * the same words on every channel ("✓ Plan accepted by Priya · 6 steps").
  *
- * It shares `RequestCard`'s shell (the bordered card, the agent's hexagon, the answers row that
+ * It shares `AskCard`'s shell (the bordered card, the agent's hexagon, the answers row that
  * stacks in a narrow column, the settled line that is announced when it changes), since a plan is
  * one more question an agent asks before it acts. Every string is the caller's or overridable.
  * ----------------------------------------------------------------------------------------------*/

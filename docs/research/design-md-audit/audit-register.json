@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "9f64af83da539322d45d505657a727e1054e5513f43ad66f7903e37945cb1918",
+  "contractSha256": "27632c9301c81ef2741616ba2eb62db384ec9b3407c23f71641bfc1cca36efd6",
   "expectedCounts": {
-    "totalRegistryItems": 831,
-    "components": 242,
+    "totalRegistryItems": 824,
+    "components": 235,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -435,17 +435,6 @@
         "packages/ui/registry/ui/data-list.tsx"
       ],
       "docsSlug": "/docs/components/data-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "data-list-skeleton",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/data-list-skeleton.tsx"
-      ],
-      "docsSlug": "/docs/components/data-list-skeleton",
       "contractStatus": "reconciled"
     },
     {
@@ -1501,17 +1490,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "suggestion-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/suggestion-card.tsx"
-      ],
-      "docsSlug": "/docs/components/suggestion-card",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "agent-directory-card",
       "inventoryClass": "component",
       "wave": "AI/chat",
@@ -1666,17 +1644,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "memory-note",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/memory-note.tsx"
-      ],
-      "docsSlug": "/docs/components/memory-note",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "effect-pill",
       "inventoryClass": "component",
       "wave": "AI/chat",
@@ -1751,17 +1718,6 @@
         "packages/ui/registry/ui/chat-message-parts.tsx"
       ],
       "docsSlug": "/docs/components/chat-message-parts",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-details",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-details.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-details",
       "contractStatus": "reconciled"
     },
     {
@@ -2397,17 +2353,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "request-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/request-card.tsx"
-      ],
-      "docsSlug": "/docs/components/request-card",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "agent-edit-banner",
       "inventoryClass": "component",
       "wave": "AI/chat",
@@ -2526,17 +2471,6 @@
         "packages/ui/registry/ui/destination-picker.tsx"
       ],
       "docsSlug": "/docs/components/destination-picker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "field-type-picker",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "forms",
-      "sourceFiles": [
-        "packages/ui/registry/ui/field-type-picker.tsx"
-      ],
-      "docsSlug": "/docs/components/field-type-picker",
       "contractStatus": "reconciled"
     },
     {
@@ -2669,17 +2603,6 @@
         "packages/ui/registry/ui/resource-pill.tsx"
       ],
       "docsSlug": "/docs/components/resource-pill",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "tool-group",
-      "inventoryClass": "component",
-      "wave": "Core controls",
-      "family": "actions",
-      "sourceFiles": [
-        "packages/ui/registry/ui/tool-group.tsx"
-      ],
-      "docsSlug": "/docs/components/tool-group",
       "contractStatus": "reconciled"
     },
     {

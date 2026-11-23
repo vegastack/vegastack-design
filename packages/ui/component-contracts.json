@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 831,
-    "components": 242,
+    "totalRegistryItems": 824,
+    "components": 235,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -21,14 +21,14 @@
     "chartBlocks": 68
   },
   "expectedWaveCounts": {
-    "Core controls": 24,
-    "Forms/editing": 39,
+    "Core controls": 23,
+    "Forms/editing": 38,
     "Navigation/layout": 27,
     "Overlays": 23,
-    "Data display": 53,
+    "Data display": 52,
     "Content/marketing": 14,
     "Shared internals": 6,
-    "AI/chat": 56,
+    "AI/chat": 52,
     "Hooks": 16,
     "Block": 15,
     "Animated icons": 467
@@ -57,8 +57,7 @@
       "kbd",
       "relative-time",
       "toggle",
-      "toggle-group",
-      "tool-group"
+      "toggle-group"
     ],
     "Forms/editing": [
       "auto-save-input",
@@ -96,7 +95,6 @@
       "upload-panel",
       "record-picker",
       "destination-picker",
-      "field-type-picker",
       "option-list-editor",
       "time-field",
       "recurrence-picker"
@@ -166,7 +164,6 @@
       "comments",
       "data-grid",
       "data-list",
-      "data-list-skeleton",
       "data-list-pager",
       "cursor-pager",
       "diff-view",
@@ -249,10 +246,7 @@
       "cited-list",
       "message-parts",
       "chat-composer",
-      "suggestion-card",
       "agent-question-form",
-      "request-card",
-      "memory-note",
       "task-list",
       "run-usage",
       "effect-pill",
@@ -271,7 +265,6 @@
       "chat-task-list",
       "chat-user-bubble",
       "chat-skeleton",
-      "chat-details",
       "chat-message-parts",
       "chat-request-card",
       "chat-plan-card",
@@ -1564,15 +1557,6 @@
         {
           "name": "ShellTopBarLabel",
           "kind": "component",
-          "source": "packages/ui/registry/ui/shell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ShellTopBarLead",
-          "kind": "component-constant",
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
@@ -9681,119 +9665,6 @@
       }
     },
     {
-      "name": "data-list-skeleton",
-      "registryType": "registry:ui",
-      "title": "Data List Skeleton",
-      "summary": "A DataList and its ListToolbar while they load, in the list's own geometry, without loading the list.",
-      "status": "stable",
-      "since": "0.99.0",
-      "family": "data",
-      "wave": "Data display",
-      "sourceFiles": ["packages/ui/registry/ui/data-list-skeleton.tsx"],
-      "publicSymbols": [
-        {
-          "name": "DataListSkeleton",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/data-list-skeleton.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "DataListSkeletonColumn",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list-skeleton.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "DataListSkeletonProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/data-list-skeleton.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": ["default"],
-          "evidence": "packages/ui/registry/ui/data-list-skeleton.tsx + packages/ui/registry/ui/data-list-skeleton.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["hidden-placeholder"],
-          "evidence": "packages/ui/registry/ui/data-list-skeleton.tsx + packages/ui/registry/ui/data-list-skeleton.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default"],
-          "evidence": "packages/ui/registry/ui/data-list-skeleton.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Columns after the first drop under md as the list merges them; the grid follows the list's own container-query columns."
-      },
-      "motion": {
-        "status": "modeled",
-        "mechanisms": ["loader animation utility"],
-        "reducedMotion": {
-          "status": "observed-or-documented",
-          "rationale": "Its pulse is Skeleton's, which the global reduced-motion reset stops."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/data-list-skeleton",
-      "registryDependencies": ["@vegastack/skeleton", "@vegastack/table"],
-      "npmDependencies": [
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/data-list-skeleton.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "data-list-skeleton",
-      "dataAttributes": {
-        "DataListSkeleton": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "data-list-skeleton",
-                "data-list-skeleton-card",
-                "data-list-skeleton-row",
-                "data-list-skeleton-toolbar"
-              ]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "data-list-pager",
       "registryType": "registry:ui",
       "title": "Data List Pager",
@@ -11942,15 +11813,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
-          "name": "COLUMN_RESIZE_STEP",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/data-table-parts.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -15560,15 +15422,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "READ_ONLY_FIELD_TYPES",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/field-cell.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "component-constant symbols do not expose a rendered DOM instance or ref contract."
           }
         },
         {
@@ -19468,15 +19321,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "inlineChipClassName",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/inline-chip.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
           }
         },
         {
@@ -27850,15 +27694,6 @@
           }
         },
         {
-          "name": "KPI_SPARK_MIN_POINTS",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/kpi-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "KpiCardSeries",
           "kind": "type",
           "source": "packages/ui/registry/ui/kpi-card.tsx",
@@ -31688,171 +31523,6 @@
       }
     },
     {
-      "name": "suggestion-card",
-      "registryType": "registry:ui",
-      "title": "Suggestion Card",
-      "summary": "An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.",
-      "status": "stable",
-      "since": "0.44.0",
-      "family": "chat",
-      "wave": "AI/chat",
-      "sourceFiles": ["packages/ui/registry/ui/suggestion-card.tsx"],
-      "publicSymbols": [
-        {
-          "name": "SuggestionCard",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/suggestion-card.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "section",
-            "rationale": "Props, including ref, spread onto the root section."
-          }
-        },
-        {
-          "name": "SuggestionCardProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/suggestion-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SuggestionCardItem",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/suggestion-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "SuggestionCardState",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/suggestion-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "variant",
-            "values": ["card", "row"]
-          }
-        ],
-        "rationale": "A card in a conversation, a compact row in a list."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Fills its container."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "open",
-            "busy",
-            "accepted",
-            "expired",
-            "failed",
-            "ticks",
-            "no-ticks"
-          ],
-          "evidence": "packages/ui/registry/ui/suggestion-card.tsx + packages/ui/registry/ui/suggestion-card.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "named-region",
-            "group-row",
-            "no-landmark-when-accepted",
-            "labelled-checkboxes",
-            "aria-busy",
-            "browser-accessibility-test"
-          ],
-          "evidence": "packages/ui/registry/ui/suggestion-card.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["card", "busy", "outcomes", "row"],
-          "evidence": "packages/ui/registry/ui/suggestion-card.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "text-truncation-and-flex-shrink"
-        ],
-        "rationale": "An item's label truncates and its meta stays whole; buttons wrap; the row breaks to two lines under a 32rem container."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/suggestion-card",
-      "registryDependencies": [
-        "@vegastack/checkbox",
-        "@vegastack/truncated-text"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.28.0",
-        "@vegastack/design@^0.28.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/suggestion-card.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "suggestion-card",
-      "dataAttributes": {
-        "SuggestionCard": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": [
-                "suggestion-card",
-                "suggestion-card-actions",
-                "suggestion-card-avatar",
-                "suggestion-card-footnote",
-                "suggestion-card-header",
-                "suggestion-card-heading",
-                "suggestion-card-item",
-                "suggestion-card-items",
-                "suggestion-card-menu",
-                "suggestion-card-outcome",
-                "suggestion-card-private",
-                "suggestion-card-title"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": []
-            },
-            {
-              "name": "data-variant",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "agent-directory-card",
       "registryType": "registry:ui",
       "title": "Agent Directory Card",
@@ -34316,197 +33986,6 @@
       }
     },
     {
-      "name": "memory-note",
-      "registryType": "registry:ui",
-      "title": "Memory Note",
-      "summary": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
-      "status": "stable",
-      "since": "0.70.0",
-      "family": "chat",
-      "wave": "AI/chat",
-      "sourceFiles": ["packages/ui/registry/ui/memory-note.tsx"],
-      "publicSymbols": [
-        {
-          "name": "MemoryNote",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/memory-note.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Props, including ref, spread onto the root div."
-          }
-        },
-        {
-          "name": "MemoryNoteProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/memory-note.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MemoryNoteTone",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/memory-note.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MemoryNoteState",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/memory-note.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "MEMORY_NOTE_TONES",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/memory-note.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant array, not a component."
-          }
-        }
-      ],
-      "variants": {
-        "status": "observed",
-        "dimensions": [
-          {
-            "name": "tone",
-            "values": [
-              "remembered",
-              "updated",
-              "suggested",
-              "forgot",
-              "would",
-              "queued",
-              "failed"
-            ]
-          },
-          {
-            "name": "compact",
-            "values": ["false", "true"]
-          }
-        ],
-        "rationale": "The tone sets the lead words, icon and actions; compact is the list form."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Fills its container."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "idle",
-            "busy",
-            "undone",
-            "kept",
-            "dismissed",
-            "edited",
-            "note",
-            "handlers-gate-actions"
-          ],
-          "evidence": "packages/ui/registry/ui/memory-note.tsx + packages/ui/registry/ui/memory-note.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "named-group",
-            "action-names-carry-context",
-            "described-by-line",
-            "busy-spinner-status",
-            "browser-accessibility-test"
-          ],
-          "evidence": "packages/ui/registry/ui/memory-note.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["tones", "states", "compact", "narrow"],
-          "evidence": "packages/ui/registry/ui/memory-note.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "text-truncation-and-flex-shrink"
-        ],
-        "rationale": "The line wraps and is never cut; the actions keep one line and wrap below the text when the row is narrow."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion beyond the spinner."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/memory-note",
-      "registryDependencies": ["@vegastack/button", "@vegastack/spinner"],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.28.0",
-        "@vegastack/design@^0.28.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/memory-note.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "memory-note",
-      "dataAttributes": {
-        "MemoryNote": {
-          "attributes": [
-            {
-              "name": "data-action",
-              "values": []
-            },
-            {
-              "name": "data-compact",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "memory-note",
-                "memory-note-actions",
-                "memory-note-before",
-                "memory-note-icon",
-                "memory-note-lead",
-                "memory-note-line",
-                "memory-note-note",
-                "memory-note-outcome",
-                "memory-note-source",
-                "memory-note-spinner",
-                "memory-note-text"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": []
-            },
-            {
-              "name": "data-tone",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "effect-pill",
       "registryType": "registry:ui",
       "title": "Effect Pill",
@@ -35559,187 +35038,6 @@
       }
     },
     {
-      "name": "chat-details",
-      "registryType": "registry:ui",
-      "title": "Chat Details",
-      "summary": "The chat details panel: sections of outputs, Subagents, context and connectors.",
-      "status": "stable",
-      "since": "0.79.0",
-      "family": "chat",
-      "wave": "AI/chat",
-      "sourceFiles": ["packages/ui/registry/ui/chat-details.tsx"],
-      "publicSymbols": [
-        {
-          "name": "ChatDetails",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chat-details.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatDetailsBack",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chat-details.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatDetailsBackProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/chat-details.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatDetailsProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/chat-details.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatDetailsRow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chat-details.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatDetailsRowProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/chat-details.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatDetailsSection",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chat-details.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatDetailsSectionProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/chat-details.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": ["default"],
-          "evidence": "packages/ui/registry/ui/chat-details.tsx + packages/ui/registry/ui/chat-details.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["named-controls"],
-          "evidence": "packages/ui/registry/ui/chat-details.tsx + packages/ui/registry/ui/chat-details.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default"],
-          "evidence": "packages/ui/registry/ui/chat-details.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "Text truncates inside a min-w-0 row; nothing has a fixed width beyond its glyphs."
-      },
-      "motion": {
-        "status": "covered",
-        "mechanisms": ["base-ui-lifecycle"],
-        "reducedMotion": {
-          "status": "covered",
-          "rationale": "The fold's height motion collapses through base.css (MOT-5)."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/chat-details",
-      "registryDependencies": ["@vegastack/button"],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.28.0",
-        "@vegastack/design@^0.28.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/chat-details.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "chat-details",
-      "dataAttributes": {
-        "ChatDetails": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["chat-details"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ChatDetailsSection": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["chat-details-section"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ChatDetailsRow": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["chat-details-row"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ChatDetailsBack": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["chat-details-back"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "chat-skeleton",
       "registryType": "registry:ui",
       "title": "Chat Skeleton",
@@ -36447,15 +35745,6 @@
           }
         },
         {
-          "name": "humanize",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/chat-work-log.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "isSubagentPart",
           "kind": "function",
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
@@ -36512,15 +35801,6 @@
         {
           "name": "StuckRow",
           "kind": "component",
-          "source": "packages/ui/registry/ui/chat-work-log.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "toolNameOf",
-          "kind": "function",
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
@@ -37883,15 +37163,6 @@
         {
           "name": "ComposerSteer",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/chat-composer.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "middleEllipsis",
-          "kind": "function",
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
@@ -41208,15 +40479,6 @@
           }
         },
         {
-          "name": "splitChipButtonClassName",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/record-chip.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A class string, not a component."
-          }
-        },
-        {
           "name": "splitChipIconActionClassName",
           "kind": "constant",
           "source": "packages/ui/registry/ui/record-chip.tsx",
@@ -42116,42 +41378,6 @@
       "wave": "Overlays",
       "sourceFiles": ["packages/ui/registry/ui/peek.tsx"],
       "publicSymbols": [
-        {
-          "name": "PEEK_MIN_WIDTH",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/peek.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A number; not rendered."
-          }
-        },
-        {
-          "name": "PEEK_MAX_RATIO",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/peek.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A number; not rendered."
-          }
-        },
-        {
-          "name": "PEEK_DEFAULT_WIDTH",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/peek.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A number; not rendered."
-          }
-        },
-        {
-          "name": "PEEK_SNAP_POINTS",
-          "kind": "constant",
-          "source": "packages/ui/registry/ui/peek.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A number; not rendered."
-          }
-        },
         {
           "name": "PeekResizeHandleProps",
           "kind": "interface",
@@ -49689,363 +48915,6 @@
       }
     },
     {
-      "name": "request-card",
-      "registryType": "registry:ui",
-      "title": "Request Card",
-      "summary": "One card for every question an agent asks before it acts — Allow once · Always allow (one step wider from its menu) · Decline (with a note, or Never allow this) — its settled line in the same words on every channel, and What I've allowed with uses and Revoke.",
-      "status": "stable",
-      "since": "0.67.0",
-      "family": "chat",
-      "wave": "AI/chat",
-      "sourceFiles": ["packages/ui/registry/ui/request-card.tsx"],
-      "publicSymbols": [
-        {
-          "name": "RequestCard",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "section",
-            "rationale": "Props, including ref, spread onto the section root."
-          }
-        },
-        {
-          "name": "PermissionRow",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "Props, including ref, spread onto the div root."
-          }
-        },
-        {
-          "name": "PermissionList",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "section",
-            "rationale": "Props, including ref, spread onto the section root."
-          }
-        },
-        {
-          "name": "RequestCardProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PermissionRowProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PermissionListProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CardSpec",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CardState",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CardAnswers",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CardAgent",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "CardPreview",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AlwaysOption",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "Place",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PlaceKind",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "AnsweredVia",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "RequestCardBundleItem",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "PermissionView",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/request-card.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "One look; the request state, hard rule, bundle and compact size are data attributes, not variants."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "Fills its container; `compact` is the one-row form for Home and Inbox, and the buttons stack full width under a 28rem container."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": [
-            "pending",
-            "bundle",
-            "hard",
-            "nudge",
-            "allowed_once",
-            "allowed_always",
-            "declined",
-            "never",
-            "skipped",
-            "withdrawn",
-            "cancelled",
-            "expired",
-            "refused",
-            "cannot-answer",
-            "busy",
-            "error",
-            "note",
-            "compact"
-          ],
-          "evidence": "packages/ui/registry/ui/request-card.tsx + packages/ui/registry/ui/request-card.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": [
-            "labeled-region",
-            "described-buttons",
-            "announced-outcome",
-            "browser-accessibility-test"
-          ],
-          "evidence": "packages/ui/registry/ui/request-card.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": [
-            "pending",
-            "bundle",
-            "hard",
-            "nudge",
-            "settled",
-            "compact",
-            "narrow",
-            "permission-list"
-          ],
-          "evidence": "packages/ui/registry/ui/request-card.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": [
-          "responsive-or-container-layout",
-          "text-truncation-and-flex-shrink"
-        ],
-        "rationale": "A container query stacks the buttons full width under 28rem; the Always label truncates inside its split button; record titles truncate."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion; the busy spinner is Button`s."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/request-card",
-      "registryDependencies": [
-        "@vegastack/badge",
-        "@vegastack/button",
-        "@vegastack/button-group",
-        "@vegastack/dropdown-menu",
-        "@vegastack/person-avatar",
-        "@vegastack/textarea",
-        "@vegastack/use-announcer"
-      ],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.28.0",
-        "@vegastack/design@^0.28.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/request-card.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "request-card",
-      "dataAttributes": {
-        "RequestCard": {
-          "attributes": [
-            {
-              "name": "data-answer",
-              "values": [
-                "always",
-                "decline",
-                "never",
-                "once",
-                "review",
-                "status-action"
-              ]
-            },
-            {
-              "name": "data-bundle",
-              "values": []
-            },
-            {
-              "name": "data-compact",
-              "values": []
-            },
-            {
-              "name": "data-hard",
-              "values": []
-            },
-            {
-              "name": "data-scope",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "request-card",
-                "request-card-actions",
-                "request-card-body",
-                "request-card-bundle",
-                "request-card-footnote",
-                "request-card-from",
-                "request-card-header",
-                "request-card-note",
-                "request-card-nudge",
-                "request-card-status",
-                "request-card-title",
-                "request-card-why"
-              ]
-            },
-            {
-              "name": "data-state",
-              "values": []
-            }
-          ],
-          "cssVariables": []
-        },
-        "PermissionRow": {
-          "attributes": [
-            {
-              "name": "data-effect",
-              "values": []
-            },
-            {
-              "name": "data-paused",
-              "values": []
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "permission-row",
-                "permission-row-meta",
-                "permission-row-paused",
-                "permission-row-title"
-              ]
-            }
-          ],
-          "cssVariables": []
-        },
-        "PermissionList": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["permission-list", "permission-list-empty"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "agent-edit-banner",
       "registryType": "registry:ui",
       "title": "Agent Edit Banner",
@@ -52133,15 +51002,6 @@
           }
         },
         {
-          "name": "recordPickerKey",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/record-picker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function or value; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "RecordPickerKind",
           "kind": "interface",
           "source": "packages/ui/registry/ui/record-picker.tsx",
@@ -52435,139 +51295,6 @@
                 "destination-picker-refused",
                 "destination-picker-results"
               ]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
-      "name": "field-type-picker",
-      "registryType": "registry:ui",
-      "title": "Field Type Picker",
-      "summary": "A searchable, grouped list of field types with icons, and an optional second step.",
-      "status": "preview",
-      "since": "0.25.89",
-      "family": "forms",
-      "wave": "Forms/editing",
-      "sourceFiles": ["packages/ui/registry/ui/field-type-picker.tsx"],
-      "publicSymbols": [
-        {
-          "name": "FieldTypeOption",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field-type-picker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldTypePicker",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/field-type-picker.tsx",
-          "ref": {
-            "status": "observed",
-            "target": "div",
-            "rationale": "AST-resolved React 19 prop/ref forwarding at the rendered root in packages/ui/registry/ui/field-type-picker.tsx."
-          }
-        },
-        {
-          "name": "FieldTypePickerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field-type-picker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "FieldTypePickerStepControls",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/field-type-picker.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No local variant scale."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "observed",
-          "values": ["default", "search", "disabled-item", "current", "step"],
-          "evidence": "Observed from the component's prop branches."
-        },
-        "accessibility": {
-          "status": "observed",
-          "values": ["labeled"],
-          "evidence": "Observed from semantic elements, ARIA, or focus styling."
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "with-icon"],
-          "evidence": "Observed from token classes and data attributes."
-        }
-      },
-      "responsive": {
-        "status": "none-observed",
-        "risks": [],
-        "rationale": "Wraps or truncates within its container; consumer layout constrains it."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion mechanism observed."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/field-type-picker",
-      "registryDependencies": ["@vegastack/button", "@vegastack/command"],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.28.0",
-        "@vegastack/design@^0.28.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/field-type-picker.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "field-type-picker",
-      "dataAttributes": {
-        "FieldTypePicker": {
-          "attributes": [
-            {
-              "name": "data-checked",
-              "values": [""]
-            },
-            {
-              "name": "data-slot",
-              "values": [
-                "field-type-picker",
-                "field-type-picker-back",
-                "field-type-picker-item",
-                "field-type-picker-step-content",
-                "field-type-picker-step-header"
-              ]
-            },
-            {
-              "name": "data-step",
-              "values": []
             }
           ],
           "cssVariables": []
@@ -54479,142 +53206,6 @@
       }
     },
     {
-      "name": "tool-group",
-      "registryType": "registry:ui",
-      "title": "Tool Group",
-      "summary": "A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with ⋯ as the one More.",
-      "status": "stable",
-      "since": "0.91.0",
-      "family": "actions",
-      "wave": "Core controls",
-      "sourceFiles": ["packages/ui/registry/ui/tool-group.tsx"],
-      "publicSymbols": [
-        {
-          "name": "ToolGroup",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/tool-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ToolGroupItem",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/tool-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ToolGroupItemProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/tool-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ToolGroupMore",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/tool-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ToolGroupMoreProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/tool-group.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        }
-      ],
-      "variants": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local CVA or string-union variant dimension observed; structure or inherited props define the surface."
-      },
-      "sizes": {
-        "status": "not-applicable-or-inherited",
-        "dimensions": [],
-        "rationale": "No explicit local size scale observed; sizing is fixed, structural, or inherited."
-      },
-      "states": {
-        "behavior": {
-          "status": "covered",
-          "values": ["default", "pressed", "count", "menu-trigger"],
-          "evidence": "packages/ui/registry/ui/tool-group.tsx + packages/ui/registry/ui/tool-group.test.tsx"
-        },
-        "accessibility": {
-          "status": "covered",
-          "values": ["group-labelled", "button-named-by-label", "tooltip"],
-          "evidence": "packages/ui/registry/ui/tool-group.tsx + packages/ui/registry/ui/tool-group.test.tsx"
-        },
-        "visual": {
-          "status": "observed",
-          "values": ["default", "hover", "pressed", "count"],
-          "evidence": "packages/ui/registry/ui/tool-group.tsx"
-        }
-      },
-      "responsive": {
-        "status": "modeled",
-        "risks": ["text-truncation-and-flex-shrink"],
-        "rationale": "The group never shrinks; a count widens its tool rather than overflowing it."
-      },
-      "motion": {
-        "status": "not-applicable",
-        "mechanisms": [],
-        "reducedMotion": {
-          "status": "not-applicable",
-          "rationale": "No component-owned motion; the tooltip's is upstream's."
-        }
-      },
-      "engines": [],
-      "docsSlug": "/docs/components/tool-group",
-      "registryDependencies": ["@vegastack/button", "@vegastack/tooltip"],
-      "npmDependencies": [
-        "@vegastack/design-tokens@^0.28.0",
-        "@vegastack/design@^0.28.0",
-        "lucide-react@^1.47.0"
-      ],
-      "testFiles": ["packages/ui/registry/ui/tool-group.test.tsx"],
-      "coverage": {
-        "source": "required",
-        "test": "required",
-        "docs": "required",
-        "navigation": "required",
-        "preview": "required",
-        "vrt": "required"
-      },
-      "previewModule": "tool-group",
-      "dataAttributes": {
-        "ToolGroup": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["tool-group"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ToolGroupItem": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["tool-group-count", "tool-group-item"]
-            }
-          ],
-          "cssVariables": []
-        }
-      }
-    },
-    {
       "name": "shell-assistant",
       "registryType": "registry:ui",
       "title": "Shell Assistant",
@@ -54628,60 +53219,6 @@
         {
           "name": "AssistantCard",
           "kind": "component",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "AssistantCardBody",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "AssistantCardComposer",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "AssistantCardContext",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "AssistantCardContextProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "AssistantCardHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/shell-assistant.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "AssistantCardHeaderProps",
-          "kind": "interface",
           "source": "packages/ui/registry/ui/shell-assistant.tsx",
           "ref": {
             "status": "not-applicable",
@@ -54752,15 +53289,10 @@
       },
       "engines": [],
       "docsSlug": "/docs/components/shell-assistant",
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/chip",
-        "@vegastack/tool-group"
-      ],
+      "registryDependencies": [],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.28.0",
-        "@vegastack/design@^0.28.0",
-        "lucide-react@^1.47.0"
+        "@vegastack/design@^0.28.0"
       ],
       "testFiles": ["packages/ui/registry/ui/shell-assistant.test.tsx"],
       "coverage": {
@@ -54782,42 +53314,6 @@
             {
               "name": "data-slot",
               "values": ["assistant-card"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AssistantCardHeader": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["assistant-card-header"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AssistantCardContext": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["assistant-card-context"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AssistantCardBody": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["assistant-card-body"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "AssistantCardComposer": {
-          "attributes": [
-            {
-              "name": "data-slot",
-              "values": ["assistant-card-composer"]
             }
           ],
           "cssVariables": []
@@ -59077,15 +57573,6 @@
           }
         },
         {
-          "name": "supportsViewTransitions",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/use-view-transition.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "This exported helper is not a rendered component root."
-          }
-        },
-        {
           "name": "useViewTransition",
           "kind": "hook",
           "source": "packages/ui/registry/ui/use-view-transition.ts",
@@ -59212,15 +57699,6 @@
         {
           "name": "UseStickToBottomResult",
           "kind": "interface",
-          "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "scrollParentOf",
-          "kind": "function",
           "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
           "ref": {
             "status": "not-applicable",
@@ -61782,15 +60260,6 @@
           }
         },
         {
-          "name": "timeZoneAbbreviation",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/date-time.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "FormatDateTimeOptions",
           "kind": "interface",
           "source": "packages/ui/registry/lib/date-time.ts",
@@ -61896,15 +60365,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "dayGroupKey",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/date-time.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
           }
         },
         {
@@ -62380,15 +60840,6 @@
         },
         {
           "name": "EMBED_PROVIDERS",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/embed-providers.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
-          "name": "EMBED_PROVIDER_IDS",
           "kind": "constant",
           "source": "packages/ui/registry/lib/embed-providers.ts",
           "ref": {
@@ -63503,15 +61954,6 @@
           }
         },
         {
-          "name": "SHELL_COOKIE_MAX_AGE",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/lib/shell-layout.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "SHELL_COOKIES",
           "kind": "component-constant",
           "source": "packages/ui/registry/lib/shell-layout.ts",
@@ -64054,15 +62496,6 @@
       "sourceFiles": ["packages/ui/registry/lib/text-edit-grammar.ts"],
       "publicSymbols": [
         {
-          "name": "VEGASTACK_MARKDOWN_VERSION",
-          "kind": "constant",
-          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A constant; it renders nothing and takes no ref."
-          }
-        },
-        {
           "name": "MentionKind",
           "kind": "type",
           "source": "packages/ui/registry/lib/text-edit-grammar.ts",
@@ -64384,15 +62817,6 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
-          }
-        },
-        {
-          "name": "trackLexer",
-          "kind": "function",
-          "source": "packages/ui/registry/lib/text-edit-grammar.ts",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "A pure function; it renders nothing and takes no ref."
           }
         },
         {

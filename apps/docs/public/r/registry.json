@@ -146,7 +146,7 @@
         "whenToUse": "Code that must know where the shell puts the column without a DOM — a server render, a test, a docs table — or the shell's sizes and cookie format.",
         "whenNotToUse": "Laying the shell out: Shell does that in CSS before hydration; read the live outcome with useShellLayout.",
         "version": "0.114.0",
-        "integrity": "sha256-2O16utvjPrfG6aUYkp/VUN8cGUgv8DBE+jGDb7pkEVQ="
+        "integrity": "sha256-G+s/le1/U6IxG13iqFx4SHD8mOVvwkFBK/zfNCunmIw="
       }
     },
     {
@@ -195,7 +195,7 @@
         "whenToUse": "The app's frame: the global bar, the rail of modules, a module's column, the page's top bar and the page, on every width from a 320px phone to a wide desktop window, in the browser and the desktop app.",
         "whenNotToUse": "Sign-in, public and marketing pages (no shell), or a region inside a page (use a grid or ResizablePanelGroup).",
         "version": "0.131.0",
-        "integrity": "sha256-+YYLys7L0z9uemfcodQw8OclzEMvqMfiXH5q609CSds="
+        "integrity": "sha256-XNJq+HztD6qQn0gTVqX5OhqnUtGBo49cDHIG4al6PKI="
       }
     },
     {
@@ -385,7 +385,7 @@
         "whenToUse": "Looking at a record from a list, board, table, search result, Inbox or a mention chip, without leaving it: ↑ ↓ walk the list, ⤢ opens the full page.",
         "whenNotToUse": "Working on one record — open its page (RecordLayout); a form or a confirmation — Dialog or Sheet.",
         "version": "0.123.3",
-        "integrity": "sha256-77Tehn7XjyhZLB0Dv2uIwBDV80c569y+fFmgJJs9c9U="
+        "integrity": "sha256-6cc/WqAyEZR0FWSG6CS3wPWZXZxVlpsTuyvpbFzB720="
       }
     },
     {
@@ -1953,36 +1953,6 @@
       }
     },
     {
-      "name": "data-list-skeleton",
-      "type": "registry:ui",
-      "title": "Data List Skeleton",
-      "description": "A DataList and its ListToolbar while they load, in the list's own geometry (table rows or grid cards), without loading the list.",
-      "categories": [
-        "data"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/skeleton",
-        "@vegastack/table"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/data-list-skeleton.tsx",
-          "type": "registry:ui",
-          "target": "@ui/data-list-skeleton.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "A route's or Suspense fallback's loading state for a DataList page (rows, grid cards, the toolbar).",
-        "whenNotToUse": "DataList's own `loading` (a list already on screen refetching).",
-        "version": "0.123.2",
-        "integrity": "sha256-SfMt3XCxNZ4meOwGUk1rVw7XP9rpgewIl+CL2VxB6wk="
-      }
-    },
-    {
       "name": "data-list-pager",
       "type": "registry:ui",
       "title": "Data List Pager",
@@ -2410,7 +2380,7 @@
         "whenToUse": "Installed automatically with DataList or DataGrid; import it directly when building a bespoke table that should share their sort header, selection cells and column rules.",
         "whenNotToUse": "A plain presentational table (Table alone), or as a table component in its own right — these are parts, not a renderer.",
         "version": "0.123.2",
-        "integrity": "sha256-c93aOpdh3UWy3816DHUGY2DqKwjxHdE761Zb0Af4/W4="
+        "integrity": "sha256-M+q/9xJsD97rD54xyrt63bwcQu2j9VIkhox9sIvMH3k="
       }
     },
     {
@@ -2606,7 +2576,7 @@
         "whenToUse": "Any date, time, duration, due label or day grouping shown as text — on the server, in route handlers, emails or client code.",
         "whenNotToUse": "API/JSON output — keep ISO strings there.",
         "version": "0.68.0",
-        "integrity": "sha256-1dXweF/q2TsKeD23Yz0IjW3wfLDhvvHrfHlLYTV7D1U="
+        "integrity": "sha256-hXifI9A9aB4Ffp7T/uwI8NX9Zx8+Bx1RiVG+FfWzpAk="
       }
     },
     {
@@ -2752,7 +2722,7 @@
         "version": "0.26.4",
         "whenToUse": "Reading or writing the Markdown constructs TextEdit stores — mentions, callouts, toggles, media, image widths — on a server or in a light renderer.",
         "whenNotToUse": "Parsing a whole document — use text-edit-markdown.",
-        "integrity": "sha256-eSmgLyNAIbV8ESfw1iOS9bU7wftqElezig2Q52n+N/g="
+        "integrity": "sha256-rWc4icPXRD76Htbzjzf2u/oty4bjCkzKIA37GALF8S4="
       }
     },
     {
@@ -2776,7 +2746,7 @@
         "version": "0.26.4",
         "whenToUse": "Deciding whether a URL is an embeddable video (YouTube, Loom) and building its player src — in TextEdit, MarkdownView, a server import, or a Content-Security-Policy's frame-src.",
         "whenNotToUse": "Any other host: the allowlist is the security boundary; add a provider here, never a raw URL as a frame src.",
-        "integrity": "sha256-PTabLUZo3wCF4/LRI++1UrJUMWPCcJINKRvZrxiYkOM="
+        "integrity": "sha256-qivqMYDNt6Cc90z5elUG76hncDbapTVfgreAA7Eswrs="
       }
     },
     {
@@ -3223,7 +3193,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.123.2",
-        "integrity": "sha256-LVSdLT2nqi19LZ9PV0ZyndXkoDi67WxklSICt2dxcx8="
+        "integrity": "sha256-4s9T48NzKUnX26RH1Xf5CJ79moLgDfzJr0yjVdcmU6c="
       }
     },
     {
@@ -16942,7 +16912,7 @@
         "whenToUse": "A mention or a file link inside text — an editor, a Markdown body, a comment — that should read as part of the sentence and open or preview its target.",
         "whenNotToUse": "A record's property value or a picker (RecordChip), a removable token in an input (Chip), or a status label (Badge).",
         "version": "0.127.0",
-        "integrity": "sha256-EyMVnZXgMaWzZcmzZjXF699C7sWEneNmjHvEXIkTk6c="
+        "integrity": "sha256-KhuKyH6IjTavD0hltX5a5c7uSPI1D+UwnmF4DQXNYWs="
       }
     },
     {
@@ -17175,7 +17145,7 @@
         "whenToUse": "A MessageScroller thread whose answers stream: pass the reader's newest message id as follow, and keep the engine's autoScroll off.",
         "whenNotToUse": "A list that never grows while read, or a feed that should hold its place (a log the reader pages through).",
         "version": "0.64.0",
-        "integrity": "sha256-ejV+ihFyAM8WUoL800ZpOuphkmRQdr7qe5ckc3Kbdfk="
+        "integrity": "sha256-9PznVQDzAd+nYG0aWq3n57Xt3Q1PRrp83DEH+NeEOeM="
       }
     },
     {
@@ -17366,7 +17336,7 @@
         "whenToUse": "Linking a record to another one in its header — a meeting's customer or project — with a picker and a jump to the linked record.",
         "whenNotToUse": "A free-form tag (Chip) or a form field with a label (Combobox, Select).",
         "version": "0.123.2",
-        "integrity": "sha256-dZHyrPn9Xd3/y8imfMd+b7qPuxN+BVwi/lo5qJKlA9M="
+        "integrity": "sha256-SosYve2JyqpxQluJjVOPrYNIubA3fKxwn8MkHEXmZUg="
       }
     },
     {
@@ -17992,7 +17962,7 @@
         "whenToUse": "Linking, relating, attaching or inserting records of several kinds: a relation field, a mention target, a block source, a Link to… dialog, an Add from… dialog that browses folders.",
         "whenNotToUse": "A fixed option list (Select, SearchableSelect), people (PeoplePicker) or a place to move something (DestinationPicker).",
         "version": "0.123.2",
-        "integrity": "sha256-L/7jQ95Efshcx57Iim33OPoipNRA9nMkFyd479mLEyU="
+        "integrity": "sha256-qZfOP9KUDaOa+xrBZ/6K5Ub38JBUz99+t2hHSRn3JPw="
       }
     },
     {
@@ -18028,37 +17998,6 @@
         "whenNotToUse": "Picking a record to link (RecordPicker) or a space alone (SpacePicker).",
         "version": "0.123.2",
         "integrity": "sha256-cWS0/Mz+8RHMz6qwjmi+9yW/Tv2P85scjIuQxwkBhsc="
-      }
-    },
-    {
-      "name": "field-type-picker",
-      "type": "registry:ui",
-      "title": "Field Type Picker",
-      "description": "A searchable, grouped list of field types with icons, and an optional second step.",
-      "categories": [
-        "form"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0",
-        "lucide-react@^1.47.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/command"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/field-type-picker.tsx",
-          "type": "registry:ui",
-          "target": "@ui/field-type-picker.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Choosing a field type: + Add field on a table, a form builder, a field settings Type row.",
-        "whenNotToUse": "Any other fixed list (Select) or record list (RecordPicker).",
-        "version": "0.123.2",
-        "integrity": "sha256-LOQJ2zuR+vLmOlT1oQ7nGGh2PuDOC0zJjlpQUlGOmC8="
       }
     },
     {
@@ -18899,7 +18838,7 @@
         "whenToUse": "A row of headline numbers at the top of a dashboard or report, each with its own trend, change and optional link to the list behind it.",
         "whenNotToUse": "A compact strip of counts on a home page (StatGroup), the facts of one record (Stat or PropertyList), or a full chart (Chart).",
         "version": "0.123.2",
-        "integrity": "sha256-oZ2vMcUWFxxkSoGfbtAhLsIuWeKHtg/ruYEYPpFtIy8="
+        "integrity": "sha256-MR82AwlCVbvZ37hh0fxhK2kxrYarCGcr65jW0HQlnH8="
       },
       "registryDependencies": [
         "@vegastack/card",
@@ -19548,36 +19487,6 @@
       }
     },
     {
-      "name": "suggestion-card",
-      "type": "registry:ui",
-      "title": "Suggestion Card",
-      "description": "An agent offers one person a next step, in a card only they see: items with optional ticks, the host's own buttons, a menu, a footnote, its outcomes and a compact row.",
-      "categories": [
-        "chat"
-      ],
-      "dependencies": [
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/checkbox",
-        "@vegastack/truncated-text"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/suggestion-card.tsx",
-          "type": "registry:ui",
-          "target": "@ui/suggestion-card.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "An agent offering a next step the person may ignore: tasks from a chat, a draft, a follow-up.",
-        "whenNotToUse": "A risky action that waits for a decision (RequestCard), or a change already made (AgentEditBanner).",
-        "version": "0.123.2",
-        "integrity": "sha256-hJYWpN8+24YeBfYaoHLj6UUIAinlQKY5vqcUhE2WbW8="
-      }
-    },
-    {
       "name": "agent-directory-card",
       "type": "registry:ui",
       "title": "Agent Directory Card",
@@ -19640,9 +19549,9 @@
       ],
       "meta": {
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
-        "whenNotToUse": "An agent offering a next step the person may ignore (SuggestionCard), or a question with answers to fill (AgentQuestionForm).",
+        "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
         "version": "0.123.2",
-        "integrity": "sha256-BpYdoZm1IwFG8kImYLrz9u2llB+tDtyl7JY1goylzxw="
+        "integrity": "sha256-ukL7q7PWaFvUfGo5+tukZ8U+y43STxe01j3Q3uedtpI="
       }
     },
     {
@@ -19716,7 +19625,7 @@
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
         "version": "0.132.0",
-        "integrity": "sha256-Bbgx+nSvQOiu7s5Dk2u5iR66MJT8voc6kqFbr/YzN98="
+        "integrity": "sha256-/APO6qXxXlH8IQhBuPhA0Q19zW3EXPCEzrhYWbce8LM="
       }
     },
     {
@@ -20006,37 +19915,6 @@
         "whenNotToUse": "A checklist of tasks (TaskList), a plain reorderable settings list (SortableList), or a timeline of dated work (Timeline).",
         "version": "0.125.0",
         "integrity": "sha256-mWTzFv4zJ2okSD2naK3WZBP9z5CvM4hsFYDwP2EBtP0="
-      }
-    },
-    {
-      "name": "memory-note",
-      "type": "registry:ui",
-      "title": "Memory Note",
-      "description": "One quiet row under a chat message saying what an agent remembered, updated, suggested or forgot in a memory, with Undo, Edit, Why? and a filled Keep for suggestions, and its settled outcomes.",
-      "categories": [
-        "chat"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/spinner"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/memory-note.tsx",
-          "type": "registry:ui",
-          "target": "@ui/memory-note.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Show what an agent did with memory under the message that did it, or list memory outcomes (Needs you, Learned this week) with compact.",
-        "whenNotToUse": "An agent asking to act (RequestCard) or offering a next step that is not a memory line (SuggestionCard).",
-        "version": "0.128.0",
-        "integrity": "sha256-Lhsdwb21xIUzYNQ792/DD5tZ0j68OySoZl5zC6ToXOI="
       }
     },
     {
@@ -20354,36 +20232,6 @@
       }
     },
     {
-      "name": "chat-details",
-      "type": "registry:ui",
-      "title": "Chat Details",
-      "description": "The chat details panel beside the thread: quiet sections (Context, Outputs, Subagents and background work, Connectors) of icon, name and meta rows with Show more, and a back header for a Subagent's steps.",
-      "categories": [
-        "chat"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/chat-details.tsx",
-          "type": "registry:ui",
-          "target": "@ui/chat-details.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "The details rail beside an agent chat (≥1280px) or its phone sheet.",
-        "whenNotToUse": "Record detail asides (RecordAside).",
-        "version": "0.123.2",
-        "integrity": "sha256-pj7MdXhTQ7jmrubs1GRDU2X4kUD/OSsuRwQE58fnztw="
-      }
-    },
-    {
       "name": "chat-skeleton",
       "type": "registry:ui",
       "title": "Chat Skeleton",
@@ -20545,7 +20393,7 @@
         "whenToUse": "The work line and log of an agent turn drawn from AI SDK parts; a turn-level error or stuck row.",
         "whenNotToUse": "Answers (MarkdownView) or cards a person acts on (ChatCard).",
         "version": "0.123.2",
-        "integrity": "sha256-eSaBoBVzY/osTCoEBdZIWDVpuZTTreUfNWGTBYdAQDw="
+        "integrity": "sha256-cMGmkxBSTGZxJ9lVt+Hii9Ty2rT2g8kN92Kw+jnOzio="
       }
     },
     {
@@ -20772,9 +20620,9 @@
       ],
       "meta": {
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
-        "whenNotToUse": "A single action to allow (RequestCard), or a live checklist of work in progress (TaskList).",
+        "whenNotToUse": "A single action to allow (AskCard), or a live checklist of work in progress (TaskList).",
         "version": "0.123.2",
-        "integrity": "sha256-2JXLiVZ5fzZcMUw4fMtBukLnQHgdy665Sp+xurY1D7E="
+        "integrity": "sha256-y8ynYEzwwuxBBkFG9M144qhjlUgyOnpXz/anFYbsouI="
       }
     },
     {
@@ -20878,7 +20726,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put the model and the memory ring in ChatComposerActionsEnd and Plan in ChatComposerHeader.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.123.2",
-        "integrity": "sha256-MzjwgFHaGMBctFmL8ZxbAEhcf6embsTQCnhGwDY+OpU="
+        "integrity": "sha256-+GyDwnK3l5aKjDDQK+WiLXd9R+oTw2ggswORpcqelRY="
       }
     },
     {
@@ -21425,7 +21273,7 @@
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.131.0",
-        "integrity": "sha256-0ifOh8wHKGSzaOegY47Pk3hLJwidt4KBeQcHa1efrPA="
+        "integrity": "sha256-FBavPtT4bxC7d+pLHpgIlha4mfJQXIbxBU7DFciIlpM="
       }
     },
     {
@@ -24565,43 +24413,7 @@
         "whenToUse": "An in-page state change should cross-fade or morph instead of jumping — switching a view, reordering, opening a detail pane.",
         "whenNotToUse": "A component's own enter/exit (use Base UI's lifecycle styles or the motion-* utilities), or anything that must animate in every browser.",
         "version": "0.26.4",
-        "integrity": "sha256-4bKlEviOWzR9pQFU7f1QnFphZjvPsRRBph/BznLG1sI="
-      }
-    },
-    {
-      "name": "request-card",
-      "type": "registry:ui",
-      "title": "Request Card",
-      "description": "One card for every question an agent asks before it acts — Allow once · Always allow (one step wider from its menu) · Decline (with a note, or Never allow this) — its settled line in the same words on every channel, and What I've allowed with uses and Revoke.",
-      "categories": [
-        "chat"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/badge",
-        "@vegastack/button",
-        "@vegastack/button-group",
-        "@vegastack/dropdown-menu",
-        "@vegastack/person-avatar",
-        "@vegastack/textarea",
-        "@vegastack/use-announcer"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/request-card.tsx",
-          "type": "registry:ui",
-          "target": "@ui/request-card.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "An agent asks before it acts (post, send, share, open a site, move many things) — in the chat, Home, Inbox, Needs you and on a record; and What I`ve allowed.",
-        "whenNotToUse": "A person asking for access (InboxItem actions), an agent`s questions with options (AgentQuestionForm), or confirming the viewer`s own destructive action (AlertDialog).",
-        "version": "0.123.2",
-        "integrity": "sha256-+9rAMzaBaThJ1LiYY6F8zmo1uYGE8ePTs+Df+SWlep8="
+        "integrity": "sha256-y71We2F6/gb4BhVEL6DiR1RA1PN4cUzo/7d2KMkb76E="
       }
     },
     {
@@ -24633,9 +24445,9 @@
       ],
       "meta": {
         "whenToUse": "Pinned under a page's header after an agent edited or created it, so people can see the change and undo it.",
-        "whenNotToUse": "An agent asking before it acts (RequestCard), a transient result after the viewer's own action (Toast), or a page-wide notice (Alert).",
+        "whenNotToUse": "An agent asking before it acts (AskCard), a transient result after the viewer's own action (Toast), or a page-wide notice (Alert).",
         "version": "0.123.2",
-        "integrity": "sha256-LXElBBn8MT8LvxJdbkBV03QM2HDBKg/+X41pvwLJNMI="
+        "integrity": "sha256-x2Yvl25PdkaUoxNGHFkJI3w8nIMI86PrIGyzW3UIPlk="
       }
     },
     {
@@ -24680,9 +24492,9 @@
       ],
       "meta": {
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
-        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (RequestCard), or choosing the agent (DelegatePopover).",
+        "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (AskCard), or choosing the agent (DelegatePopover).",
         "version": "0.123.3",
-        "integrity": "sha256-f1GUo6aQErq/BEOoMXQTXCIn/C6huFNXl6i3q94zrNQ="
+        "integrity": "sha256-f8e9oEfkydkUWkstMvNFa56PcgoVwopJXtUcfmNV4Mk="
       }
     },
     {
@@ -24713,9 +24525,9 @@
       ],
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
-        "whenNotToUse": "An agent asking to perform one action (RequestCard), offering a next step the person may ignore (SuggestionCard), or a survey the host defines itself (Questionnaire).",
+        "whenNotToUse": "An agent asking to perform one action (AskCard), offering a next step the person may ignore (ForYouCard), or a survey the host defines itself (Questionnaire).",
         "version": "0.123.2",
-        "integrity": "sha256-oMhiww+jqZCOhCWh+E/A/GRKA0loqjWfPgnmBM8HoMY="
+        "integrity": "sha256-LyIDKYrQVdN+zvZF6aBRU/+jYt0jO5IMJMj/IM6qIXg="
       }
     },
     {
@@ -24923,53 +24735,16 @@
       }
     },
     {
-      "name": "tool-group",
-      "type": "registry:ui",
-      "title": "Tool Group",
-      "description": "A run of icon tools — 28px ghost icon buttons two pixels apart, each named by its tooltip, with ⋯ as the one More.",
-      "categories": [
-        "actions"
-      ],
-      "dependencies": [
-        "lucide-react@^1.47.0",
-        "@vegastack/design@^0.28.0",
-        "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/tooltip"
-      ],
-      "files": [
-        {
-          "path": "packages/ui/registry/ui/tool-group.tsx",
-          "type": "registry:ui",
-          "target": "@ui/tool-group.tsx"
-        }
-      ],
-      "meta": {
-        "whenToUse": "Icon-only tools in a top bar or a card header — Watch, Star, Comments, More.",
-        "whenNotToUse": "Text actions (Share, Approve) or attached segmented buttons (ButtonGroup).",
-        "version": "0.123.2",
-        "integrity": "sha256-KRk7exijBnqShr8YytJbR0rw5jH+8PNtfDiHalFLF6M="
-      }
-    },
-    {
       "name": "shell-assistant",
       "type": "registry:ui",
       "title": "Shell Assistant",
-      "description": "The assistant's chat docked beside the page as a second card (the split view) — header actions, a removable context chip, a scrolling body and a composer slot.",
+      "description": "The assistant's chat docked beside the page as a second card (the split view) — the frame the host's chat renders in.",
       "categories": [
         "chat"
       ],
       "dependencies": [
-        "lucide-react@^1.47.0",
         "@vegastack/design@^0.28.0",
         "@vegastack/design-tokens@^0.28.0"
-      ],
-      "registryDependencies": [
-        "@vegastack/button",
-        "@vegastack/chip",
-        "@vegastack/tool-group"
       ],
       "files": [
         {
@@ -24980,9 +24755,9 @@
       ],
       "meta": {
         "whenToUse": "The workspace assistant on record and page screens: a small chat about what the person is looking at, opened from the global bar's Ask or ⌘J.",
-        "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet composes the card's parts), or any data fetching — the host owns the chat.",
+        "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet holds the chat), or any data fetching — the host owns the chat.",
         "version": "0.131.0",
-        "integrity": "sha256-IHP/WwSgLZd/BVJvkcWO9tEDb+s/hzUBaxYg/emRGPQ="
+        "integrity": "sha256-LeFlG8QUNZuG/7DYYvv8vWzncfPGvHKvvwjS2IZjfvk="
       }
     }
   ]

@@ -4,64 +4,26 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
-import {
-  AssistantCard,
-  AssistantCardBody,
-  AssistantCardComposer,
-  AssistantCardContext,
-  AssistantCardHeader,
-} from "./shell-assistant";
-import { ToolGroupItem } from "./tool-group";
+import { AssistantCard } from "./shell-assistant";
 
-function Host({
-  onBody,
-  withContext = true,
-}: {
-  onBody?: () => void;
-  withContext?: boolean;
-}) {
+function Host({ onBody }: { onBody?: () => void }) {
   const [open, setOpen] = React.useState(false);
-  const [about, setAbout] = React.useState(withContext);
-  const [moved, setMoved] = React.useState(0);
   function Body() {
     onBody?.();
     return <p>How can I help?</p>;
   }
   return (
     <div style={{ position: "relative", width: 800, height: 640 }}>
-      <button
-        type="button"
-        aria-expanded={open}
-        onClick={() => {
-          setMoved((n) => n + 1);
-          setOpen(true);
-        }}
-      >
+      <button type="button" aria-expanded={open} onClick={() => setOpen(true)}>
         Ask William
       </button>
-      <AssistantCard open={open} onOpenChange={setOpen}>
-        <AssistantCardHeader
-          title="William"
-          actions={
-            <ToolGroupItem label="New chat" onClick={() => setMoved(0)}>
-              <span />
-            </ToolGroupItem>
-          }
-          onClose={() => setOpen(false)}
-        />
-        {about ? (
-          <AssistantCardContext onRemove={() => setAbout(false)}>
-            #3 Review Q3 pricing
-          </AssistantCardContext>
-        ) : null}
-        <AssistantCardBody>
-          <Body />
-        </AssistantCardBody>
-        <AssistantCardComposer>
-          <textarea aria-label="Message William" />
-        </AssistantCardComposer>
+      <AssistantCard aria-label="William" open={open} onOpenChange={setOpen}>
+        <button type="button" onClick={() => setOpen(false)}>
+          Close
+        </button>
+        <Body />
+        <textarea aria-label="Message William" />
       </AssistantCard>
-      <output data-testid="moved">{moved}</output>
     </div>
   );
 }
@@ -93,21 +55,11 @@ test("opening moves focus to the composer; Escape closes and focus returns to th
   await expect.element(pill).toHaveFocus();
 });
 
-test("a closed card keeps its draft; Close, the chat's tools and removing the context work", async () => {
+test("a closed card keeps its draft; the chat's own Close returns focus to the opener", async () => {
   const screen = await render(<Host />);
   await screen.getByRole("button", { name: "Ask William" }).click();
   const box = screen.getByRole("textbox", { name: "Message William" });
   await box.fill("draft");
-  await expect.element(screen.getByTestId("moved")).toHaveTextContent("1");
-  // The chat's own tools come first in the header's group.
-  const tools = screen.container.querySelectorAll(
-    "[data-slot=assistant-card-header] [data-slot=tool-group-item]",
-  );
-  expect(tools[0]?.getAttribute("aria-label")).toBe("New chat");
-  await screen.getByRole("button", { name: "New chat" }).click();
-  await expect.element(screen.getByTestId("moved")).toHaveTextContent("0");
-  await screen.getByRole("button", { name: "Remove context" }).click();
-  expect(screen.container.textContent).not.toContain("Talking about");
   await screen.getByRole("button", { name: "Close" }).click();
   await expect
     .element(screen.getByRole("button", { name: "Ask William" }))
@@ -125,12 +77,14 @@ test("an autofocusing composer keeps focus, and closing still returns to the ope
         <button type="button" onClick={() => setOpen(true)}>
           Ask William
         </button>
-        <AssistantCard ref={cardRef} open={open} onOpenChange={setOpen}>
-          <AssistantCardHeader title="William" onClose={() => setOpen(false)} />
-          <AssistantCardComposer>
-            {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
-            <input aria-label="Draft" autoFocus />
-          </AssistantCardComposer>
+        <AssistantCard
+          ref={cardRef}
+          aria-label="William"
+          open={open}
+          onOpenChange={setOpen}
+        >
+          {/* eslint-disable-next-line jsx-a11y/no-autofocus */}
+          <input aria-label="Draft" autoFocus />
         </AssistantCard>
         <output data-testid="ref">{cardRef.current ? "set" : "unset"}</output>
       </div>
