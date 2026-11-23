@@ -20726,7 +20726,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put + and ChatComposerAgent in ChatComposerActionsStart, the model and the memory ring in ChatComposerActionsEnd, Plan in the + menu (a pressed ComposerChip while on); pass rest so a reply box rests at one line until focused.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.133.0",
-        "integrity": "sha256-/FbOzhABrSCnneXbof91o3gfCFh1x5d9SOlfwq9CmFE="
+        "integrity": "sha256-CnKa28ve6BvqJADRPIX3Zi4KgxAgnorNois01Aqswtg="
       }
     },
     {

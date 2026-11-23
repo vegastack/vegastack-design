@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.133.0 sha256-/FbOzhABrSCnneXbof91o3gfCFh1x5d9SOlfwq9CmFE=
+// @vegastack chat-composer@0.133.0 sha256-CnKa28ve6BvqJADRPIX3Zi4KgxAgnorNois01Aqswtg=
 
 "use client";
 
@@ -396,14 +396,15 @@ export function ChatComposer({
   const empty = !sendable(body) && !hasAttachments;
   // One send at a time, a steer included; while it works only `running` takes one, never
   // `stopping`, so nothing races the stop.
-  const canSend =
+  // Everything but the words: whether a send may go now.
+  const sendOpen =
     !!onSubmit &&
     !disabled &&
     !submitDisabled &&
     !sending &&
     !pending &&
-    (!working || (queues && state === "running")) &&
-    !empty;
+    (!working || (queues && state === "running"));
+  const canSend = sendOpen && !empty;
 
   const replace = React.useCallback(
     (value: string, focus: boolean) => {
@@ -440,7 +441,9 @@ export function ChatComposer({
   }, [body]);
 
   const submit = async (text: string) => {
-    if (!canSend) return;
+    // The words given, not the last render's: typed before the editor loaded, they reach it with
+    // the Enter that sends them, in the same moment.
+    if (!sendOpen || (!sendable(text) && !hasAttachments)) return;
     const value = sendable(text);
     // Nothing typed may be lost, so what failed goes back ahead of what came after it.
     const putBack = () => {
@@ -1401,7 +1404,7 @@ export function ChatComposerInput({
             // controls, so the text sits on their centre line; one line, ellipsis.
             // A resting draft keeps the text as the one textbox, unseen; its rich parts' own
             // controls (a code block's Copy) leave the Tab order and the pointer while it rests.
-            "group-data-rest/composer:px-[7px] group-data-rest/composer:py-1 group-data-rest/composer:[&_[role=textbox]]:h-6 group-data-rest/composer:[&_[role=textbox]]:overflow-hidden group-data-rest/composer:[&_[role=textbox]]:py-0.5 group-data-rest/composer:[&_[data-slot=text-edit-content]]:overflow-hidden group-data-rest/composer:[&_[role=textbox]_button]:hidden group-data-[rest=draft]/composer:opacity-0",
+            "group-data-rest/composer:px-[7px] group-data-rest/composer:py-1 group-data-rest/composer:[&_[role=textbox]>p:first-child]:truncate group-data-rest/composer:[&_[role=textbox]>p:first-child]:before:float-none group-data-rest/composer:[&_[role=textbox]]:h-6 group-data-rest/composer:[&_[role=textbox]]:overflow-hidden group-data-rest/composer:[&_[role=textbox]]:py-0.5 group-data-rest/composer:[&_[data-slot=text-edit-content]]:overflow-hidden group-data-rest/composer:[&_[role=textbox]_button]:hidden group-data-[rest=draft]/composer:opacity-0",
             className,
           )}
         />
