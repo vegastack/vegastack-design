@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.123.2 sha256-LVSdLT2nqi19LZ9PV0ZyndXkoDi67WxklSICt2dxcx8=
+// @vegastack field-cell@0.123.2 sha256-4s9T48NzKUnX26RH1Xf5CJ79moLgDfzJr0yjVdcmU6c=
 
 "use client";
 
@@ -402,7 +402,7 @@ export type FieldValue =
   | undefined;
 
 /** The read-only types: computed or system-kept, never edited. */
-export const READ_ONLY_FIELD_TYPES: ReadonlySet<FieldType> = new Set([
+const READ_ONLY_FIELD_TYPES: ReadonlySet<FieldType> = new Set([
   "calculated",
   "autonumber",
   "created_at",

@@ -1,4 +1,4 @@
-// @vegastack embed-providers@0.26.4 sha256-PTabLUZo3wCF4/LRI++1UrJUMWPCcJINKRvZrxiYkOM=
+// @vegastack embed-providers@0.26.4 sha256-qivqMYDNt6Cc90z5elUG76hncDbapTVfgreAA7Eswrs=
 
 /**
  * embed-providers — the video hosts a document may embed (YouTube and Loom), as plain functions: a
@@ -190,10 +190,7 @@ export const EMBED_PROVIDERS: Readonly<Record<EmbedProviderId, EmbedProvider>> =
   };
 
 /** Every provider id, in menu order. */
-export const EMBED_PROVIDER_IDS: readonly EmbedProviderId[] = [
-  "youtube",
-  "loom",
-];
+const EMBED_PROVIDER_IDS: readonly EmbedProviderId[] = ["youtube", "loom"];
 
 /**
  * Every origin a player frame may load from — exactly a Content-Security-Policy's `frame-src`

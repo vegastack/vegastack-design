@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.132.0 sha256-Bbgx+nSvQOiu7s5Dk2u5iR66MJT8voc6kqFbr/YzN98=
+// @vegastack for-you-card@0.132.0 sha256-/APO6qXxXlH8IQhBuPhA0Q19zW3EXPCEzrhYWbce8LM=
 
 "use client";
 
@@ -139,7 +139,7 @@ export interface ForYouCardProps {
    * @default "not_needed"
    */
   withdrawnReason?: "not_needed" | "access_lost";
-  /** The verb's body: an inline `AskCard`, a draft, a `SuggestionCard`. @default undefined */
+  /** The verb's body: an inline `AskCard`, a draft, a suggestion's preview. @default undefined */
   children?: React.ReactNode;
   /** A `fields` card's source body; `question_form` renders `AgentQuestionForm`. @default undefined */
   sourceBody?: ForYouSourceBody;

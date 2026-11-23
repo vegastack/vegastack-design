@@ -1,4 +1,4 @@
-// @vegastack text-edit-grammar@0.26.4 sha256-eSmgLyNAIbV8ESfw1iOS9bU7wftqElezig2Q52n+N/g=
+// @vegastack text-edit-grammar@0.26.4 sha256-rWc4icPXRD76Htbzjzf2u/oty4bjCkzKIA37GALF8S4=
 
 /**
  * text-edit-grammar — the constructs VegaStack Markdown v1 carries beyond CommonMark + GFM, as
@@ -17,9 +17,6 @@
  * lists and any other block name the host reads (a container directive whose rows are list item
  * lines, with or without a task box). Any other raw HTML is literal text.
  */
-
-/** The VegaStack Markdown version this grammar and `@/lib/text-edit-markdown` read and write. */
-export const VEGASTACK_MARKDOWN_VERSION = 1 as const;
 
 /* --- mentions ------------------------------------------------------------------------------------*/
 
@@ -1128,7 +1125,7 @@ const FRAMES = new WeakMap<object, LexFrame[]>();
  * a quote's blocks, a link's or an emphasis's text — each get their own frame and leave the
  * enclosing one intact), so the bounded tokenizers index each source exactly once.
  */
-export function trackLexer<L extends LexerLike>(lexer: L): L {
+function trackLexer<L extends LexerLike>(lexer: L): L {
   const frames: LexFrame[] = [];
   FRAMES.set(lexer, frames);
   for (const name of ["blockTokens", "inlineTokens"] as const) {

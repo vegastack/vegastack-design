@@ -1,4 +1,4 @@
-// @vegastack data-table-parts@0.123.2 sha256-c93aOpdh3UWy3816DHUGY2DqKwjxHdE761Zb0Af4/W4=
+// @vegastack data-table-parts@0.123.2 sha256-M+q/9xJsD97rD54xyrt63bwcQu2j9VIkhox9sIvMH3k=
 
 "use client";
 
@@ -2044,7 +2044,7 @@ export interface ColumnResizeHandleProps {
 }
 
 /** One keyboard step, in pixels; Shift multiplies it by four. */
-export const COLUMN_RESIZE_STEP = 8;
+const COLUMN_RESIZE_STEP = 8;
 
 /** The width a keyboard key resizes to, or `null` when the key is not a resize key. */
 export function columnResizeKeyWidth(

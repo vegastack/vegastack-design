@@ -1,4 +1,4 @@
-// @vegastack shell-layout@0.114.0 sha256-2O16utvjPrfG6aUYkp/VUN8cGUgv8DBE+jGDb7pkEVQ=
+// @vegastack shell-layout@0.114.0 sha256-G+s/le1/U6IxG13iqFx4SHD8mOVvwkFBK/zfNCunmIw=
 
 /**
  * The shell's layout rule (LAY-22) as one pure function, plus the sizes, cookie and clamp the
@@ -47,7 +47,7 @@ export const SHELL_COOKIES = Object.freeze({
 } as const);
 
 /** A year: how long a shell cookie keeps the person's choice. */
-export const SHELL_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
+const SHELL_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
 /** What the layout rule reads. */
 export interface ShellLayoutInput {

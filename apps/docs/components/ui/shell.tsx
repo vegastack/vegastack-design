@@ -1,4 +1,4 @@
-// @vegastack shell@0.131.0 sha256-+YYLys7L0z9uemfcodQw8OclzEMvqMfiXH5q609CSds=
+// @vegastack shell@0.131.0 sha256-XNJq+HztD6qQn0gTVqX5OhqnUtGBo49cDHIG4al6PKI=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -741,18 +741,6 @@ function topBarSlot(slot: string, order: string, extra = "") {
     );
   };
 }
-
-/**
- * `ShellTopBarLead` — the top bar's start, before the title: a back button on a phone.
- *
- * @example
- * <ShellTopBarLead><Button variant="ghost" size="icon-sm" aria-label="Back"><ChevronLeft /></Button></ShellTopBarLead>
- */
-export const ShellTopBarLead = topBarSlot(
-  "shell-topbar-lead-slot",
-  "order-0",
-  "gap-0.5",
-);
 
 /*
  * The bar's end holds five slots in one fixed order, whatever order a page declares them in:

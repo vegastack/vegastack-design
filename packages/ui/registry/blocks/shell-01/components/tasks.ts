@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.131.0 sha256-0ifOh8wHKGSzaOegY47Pk3hLJwidt4KBeQcHa1efrPA=
+// @vegastack shell-01@0.131.0 sha256-FBavPtT4bxC7d+pLHpgIlha4mfJQXIbxBU7DFciIlpM=
 
 /** A task row for the `shell-01` reference page. */
 export interface Task {

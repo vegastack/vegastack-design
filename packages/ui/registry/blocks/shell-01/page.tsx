@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.131.0 sha256-0ifOh8wHKGSzaOegY47Pk3hLJwidt4KBeQcHa1efrPA=
+// @vegastack shell-01@0.131.0 sha256-FBavPtT4bxC7d+pLHpgIlha4mfJQXIbxBU7DFciIlpM=
 
 "use client";
 
@@ -26,6 +26,7 @@ import {
   Share2,
   Sparkles,
   Star,
+  X,
 } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -57,11 +58,7 @@ import {
   RailTile,
   RailTop,
 } from "@/components/ui/rail";
-import {
-  AssistantCard,
-  AssistantCardBody,
-  AssistantCardHeader,
-} from "@/components/ui/shell-assistant";
+import { AssistantCard } from "@/components/ui/shell-assistant";
 import {
   Shell,
   ShellBottomBar,
@@ -426,18 +423,30 @@ function Assistant({
   return (
     <AssistantCard
       id="shell-01-assistant"
+      aria-labelledby="shell-01-assistant-title"
       open={open}
       onOpenChange={onOpenChange}
     >
-      <AssistantCardHeader
-        title="William"
-        onClose={() => onOpenChange(false)}
-      />
-      <AssistantCardBody>
-        <p className="text-muted-foreground">
-          Ask anything about your workspace.
-        </p>
-      </AssistantCardBody>
+      {/* The chat draws its own header and thread; the card is the frame. */}
+      <div className="flex h-11 shrink-0 items-center gap-2 ps-4 pe-2">
+        <h2
+          id="shell-01-assistant-title"
+          className="min-w-0 flex-1 truncate text-sm font-semibold"
+        >
+          William
+        </h2>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Close"
+          onClick={() => onOpenChange(false)}
+        >
+          <X />
+        </Button>
+      </div>
+      <p className="px-4 py-2 text-sm text-muted-foreground">
+        Ask anything about your workspace.
+      </p>
     </AssistantCard>
   );
 }

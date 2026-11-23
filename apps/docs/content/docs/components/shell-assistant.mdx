@@ -16,32 +16,17 @@ preview: shellAssistant
 ## Usage
 
 ```tsx
-import {
-  AssistantCard,
-  AssistantCardBody,
-  AssistantCardComposer,
-  AssistantCardContext,
-  AssistantCardHeader,
-} from "@/components/ui/shell-assistant";
+import { AssistantCard } from "@/components/ui/shell-assistant";
 
 <Shell
   assistant={
-    <AssistantCard id="assistant-card" open={open} onOpenChange={setOpen}>
-      <AssistantCardHeader
-        title="William"
-        actions={
-          <ToolGroupItem label="New chat" onClick={newChat}>
-            <SquarePenIcon />
-          </ToolGroupItem>
-        }
-        onClose={() => setOpen(false)}
-        onOpenFull={openFullChat}
-      />
-      <AssistantCardContext onRemove={clearContext}>
-        #3 Review Q3 pricing
-      </AssistantCardContext>
-      <AssistantCardBody>{messages}</AssistantCardBody>
-      <AssistantCardComposer>{composer}</AssistantCardComposer>
+    <AssistantCard
+      id="assistant-card"
+      aria-label="William chat"
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <Chat onClose={() => setOpen(false)} />
     </AssistantCard>
   }
   …
@@ -54,13 +39,11 @@ docks it beside the page as a second card, the split view (LAY-26): 400px wide (
 shell), with the page card's inset and corner, the page giving it the room. Outside a shell it
 fills the container you put it in.
 
-The header's `actions` take the chat's own tools — New chat, Chats — as
-[`ToolGroupItem`](/docs/components/tool-group)s, before Open full chat and Close.
-Omit `onOpenFull` to hide it (no Agents module, no full chat).
+The card is the frame only: the chat inside draws its own header (with its Close), thread and
+composer. Name the region with `aria-label`, or `aria-labelledby` pointing at the chat's heading.
 
 It renders nothing until it first opens, so the chat you put in it costs nothing until asked for;
-after that it stays mounted while closed, so a draft survives. The parts are presentational: the
-host fetches and sends.
+after that it stays mounted while closed, so a draft survives.
 
 <ComponentPreview
   name="shellAssistant"
@@ -73,21 +56,11 @@ host fetches and sends.
 
 ## Examples
 
-### Without a context
-
-Remove the chip and the chat is about nothing in particular. Omit `onRemove` for a context the
-person can't drop.
-
-<ComponentPreview
-  name="shellAssistantNoContext"
-  file="components/preview/shell-assistant.tsx"
-/>
-
 ### On a phone
 
-Under 40rem the shell shows no card. On a phone, put `AssistantCardHeader`, `AssistantCardContext`,
-`AssistantCardBody` and `AssistantCardComposer` in a [`PeekSheet`](/docs/components/peek) (it
-rests at about half the screen and drags up to nearly all of it) opened from the record's top bar.
+Under 40rem the shell shows no card. On a phone, put the chat in a
+[`PeekSheet`](/docs/components/peek) instead (it rests at about half the screen and drags up to
+nearly all of it).
 
 ## API Reference
 
@@ -96,25 +69,15 @@ rests at about half the screen and drags up to nearly all of it) opened from the
   name="AssistantCardProps"
 />
 
-<ApiTable
-  path="../../packages/ui/registry/ui/shell-assistant.tsx"
-  name="AssistantCardHeaderProps"
-/>
-
-<ApiTable
-  path="../../packages/ui/registry/ui/shell-assistant.tsx"
-  name="AssistantCardContextProps"
-/>
-
 ## Accessibility
 
-| Key            | Does                                                                 |
-| -------------- | -------------------------------------------------------------------- |
-| <kbd>⌘J</kbd>  | The host's shortcut opens the card; set `aria-keyshortcuts`.         |
-| <kbd>Esc</kbd> | Closes the card from anywhere inside it, unless a menu took it.      |
-| <kbd>Tab</kbd> | Moves through the header's tools, the context chip and the composer. |
+| Key            | Does                                                            |
+| -------------- | --------------------------------------------------------------- |
+| <kbd>⌘J</kbd>  | The host's shortcut opens the card; set `aria-keyshortcuts`.    |
+| <kbd>Esc</kbd> | Closes the card from anywhere inside it, unless a menu took it. |
+| <kbd>Tab</kbd> | Moves through the chat inside the card.                         |
 
-- The card is a `region` of the frame labelled by the assistant's name, not a dialog: the page
+- The card is a `region` of the frame, named by `aria-label` or `aria-labelledby`, not a dialog: the page
   stays usable beside it. Opening it moves focus to its first text field; closing it returns focus
   to what opened it. While closed it is inert and hidden.
 - Motion is the system's own and follows reduced motion.

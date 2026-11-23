@@ -1,4 +1,4 @@
-// @vegastack record-chip@0.123.2 sha256-dZHyrPn9Xd3/y8imfMd+b7qPuxN+BVwi/lo5qJKlA9M=
+// @vegastack record-chip@0.123.2 sha256-SosYve2JyqpxQluJjVOPrYNIubA3fKxwn8MkHEXmZUg=
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";
@@ -143,7 +143,7 @@ export function SplitChip({ className, ...props }: SplitChipProps) {
  * 5px, so the chevron sits as far from the divider as the icon segment's glyph does on the other
  * side (2px margin + 5px of the 24px circle's inset). It never nudges on press.
  */
-export const splitChipButtonClassName =
+const splitChipButtonClassName =
   "h-6 min-w-0 shrink border-0 justify-start gap-1.5 rounded-chip px-2 text-xs text-inherit aria-expanded:bg-state-selected [&_svg:not([class*='size-'])]:size-3.5 active:not-aria-[haspopup]:translate-y-0 [&:has(+[data-slot=split-chip-separator])]:pe-1.25";
 
 /** Classes of a SplitChip's icon segment: a 24px circle (the 24px hit area). */

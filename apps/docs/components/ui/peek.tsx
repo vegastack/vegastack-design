@@ -1,4 +1,4 @@
-// @vegastack peek@0.123.3 sha256-77Tehn7XjyhZLB0Dv2uIwBDV80c569y+fFmgJJs9c9U=
+// @vegastack peek@0.123.3 sha256-6cc/WqAyEZR0FWSG6CS3wPWZXZxVlpsTuyvpbFzB720=
 
 "use client";
 
@@ -31,13 +31,13 @@ import { isEditableTarget } from "@/components/ui/use-platform";
  * ----------------------------------------------------------------------------------------------*/
 
 /** The narrowest a side peek can be, in px. */
-export const PEEK_MIN_WIDTH = 420;
+const PEEK_MIN_WIDTH = 420;
 /** The widest a side peek can be, as a share of the page area. */
-export const PEEK_MAX_RATIO = 0.7;
+const PEEK_MAX_RATIO = 0.7;
 /** The side peek's width when the app has none saved, in px. */
-export const PEEK_DEFAULT_WIDTH = 560;
+const PEEK_DEFAULT_WIDTH = 560;
 /** The phone sheet's snap points: about half the screen, then nearly all of it. */
-export const PEEK_SNAP_POINTS = [0.55, 0.92] as const;
+const PEEK_SNAP_POINTS = [0.55, 0.92] as const;
 
 const RESIZE_STEP = 32;
 const PHONE_QUERY = "(max-width: 639px)";

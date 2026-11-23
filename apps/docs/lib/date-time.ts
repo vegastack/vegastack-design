@@ -1,4 +1,4 @@
-// @vegastack date-time@0.68.0 sha256-1dXweF/q2TsKeD23Yz0IjW3wfLDhvvHrfHlLYTV7D1U=
+// @vegastack date-time@0.68.0 sha256-hXifI9A9aB4Ffp7T/uwI8NX9Zx8+Bx1RiVG+FfWzpAk=
 
 export type DateInput = Date | string | number;
 
@@ -584,10 +584,7 @@ export function formatTimeOfDay(
 }
 
 /** The short zone name for tooltips: "IST", "PDT", else "GMT+5:30". */
-export function timeZoneAbbreviation(
-  date: DateInput,
-  timeZone?: string,
-): string {
+function timeZoneAbbreviation(date: DateInput, timeZone?: string): string {
   const target = toDate(date);
   const name = (locale: string) =>
     dtf(locale, { timeZone, timeZoneName: "short" })
@@ -793,7 +790,7 @@ export interface GroupByDayOptions extends DateTimeOptions {
 }
 
 /** The bucket one instant falls in. Future instants count as Today. */
-export function dayGroupKey(
+function dayGroupKey(
   date: DateInput,
   options: GroupByDayOptions = {},
 ): DayGroupKey {

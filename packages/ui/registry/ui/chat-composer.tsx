@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.123.2 sha256-MzjwgFHaGMBctFmL8ZxbAEhcf6embsTQCnhGwDY+OpU=
+// @vegastack chat-composer@0.123.2 sha256-+GyDwnK3l5aKjDDQK+WiLXd9R+oTw2ggswORpcqelRY=
 
 "use client";
 
@@ -835,7 +835,7 @@ export function ChatComposerHeaderTrigger({
  * ----------------------------------------------------------------------------------------------*/
 
 /** A long name keeps its start and its extension: "quarterly-pri…-2026.pdf". */
-export function middleEllipsis(name: string, max = 28): string {
+function middleEllipsis(name: string, max = 28): string {
   if (name.length <= max) return name;
   const tail = Math.min(10, Math.floor(max / 2) - 1);
   return `${name.slice(0, max - tail - 1)}…${name.slice(-tail)}`;
