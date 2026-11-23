@@ -1,6 +1,6 @@
 ---
 title: Chat Composer
-description: The box a person talks to an agent in, as a compound — files, an auto-growing text, then +, who it goes to, the model and Send; it can rest at one line until focused.
+description: The box a person talks to an agent in, as a compound — files, a growing text, +, who it goes to, the model and Send; it can rest at one line.
 audience: public
 registry: chat-composer
 status: stable
@@ -103,6 +103,8 @@ card's height eases between the two (`duration-layout`), at once under reduced m
 - **While the agent works:** Stop stays; say "Steer or queue a message…" in `restPlaceholder`.
 - **It stays open** while it has files or chips, a notice, steers, an error, a menu open from one of
   its controls, or anything marked `data-composer-hold` (a mode that is on), and with `holdOpen`.
+  The card reads these from its parts before it renders, so a server-rendered card starts in the right
+  shape; a notice drawn inside your own component is hidden from it, so pass `holdOpen` with it.
 
 Leave `rest` off where the box is the point of the screen and takes focus as it opens: a new chat,
 a home page's ask box. It is one textbox the whole time — never a stand-in button — so focus, the
