@@ -37260,42 +37260,6 @@
           }
         },
         {
-          "name": "ChatComposerHeader",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chat-composer.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatComposerHeaderProps",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/chat-composer.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatComposerHeaderTrigger",
-          "kind": "component",
-          "source": "packages/ui/registry/ui/chat-composer.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "ChatComposerHeaderTriggerProps",
-          "kind": "interface",
-          "source": "packages/ui/registry/ui/chat-composer.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "ChatComposerIconButton",
           "kind": "component",
           "source": "packages/ui/registry/ui/chat-composer.tsx",
@@ -37352,6 +37316,24 @@
         {
           "name": "ChatComposerSubmit",
           "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerAgent",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/chat-composer.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "ChatComposerAgentProps",
+          "kind": "interface",
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
@@ -37489,6 +37471,10 @@
               "values": [""]
             },
             {
+              "name": "data-rest",
+              "values": []
+            },
+            {
               "name": "data-slot",
               "values": [
                 "chat-composer",
@@ -37518,24 +37504,15 @@
           ],
           "cssVariables": []
         },
-        "ChatComposerHeader": {
+        "ChatComposerAgent": {
           "attributes": [
             {
-              "name": "data-slot",
-              "values": ["chat-composer-header"]
-            }
-          ],
-          "cssVariables": []
-        },
-        "ChatComposerHeaderTrigger": {
-          "attributes": [
+              "name": "data-rest-keep",
+              "values": [""]
+            },
             {
               "name": "data-slot",
-              "values": [
-                "chat-composer-header-description",
-                "chat-composer-header-media",
-                "chat-composer-header-trigger"
-              ]
+              "values": ["chat-composer-agent", "chat-composer-agent-media"]
             }
           ],
           "cssVariables": []
@@ -37561,7 +37538,11 @@
           "attributes": [
             {
               "name": "data-slot",
-              "values": ["chat-composer-input"]
+              "values": [
+                "chat-composer-draft-dot",
+                "chat-composer-draft-preview",
+                "chat-composer-input"
+              ]
             }
           ],
           "cssVariables": []

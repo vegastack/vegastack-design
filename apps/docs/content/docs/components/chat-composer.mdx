@@ -1,11 +1,11 @@
 ---
 title: Chat Composer
-description: The box a person talks to an agent in, as a compound — a context strip, files, an auto-growing text, and + and @, the model and Send.
+description: The box a person talks to an agent in, as a compound — files, a growing text, +, who it goes to, the model and Send; it can rest at one line.
 audience: public
 registry: chat-composer
 status: stable
 since: 0.43.0
-a11y: named textbox, context trigger, Send, Stop, + and @
+a11y: named textbox, agent button, Send, Stop and +
 preview: chatComposer
 ---
 
@@ -23,37 +23,36 @@ import {
   ChatComposerActionsStart,
   ChatComposerAddButton,
   ChatComposerAttachments,
-  ChatComposerHeader,
-  ChatComposerHeaderTrigger,
+  ChatComposerAgent,
   ChatComposerInput,
-  ChatComposerMentionButton,
   ChatComposerSubmit,
 } from "@/components/ui/chat-composer";
 
 <ChatComposer
+  rest
   state={state}
   onSubmit={send}
   onStop={stop}
   attachments={files}
   onFiles={upload}
 >
-  <ChatComposerHeader>
-    <ChatComposerHeaderTrigger
-      media={<Asterisk />}
-      description="Chief of staff"
-    >
-      Talking to William
-    </ChatComposerHeaderTrigger>
-    <ComposerChip pressed={plan} onPressedChange={setPlan}>
-      Plan
-    </ComposerChip>
-  </ChatComposerHeader>
   <ChatComposerAttachments />
-  <ChatComposerInput placeholder="Ask William anything…" mentions={mentions} />
+  <ChatComposerInput
+    placeholder="Ask a follow-up…"
+    restPlaceholder="Reply to William…"
+    mentions={mentions}
+  />
   <ChatComposerActions>
     <ChatComposerActionsStart>
       <ChatComposerAddButton menu={addItems} />
-      <ChatComposerMentionButton />
+      <ChatComposerAgent media={<Asterisk />} description="Chief of staff">
+        William
+      </ChatComposerAgent>
+      {plan ? (
+        <ComposerChip data-composer-hold pressed onPressedChange={setPlan}>
+          Plan
+        </ComposerChip>
+      ) : null}
     </ChatComposerActionsStart>
     <ChatComposerActionsEnd>
       <ModelEffortMenu {...model} />
@@ -64,15 +63,16 @@ import {
 ```
 
 `ChatComposer` is the card, and it owns the turn: the text, the send, Stop, the files and the drop.
-The parts only lay the card out, top to bottom: a `ChatComposerNotice` on the top edge, the context
-strip (`ChatComposerHeader`), the files (`ChatComposerAttachments`), the text (`ChatComposerInput`)
-and the actions row (`ChatComposerActions`). Leave out what a surface doesn't need: a desktop quick
-ask has no strip.
+The parts only lay the card out, top to bottom: a `ChatComposerNotice` on the top edge, the files
+(`ChatComposerAttachments`), the text (`ChatComposerInput`) and the actions row
+(`ChatComposerActions`): + first, then who the message goes to (`ChatComposerAgent`) and a mode
+that is on (Plan), the model and Send at the end. Leave out what a surface doesn't need: an agent's
+own page has no agent to pick.
 
 The card has one radius, `rounded-overlay` (24px, the grown composer), and one hairline that darkens
-a little while the text has focus. Everything inside is concentric with it: the strip and the
-actions row sit 6px in with pill and circle 32px controls (the card sets `capsule-scope`, so its
-buttons take `rounded-capsule`), and the attachments sit 10px in with
+a little while the text has focus. Everything inside is concentric with it: the actions row sits
+6px in with pill and circle 32px controls (the card sets `capsule-scope`, so its buttons take
+`rounded-capsule`), and the attachments sit 10px in with
 `rounded-tile` thumbnails and pill (`rounded-chip`) file chips. The
 text is [`TextEdit`](/docs/components/text-edit), so a mention is the same chip a comment has. For a
 comment on a record use [`CommentComposer`](/docs/components/comments): this box is for a
@@ -89,10 +89,48 @@ conversation, where Enter sends.
 
 ## Examples
 
+### At rest
+
+With `rest`, a card that nothing in it has focus and that holds nothing to keep in view rests at
+one 48px line: the agent's avatar, the first line of the text and Send. 1px border + 7px + a 32px
+control + 7px + 1px makes 48, so the 24px corner draws a capsule and the circles inside sit 8px in,
+concentric. Focus, a click anywhere on it or a key the host sends to the box opens it again; the
+card's height eases between the two (`duration-layout`), at once under reduced motion.
+
+- **Empty:** `restPlaceholder` ("Reply to William…"), else `placeholder`.
+- **A draft:** its first line, an ellipsis where it runs out and a dot before it; Send is filled, so
+  it can go without opening the card.
+- **While the agent works:** Stop stays; say "Steer or queue a message…" in `restPlaceholder`.
+- **It stays open** while it has files or chips, a notice, steers, an error, a menu open from one of
+  its controls, or anything marked `data-composer-hold` (a mode that is on), and with `holdOpen`.
+  The card reads these from its parts before it renders, so a server-rendered card starts in the right
+  shape; a notice drawn inside your own component is hidden from it, so pass `holdOpen` with it.
+
+Leave `rest` off where the box is the point of the screen and takes focus as it opens: a new chat,
+a home page's ask box. It is one textbox the whole time — never a stand-in button — so focus, the
+caret and the draft never move.
+
+<ComponentPreview
+  name="chatComposerRest"
+  file="components/preview/chat-composer.tsx"
+/>
+
+### Who it goes to
+
+`ChatComposerAgent` follows + in `ChatComposerActionsStart`: the agent's avatar, its name and ▾, a
+round ghost button that a picker renders. A long name truncates at 10rem, sooner when the row is
+narrow; its accessible name and hover title say the whole of it ("Talking to William, Chief of
+staff"). At rest only its avatar stays, a circle the size of Send.
+
+<ComponentPreview
+  name="chatComposerAgentName"
+  file="components/preview/chat-composer.tsx"
+/>
+
 ### Quick ask
 
-Without the strip, the card is the text and the actions row: two lines at rest, + at the start, the
-model and Send at the end.
+Without an agent to pick, the card is the text and the actions row: two lines open, + at the start,
+the model and Send at the end.
 
 <ComponentPreview
   name="chatComposerQuickAsk"
@@ -101,7 +139,7 @@ model and Send at the end.
 
 ### Send, Stop and the states between
 
-`state` drives `ChatComposerSubmit`, a circle (`capsule-scope`) the size of + and @. `idle` with text
+`state` drives `ChatComposerSubmit`, a circle (`capsule-scope`) the size of +. `idle` with text
 is a primary ↑; an empty box is a quiet outline. `sending` shows the bolt
 [`TextSpinner`](/docs/components/text-spinner) inside the same button — keep it for at most ~300ms,
 then move to `running` — and Send becomes Stop ■ with a crossfade and a small scale (with the
@@ -179,7 +217,7 @@ anything typed since, with `labels.sendFailed` under the card; pass `error` to s
 ### Turned off
 
 `disabled` turns off the text and every control in the card, for an agent that is paused; the
-placeholder or a notice says why. The context strip turns off with it.
+placeholder or a notice says why. The agent button turns off with it.
 
 <ComponentPreview
   name="chatComposerDisabled"
@@ -199,8 +237,8 @@ moves off the card.
 
 ### Narrow and right to left
 
-At 320px the strip's description gives way first, then its label; Plan, +, @ and Send keep their
-size. Every inset is logical, so right to left mirrors the card: + at the right, Send at the left.
+At 320px the model's words shorten first and the agent's name truncates; +, Plan and Send keep
+their size. Every inset is logical, so right to left mirrors the card: + at the right, Send at the left.
 
 <ComponentPreview
   name="chatComposerNarrow"
@@ -237,8 +275,16 @@ const composer = useRef<ChatComposerHandle>(null);
 `mentions` and the `mention*` props to `ChatComposerInput` (`maxHeightRatio` becomes `maxRows`);
 `addMenu` or `onAttach` to `ChatComposerAddButton`'s `menu` or `onClick`; `chips` to
 `ChatComposerAttachments`' children; `notice` to a `ChatComposerNotice` child; the model and the
-memory ring to `ChatComposerActionsEnd`; Plan to a `ComposerChip` in `ChatComposerHeader`. The
-privacy note has no place in the card: say who can read the chat in its header.
+memory ring to `ChatComposerActionsEnd`; Plan to a `ComposerChip` in `ChatComposerActionsStart`. A
+privacy note has no place in the card: say who can read the chat in a quiet line under it.
+
+### Migrating from the context strip
+
+`ChatComposerHeader` and `ChatComposerHeaderTrigger` are gone: the card has no strip on its top. Who
+the message goes to is `ChatComposerAgent`, after + in `ChatComposerActionsStart`, with the name
+alone as its child ("William", not "Talking to William"; its label says "Talking to"). Plan moves
+from the strip to the + menu as a selectable row, and shows as a pressed `ComposerChip` after the
+agent while it is on.
 
 ## API Reference
 
@@ -249,7 +295,7 @@ privacy note has no place in the card: say who can read the chat in its header.
 
 <ApiTable
   path="../../packages/ui/registry/ui/chat-composer.tsx"
-  name="ChatComposerHeaderTriggerProps"
+  name="ChatComposerAgentProps"
 />
 
 <ApiTable
@@ -305,10 +351,12 @@ privacy note has no place in the card: say who can read the chat in its header.
 ## Accessibility
 
 - The text is a textbox named by `labels.message`, described by the error.
-- The context strip is one button, named by its words and its description ("Talking to William,
-  Chief of staff"); its focus cue is the system's background tint, never a ring (FOC-13).
+- The agent button is named "Talking to William, Chief of staff" whatever its truncated words show;
+  its focus cue is the system's background tint, never a ring (FOC-13).
+- At rest the text stays the same textbox (only the controls it hides leave the Tab order); Tab
+  into the card opens it.
 - A failed send is `role="alert"`. It appears because of what the person did.
-- Send, Stop, + and @ are named buttons in the Tab order with a tooltip each; Send's name follows its
+- Send, Stop and + are named buttons in the Tab order with a tooltip each; Send's name follows its
   face ("Send", "Sending", "Stop", "Stopping"), and Sending is `aria-busy`.
 - Each attachment's × is named "Remove q3-prices.pdf"; upload progress is also read as a percentage.
 - Steers are a list named "Waiting to be read"; each × is named with its words.
@@ -329,6 +377,6 @@ privacy note has no place in the card: say who can read the chat in its header.
 ## Do / Don't
 
 <DoDont
-  do="Keep the card to its parts: who it goes to in the strip, the files, the text, then + and @ at the start and the model and Send at the end."
-  dont="Add a line under the card, put a privacy note or Plan in the actions row, turn the card red, or lose the person's text when anything fails."
+  do="Keep the card to its parts: the files, the text, then +, who it goes to and a mode that is on at the start, the model and Send at the end; let a reply box rest at one line."
+  dont="Put a stand-in button where the resting text should be, rest a box that just took focus, turn the card red, or lose the person's text when anything fails."
 />

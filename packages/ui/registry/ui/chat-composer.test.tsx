@@ -12,8 +12,7 @@ import {
   ChatComposerActionsStart,
   ChatComposerAddButton,
   ChatComposerAttachments,
-  ChatComposerHeader,
-  ChatComposerHeaderTrigger,
+  ChatComposerAgent,
   ChatComposerInput,
   ChatComposerMentionButton,
   ChatComposerNotice,
@@ -46,7 +45,7 @@ type FullProps = Omit<ChatComposerProps, "children"> &
     addMenu?: React.ReactNode;
     chips?: React.ReactNode;
     notice?: React.ReactNode;
-    header?: React.ReactNode;
+    agent?: React.ReactNode;
     mention?: boolean;
   };
 
@@ -59,14 +58,13 @@ function Full({
   addMenu,
   chips,
   notice,
-  header,
+  agent,
   mention = false,
   ...props
 }: FullProps) {
   return (
     <ChatComposer {...props}>
       {notice}
-      {header}
       <ChatComposerAttachments>{chips}</ChatComposerAttachments>
       <ChatComposerInput
         placeholder={placeholder}
@@ -78,6 +76,7 @@ function Full({
           {onAttach || addMenu ? (
             <ChatComposerAddButton onClick={onAttach} menu={addMenu} />
           ) : null}
+          {agent}
           {mention ? <ChatComposerMentionButton /> : null}
         </ChatComposerActionsStart>
         <ChatComposerActionsEnd>
@@ -761,62 +760,165 @@ test("a turned-off box takes nothing off and takes no steer back", async () => {
   expect(remove).not.toHaveBeenCalled();
 });
 
-const header = (
-  <ChatComposerHeader>
-    <ChatComposerHeaderTrigger
+const agent = (
+  <>
+    <ChatComposerAgent
       media={<span>W</span>}
       description="Chief of staff of the whole operations group"
     >
-      Talking to William Shakespeare-Montgomery
-    </ChatComposerHeaderTrigger>
-    <ComposerChip pressed={false} onPressedChange={() => {}}>
+      William Shakespeare-Montgomery of the regional operations group
+    </ChatComposerAgent>
+    <ComposerChip data-composer-hold="" pressed onPressedChange={() => {}}>
       Plan
     </ComposerChip>
-  </ChatComposerHeader>
+  </>
 );
 
-test("the context strip is one named trigger above a hairline, with Plan at its end", async () => {
-  const screen = await mount({ header, onSubmit: () => {} });
-  const trigger = page.getByRole("button", {
-    name: "Talking to William Shakespeare-Montgomery, Chief of staff of the whole operations group",
-    exact: true,
-  });
-  await expect.element(trigger).toBeVisible();
-  const strip = screen.container.querySelector<HTMLElement>(
-    "[data-slot=chat-composer-header]",
-  )!;
-  expect(getComputedStyle(strip).borderBottomWidth).toBe("1px");
-  const editor = box().element().getBoundingClientRect();
-  expect(editor.top).toBeGreaterThanOrEqual(
-    strip.getBoundingClientRect().bottom,
-  );
-  await expect
-    .element(page.getByRole("button", { name: "Plan" }))
-    .toHaveAttribute("aria-pressed", "false");
-  await expectNoA11yViolations(screen.container);
-});
-
-test("at 320px the strip truncates its words and keeps Plan inside the card", async () => {
+test("who it goes to is one named button after +, its long name truncated inside the card", async () => {
   const screen = await render(
     <div style={{ width: 320 }}>
-      <Full header={header} onSubmit={() => {}} onAttach={() => {}} mention />
+      <Full agent={agent} onSubmit={() => {}} onAttach={() => {}} />
     </div>,
   );
+  const button = page.getByRole("button", {
+    name: "Talking to William Shakespeare-Montgomery of the regional operations group, Chief of staff of the whole operations group",
+    exact: true,
+  });
+  await expect.element(button).toBeVisible();
   const card = screen.container
     .querySelector("[data-slot=chat-composer-box]")!
     .getBoundingClientRect();
-  const trigger = screen.container
-    .querySelector("[data-slot=chat-composer-header-trigger]")!
+  const rect = button.element().getBoundingClientRect();
+  const add = page
+    .getByRole("button", { name: "Add" })
+    .element()
     .getBoundingClientRect();
   const plan = page
     .getByRole("button", { name: "Plan" })
     .element()
     .getBoundingClientRect();
-  expect(trigger.right).toBeLessThanOrEqual(plan.left);
+  expect(rect.left).toBeGreaterThanOrEqual(add.right);
+  expect(rect.right).toBeLessThanOrEqual(plan.left);
   expect(plan.right).toBeLessThanOrEqual(card.right);
+  expect(rect.height).toBe(32);
   expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(
     window.innerWidth,
   );
+  await expectNoA11yViolations(screen.container);
+});
+
+test("at rest the card is one 48px line: the agent's avatar, the text, Send", async () => {
+  const screen = await mount({
+    rest: true,
+    agent: (
+      <ChatComposerAgent media={<span>W</span>}>William</ChatComposerAgent>
+    ),
+    onSubmit: () => {},
+    onAttach: () => {},
+  });
+  const card = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-box]",
+  )!;
+  expect(card.getAttribute("data-rest")).toBe("empty");
+  expect(card.getBoundingClientRect().height).toBe(48);
+  const agentRect = page
+    .getByRole("button", { name: "Talking to William" })
+    .element()
+    .getBoundingClientRect();
+  const sendRect = send().element().getBoundingClientRect();
+  expect(agentRect.width).toBe(32);
+  expect(Math.round(agentRect.top)).toBe(Math.round(sendRect.top));
+  // + leaves the row (and the Tab order) while it rests.
+  await expect
+    .element(page.getByRole("button", { name: "Add" }))
+    .not.toBeInTheDocument();
+  await userEvent.click(box());
+  await vi.waitFor(() => expect(card.hasAttribute("data-rest")).toBe(false));
+  await expect.element(page.getByRole("button", { name: "Add" })).toBeVisible();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("Send on the resting line sends without opening the card", async () => {
+  const onSubmit = vi.fn();
+  const screen = await mount({ rest: true, defaultValue: "Ship it", onSubmit });
+  const card = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-box]",
+  )!;
+  expect(card.getAttribute("data-rest")).toBe("draft");
+  await userEvent.click(send());
+  await vi.waitFor(() => expect(onSubmit).toHaveBeenCalledWith("Ship it"));
+  expect(card.getAttribute("data-rest")).toBe("empty");
+  expect(card.getBoundingClientRect().height).toBe(48);
+});
+
+test.each([
+  ["~~~ts\nconst total_value = a * b;\n~~~", "const total_value = a * b;"],
+  [
+    "- [ ] **Call** [Simran](https://x.test) about `Q3`",
+    "Call Simran about Q3",
+  ],
+  ["\\*literal\\* and snake_case_name", "*literal* and snake_case_name"],
+])(
+  "a resting draft shows its first line as written: %j",
+  async (draft, line) => {
+    const screen = await mount({
+      rest: true,
+      defaultValue: draft,
+      onSubmit: () => {},
+    });
+    const preview = screen.container.querySelector(
+      "[data-slot=chat-composer-draft-preview]",
+    )!;
+    expect(preview.textContent).toBe(line);
+    // Nothing under the line takes Tab or a press but the text itself.
+    for (const button of screen.container.querySelectorAll<HTMLElement>(
+      "[data-slot=chat-composer-input] button",
+    ))
+      expect(getComputedStyle(button).display).toBe("none");
+  },
+);
+
+test("an empty attachments row leaves the card free to rest", async () => {
+  const screen = await mount({
+    rest: true,
+    chips: false as unknown as React.ReactNode,
+    onSubmit: () => {},
+  });
+  expect(
+    screen.container
+      .querySelector("[data-slot=chat-composer-box]")!
+      .getAttribute("data-rest"),
+  ).toBe("empty");
+});
+
+test("a draft rests with its first line; files and a held mode keep the card open", async () => {
+  const screen = await mount({
+    rest: true,
+    defaultValue: "First line of the draft\n\nSecond paragraph",
+    onSubmit: () => {},
+  });
+  const card = screen.container.querySelector<HTMLElement>(
+    "[data-slot=chat-composer-box]",
+  )!;
+  expect(card.getAttribute("data-rest")).toBe("draft");
+  expect(card.getBoundingClientRect().height).toBe(48);
+  await expect
+    .element(page.getByText("First line of the draft", { exact: true }).first())
+    .toBeVisible();
+  await expect.element(send()).toBeEnabled();
+  await screen.rerender(
+    <Full
+      placeholder="Ask anything"
+      rest
+      onSubmit={() => {}}
+      attachments={[{ id: "a", name: "a.pdf", mediaType: "application/pdf" }]}
+    />,
+  );
+  await vi.waitFor(() => expect(card.hasAttribute("data-rest")).toBe(false));
+  await screen.rerender(
+    <Full placeholder="Ask anything" rest onSubmit={() => {}} agent={agent} />,
+  );
+  await vi.waitFor(() => expect(card.hasAttribute("data-rest")).toBe(false));
 });
 
 test("+, @ and Send are one round 32px size, centred on one line", async () => {
@@ -888,8 +990,8 @@ test("the parts need the root", async () => {
   }
 });
 
-test("a turned-off composer turns its context strip off too", async () => {
-  const screen = await mount({ header, disabled: true });
+test("a turned-off composer turns its agent button off too", async () => {
+  const screen = await mount({ agent, disabled: true });
   await expect
     .element(page.getByRole("button", { name: /^Talking to William/ }))
     .toHaveAttribute("aria-disabled", "true");
@@ -898,7 +1000,7 @@ test("a turned-off composer turns its context strip off too", async () => {
 
 test("the card's border is the text's focus cue, and only the text's", async () => {
   const screen = await mount({
-    header,
+    agent,
     onSubmit: () => {},
     onAttach: () => {},
     mention: true,
@@ -909,7 +1011,7 @@ test("the card's border is the text's focus cue, and only the text's", async () 
   expect(card.hasAttribute("data-field-group")).toBe(true);
   const border = () => getComputedStyle(card).borderTopColor;
   const rest = border();
-  // A control in the strip or the actions row takes the tint; the card's border holds.
+  // A control in the actions row takes the tint; the card's border holds.
   for (const name of [/^Talking to William/, "Plan", "Add", "Mention"]) {
     (page.getByRole("button", { name }).element() as HTMLElement).focus();
     await new Promise((done) => setTimeout(done, 250));

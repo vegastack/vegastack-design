@@ -307,11 +307,12 @@ comment, a card or a short message; `"document"` for a page; `"reading"` for lon
 or an AI wrote, read beside the work (a chat answer, an Ask AI answer, a summary). Pass `streaming`
 while an answer arrives. A conversation is built from `message-parts`: `MessageBubble` for the
 person, `MessageActivity` for thinking and steps, `SourceList` (`source-list`) for cited pages, `MessageTime`,
-`MessageActions`. The box is `ChatComposer`, a compound: a `ChatComposerNotice` on its top edge, an
-optional context strip (`ChatComposerHeader` + `ChatComposerHeaderTrigger`, Plan as a `ComposerChip` at
-its end), `ChatComposerAttachments`, `ChatComposerInput`, then `ChatComposerActions` (+ and @ at the
-start; the model, the ring and `ChatComposerSubmit` at the end). Nothing goes under the card but a
-failed send. A `[[n]]` citation never navigates on click — its card's link does.
+`MessageActions`. The box is `ChatComposer`, a compound: a `ChatComposerNotice` on its top edge,
+`ChatComposerAttachments`, `ChatComposerInput`, then `ChatComposerActions` (+ and `ChatComposerAgent`,
+who it goes to, at the start, Plan as a pressed `ComposerChip` after it while on; the model, the ring
+and `ChatComposerSubmit` at the end). With `rest` a reply box rests at one 48px line until focused;
+leave it off for a new chat or an ask box that takes focus. Under the card: a failed send, and at most
+one quiet centred line saying who can read the chat. A `[[n]]` citation never navigates on click — its card's link does.
 
 **Markdown is read with `MarkdownView` and edited with `TextEdit format="markdown"`** — never a
 textarea, a local prose class, or a hand-rolled editor. For in-place editing, swap the view for
