@@ -5045,9 +5045,9 @@ for (const [width, tracks] of [
  * Measured on the painted boxes once every open animation has settled, so a padding or border
  * change that breaks the arithmetic fails here.
  */
-// An open popup's enter transition (`data-starting-style`: scale 0.95 → 1) is created a frame
-// after mount, so awaiting `getAnimations()` straight away could find none and measure the
-// popup mid-zoom: a 6px inset read at 95% is 5.7px, and a 16px corner then "wants" 10.3 where
+// An open popup's enter animation (`data-open:animate-in zoom-in-95`: scale 0.95 → 1) can start
+// a frame after mount, so awaiting `getAnimations()` straight away could find none and measure
+// the popup mid-zoom: a 6px inset read at 95% is 5.7px, and a 16px corner then "wants" 10.3 where
 // the CSS gives 10 (the intermittent BRD-12 failure). Wait two frames for transitions to start,
 // then for every finite one to finish, until a frame passes with none running.
 const nextFrame = () =>
