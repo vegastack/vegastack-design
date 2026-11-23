@@ -5279,7 +5279,7 @@ test("the bar's search palette opens on its box: same left edge and width at eve
     const p = palette.getBoundingClientRect();
     const f = field.getBoundingClientRect();
     if (box.width + 8 >= 320) {
-      // The field lands on the box (centred on the plain 28px box): the text doesn't move.
+      // The field lands on the box (with or without Ask, one 32px box): the text doesn't move.
       expect({
         label,
         left: f.left,

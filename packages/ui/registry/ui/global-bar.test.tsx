@@ -24,10 +24,12 @@ function Bar({
   leading = "Acme",
   width = 1200,
   onAsk = () => {},
+  ask = true,
 }: {
   leading?: string;
   width?: number;
   onAsk?: () => void;
+  ask?: boolean;
 }) {
   return (
     <div style={{ width }}>
@@ -51,7 +53,7 @@ function Bar({
         <GlobalBarCenter>
           <GlobalBarSearch
             label="Search or ask anything…"
-            ask={{ label: "Ask William", onClick: onAsk }}
+            ask={ask ? { label: "Ask William", onClick: onAsk } : undefined}
           />
         </GlobalBarCenter>
         <GlobalBarTrailing>
@@ -175,4 +177,17 @@ test("the box's Ask chip opens the assistant, and Help reads its dot", async () 
   // The box is a pill on the card's ground, 32px tall in the 44px bar.
   expect(box('[data-slot="global-bar-search"]').height).toBe(32);
   await expectNoA11yViolations(screen.container);
+});
+
+test("without Ask it is the same box, so the search doesn't change size between pages", async () => {
+  const withAsk = await render(<Bar />);
+  const a = box('[data-slot="global-bar-search"]');
+  await withAsk.unmount();
+  const plain = await render(<Bar ask={false} />);
+  const b = box('[data-slot="global-bar-search"]');
+  expect({ width: b.width, height: b.height }).toEqual({
+    width: a.width,
+    height: a.height,
+  });
+  await expectNoA11yViolations(plain.container);
 });

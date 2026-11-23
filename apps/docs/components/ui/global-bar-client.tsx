@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.123.2 sha256-uCHL5aaaxGPl8YuWPz6EbyXpOTPtr8691sSoyIaHI08=
+// @vegastack global-bar@0.123.2 sha256-TJcG4GUroG9XZmcS5pjqknWmWv7cBLKY6KegXyu1bEM=
 
 "use client";
 
@@ -61,77 +61,63 @@ export function GlobalBarSearch({
   ...props
 }: GlobalBarSearchProps) {
   const { os } = usePlatform({ fallbackOs: "mac" });
-  if (ask)
-    return (
-      <div
-        data-slot="global-bar-search"
-        data-ask=""
-        className={cn(
-          // 580px at most (the bar's own width decides under that); a field on the canvas, so its
-          // ground is the card's. The pill's ring darkens on hover like a text field's border.
-          // A capsule (the top bar is the app's frame, BRD-12): the search and Ask sit 3px in on
-          // every side (1px border + `p-0.5`), so their hover fills are concentric pills with an even
-          // gap all round (operator, 2026-11-19).
-          "flex h-8 w-[min(36.25rem,42cqw)] min-w-0 items-center gap-0.5 rounded-capsule border border-input bg-shell-card p-0.5 text-sm text-muted-foreground transition-colors duration-instant hover:border-input-hover @max-2xl/global-bar:w-auto",
-          className,
-        )}
-      >
-        <Button
-          variant="ghost"
-          size="sm"
-          aria-keyshortcuts={os === "mac" ? "Meta+K" : "Control+K"}
-          className="h-6.5 min-w-0 flex-1 justify-start gap-2 rounded-capsule ps-2.5 pe-2 text-sm font-normal text-muted-foreground [&_svg:not([class*='size-'])]:size-4 hover:bg-transparent aria-expanded:bg-transparent"
-          {...props}
-        >
-          <Search aria-hidden="true" />
-          <span className="min-w-0 flex-1 truncate text-start @max-2xl/global-bar:sr-only">
-            {label}
-          </span>
-          <Kbd aria-hidden="true" className="@max-3xl/global-bar:hidden">
-            {formatShortcut(["mod", "K"], os)}
-          </Kbd>
-        </Button>
-        <span aria-hidden="true" className="h-4.5 w-px flex-none bg-border" />
-        <Button
-          data-slot="global-bar-search-ask"
-          variant="ghost"
-          size="xs"
-          aria-keyshortcuts={os === "mac" ? "Meta+J" : "Control+J"}
-          aria-controls={ask.controls}
-          aria-expanded={ask.expanded}
-          onClick={ask.onClick}
-          className="h-6.5 flex-none gap-1.5 rounded-capsule bg-info/10 px-2.5 text-xs font-semibold text-info-text hover:bg-info/15 hover:text-info-text aria-expanded:bg-info/15"
-        >
-          <Sparkles aria-hidden="true" />
-          <span className="@max-2xl/global-bar:sr-only">{ask.label}</span>
-          <span
-            aria-hidden="true"
-            className="font-normal @max-3xl/global-bar:hidden"
-          >
-            {formatShortcut(["mod", "J"], os)}
-          </span>
-        </Button>
-      </div>
-    );
+  // One box with or without Ask, so the bar's search is the same size on every page.
   return (
-    <Button
+    <div
       data-slot="global-bar-search"
-      variant="outline"
-      size="sm"
-      aria-keyshortcuts={os === "mac" ? "Meta+K" : "Control+K"}
+      data-ask={ask ? "" : undefined}
       className={cn(
-        // Sized by the bar, not the window, so the sides keep room in a narrow shell; under 42rem it
-        // shrinks to its icon and shortcut.
-        "w-[min(28rem,30cqw)] min-w-0 @max-2xl/global-bar:w-auto justify-start gap-2 rounded-capsule font-normal text-muted-foreground",
+        // 580px at most (the bar's own width decides under that); a field on the canvas, so its
+        // ground is the card's. The pill's ring darkens on hover like a text field's border.
+        // A capsule (the top bar is the app's frame, BRD-12): the search and Ask sit 3px in on
+        // every side (1px border + `p-0.5`), so their hover fills are concentric pills with an even
+        // gap all round (operator, 2026-11-19).
+        "flex h-8 w-[min(36.25rem,42cqw)] min-w-0 items-center gap-0.5 rounded-capsule border border-input bg-shell-card p-0.5 text-sm text-muted-foreground transition-colors duration-instant hover:border-input-hover @max-2xl/global-bar:w-auto",
         className,
       )}
-      {...props}
     >
-      <Search aria-hidden="true" />
-      <span className="min-w-0 flex-1 truncate text-start @max-2xl/global-bar:sr-only">
-        {label}
-      </span>
-      <Kbd aria-hidden="true">{formatShortcut(["mod", "K"], os)}</Kbd>
-    </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        aria-keyshortcuts={os === "mac" ? "Meta+K" : "Control+K"}
+        className="h-6.5 min-w-0 flex-1 justify-start gap-2 rounded-capsule ps-2.5 pe-2 text-sm font-normal text-muted-foreground [&_svg:not([class*='size-'])]:size-4 hover:bg-transparent aria-expanded:bg-transparent"
+        {...props}
+      >
+        <Search aria-hidden="true" />
+        <span className="min-w-0 flex-1 truncate text-start @max-2xl/global-bar:sr-only">
+          {label}
+        </span>
+        <Kbd
+          aria-hidden="true"
+          className={cn(ask && "@max-3xl/global-bar:hidden")}
+        >
+          {formatShortcut(["mod", "K"], os)}
+        </Kbd>
+      </Button>
+      {ask ? (
+        <>
+          <span aria-hidden="true" className="h-4.5 w-px flex-none bg-border" />
+          <Button
+            data-slot="global-bar-search-ask"
+            variant="ghost"
+            size="xs"
+            aria-keyshortcuts={os === "mac" ? "Meta+J" : "Control+J"}
+            aria-controls={ask.controls}
+            aria-expanded={ask.expanded}
+            onClick={ask.onClick}
+            className="h-6.5 flex-none gap-1.5 rounded-capsule bg-info/10 px-2.5 text-xs font-semibold text-info-text hover:bg-info/15 hover:text-info-text aria-expanded:bg-info/15"
+          >
+            <Sparkles aria-hidden="true" />
+            <span className="@max-2xl/global-bar:sr-only">{ask.label}</span>
+            <span
+              aria-hidden="true"
+              className="font-normal @max-3xl/global-bar:hidden"
+            >
+              {formatShortcut(["mod", "J"], os)}
+            </span>
+          </Button>
+        </>
+      ) : null}
+    </div>
   );
 }
