@@ -6,6 +6,7 @@ import {
   AtSign,
   Clock,
   FolderOpen,
+  ListChecks,
   SquareCheck,
   Upload,
   X,
@@ -20,10 +21,8 @@ import {
   ChatComposerActionsStart,
   ChatComposerAddButton,
   ChatComposerAttachments,
-  ChatComposerHeader,
-  ChatComposerHeaderTrigger,
+  ChatComposerAgent,
   ChatComposerInput,
-  ChatComposerMentionButton,
   ChatComposerNotice,
   ChatComposerSubmit,
   type ChatComposerHandle,
@@ -165,7 +164,15 @@ function Ring(): ReactNode {
   );
 }
 
-function AddMenu({ onMention }: { onMention: () => void }): ReactNode {
+function AddMenu({
+  onMention,
+  plan,
+  onPlan,
+}: {
+  onMention: () => void;
+  plan?: boolean;
+  onPlan?: (on: boolean) => void;
+}): ReactNode {
   return (
     <>
       <ChatMenuItem onSelect={() => {}}>
@@ -193,59 +200,78 @@ function AddMenu({ onMention }: { onMention: () => void }): ReactNode {
           Mention a page or task
         </span>
       </ChatMenuItem>
+      {onPlan ? (
+        <>
+          <ChatMenuSeparator />
+          <ChatMenuItem
+            selected={plan}
+            hint="It proposes a plan and waits for your go-ahead · ⇧Tab"
+            onSelect={() => onPlan(!plan)}
+          >
+            <span className="inline-flex items-center gap-2">
+              <ListChecks
+                aria-hidden
+                className="size-4 text-muted-foreground"
+              />
+              Plan first
+            </span>
+          </ChatMenuItem>
+        </>
+      ) : null}
     </>
   );
 }
 
-/** The context strip: who the message goes to, and Plan. */
-function Header({
-  plan,
-  onPlan,
-}: {
-  plan?: boolean;
-  onPlan?: (on: boolean) => void;
-}): ReactNode {
+/** Who the message goes to: the agent's avatar and name, opening the agents. */
+function Agent({ name = "William" }: { name?: string }): ReactNode {
   return (
-    <ChatComposerHeader>
-      <ChatMenu
-        trigger={
-          <ChatComposerHeaderTrigger
-            media={<Asterisk className="text-primary" />}
-            description="Chief of staff"
-          >
-            Talking to William
-          </ChatComposerHeaderTrigger>
-        }
-      >
-        <ChatMenuItem selected onSelect={() => {}}>
-          William
-        </ChatMenuItem>
-        <ChatMenuItem onSelect={() => {}}>BOQ processor</ChatMenuItem>
-      </ChatMenu>
-      {onPlan ? (
-        <ComposerChip
-          pressed={plan}
-          onPressedChange={onPlan}
-          tooltip="Plan first, then wait for your go-ahead"
+    <ChatMenu
+      trigger={
+        <ChatComposerAgent
+          media={<Asterisk className="text-primary" />}
+          description="Chief of staff"
         >
-          Plan
-        </ComposerChip>
-      ) : null}
-    </ChatComposerHeader>
+          {name}
+        </ChatComposerAgent>
+      }
+    >
+      <ChatMenuItem selected onSelect={() => {}}>
+        {name}
+      </ChatMenuItem>
+      <ChatMenuItem onSelect={() => {}}>BOQ processor</ChatMenuItem>
+    </ChatMenu>
+  );
+}
+
+/** Plan while it is on: a pressed chip that turns it off, and keeps a resting card open. */
+function PlanChip({ onOff }: { onOff: () => void }): ReactNode {
+  return (
+    <ComposerChip
+      data-composer-hold=""
+      pressed
+      onPressedChange={onOff}
+      tooltip="Plan first, then wait for your go-ahead · click to turn off"
+    >
+      Plan
+    </ComposerChip>
   );
 }
 
 /** One composer the way a chat lays it out; the examples vary its root props. */
 function Composer({
   placeholder = "Ask William anything…",
-  header = true,
+  restPlaceholder,
+  agent = true,
+  agentName,
   notice,
   chips,
   ring = false,
   ...props
 }: Omit<ChatComposerProps, "children"> & {
   placeholder?: string;
-  header?: boolean;
+  restPlaceholder?: string;
+  agent?: boolean;
+  agentName?: string;
   notice?: ReactNode;
   chips?: ReactNode;
   ring?: boolean;
@@ -253,13 +279,16 @@ function Composer({
   return (
     <ChatComposer onSubmit={() => {}} onStop={() => {}} {...props}>
       {notice}
-      {header ? <Header plan={false} onPlan={() => {}} /> : null}
       <ChatComposerAttachments>{chips}</ChatComposerAttachments>
-      <ChatComposerInput placeholder={placeholder} mentions={mentions} />
+      <ChatComposerInput
+        placeholder={placeholder}
+        restPlaceholder={restPlaceholder}
+        mentions={mentions}
+      />
       <ChatComposerActions>
         <ChatComposerActionsStart>
           <ChatComposerAddButton onClick={() => {}} />
-          <ChatComposerMentionButton />
+          {agent ? <Agent name={agentName} /> : null}
         </ChatComposerActionsStart>
         <ChatComposerActionsEnd>
           {ring ? <Ring /> : null}
@@ -315,7 +344,6 @@ export function chatComposer(): ReactNode {
         {state === "stopping" ? (
           <ChatComposerNotice tone="progress">Stopping…</ChatComposerNotice>
         ) : null}
-        <Header plan={plan} onPlan={setPlan} />
         <ChatComposerAttachments />
         <ChatComposerInput
           placeholder={
@@ -331,10 +359,15 @@ export function chatComposer(): ReactNode {
           <ChatComposerActionsStart>
             <ChatComposerAddButton
               menu={
-                <AddMenu onMention={() => handle.current?.openMentionMenu()} />
+                <AddMenu
+                  plan={plan}
+                  onPlan={setPlan}
+                  onMention={() => handle.current?.openMentionMenu()}
+                />
               }
             />
-            <ChatComposerMentionButton />
+            <Agent />
+            {plan ? <PlanChip onOff={() => setPlan(false)} /> : null}
           </ChatComposerActionsStart>
           <ChatComposerActionsEnd>
             <Ring />
@@ -355,7 +388,7 @@ export function chatComposer(): ReactNode {
 export function chatComposerQuickAsk(): ReactNode {
   return (
     <Column width="max-w-md">
-      <Composer header={false} placeholder="Ask anything…" autoFocus={false} />
+      <Composer agent={false} placeholder="Ask anything…" autoFocus={false} />
     </Column>
   );
 }
@@ -366,7 +399,7 @@ export function chatComposerStates(): ReactNode {
       {(["idle", "sending", "running", "stopping"] as const).map((state) => (
         <div key={state} className="w-full max-w-xl">
           <Composer
-            header={false}
+            agent={false}
             placeholder={`state="${state}"`}
             defaultValue={state === "idle" ? "Plan my day" : undefined}
             state={state}
@@ -472,7 +505,7 @@ export function chatComposerNotice(): ReactNode {
     const [shown, setShown] = useState(true);
     return (
       <Composer
-        header={false}
+        agent={false}
         placeholder="Ask a follow-up…"
         notice={
           shown ? (
@@ -569,6 +602,58 @@ export function chatComposerRtl(): ReactNode {
           attachments={FILES.slice(2, 4)}
         />
       </div>
+    </Column>
+  );
+}
+
+/** At rest: one line until focused — empty, holding a draft, and while the agent works. */
+export function chatComposerRest(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch justify-start gap-4">
+      <div className="w-full max-w-xl">
+        <Composer
+          rest
+          placeholder="Ask a follow-up…"
+          restPlaceholder="Reply to William…"
+        />
+      </div>
+      <div className="w-full max-w-xl">
+        <Composer
+          rest
+          placeholder="Ask a follow-up…"
+          restPlaceholder="Reply to William…"
+          defaultValue="Draft the follow-up email to Simran with the revised quote, and attach the spec sheet."
+        />
+      </div>
+      <div className="w-full max-w-xl">
+        <Composer
+          rest
+          state="running"
+          queues
+          placeholder="Type to steer, or wait…"
+          restPlaceholder="Steer or queue a message…"
+        />
+      </div>
+      <div className="w-full max-w-xl">
+        <Composer
+          rest
+          agent={false}
+          placeholder="Message BOQ processor…"
+          restPlaceholder="Reply to BOQ processor…"
+        />
+      </div>
+    </Wrapper>
+  );
+}
+
+/** A long agent name truncates in the chip; its whole name is in its label and on hover. */
+export function chatComposerAgentName(): ReactNode {
+  return (
+    <Column width="max-w-sm">
+      <Composer
+        agentName="Regional distributor pricing reconciliation agent"
+        placeholder="Ask anything…"
+      />
     </Column>
   );
 }

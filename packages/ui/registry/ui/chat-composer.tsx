@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.133.0 sha256-gMrnV/Hh6lsee0lLoOx4zQTMwsuQf3mnGGh8e4QwhB0=
+// @vegastack chat-composer@0.133.0 sha256-bYHfbmjYHUpaUQVLbHsu+2uVj9DARPWqzVSLbXgzbIU=
 
 "use client";
 
@@ -41,18 +41,25 @@ import {
  * bottom:
  *
  *   ╭──────────────────────────────────────────────────────╮
- *   │ ✳ Talking to William ▾ · Chief of staff        [Plan]│  ChatComposerHeader (optional)
- *   ├──────────────────────────────────────────────────────┤
  *   │ [q3.pdf ×] [photo]                                   │  ChatComposerAttachments
  *   │ Ask William anything…                                │  ChatComposerInput
- *   │ (+) (@)                     Haiku 5.5 Medium ▾  (↑)  │  ChatComposerActions
+ *   │ (+) (✳ William ▾) [Plan]        Haiku 5.5 Medium ▾ (↑)│  ChatComposerActions
+ *   ╰──────────────────────────────────────────────────────╯
+ *
+ *   ╭──────────────────────────────────────────────────────╮
+ *   │ (✳)  Reply to William…                            (↑)│  the same card at rest (`rest`)
  *   ╰──────────────────────────────────────────────────────╯
  *
  * One radius: the card is `rounded-overlay` (24px, the grown composer). Everything inside is
- * concentric with it: the header and the actions row sit 7px in (1px border + 6px padding), so 24 − 7 leaves a full circle on
- * their 32px controls (`capsule-scope`: pills and circles),
- * the attachments 10px in with `rounded-tile` thumbnails and pill (`rounded-chip`) file chips. A
- * `ChatComposerNotice` runs edge to edge on the top edge. Steers wait above the card, a failed send says so under it.
+ * concentric with it: the actions row sits 7px in (1px border + 6px padding), so 24 − 7 leaves a full
+ * circle on its 32px controls (`capsule-scope`: pills and circles), the attachments 10px in with
+ * `rounded-tile` thumbnails and pill (`rounded-chip`) file chips. A `ChatComposerNotice` runs edge
+ * to edge on the top edge. Steers wait above the card, a failed send says so under it.
+ *
+ * At rest (`rest`, nothing in the card focused, nothing to keep in view) the same card is one 48px
+ * line: 1px border + 7px + a 32px control + 7px + 1px, so the 24px corner makes a capsule and the
+ * circles inside sit 8px in, concentric (24 − 8 = 16). Only `ChatComposerAgent` (as its avatar) and
+ * `ChatComposerSubmit` stay; the text shows one line. Focus, a click or a key opens it again.
  * ----------------------------------------------------------------------------------------------*/
 
 /**
@@ -141,6 +148,8 @@ export interface ChatComposerLabels {
 
 interface ComposerContextValue {
   state: ComposerState;
+  /** The card rests at one line now. */
+  resting: boolean;
   disabled: boolean;
   labels: ChatComposerLabels | undefined;
   body: string;
@@ -192,6 +201,18 @@ function takesDrag(
   );
 }
 
+/**
+ * Something in the card that keeps it open at rest: a menu opened from one of its controls (focus
+ * is in the menu's portal, its trigger says it is open), a notice, files or chips, or the host's
+ * own `data-composer-hold` (a mode that is on).
+ */
+const HOLDS_OPEN =
+  '[aria-expanded="true"],[data-popup-open],[data-slot="chat-composer-notice"],[data-slot="chat-composer-attachments"],[data-composer-hold]';
+
+/** How long the card takes to grow or rest (`--duration-layout`, `--motion-ease-emphasized`). */
+const REST_MOTION =
+  "height var(--duration-layout, 280ms) var(--motion-ease-emphasized, ease)";
+
 /** A press on the card's own chrome (not a control, not the text) puts the caret in the text. */
 const CHROME_SLOTS = new Set([
   "chat-composer-box",
@@ -211,7 +232,7 @@ export interface ChatComposerProps extends Omit<
   React.ComponentPropsWithRef<"div">,
   "onSubmit" | "defaultValue"
 > {
-  /** The card's parts: `ChatComposerNotice`, `ChatComposerHeader`, `ChatComposerAttachments`, `ChatComposerInput`, `ChatComposerActions`. @default undefined */
+  /** The card's parts: `ChatComposerNotice`, `ChatComposerAttachments`, `ChatComposerInput`, `ChatComposerActions`. @default undefined */
   children?: React.ReactNode;
   /**
    * Send the message, as Markdown. The box clears at once, so the person can start the next one. A
@@ -265,6 +286,16 @@ export interface ChatComposerProps extends Omit<
   handleRef?: React.Ref<ChatComposerHandle>;
   /** The composer's words. @default undefined */
   labels?: ChatComposerLabels;
+  /**
+   * The card may rest at one 48px line while nothing in it has focus and it holds nothing to keep
+   * in view (files, a notice, steers, an error, an open menu, `holdOpen`): the agent's avatar, the
+   * first line of the text (a draft leads with a dot) and Send or Stop. Focus, a click on it or a
+   * key that the host sends to the box opens it. Leave it off where the box is the point of the
+   * screen (a new chat, Home) or autofocuses. @default false
+   */
+  rest?: boolean;
+  /** Keep a resting card open for the host's own reason. @default false */
+  holdOpen?: boolean;
 }
 
 /**
@@ -277,19 +308,13 @@ export interface ChatComposerProps extends Omit<
  * `onFiles`.
  *
  * @example
- * <ChatComposer state={state} onSubmit={send} onStop={stop} attachments={files} onFiles={upload}>
- *   <ChatComposerHeader>
- *     <ChatComposerHeaderTrigger media={<Sparkle />} description="Chief of staff">
- *       Talking to William
- *     </ChatComposerHeaderTrigger>
- *     <ComposerChip pressed={plan} onPressedChange={setPlan}>Plan</ComposerChip>
- *   </ChatComposerHeader>
+ * <ChatComposer rest state={state} onSubmit={send} onStop={stop} attachments={files} onFiles={upload}>
  *   <ChatComposerAttachments />
- *   <ChatComposerInput placeholder="Ask William anything…" mentions={mentions} />
+ *   <ChatComposerInput placeholder="Ask a follow-up…" restPlaceholder="Reply to William…" mentions={mentions} />
  *   <ChatComposerActions>
  *     <ChatComposerActionsStart>
- *       <ChatComposerAddButton onClick={pickFiles} />
- *       <ChatComposerMentionButton />
+ *       <ChatComposerAddButton menu={add} />
+ *       <ChatComposerAgent media={<Sparkle />} description="Chief of staff">William</ChatComposerAgent>
  *     </ChatComposerActionsStart>
  *     <ChatComposerActionsEnd>
  *       <ModelEffortMenu {...model} />
@@ -321,6 +346,8 @@ export function ChatComposer({
   autoFocus = false,
   handleRef,
   labels,
+  rest = false,
+  holdOpen = false,
   className,
   ...props
 }: ChatComposerProps) {
@@ -334,6 +361,7 @@ export function ChatComposer({
     focus: autoFocus,
   });
   const box = React.useRef<TextEditHandle>(null);
+  const card = React.useRef<HTMLDivElement>(null);
   const sentAt = React.useRef(0);
   const errorId = React.useId();
 
@@ -418,6 +446,84 @@ export function ChatComposer({
     onValueChange?.(value);
   };
 
+  // At rest: nothing in the card has focus and nothing in it is to be kept in view. Nothing is
+  // focused as it mounts, so the first frame (the server's too) already has the right shape.
+  const mayRest =
+    rest && !holdOpen && !error && !steers?.length && state !== "sending";
+  const [resting, setResting] = React.useState(mayRest);
+  const evaluate = React.useCallback(() => {
+    const el = card.current;
+    if (!el) return;
+    const active = el.ownerDocument.activeElement;
+    setResting(
+      mayRest &&
+        !(active && el.contains(active)) &&
+        !el.querySelector(HOLDS_OPEN),
+    );
+  }, [mayRest]);
+  React.useLayoutEffect(evaluate, [evaluate, body]);
+  React.useEffect(() => {
+    const el = card.current;
+    if (!rest || !el) return;
+    // A menu opening or closing, a notice or a chip coming or going.
+    const observer = new MutationObserver(evaluate);
+    observer.observe(el, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: [
+        "aria-expanded",
+        "data-popup-open",
+        "data-composer-hold",
+      ],
+    });
+    return () => observer.disconnect();
+  }, [rest, evaluate]);
+  // Growing and resting move the card's height, not the page under it in one jump.
+  const height = React.useRef(0);
+  React.useEffect(() => {
+    const el = card.current;
+    if (!rest || !el || typeof ResizeObserver === "undefined") return;
+    height.current = el.offsetHeight;
+    const observer = new ResizeObserver(() => {
+      if (!el.style.height) height.current = el.offsetHeight;
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [rest]);
+  const firstRest = React.useRef(true);
+  React.useLayoutEffect(() => {
+    const el = card.current;
+    if (firstRest.current || !el) {
+      firstRest.current = false;
+      return;
+    }
+    const from = height.current;
+    const to = el.offsetHeight;
+    if (
+      !from ||
+      from === to ||
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
+    el.style.height = `${from}px`;
+    void el.offsetHeight;
+    el.style.transition = REST_MOTION;
+    el.style.height = `${to}px`;
+    const done = () => {
+      el.style.height = "";
+      el.style.transition = "";
+      height.current = el.offsetHeight;
+    };
+    const timer = window.setTimeout(done, 400);
+    el.addEventListener("transitionend", done, { once: true });
+    return () => {
+      window.clearTimeout(timer);
+      el.removeEventListener("transitionend", done);
+    };
+  }, [resting]);
+  const restKind = resting ? (sendable(body) ? "draft" : "empty") : undefined;
+
   // Enter and leave fire for every child the drag crosses, so count them.
   const drags = React.useRef(0);
   const [dragging, setDragging] = React.useState(false);
@@ -431,6 +537,7 @@ export function ChatComposer({
 
   const context: ComposerContextValue = {
     state,
+    resting,
     disabled,
     labels,
     body,
@@ -482,7 +589,9 @@ export function ChatComposer({
           </ul>
         ) : null}
         <div
+          ref={card}
           data-slot="chat-composer-box"
+          data-rest={restKind}
           // A bordered field group around text entry: its border is the text's focus cue, and
           // base.css hangs the forced-colours focus outline on it (FOC-3/FOC-14).
           data-field-group=""
@@ -491,9 +600,20 @@ export function ChatComposer({
           className={cn(
             // One radius; the hairline darkens a little while the text has focus (FOC-14's
             // text-entry cue). Nothing on it ever turns red: a failed send says so under it.
-            "relative flex min-w-0 flex-col overflow-hidden rounded-overlay capsule-scope border border-chat-hairline bg-background transition-[border-color] duration-quick ease-standard has-[[contenteditable=true]:focus]:border-input-focus",
+            "group/composer relative flex min-w-0 flex-col overflow-hidden rounded-overlay capsule-scope border border-chat-hairline bg-background transition-[border-color] duration-quick ease-standard has-[[contenteditable=true]:focus]:border-input-focus",
+            // At rest: one row, 7px in, so its 32px controls make it 48px tall.
+            "data-rest:flex-row data-rest:items-center data-rest:p-[7px]",
             disabled && "bg-muted/40",
           )}
+          onFocus={rest ? evaluate : undefined}
+          onBlur={
+            rest
+              ? () => {
+                  // Focus moves on after blur: look once it has landed.
+                  requestAnimationFrame(evaluate);
+                }
+              : undefined
+          }
           onMouseDown={(event) => {
             const slot = (event.target as HTMLElement).dataset?.slot;
             if (disabled || !slot || !CHROME_SLOTS.has(slot)) return;
@@ -716,115 +836,84 @@ export function ChatComposerNotice({
 }
 
 /* ------------------------------------------------------------------------------------------------
- * Header — the context strip
+ * Agent — who the message goes to
  * ----------------------------------------------------------------------------------------------*/
 
-/** Props accepted by `ChatComposerHeader`. */
-export type ChatComposerHeaderProps = React.ComponentPropsWithRef<"div">;
-
-/**
- * `ChatComposerHeader` — the context strip on the card's top, a hairline under it: who or what the
- * message goes to (`ChatComposerHeaderTrigger`, which takes the strip's width), then anything that
- * belongs at its end, such as the Plan `ComposerChip`. Optional: a quick ask may have none.
- *
- * @example
- * <ChatComposerHeader>
- *   <ChatComposerHeaderTrigger media={<Avatar … />} description="Chief of staff">Talking to William</ChatComposerHeaderTrigger>
- *   <ComposerChip pressed={plan} onPressedChange={setPlan}>Plan</ComposerChip>
- * </ChatComposerHeader>
- */
-export function ChatComposerHeader({
-  className,
-  ...props
-}: ChatComposerHeaderProps) {
-  return (
-    <div
-      data-slot="chat-composer-header"
-      className={cn(
-        "flex min-w-0 items-center gap-1 border-b border-chat-hairline p-1.5 *:not-data-[slot=chat-composer-header-trigger]:shrink-0",
-        className,
-      )}
-      {...props}
-    />
-  );
-}
-
-/** Props accepted by `ChatComposerHeaderTrigger`. */
-export interface ChatComposerHeaderTriggerProps extends Omit<
+/** Props accepted by `ChatComposerAgent`. */
+export interface ChatComposerAgentProps extends Omit<
   React.ComponentProps<typeof Button>,
-  "size" | "variant"
+  "size" | "variant" | "children"
 > {
-  /** What it reads: "Talking to William". */
-  children: React.ReactNode;
-  /** Leads the words: an `Avatar` (size 20) or an icon. @default undefined */
-  media?: React.ReactNode;
-  /** Muted words after the chevron, the first to give way on a narrow card: a role, "Chief of staff". @default undefined */
-  description?: React.ReactNode;
-  /** Draw the ▾ that says it opens a list. Off for a strip that only names its target. @default true */
+  /** The agent's name: "William". Long names truncate; the full name stays in its label and on hover. */
+  children: string;
+  /** Leads the name: an `Avatar` (size 20) or an icon. At rest it is all that shows. */
+  media: React.ReactNode;
+  /** Its role, read after the name and shown on hover: "Chief of staff". @default undefined */
+  description?: string;
+  /** Draw the ▾ that says it opens a list. Off when it only names the agent. @default true */
   chevron?: boolean;
 }
 
 /**
- * `ChatComposerHeaderTrigger` — the context strip's one control: media, the words, ▾ and a muted
- * description, as one round ghost button that fills the strip. It spreads every prop onto its
- * button, so a menu can render it (`<ChatMenu trigger={<ChatComposerHeaderTrigger …/>}>`).
+ * `ChatComposerAgent` — who the message goes to, first in `ChatComposerActionsStart` after +: the
+ * agent's avatar, its name and ▾, as one round ghost button. A long name truncates (the whole name
+ * stays in its accessible name and its hover title). At rest the card keeps only its avatar, a 32px
+ * circle. It spreads every prop onto its button, so a picker can render it
+ * (`<PopoverTrigger render={<ChatComposerAgent …/>} />`).
  *
  * @example
- * <ChatMenu trigger={<ChatComposerHeaderTrigger media={<Sparkle />} description="Chief of staff">Talking to William</ChatComposerHeaderTrigger>}>
- *   {agents}
- * </ChatMenu>
+ * <ChatComposerActionsStart>
+ *   <ChatComposerAddButton menu={add} />
+ *   <ChatMenu trigger={<ChatComposerAgent media={<Avatar … />} description="Chief of staff">William</ChatComposerAgent>}>
+ *     {agents}
+ *   </ChatMenu>
+ * </ChatComposerActionsStart>
  */
-export function ChatComposerHeaderTrigger({
+export function ChatComposerAgent({
   children,
   media,
   description,
   chevron = true,
   disabled,
   className,
+  "aria-label": ariaLabel,
   ...props
-}: ChatComposerHeaderTriggerProps) {
-  const composer = useComposer("ChatComposerHeaderTrigger");
-  // Plain-text names read with a pause before the role ("William, Chief of staff") without
-  // any hidden punctuation taking up width in the truncating label; a caller's label wins.
+}: ChatComposerAgentProps) {
+  const composer = useComposer("ChatComposerAgent");
   const label =
-    typeof children === "string" && typeof description === "string"
-      ? `${children}, ${description}`
-      : undefined;
+    ariaLabel ??
+    `Talking to ${children}${description ? `, ${description}` : ""}`;
   return (
     <Button
       variant="ghost"
       aria-label={label}
-      data-slot="chat-composer-header-trigger"
+      title={label}
+      data-slot="chat-composer-agent"
+      data-rest-keep=""
       disabled={disabled || composer.disabled}
       className={cn(
-        "h-8 min-w-0 flex-1 justify-start gap-1.5 ps-2 pe-3 text-sm font-normal",
+        "h-8 min-w-0 shrink justify-start gap-1.5 ps-1.5 pe-2.5 text-xs font-medium text-foreground",
+        // At rest: the avatar alone, a circle the size of Send.
+        "group-data-rest/composer:size-8 group-data-rest/composer:justify-center group-data-rest/composer:p-0",
         className,
       )}
       {...props}
     >
-      {media ? (
-        <span
-          aria-hidden
-          data-slot="chat-composer-header-media"
-          className="inline-flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-full [&_svg:not([class*='size-'])]:size-4"
-        >
-          {media}
-        </span>
-      ) : null}
-      <span className="min-w-0 shrink truncate font-medium text-foreground">
+      <span
+        aria-hidden
+        data-slot="chat-composer-agent-media"
+        className="inline-flex size-5 shrink-0 items-center justify-center overflow-hidden rounded-full [&_svg:not([class*='size-'])]:size-4"
+      >
+        {media}
+      </span>
+      <span className="max-w-40 min-w-6 truncate group-data-rest/composer:hidden">
         {children}
       </span>
       {chevron ? (
-        <ChevronDown aria-hidden className="size-3.5 shrink-0" />
-      ) : null}
-      {description ? (
-        <span
-          data-slot="chat-composer-header-description"
-          className="min-w-0 shrink-2 truncate text-muted-foreground"
-        >
-          <span aria-hidden>· </span>
-          {description}
-        </span>
+        <ChevronDown
+          aria-hidden
+          className="-ms-0.5 size-3.5 shrink-0 text-muted-foreground group-data-rest/composer:hidden"
+        />
       ) : null}
     </Button>
   );
@@ -1120,6 +1209,8 @@ export function ChatComposerAttachments({
 export interface ChatComposerInputProps {
   /** Shown while the box is empty: "Ask William anything…", "Type to steer, or wait…". @default undefined */
   placeholder?: string;
+  /** Shown instead while the card rests: "Reply to William…". @default placeholder */
+  restPlaceholder?: string;
   /** Lines tall at rest. @default 2 */
   minRows?: number;
   /** Lines it grows to before it scrolls inside. @default 8 */
@@ -1147,6 +1238,7 @@ export interface ChatComposerInputProps {
  */
 export function ChatComposerInput({
   placeholder,
+  restPlaceholder,
   minRows = 2,
   maxRows = 8,
   mentions,
@@ -1157,7 +1249,19 @@ export function ChatComposerInput({
 }: ChatComposerInputProps) {
   const composer = useComposer("ChatComposerInput");
   return (
-    <div data-slot="chat-composer-input" className="min-w-0">
+    <div
+      data-slot="chat-composer-input"
+      className={cn(
+        "min-w-0",
+        // At rest: one line on the controls' centre line; a draft shows its first line, with a dot.
+        "group-data-rest/composer:flex group-data-rest/composer:flex-1 group-data-rest/composer:items-center group-data-rest/composer:[--chat-composer-max-h:1.5rem] group-data-rest/composer:[--chat-composer-min-h:1.5rem]",
+      )}
+    >
+      <span
+        aria-hidden
+        data-slot="chat-composer-draft-dot"
+        className="hidden size-1.5 shrink-0 rounded-full bg-info group-data-[rest=draft]/composer:ms-2 group-data-[rest=draft]/composer:block"
+      />
       <TextEdit
         key={composer.draft.generation}
         handleRef={composer.box}
@@ -1166,7 +1270,9 @@ export function ChatComposerInput({
         variant="document"
         framed
         defaultValue={composer.draft.value}
-        placeholder={placeholder}
+        placeholder={
+          composer.resting ? (restPlaceholder ?? placeholder) : placeholder
+        }
         aria-label={composer.labels?.message ?? "Message"}
         aria-describedby={composer.errorId}
         onValueChange={composer.onEditorChange}
@@ -1184,9 +1290,16 @@ export function ChatComposerInput({
         mentionImage={mentionImage}
         mentionStatus={mentionStatus}
         // `lh` follows the text's own line height, a phone's larger type included.
-        minHeight={`${Math.max(1, minRows)}lh`}
-        maxHeight={`${Math.max(minRows, maxRows)}lh`}
-        className={cn("px-3.5 pt-2.5 pb-0.5 text-sm", className)}
+        // A resting card sets both to one line through these variables.
+        minHeight={`var(--chat-composer-min-h, ${Math.max(1, minRows)}lh)`}
+        maxHeight={`var(--chat-composer-max-h, ${Math.max(minRows, maxRows)}lh)`}
+        className={cn(
+          "px-3.5 pt-2.5 pb-0.5 text-sm",
+          // At rest: 4px + the 24px field (a 20px line, 2px above and below) + 4px matches the 32px
+          // controls, so the text sits on their centre line; one line, ellipsis.
+          "group-data-rest/composer:min-w-0 group-data-rest/composer:flex-1 group-data-rest/composer:px-[7px] group-data-rest/composer:py-1 group-data-rest/composer:[&_[role=textbox]]:py-0.5 group-data-rest/composer:[&_[data-slot=text-edit-content]]:overflow-hidden group-data-rest/composer:[&_[role=textbox]>*:not(:first-child)]:hidden group-data-rest/composer:[&_[role=textbox]>*:first-child]:truncate group-data-rest/composer:[&_[role=textbox]>*:first-child]:m-0",
+          className,
+        )}
       />
     </div>
   );
@@ -1216,7 +1329,12 @@ export function ChatComposerActions({
   return (
     <div
       data-slot="chat-composer-actions"
-      className={cn("flex min-w-0 items-center gap-1 p-1.5", className)}
+      className={cn(
+        "flex min-w-0 items-center gap-1 p-1.5",
+        // At rest its two groups join the text's row: the start before it, the end after it.
+        "group-data-rest/composer:contents",
+        className,
+      )}
       {...props}
     />
   );
@@ -1241,7 +1359,13 @@ export function ChatComposerActionsStart({
   return (
     <div
       data-slot="chat-composer-actions-start"
-      className={cn("flex shrink-0 items-center gap-1", className)}
+      className={cn(
+        // On a narrow card the model gives way first: this group shrinks a quarter as fast.
+        "flex min-w-0 shrink-[0.25] items-center gap-1",
+        // At rest: only what it keeps (the agent's avatar), before the text; nothing kept, nothing.
+        "group-data-rest/composer:-order-1 group-data-rest/composer:shrink-0 group-data-rest/composer:*:not-data-rest-keep:hidden group-data-rest/composer:not-has-data-rest-keep:hidden",
+        className,
+      )}
       {...props}
     />
   );
@@ -1267,7 +1391,12 @@ export function ChatComposerActionsEnd({
   return (
     <div
       data-slot="chat-composer-actions-end"
-      className={cn("ms-auto flex min-w-0 items-center gap-1", className)}
+      className={cn(
+        "ms-auto flex min-w-0 items-center gap-1",
+        // At rest: Send or Stop only.
+        "group-data-rest/composer:*:not-data-rest-keep:hidden",
+        className,
+      )}
       {...props}
     />
   );
@@ -1457,6 +1586,7 @@ function ActionButton({
             aria-busy={face === "sending" || undefined}
             data-slot={slot}
             data-face={face}
+            data-rest-keep=""
             disabled={disabled}
             onClick={onClick}
             className={cn(
