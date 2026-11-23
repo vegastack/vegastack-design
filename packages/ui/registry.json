@@ -16413,7 +16413,7 @@
       "meta": {
         "whenToUse": "A mode or a choice in ChatComposer: Plan after ChatComposerAgent while it is on (data-composer-hold keeps a resting card open), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
-        "version": "0.123.2"
+        "version": "0.134.0"
       }
     },
     {
@@ -17086,7 +17086,7 @@
       "meta": {
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put + and ChatComposerAgent in ChatComposerActionsStart, the model and the memory ring in ChatComposerActionsEnd, Plan in the + menu (a pressed ComposerChip while on); pass rest so a reply box rests at one line until focused.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
-        "version": "0.133.0"
+        "version": "0.134.0"
       }
     },
     {

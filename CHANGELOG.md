@@ -9,6 +9,25 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.134.0] — November 23, 2026
+
+<!-- assembled from 2 changesets: 88e482a02887 -->
+
+### 🔧 Changed components
+
+- **ChatComposer rests at one line.** With `rest`, a card that nothing in it has focus and that holds nothing to keep in view (files, a notice, steers, an error, a menu open from one of its controls, `data-composer-hold`, `holdOpen`) is one 48px capsule: the agent's avatar, the first line of the text (a draft leads with a dot, its Send filled) and Send or Stop. Focus or a click opens it; its height eases between the two (`duration-layout`, instant under reduced motion). `ChatComposerInput` takes `restPlaceholder`. ⚠ **`ChatComposerHeader` and `ChatComposerHeaderTrigger` are removed**, with no alias: who the message goes to is the new `ChatComposerAgent`, after + in `ChatComposerActionsStart` (the name alone as its child; long names truncate, the whole name stays in its label and hover title; at rest only its avatar shows). Plan moves to the + menu and shows as a pressed `ComposerChip` after the agent while on.
+  [`0dc1f7f`](https://github.com/VegaStack/vegastack-design/commit/0dc1f7f)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.28.5`** (was `0.28.4`).
+- The design-system registry (`@vegastack/ui`) bumps 0.133.0 → 0.134.0.
+
+### 🐛 Fixed
+
+- The concentric-corner geometry test waits for popups to finish opening before it measures.
+  [`7add5b3`](https://github.com/VegaStack/vegastack-design/commit/7add5b3)
+
 ## [0.133.0] — November 23, 2026
 
 <!-- assembled from 1 changeset: 7b06da35c968 -->
