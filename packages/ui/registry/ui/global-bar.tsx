@@ -1,4 +1,4 @@
-// @vegastack global-bar@0.123.2 sha256-uCHL5aaaxGPl8YuWPz6EbyXpOTPtr8691sSoyIaHI08=
+// @vegastack global-bar@0.123.2 sha256-d3sd9CMF2BajlXezhNp3fdGC9odNyVMXrXlb+DsNgak=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

@@ -120,9 +120,10 @@ export function GlobalBarSearch({
       size="sm"
       aria-keyshortcuts={os === "mac" ? "Meta+K" : "Control+K"}
       className={cn(
-        // Sized by the bar, not the window, so the sides keep room in a narrow shell; under 42rem it
+        // The same box with or without Ask (one size on every page): 32px high, 580px at most and
+        // the bar's own width under that, on the card's ground with a field's ring. Under 42rem it
         // shrinks to its icon and shortcut.
-        "w-[min(28rem,30cqw)] min-w-0 @max-2xl/global-bar:w-auto justify-start gap-2 rounded-capsule font-normal text-muted-foreground",
+        "h-8 w-[min(36.25rem,42cqw)] min-w-0 @max-2xl/global-bar:w-auto justify-start gap-2 rounded-capsule border-input bg-shell-card ps-3 pe-2 font-normal text-muted-foreground hover:border-input-hover",
         className,
       )}
       {...props}
