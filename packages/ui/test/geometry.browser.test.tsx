@@ -5045,10 +5045,28 @@ for (const [width, tracks] of [
  * Measured on the painted boxes once every open animation has settled, so a padding or border
  * change that breaks the arithmetic fails here.
  */
-async function settled() {
-  await Promise.all(
-    document.getAnimations().map((a) => a.finished.catch(() => undefined)),
+// An open popup's enter animation (`data-open:animate-in zoom-in-95`: scale 0.95 → 1) can start
+// a frame after mount, so awaiting `getAnimations()` straight away could find none and measure
+// the popup mid-zoom: a 6px inset read at 95% is 5.7px, and a 16px corner then "wants" 10.3 where
+// the CSS gives 10 (the intermittent BRD-12 failure). Wait two frames for transitions to start,
+// then for every finite one to finish, until a frame passes with none running.
+const nextFrame = () =>
+  new Promise<void>((done) =>
+    requestAnimationFrame(() => requestAnimationFrame(() => done())),
   );
+async function settled() {
+  for (;;) {
+    await nextFrame();
+    const running = document
+      .getAnimations()
+      .filter(
+        (a) =>
+          a.playState === "running" &&
+          a.effect?.getComputedTiming().endTime !== Infinity,
+      );
+    if (running.length === 0) return;
+    await Promise.all(running.map((a) => a.finished.catch(() => undefined)));
+  }
 }
 function cornerOf(el: Element) {
   const r = el.getBoundingClientRect();
