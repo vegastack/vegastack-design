@@ -1,7 +1,7 @@
 import * as React from "react";
 import { render } from "vitest-browser-react";
 import { page, userEvent } from "vitest/browser";
-import { expect, test, vi } from "vitest";
+import { expect, onTestFinished, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
 import { Citation } from "./cited-list";
@@ -363,7 +363,7 @@ test("an answer's time shows on hover or focus, like its actions", async () => {
   await vi.waitFor(() => expect(getComputedStyle(time).opacity).toBe("1"));
 });
 
-test("every button in the actions row, wrapped in a trigger or not, is one 28px square with a 16px icon", async () => {
+test("every button in the actions row, wrapped in a trigger or not, is one square sized to the text: 24px, or 28px below sm", async () => {
   const icon = <svg aria-hidden viewBox="0 0 24 24" />;
   const screen = await render(
     <MessageActions reveal="always">
@@ -389,14 +389,24 @@ test("every button in the actions row, wrapped in a trigger or not, is one 28px 
     screen.container.querySelectorAll<HTMLElement>("button"),
   );
   expect(buttons).toHaveLength(5);
-  for (const button of buttons) {
-    const box = button.getBoundingClientRect();
-    expect([box.width, box.height]).toEqual([28, 28]);
-    const { paddingLeft, paddingRight } = getComputedStyle(button);
-    expect([paddingLeft, paddingRight]).toEqual(["0px", "0px"]);
-    // The computed size, not the box: CopyButton's icon pops in with a scale.
-    const glyph = getComputedStyle(button.querySelector("svg")!);
-    expect([glyph.width, glyph.height]).toEqual(["16px", "16px"]);
+  onTestFinished(() => page.viewport(414, 896));
+  for (const [width, square, glyphSize] of [
+    [1280, 24, "14px"],
+    [414, 28, "16px"],
+  ] as const) {
+    await page.viewport(width, 896);
+    // Buttons ease to their new size.
+    await vi.waitFor(() => {
+      for (const button of buttons) {
+        const box = button.getBoundingClientRect();
+        expect([box.width, box.height]).toEqual([square, square]);
+        const { paddingLeft, paddingRight } = getComputedStyle(button);
+        expect([paddingLeft, paddingRight]).toEqual(["0px", "0px"]);
+        // The computed size, not the box: CopyButton's icon pops in with a scale.
+        const glyph = getComputedStyle(button.querySelector("svg")!);
+        expect([glyph.width, glyph.height]).toEqual([glyphSize, glyphSize]);
+      }
+    });
   }
 });
 
