@@ -1,4 +1,4 @@
-// @vegastack status-icon@0.123.2 sha256-cl76G5hf88+xXczgCC1UstSDu54NrK2t0mGy4wdgdUY=
+// @vegastack status-icon@0.123.2 sha256-frp4ZIII7eZrlYg0xS0gIraRrmHIjK4uR20MB0EzweA=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -13,7 +13,7 @@ import { cn } from "@vegastack/design";
  * through `currentColor`, so every status maps to one of the system's standard semantic text tokens
  * (operator, 09-10-2026 — Linear's shapes, not its palette): `backlog`, `canceled` and `duplicate` →
  * `text-muted-foreground`, `todo` → `text-foreground`, `progress` → `text-warning-text`, `review` →
- * `text-info-text`, `done` → `text-primary` (COL-25: checks are primary, never green), `triage` → `text-tag-orange-text`.
+ * `text-info-text`, `done` → `text-check` (COL-25: checks are primary, never green), `triage` → `text-tag-orange-text`.
  * `planned` (a dashed ring in body ink) and `paused` (a ring with two bars, muted) serve plans that
  * are not underway yet or are on hold, such as an initiative. The marks
  * drawn on a filled disc (`done`'s check, `canceled`'s cross, `triage`'s arrow) take `stroke-background`.
@@ -28,7 +28,7 @@ export const statusIconVariants = cva("inline-block shrink-0", {
       todo: "text-foreground",
       progress: "text-warning-text",
       review: "text-info-text",
-      done: "text-primary",
+      done: "text-check",
       canceled: "text-muted-foreground",
       duplicate: "text-muted-foreground",
       triage: "text-tag-orange-text",
@@ -159,7 +159,7 @@ export interface StatusIconProps
    * - `todo` → empty ring, `text-foreground`
    * - `progress` → ring with a half-filled pie, `text-warning-text`
    * - `review` → ring with a three-quarter pie, `text-info-text`
-   * - `done` → filled disc with a check, `text-primary`
+   * - `done` → filled disc with a check, `text-check`
    * - `canceled` → filled disc with a cross, `text-muted-foreground`
    * - `duplicate` → ring with two diagonal strokes, `text-muted-foreground`
    * - `triage` → filled disc with a left-right arrow, `text-tag-orange-text`

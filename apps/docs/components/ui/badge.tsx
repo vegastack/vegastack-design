@@ -1,4 +1,4 @@
-// @vegastack badge@0.123.2 sha256-ESSEBU1wYaSuPaGvTSX6m4w0GFXYB9sDucW7eoqnqew=
+// @vegastack badge@0.123.2 sha256-mbt3rB3wTfwR2Rt8OMJ5gI4JldmgMh6ZS6xwgeGJYD0=
 
 "use client";
 
@@ -12,7 +12,8 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+        default:
+          "bg-primary text-primary-foreground [a]:hover:bg-primary-hover",
         secondary: "bg-secondary text-secondary-foreground [a]:state-layer",
         destructive:
           "bg-destructive/10 text-destructive-text dark:bg-destructive/20 [a]:hover:bg-destructive/20",
@@ -24,7 +25,7 @@ const badgeVariants = cva(
         outline:
           "border-border text-foreground [a]:state-layer [a]:hover:text-muted-foreground",
         ghost: "state-layer hover:text-muted-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        link: "text-ink underline-offset-4 hover:underline",
       },
     },
     defaultVariants: {

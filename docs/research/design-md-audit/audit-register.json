@@ -2,10 +2,10 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "87b45555fbdd55156db29fa417c54c8b2edbdce548da5fcccda7c056afad6eb9",
+  "contractSha256": "d5629d097055541ff3233fe312510b04f1b284331cdb11c3561919b09e47b080",
   "expectedCounts": {
-    "totalRegistryItems": 824,
-    "components": 235,
+    "totalRegistryItems": 825,
+    "components": 236,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -2614,6 +2614,20 @@
         "packages/ui/registry/ui/shell-assistant.tsx"
       ],
       "docsSlug": "/docs/components/shell-assistant",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "accent",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/accent.tsx",
+        "packages/ui/registry/ui/accent-picker.tsx",
+        "packages/ui/registry/ui/accent-preview.tsx",
+        "packages/ui/registry/ui/accent-script.tsx"
+      ],
+      "docsSlug": "/docs/components/accent",
       "contractStatus": "reconciled"
     },
     {

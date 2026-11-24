@@ -245,6 +245,17 @@ const RULES = [
     re: /(?<![\w-])(?:[^\s"'`{}]*:)?(?:hover|group-hover\/[\w-]+|\[[^\s"'`{}]*:hover[^\s"'`{}]*\]):bg-(?:(?:muted|accent|sidebar-accent|secondary)(?:\/\d+)?|background|\[color-mix\(in_oklch,var\(--(?:secondary|muted|accent)\)[^\]]*\])(?=[\s"'`]|$)/g,
     msg: "opaque state fill (COL-24): a hover is the `state-layer` utility (translucent `--state-hover`/`--state-pressed` over any fill), not `hover:bg-muted`/`bg-accent`/`bg-sidebar-accent`/`bg-secondary`; an inner tile is `bg-state-tile` and never swaps its fill on the row's hover",
   },
+  // COL-27 (ours, operator 2026-11-25) — an accent theme re-points `primary`, so each use names its
+  // role. `text-primary` is refused in every spelling: a done check must not turn violet (`check`),
+  // a link in text is `link`, and the accent as ink is `primary-text`, the shade gated to be readable
+  // on page and tint. A solid control's hover and press are the real shades `primary-hover` and
+  // `primary-pressed`: `hover:bg-primary/80` would fade a coloured fill under its label. A tint's own
+  // hover (`hover:bg-primary/12` on a chosen reaction) is not a solid fill and passes.
+  {
+    id: "accent-role",
+    re: /(?<![\w-])text-primary(?![\w-])|(?:hover|active)[^\s"'`{}]*:bg-primary\/(?:[5-9]\d|100|\[)/g,
+    msg: "accent role (COL-27): `text-primary` is `text-check` (a done check), `text-link` (a link in text) or `text-primary-text` (accent ink); a solid fill's hover and press are `bg-primary-hover` / `bg-primary-pressed`, never an opacity",
+  },
   // TYP-18 — no arbitrary font size.
   //
   // An arbitrary value bypasses the `--text-*` namespace entirely, so it can never receive the

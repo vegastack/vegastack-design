@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.117.0 sha256-KorED/18aQFuflI5BVQFL2b+sS4inpRmO1I+VSLIDPQ=
+// @vegastack email-kit@0.117.0 sha256-xqzjRnOU0S5Hn4VbHpOnFqWuNDmw7bUBf2K9/RKmIcQ=
 
 import type { EmailBrand, EmailFooter } from "./email-layout";
 import { EmailLayout } from "./email-layout";
@@ -63,6 +63,11 @@ export interface ActionEmailProps {
    * @default undefined
    */
   footer?: EmailFooter;
+  /**
+   * The workspace's accent theme (COL-27), on the button. An unknown id is `black`.
+   * @default "black"
+   */
+  accent?: string | null;
 }
 
 /**
@@ -92,11 +97,13 @@ export function ActionEmail({
   linkFallback,
   note,
   footer,
+  accent,
 }: ActionEmailProps) {
   const paragraphs =
     body === undefined ? [] : Array.isArray(body) ? body : [body];
   return (
     <EmailLayout
+      accent={accent}
       brand={brand}
       preview={preview}
       title={title ?? heading}
@@ -109,7 +116,9 @@ export function ActionEmail({
         <EmailText key={index}>{paragraph}</EmailText>
       ))}
       {card ? <EmailCard {...card} /> : null}
-      <EmailButton href={action.href}>{action.label}</EmailButton>
+      <EmailButton href={action.href} accent={accent}>
+        {action.label}
+      </EmailButton>
       {linkFallback ? (
         <EmailText tone="muted">
           {linkFallback}

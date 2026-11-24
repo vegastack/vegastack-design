@@ -254,3 +254,4 @@ export * from "./timeline";
 export * from "./health-indicator";
 export * from "./meeting-icon";
 export * from "./milestone-list";
+export * from "./accent";

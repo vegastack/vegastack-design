@@ -1,4 +1,4 @@
-// @vegastack bubble@0.123.2 sha256-S5t8VyhoDMba2zTxTN4ZrsuwUvu6h/aJiFB/FBvJg2o=
+// @vegastack bubble@0.123.2 sha256-C38smt1ymlQnfxpZCB4KobvPWoL/nn4tmBQHyWq91xY=
 
 "use client";
 
@@ -24,7 +24,7 @@ const bubbleVariants = cva(
     variants: {
       variant: {
         default:
-          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/80",
+          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary-hover",
         secondary:
           "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a)]:state-layer",
         muted:

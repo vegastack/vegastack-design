@@ -1,4 +1,4 @@
-// @vegastack stepper@0.123.2 sha256-Uow28MDQxkErX5XAw6vsrwyU6Bv2jeirOpcDoelpXUc=
+// @vegastack stepper@0.123.2 sha256-gARYhPT4rJ3mggIlr3BnSaNDlJnNpJH4iZGGOLyATZE=
 
 "use client";
 
@@ -28,7 +28,7 @@ Three judgments are load-bearing and each one is pinned by a test:
 Rebuilt 2026-09-22 (`docs/plans/2026-09-22-stepper-rebuild-and-multi-step-form.md`,
 approved by MK). Four things changed, and the fourth is a removal:
 
-1. **The rail carries the progress.** Connectors behind you take `bg-primary`, ahead of
+1. **The rail carries the progress.** Connectors behind you take `bg-check/40`, ahead of
    you `bg-border`, so the stepper IS the progress bar and there is no second one to keep
    in sync. "Behind you" is read from each step's own state (`complete`/`skipped`), never
    from its index — see `connectorPassed`.
@@ -49,8 +49,8 @@ approved by MK). Four things changed, and the fourth is a removal:
 Tidied 2026-10-11 (MK): the whole step — node and label — is ONE target. A navigable step
 is a single Button wrapping both, so the circle is as clickable as the text and the hover
 wash covers the pair; the connector sits outside it, positioned against the step, so the
-target never swallows the line. `complete` moved from the solid fill to a muted primary
-(a check on a `primary`/10 tint, and its connector in the same `primary`/40) so the solid
+target never swallows the line. `complete` moved from the solid fill to a muted check
+(a check on a `check`/10 tint, and its connector in the same `check`/40) so the solid
 fill now means "you are here" and nothing else, and the current label takes `font-medium`
 — with its bold width reserved, so the rail still never shifts. A horizontal rail that
 overflows its container scrolls its current step into view.
@@ -127,8 +127,8 @@ export interface StepperStep {
 /**
  * Node variants — the numbered circle at the head of each step.
  *
- * `current` alone takes the solid primary fill — "you are here". `complete` is the same hue
- * muted (a check on a `primary`/10 tint), `upcoming` an outline. Status colour is reserved
+ * `current` alone takes the solid primary fill — "you are here". `complete` is the neutral
+ * check ink, muted (a done check never takes an accent, COL-27) (a check on a `check`/10 tint), `upcoming` an outline. Status colour is reserved
  * for `warning` and `error` so that it means "this needs you", not "this exists".
  */
 export const stepperNodeVariants = cva(
@@ -138,7 +138,7 @@ export const stepperNodeVariants = cva(
   {
     variants: {
       state: {
-        complete: "border-primary/40 bg-primary/10 text-primary",
+        complete: "border-check/40 bg-check/10 text-check",
         current: "bg-primary text-primary-foreground",
         loading: "border-border bg-background text-muted-foreground",
         warning: "bg-warning text-warning-foreground",
@@ -704,7 +704,7 @@ export function Stepper({
                   data-passed={passed ? "" : undefined}
                   className={cn(
                     "rounded-full transition-colors",
-                    passed ? "bg-primary/40" : "bg-border",
+                    passed ? "bg-check/40" : "bg-border",
                     CONNECTOR_CLASS[resolvedOrientation][size],
                   )}
                 />
@@ -747,7 +747,7 @@ export function Stepper({
                   data-passed={passed ? "" : undefined}
                   className={cn(
                     "h-0.5 min-w-4 flex-1 rounded-full transition-colors",
-                    passed ? "bg-primary/40" : "bg-border",
+                    passed ? "bg-check/40" : "bg-border",
                   )}
                 />
               ) : null}

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.123.5 sha256-L3F6aBQRlgIb3hz2hQnMLEIubT6H0bQeXzib7cBt+yI=
+// @vegastack text-edit@0.123.5 sha256-qorfdezpyYTVMxL2HEFdPinPHpXujj+7i1pPjy/8hN8=
 
 "use client";
 
@@ -7026,7 +7026,7 @@ function LinkCard({
             title={href}
             aria-label={`Open ${href}`}
             // It gives way to the card's width (the Button never shrinks by default).
-            className="min-w-0 shrink justify-start gap-1.5 px-2 font-normal text-info-text"
+            className="min-w-0 shrink justify-start gap-1.5 px-2 font-normal text-link"
           />
         }
       >

@@ -1,7 +1,7 @@
 {
   "_note": "Every name in packages/ui/registry/ui/ that has NO counterpart in vendor/shadcn/<cli>/ui/. verify-parity.mjs fails on a registry name that is neither upstream-backed nor listed here, so a component cannot appear by accident. Dispositions come from docs/plans/2026-09-18-shadcn-reset/extras.md (66 rows, MK 2026-09-18); hooks and internal parts are not components and are recorded here with their reason.",
   "counts": {
-    "total": 155,
+    "total": 159,
     "fromExtras": 40
   },
   "items": {
@@ -1185,6 +1185,27 @@
       "disposition": "keep",
       "family": "internal",
       "source": "internal part of record-layout (its client side panel: strip, panels, phone row). VegaStack layout v2, P0 part 5 — operator approval 17-11-2026"
+    },
+    "accent": {
+      "disposition": "keep",
+      "family": "form",
+      "source": "Regent accent themes — operator batch approval 25-11-2026 \"Approve, go dark\" (A1–A13, R1–R5, COL-27)",
+      "rationale": "Upstream ships no accent switch. The person's accent on <html data-accent>, its cookie, a page-level scope and a picker over upstream radio-group and button recipes; no patch."
+    },
+    "accent-picker": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of accent (the picker). Regent accent themes — operator batch approval 25-11-2026 \"Approve, go dark\" (A1–A13, R1–R5, COL-27)"
+    },
+    "accent-script": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of accent (the before-paint script, with no client imports, so a root layout can render it without pulling any client graph into public pages). Regent accent themes — operator batch approval 25-11-2026 \"Approve, go dark\" (A1–A13, R1–R5, COL-27)"
+    },
+    "accent-preview": {
+      "disposition": "keep",
+      "family": "internal",
+      "source": "internal part of accent (the preview, drawn with the real components). Regent accent themes — operator batch approval 25-11-2026 \"Approve, go dark\" (A1–A13, R1–R5, COL-27)"
     }
   }
 }

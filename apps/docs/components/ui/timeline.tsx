@@ -1,4 +1,4 @@
-// @vegastack timeline@0.126.1 sha256-O7KQsXEtzctxUirIfmWGE/Jv3KYXHyZz0HZ4g94+amw=
+// @vegastack timeline@0.126.1 sha256-DryQtM13CFRBuA5C18OgcT07lgvgCjq3iogcGjLeD6Y=
 
 "use client";
 
@@ -238,8 +238,8 @@ export interface TimelineProps extends Omit<
 // Active is the solid ink; planned is an outline; paused and done step back; canceled fades.
 const BAR: Record<TimelineStatus, string> = {
   planned: "border border-dashed border-muted-foreground bg-transparent",
-  active: "bg-primary",
-  paused: "bg-primary/35",
+  active: "bg-ink",
+  paused: "bg-ink/35",
   completed: "bg-muted-foreground/50",
   canceled: "bg-muted-foreground/20",
 };

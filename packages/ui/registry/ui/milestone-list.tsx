@@ -1,4 +1,4 @@
-// @vegastack milestone-list@0.125.0 sha256-mWTzFv4zJ2okSD2naK3WZBP9z5CvM4hsFYDwP2EBtP0=
+// @vegastack milestone-list@0.125.0 sha256-RwPh+SJL+gI+WMCXKWShmzobZx9DaZZzGQzt3Ly6WI8=
 
 "use client";
 
@@ -63,7 +63,7 @@ export interface MilestoneGlyphProps extends Omit<
 }
 
 /**
- * `MilestoneGlyph` — a milestone's diamond: filled in primary when done, hollow and muted while
+ * `MilestoneGlyph` — a milestone's diamond: filled in the neutral solid when done, hollow and muted while
  * open, hollow in the warning ink when late.
  *
  * @example
@@ -95,7 +95,7 @@ export function MilestoneGlyph({
         className={cn(
           "rotate-45 border-2",
           size === 14 ? "size-2" : "size-2.5",
-          state === "done" && "border-primary bg-primary",
+          state === "done" && "border-ink bg-ink",
           state === "open" && "border-muted-foreground",
           state === "late" && "border-warning-text",
         )}

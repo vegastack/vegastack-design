@@ -47,22 +47,27 @@ popover, the sidebar and a muted well, in both themes (COL-24, operator 2026-10-
 | Inner tile                        | `--state-tile` (6% / 7%)                                    | `bg-state-tile` — it composes with the row, so it stays one step above it   |
 
 A rest fill never carries state, and an inner tile never swaps its fill when its row is hovered.
-Solid fills keep stepping their own colour (`hover:bg-primary/80 active:bg-primary/70`,
+Solid fills keep stepping their own colour (`hover:bg-primary-hover active:bg-primary-pressed`,
 `bg-destructive/10 hover:bg-destructive/20`).
+
+## Accent
+
+A person can pick one of seven colours for the product. Which tokens follow it, and which never do,
+is in [Accent](/docs/foundations/accent).
 
 ## Status in agent UI
 
 Agent UI speaks one quiet status language (COL-25; the operator: "stop using green checks
 everywhere … use primary checkmarks only"). [`StatusGlyph`](/docs/components/status-glyph) draws it.
 
-| State                                                   | Glyph                    | Ink                                                      |
-| ------------------------------------------------------- | ------------------------ | -------------------------------------------------------- |
-| done, selected, approved, allowed, remembered, uploaded | ✓ `Check`, `CircleCheck` | `text-primary` — near-black in light, near-white in dark |
-| running (drawn still)                                   | ◐ `Contrast`             | `text-info-text`                                         |
-| not started                                             | ◌ `CircleDashed`         | `text-muted-foreground`                                  |
-| skipped                                                 | ⊘ `CircleSlash`          | `text-muted-foreground`                                  |
-| failed — always with words                              | ✗ `X`                    | `text-muted-foreground`                                  |
-| needs you, partial, a cost warning                      | ⚠ `TriangleAlert`        | `text-warning-text`, the glyph only                      |
+| State                                                   | Glyph                    | Ink                                                    |
+| ------------------------------------------------------- | ------------------------ | ------------------------------------------------------ |
+| done, selected, approved, allowed, remembered, uploaded | ✓ `Check`, `CircleCheck` | `text-check` — near-black in light, near-white in dark |
+| running (drawn still)                                   | ◐ `Contrast`             | `text-info-text`                                       |
+| not started                                             | ◌ `CircleDashed`         | `text-muted-foreground`                                |
+| skipped                                                 | ⊘ `CircleSlash`          | `text-muted-foreground`                                |
+| failed — always with words                              | ✗ `X`                    | `text-muted-foreground`                                |
+| needs you, partial, a cost warning                      | ⚠ `TriangleAlert`        | `text-warning-text`, the glyph only                    |
 
 `success`, `warning` and `destructive` are never a fill in agent UI and never the ink of a check;
 red text stays for destructive buttons and form errors. `design-lint` enforces it in the registry
@@ -127,8 +132,9 @@ token contrast gate checks every family on every surface and every tint alpha, f
 
 Every state a family needs is an alpha of the fill: `hover:bg-destructive/20`,
 `active:bg-destructive/30`. Both halves are **theme-aware** — the dark values are lifted so the same
-role stays legible on a dark page. The neutral action colour follows the same pattern with
-`hover:bg-primary/80`.
+role stays legible on a dark page. The action colour has its own shades,
+`primary-hover` and `primary-pressed`, because an [accent](/docs/foundations/accent) fades under an
+alpha.
 
 `info` stays rationed to links and informational UI, and a status hue always means status: a
 favourite star is `text-foreground`, not `text-warning`.
@@ -223,8 +229,9 @@ Redefine a single variable in your app's global CSS and **every component repain
 ```
 
 Because components reference `--primary` through the `@theme inline` bridge (`--color-primary:
-var(--primary)`), the override flows to `bg-primary`, to every alpha of it a component writes
-(`hover:bg-primary/80`), and to the `--ring`-keyed focus outline everywhere.
+var(--primary)`), the override flows to `bg-primary` and to every tint of it a component writes
+(`bg-primary/10`). `--primary-hover`, `--primary-pressed` and `--primary-text` are their own values:
+override them too. To offer a colour to people, use an [accent](/docs/foundations/accent) instead.
 
 <DoDont
   do="Use semantic tokens: bg-primary, text-muted-foreground, border-border."

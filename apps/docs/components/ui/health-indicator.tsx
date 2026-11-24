@@ -1,4 +1,4 @@
-// @vegastack health-indicator@0.125.0 sha256-Us9vmyg3G89uaXgP/s74SXtGj0zXyGQ0qXBYAu2dKGw=
+// @vegastack health-indicator@0.125.0 sha256-zg3zkScLYfl4lnODF8GuTTWDWBDUjil1b5m8s8oPUEY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -31,9 +31,9 @@ const GLYPH: Record<Health, LucideIcon> = {
   none: CircleDashed,
 };
 
-// COL-25: a check is primary, never green; the warning and destructive hues are glyph inks only.
+// COL-25: a check is `check` ink, never green; the warning and destructive hues are glyph inks only.
 const INK: Record<Health, string> = {
-  on_track: "text-primary",
+  on_track: "text-check",
   at_risk: "text-warning-text",
   off_track: "text-destructive-text",
   none: "text-muted-foreground",

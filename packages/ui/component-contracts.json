@@ -12,8 +12,8 @@
     "evidencePolicy": "Observed fields come from source, registry metadata, docs, and test topology. Unknown/not-applicable values are explicit; no inferred behavior is presented as verified."
   },
   "expectedCounts": {
-    "totalRegistryItems": 824,
-    "components": 235,
+    "totalRegistryItems": 825,
+    "components": 236,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
@@ -22,7 +22,7 @@
   },
   "expectedWaveCounts": {
     "Core controls": 23,
-    "Forms/editing": 38,
+    "Forms/editing": 39,
     "Navigation/layout": 27,
     "Overlays": 23,
     "Data display": 52,
@@ -97,7 +97,8 @@
       "destination-picker",
       "option-list-editor",
       "time-field",
-      "recurrence-picker"
+      "recurrence-picker",
+      "accent"
     ],
     "Navigation/layout": [
       "accordion",
@@ -53301,6 +53302,268 @@
           "cssVariables": []
         }
       }
+    },
+    {
+      "name": "accent",
+      "registryType": "registry:ui",
+      "title": "Accent",
+      "summary": "The accent themes: set and read the person's colour, mark it before the first paint, give one page its own, a picker of the seven and a preview.",
+      "status": "stable",
+      "since": "0.135.0",
+      "family": "form",
+      "wave": "Forms/editing",
+      "sourceFiles": [
+        "packages/ui/registry/ui/accent.tsx",
+        "packages/ui/registry/ui/accent-picker.tsx",
+        "packages/ui/registry/ui/accent-preview.tsx",
+        "packages/ui/registry/ui/accent-script.tsx"
+      ],
+      "publicSymbols": [
+        {
+          "name": "AccentPicker",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AccentPickerProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AccentScope",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AccentScopeProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AccentScript",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AccentScriptProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "restoreAccent",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "setAccent",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useAccent",
+          "kind": "hook",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AccentPreview",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AccentPreviewLabels",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AccentPreviewProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/accent.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        }
+      ],
+      "variants": {
+        "status": "observed",
+        "dimensions": [
+          {
+            "name": "accent",
+            "values": [
+              "black",
+              "blue",
+              "green",
+              "orange",
+              "pink",
+              "teal",
+              "violet"
+            ]
+          }
+        ],
+        "rationale": "The seven accent ids; Black is no mark on the page."
+      },
+      "sizes": {
+        "status": "not-applicable-or-inherited",
+        "dimensions": [],
+        "rationale": "The cards fill their container in as many columns as fit."
+      },
+      "states": {
+        "behavior": {
+          "status": "covered",
+          "values": [
+            "set",
+            "restore",
+            "scope",
+            "before-paint",
+            "controlled-value",
+            "workspace-default",
+            "keyboard"
+          ],
+          "evidence": "packages/ui/registry/ui/accent.tsx + packages/ui/registry/ui/accent.test.tsx"
+        },
+        "accessibility": {
+          "status": "covered",
+          "values": [
+            "named-options",
+            "check-on-colour",
+            "inert-preview",
+            "browser-accessibility-test"
+          ],
+          "evidence": "packages/ui/registry/ui/accent.test.tsx"
+        },
+        "visual": {
+          "status": "observed",
+          "values": ["selected", "disabled"],
+          "evidence": "packages/ui/registry/ui/accent-picker.tsx"
+        }
+      },
+      "responsive": {
+        "status": "modeled",
+        "risks": ["container-reflow"],
+        "rationale": "Eight, four, then two columns by the container; names wrap and never truncate."
+      },
+      "motion": {
+        "status": "not-applicable",
+        "mechanisms": [],
+        "reducedMotion": {
+          "status": "not-applicable",
+          "rationale": "The accent changes in one frame with transitions off."
+        }
+      },
+      "engines": [],
+      "docsSlug": "/docs/components/accent",
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/nav-tree",
+        "@vegastack/notification-dot",
+        "@vegastack/radio-group",
+        "@vegastack/status-icon",
+        "@vegastack/switch"
+      ],
+      "npmDependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.28.0",
+        "@vegastack/design-tokens@^0.28.0"
+      ],
+      "testFiles": ["packages/ui/registry/ui/accent.test.tsx"],
+      "coverage": {
+        "source": "required",
+        "test": "required",
+        "docs": "required",
+        "navigation": "required",
+        "preview": "required",
+        "vrt": "required"
+      },
+      "previewModule": "accent",
+      "dataAttributes": {
+        "AccentScope": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["accent-scope-script"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AccentPicker": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["accent-picker"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AccentPreview": {
+          "attributes": [
+            {
+              "name": "data-accent",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": ["accent-preview"]
+            }
+          ],
+          "cssVariables": []
+        },
+        "AccentScript": {
+          "attributes": [
+            {
+              "name": "data-slot",
+              "values": ["accent-script"]
+            }
+          ],
+          "cssVariables": []
+        }
+      }
     }
   ],
   "animatedIcons": {
@@ -59821,6 +60084,51 @@
         },
         {
           "name": "emailRadius",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "emailAccent",
+          "kind": "function",
+          "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "EmailAccent",
+          "kind": "type",
+          "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "emailAccentCss",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "emailAccentOutlookCss",
+          "kind": "constant",
+          "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "emailAccents",
           "kind": "constant",
           "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
           "ref": {

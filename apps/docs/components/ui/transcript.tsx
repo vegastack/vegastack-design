@@ -1,4 +1,4 @@
-// @vegastack transcript@0.130.0 sha256-vGJxANs8RVvMPzgBK/J4OKXvFwl/G8zfyGWK0WCfk2M=
+// @vegastack transcript@0.130.0 sha256-kQXOcvq0C4OMTThqN3w1h4y9sxM16Au2SNJtWupOXkU=
 
 "use client";
 
@@ -850,7 +850,7 @@ function Highlighted({
         data-current={isCurrent ? "true" : undefined}
         className={cn(
           "rounded-mark px-0.5 text-foreground",
-          isCurrent ? "bg-primary text-primary-foreground" : "bg-primary/15",
+          isCurrent ? "bg-primary text-primary-foreground" : "bg-mark",
         )}
       >
         {text.slice(start, end)}

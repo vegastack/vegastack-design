@@ -190,7 +190,7 @@ test("settled plans are one line; approved carries the primary ✓ and Show open
     lines[0]!
       .querySelector('[data-slot="status-glyph"]')!
       .getAttribute("class"),
-  ).toContain("text-primary");
+  ).toContain("text-check");
   expect(lines[1]!.textContent).toBe("You didn't approve this plan");
   // Nothing replaced these two: they say what happened.
   expect(lines[2]!.textContent).toBe(`Changes asked for · v${PLAN.version}`);

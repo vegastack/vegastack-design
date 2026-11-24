@@ -91,7 +91,7 @@ export function shortcutOverlayFooter(): ReactNode {
               Press <Kbd>?</Kbd> anywhere to open this list.{" "}
               <a
                 href="/docs/components/shortcut-overlay"
-                className="text-primary underline-offset-4 hover:underline"
+                className="text-primary-text underline-offset-4 hover:underline"
               >
                 All shortcuts
               </a>

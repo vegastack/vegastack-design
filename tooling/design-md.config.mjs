@@ -36,12 +36,13 @@ export const designMdConfig = {
     },
   },
   recipes: {
-    // Upstream's own Button, written as tokens. `hover`/`active` are alpha steps of the fill
-    // (`hover:bg-primary/80`), not darker sibling tokens — `primary-hover` and `primary-active`
-    // no longer exist (COL-10 = shadcn).
+    // Upstream's own Button, written as tokens. `hover`/`pressed` are real shades (COL-27): Black's
+    // equal the alpha steps upstream writes, an accent's are darker siblings that keep the label AA.
     "button-primary": {
       background: "{primary}",
       foreground: "{primary-foreground}",
+      hover: "{primary-hover}",
+      pressed: "{primary-pressed}",
       radius: "{radius}",
       typography: "text-sm/500",
     },

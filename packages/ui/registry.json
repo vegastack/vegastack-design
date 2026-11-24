@@ -20400,6 +20400,56 @@
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet holds the chat), or any data fetching — the host owns the chat.",
         "version": "0.133.0"
       }
+    },
+    {
+      "name": "accent",
+      "type": "registry:ui",
+      "title": "Accent",
+      "description": "The accent themes: set and read the person's colour, mark it before the first paint, give one page its own, a picker of the seven and a preview.",
+      "categories": ["form", "settings"],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.28.0",
+        "@vegastack/design-tokens@^0.28.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/nav-tree",
+        "@vegastack/notification-dot",
+        "@vegastack/radio-group",
+        "@vegastack/status-icon",
+        "@vegastack/switch"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/accent.tsx",
+          "type": "registry:ui",
+          "target": "@ui/accent.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/accent-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/accent-picker.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/accent-preview.tsx",
+          "type": "registry:ui",
+          "target": "@ui/accent-preview.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/accent-script.tsx",
+          "type": "registry:ui",
+          "target": "@ui/accent-script.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A settings page where a person or a workspace picks its colour, the root layout that paints it first, and a public page in its workspace's colour.",
+        "whenNotToUse": "Colouring data (chart tokens), labels (tags) or status; or an arbitrary brand colour (override the tokens).",
+        "version": "0.134.2"
+      }
     }
   ]
 }

@@ -28,18 +28,23 @@ are reaching for a token this file does not list, the answer is almost always "w
 
 shadcn's `neutral` base, verbatim except for the two rows the register marks **ours**.
 
-| token                                                                            | role                                                           |
-| -------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `bg-background` / `text-foreground`                                              | the page and its ink                                           |
-| `bg-card` / `text-card-foreground`                                               | a card                                                         |
-| `bg-popover` / `text-popover-foreground`                                         | every floating surface                                         |
-| `bg-primary` / `text-primary-foreground`                                         | the solid action fill and every checked control                |
-| `bg-secondary` / `text-secondary-foreground`                                     | the soft neutral fill                                          |
-| `bg-muted` / `text-muted-foreground`                                             | wells, tracks, skeletons; and the secondary ink                |
-| `bg-accent` / `text-accent-foreground`                                           | the hover wash                                                 |
-| `border-border` / `border-input`                                                 | the hairline, and the field hairline                           |
-| `outline-ring`                                                                   | the focus ring — near-black light, near-white dark (**FOC-2**) |
-| `bg-sidebar` and its `-foreground`/`-accent`/`-border`/`-ring`/`-primary` family | the sidebar rail                                               |
+| token                                                                            | role                                                            |
+| -------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `bg-background` / `text-foreground`                                              | the page and its ink                                            |
+| `bg-card` / `text-card-foreground`                                               | a card                                                          |
+| `bg-popover` / `text-popover-foreground`                                         | every floating surface                                          |
+| `bg-primary` / `text-primary-foreground`                                         | the solid action fill and every checked control                 |
+| `bg-primary-hover` / `bg-primary-pressed` / `text-primary-text`                  | its hover, its press, and the accent as ink (COL-27)            |
+| `text-link` / `hover:text-link-hover`                                            | a link inside text, always underlined                           |
+| `bg-unread`                                                                      | an unread dot or bar                                            |
+| `bg-nav-selected` / `text-nav-selected-foreground` / `-icon`                     | the selected row of navigation only                             |
+| `text-check` / `bg-mark` / `bg-ink text-ink-foreground`                          | done checks, highlights, neutral solids: no accent changes them |
+| `bg-secondary` / `text-secondary-foreground`                                     | the soft neutral fill                                           |
+| `bg-muted` / `text-muted-foreground`                                             | wells, tracks, skeletons; and the secondary ink                 |
+| `bg-accent` / `text-accent-foreground`                                           | the hover wash                                                  |
+| `border-border` / `border-input`                                                 | the hairline, and the field hairline                            |
+| `outline-ring`                                                                   | the focus ring — near-black light, near-white dark (**FOC-2**)  |
+| `bg-sidebar` and its `-foreground`/`-accent`/`-border`/`-ring`/`-primary` family | the sidebar rail                                                |
 
 **Inside an arbitrary value, read the runtime token, never the bridge.** Write
 `var(--foreground)`, `var(--border)`, `var(--chart-single)` — not `var(--color-foreground)`. The
@@ -64,7 +69,8 @@ Two deviations from upstream, both recorded in the token source:
 ### Hover and pressed
 
 There is no ladder and no shared recipe. A component writes its own hover, the way upstream writes
-it: `hover:bg-accent`, `hover:bg-muted`, `hover:bg-primary/80`, `dark:hover:bg-muted/50`. A pressed
+it, except the primary fill, whose hover and press are `bg-primary-hover` and `bg-primary-pressed`
+(COL-27: an accent would fade under an alpha; `design-lint` `accent-role`). A pressed
 rung is optional — INT-4 is decided as shadcn, and `design-lint`'s `hover-without-pressed` rule is
 gone with it.
 
@@ -231,7 +237,7 @@ owns its own chrome now.
 | ------------------------------------------------------------- | ------------------------------------------------------ |
 | `surface-1` / `surface-2` / `surface-3`                       | `muted` (rest/well) · `accent` (hover, pressed)        |
 | `muted-foreground-faint`                                      | `muted-foreground` (FRM-2 = shadcn)                    |
-| `primary-hover` / `primary-active`                            | `hover:bg-primary/80` · `active:bg-primary/70`         |
+| `primary-hover` / `primary-active`                            | `bg-primary-hover` / `bg-primary-pressed` (COL-27)     |
 | `<family>-subtle` / `-subtle-hover` / `-border`               | `bg-<family>/10` · `/20` · `border-<family>`           |
 | every `--alpha-*`                                             | the literal percentage (`bg-foreground/10`)            |
 | every `--opacity-*`                                           | the literal step (`opacity-50`)                        |

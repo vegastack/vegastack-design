@@ -1,4 +1,4 @@
-// @vegastack chat-question-card@0.123.2 sha256-fpMA100r3dcT6YuYhYN1u1UK/n/aSJiRdH7EWVGL8eU=
+// @vegastack chat-question-card@0.123.2 sha256-uxqqiiv3LJtM2OjIc49hL91G5nIft9mtss8vM0e4q9g=
 
 "use client";
 
@@ -530,7 +530,7 @@ function OptionRow({
             aria-hidden="true"
             data-icon-tone=""
             strokeWidth={1.5}
-            className="size-4 text-primary"
+            className="size-4 text-check"
           />
         ) : shortcut ? (
           <span

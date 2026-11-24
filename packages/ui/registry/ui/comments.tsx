@@ -1,4 +1,4 @@
-// @vegastack comments@0.123.2 sha256-U0viU9UDhGlMQrHUTZ+01BD0fG9Pqx0XQXCZ0eqttm0=
+// @vegastack comments@0.123.2 sha256-WTTOLT6N4KXICoZftWCeGUCftSFLRp8tJhxrM6emFVM=
 
 "use client";
 
@@ -1285,7 +1285,7 @@ function CommentBox({
         <div
           aria-hidden
           data-slot="comment-box-drop"
-          className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-card border-2 border-dashed border-primary bg-primary/5 text-sm font-medium text-primary"
+          className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-card border-2 border-dashed border-primary bg-primary/5 text-sm font-medium text-primary-text"
         >
           Drop files to attach
         </div>

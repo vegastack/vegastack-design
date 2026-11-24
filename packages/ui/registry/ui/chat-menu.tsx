@@ -1,4 +1,4 @@
-// @vegastack chat-menu@0.123.2 sha256-lDKizRmSmqKNjcHjWE8qB9R0V4QFPmjnsnR5nG8Ae8k=
+// @vegastack chat-menu@0.123.2 sha256-XQ5/oNUWOFH/bt+sGC8ca2tONP58um1RVyx3a0c1EC4=
 
 "use client";
 
@@ -225,7 +225,7 @@ function ChatMenuItem({
               aria-label="Selected"
               data-icon-tone=""
               strokeWidth={1.5}
-              className="text-primary"
+              className="text-check"
             />
           ) : null}
           {/* The ✓ takes the slot: a selected row shows no number (its key still works). */}

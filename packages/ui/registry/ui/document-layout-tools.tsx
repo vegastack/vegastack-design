@@ -1,4 +1,4 @@
-// @vegastack document-layout@0.123.2 sha256-J2jdSwswtZ1iKyXM0BxaZpVzssCRVOibyTGsxKIiGcA=
+// @vegastack document-layout@0.123.2 sha256-tHZ15G7Zmhb35kFwcrBDy4+u9lRmPi4mbKvMolORh1o=
 
 "use client";
 
@@ -85,7 +85,7 @@ export function DocumentLayoutFindBar({
     highlights &&
     HIGHLIGHT_NAME.test(highlights.all) &&
     HIGHLIGHT_NAME.test(highlights.current)
-      ? `::highlight(${highlights.all}){background-color:color-mix(in oklab,var(--primary) 15%,transparent)}::highlight(${highlights.current}){background-color:var(--primary);color:var(--primary-foreground)}`
+      ? `::highlight(${highlights.all}){background-color:var(--mark)}::highlight(${highlights.current}){background-color:var(--primary);color:var(--primary-foreground)}`
       : null;
   return (
     <div

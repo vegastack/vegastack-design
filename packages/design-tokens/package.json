@@ -25,6 +25,14 @@
       "require": "./dist/tokens.cjs",
       "default": "./dist/tokens.js"
     },
+    "./accents": {
+      "types": "./dist/accents.d.ts",
+      "import": "./dist/accents.js",
+      "require": "./dist/accents.cjs",
+      "default": "./dist/accents.js"
+    },
+    "./accents.json": "./dist/accents.json",
+    "./accents.dart": "./dist/accents.dart",
     "./theme.css": "./dist/theme.css",
     "./base.css": "./dist/base.css",
     "./utilities.css": "./dist/utilities.css",
@@ -34,7 +42,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "node build-tokens.mjs && node ../../tooling/contrast-check.mjs dist/theme.css && tsup src/tokens.ts --format esm,cjs --dts --out-dir dist",
+    "build": "node build-tokens.mjs && node ../../tooling/contrast-check.mjs dist/theme.css && tsup src/tokens.ts src/accents.ts --format esm,cjs --dts --out-dir dist",
     "lint": "node ../../tooling/verify-theme-parity.mjs dist/theme.css && node ../../tooling/contrast-check.mjs dist/theme.css && node ../../tooling/design-lint.mjs --token-css src",
     "typecheck": "tsc --noEmit"
   },

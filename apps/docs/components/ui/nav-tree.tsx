@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.134.2 sha256-19JMrigemfysoafSVIM6Y5YKflsk1MWavH/0boh9RuE=
+// @vegastack nav-tree@0.134.2 sha256-ie98vVTfoK7wex66B9sa+q35xhi9bNOtQQd9WlMuVbg=
 
 "use client";
 
@@ -322,7 +322,7 @@ export function NavTreeItem({
         }
       : { onClick: onClick ?? own.onClick }),
     className: cn(
-      "state-layer relative flex h-(--nav-tree-row) w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-foreground no-underline outline-none data-active:bg-state-selected data-active:font-medium [&_svg:not([class*='size-'])]:size-4 [&>svg]:flex-none [&>svg]:text-muted-foreground",
+      "state-layer relative flex h-(--nav-tree-row) w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-foreground no-underline outline-none data-active:bg-nav-selected data-active:font-medium data-active:text-nav-selected-foreground [&_svg:not([class*='size-'])]:size-4 [&>svg]:flex-none [&>svg]:text-muted-foreground data-active:[&>svg]:text-nav-selected-icon",
       parent && "pe-8",
       // On touch the action always shows at the row's end: the label keeps clear of it.
       action && (parent ? "pointer-coarse:pe-14" : "pointer-coarse:pe-8"),

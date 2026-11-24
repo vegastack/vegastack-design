@@ -1,6 +1,7 @@
 # component: badge
-# decisions: A11Y-13, A11Y-2, A11Y-8, API-16, API-25, COL-12, DOC-2, FOC-1, FOC-5, FOC-6, FOC-14, API-36, COL-24, INT-4, BRD-12
+# decisions: A11Y-13, A11Y-2, A11Y-8, API-16, API-25, COL-12, DOC-2, FOC-1, FOC-5, FOC-6, FOC-14, API-36, COL-24, INT-4, BRD-12, COL-27
 # hunks:
+#   COL-27: the default badge's link hover is `primary-hover` (a real shade; Black keeps `primary` at 80%) and `link` is `ink`: an action, not a link inside text, so no accent.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-36: an interactive badge (`[a]`/`[button]`) shows the pointer.
@@ -29,10 +30,10 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/badge.tsx b/badge.tsx
-index 92bd62f..d7dc229 100644
+index 92bd62f..be612c9 100644
 --- a/badge.tsx
 +++ b/badge.tsx
-@@ -1,30 +1,37 @@
+@@ -1,30 +1,38 @@
 -import { mergeProps } from "@base-ui/react/merge-props"
 -import { useRender } from "@base-ui/react/use-render"
 -import { cva, type VariantProps } from "class-variance-authority"
@@ -50,9 +51,11 @@ index 92bd62f..d7dc229 100644
    {
      variants: {
        variant: {
-         default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
+-        default: "bg-primary text-primary-foreground [a]:hover:bg-primary/80",
 -        secondary:
 -          "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
++        default:
++          "bg-primary text-primary-foreground [a]:hover:bg-primary-hover",
 +        secondary: "bg-secondary text-secondary-foreground [a]:state-layer",
          destructive:
 -          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
@@ -66,9 +69,10 @@ index 92bd62f..d7dc229 100644
 -          "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
 -        ghost:
 -          "hover:bg-muted hover:text-muted-foreground dark:hover:bg-muted/50",
+-        link: "text-primary underline-offset-4 hover:underline",
 +          "border-border text-foreground [a]:state-layer [a]:hover:text-muted-foreground",
 +        ghost: "state-layer hover:text-muted-foreground",
-         link: "text-primary underline-offset-4 hover:underline",
++        link: "text-ink underline-offset-4 hover:underline",
        },
      },
      defaultVariants: {
@@ -83,7 +87,7 @@ index 92bd62f..d7dc229 100644
  
  function Badge({
    className,
-@@ -38,14 +45,14 @@ function Badge({
+@@ -38,14 +46,14 @@ function Badge({
        {
          className: cn(badgeVariants({ variant }), className),
        },

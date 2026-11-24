@@ -1,4 +1,4 @@
-// @vegastack view-tabs@0.123.2 sha256-QMrbRCZDsGyvCl755JTvPe5vhTofRW6McAGVG+5eZDc=
+// @vegastack view-tabs@0.123.2 sha256-zDrAkIjgsVWJFehEDBdo9bSlcCY65pz6GSSujlIoIvs=
 
 "use client";
 
@@ -189,7 +189,7 @@ function ViewLabel({
           <span
             aria-hidden
             data-slot="view-tabs-dirty"
-            className="size-1.5 shrink-0 rounded-full bg-primary"
+            className="size-1.5 shrink-0 rounded-full bg-ink"
           />
           <span className="sr-only">, {changedLabel}</span>
         </>

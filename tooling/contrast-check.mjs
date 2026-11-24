@@ -31,6 +31,11 @@
 //   upstream wrote it; it is named in the Batch 1 report rather than silently gated away, and no
 //   VegaStack token can be retuned to fix it because `destructive` is adopted verbatim.
 import { readFileSync, writeFileSync, mkdtempSync, rmSync } from "node:fs";
+import {
+  ACCENT_KEYS,
+  accentIds,
+  accentSelectors,
+} from "../packages/design-tokens/accents.mjs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -64,6 +69,7 @@ const PAIRS = [
   ["card", "card-foreground"],
   ["popover", "popover-foreground"],
   ["primary", "primary-foreground"],
+  ["ink", "ink-foreground"],
   ["secondary", "secondary-foreground"],
   ["muted", "muted-foreground"],
   ["accent", "accent-foreground"],
@@ -94,6 +100,18 @@ const STATUS_TEXT_SURFACES = [
 // 2026-09-25): `<family>-text` on `<family>/10` over `card`, gated here in light and dark. The ink on them is `<family>-text`, never the fill: the fill measured 3.98-4.35:1 on
 // its own tint in the rendered axe lane (2026-09-18), which is why the `-text` role exists.
 const STATUS_TINT_ALPHAS = [0.1, 0.2, 0.3];
+
+// The surfaces navigation sits on: the module column, the canvas under the rail, the page card and
+// the phone sheet.
+const ACCENT_IDS = accentIds();
+const NAV_SURFACES = [
+  "shell-column",
+  "shell-canvas",
+  "shell-card",
+  "card",
+  "sidebar",
+  "background",
+];
 
 // Non-text UI parts (1.4.11): the ring token (used by text-entry borders; ordinary controls use the no-ring tint) and `primary`, which carries switch/checkbox/radio/tab/slider selection.
 const NONTEXT = ["ring", "primary"];
@@ -629,6 +647,87 @@ export function checkTheme(css) {
     }
   }
 
+  // 10. The accent themes (COL-27): seven accents × two modes, each resolved the way the browser
+  //     does — the theme's own values with that accent's block over them. Black has a block too (a
+  //     Black card inside a violet page), so it is measured like the rest.
+  for (const id of ACCENT_IDS) {
+    const selectors = accentSelectors(id);
+    for (const mode of ["light", "dark"]) {
+      const theme = `${mode}/${id}`;
+      const start = css.indexOf(`${selectors[mode]} {`);
+      if (start === -1) {
+        fail(`${theme}: the accent block is missing — fail-closed`);
+        continue;
+      }
+      const block = parseBlock(
+        `.accent ${css.slice(css.indexOf("{", start), css.indexOf("}", start) + 1)}`,
+        ".accent",
+      );
+      for (const key of ACCENT_KEYS)
+        if (!block[key]) fail(`${theme}: ${key} is missing — fail-closed`);
+      if (!ACCENT_KEYS.every((key) => block[key])) continue;
+      const vars = { ...themes[mode], ...block };
+      const over = (token, ground) =>
+        compositeLinear(token, token[3] ?? 1, ground);
+      const composite = (ink, ground, floor, label) => {
+        checked++;
+        const ratio = contrastCompositeBg(ink, ground);
+        if (ratio < floor)
+          fail(`${theme}: ${label} = ${ratio.toFixed(2)}:1 (needs ${floor}:1)`);
+      };
+      const label = vars["primary-foreground"];
+      for (const name of NEUTRAL_SURFACES) {
+        const surface = need(theme, vars, name, "an accent surface");
+        if (!surface) continue;
+        // The label on the fill at rest, hovered and pressed. Black's hover and pressed are
+        // translucent, so the surface under the control is part of the measurement.
+        for (const fill of ["primary", "primary-hover", "primary-pressed"])
+          composite(
+            label,
+            over(vars[fill], surface),
+            AA_NORMAL,
+            `primary-foreground on ${fill} over ${name}`,
+          );
+        gate(theme, vars.primary, surface, AA_NONTEXT, `primary on ${name}`);
+        gate(theme, vars.unread, surface, AA_NONTEXT, `unread on ${name}`);
+        checked++;
+        const hovered = relLum(over(vars["link-hover"], surface)) + 0.05;
+        const ground = relLum(oklchToLinearSrgb(...surface)) + 0.05;
+        const ratio = Math.max(hovered, ground) / Math.min(hovered, ground);
+        if (ratio < AA_NORMAL)
+          fail(
+            `${theme}: link-hover on ${name} = ${ratio.toFixed(2)}:1 (needs ${AA_NORMAL}:1)`,
+          );
+        // Readable ink, at rest and on a hovered row.
+        for (const ink of ["primary-text", "link"]) {
+          gate(theme, vars[ink], surface, AA_NORMAL, `${ink} on ${name}`);
+          composite(
+            vars[ink],
+            over(vars["state-hover"], surface),
+            AA_NORMAL,
+            `${ink} on state-hover over ${name}`,
+          );
+        }
+      }
+      for (const name of NAV_SURFACES) {
+        const surface = need(theme, vars, name, "a navigation surface");
+        if (!surface) continue;
+        const ground = over(vars["nav-selected"], surface);
+        for (const [ink, floor] of [
+          ["nav-selected-foreground", AA_NORMAL],
+          ["nav-selected-icon", AA_NORMAL],
+          ["unread", AA_NONTEXT],
+        ])
+          composite(
+            vars[ink],
+            ground,
+            floor,
+            `${ink} on nav-selected over ${name}`,
+          );
+      }
+    }
+  }
+
   return { failures, checked, clipped };
 }
 
@@ -642,7 +741,9 @@ export function checkTheme(css) {
 function selfTest(themePath) {
   const base = readFileSync(themePath, "utf8");
   const problems = [];
+  let claims = 0;
   const claim = (label, ok) => {
+    claims++;
     console.log(
       `contrast-check:selftest ${ok ? "observed" : "DID NOT OBSERVE"} — ${label}`,
     );
@@ -760,6 +861,47 @@ function selfTest(themePath) {
     failsWith(drop("brand-text")),
   );
 
+  const accentSwap = (id, mode, name, value) => (css) => {
+    const start = css.indexOf(`${accentSelectors(id)[mode]} {`);
+    const end = css.indexOf("}", start);
+    return (
+      css.slice(0, start) +
+      css
+        .slice(start, end)
+        .replace(new RegExp(`--${name}:[^;]+;`), `--${name}: ${value};`) +
+      css.slice(end)
+    );
+  };
+  claim(
+    "an accent hover that fades its label is rejected",
+    failsWith(
+      accentSwap("orange", "light", "primary-hover", "oklch(0.7 0.14 45)"),
+    ),
+  );
+  claim(
+    "an accent ink too dark to read in dark mode is rejected",
+    failsWith(
+      accentSwap("violet", "dark", "primary-text", "oklch(0.5 0.2 293)"),
+    ),
+  );
+  claim(
+    "an accent label too pale for its own nav tint is rejected",
+    failsWith(
+      accentSwap(
+        "green",
+        "light",
+        "nav-selected-foreground",
+        "oklch(0.6 0.13 150)",
+      ),
+    ),
+  );
+  claim(
+    "a missing accent block is rejected rather than skipped",
+    failsWith((css) =>
+      css.replaceAll('[data-accent="teal"]', '[data-accent="gone"]'),
+    ),
+  );
+
   // A malformed value must throw rather than be quietly ignored.
   let threw = false;
   try {
@@ -775,7 +917,7 @@ function selfTest(themePath) {
     );
     return 1;
   }
-  console.log("✓ contrast-check:selftest: 20 claims observed");
+  console.log(`✓ contrast-check:selftest: ${claims} claims observed`);
   return 0;
 }
 
@@ -810,5 +952,5 @@ if (clipped.size) {
   );
 }
 console.log(
-  `✓ contrast-check: all ${checked} token contrast checks pass — WCAG 2.2 AA text pairs (${AA_NORMAL}:1) for the neutral core, the secondary-ink sweep and the four status families; WCAG 1.4.11 (${AA_NONTEXT}:1) for the focus ring, the checked fill, 8 chart hues and 10 tag hues; media chrome and desktop glass inks at the AA text floor; both themes, fail-closed on missing tokens`,
+  `✓ contrast-check: all ${checked} token contrast checks pass — WCAG 2.2 AA text pairs (${AA_NORMAL}:1) for the neutral core, the secondary-ink sweep and the four status families; WCAG 1.4.11 (${AA_NONTEXT}:1) for the focus ring, the checked fill, 8 chart hues and 10 tag hues; seven accent themes; media chrome and desktop glass inks at the AA text floor; both themes, fail-closed on missing tokens`,
 );

@@ -10,7 +10,7 @@ test("NotificationDot is a decorative info dot by default", async () => {
   )!;
   expect(dot).not.toBeNull();
   expect(dot).toHaveAttribute("aria-hidden", "true");
-  expect(dot.classList.contains("bg-info")).toBe(true);
+  expect(dot.classList.contains("bg-unread")).toBe(true);
   expect(dot.classList.contains("bg-destructive")).toBe(false);
   expect(dot.classList.contains("ms-auto")).toBe(true);
   expect(dot.textContent).toBe("");
@@ -22,7 +22,7 @@ test('NotificationDot intent="destructive" is the destructive fill', async () =>
     '[data-slot="notification-dot"]',
   )!;
   expect(dot.classList.contains("bg-destructive")).toBe(true);
-  expect(dot.classList.contains("bg-info")).toBe(false);
+  expect(dot.classList.contains("bg-unread")).toBe(false);
 });
 
 test("NotificationDot inside a labelled row has no axe violations", async () => {

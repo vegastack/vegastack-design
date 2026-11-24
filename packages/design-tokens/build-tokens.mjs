@@ -14,6 +14,14 @@ import {
   isLightSemantic,
   tokenConfig,
 } from "./sd.config.mjs";
+import {
+  accentCss,
+  accentPrintCss,
+  accentsDart,
+  accentsJson,
+  accentsTs,
+  buildAccents,
+} from "./accents.mjs";
 import { verifyThemeParity } from "../../tooling/verify-theme-parity.mjs";
 
 // SD's DTCG color pipeline stringifies oklch() with zero-padded components ("0.5050 0.0030 75.00").
@@ -108,6 +116,11 @@ writeFileSync(
     `export type Theme = keyof typeof tokens;\nexport type TokenName = keyof (typeof tokens)['light'];\n`,
 );
 
+// 3b. COL-27: the accent themes, resolved against the semantic contract (Black IS the contract).
+const compactModel = JSON.parse(compactOklch(JSON.stringify(model)));
+const accents = buildAccents(compactModel);
+writeFileSync("src/accents.ts", accentsTs(accents));
+
 // 4. Add native-control schemes (COL-22), then verify light/dark shape before public output.
 function themePart(file, selector, colorScheme) {
   const css = compactOklch(readFileSync(`dist/${file}`, "utf8"));
@@ -145,7 +158,7 @@ function printLight(rootCss) {
       (line) => `    ${line.trim().replace(/\s*\/\*\*[\s\S]*?\*\/\s*$/, "")}`,
     )
     .join("\n");
-  return `@media print {\n  .dark {\n${declarations}\n  }\n}\n`;
+  return `@media print {\n  .dark {\n${declarations}\n  }\n${accentPrintCss(accents)}}\n`;
 }
 const rootPart = themePart("_root.css", ":root", "light");
 const themeCss =
@@ -153,6 +166,7 @@ const themeCss =
   [
     rootPart,
     themePart("_dark.css", ".dark", "dark"),
+    accentCss(accents),
     printLight(rootPart),
     compactOklch(readFileSync("dist/_inline.css", "utf8")),
   ].join("\n");
@@ -205,6 +219,8 @@ for (const platform of ["pointer", "touch"]) {
   }
   corners[platform] = table;
 }
+writeFileSync("dist/accents.json", accentsJson(accents, pkgVersion));
+writeFileSync("dist/accents.dart", accentsDart(accents, pkgVersion));
 writeFileSync(
   "dist/corners.json",
   JSON.stringify(
@@ -233,5 +249,5 @@ writeFileSync(
 );
 
 console.log(
-  "tokens built: dist/theme.css, dist/base.css, dist/tokens.json, dist/corners.json, dist/corners.dart, src/tokens.ts",
+  "tokens built: dist/theme.css, dist/base.css, dist/tokens.json, dist/corners.json, dist/corners.dart, dist/accents.json, dist/accents.dart, src/tokens.ts, src/accents.ts",
 );

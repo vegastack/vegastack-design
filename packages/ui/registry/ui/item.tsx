@@ -1,4 +1,4 @@
-// @vegastack item@0.123.2 sha256-85kDGX4uutOP1J3jaBJjXIcKbAoE3aF/P540p24+dBI=
+// @vegastack item@0.123.2 sha256-3Agz0Hy4JxSE8vmxgZBtOm3dJi8TW+eT7zAHQCVI4KQ=
 
 "use client";
 
@@ -288,7 +288,7 @@ function ItemDescription({
       aria-hidden={register ? true : undefined}
       data-slot="item-description"
       className={cn(
-        "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+        "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary-text accented:[&>a]:text-link accented:[&>a:hover]:text-link-hover",
         className,
       )}
       {...props}

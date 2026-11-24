@@ -54,7 +54,7 @@ test("working: a count and a time, never a spinner; ✓ ◐ ◌ ⊘ rows; open",
   ].map((g) => g.getAttribute("data-status"));
   expect(glyphs).toEqual(["done", "running", "pending", "pending", "skipped"]);
   const done = screen.container.querySelector('[data-status="done"]')!;
-  expect(done.getAttribute("class")).toContain("text-primary");
+  expect(done.getAttribute("class")).toContain("text-check");
   const skipped = screen.container.querySelector(
     '[data-slot="chat-task-list-item"][data-status="skipped"]',
   )!;

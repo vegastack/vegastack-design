@@ -118,6 +118,12 @@
   --breakpoint-wide: 90rem;
 }
 
+/* COL-27 (ours, operator 2026-11-25): a colour is chosen. For the rare part whose Black look is not a
+   token (a link in a muted description that inherits its sentence's ink until hover): it takes the
+   accent at rest with a colour on, and stays as it was with Black. Everything else reads a role
+   token (`primary-text`, `link`, `unread`, `nav-selected`…) and needs no variant. */
+@custom-variant accented (&:is([data-accent]:not([data-accent="black"]), [data-accent]:not([data-accent="black"]) *):where(:not([data-accent="black"], [data-accent="black"] *)));
+
 /* COL-24 + INT-4 (ours, operator 2026-10-31) — THE interaction state layer. Every clickable surface
    (row, menu item, tab, ghost/outline/secondary button, chip, sidebar item) takes `state-layer`
    instead of an opaque `hover:bg-muted`/`hover:bg-accent`: hover lays `--state-hover` (the

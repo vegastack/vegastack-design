@@ -57,8 +57,8 @@ The link between the two is the `@theme inline` block, which maps each raw token
 ```
 
 Because the bridge points at `var(--primary)` (not a baked value), it is **transparent to overrides**.
-Change `--primary` and `--color-primary` follows automatically, so `bg-primary`, every alpha of it a
-component writes (`hover:bg-primary/80`), and the `--ring`-keyed focus outline all repaint at once.
+Change `--primary` and `--color-primary` follows automatically, so `bg-primary` and every tint of it a
+component writes (`bg-primary/10`) repaint at once.
 
 The bridge also exposes the non-color scales as Tailwind theme keys:
 
@@ -81,6 +81,9 @@ diverge a token in dark mode only:
   /* brand action color, light + dark */
   --primary: oklch(0.53 0.189 295);
   --primary-foreground: oklch(0.985 0 0);
+  --primary-hover: oklch(0.49 0.189 295);
+  --primary-pressed: oklch(0.45 0.189 295);
+  --primary-text: oklch(0.51 0.189 295);
 
   /* tighter cards, menus and popovers everywhere */
   --corner-card: 0.75rem;
@@ -89,6 +92,9 @@ diverge a token in dark mode only:
 .dark {
   /* lift the brand fill in dark mode only */
   --primary: oklch(0.72 0.155 295);
+  --primary-hover: oklch(0.67 0.155 295);
+  --primary-pressed: oklch(0.62 0.155 295);
+  --primary-text: oklch(0.72 0.155 295);
 }
 ```
 

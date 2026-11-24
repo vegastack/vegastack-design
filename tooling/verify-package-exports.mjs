@@ -66,6 +66,12 @@ assert.equal(
   "@vegastack/design-tokens/package.json is not exported",
 );
 
+assert.equal(
+  requireTokens("@vegastack/design-tokens/accents").ACCENTS.length,
+  7,
+  "@vegastack/design-tokens/accents CommonJS export is not executable",
+);
+
 function run(command, args, cwd) {
   const result = spawnSync(command, args, {
     cwd,

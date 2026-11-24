@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.134.2 sha256-WDeFgW5mHu+3aELMQ7LheGCXubl/oESJKNnF0CS93XQ=
+// @vegastack folder-tree@0.134.2 sha256-acRprsqXBp/OfAP12xg8793Mpc2TkAvBc56VkeiQ4p0=
 
 "use client";
 
@@ -853,7 +853,7 @@ function FolderTree({
               >
                 <span
                   data-slot="folder-tree-icon"
-                  className="flex size-4 shrink-0 items-center justify-center text-muted-foreground [&_svg]:size-4"
+                  className="flex size-4 shrink-0 items-center justify-center text-muted-foreground group-data-active/folder-tree-row:text-nav-selected-icon [&_svg]:size-4"
                 >
                   {node.icon ??
                     (folder ? (
@@ -1086,7 +1086,7 @@ function FolderTree({
 }
 
 const rowClasses =
-  "group/folder-tree-row relative flex h-(--folder-tree-row-h) min-w-0 items-center gap-0.5 rounded-item ps-[calc(var(--folder-tree-depth,0)*var(--folder-tree-indent))] pe-1 text-foreground state-layer data-active:bg-state-selected data-active:font-medium data-dragging:opacity-50 data-drop-over:bg-primary/10 data-drop-invalid:bg-destructive/10";
+  "group/folder-tree-row relative flex h-(--folder-tree-row-h) min-w-0 items-center gap-0.5 rounded-item ps-[calc(var(--folder-tree-depth,0)*var(--folder-tree-indent))] pe-1 text-foreground state-layer data-active:bg-nav-selected data-active:font-medium data-active:text-nav-selected-foreground data-dragging:opacity-50 data-drop-over:bg-primary/10 data-drop-invalid:bg-destructive/10";
 
 const actionsClasses =
   "flex shrink-0 items-center opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 group-data-active/folder-tree-row:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100";

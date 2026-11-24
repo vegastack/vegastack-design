@@ -8,9 +8,20 @@
 //     native scrollbars, date pickers and form widgets read that, and nothing else checks it;
 //   * no theme block declares the same custom property twice (a silent last-one-wins);
 //   * every `.dark` variable has a `:root` counterpart, so a dark-only token can never ship without
-//     a light half. The build already asserts the converse from the token model.
+//     a light half;
+//   * every accent (COL-27) declares exactly the same keys in both modes, once, with concrete values
+//     (a `var()` alias would resolve against `:root` inside a preview card);
+//   * Black changes nothing: each new role in `:root`/`.dark` equals the value its components painted
+//     before accents existed, and the Black block equals the contract.
+// The build already asserts the converse of the dark rule from the token model.
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
+import {
+  ACCENT_KEYS,
+  DEFAULT_ACCENT,
+  accentIds,
+  accentSelectors,
+} from "../packages/design-tokens/accents.mjs";
 import { fileURLToPath } from "node:url";
 
 const DEFAULT_THEME_CSS = "packages/design-tokens/dist/theme.css";
@@ -58,6 +69,69 @@ function customProperties(declarations) {
   );
 }
 
+const fade = (value, alpha) => value.replace(/\)$/, ` / ${alpha})`);
+
+/** What each role painted before accents, read from tokens that did not move. */
+const BLACK_PARITY = {
+  "--primary-hover": (v) => fade(v.get("--primary"), 0.8),
+  "--primary-pressed": (v) => fade(v.get("--primary"), 0.7),
+  "--primary-text": (v) => v.get("--primary"),
+  "--link": (v) => v.get("--info-text"),
+  "--link-hover": (v) => fade(v.get("--info-text"), 0.88),
+  "--unread": (v) => v.get("--info"),
+  "--nav-selected": (v) => v.get("--state-selected"),
+  "--nav-selected-foreground": (v) => v.get("--foreground"),
+  "--nav-selected-icon": (v) => v.get("--muted-foreground"),
+  "--check": (v) => v.get("--primary"),
+  "--ink": (v) => v.get("--primary"),
+  "--ink-foreground": (v) => v.get("--primary-foreground"),
+  "--mark": (v) => fade(v.get("--primary"), 0.15),
+};
+/** Black's fill and label, pinned: the one pair nothing else can vouch for. */
+const BLACK_FILL = {
+  light: ["oklch(0.205 0 0)", "oklch(0.985 0 0)"],
+  dark: ["oklch(0.922 0 0)", "oklch(0.205 0 0)"],
+};
+
+function verifyAccents(css, contract, source) {
+  for (const [mode, values] of Object.entries(contract)) {
+    const [fill, label] = BLACK_FILL[mode];
+    if (
+      values.get("--primary") !== fill ||
+      values.get("--primary-foreground") !== label
+    )
+      throw new Error(`${source}: Black's ${mode} fill or label moved`);
+    for (const [key, expected] of Object.entries(BLACK_PARITY))
+      if (values.get(key) !== expected(values))
+        throw new Error(
+          `${source}: ${mode} ${key} is ${values.get(key)}; Black must stay ${expected(values)}`,
+        );
+  }
+  const keys = ACCENT_KEYS.map((key) => `--${key}`).join();
+  for (const id of accentIds()) {
+    for (const [mode, selector] of Object.entries(accentSelectors(id))) {
+      const blocks = selectorBlocks(css, selector);
+      if (blocks.length !== 1)
+        throw new Error(
+          `${source}: expected exactly one ${selector} block; found ${blocks.length}`,
+        );
+      const values = parseThemeBlock(blocks[0], selector, source);
+      if ([...values.keys()].join() !== keys)
+        throw new Error(
+          `${source}: ${selector} must declare exactly ${keys}; found ${[...values.keys()].join()}`,
+        );
+      for (const [key, value] of values) {
+        if (!value.startsWith("oklch("))
+          throw new Error(`${source}: ${selector} ${key} is not concrete`);
+        if (id === DEFAULT_ACCENT && value !== contract[mode].get(key))
+          throw new Error(
+            `${source}: ${selector} ${key} differs from the contract`,
+          );
+      }
+    }
+  }
+}
+
 export function verifyThemeParity(css, { source = "<theme css>" } = {}) {
   const parsed = Object.fromEntries(
     SELECTORS.map((selector) => [
@@ -92,6 +166,8 @@ export function verifyThemeParity(css, { source = "<theme css>" } = {}) {
     );
   }
 
+  verifyAccents(css, { light, dark }, source);
+
   return { lightVariables: light.size, darkVariables: dark.size };
 }
 
@@ -106,7 +182,7 @@ if (isCli) {
       source: themeCss,
     });
     console.log(
-      `✓ theme-parity: :root=${result.lightVariables} and .dark=${result.darkVariables} variables, every dark variable has a light counterpart, no duplicate declarations, color-scheme light/dark`,
+      `✓ theme-parity: :root=${result.lightVariables} and .dark=${result.darkVariables} variables, every dark variable has a light counterpart, no duplicate declarations, color-scheme light/dark, accent blocks complete, Black unchanged`,
     );
   } catch (error) {
     console.error(`✗ theme-parity: ${error.message}`);

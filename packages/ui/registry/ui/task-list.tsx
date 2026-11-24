@@ -1,4 +1,4 @@
-// @vegastack task-list@0.123.2 sha256-iFfuTiBOL5KiSJFm3k7Q554P9yz2xyYSqRMrvLauXlc=
+// @vegastack task-list@0.123.2 sha256-Ggn5Nyom7pVUZ/qUemme2Gr+jtgdT/A1tOgeLAxS3bk=
 
 "use client";
 
@@ -266,7 +266,7 @@ function RowIcon({ tone, ticked }: { tone: RowTone; ticked: boolean }) {
       return (
         <CircleCheck
           aria-hidden
-          className={cn("text-primary", ticked && "motion-pop-in")}
+          className={cn("text-check", ticked && "motion-pop-in")}
         />
       );
     case "skipped":
@@ -505,7 +505,7 @@ export function TaskList({
   let headerCount: string | null = labels.count(doneCount, total);
   if (state === "done") {
     headerIcon = (
-      <CircleCheck aria-hidden data-icon-tone="" className="text-primary" />
+      <CircleCheck aria-hidden data-icon-tone="" className="text-check" />
     );
     headerText = labels.done(total);
     headerCount = null;
@@ -625,7 +625,7 @@ export function TaskList({
                 <CircleCheck
                   aria-hidden
                   data-icon-tone=""
-                  className="text-primary"
+                  className="text-check"
                 />
               }
             >

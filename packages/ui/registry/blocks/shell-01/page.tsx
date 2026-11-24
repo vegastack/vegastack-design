@@ -1,4 +1,4 @@
-// @vegastack shell-01@0.133.0 sha256-YJqFx61p0H/Iw8bioS0K9imOfRQPdOb8CALZacDh7Ow=
+// @vegastack shell-01@0.133.0 sha256-2MP1yFpFPH3dMBPpxhJdTN9lq3xDfL1L9wOZip6jPus=
 
 "use client";
 
@@ -92,7 +92,7 @@ const PHONE_FOLDS = "@max-[40rem]/shell:hidden";
 
 function StatusIcon({ status }: { status: Task["status"] }) {
   if (status === "done")
-    return <CircleCheck aria-hidden="true" className="size-4 text-primary" />;
+    return <CircleCheck aria-hidden="true" className="size-4 text-check" />;
   if (status === "doing")
     return (
       <CircleDashed
@@ -267,7 +267,7 @@ export default function Shell01Page({
           media={
             <span
               aria-hidden="true"
-              className="grid size-7 place-items-center rounded-tile bg-primary text-sm font-semibold text-primary-foreground"
+              className="grid size-7 place-items-center rounded-tile bg-ink text-sm font-semibold text-ink-foreground"
             >
               A
             </span>

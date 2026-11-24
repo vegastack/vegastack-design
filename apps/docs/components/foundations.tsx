@@ -30,8 +30,24 @@ const COLOR_GROUPS: { label: string; tokens: string[] }[] = [
     ],
   },
   {
-    label: "Action — neutral ink",
-    tokens: ["primary", "primary-foreground"],
+    label: "Action — the accent (Black: neutral ink)",
+    tokens: [
+      "primary",
+      "primary-foreground",
+      "primary-hover",
+      "primary-pressed",
+      "primary-text",
+      "link",
+      "link-hover",
+      "unread",
+      "nav-selected",
+      "nav-selected-foreground",
+      "nav-selected-icon",
+    ],
+  },
+  {
+    label: "Never the accent — checks, highlights, neutral solids",
+    tokens: ["check", "mark", "ink", "ink-foreground"],
   },
   {
     // Each status family is written in upstream's own `destructive` shape — a fill, an on-fill

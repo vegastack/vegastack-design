@@ -1,4 +1,4 @@
-// @vegastack chat-skeleton@0.123.2 sha256-NI7MuN0sInspdkk+9iq8I97BjRywPxebKxFEFtyeKYc=
+// @vegastack chat-skeleton@0.123.2 sha256-FWkmw3kRN/NeZkAxWbx4y4k6rVC5Yx4t7T0CSq2HW/o=
 
 "use client";
 
@@ -108,7 +108,7 @@ function ScrollToLatest({
         <span
           aria-hidden="true"
           data-slot="scroll-to-latest-dot"
-          className="absolute end-0.5 top-0.5 size-2 rounded-full bg-primary motion-pop-in"
+          className="absolute end-0.5 top-0.5 size-2 rounded-full bg-primary-text motion-pop-in"
         />
       ) : null}
     </Button>

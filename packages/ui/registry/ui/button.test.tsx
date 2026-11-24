@@ -100,7 +100,7 @@ test("FRM-4: a disabled or loading button has no press translate or press fill",
   expect(recipe).not.toMatch(
     /(^| )active:not-aria-\[haspopup\]:translate-y-px/,
   );
-  expect(recipe).toContain("active:not-data-disabled:bg-primary/70");
+  expect(recipe).toContain("active:not-data-disabled:bg-primary-pressed");
   const destructive = buttonVariants({ variant: "destructive" });
   expect(destructive).toContain("active:not-data-disabled:bg-destructive/25");
   expect(destructive).not.toMatch(/(^| )(dark:)?active:bg-/);

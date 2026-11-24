@@ -678,8 +678,8 @@ test("states read apart: solid current, muted-primary complete, outlined upcomin
     slot(step(screen.container, label), "stepper-node")!.className;
   expect(node("Specs")).toContain("bg-primary");
   expect(node("Specs")).toContain("text-primary-foreground");
-  expect(node("Basics")).toContain("bg-primary/10");
-  expect(node("Basics")).toContain("text-primary");
+  expect(node("Basics")).toContain("bg-check/10");
+  expect(node("Basics")).toContain("text-check");
   expect(node("Review")).toContain("border-border");
   expect(node("Review")).toContain("bg-background");
 
@@ -696,7 +696,7 @@ test("states read apart: solid current, muted-primary complete, outlined upcomin
     screen.container,
     "stepper-connector",
   );
-  expect(afterBasics!.className).toContain("bg-primary/40");
+  expect(afterBasics!.className).toContain("bg-check/40");
   expect(afterSpecs!.className).toContain("bg-border");
 });
 

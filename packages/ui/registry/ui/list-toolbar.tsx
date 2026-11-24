@@ -1,4 +1,4 @@
-// @vegastack list-toolbar@0.125.0 sha256-QT82oWXk0mpXz5IQVhEVz81nKyLR2Vl4Y2oswpdmQzc=
+// @vegastack list-toolbar@0.125.0 sha256-fQ6CjnZ78iAlYzP5o74J3QdP51EJquq3HQLEYzkA1ZM=
 
 "use client";
 
@@ -466,7 +466,7 @@ export function ListToolbarButton({
               <span
                 aria-hidden
                 data-slot="list-toolbar-dot"
-                className="absolute end-1.5 top-1.5 size-1.5 rounded-full bg-primary"
+                className="absolute end-1.5 top-1.5 size-1.5 rounded-full bg-ink"
               />
             ) : null}
           </Button>

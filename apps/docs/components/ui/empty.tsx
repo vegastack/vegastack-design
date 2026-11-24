@@ -1,4 +1,4 @@
-// @vegastack empty@0.123.2 sha256-Zde7hN8UmGSVp9nqbliisOq4zeKOyy8awOYiSQMOJ14=
+// @vegastack empty@0.123.2 sha256-s7+WQc0u41coK/uDbEno0dk2WvHua0IpbdfSXod/qcU=
 
 "use client";
 
@@ -112,7 +112,7 @@ function EmptyDescription({ className, ...props }: React.ComponentProps<"p">) {
     <div
       data-slot="empty-description"
       className={cn(
-        "text-sm/relaxed text-muted-foreground wrap-anywhere [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+        "text-sm/relaxed text-muted-foreground wrap-anywhere [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary-text accented:[&>a]:text-link accented:[&>a:hover]:text-link-hover",
         className,
       )}
       {...props}

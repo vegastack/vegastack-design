@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.123.2 sha256-Pj5czucuzKgvWkiDktJUcp29miPkLo3+zJFEpOaAH8A=
+// @vegastack activity-feed@0.123.2 sha256-eua3pU1TOFPbuHNmqh+PjwEoHlEjcymVmrkM9JmtBD0=
 
 "use client";
 
@@ -612,13 +612,13 @@ const KIND_ICONS: Record<
 
 /** Semantic kinds keep their colour (an agent run's in its status tone); the rest are muted. */
 const KIND_TONES: Partial<Record<ActivityKind, string>> = {
-  approved: "text-primary",
+  approved: "text-check",
   rejected: "text-muted-foreground",
   requested: "text-warning-text",
   delegated: "text-tag-purple-text",
   "agent-working": "text-info-text",
   "agent-needs-you": "text-warning-text",
-  "agent-done": "text-primary",
+  "agent-done": "text-check",
   "agent-failed": "text-muted-foreground",
 };
 
@@ -1163,12 +1163,12 @@ export function ActivityUnreadDivider({
       data-slot="activity-unread-divider"
       className={cn("flex items-center gap-3 py-1", className)}
     >
-      <span className="h-px flex-1 bg-primary/40" />
-      <span className="flex items-center gap-1 text-xs font-medium text-primary">
-        <span className="size-1.5 rounded-full bg-primary" />
+      <span className="h-px flex-1 bg-primary-text/40" />
+      <span className="flex items-center gap-1 text-xs font-medium text-primary-text">
+        <span className="size-1.5 rounded-full bg-primary-text" />
         {label}
       </span>
-      <span className="h-px flex-1 bg-primary/40" />
+      <span className="h-px flex-1 bg-primary-text/40" />
     </div>
   );
 }

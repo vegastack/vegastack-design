@@ -1,4 +1,4 @@
-// @vegastack field-cell@0.133.0 sha256-5gR6apNg/uVB/MpEfRxtqQSrTU0ff+PnWTzArQu/m+4=
+// @vegastack field-cell@0.133.0 sha256-GrbfPudad7nKOkMa2tuHbd4k8Su7hVPrMRCQUaSNN1c=
 
 "use client";
 
@@ -1178,7 +1178,7 @@ export function FieldCellDisplay({
             target={type === "url" ? "_blank" : undefined}
             rel={type === "url" ? "noopener noreferrer" : undefined}
             tabIndex={tabIndex}
-            className="min-h-6 min-w-0 truncate leading-6 text-primary underline-offset-2 hover:underline"
+            className="min-h-6 min-w-0 truncate leading-6 text-ink underline-offset-2 hover:underline"
           >
             {cell && type === "url" ? plainLink(value) : value}
           </a>

@@ -1,0 +1,140 @@
+---
+title: Accent
+description: The seven accent themes — set and read the person's colour, paint it first, give a page its own, and a picker.
+audience: public
+registry: accent
+status: stable
+since: 0.135.0
+a11y: named radio options; a check marks the choice
+preview: accent
+---
+
+## Install
+
+<InstallSteps name="accent" />
+
+## Usage
+
+```tsx
+import { setAccent } from "@/components/ui/accent";
+import { AccentPicker } from "@/components/ui/accent-picker";
+
+<AccentPicker
+  value={own}
+  workspaceAccent={workspace.accent}
+  onValueChange={(next) => {
+    setAccent(next ?? workspace.accent);
+    void save(next);
+  }}
+/>;
+```
+
+An accent is one attribute, `data-accent` on `<html>`, that the token CSS reads. What it colours, and
+what it never colours, is in [Accent](/docs/foundations/accent).
+
+<ComponentPreview name="accent" file="components/preview/accent.tsx" />
+
+## Scope
+
+- **In the root layout:** `AccentScript`, so the first paint already has the colour. It has no client
+  imports and reads the `vs_accent` cookie, never a header, so it works with a cached shell.
+- **In the app:** `setAccent` when the session loads and when a person picks; `useAccent` to read it.
+- **On a page with its own colour:** `AccentScope`.
+- **Not here:** saving the choice, a workspace's default and telling other tabs are the app's.
+
+Server code reads the ids from `@vegastack/design-tokens/accents` (`ACCENTS`, `isAccentId`,
+`resolveAccent(own, workspace)`).
+
+## Anatomy
+
+<Anatomy name="accent" />
+
+## Examples
+
+### The colours alone
+
+Without `workspaceAccent` there is no option that follows the workspace: for the workspace's own
+setting. With it, a first option marked with a building does; its value is `null` and its words are
+`workspaceLabel`.
+
+<ComponentPreview name="accentColours" file="components/preview/accent.tsx" />
+
+### What takes the colour
+
+`AccentPreview` is the real components in one colour, inert and hidden from assistive technology.
+Left without `accent` it wears the page's.
+
+<ComponentPreview name="accentRoles" file="components/preview/accent.tsx" />
+
+### Before the first paint
+
+```tsx
+<html lang="en" suppressHydrationWarning>
+  <head>
+    <AccentScript skip={["/login", "/docs", "/s"]} />
+  </head>
+</html>
+```
+
+`skip` names paths that never wear the person's accent; a public link there carries its own scope.
+
+### A page's own colour
+
+```tsx
+<AccentScope accent={workspace.accent}>{children}</AccentScope>
+```
+
+It marks `<html>`, so dialogs and menus match, and gives the person's accent back when it leaves.
+
+### Back and forward
+
+```tsx
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) restoreAccent();
+});
+```
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/accent-picker.tsx"
+  name="AccentPickerProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/accent-preview.tsx"
+  name="AccentPreviewProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/accent-script.tsx"
+  name="AccentScriptProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/ui/accent.tsx"
+  name="AccentScopeProps"
+/>
+
+## Accessibility
+
+| Key                   | Action                                  |
+| --------------------- | --------------------------------------- |
+| <kbd>Tab</kbd>        | Move to the chosen option, then past it |
+| <kbd>Arrow keys</kbd> | Choose the next or previous option      |
+| <kbd>Space</kbd>      | Choose the focused option               |
+
+- The group is named "Colour" unless you label it. Every option is a radio named by its colour; the
+  workspace's also says which colour it is ("Workspace theme, Black").
+- The chosen option shows a check on its colour and a heavier name, so it survives without colour.
+- Options are at least 44px, of one height, and their names wrap rather than truncate.
+- Every colour is measured in light and dark: labels, ink and tints at AA, dots and fills at 3:1.
+
+<StatesTested name="accent" />
+
+## Do / Don't
+
+<DoDont
+  do="Call it Colour in the product, and apply it on click with setAccent, then save it; put the old one back if saving fails."
+  dont="Use the accent for status, done checks, charts, tags or focus."
+/>

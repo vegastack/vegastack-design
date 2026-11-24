@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.123.2 sha256-s/Gc1N5LBAvOPwbwmLq4Y4qSQ1fJtU1dS+rYbn/Y/aE=
+// @vegastack color-picker@0.123.2 sha256-1/9K61vwJjIbdHo8U662XSTNxuCMruA4EJ6Gb8LMS/w=
 
 "use client";
 
@@ -66,7 +66,7 @@ export interface ColorOption {
  * entry rather than a near-duplicate `lime` swatch.
  */
 export const DEFAULT_COLORS: readonly ColorOption[] = [
-  { name: "gray", label: "Gray", color: "var(--primary)" },
+  { name: "gray", label: "Gray", color: "var(--ink)" },
   { name: "red", label: "Red", color: "var(--destructive)" },
   { name: "orange", label: "Orange", color: "var(--chart-4)" },
   { name: "amber", label: "Amber", color: "var(--warning)" },

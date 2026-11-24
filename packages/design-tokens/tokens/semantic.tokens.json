@@ -43,6 +43,87 @@
     "$type": "color",
     "$value": "{color.neutral.50}"
   },
+  "primary-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.205, 0, 0],
+      "alpha": 0.8
+    },
+    "$description": "COL-27: the hover fill of a primary control. Black: `primary` at 80%, exactly the `hover:bg-primary/80` it replaces. An accent: a real darker shade."
+  },
+  "primary-pressed": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.205, 0, 0],
+      "alpha": 0.7
+    },
+    "$description": "COL-27: the pressed fill of a primary control. Black: `primary` at 70%. An accent: one further darker step."
+  },
+  "primary-text": {
+    "$type": "color",
+    "$value": "{primary}",
+    "$description": "COL-27: the accent as readable ink on a neutral surface or on its own 10%/20% tint. Never a done check (`check`) and never a link in text (`link`)."
+  },
+  "link": {
+    "$type": "color",
+    "$value": "{info-text}",
+    "$description": "COL-27: a link inside running text, always underlined. Black: `info-text` (blue, as before). An accent: `primary-text`."
+  },
+  "link-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.456, 0.156, 256],
+      "alpha": 0.88
+    },
+    "$description": "COL-27: a text link under the pointer. Black: `link` at 88%, as before. An accent: `primary-hover` in light, `primary-text` in dark, so it never falls under AA."
+  },
+  "unread": {
+    "$type": "color",
+    "$value": "{info}",
+    "$description": "COL-27: an unread dot or bar (non-text). Black: `info`. An accent: its fill in light, `primary-text` in dark."
+  },
+  "nav-selected": {
+    "$type": "color",
+    "$value": "{state-selected}",
+    "$description": "COL-27: the selected row of navigation (rail, sidebar, folder tree), never a tab, chip, menu item or table row (those are `state-selected`). Black: `state-selected`. An accent: the fill at 10% light, 20% dark."
+  },
+  "nav-selected-foreground": {
+    "$type": "color",
+    "$value": "{foreground}",
+    "$description": "COL-27: the label on `nav-selected`. Black: `foreground`. An accent: `primary-text`."
+  },
+  "nav-selected-icon": {
+    "$type": "color",
+    "$value": "{muted-foreground}",
+    "$description": "COL-27: the icon on `nav-selected`. Black: `muted-foreground`. An accent: `primary-text`."
+  },
+  "check": {
+    "$type": "color",
+    "$value": "{color.neutral.900}",
+    "$description": "COL-27: a done or success check. The ink `primary` had before accents; no accent ever changes it."
+  },
+  "mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.205, 0, 0],
+      "alpha": 0.15
+    },
+    "$description": "COL-27: the highlight behind a found or marked phrase. `primary` at 15% as it was before accents; no accent ever changes it."
+  },
+  "ink": {
+    "$type": "color",
+    "$value": "{color.neutral.900}",
+    "$description": "COL-27: the neutral strong fill (a workspace's tile, an avatar badge, a changed or filter-on dot, the Gray swatch). What `primary` was before accents; no accent ever changes it."
+  },
+  "ink-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.50}",
+    "$description": "COL-27: the label on `ink`."
+  },
   "secondary": {
     "$type": "color",
     "$value": "{color.neutral.100}"

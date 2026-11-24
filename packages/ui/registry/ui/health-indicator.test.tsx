@@ -31,7 +31,7 @@ test("every health shows its glyph and its words; none is grey No update", async
   const inks = items.map((item) =>
     item.querySelector("svg")!.getAttribute("class"),
   );
-  expect(inks[0]).toContain("text-primary");
+  expect(inks[0]).toContain("text-check");
   expect(inks[1]).toContain("text-warning-text");
   expect(inks[2]).toContain("text-destructive-text");
   expect(inks[3]).toContain("text-muted-foreground");

@@ -207,7 +207,7 @@ test("settled requests become one line: primary ✓, muted ⊘ with the way on, 
     lines[0]!
       .querySelector('[data-slot="status-glyph"]')!
       .getAttribute("class"),
-  ).toContain("text-primary");
+  ).toContain("text-check");
   await userEvent.click(screen.getByRole("button", { name: "Undo ›" }));
   expect(onUndo).toHaveBeenCalledOnce();
   expect(lines[1]!.textContent).toContain(

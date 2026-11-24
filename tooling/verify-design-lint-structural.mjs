@@ -745,6 +745,36 @@ export function NamedByItsOwnChildren() {
     );
   }
 
+  // ── accent-role (COL-27) ────────────────────────────────────────────────────────────────────
+  {
+    const dir = join(colorBridgeDir, "..", "accent-role");
+    mkdirSync(dir, { recursive: true });
+    const refused = [
+      `<div className="text-primary">ink</div>`,
+      `<div className="hover:text-primary/80">faded ink</div>`,
+      `<div className="bg-primary hover:bg-primary/80">a faded hover</div>`,
+      `<div className="active:not-data-disabled:bg-primary/70">a faded press</div>`,
+    ];
+    writeFileSync(
+      join(dir, "accent.tsx"),
+      `export function Accent() {\n  return <>\n${refused.map((form) => `    ${form}`).join("\n")}\n    <div className="bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-pressed text-primary-text text-check text-link bg-primary/10 hover:bg-primary/12 border-primary/40" />\n  </>;\n}\n`,
+    );
+    const result = run(dir);
+    const reported = new Set(
+      [
+        ...result.output.matchAll(/accent\.tsx:(\d+)[^\n]*\[accent-role\]/g),
+      ].map((m) => Number(m[1])),
+    );
+    const missed = refused
+      .map((_, index) => index + 3)
+      .filter((line) => !reported.has(line));
+    if (missed.length > 0 || reported.has(refused.length + 3))
+      fail(
+        `design-lint accent-role: accepted specimen line(s) ${missed.join(", ") || "none"}, or rejected the role line — every accent use names its role (COL-27)`,
+        result.output,
+      );
+  }
+
   // ── the positive specimen ───────────────────────────────────────────────────────────────────
   // Every line below is a DELIBERATE non-violation. They are specimens, not decoration: without
   // them a later tightening would start rejecting a real upstream pattern and nothing would say so.
@@ -917,8 +947,8 @@ import { cn } from '@vegastack/design';
 
 export function Good({ done }: { done: boolean }) {
   return <>
-    <Check className="text-primary" />
-    <CircleCheck className={cn('size-4', done && 'text-primary')} />
+    <Check className="text-check" />
+    <CircleCheck className={cn('size-4', done && 'text-check')} />
     <div className="bg-chat-card border border-chat-hairline rounded-card" />
     <span className="text-warning-text">needs you</span>
     <div className="transition-[height,opacity] duration-state ease-enter data-ending-style:duration-state-exit data-ending-style:ease-exit" />
