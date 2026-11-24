@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.123.2 sha256-H3ljaihbsvbp/D3tNg9dKXLLugogd4TPfLSXlES2fg0=
+// @vegastack nav-tree@0.123.2 sha256-DUEsZBuM76FatR2uxbQ2jyRM84qENTzfHYx5LNpzBek=
 
 "use client";
 
@@ -329,7 +329,7 @@ export function NavTreeItem({
       // Lit while the pointer is on its action and while the action's menu is open.
       action &&
         !active &&
-        "group-hover/nav-tree-row:not-focus-visible:layer-hover group-has-data-popup-open/nav-tree-row:not-focus-visible:layer-hover",
+        "group-hover/nav-tree-row:not-focus-visible:not-active:not-disabled:not-aria-disabled:layer-hover group-has-data-popup-open/nav-tree-row:not-focus-visible:not-active:not-disabled:not-aria-disabled:layer-hover",
       className,
       own.className,
     ),
