@@ -1,4 +1,4 @@
-// @vegastack chat-skeleton@0.123.2 sha256-FWkmw3kRN/NeZkAxWbx4y4k6rVC5Yx4t7T0CSq2HW/o=
+// @vegastack chat-skeleton@0.135.0 sha256-m5A5qUxCr8aK7XkTodxEy5zzriyghpu9/hDurtjWXGw=
 
 "use client";
 

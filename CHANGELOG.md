@@ -9,6 +9,21 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.135.0] — November 24, 2026
+
+<!-- assembled from 1 changeset: 5c6b9ec3c490 -->
+
+### 🧩 New components
+
+- Accent themes (COL-27): a person picks one of seven colours and Black, the default, changes nothing. New `accent` item (`setAccent`, `useAccent`, `restoreAccent`, `AccentScope`, `AccentPicker`, `AccentPreview`, `AccentScript`), `data-accent` token blocks for Blue, Violet, Pink, Orange, Green and Teal in light and dark, `@vegastack/design-tokens/accents`, `accents.json` and `accents.dart`. New roles `primary-hover`, `primary-pressed`, `primary-text`, `link`, `link-hover`, `unread`, `nav-selected`, `nav-selected-foreground`, `nav-selected-icon`, and `check`, `mark`, `ink`, `ink-foreground`, which no accent changes; every component names its role, and design-lint `accent-role` refuses `text-primary` and opacity hovers of a primary fill. Email kit templates, `EmailLayout` and `EmailButton` take `accent`. An app that overrides `--primary` overrides `--primary-hover`, `--primary-pressed` and `--primary-text` too.
+  [`c5774ef`](https://github.com/VegaStack/vegastack-design/commit/c5774ef)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.29.0`** (was `0.28.5`).
+- **`@vegastack/design-tokens`** → **`0.29.0`** (was `0.28.2`).
+- The design-system registry (`@vegastack/ui`) bumps 0.134.3 → 0.135.0.
+
 ## [0.134.3] — November 24, 2026
 
 <!-- assembled from 1 changeset: 1c3fbd2f8c21 -->

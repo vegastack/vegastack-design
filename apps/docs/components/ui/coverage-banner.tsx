@@ -1,4 +1,4 @@
-// @vegastack coverage-banner@0.123.2 sha256-trIV7HmJ0jBfdm99SFMPNNaymNqSiskMyQoWWkNuQLo=
+// @vegastack coverage-banner@0.135.0 sha256-AjeMeMAcm+7bJAHMIu2QrU9v8SRcNgR8oR7hY1gxadQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

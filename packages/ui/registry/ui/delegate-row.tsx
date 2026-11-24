@@ -1,4 +1,4 @@
-// @vegastack delegate-row@0.123.2 sha256-f6ZvSxaOmKElA2BfLt+k4A0GrYrOUpu0mHHrtLM2RHk=
+// @vegastack delegate-row@0.135.0 sha256-ovTsei0ge/k/x/bqmiAotzTKtqzO1PqQD3louNXAC/c=
 
 "use client";
 
