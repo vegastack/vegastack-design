@@ -20829,7 +20829,7 @@
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
         "version": "0.123.2",
-        "integrity": "sha256-rZqfWde6OlEP/3QB/fdA6d0NiYB3uwl61Dpgt6yiG2c="
+        "integrity": "sha256-VD27UQItD5JgBvYFVE8CFR08ym/xjTeGcFlneZ348Os="
       }
     },
     {

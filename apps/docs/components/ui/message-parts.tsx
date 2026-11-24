@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.123.2 sha256-rZqfWde6OlEP/3QB/fdA6d0NiYB3uwl61Dpgt6yiG2c=
+// @vegastack message-parts@0.123.2 sha256-VD27UQItD5JgBvYFVE8CFR08ym/xjTeGcFlneZ348Os=
 
 "use client";
 
@@ -520,18 +520,21 @@ const REVEAL_ON_HOVER =
 /**
  * One button style in the actions row, whatever size a host passes: every button in it (a `Button`,
  * `CopyButton` or `Toggle`, bare or inside a `TooltipTrigger` or `PopoverTrigger`, which rename its
- * `data-slot`) is the 28px circle of `Button size="icon-sm"` with a 16px icon, so Copy, Retry, 👍
- * and 👎 always match. The rules outrank a button's own size rules (an `icon-xs` button's 12px icon,
+ * `data-slot`) is a 24px square with a 14px icon, the size of the answer's text, and 28px with a
+ * 16px icon where that text is 16px (a coarse pointer or below `sm`), so Copy, Retry, 👍 and 👎
+ * always match. The buttons touch: the space between two icons is the squares' own. The rules
+ * outrank a button's own size rules (an `icon-xs` button's 12px icon,
  * a `Toggle`'s 32px height, the padding beside a `data-icon` icon: `:not([hidden])` lifts the
  * padding rule past `has-data-[icon=…]:ps-*`); an icon given its own `size-*` class keeps it.
  */
 const ONE_BUTTON_SIZE =
-  "[&_button]:size-7 [&_button]:min-w-7 [&_button:not([hidden])]:px-0 [&_button]:rounded-icon [&_button_svg:not([class*='size-'])]:size-4";
+  "[&_button]:size-6 [&_button]:min-w-6 [&_button:not([hidden])]:px-0 [&_button]:rounded-segment [&_button_svg:not([class*='size-'])]:size-3.5 pointer-coarse:[&_button]:size-7 pointer-coarse:[&_button]:min-w-7 pointer-coarse:[&_button_svg:not([class*='size-'])]:size-4 max-sm:[&_button]:size-7 max-sm:[&_button]:min-w-7 max-sm:[&_button_svg:not([class*='size-'])]:size-4";
 
 /**
  * `MessageActions` — Copy, Retry and the rest, in a row under the message. Pass a ghost `Button`
  * for an action and a `Toggle` for a rating (👍, 👎), icon-only; the row makes every button the same
- * 28px circle with a 16px icon, whatever size it was given or whatever trigger wraps it. Their
+ * 24px square with a 14px icon (28px and 16px on touch), whatever size it was given or whatever
+ * trigger wraps it. Their
  * place is kept while they are hidden, so the conversation never jumps. Hover reveals them across
  * the whole `Message`; outside one, only over the row itself.
  *
@@ -554,7 +557,7 @@ export function MessageActions({
       role="group"
       aria-label={label}
       className={cn(
-        "flex min-w-0 items-center gap-0.5 text-muted-foreground",
+        "flex min-w-0 items-center text-muted-foreground",
         ONE_BUTTON_SIZE,
         reveal === "hover" && REVEAL_ON_HOVER,
         className,

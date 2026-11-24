@@ -329,8 +329,8 @@ for a single version. `formatPosition` can say more: `Previous answer (1 of 2)`.
 - A step's status and a plan item's state are read out from `statusLabels` and `stateLabels`, since
   the icon alone shows them.
 - `MessageActions` keeps its buttons in the Tab order while hidden: focus reveals them. It makes
-  every button in it the 28px square of `Button size="icon-sm"` with a 16px icon, whatever size it
-  was given and whether or not a `TooltipTrigger` or `PopoverTrigger` wraps it, so Copy, Retry, 👍
+  every button in it one 24px square with a 14px icon, the size of the answer's text (28px and 16px
+  with a coarse pointer or below `sm`, where that text is 16px), whatever size it was given and whether or not a `TooltipTrigger` or `PopoverTrigger` wraps it, so Copy, Retry, 👍
   and 👎 are always one style. Put only icon buttons in the row. `MessageTime reveal="hover"`
   reveals the same way.
 - `MessageActivity` and each step with children are disclosures: buttons with
