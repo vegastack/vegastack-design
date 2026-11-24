@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.134.3] — November 24, 2026
+
+<!-- assembled from 1 changeset: 1c3fbd2f8c21 -->
+
+### 🔧 Changed components
+
+- `MessageActions` buttons are sized to the answer's text: 24px squares with a 14px icon, side by side, and 28px with a 16px icon on a coarse pointer or below `sm`, where the text is 16px.
+  [`57e48ef`](https://github.com/VegaStack/vegastack-design/commit/57e48ef)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.134.2 → 0.134.3.
+
 ## [0.134.2] — November 24, 2026
 
 <!-- assembled from 1 changeset: 5b7a140625fa -->

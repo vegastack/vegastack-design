@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.134.3
+
+### Patch Changes
+
+- [#1078](https://github.com/vegastack/vegastack-design/pull/1078) [`57e48ef`](https://github.com/vegastack/vegastack-design/commit/57e48ef405945ade718846358208e171c438eeb1) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `MessageActions` buttons are sized to the answer's text: 24px squares with a 14px icon, side by side, and 28px with a 16px icon on a coarse pointer or below `sm`, where the text is 16px.
+
 ## 0.134.2
 
 ### Patch Changes
