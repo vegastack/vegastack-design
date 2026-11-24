@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.134.2
+
+### Patch Changes
+
+- [#1077](https://github.com/vegastack/vegastack-design/pull/1077) [`dfba0ca`](https://github.com/vegastack/vegastack-design/commit/dfba0ca16ee219e96ac1d4e7675895d3653d3e31) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `NavTree` row actions stay in place while their menu is open (the menu no longer jumps to the window's corner), the row stays lit, and a long label fades out before the action. `FolderTree` and `RecordPanel` section actions stay visible while their menu is open.
+
 ## 0.134.1
 
 ### Patch Changes

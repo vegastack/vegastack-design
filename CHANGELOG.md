@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.134.2] — November 24, 2026
+
+<!-- assembled from 1 changeset: 5b7a140625fa -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.134.1 → 0.134.2.
+
+### 🐛 Fixed
+
+- `NavTree` row actions stay in place while their menu is open (the menu no longer jumps to the window's corner), the row stays lit, and a long label fades out before the action. `FolderTree` and `RecordPanel` section actions stay visible while their menu is open.
+  [`dfba0ca`](https://github.com/VegaStack/vegastack-design/commit/dfba0ca)
+
 ## [0.134.1] — November 23, 2026
 
 <!-- assembled from 1 changeset: 114342ac1562 -->

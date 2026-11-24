@@ -222,8 +222,8 @@
       "meta": {
         "whenToUse": "The places in an app's module column — views, saved filters, spaces with their sections, folders, settings pages — in the shell's ShellColumn or a phone sheet.",
         "whenNotToUse": "A file browser with drag and drop (FolderTree), a page's own tabs (Tabs), or the module rail (Rail).",
-        "version": "0.123.2",
-        "integrity": "sha256-DUEsZBuM76FatR2uxbQ2jyRM84qENTzfHYx5LNpzBek="
+        "version": "0.134.2",
+        "integrity": "sha256-19JMrigemfysoafSVIM6Y5YKflsk1MWavH/0boh9RuE="
       }
     },
     {
@@ -426,8 +426,8 @@
       "meta": {
         "whenToUse": "A record page (a task, a meeting, a page, a customer): the work in one main column, and its reference material (Details, Transcript, Files, Versions, Activity, Ask) in one side panel opened from the strip.",
         "whenNotToUse": "A list page — a row opens in Peek; a page with no record (a dashboard) — use ShellPage alone.",
-        "version": "0.123.3",
-        "integrity": "sha256-s500GJnI137X3aFA3HFgJYLIKWjVgxjxnrdb7S/sJsM="
+        "version": "0.134.2",
+        "integrity": "sha256-RZtR+yCI8/X41YAMC1+9Zaw+WtmOz7TQ0czplsYDd0o="
       }
     },
     {
@@ -16640,8 +16640,8 @@
       "meta": {
         "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
         "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
-        "version": "0.123.2",
-        "integrity": "sha256-QAQJKVmjXj3wp5M+Sh+SGRoLpEVmfHXz+JPUZjIjNqY="
+        "version": "0.134.2",
+        "integrity": "sha256-WDeFgW5mHu+3aELMQ7LheGCXubl/oESJKNnF0CS93XQ="
       }
     },
     {
