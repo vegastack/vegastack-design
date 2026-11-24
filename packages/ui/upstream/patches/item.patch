@@ -1,6 +1,7 @@
 # component: item
-# decisions: A11Y-7, API-16, API-19, API-20, API-29, DOC-2, FOC-1, FOC-6, LAY-11, API-37, COL-24, INT-4, LAY-20, BRD-12
+# decisions: A11Y-7, API-16, API-19, API-20, API-29, DOC-2, FOC-1, FOC-6, LAY-11, API-37, COL-24, INT-4, LAY-20, BRD-12, COL-27
 # hunks:
+#   COL-27: a link in the description is `primary-text` under the pointer, and with a colour chosen it is `link` at rest.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-37 (MK 2026-10-26, Regent product-cohesion W1-DS2): `ItemGroup` takes `variant`
@@ -45,7 +46,7 @@
 #   LAY-20: a `flush` ItemGroup bleeds `-mx-2` with `gap-px`, and its rows pad `px-2` on
 #     `rounded-md`, so a row's fill stops 8px inside the card.
 diff --git a/item.tsx b/item.tsx
-index edb2ea3..3f7ba3a 100644
+index edb2ea3..b6b6735 100644
 --- a/item.tsx
 +++ b/item.tsx
 @@ -1,23 +1,81 @@
@@ -364,8 +365,9 @@ index edb2ea3..3f7ba3a 100644
 +      aria-hidden={register ? true : undefined}
        data-slot="item-description"
        className={cn(
-         "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+-        "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
 -        className
++        "line-clamp-2 text-start text-sm leading-normal font-normal text-muted-foreground group-data-[size=xs]/item:text-xs [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary-text accented:[&>a]:text-link accented:[&>a:hover]:text-link-hover",
 +        className,
        )}
        {...props}

@@ -1,4 +1,4 @@
-// @vegastack status-glyph@0.123.2 sha256-gCdMnHpddTqLApmcslGaCQY42XhGofJRnfjRelvi+7o=
+// @vegastack status-glyph@0.123.2 sha256-xT5ke3xQmkfZFNZdKwNJFO+r88sCzo4OqYWWM4mGG+8=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -26,11 +26,11 @@ const GLYPH: Record<ChatStatus, LucideIcon> = {
   "needs-you": TriangleAlert,
 };
 
-// COL-25: checks are primary, never green; status hues are a glyph, never a fill.
+// COL-25: checks are `check` ink, never green; status hues are a glyph, never a fill.
 const INK: Record<ChatStatus, string> = {
   pending: "text-muted-foreground",
   running: "text-info-text",
-  done: "text-primary",
+  done: "text-check",
   skipped: "text-muted-foreground",
   failed: "text-muted-foreground",
   "needs-you": "text-warning-text",
@@ -63,7 +63,7 @@ export interface StatusGlyphProps extends Omit<
 }
 
 /**
- * One glyph per state, the same everywhere in agent UI (COL-25): ✓ done in primary, ◌ not
+ * One glyph per state, the same everywhere in agent UI (COL-25): ✓ done in the check ink, ◌ not
  * started and ⊘ skipped muted, ◐ running in the blue accent and still, ✗ failed muted (always with
  * words beside it), ⚠ needs you in the warning ink. Lucide outline at stroke 1.5.
  *

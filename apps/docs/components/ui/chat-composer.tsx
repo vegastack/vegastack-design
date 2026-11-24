@@ -1,4 +1,4 @@
-// @vegastack chat-composer@0.134.0 sha256-X+HsfsMiB9+2DpklQ4bRUx8lAh88xq58tZ0DCNthKTk=
+// @vegastack chat-composer@0.134.0 sha256-EScIei6BjKJnZVFq5u0ZSZDgPnX2U0olkYf9dVoqkEs=
 
 "use client";
 
@@ -776,7 +776,7 @@ export function ChatComposer({
             <div
               aria-hidden
               data-slot="chat-composer-drop"
-              className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-[inherit] border-2 border-dashed border-primary bg-background/90 text-sm font-medium text-primary"
+              className="pointer-events-none absolute inset-0 z-10 grid place-items-center rounded-[inherit] border-2 border-dashed border-primary bg-background/90 text-sm font-medium text-primary-text"
             >
               {labels?.drop ?? "Drop to add to chat"}
             </div>

@@ -361,7 +361,7 @@ function ToastIcon({ type }: { type: string | undefined }) {
   let icon: React.ReactNode = null;
 
   if (type === "success") {
-    icon = <CircleCheckIcon className="text-primary" aria-hidden="true" />;
+    icon = <CircleCheckIcon className="text-check" aria-hidden="true" />;
   }
 
   if (type === "info") {

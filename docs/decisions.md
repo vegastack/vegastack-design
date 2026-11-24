@@ -75,6 +75,12 @@ vocabulary: `skills/internal/component/references/tokens.md`. Rule by rule:
   same composites). Each extension is flagged for MK rather than decided silently, and everything
   that MEASURES at or over the floor — Attachment's error ICON on its tint, at 3.973:1 against the
   3:1 non-text floor — stays upstream verbatim.
+- **Accent themes** (COL-27, operator 2026-11-25) — one attribute, `data-accent`, recolours the
+  product in one of seven accents; Black is the default and changes nothing. Each use names its role:
+  `primary` (+ `-hover`, `-pressed`, `-text`), `link`, `unread`, `nav-selected*`; `check`, `mark` and
+  `ink` never move. Values live once in `tokens/accents.tokens.json` and are concrete per mode, so
+  an accent works on any element. Enforced by `contrast-check` § 10, `verify-theme-parity` and
+  design-lint `accent-role` (Foundations › Accent).
 - **No focus rings anywhere, Tabs included** (FOC-13, MK 2026-09-25) — `base.css` owns the one focus cue: a
   subtle `accent`/50 background tint on every focusable element EXCEPT text entry, which takes no
   fill (FOC-14's text-entry exception below); the contenteditable document editor (TextEdit

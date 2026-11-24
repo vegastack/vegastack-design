@@ -25,6 +25,11 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
+  accentIds,
+  buildAccents,
+  toHex,
+} from "../packages/design-tokens/accents.mjs";
+import {
   applyProvenanceHeader,
   readProvenanceHeader,
   stripProvenanceHeader,
@@ -270,6 +275,48 @@ const CORNERS = [
   "tile",
 ];
 
+// ── accents (COL-27) ────────────────────────────────────────────────────────────────────────────
+// The button's fill and label per accent and mode, from the same resolution the web reads. Black is
+// the palette's own button, so an email without an accent is byte for byte what it was.
+export function buildAccentButtons(palette) {
+  // Black's own values are never read here, so the contract is not needed to resolve the rest.
+  const resolved = Object.fromEntries(
+    buildAccents({ light: {}, dark: {} }).map((accent) => [accent.id, accent]),
+  );
+  const out = {};
+  const failures = [];
+  for (const id of accentIds()) {
+    out[id] = {};
+    for (const mode of ["light", "dark"]) {
+      out[id][mode] =
+        id === "black"
+          ? { bg: palette[mode].buttonBg, text: palette[mode].buttonText }
+          : {
+              bg: nudge(toHex(resolved[id][mode].primary)),
+              text: nudge(toHex(resolved[id][mode]["primary-foreground"])),
+            };
+      const ratio = contrast(out[id][mode].bg, out[id][mode].text);
+      if (ratio < AA)
+        failures.push(`${id} ${mode}: button is ${ratio.toFixed(2)}:1`);
+    }
+  }
+  if (failures.length)
+    throw new Error(`email accents fail AA:\n  ${failures.join("\n  ")}`);
+  return out;
+}
+
+const buttonRule = (prefix, { bg, text }) =>
+  `${prefix}.vs-button{background-color:${bg} !important;border-color:${bg} !important;color:${text} !important}`;
+/** What an accent adds after `emailCss`: the dark button alone. Black adds nothing. */
+const accentCss = (id, { dark }) =>
+  id === "black"
+    ? ""
+    : `@media (prefers-color-scheme:dark){${buttonRule("", dark)}}`;
+const accentOutlookCss = (id, { dark }) =>
+  id === "black"
+    ? ""
+    : buttonRule("[data-ogsc] ", dark) + buttonRule("[data-ogsb] ", dark);
+
 export function buildCorners() {
   const semantic = read("semantic.tokens.json");
   const out = {};
@@ -290,6 +337,11 @@ const MOBILE_CSS =
 export async function render() {
   const palette = buildPalette();
   const corners = buildCorners();
+  const accentButtons = buildAccentButtons(palette);
+  const perAccent = (make) =>
+    Object.fromEntries(
+      Object.entries(accentButtons).map(([id, modes]) => [id, make(id, modes)]),
+    );
   const json = (v) =>
     JSON.stringify(v, null, 2).replace(/"([a-zA-Z]+)":/g, "$1:");
   const source = `/**
@@ -328,6 +380,24 @@ export interface EmailPalette {
 /** Light and dark palettes, resolved from the design tokens. */
 export const emailColors: { light: EmailPalette; dark: EmailPalette } = ${json(palette)};
 
+/** An accent theme's id (COL-27): the workspace's colour, on the button. */
+export type EmailAccent = ${Object.keys(accentButtons)
+    .map((id) => JSON.stringify(id))
+    .join(" | ")};
+
+/** The button's fill and label per accent, light and dark; \`black\` is \`emailColors\`' own. */
+export const emailAccents: Record<
+  EmailAccent,
+  Record<"light" | "dark", { bg: string; text: string }>
+> = ${json(accentButtons)};
+
+/** An id the kit knows, else \`black\`: an unknown accent never breaks an email. */
+export function emailAccent(accent: string | null | undefined): EmailAccent {
+  return accent && Object.hasOwn(emailAccents, accent)
+    ? (accent as EmailAccent)
+    : "black";
+}
+
 /**
  * The corner roles (BRD-12) as px, from \`corner-*\` in the design tokens. Every \`borderRadius\`
  * in the kit names one: the button is \`control\` (10px, the same corner as the app's buttons), the message card \`card\`, a card or
@@ -354,6 +424,12 @@ export const emailCss =
  */
 export const emailOutlookCss =
   ${JSON.stringify(outlookCss(palette.dark))};
+
+/** The dark button per accent, appended after \`emailCss\`. */
+export const emailAccentCss: Record<EmailAccent, string> = ${json(perAccent(accentCss))};
+
+/** The dark button per accent, appended after \`emailOutlookCss\`. */
+export const emailAccentOutlookCss: Record<EmailAccent, string> = ${json(perAccent(accentOutlookCss))};
 `;
   // Formatted exactly as \`prettier --check\` expects, so the lint chain and this check agree.
   const options = (await prettier.resolveConfig(OUTPUT)) ?? {};

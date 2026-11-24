@@ -1,6 +1,7 @@
 # component: empty
-# decisions: API-16, API-22, API-29, DOC-2, TYP-15, LAY-17, BRD-12
+# decisions: API-16, API-22, API-29, DOC-2, TYP-15, LAY-17, BRD-12, COL-27
 # hunks:
+#   COL-27: a link in the description is `primary-text` under the pointer, and with a colour chosen it is `link` at rest.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-29: `Empty` takes `size="sm"` (`data-size`), the compact inline empty: a 16px padding, an
@@ -27,7 +28,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/empty.tsx b/empty.tsx
-index e11ce34..72eee33 100644
+index e11ce34..2f4eff2 100644
 --- a/empty.tsx
 +++ b/empty.tsx
 @@ -1,17 +1,42 @@
@@ -159,7 +160,7 @@ index e11ce34..72eee33 100644
        className={cn(
 -        "text-sm/relaxed text-muted-foreground [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
 -        className
-+        "text-sm/relaxed text-muted-foreground wrap-anywhere [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
++        "text-sm/relaxed text-muted-foreground wrap-anywhere [&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary-text accented:[&>a]:text-link accented:[&>a:hover]:text-link-hover",
 +        className,
        )}
        {...props}

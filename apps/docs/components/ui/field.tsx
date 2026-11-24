@@ -1,4 +1,4 @@
-// @vegastack field@0.123.2 sha256-87sdScUQZY9wxXLirUqLmR2AqlnU4tPMhMvMMpx/74w=
+// @vegastack field@0.123.2 sha256-jCISWsjs4CaRvg2eM715uQTJA5R7o6GmkoqjNqiUc3k=
 
 "use client";
 
@@ -359,7 +359,7 @@ function FieldDescription({
         "text-start text-sm leading-normal font-normal text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
         "last:mt-0 nth-last-2:-mt-1",
         variant === "footnote" && "mt-2 text-center text-xs last:mt-2",
-        "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+        "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary-text accented:[&>a]:text-link accented:[&>a:hover]:text-link-hover",
         className,
       )}
       {...props}

@@ -76,7 +76,7 @@ test("the diamond: filled primary when done, hollow muted while open, hollow war
       '[data-slot="milestone-glyph"] > span',
     ),
   ].map((shape) => shape.className);
-  expect(shapes[0]).toContain("bg-primary");
+  expect(shapes[0]).toContain("bg-ink");
   expect(shapes[1]).toContain("border-muted-foreground");
   expect(shapes[1]).not.toContain("bg-");
   expect(shapes[2]).toContain("border-warning-text");

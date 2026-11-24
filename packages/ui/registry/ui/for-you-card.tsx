@@ -1,4 +1,4 @@
-// @vegastack for-you-card@0.133.0 sha256-U/t1ofNYYYpyOL+EIgORHLCW+p8u3oxInPHjhZgqVos=
+// @vegastack for-you-card@0.133.0 sha256-uZI4NtmsMDyDxQ76jnVNwk0K9clM6AGXbEHEZV0n8yA=
 
 "use client";
 
@@ -895,7 +895,7 @@ export function ForYouCard({
               <span
                 data-slot="for-you-card-unread"
                 aria-hidden
-                className="size-1.5 shrink-0 rounded-full bg-info"
+                className="size-1.5 shrink-0 rounded-full bg-unread"
               />
             ) : null}
           </header>
@@ -1128,7 +1128,7 @@ export function ForYouCard({
           <span
             data-slot="for-you-card-unread"
             aria-hidden
-            className="size-1.5 shrink-0 rounded-full bg-info"
+            className="size-1.5 shrink-0 rounded-full bg-unread"
           />
         ) : null}
         {more}

@@ -73,9 +73,9 @@ export const prose = {
   // here is indistinguishable from any other `text-sm` paragraph in the product. No prose look.
   p: "[&_p]:my-2 [&_p]:first:mt-0 [&_p]:last:mb-0",
 
-  // Marks. Links are `info` ink per design.md §Colours at body weight; `s` is Tiptap's strike
+  // Marks. Links are `link` ink per design.md §Colours (blue, or the accent: COL-27) at body weight; `s` is Tiptap's strike
   // element and `del` is GFM's — the same mark from two producers.
-  a: "[&_a]:text-info-text [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-info-text/88",
+  a: "[&_a]:text-link [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-link-hover",
   strong: "[&_strong]:font-semibold",
   em: "[&_em]:italic",
   del: "[&_del]:line-through [&_s]:line-through",

@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.123.2 sha256-DR1kbLoRBcuNkV7XcjPm7zhL1TqJQktGnbuEU7cr7wQ=
+// @vegastack context-ring@0.123.2 sha256-0wLNtG+WlDvDY48+9QBENMmoBuz3Vw5eEXbQdhtKENI=
 
 "use client";
 
@@ -69,7 +69,7 @@ export function contextRingTone(share: number): ContextRingTone {
 
 const ARC: Record<ContextRingTone, string> = {
   default: "var(--foreground)",
-  high: "var(--primary)",
+  high: "var(--ink)",
   full: "var(--warning-text)",
 };
 

@@ -228,7 +228,7 @@ function Agent({ name = "William" }: { name?: string }): ReactNode {
     <ChatMenu
       trigger={
         <ChatComposerAgent
-          media={<Asterisk className="text-primary" />}
+          media={<Asterisk className="text-primary-text" />}
           description="Chief of staff"
         >
           {name}

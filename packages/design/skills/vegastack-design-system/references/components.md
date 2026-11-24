@@ -3,7 +3,7 @@
 <!-- GENERATED — do not hand-edit. Regenerated from the design system's component contract,
      which is the authority for membership and counts. -->
 
-**235 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 824 registry items in total.
+**236 components**, plus 467 animated-icon items, 16 hooks (`use-announcer`, `use-async-search`, `use-drag-reorder`, `use-file-drop`, `use-grid-selection`, `use-inline-edit`, `use-list-nav`, `use-media-query`, `use-mobile`, `use-modal-inert`, `use-overflow-fold`, `use-overflow`, `use-platform`, `use-stick-to-bottom`, `use-tabs-swipe`, `use-view-transition`), 15 starter blocks (`shell-01`, `board-01`, `issue-detail-01`, `page-editor-01`, `command-search-01`, `list-page-01`, `library-01`, `login-01`, `notifications-01`, `review-split-01`, `settings-01`, `settings-02`, `status-pages-01`, `email-kit`, `share-01`), 68 chart blocks across 7 families, and 23 data libs (`code-highlight`, `date-time`, `disclosure-trigger`, `drag-item`, `embed-providers`, `emoji-data`, `file-kind`, `grid-clipboard`, `icon-components`, `icon-data`, `markdown-as-typed`, `media-probe`, `page-layout`, `shell-layout`, `picker-preferences`, `picker-search`, `text-anchor`, `text-anchor-doc`, `text-edit-grammar`, `text-edit-markdown`, `text-edit-schema`, `tile-overlay`, `upload-progress`) — 825 registry items in total.
 
 Install any of them with `shadcn add @vegastack/<name>`. Animated icons install as
 `@vegastack/icon-<name>`; the bare name is reserved for components, so a component whose name
@@ -19,6 +19,7 @@ starts with `icon-` is a component and never an icon.
 
 ## Form
 
+- **`accent`** — The accent themes: set and read the person's colour, mark it before the first paint, give one page its own, a picker of the seven and a preview.
 - **`auto-save-input`** — An input that debounces edits and persists them via an async onSave, with an inline idle/saving/saved/error status; plus useAutoSave (debounced, serialised changed-fields save for a whole form) and AutoSaveIndicator.
 - **`block-toolbar`** — The one place a block's own controls sit — its top-right corner, 28px icon buttons, at most four and a ⋯ menu for the rest — shared by code blocks, images and diagrams.
 - **`calendar`** — A date-field calendar on React DayPicker — single, multiple and range selection.

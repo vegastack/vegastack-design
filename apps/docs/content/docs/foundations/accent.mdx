@@ -1,0 +1,71 @@
+---
+title: Accent themes
+description: The seven accent themes — what takes a person's colour, what never does, and how to use the roles.
+audience: public
+---
+
+A person picks one of seven accents: Black (the default), Blue, Violet, Pink, Orange, Green and Teal.
+A workspace sets the one for people who have not picked. The accent means "yours": it never means
+good, bad or done (COL-27).
+
+<ComponentPreview name="accentRoles" file="components/preview/accent.tsx" />
+
+## One attribute
+
+`data-accent="violet"` on `<html>` recolours the page; on any other element it recolours that element.
+Black is no attribute on `<html>`, and it is today's neutral: choosing it changes nothing. Every value
+is concrete per accent and mode, so an accent works in light, in dark, and on a card inside a page that
+wears another one. Print is always neutral.
+
+[Accent](/docs/components/accent) has the script, the setter, the page scope and the picker.
+
+## Roles
+
+<div id="roles" />
+
+| Role                                                       | Use                                                    | With Black         | With a colour                                 |
+| ---------------------------------------------------------- | ------------------------------------------------------ | ------------------ | --------------------------------------------- |
+| `bg-primary`, `text-primary-foreground`                    | primary and send buttons, chosen controls, progress    | near-black / white | the fill and its label                        |
+| `hover:bg-primary-hover`, `active:bg-primary-pressed`      | that fill's hover and press                            | the fill at 80/70% | real shades, one step each                    |
+| `bg-primary/10`, `border-primary/40`                       | drop targets, chosen cards                             | a neutral tint     | a tint of the fill                            |
+| `text-primary-text`                                        | accent ink on a page or a tint                         | `primary`          | a readable shade                              |
+| `text-link`, `hover:text-link-hover`, always underlined    | a link inside text                                     | blue               | a readable shade                              |
+| `bg-unread`                                                | unread dots and bars                                   | blue               | the fill in light, the readable shade in dark |
+| `bg-nav-selected`, `text-nav-selected-foreground`, `-icon` | the selected row of the rail, a sidebar, a folder tree | `state-selected`   | the fill at 10% / 20%, readable ink           |
+
+## What never takes it
+
+- **Done checks** are `text-check`, **highlights** `bg-mark`, **neutral solids** (a workspace tile, an
+  avatar badge, a "filter on" dot) `bg-ink text-ink-foreground`.
+- Status, priority, destructive, charts, tags, mentions, focus, recording and the Help dot.
+- Tabs, chips, menus and selected table rows: they stay `state-selected`.
+- Titles, breadcrumbs, table cells, record values and link buttons, even when they are links.
+- Done work: checks, done steps, done milestones, a timeline's bars.
+
+## Values
+
+Fill · hover · pressed · text. Labels are `#FAFAFA` in light and `#FFFFFF` in dark.
+
+| Accent | Light                                         | Dark                                          |
+| ------ | --------------------------------------------- | --------------------------------------------- |
+| Blue   | `#0065DA` · `#0056BD` · `#004CA8` · `#005ECD` | `#1270E9` · `#0065DA` · `#005AC4` · `#5F9DF8` |
+| Violet | `#7A4ADC` · `#6B3CC7` · `#602EB9` · `#7342D3` | `#8557EA` · `#7A4ADC` · `#6F3CCE` · `#A68CFA` |
+| Pink   | `#C32470` · `#A91A60` · `#9B0055` · `#BC1A6A` | `#D2357C` · `#C32470` · `#B50D65` · `#EC77A3` |
+| Orange | `#B14802` · `#973D00` · `#863501` · `#A74300` | `#C3530E` · `#B14802` · `#9F4001` · `#DD865F` |
+| Green  | `#037936` · `#00672D` · `#005A27` · `#007332` | `#1A8641` · `#037936` · `#006C2F` · `#68AC77` |
+| Teal   | `#007671` · `#00625E` · `#005652` · `#006E69` | `#07837E` · `#007671` · `#006965` · `#5EA9A4` |
+
+Every label clears 4.5:1 on the fill, its hover and its press; fills and unread dots clear 3:1 and ink
+clears 4.5:1 on every neutral surface; navigation ink clears 4.5:1 on its tint. `contrast-check` holds
+all seven in both modes.
+
+## Other platforms
+
+`@vegastack/design-tokens/accents` has `ACCENTS`, `isAccentId` and `resolveAccent` for server and
+client; `accents.json` the colours as hex; `accents.dart` the Flutter app's copy. The email kit takes
+an `accent` on each template.
+
+<DoDont
+  do="Name the role: text-link in a sentence, text-check for done, bg-primary-hover on a hovered solid."
+  dont="Write text-primary or hover:bg-primary/80, or use the accent to say something succeeded."
+/>

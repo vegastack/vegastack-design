@@ -1,6 +1,7 @@
 # component: field
-# decisions: A11Y-13, A11Y-8, API-26, COL-12, DOC-1, DOC-2, FOC-1, FOC-12, FOC-3, FOC-6, COL-24, INT-4, BRD-12
+# decisions: A11Y-13, A11Y-8, API-26, COL-12, DOC-1, DOC-2, FOC-1, FOC-12, FOC-3, FOC-6, COL-24, INT-4, BRD-12, COL-27
 # hunks:
+#   COL-27: a link in the description is `primary-text` under the pointer, and with a colour chosen it is `link` at rest.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1, FOC-3, FOC-6, FOC-12: the choice card's
@@ -39,7 +40,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/field.tsx b/field.tsx
-index 8bb6199..7bfb2c6 100644
+index 8bb6199..b274267 100644
 --- a/field.tsx
 +++ b/field.tsx
 @@ -1,11 +1,46 @@
@@ -417,9 +418,10 @@ index 8bb6199..7bfb2c6 100644
        className={cn(
          "text-start text-sm leading-normal font-normal text-muted-foreground group-has-data-horizontal/field:text-balance [[data-variant=legend]+&]:-mt-1.5",
          "last:mt-0 nth-last-2:-mt-1",
-+        variant === "footnote" && "mt-2 text-center text-xs last:mt-2",
-         "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
+-        "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary",
 -        className
++        variant === "footnote" && "mt-2 text-center text-xs last:mt-2",
++        "[&>a]:underline [&>a]:underline-offset-4 [&>a:hover]:text-primary-text accented:[&>a]:text-link accented:[&>a:hover]:text-link-hover",
 +        className,
        )}
        {...props}

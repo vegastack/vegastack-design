@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.133.0 sha256-/ClatLg4pEU89AiG38hW+qosSGzrMdNFYirAl0lsIcc=
+// @vegastack agent-panel@0.133.0 sha256-6vwAFjZR12sZrV1gsAF7df5ZjqQQXGzFm9sr6IZP0Nk=
 
 "use client";
 
@@ -167,7 +167,7 @@ const STATE_TONE: Record<Exclude<AgentState, "none">, Tone> = {
   approval: "warning",
   paused: "muted",
   blocked: "warning",
-  // COL-25: failed is muted and says so in words; done is primary, never green.
+  // COL-25: failed is muted and says so in words; done is `check` ink, never green.
   failed: "muted",
   done: "done",
   "no-action": "muted",
@@ -178,7 +178,7 @@ const TONE_TEXT: Record<Tone, string> = {
   muted: "text-muted-foreground",
   info: "text-info-text",
   warning: "text-warning-text",
-  done: "text-primary",
+  done: "text-check",
 };
 
 /** States the agent is still on: Stop applies, and a disconnect can still block it. */

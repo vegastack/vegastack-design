@@ -1,4 +1,4 @@
-// @vegastack agent-directory-card@0.123.2 sha256-2W6KCy6/kktNROXjspS7Z+HXoqP8UyGlvyoJB59YcG4=
+// @vegastack agent-directory-card@0.123.2 sha256-uQASDpIGx4kYo+tV+rXvjtHHax3Nsw8ncmadSda8sUY=
 
 "use client";
 
@@ -123,9 +123,7 @@ function NameTags({
               aria-hidden
               className={cn(
                 "size-4",
-                verified.changedSince
-                  ? "text-muted-foreground"
-                  : "text-primary",
+                verified.changedSince ? "text-muted-foreground" : "text-check",
               )}
             />
           </TooltipTrigger>

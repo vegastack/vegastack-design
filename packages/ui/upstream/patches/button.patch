@@ -1,6 +1,7 @@
 # component: button
-# decisions: A11Y-12, A11Y-13, API-5, API-29, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, A11Y-24, COL-24, INT-4, BRD-12
+# decisions: A11Y-12, A11Y-13, API-5, API-29, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, A11Y-24, COL-24, INT-4, BRD-12, COL-27
 # hunks:
+#   COL-27: the default variant's hover and press are `primary-hover` / `primary-pressed` (Black keeps 80% / 70%) and `link` is `ink`: an action, not a link inside text, so no accent.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-29: the root writes `data-variant`, so a tinted container (a status Alert) can give its
@@ -43,7 +44,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/button.tsx b/button.tsx
-index 1efb940..14ebd5b 100644
+index 1efb940..4785aa3 100644
 --- a/button.tsx
 +++ b/button.tsx
 @@ -1,57 +1,106 @@
@@ -64,7 +65,7 @@ index 1efb940..14ebd5b 100644
        variant: {
 -        default: "bg-primary text-primary-foreground hover:bg-primary/80",
 +        default:
-+          "bg-primary text-primary-foreground hover:bg-primary/80 active:not-data-disabled:bg-primary/70",
++          "bg-primary text-primary-foreground hover:bg-primary-hover active:not-data-disabled:bg-primary-pressed",
          outline:
 -          "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
 +          "state-layer border-border bg-background hover:text-foreground aria-expanded:layer-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:border-input dark:bg-input/30",
@@ -76,8 +77,9 @@ index 1efb940..14ebd5b 100644
 +          "state-layer hover:text-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground",
          destructive:
 -          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:focus-visible:ring-destructive/40",
+-        link: "text-primary underline-offset-4 hover:underline",
 +          "bg-destructive/10 text-destructive-text hover:bg-destructive/20 active:not-data-disabled:bg-destructive/25 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:active:not-data-disabled:bg-destructive/35",
-         link: "text-primary underline-offset-4 hover:underline",
++        link: "text-ink underline-offset-4 hover:underline",
        },
        size: {
          default:

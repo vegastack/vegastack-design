@@ -1,4 +1,4 @@
-// @vegastack inbox@0.123.6 sha256-mi2plHSyzV4FVX+drnml0Tt4kRzZ9c+43pUFc/s2GBI=
+// @vegastack inbox@0.123.6 sha256-51bLwttm8AkL18MCuuhAi28mCjSKT3apblGnoLKm4YQ=
 
 "use client";
 
@@ -1639,7 +1639,7 @@ export function InboxItem({
               <span
                 data-slot="inbox-item-unread"
                 aria-hidden
-                className="size-1.5 shrink-0 rounded-full bg-info"
+                className="size-1.5 shrink-0 rounded-full bg-unread"
               />
             ) : null}
             {time !== undefined ? (

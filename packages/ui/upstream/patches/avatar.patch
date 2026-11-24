@@ -1,6 +1,7 @@
 # component: avatar
-# decisions: DOC-2, TYP-14, API-32, API-44
+# decisions: DOC-2, TYP-14, API-32, API-44, COL-27
 # hunks:
+#   COL-27: the badge and the presence ring are `ink`, a neutral no accent changes; the values are what `primary` painted.
 #   cn: `import { cn } from "cn"` becomes `@vegastack/design` — our npm layer owns `cn` (DOC-2).
 #   fallback typography: all three Avatar sizes use `text-xs`; the public size API and diameter
 #                        classes remain upstream's (TYP-14, approved for issue #148).
@@ -15,7 +16,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/avatar.tsx b/avatar.tsx
-index 1eda9f0..1bb2507 100644
+index 1eda9f0..cf5166b 100644
 --- a/avatar.tsx
 +++ b/avatar.tsx
 @@ -1,15 +1,15 @@
@@ -117,7 +118,12 @@ index 1eda9f0..1bb2507 100644
  }
  
  function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
-@@ -62,24 +92,78 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
+@@ -58,28 +88,82 @@ function AvatarBadge({ className, ...props }: React.ComponentProps<"span">) {
+     <span
+       data-slot="avatar-badge"
+       className={cn(
+-        "absolute end-0 bottom-0 z-10 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground bg-blend-color ring-2 ring-background select-none",
++        "absolute end-0 bottom-0 z-10 inline-flex items-center justify-center rounded-full bg-ink text-ink-foreground bg-blend-color ring-2 ring-background select-none",
          "group-data-[size=sm]/avatar:size-2 group-data-[size=sm]/avatar:[&>svg]:hidden",
          "group-data-[size=default]/avatar:size-2.5 group-data-[size=default]/avatar:[&>svg]:size-2",
          "group-data-[size=lg]/avatar:size-3 group-data-[size=lg]/avatar:[&>svg]:size-2",
@@ -181,7 +187,7 @@ index 1eda9f0..1bb2507 100644
        className={cn(
 -        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background",
 -        className
-+        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:data-here:ring-primary",
++        "group/avatar-group flex -space-x-2 *:data-[slot=avatar]:ring-2 *:data-[slot=avatar]:ring-background *:data-[slot=avatar]:data-here:ring-ink",
 +        className,
        )}
        {...props}

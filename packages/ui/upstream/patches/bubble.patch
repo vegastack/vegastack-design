@@ -1,6 +1,7 @@
 # component: bubble
-# decisions: A11Y-2, A11Y-13, API-16, DOC-1, DOC-2, FOC-1, FOC-6, COL-24, INT-4, BRD-12
+# decisions: A11Y-2, A11Y-13, API-16, DOC-1, DOC-2, FOC-1, FOC-6, COL-24, INT-4, BRD-12, COL-27
 # hunks:
+#   COL-27: the default bubble's link hover is `primary-hover`.
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1, FOC-6: `BubbleContent` drops `[button,a]:outline-none`,
@@ -37,7 +38,7 @@
 #     hover and press instead of an opaque `hover:bg-muted` / `color-mix` fill (operator, Regent,
 #     2026-10-31).
 diff --git a/bubble.tsx b/bubble.tsx
-index 639bba1..dab8aeb 100644
+index 639bba1..0361744 100644
 --- a/bubble.tsx
 +++ b/bubble.tsx
 @@ -1,8 +1,10 @@
@@ -65,9 +66,12 @@ index 639bba1..dab8aeb 100644
  }
  
  const bubbleVariants = cva(
-@@ -22,24 +24,28 @@ const bubbleVariants = cva(
+@@ -20,26 +22,30 @@ const bubbleVariants = cva(
+     variants: {
+       variant: {
          default:
-           "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/80",
+-          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary/80",
++          "*:data-[slot=bubble-content]:bg-primary *:data-[slot=bubble-content]:text-primary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-primary-hover",
          secondary:
 -          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a):hover]:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)]",
 +          "*:data-[slot=bubble-content]:bg-secondary *:data-[slot=bubble-content]:text-secondary-foreground [&>[data-slot=bubble-content]:is(button,a)]:state-layer",

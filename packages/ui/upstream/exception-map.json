@@ -290,6 +290,16 @@
     "OVL-25": ["alert-dialog", "dialog", "drawer", "sheet"],
     "MOT-14": ["collapsible"],
     "COL-25": ["toast"],
+    "COL-27": [
+      "avatar",
+      "badge",
+      "bubble",
+      "button",
+      "empty",
+      "field",
+      "item",
+      "toast"
+    ],
     "LAY-20": ["item"],
     "FOC-15": ["questionnaire"],
     "BRD-12": [

@@ -1,4 +1,4 @@
-// @vegastack rail@0.123.2 sha256-F3XkM6f52/IltQ1cL1lbSEQPMmLK3LyZQZJlmYPNgyA=
+// @vegastack rail@0.123.2 sha256-NVBJGk89IOg1FD18VEaBj5Ge5wsAqdlmF8xfYPEtyZE=
 
 import * as React from "react";
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
@@ -172,7 +172,7 @@ export function RailItem({
     "aria-current": active ? "page" : undefined,
     "aria-label": name,
     className: cn(
-      "group/rail-item flex w-full flex-none flex-col items-center gap-0.5 pt-1 pb-1.5 text-xs font-medium text-muted-foreground no-underline outline-none data-active:text-foreground",
+      "group/rail-item flex w-full flex-none flex-col items-center gap-0.5 pt-1 pb-1.5 text-xs font-medium text-muted-foreground no-underline outline-none data-active:text-nav-selected-foreground",
       className,
       ownProps.className,
     ),
@@ -180,7 +180,7 @@ export function RailItem({
       <>
         <span
           aria-hidden="true"
-          className="grid h-7 w-9 place-items-center rounded-item transition-colors duration-instant group-hover/rail-item:bg-state-hover group-hover/rail-item:text-foreground group-focus-visible/rail-item:bg-state-hover group-data-active/rail-item:bg-state-selected"
+          className="grid h-7 w-9 place-items-center rounded-item transition-colors duration-instant group-hover/rail-item:bg-state-hover group-hover/rail-item:text-foreground group-focus-visible/rail-item:bg-state-hover group-data-active/rail-item:bg-nav-selected"
         >
           <span className="relative grid size-4.5 place-items-center [&_svg:not([class*='size-'])]:size-4.5">
             {animatedIcon ? (
@@ -193,7 +193,7 @@ export function RailItem({
             ) : dot ? (
               <span
                 data-slot="rail-dot"
-                className="absolute -top-0.5 -end-0.5 size-2 rounded-chip bg-info shadow-[0_0_0_2px_var(--sidebar)]"
+                className="absolute -top-0.5 -end-0.5 size-2 rounded-chip bg-unread shadow-[0_0_0_2px_var(--sidebar)]"
               />
             ) : null}
           </span>
@@ -288,7 +288,7 @@ export function RailTile({
       "after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:content-[''] focus-visible:after:bg-state-focus",
       shape === "avatar"
         ? "mt-2.5 size-8 rounded-chip text-xs [&_[data-slot=avatar]]:size-full"
-        : "size-9 rounded-tile bg-primary text-base text-primary-foreground",
+        : "size-9 rounded-tile bg-ink text-base text-ink-foreground",
       // A ring in the canvas, then a hairline: the tile reads as pressable without a border of its own.
       "shadow-[0_0_0_2px_var(--sidebar),0_0_0_3.5px_var(--border)] hover:shadow-[0_0_0_2px_var(--sidebar),0_0_0_3.5px_var(--input-hover)] data-popup-open:shadow-[0_0_0_2px_var(--sidebar),0_0_0_3.5px_var(--input-focus)]",
       className,

@@ -223,7 +223,7 @@
         "whenToUse": "The places in an app's module column — views, saved filters, spaces with their sections, folders, settings pages — in the shell's ShellColumn or a phone sheet.",
         "whenNotToUse": "A file browser with drag and drop (FolderTree), a page's own tabs (Tabs), or the module rail (Rail).",
         "version": "0.134.2",
-        "integrity": "sha256-19JMrigemfysoafSVIM6Y5YKflsk1MWavH/0boh9RuE="
+        "integrity": "sha256-ie98vVTfoK7wex66B9sa+q35xhi9bNOtQQd9WlMuVbg="
       }
     },
     {
@@ -294,7 +294,7 @@
         "whenToUse": "The app's modules in the shell (Shell's rail).",
         "whenNotToUse": "A module's own places (NavTree in the column), search, help or the account (the global bar), or a phone (ShellBottomBar).",
         "version": "0.123.2",
-        "integrity": "sha256-F3XkM6f52/IltQ1cL1lbSEQPMmLK3LyZQZJlmYPNgyA="
+        "integrity": "sha256-NVBJGk89IOg1FD18VEaBj5Ge5wsAqdlmF8xfYPEtyZE="
       }
     },
     {
@@ -350,7 +350,7 @@
         "whenToUse": "A page people read and write as a document (a wiki page, a spec, a public page, a version's full view): the text at a calm measure with a contents list and a comment margin when there is room, and its loading skeleton on the same grid.",
         "whenNotToUse": "A record page (RecordLayout), a form or settings page (ShellPage size=\"form\"), or a list.",
         "version": "0.123.2",
-        "integrity": "sha256-J2jdSwswtZ1iKyXM0BxaZpVzssCRVOibyTGsxKIiGcA="
+        "integrity": "sha256-tHZ15G7Zmhb35kFwcrBDy4+u9lRmPi4mbKvMolORh1o="
       }
     },
     {
@@ -474,7 +474,7 @@
         "whenToUse": "Discussion on a record's page (a task, a meeting): Linear-style thread cards (first comment, replies, a flat reply row) with the composer at the end (at the top newest first).",
         "whenNotToUse": "An activity feed or notifications — use Inbox.",
         "version": "0.123.2",
-        "integrity": "sha256-U0viU9UDhGlMQrHUTZ+01BD0fG9Pqx0XQXCZ0eqttm0="
+        "integrity": "sha256-WTTOLT6N4KXICoZftWCeGUCftSFLRp8tJhxrM6emFVM="
       }
     },
     {
@@ -510,7 +510,7 @@
         "whenToUse": "A record's history on its page (a task, a deal, a document): what changed, who changed it and when, interleaved with the comment threads.",
         "whenNotToUse": "Comments alone (Comments), a cross-record notification list (Inbox).",
         "version": "0.123.2",
-        "integrity": "sha256-Pj5czucuzKgvWkiDktJUcp29miPkLo3+zJFEpOaAH8A="
+        "integrity": "sha256-eua3pU1TOFPbuHNmqh+PjwEoHlEjcymVmrkM9JmtBD0="
       }
     },
     {
@@ -958,7 +958,7 @@
         "whenToUse": "Represent a user/entity with a photo, falling back to initials — alone or stacked in a group.",
         "whenNotToUse": "When you must fetch/resolve the image source — presentational; resolve R2/CDN keys app-side.",
         "version": "0.123.2",
-        "integrity": "sha256-qeKkPfYnhDlMjF2kVtLxOdkUUQQKQQ4mT3BDJGTJdQU="
+        "integrity": "sha256-1iLypoPiyEtetlAf7bVwA1e+4paDcqXDc++DxUPU8J0="
       }
     },
     {
@@ -1023,7 +1023,7 @@
         "whenToUse": "Label or annotate status, counts, or categories — e.g. Active, Beta, 3 New.",
         "whenNotToUse": "An action — use a Button. A Badge is a label; it can be a link through render, but never a control.",
         "version": "0.123.2",
-        "integrity": "sha256-ESSEBU1wYaSuPaGvTSX6m4w0GFXYB9sDucW7eoqnqew="
+        "integrity": "sha256-mbt3rB3wTfwR2Rt8OMJ5gI4JldmgMh6ZS6xwgeGJYD0="
       }
     },
     {
@@ -1204,7 +1204,7 @@
         "whenToUse": "The speech surface inside a Message - sent/received styling, reactions, interactive bubbles.",
         "whenNotToUse": "Non-conversational callouts - use Alert or Card.",
         "version": "0.123.2",
-        "integrity": "sha256-S5t8VyhoDMba2zTxTN4ZrsuwUvu6h/aJiFB/FBvJg2o="
+        "integrity": "sha256-C38smt1ymlQnfxpZCB4KobvPWoL/nn4tmBQHyWq91xY="
       }
     },
     {
@@ -1235,7 +1235,7 @@
         "whenToUse": "Any clickable action — submit, confirm, destructive, etc.",
         "whenNotToUse": "Navigation to a URL — style the link with buttonVariants(): <Link href className={buttonVariants({ variant, size })}>.",
         "version": "0.123.2",
-        "integrity": "sha256-Doml0QrGiAJ6a8E8sbapsbIDQiyZEx77BUEIbfnlZyQ="
+        "integrity": "sha256-aD6CIpXGA3cE0tRzJYSONAZWcAMxdM9CEAIitqH+QcA="
       }
     },
     {
@@ -1593,7 +1593,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.123.2",
-        "integrity": "sha256-s/Gc1N5LBAvOPwbwmLq4Y4qSQ1fJtU1dS+rYbn/Y/aE="
+        "integrity": "sha256-1/9K61vwJjIbdHo8U662XSTNxuCMruA4EJ6Gb8LMS/w="
       }
     },
     {
@@ -1725,7 +1725,7 @@
         "whenToUse": "Copy a short opaque value — API key, invite link, ID, snippet — with clear confirmation.",
         "whenNotToUse": "Long-form content to read/edit, or when there is no discrete value to copy.",
         "version": "0.123.2",
-        "integrity": "sha256-pnRN78PcCHvROXMyJvPJIRCuDh4k4klNWMUSxwgPvzc="
+        "integrity": "sha256-kZFOy5/bDKIYqmg/4Zamj0+1wpskmgXQoztMqrJpj3Y="
       }
     },
     {
@@ -2137,7 +2137,7 @@
         "whenToUse": "Switching between saved views of one table or list (grid and board views, shared and personal).",
         "whenNotToUse": "A layout switch between a list and a card grid of the same data (ListToolbar's Layout tool), or page sections (Tabs).",
         "version": "0.123.2",
-        "integrity": "sha256-QMrbRCZDsGyvCl755JTvPe5vhTofRW6McAGVG+5eZDc="
+        "integrity": "sha256-zDrAkIjgsVWJFehEDBdo9bSlcCY65pz6GSSujlIoIvs="
       }
     },
     {
@@ -2199,7 +2199,7 @@
         "whenToUse": "Above any list, table or board page — scope tabs (their own row), search, filter, sort, layout, display options and view actions. The page's main button is not here: it sits at the right end of the app's top bar.",
         "whenNotToUse": "A form's own controls, a record page's header actions (PageHeader), or a picker's inline search (SearchInput).",
         "version": "0.125.0",
-        "integrity": "sha256-QT82oWXk0mpXz5IQVhEVz81nKyLR2Vl4Y2oswpdmQzc="
+        "integrity": "sha256-fQ6CjnZ78iAlYzP5o74J3QdP51EJquq3HQLEYzkA1ZM="
       }
     },
     {
@@ -3097,7 +3097,7 @@
         "whenToUse": "Showing every upload in flight across the app — files and folders, progress, time left, failures and where each one lands — from the app shell, so uploads survive navigation.",
         "whenNotToUse": "Choosing files (Dropzone), an attachment inside a composer (Attachment), or a one-off short save (a toast).",
         "version": "0.123.5",
-        "integrity": "sha256-ZSru9ukbl08Mz4Nre4wtXwJuzCl0N/65vgTaUYqdqzk="
+        "integrity": "sha256-oXwxCJmOg20T/QsHIuoMDXgcAxJVrFUtPLfldwgF+Jw="
       }
     },
     {
@@ -3193,7 +3193,7 @@
         "whenToUse": "Showing or editing a typed field value — a table's cells, a row panel, a record page's custom fields — so every surface shows and edits a type the same way.",
         "whenNotToUse": "A single untyped inline edit (EditableCell), or a form field with its own validation and layout (Field + the control).",
         "version": "0.133.0",
-        "integrity": "sha256-5gR6apNg/uVB/MpEfRxtqQSrTU0ff+PnWTzArQu/m+4="
+        "integrity": "sha256-GrbfPudad7nKOkMa2tuHbd4k8Su7hVPrMRCQUaSNN1c="
       }
     },
     {
@@ -3320,7 +3320,7 @@
         "whenToUse": "When a list, table, or panel has no content — communicate the zero state and offer the next action.",
         "whenNotToUse": "While loading (skeleton/spinner) or for transient post-action feedback (toast).",
         "version": "0.123.2",
-        "integrity": "sha256-Zde7hN8UmGSVp9nqbliisOq4zeKOyy8awOYiSQMOJ14="
+        "integrity": "sha256-s7+WQc0u41coK/uDbEno0dk2WvHua0IpbdfSXod/qcU="
       }
     },
     {
@@ -3353,7 +3353,7 @@
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.123.2",
-        "integrity": "sha256-87sdScUQZY9wxXLirUqLmR2AqlnU4tPMhMvMMpx/74w="
+        "integrity": "sha256-jCISWsjs4CaRvg2eM715uQTJA5R7o6GmkoqjNqiUc3k="
       }
     },
     {
@@ -16641,7 +16641,7 @@
         "whenToUse": "The navigation pane of a file library or knowledge base — folders, pages and files in sections, with lazy folders, row menus and drag to move; and, in picker mode, the folder list of a Move dialog.",
         "whenNotToUse": "App navigation with fixed links (Sidebar), a flat list of files (AttachmentGroup layout=\"list\" or DataList), or a nested filter editor (FilterBuilder).",
         "version": "0.134.2",
-        "integrity": "sha256-WDeFgW5mHu+3aELMQ7LheGCXubl/oESJKNnF0CS93XQ="
+        "integrity": "sha256-acRprsqXBp/OfAP12xg8793Mpc2TkAvBc56VkeiQ4p0="
       }
     },
     {
@@ -16823,7 +16823,7 @@
         "whenToUse": "A row of structured content in a feed, list, or panel — a person, file, notification, or settings link — with optional media and trailing actions. Rows rendered as links or buttons can sit inside an ItemGroup (the list item moves to a wrapper), and ItemGroupLabel names a group.",
         "whenNotToUse": "Tabular/sortable data with columns (use Table or DataList) or a zero-data placeholder (use Empty).",
         "version": "0.123.2",
-        "integrity": "sha256-85kDGX4uutOP1J3jaBJjXIcKbAoE3aF/P540p24+dBI="
+        "integrity": "sha256-3Agz0Hy4JxSE8vmxgZBtOm3dJi8TW+eT7zAHQCVI4KQ="
       }
     },
     {
@@ -17184,7 +17184,7 @@
         "whenToUse": "The text of a recording - a meeting, call or interview - read alongside its player: timestamped speaker lines that follow playback, seek on click, and can be searched.",
         "whenNotToUse": "A live chat or AI thread that pins to the newest message (MessageScroller with Message), or a chronological record of events rather than speech (ActivityFeed).",
         "version": "0.130.0",
-        "integrity": "sha256-vGJxANs8RVvMPzgBK/J4OKXvFwl/G8zfyGWK0WCfk2M="
+        "integrity": "sha256-kQXOcvq0C4OMTThqN3w1h4y9sxM16Au2SNJtWupOXkU="
       }
     },
     {
@@ -17586,7 +17586,7 @@
         "whenToUse": "The notifications panel: a feed of person and system events the user reads, acts on and marks read. Put it in a Sheet, Popover or docked panel.",
         "whenNotToUse": "Toasts for transient confirmations, an activity log on a record (ActivityFeed), or a bare unread marker (NotificationDot).",
         "version": "0.123.6",
-        "integrity": "sha256-mi2plHSyzV4FVX+drnml0Tt4kRzZ9c+43pUFc/s2GBI="
+        "integrity": "sha256-51bLwttm8AkL18MCuuhAi28mCjSKT3apblGnoLKm4YQ="
       }
     },
     {
@@ -17612,7 +17612,7 @@
         "whenToUse": "Marking something unread — a row in a list, an inbox item, a nav or rail item. The row says \"unread\" in its own accessible name.",
         "whenNotToUse": "A count (use Badge) or a status (use StatusIcon).",
         "version": "0.123.2",
-        "integrity": "sha256-HtZ6Is6gD7zDlbD4drQZBemFC80d4G05CIDhliabDiE="
+        "integrity": "sha256-s3oyWewt3D7DJN2aMzoTpyggDCLKTOuZbATfvEqiGU4="
       }
     },
     {
@@ -18961,7 +18961,7 @@
         "whenToUse": "Indicate the workflow state of a task or issue — backlog, todo, in progress, in review, done, canceled, duplicate, triage — alongside a label.",
         "whenNotToUse": "Measurable progress (Progress), generic loading (Spinner), or priority (PriorityIcon).",
         "version": "0.123.2",
-        "integrity": "sha256-cl76G5hf88+xXczgCC1UstSDu54NrK2t0mGy4wdgdUY="
+        "integrity": "sha256-frp4ZIII7eZrlYg0xS0gIraRrmHIjK4uR20MB0EzweA="
       }
     },
     {
@@ -18992,7 +18992,7 @@
         "whenToUse": "Any bounded linear process — onboarding, wizards, checkout, import flows — where progress, a failed or skipped step, and a step being checked must all be communicated.",
         "whenNotToUse": "Free navigation between peer views (Tabs), or the reason a flow cannot advance — that belongs beside the control it blocks, not in the rail.",
         "version": "0.123.2",
-        "integrity": "sha256-Uow28MDQxkErX5XAw6vsrwyU6Bv2jeirOpcDoelpXUc="
+        "integrity": "sha256-gARYhPT4rJ3mggIlr3BnSaNDlJnNpJH4iZGGOLyATZE="
       }
     },
     {
@@ -19305,7 +19305,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.123.5",
-        "integrity": "sha256-L3F6aBQRlgIb3hz2hQnMLEIubT6H0bQeXzib7cBt+yI="
+        "integrity": "sha256-qorfdezpyYTVMxL2HEFdPinPHpXujj+7i1pPjy/8hN8="
       }
     },
     {
@@ -19364,7 +19364,7 @@
         "whenToUse": "Brief confirmations of an action — 'Saved', 'Copied', 'Invitation sent' — and the loading → success/error arc of an async one.",
         "whenNotToUse": "Errors the user must resolve, destructive confirmations, or essential info — use inline copy or a Dialog.",
         "version": "0.123.5",
-        "integrity": "sha256-Hm7HnluZkpaVPHXC+2gjRfW8bXkl7IxXYC+DYvVW2X0="
+        "integrity": "sha256-m2sy16JBX7Qo0V306laLg6e1og4icrvkHZV7GZxMqDE="
       }
     },
     {
@@ -19517,7 +19517,7 @@
         "whenToUse": "Listing agents people can use: the agents directory, a templates list.",
         "whenNotToUse": "A person or space directory (the app's DirectoryCard), or an agent's own page header (RecordHeader).",
         "version": "0.123.2",
-        "integrity": "sha256-2W6KCy6/kktNROXjspS7Z+HXoqP8UyGlvyoJB59YcG4="
+        "integrity": "sha256-uQASDpIGx4kYo+tV+rXvjtHHax3Nsw8ncmadSda8sUY="
       }
     },
     {
@@ -19625,7 +19625,7 @@
         "whenToUse": "A decision, answer, review, fix or suggestion waiting on one person in the Inbox's For you tab or the phone's For you page.",
         "whenNotToUse": "A notification that only informs (InboxItem), or an ask inside a chat (AskCard).",
         "version": "0.133.0",
-        "integrity": "sha256-U/t1ofNYYYpyOL+EIgORHLCW+p8u3oxInPHjhZgqVos="
+        "integrity": "sha256-uZI4NtmsMDyDxQ76jnVNwk0K9clM6AGXbEHEZV0n8yA="
       }
     },
     {
@@ -19850,7 +19850,7 @@
         "whenToUse": "A list of dated work laid out against the calendar: a space's initiatives, a roadmap, a release plan.",
         "whenNotToUse": "A step-by-step run log (RunTimeline), an activity history (ActivityFeed), or one date range (DatePicker).",
         "version": "0.126.1",
-        "integrity": "sha256-O7KQsXEtzctxUirIfmWGE/Jv3KYXHyZz0HZ4g94+amw="
+        "integrity": "sha256-DryQtM13CFRBuA5C18OgcT07lgvgCjq3iogcGjLeD6Y="
       }
     },
     {
@@ -19878,7 +19878,7 @@
         "whenToUse": "The health of an initiative or project in a row, a side panel's details or a timeline's leading slot.",
         "whenNotToUse": "A task's workflow status (StatusIcon), a run step's state (StatusGlyph), or a request's lifecycle (RequestStatusChip).",
         "version": "0.125.0",
-        "integrity": "sha256-Us9vmyg3G89uaXgP/s74SXtGj0zXyGQ0qXBYAu2dKGw="
+        "integrity": "sha256-zg3zkScLYfl4lnODF8GuTTWDWBDUjil1b5m8s8oPUEY="
       }
     },
     {
@@ -19914,7 +19914,7 @@
         "whenToUse": "The big steps of an initiative or project, in order, with their dates and progress.",
         "whenNotToUse": "A checklist of tasks (TaskList), a plain reorderable settings list (SortableList), or a timeline of dated work (Timeline).",
         "version": "0.125.0",
-        "integrity": "sha256-mWTzFv4zJ2okSD2naK3WZBP9z5CvM4hsFYDwP2EBtP0="
+        "integrity": "sha256-RwPh+SJL+gI+WMCXKWShmzobZx9DaZZzGQzt3Ly6WI8="
       }
     },
     {
@@ -19976,7 +19976,7 @@
         "whenToUse": "A mode or a choice in ChatComposer: Plan after ChatComposerAgent while it is on (data-composer-hold keeps a resting card open), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
         "version": "0.134.0",
-        "integrity": "sha256-9xvtngcVmX1MouC1/cHFCy1MAb8fmge1RhC7ABB9fZI="
+        "integrity": "sha256-sk3PSmBhoWgCbMfSg478MfRsyZyOR0ThqY0h+KwM2VI="
       }
     },
     {
@@ -20008,7 +20008,7 @@
         "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposerActionsEnd beside the model.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
         "version": "0.123.2",
-        "integrity": "sha256-DR1kbLoRBcuNkV7XcjPm7zhL1TqJQktGnbuEU7cr7wQ="
+        "integrity": "sha256-0wLNtG+WlDvDY48+9QBENMmoBuz3Vw5eEXbQdhtKENI="
       }
     },
     {
@@ -20063,7 +20063,7 @@
         "whenToUse": "The state of a chat step, task, Subagent, request or upload, in a row or a meta line.",
         "whenNotToUse": "Workflow status of a record (StatusIcon), a live loop (TextSpinner), or a pass/fail result outside agent UI (Badge).",
         "version": "0.123.2",
-        "integrity": "sha256-gCdMnHpddTqLApmcslGaCQY42XhGofJRnfjRelvi+7o="
+        "integrity": "sha256-xT5ke3xQmkfZFNZdKwNJFO+r88sCzo4OqYWWM4mGG+8="
       }
     },
     {
@@ -20259,7 +20259,7 @@
         "whenToUse": "Loading a chat thread; returning a scrolled-up reader to the latest message.",
         "whenNotToUse": "Page-level loading (Spinner).",
         "version": "0.123.2",
-        "integrity": "sha256-NI7MuN0sInspdkk+9iq8I97BjRywPxebKxFEFtyeKYc="
+        "integrity": "sha256-FWkmw3kRN/NeZkAxWbx4y4k6rVC5Yx4t7T0CSq2HW/o="
       }
     },
     {
@@ -20487,7 +20487,7 @@
         "whenToUse": "An agent asking the person to choose between options in a chat.",
         "whenNotToUse": "A form a person fills in on a page (Field, RadioGroup); a yes/no permission (ChatRequestCard).",
         "version": "0.123.2",
-        "integrity": "sha256-fpMA100r3dcT6YuYhYN1u1UK/n/aSJiRdH7EWVGL8eU="
+        "integrity": "sha256-uxqqiiv3LJtM2OjIc49hL91G5nIft9mtss8vM0e4q9g="
       }
     },
     {
@@ -20588,7 +20588,7 @@
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
         "version": "0.123.2",
-        "integrity": "sha256-lDKizRmSmqKNjcHjWE8qB9R0V4QFPmjnsnR5nG8Ae8k="
+        "integrity": "sha256-XQ5/oNUWOFH/bt+sGC8ca2tONP58um1RVyx3a0c1EC4="
       }
     },
     {
@@ -20622,7 +20622,7 @@
         "whenToUse": "An agent in plan mode proposes a plan and waits for the person's answer.",
         "whenNotToUse": "A single action to allow (AskCard), or a live checklist of work in progress (TaskList).",
         "version": "0.133.0",
-        "integrity": "sha256-R8htjN4ZxrrwpeTA5Q6HhwuyzEaIdubSZKtdjG2YsnQ="
+        "integrity": "sha256-JxtVjdRzmRIMesXlWsLslgUEXdd9C8hOLn3XykMeukk="
       }
     },
     {
@@ -20658,7 +20658,7 @@
         "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
         "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
         "version": "0.123.2",
-        "integrity": "sha256-iFfuTiBOL5KiSJFm3k7Q554P9yz2xyYSqRMrvLauXlc="
+        "integrity": "sha256-Ggn5Nyom7pVUZ/qUemme2Gr+jtgdT/A1tOgeLAxS3bk="
       }
     },
     {
@@ -20726,7 +20726,7 @@
         "whenToUse": "Talking to an agent: a chat side panel, an agent's page, a full chat, a desktop quick ask. Put + and ChatComposerAgent in ChatComposerActionsStart, the model and the memory ring in ChatComposerActionsEnd, Plan in the + menu (a pressed ComposerChip while on); pass rest so a reply box rests at one line until focused.",
         "whenNotToUse": "A comment or a reply on a record (CommentComposer), or a one-line prompt in a popover (Textarea in an InputGroup).",
         "version": "0.134.0",
-        "integrity": "sha256-X+HsfsMiB9+2DpklQ4bRUx8lAh88xq58tZ0DCNthKTk="
+        "integrity": "sha256-EScIei6BjKJnZVFq5u0ZSZDgPnX2U0olkYf9dVoqkEs="
       }
     },
     {
@@ -20829,7 +20829,7 @@
         "whenToUse": "An agent's turn, composed inside MessageContent: what it did, what it changed, where the answer came from.",
         "whenNotToUse": "The row layout (Message), a person's message (Bubble with align end) or a single tool chip on its own (ToolCallChip).",
         "version": "0.134.3",
-        "integrity": "sha256-Gd69Kg15LFH9pj0jkJlY6RQVsPoEt+NY/PZT+aKF9LY="
+        "integrity": "sha256-utDKEOkrTSjni4Ie5VI0/IzX7uC8DxqfOwFe+Ar82Kk="
       }
     },
     {
@@ -21273,7 +21273,7 @@
         "whenToUse": "Starting an app on the shell: copy it once, then move Shell into the root layout, feed its rail and column from your routes, and open records in a Peek.",
         "whenNotToUse": "You only need the shell's parts — install the shell component and compose it yourself.",
         "version": "0.133.0",
-        "integrity": "sha256-YJqFx61p0H/Iw8bioS0K9imOfRQPdOb8CALZacDh7Ow="
+        "integrity": "sha256-2MP1yFpFPH3dMBPpxhJdTN9lq3xDfL1L9wOZip6jPus="
       }
     },
     {
@@ -23932,7 +23932,7 @@
         "whenToUse": "Transactional and notification email from a server — a comment, an assignment, a daily digest, an invite or a password reset — rendered with renderEmail and sent by your mail provider.",
         "whenNotToUse": "Marketing newsletters with images and multi-column layouts, or an in-app notification — use the Inbox and Toast components.",
         "version": "0.117.0",
-        "integrity": "sha256-KorED/18aQFuflI5BVQFL2b+sS4inpRmO1I+VSLIDPQ="
+        "integrity": "sha256-xqzjRnOU0S5Hn4VbHpOnFqWuNDmw7bUBf2K9/RKmIcQ="
       }
     },
     {
@@ -24494,7 +24494,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (AskCard), or choosing the agent (DelegatePopover).",
         "version": "0.133.0",
-        "integrity": "sha256-/ClatLg4pEU89AiG38hW+qosSGzrMdNFYirAl0lsIcc="
+        "integrity": "sha256-6vwAFjZR12sZrV1gsAF7df5ZjqQQXGzFm9sr6IZP0Nk="
       }
     },
     {
@@ -24758,6 +24758,60 @@
         "whenNotToUse": "The full chat page (Agents), phones (a PeekSheet holds the chat), or any data fetching — the host owns the chat.",
         "version": "0.133.0",
         "integrity": "sha256-4zWJ4PDnz3wjT5z7TuwKc983p0xpuNYSpwIB53Zxyl4="
+      }
+    },
+    {
+      "name": "accent",
+      "type": "registry:ui",
+      "title": "Accent",
+      "description": "The accent themes: set and read the person's colour, mark it before the first paint, give one page its own, a picker of the seven and a preview.",
+      "categories": [
+        "form",
+        "settings"
+      ],
+      "dependencies": [
+        "@base-ui/react@^1.6.0",
+        "lucide-react@^1.47.0",
+        "@vegastack/design@^0.28.0",
+        "@vegastack/design-tokens@^0.28.0"
+      ],
+      "registryDependencies": [
+        "@vegastack/badge",
+        "@vegastack/button",
+        "@vegastack/checkbox",
+        "@vegastack/nav-tree",
+        "@vegastack/notification-dot",
+        "@vegastack/radio-group",
+        "@vegastack/status-icon",
+        "@vegastack/switch"
+      ],
+      "files": [
+        {
+          "path": "packages/ui/registry/ui/accent.tsx",
+          "type": "registry:ui",
+          "target": "@ui/accent.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/accent-picker.tsx",
+          "type": "registry:ui",
+          "target": "@ui/accent-picker.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/accent-preview.tsx",
+          "type": "registry:ui",
+          "target": "@ui/accent-preview.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/accent-script.tsx",
+          "type": "registry:ui",
+          "target": "@ui/accent-script.tsx"
+        }
+      ],
+      "meta": {
+        "whenToUse": "A settings page where a person or a workspace picks its colour, the root layout that paints it first, and a public page in its workspace's colour.",
+        "whenNotToUse": "Colouring data (chart tokens), labels (tags) or status; or an arbitrary brand colour (override the tokens).",
+        "version": "0.134.2",
+        "integrity": "sha256-wKpi1ZFqPX2z16XzfKwgRF9QbOS35xYY6wB/XjiNmj8="
       }
     }
   ]

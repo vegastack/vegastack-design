@@ -275,6 +275,11 @@ that catch bugs nobody can see in review.
     One named exemption: `ui/chart.tsx`'s `border-(--color-border)`, upstream's local variable
     assigned on the indicator's own style.
 
+31. **`accent-role`** (COL-27, **new 2026-11-25**) — `text-primary` in any spelling (`text-check` for a
+    done check, `text-link` for a link in text, `text-primary-text` for accent ink), and an opacity as
+    a solid fill's hover or press (`hover:bg-primary/80`, `active:bg-primary/70`): use
+    `bg-primary-hover` / `bg-primary-pressed`. A tint's own hover under 50% passes.
+
 ### Deleted by the reset, and why (do not report these)
 
 `removed-radius-xl` (BRD-6; corners are policed again since 2026-11-16, by role, in `no-radius-ramp`), `raw-control-size` (LAY-1), `raw-icon-size` and `direct-lucide-size`

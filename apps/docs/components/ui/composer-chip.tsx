@@ -1,4 +1,4 @@
-// @vegastack composer-chip@0.134.0 sha256-9xvtngcVmX1MouC1/cHFCy1MAb8fmge1RhC7ABB9fZI=
+// @vegastack composer-chip@0.134.0 sha256-sk3PSmBhoWgCbMfSg478MfRsyZyOR0ThqY0h+KwM2VI=
 
 "use client";
 
@@ -119,7 +119,7 @@ export function ComposerChip({
       onPressedChange={(next) => onPressedChange?.(next)}
       className={cn(
         CHIP,
-        "aria-pressed:border-primary/30 aria-pressed:bg-primary/10 aria-pressed:text-primary aria-pressed:**:[svg]:text-primary",
+        "aria-pressed:border-primary/30 aria-pressed:bg-primary/10 aria-pressed:text-ink aria-pressed:**:[svg]:text-ink",
         className,
       )}
       {...(props as React.ComponentProps<typeof Toggle>)}

@@ -45,6 +45,74 @@
     "$type": "color",
     "$value": "{color.neutral.900}"
   },
+  "primary-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.922, 0, 0],
+      "alpha": 0.8
+    }
+  },
+  "primary-pressed": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.922, 0, 0],
+      "alpha": 0.7
+    }
+  },
+  "primary-text": {
+    "$type": "color",
+    "$value": "{primary}"
+  },
+  "link": {
+    "$type": "color",
+    "$value": "{info-text}"
+  },
+  "link-hover": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.76, 0.124, 256],
+      "alpha": 0.88
+    }
+  },
+  "unread": {
+    "$type": "color",
+    "$value": "{info}"
+  },
+  "nav-selected": {
+    "$type": "color",
+    "$value": "{state-selected}"
+  },
+  "nav-selected-foreground": {
+    "$type": "color",
+    "$value": "{foreground}"
+  },
+  "nav-selected-icon": {
+    "$type": "color",
+    "$value": "{muted-foreground}"
+  },
+  "check": {
+    "$type": "color",
+    "$value": "{color.neutral.200}"
+  },
+  "mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.922, 0, 0],
+      "alpha": 0.15
+    }
+  },
+  "ink": {
+    "$type": "color",
+    "$value": "{color.neutral.200}"
+  },
+  "ink-foreground": {
+    "$type": "color",
+    "$value": "{color.neutral.900}"
+  },
   "secondary": {
     "$type": "color",
     "$value": "{color.neutral.800}"

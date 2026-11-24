@@ -274,10 +274,20 @@ opaque `hover:bg-muted`/`hover:bg-accent` (lint rejects it):
 // A tile inside a row: translucent, so it stays one step above the row in every state.
 <span className="size-7 rounded-tile bg-state-tile" />;
 
-// A solid steps its own fill; a status tint keeps its `-text` ink.
-<button className="bg-primary text-primary-foreground hover:bg-primary/80 active:bg-primary/70" />;
+// Navigation (rail, sidebar, folder tree) is the one selection that takes the accent.
+<a className="state-layer data-active:bg-nav-selected data-active:text-nav-selected-foreground" />;
+
+// A solid steps its own fill in real shades, never an opacity (an accent would fade); a status tint keeps its `-text` ink.
+<button className="bg-primary text-primary-foreground hover:bg-primary-hover active:bg-primary-pressed" />;
 <button className="bg-destructive/10 text-destructive-text hover:bg-destructive/20" />;
 ```
+
+**Accents (COL-27).** A person picks one of seven colours (`accent`: `AccentScript` in the root
+layout, `setAccent`, `AccentPicker`, `AccentScope` for a page with its own). Name the role, never
+`text-primary` (lint rejects it): `text-link` underlined for a link inside text, `text-primary-text`
+for accent ink, `bg-unread` for an unread dot, `text-check` for a done check, `bg-mark` for a
+highlight, `bg-ink text-ink-foreground` for a neutral solid. The last three never take the
+accent, nor do status, charts, tags, mentions and focus.
 
 Keyboard focus is base.css's soft info-hue tint (`--state-focus`), never restated. Text entry
 already shows hover (darker border), focus (`input-focus` border, no ring or glow) and read-only
@@ -403,8 +413,8 @@ contract.
 - Use `Icon`/`BrandIcon` from `@vegastack/design/icons`, or `lucide-react` directly for internal
   chrome.
 - Implement every applicable state: default, hover, focus, loading, empty, error, success, disabled.
-- Draw every check — done, selected, approved, allowed, uploaded — in `primary`
-  (`text-primary`, or `StatusGlyph`), never green; in agent UI a status hue is a glyph or words,
+- Draw every check — done, selected, approved, allowed, uploaded — in the `check` ink
+  (`text-check`, or `StatusGlyph`), never green; in agent UI a status hue is a glyph or words,
   never a fill, and a card is `ChatCard` only for something to act on or open (COL-25). The
   doctor fails on a green check.
 - In a chat, move on the chat motion set (`duration-quick|state|layout`, `ease-enter|exit`) and show

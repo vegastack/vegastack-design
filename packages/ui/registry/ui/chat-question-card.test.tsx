@@ -137,7 +137,7 @@ test("the picked option takes a primary ✓, never a radio circle; close skips",
     '[data-slot="question-option"][data-selected]',
   )!;
   expect(picked.querySelector("svg")!.getAttribute("class")).toContain(
-    "text-primary",
+    "text-check",
   );
   expect(screen.container.querySelector('input[type="radio"]')).toBeNull();
   await userEvent.click(

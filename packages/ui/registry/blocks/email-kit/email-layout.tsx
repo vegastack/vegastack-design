@@ -1,4 +1,4 @@
-// @vegastack email-kit@0.117.0 sha256-KorED/18aQFuflI5BVQFL2b+sS4inpRmO1I+VSLIDPQ=
+// @vegastack email-kit@0.117.0 sha256-xqzjRnOU0S5Hn4VbHpOnFqWuNDmw7bUBf2K9/RKmIcQ=
 
 import type { ReactNode } from "react";
 import {
@@ -12,6 +12,9 @@ import {
 } from "react-email";
 
 import {
+  emailAccent,
+  emailAccentCss,
+  emailAccentOutlookCss,
   emailColors,
   emailCss,
   emailFontFamily,
@@ -85,6 +88,12 @@ export interface EmailLayoutProps {
    * @default undefined
    */
   footer?: EmailFooter;
+  /**
+   * The workspace's accent theme (COL-27): the dark button's colour. Pass the same id to every
+   * `EmailButton` inside, which carries the light one inline. An unknown id is `black`.
+   * @default "black"
+   */
+  accent?: string | null;
   /** The card's content — compose the parts from `email-parts`. */
   children: ReactNode;
 }
@@ -111,8 +120,10 @@ export function EmailLayout({
   lang = "en",
   dir = "ltr",
   footer,
+  accent,
   children,
 }: EmailLayoutProps) {
+  const theme = emailAccent(accent);
   const isDefaultNote = footer?.note === undefined;
   const noteText = isDefaultNote ? "Sent with VegaStack" : footer?.note;
   const noteHref = footer?.noteHref;
@@ -160,8 +171,14 @@ export function EmailLayout({
         <meta name="color-scheme" content="light dark" />
         <meta name="supported-color-schemes" content="light dark" />
         <title>{title ?? preview}</title>
-        <style dangerouslySetInnerHTML={{ __html: emailCss }} />
-        <style dangerouslySetInnerHTML={{ __html: emailOutlookCss }} />
+        <style
+          dangerouslySetInnerHTML={{ __html: emailCss + emailAccentCss[theme] }}
+        />
+        <style
+          dangerouslySetInnerHTML={{
+            __html: emailOutlookCss + emailAccentOutlookCss[theme],
+          }}
+        />
       </Head>
       <body
         lang={lang}

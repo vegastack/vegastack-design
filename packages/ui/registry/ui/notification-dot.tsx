@@ -1,4 +1,4 @@
-// @vegastack notification-dot@0.123.2 sha256-HtZ6Is6gD7zDlbD4drQZBemFC80d4G05CIDhliabDiE=
+// @vegastack notification-dot@0.123.2 sha256-s3oyWewt3D7DJN2aMzoTpyggDCLKTOuZbATfvEqiGU4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -9,7 +9,7 @@ export interface NotificationDotProps extends Omit<
   "children"
 > {
   /**
-   * The dot's fill. `default` is the info blue, for "unread" on a row or a
+   * The dot's fill. `default` is the `unread` ink (blue, or the accent: COL-27), for "unread" on a row or a
    * nav item; `destructive` is for something that needs attention.
    * @default "default"
    */
@@ -45,7 +45,7 @@ export function NotificationDot({
       aria-hidden="true"
       className={cn(
         "inline-block size-2 shrink-0 rounded-full",
-        intent === "destructive" ? "bg-destructive" : "bg-info",
+        intent === "destructive" ? "bg-destructive" : "bg-unread",
         className,
       )}
       {...props}

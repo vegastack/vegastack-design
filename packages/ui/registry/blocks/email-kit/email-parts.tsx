@@ -1,10 +1,16 @@
-// @vegastack email-kit@0.117.0 sha256-KorED/18aQFuflI5BVQFL2b+sS4inpRmO1I+VSLIDPQ=
+// @vegastack email-kit@0.117.0 sha256-xqzjRnOU0S5Hn4VbHpOnFqWuNDmw7bUBf2K9/RKmIcQ=
 
 import { Fragment } from "react";
 import type { ReactNode } from "react";
 import { Button, Heading, Hr, Link, Section, Text } from "react-email";
 
-import { emailColors, emailFontFamily, emailRadius } from "./email-tokens";
+import {
+  emailAccent,
+  emailAccents,
+  emailColors,
+  emailFontFamily,
+  emailRadius,
+} from "./email-tokens";
 
 const c = emailColors.light;
 // Set on every text element: classic Outlook does not reliably inherit a font through tables.
@@ -120,6 +126,11 @@ export interface EmailButtonProps {
   href: string;
   /** The action, verb first: "View comment", "Open page", "Review request". */
   children: ReactNode;
+  /**
+   * The workspace's accent theme (COL-27), on the button. An unknown id is `black`.
+   * @default "black"
+   */
+  accent?: string | null;
 }
 
 /**
@@ -129,17 +140,18 @@ export interface EmailButtonProps {
  * @example
  * <EmailButton href="https://acme.example/tasks/42#comment-7">View comment</EmailButton>
  */
-export function EmailButton({ href, children }: EmailButtonProps) {
+export function EmailButton({ href, children, accent }: EmailButtonProps) {
+  const fill = emailAccents[emailAccent(accent)].light;
   return (
     <Section style={{ padding: "8px 0 8px" }}>
       <Button
         href={href}
         className="vs-button"
         style={{
-          backgroundColor: c.buttonBg,
-          border: `1px solid ${c.buttonBg}`,
+          backgroundColor: fill.bg,
+          border: `1px solid ${fill.bg}`,
           borderRadius: emailRadius.control,
-          color: c.buttonText,
+          color: fill.text,
           fontFamily: font,
           fontSize: "15px",
           fontWeight: 600,

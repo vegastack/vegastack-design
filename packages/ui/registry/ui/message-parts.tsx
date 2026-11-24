@@ -1,4 +1,4 @@
-// @vegastack message-parts@0.134.3 sha256-Gd69Kg15LFH9pj0jkJlY6RQVsPoEt+NY/PZT+aKF9LY=
+// @vegastack message-parts@0.134.3 sha256-utDKEOkrTSjni4Ie5VI0/IzX7uC8DxqfOwFe+Ar82Kk=
 
 "use client";
 
@@ -151,7 +151,7 @@ const STEP_STATUS_LABELS: Record<MessageStepStatus, string> = {
 const STEP_ICONS: Record<MessageStepStatus, React.ReactNode> = {
   pending: <Circle aria-hidden className="text-muted-foreground/50" />,
   running: <Spinner aria-hidden role={undefined} aria-label={undefined} />,
-  done: <Check aria-hidden className="text-primary" />,
+  done: <Check aria-hidden className="text-check" />,
   failed: <X aria-hidden className="text-muted-foreground" />,
   stopped: <Minus aria-hidden />,
 };
@@ -244,7 +244,7 @@ const PLAN_ICONS: Record<MessagePlanItemState, React.ReactNode> = {
       className="size-3.5"
     />
   ),
-  done: <CircleCheck aria-hidden className="text-primary" />,
+  done: <CircleCheck aria-hidden className="text-check" />,
   failed: <CircleX aria-hidden className="text-muted-foreground" />,
   stopped: <CircleMinus aria-hidden className="text-muted-foreground" />,
 };

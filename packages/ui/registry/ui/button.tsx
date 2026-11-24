@@ -1,4 +1,4 @@
-// @vegastack button@0.123.2 sha256-Doml0QrGiAJ6a8E8sbapsbIDQiyZEx77BUEIbfnlZyQ=
+// @vegastack button@0.123.2 sha256-aD6CIpXGA3cE0tRzJYSONAZWcAMxdM9CEAIitqH+QcA=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -12,7 +12,7 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/80 active:not-data-disabled:bg-primary/70",
+          "bg-primary text-primary-foreground hover:bg-primary-hover active:not-data-disabled:bg-primary-pressed",
         outline:
           "state-layer border-border bg-background hover:text-foreground aria-expanded:layer-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground dark:border-input dark:bg-input/30",
         secondary:
@@ -21,7 +21,7 @@ const buttonVariants = cva(
           "state-layer hover:text-foreground aria-expanded:bg-state-selected aria-expanded:text-foreground [&_svg:not([class*='text-']):not([data-icon-tone])]:text-muted-foreground hover:**:[svg:not([data-icon-tone])]:text-foreground aria-expanded:**:[svg:not([data-icon-tone])]:text-foreground",
         destructive:
           "bg-destructive/10 text-destructive-text hover:bg-destructive/20 active:not-data-disabled:bg-destructive/25 dark:bg-destructive/20 dark:hover:bg-destructive/30 dark:active:not-data-disabled:bg-destructive/35",
-        link: "text-primary underline-offset-4 hover:underline",
+        link: "text-ink underline-offset-4 hover:underline",
       },
       size: {
         default:

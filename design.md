@@ -14,20 +14,20 @@ generated:
       sha256: "6ecea2bf4a2bf6783d1f53da37057218b37d209be9d7aa6d69b569c813fd24d8"
     config:
       path: "tooling/design-md.config.mjs"
-      bytes: 3261
-      sha256: "c286358b9be7c51acde436068509b2a2f8363d7624421e258d9023717259bbfc"
+      bytes: 3297
+      sha256: "881f0dd8ef6a0dabda835a7d8d29224084b63dc65941c2ce473d488952aba85d"
     primitives:
       path: "packages/design-tokens/tokens/primitives.tokens.json"
       bytes: 3105
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 44318
-      sha256: "57464c19d9e8e8cc9456bc6bce152d6f35c9b0f96ddec0e179c10497f2e6ab74"
+      bytes: 47529
+      sha256: "405f67f4919abf63f0dd44764bcaf5fef1464a20496ea83fc20df019f97e56a2"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 14922
-      sha256: "57edf246f371bde767da73a07841ca047acfb717d768c9136b1f7339e2f89050"
+      bytes: 16224
+      sha256: "3597de71d3941d5fba798c478f6d64b0114a3c0651030bb8d4ad4a4e12e11cf8"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -104,6 +104,10 @@ themes:
       type: "color"
       value: "oklch(0.145 0 0 / 0.1)"
       description: "COL-25: the chat card's hairline, guide lines inside a fold and dividers inside a card — the foreground at 10%, the same formula in both themes. Read it as `border-chat-hairline` / `bg-chat-hairline`."
+    check:
+      type: "color"
+      value: "oklch(0.205 0 0)"
+      description: "COL-27: a done or success check. The ink `primary` had before accents; no accent ever changes it."
     corner-block:
       type: "dimension"
       value: "0.75rem"
@@ -263,6 +267,14 @@ themes:
     info-text:
       type: "color"
       value: "oklch(0.456 0.156 256)"
+    ink:
+      type: "color"
+      value: "oklch(0.205 0 0)"
+      description: "COL-27: the neutral strong fill (a workspace's tile, an avatar badge, a changed or filter-on dot, the Gray swatch). What `primary` was before accents; no accent ever changes it."
+    ink-foreground:
+      type: "color"
+      value: "oklch(0.985 0 0)"
+      description: "COL-27: the label on `ink`."
     input:
       type: "color"
       value: "oklch(0.88 0 0)"
@@ -275,6 +287,18 @@ themes:
       type: "color"
       value: "oklch(0.145 0 0 / 0.31)"
       description: "FOC-16 (ours, operator 2026-10-31): text entry's hover border — the middle step between `input` at rest and `input-focus` (2.10:1 on the page)."
+    link:
+      type: "color"
+      value: "oklch(0.456 0.156 256)"
+      description: "COL-27: a link inside running text, always underlined. Black: `info-text` (blue, as before). An accent: `primary-text`."
+    link-hover:
+      type: "color"
+      value: "oklch(0.456 0.156 256 / 0.88)"
+      description: "COL-27: a text link under the pointer. Black: `link` at 88%, as before. An accent: `primary-hover` in light, `primary-text` in dark, so it never falls under AA."
+    mark:
+      type: "color"
+      value: "oklch(0.205 0 0 / 0.15)"
+      description: "COL-27: the highlight behind a found or marked phrase. `primary` at 15% as it was before accents; no accent ever changes it."
     media-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -310,6 +334,18 @@ themes:
     muted-foreground:
       type: "color"
       value: "oklch(0.5 0 0)"
+    nav-selected:
+      type: "color"
+      value: "oklch(0.145 0 0 / 0.08)"
+      description: "COL-27: the selected row of navigation (rail, sidebar, folder tree), never a tab, chip, menu item or table row (those are `state-selected`). Black: `state-selected`. An accent: the fill at 10% light, 20% dark."
+    nav-selected-foreground:
+      type: "color"
+      value: "oklch(0.145 0 0)"
+      description: "COL-27: the label on `nav-selected`. Black: `foreground`. An accent: `primary-text`."
+    nav-selected-icon:
+      type: "color"
+      value: "oklch(0.5 0 0)"
+      description: "COL-27: the icon on `nav-selected`. Black: `muted-foreground`. An accent: `primary-text`."
     popover:
       type: "color"
       value: "oklch(1 0 0)"
@@ -330,6 +366,18 @@ themes:
     primary-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
+    primary-hover:
+      type: "color"
+      value: "oklch(0.205 0 0 / 0.8)"
+      description: "COL-27: the hover fill of a primary control. Black: `primary` at 80%, exactly the `hover:bg-primary/80` it replaces. An accent: a real darker shade."
+    primary-pressed:
+      type: "color"
+      value: "oklch(0.205 0 0 / 0.7)"
+      description: "COL-27: the pressed fill of a primary control. Black: `primary` at 70%. An accent: one further darker step."
+    primary-text:
+      type: "color"
+      value: "oklch(0.205 0 0)"
+      description: "COL-27: the accent as readable ink on a neutral surface or on its own 10%/20% tint. Never a done check (`check`) and never a link in text (`link`)."
     radius:
       type: "dimension"
       value: "0.625rem"
@@ -569,6 +617,10 @@ themes:
     tag-yellow-text:
       type: "color"
       value: "oklch(0.51 0.1 86)"
+    unread:
+      type: "color"
+      value: "oklch(0.55 0.19 256)"
+      description: "COL-27: an unread dot or bar (non-text). Black: `info`. An accent: its fill in light, `primary-text` in dark."
     warning:
       type: "color"
       value: "oklch(0.55 0.12 70)"
@@ -640,6 +692,9 @@ themes:
     chat-hairline:
       type: "color"
       value: "oklch(0.985 0 0 / 0.1)"
+    check:
+      type: "color"
+      value: "oklch(0.922 0 0)"
     corner-block:
       type: "dimension"
       value: "0.75rem"
@@ -794,6 +849,12 @@ themes:
     info-text:
       type: "color"
       value: "oklch(0.76 0.124 256)"
+    ink:
+      type: "color"
+      value: "oklch(0.922 0 0)"
+    ink-foreground:
+      type: "color"
+      value: "oklch(0.205 0 0)"
     input:
       type: "color"
       value: "oklch(1 0 0 / 0.15)"
@@ -805,6 +866,15 @@ themes:
       type: "color"
       value: "oklch(0.985 0 0 / 0.25)"
       description: "FOC-16: the dark half of text entry's hover border (2.10:1 on the page)."
+    link:
+      type: "color"
+      value: "oklch(0.76 0.124 256)"
+    link-hover:
+      type: "color"
+      value: "oklch(0.76 0.124 256 / 0.88)"
+    mark:
+      type: "color"
+      value: "oklch(0.922 0 0 / 0.15)"
     media-foreground:
       type: "color"
       value: "oklch(0.985 0 0)"
@@ -840,6 +910,15 @@ themes:
     muted-foreground:
       type: "color"
       value: "oklch(0.708 0 0)"
+    nav-selected:
+      type: "color"
+      value: "oklch(0.985 0 0 / 0.07)"
+    nav-selected-foreground:
+      type: "color"
+      value: "oklch(0.985 0 0)"
+    nav-selected-icon:
+      type: "color"
+      value: "oklch(0.708 0 0)"
     popover:
       type: "color"
       value: "oklch(0.205 0 0)"
@@ -858,6 +937,15 @@ themes:
     primary-foreground:
       type: "color"
       value: "oklch(0.205 0 0)"
+    primary-hover:
+      type: "color"
+      value: "oklch(0.922 0 0 / 0.8)"
+    primary-pressed:
+      type: "color"
+      value: "oklch(0.922 0 0 / 0.7)"
+    primary-text:
+      type: "color"
+      value: "oklch(0.922 0 0)"
     radius:
       type: "dimension"
       value: "0.625rem"
@@ -1085,6 +1173,9 @@ themes:
     tag-yellow-text:
       type: "color"
       value: "oklch(0.75 0.13 86)"
+    unread:
+      type: "color"
+      value: "oklch(0.72 0.15 256)"
     warning:
       type: "color"
       value: "oklch(0.75 0.15 70)"
@@ -1098,6 +1189,8 @@ recipes:
   button-primary:
     background: "{primary}"
     foreground: "{primary-foreground}"
+    hover: "{primary-hover}"
+    pressed: "{primary-pressed}"
     radius: "{radius}"
     typography: "text-sm/500"
   button-secondary:
@@ -1217,8 +1310,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 263 rows, 105 resolved as
-**shadcn** (upstream ships unchanged) and 158 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 264 rows, 105 resolved as
+**shadcn** (upstream ships unchanged) and 159 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1374,7 +1467,7 @@ FRM-4 · FRM-15`
 
 ### 4. Tokens and semantics we add
 
-`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · COL-25 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 · TYP-21 ·
+`COL-12 · COL-18 · COL-20 · COL-22 · COL-23 · COL-25 · COL-27 · TYP-10 · TYP-14 · TYP-15 · TYP-16 · TYP-17 · TYP-18 · TYP-21 ·
 ICO-1 · ICO-3 · ICO-6 · ICO-8`
 
 Four status families written in upstream's own `destructive` shape (COL-12); a status hue means
@@ -1597,20 +1690,21 @@ shadcn's `neutral` base is adopted verbatim — `background`, `foreground`, `car
 `primary`, `secondary`, `muted`, `accent`, `destructive`, `border`, `input`, `ring`, `radius` and the
 seven `sidebar-*` tokens all carry upstream's values. On top of it:
 
-| Family                                                     | Why it exists                                                                                                                                                                                                                                                                                                                       | Gate                                                                                             |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| `info` · `success` · `warning`, each `-foreground`/`-text` | Upstream ships only `destructive`. A product surface needs four status families, written in upstream's own shape (COL-12)                                                                                                                                                                                                           | `contrast-check.mjs`, both themes, on every surface and tint                                     |
-| `destructive-text`                                         | The page-readable half of upstream's own family. `destructive` is tuned to carry `-foreground` on top of it, not to be read as ink (A11Y-13)                                                                                                                                                                                        | same                                                                                             |
-| `chart-1 … chart-8`, `chart-single`                        | shadcn's `neutral` base ships a **greyscale** chart ramp, which cannot carry a two-series chart. Kept and retuned; `chart-1…5` keep upstream's names so upstream's own chart blocks resolve unchanged (MK, 2026-09-18)                                                                                                              | 3:1 (WCAG 1.4.11) on `background`, `card` and `muted`, both themes                               |
-| `tag-<hue>` × 10, each `-subtle`/`-text`                   | The decorative label palette behind `Chip`/`Tag` — categorical identity, never status                                                                                                                                                                                                                                               | `contrast-check.mjs`                                                                             |
-| `brand`, `brand-text`                                      | The phosphor-green marker accent and its page-readable ink. A marker role only — never a functional state colour, and `brand` is not a text ink                                                                                                                                                                                     | `contrast-check.mjs`                                                                             |
-| `media-scrim`, `media-scrim-strong`, `media-foreground`    | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                                                                                                                                         | `media-chrome.browser.test.tsx` on compiled CSS                                                  |
-| `glass-ink`, `glass-ink-muted`, `glass-edge`, `glass-dim`  | Desktop only (operator 2026-11-14): text and edge for a window on native OS glass, read through `surface-glass`, which is transparent only under `data-native-glass` and opaque `popover` otherwise, under Reduce Transparency and under Increase Contrast. Never a CSS blur in a web page; the retired frosted glass stays retired | `contrast-check.mjs` (fallback + modelled worst-case backdrop), `surface-glass.browser.test.tsx` |
-| `popover-raised`, `popover-border`                         | The fill and edge of an anchored popup or floating bar (read through `surface-popup` and `border-popover-border`), so a popup over a dialog reads as raised in dark: 0.225 L there; white in light. The edge is the `border` hairline in both themes (BRD-1, Regent F32; operator 2026-11-22)                                       | `contrast-check.mjs` § 4a (dark), `verify-theme-parity`                                          |
-| `duration-*`, `motion-ease-*`                              | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                                                                                                                                          | `verify-token-references`                                                                        |
-| `chat-card`, `chat-hairline`                               | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and the `card` corner (BRD-12), the same formula in both themes, no shadow (COL-25)                                                                                                                                  | `verify-theme-parity`, `design-lint`                                                             |
-| `duration-instant … loader-dots`, `motion-ease-enter`      | The chat motion set: hover, quick (menus, a check appearing), state (folds), layout (arrivals), the streamed-word fade and the loader cadences; all 0ms under reduced motion (MOT-14)                                                                                                                                               | `design-lint` `chat-motion-tokens`                                                               |
-| `font-family-*`                                            | Geist Sans / Geist Mono (TYP-10)                                                                                                                                                                                                                                                                                                    | `verify-theme-parity`                                                                            |
+| Family                                                                                                   | Why it exists                                                                                                                                                                                                                                                                                                                       | Gate                                                                                             |
+| -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| `info` · `success` · `warning`, each `-foreground`/`-text`                                               | Upstream ships only `destructive`. A product surface needs four status families, written in upstream's own shape (COL-12)                                                                                                                                                                                                           | `contrast-check.mjs`, both themes, on every surface and tint                                     |
+| `destructive-text`                                                                                       | The page-readable half of upstream's own family. `destructive` is tuned to carry `-foreground` on top of it, not to be read as ink (A11Y-13)                                                                                                                                                                                        | same                                                                                             |
+| `chart-1 … chart-8`, `chart-single`                                                                      | shadcn's `neutral` base ships a **greyscale** chart ramp, which cannot carry a two-series chart. Kept and retuned; `chart-1…5` keep upstream's names so upstream's own chart blocks resolve unchanged (MK, 2026-09-18)                                                                                                              | 3:1 (WCAG 1.4.11) on `background`, `card` and `muted`, both themes                               |
+| `tag-<hue>` × 10, each `-subtle`/`-text`                                                                 | The decorative label palette behind `Chip`/`Tag` — categorical identity, never status                                                                                                                                                                                                                                               | `contrast-check.mjs`                                                                             |
+| `brand`, `brand-text`                                                                                    | The phosphor-green marker accent and its page-readable ink. A marker role only — never a functional state colour, and `brand` is not a text ink                                                                                                                                                                                     | `contrast-check.mjs`                                                                             |
+| `media-scrim`, `media-scrim-strong`, `media-foreground`                                                  | Chrome laid over video must not flip with the page theme. Dark scrim, light ink, identically in both themes                                                                                                                                                                                                                         | `media-chrome.browser.test.tsx` on compiled CSS                                                  |
+| `glass-ink`, `glass-ink-muted`, `glass-edge`, `glass-dim`                                                | Desktop only (operator 2026-11-14): text and edge for a window on native OS glass, read through `surface-glass`, which is transparent only under `data-native-glass` and opaque `popover` otherwise, under Reduce Transparency and under Increase Contrast. Never a CSS blur in a web page; the retired frosted glass stays retired | `contrast-check.mjs` (fallback + modelled worst-case backdrop), `surface-glass.browser.test.tsx` |
+| `popover-raised`, `popover-border`                                                                       | The fill and edge of an anchored popup or floating bar (read through `surface-popup` and `border-popover-border`), so a popup over a dialog reads as raised in dark: 0.225 L there; white in light. The edge is the `border` hairline in both themes (BRD-1, Regent F32; operator 2026-11-22)                                       | `contrast-check.mjs` § 4a (dark), `verify-theme-parity`                                          |
+| `primary-hover/-pressed/-text`, `link`, `link-hover`, `unread`, `nav-selected*`, `check`, `mark`, `ink*` | The roles an accent theme re-points (or never does: `check`, `mark`, `ink`), so one attribute recolours the product (COL-27)                                                                                                                                                                                                        | `contrast-check.mjs` § 10 (7 × 2), `verify-theme-parity` (Black unchanged)                       |
+| `duration-*`, `motion-ease-*`                                                                            | The values the `motion-*` utilities consume (MOT-6, MOT-7)                                                                                                                                                                                                                                                                          | `verify-token-references`                                                                        |
+| `chat-card`, `chat-hairline`                                                                             | The one card surface in agent UI, for what a person acts on or opens: the foreground at 3% with a 10% hairline and the `card` corner (BRD-12), the same formula in both themes, no shadow (COL-25)                                                                                                                                  | `verify-theme-parity`, `design-lint`                                                             |
+| `duration-instant … loader-dots`, `motion-ease-enter`                                                    | The chat motion set: hover, quick (menus, a check appearing), state (folds), layout (arrivals), the streamed-word fade and the loader cadences; all 0ms under reduced motion (MOT-14)                                                                                                                                               | `design-lint` `chat-motion-tokens`                                                               |
+| `font-family-*`                                                                                          | Geist Sans / Geist Mono (TYP-10)                                                                                                                                                                                                                                                                                                    | `verify-theme-parity`                                                                            |
 
 **Status colour has two inks, and this is the rule most often got wrong.** `-foreground` is the ink
 **on the solid fill**. `-text` is the ink **on the page and on the family's own `/10`–`/30` tint**.
@@ -1651,8 +1745,8 @@ sidebar and muted, in both themes:
 | text entry                         | `input` → `--input-hover` border on hover → `--input-focus` border on focus (no ring or glow); `--readonly` fill on a transparent border when read-only | the component's own classes                                                                  |
 
 **Status in agent UI is one quiet language (COL-25; operator 2026-11-13, agent chat ground up).**
-Every check — done, selected, approved, allowed, remembered, uploaded — is `primary`
-(`text-primary`: a near-black circle-check in light, a near-white one in dark) and never green; pending ◌, skipped ⊘ and failed ✗ are `muted-foreground`, failed
+Every check — done, selected, approved, allowed, remembered, uploaded — is the `check` ink
+(`text-check`: a near-black circle-check in light, a near-white one in dark) and never green; pending ◌, skipped ⊘ and failed ✗ are `muted-foreground`, failed
 always with words; ⚠ (needs you, partial, a cost warning) is `warning-text` as a glyph only.
 `success`, `warning` and `destructive` are never a fill in agent UI (the destructive Button excepted)
 and never the ink of a check. `StatusGlyph` draws the six states; `design-lint` (`no-success-check`,
@@ -1681,13 +1775,34 @@ log does (`RunTimeline`), with one live bolt for the run, never one per row; a d
 `DelegateRow` in a member row's anatomy, and cover is said once, as a `CoverageBanner`.
 
 **Work over time keeps the same quiet language (AI teammates P4.2).** How work is going is a
-`HealthIndicator`: a glyph and its words (On track in primary, At risk and Off track in the warning
+`HealthIndicator`: a glyph and its words (On track in the `check` ink, At risk and Off track in the warning
 and destructive inks as glyphs, No update grey), never a fill. A `Timeline` colours its bars by the
 work's status only — active the solid ink, planned an outline, paused and completed stepped back,
 canceled faded — and carries health as that glyph in its leading slot; it scrolls sideways inside
 its own box and becomes a list grouped by month under 40rem. Milestones are diamonds everywhere
-(`MilestoneList`, the timeline's markers): filled primary when done, hollow while open, hollow in
+(`MilestoneList`, the timeline's markers): filled `ink` when done, hollow while open, hollow in
 the warning ink once late.
+
+**An accent is one person's colour, and it means "yours", never "good" (COL-27; operator
+25-11-2026).** Seven accents — Black (the default), Blue, Violet, Pink, Orange, Green, Teal — are one
+attribute, `data-accent`, on `<html>` or on any element, over concrete values from one file
+(`tokens/accents.tokens.json`). Black changes nothing: every role's Black value is what its
+components painted before, and `verify-theme-parity` holds it. Each use names its role:
+
+| role                                             | utility                                                       | takes the accent on                                                                        |
+| ------------------------------------------------ | ------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `primary`, `-foreground`, `-hover`, `-pressed`   | `bg-primary hover:bg-primary-hover active:bg-primary-pressed` | primary and send buttons, chosen controls, progress, drop targets                          |
+| `primary-text`                                   | `text-primary-text`                                           | accent ink on page or tint; an unread dot that is black today                              |
+| `link`, `link-hover`                             | `text-link underline`                                         | a link inside text, always underlined; titles, breadcrumbs, cells and mentions are neutral |
+| `unread`                                         | `bg-unread`                                                   | unread dots and bars (Black: blue); the Help dot stays `info`                              |
+| `nav-selected`, `-foreground`, `-icon`           | `bg-nav-selected text-nav-selected-foreground`                | the selected row of navigation; tabs, chips, menus, table rows stay `state-selected`       |
+| `check`, `mark`, `ink`, `ink-foreground` (never) | `text-check`, `bg-mark`, `bg-ink`                             | nothing: done checks, highlights, neutral solids                                           |
+
+Status, charts, tags, mentions, focus and destructive never take it; print is neutral. A hover or
+press is a real shade, never an opacity, so a coloured label keeps AA (`design-lint` `accent-role`).
+`contrast-check.mjs` measures all seven in both modes. `setAccent`, `useAccent`, `AccentScript`,
+`AccentScope`, `AccentPicker` and `AccentPreview` are the `accent` component; in the product it is called
+"Colour", never "accent", and the option that follows the workspace is "Workspace theme"; Foundations › Accent has the values.
 
 A rest fill never carries state, and no part swaps an inner tile's fill on its row's hover. A row's
 fill sits 8px inside its container (LAY-20: `ItemGroup variant="flush"`, the Inbox list); menus keep
@@ -1696,7 +1811,8 @@ their 4px, and table rows stay full-bleed. `surfaceInteractive`, `fillInteractiv
 token CSS, so a consumer gets it with the preset.
 
 **Overriding a token** is one runtime variable in a consumer's global CSS — `:root { --primary: … }`
-— and every component repaints in both themes. Never override a `--color-*` variable: that is the
+— and every component repaints in both themes (with `--primary`, override `--primary-hover`,
+`--primary-pressed` and `--primary-text` too: they are their own values). Never override a `--color-*` variable: that is the
 build-inlined Tailwind bridge, not the runtime contract.
 
 ## Corners — the shape says what it is (BRD-12)

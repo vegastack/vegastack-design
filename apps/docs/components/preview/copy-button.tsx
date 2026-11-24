@@ -12,7 +12,7 @@ export function copyButton(): ReactNode {
   return (
     <Wrapper>
       {/* Idle shows the Copy icon; pressing copies and flips to a Check tinted
-          text-primary for ~1.5s. The copied state is owned internally by the
+          text-check for ~1.5s. The copied state is owned internally by the
           component — both states are exercised on this live instance, no
           doc-local state hack. */}
       <code className="rounded-inline border border-border bg-muted px-2 py-1 font-mono text-sm">
@@ -48,7 +48,7 @@ export function copyButtonStates(): ReactNode {
       </div>
       {/* Copied — the primary tint + label flip are owned internally and only
           appear after a real clipboard write, so this is a labelled live cell:
-          click it to see the Check icon (text-primary) + "Copied" label for ~1.5s. */}
+          click it to see the Check icon (text-check) + "Copied" label for ~1.5s. */}
       <div className="flex flex-col items-center gap-2">
         <CopyButton value="click me to see the copied state" />
         <span className="text-xs text-muted-foreground">
