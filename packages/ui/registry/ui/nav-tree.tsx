@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.123.2 sha256-vUGsihDDcQz+Dp267LX4Nlt2bNSKfqXAMgPzEVAL8DM=
+// @vegastack nav-tree@0.123.2 sha256-DUEsZBuM76FatR2uxbQ2jyRM84qENTzfHYx5LNpzBek=
 
 "use client";
 
@@ -57,6 +57,13 @@ function step(rows: HTMLElement[], from: number, by: 1 | -1) {
     if (enabled(rows[i]!)) return rows[i];
   return undefined;
 }
+
+/**
+ * While the action shows over a label's end, the label fades out before it (`--nav-tree-fade` is how
+ * much of the label the action covers). A mask, so it reads on any row fill.
+ */
+const FADE =
+  "[--nav-tree-mask:linear-gradient(to_left,transparent_var(--nav-tree-fade),black_calc(var(--nav-tree-fade)+--spacing(6)))] rtl:[--nav-tree-mask:linear-gradient(to_right,transparent_var(--nav-tree-fade),black_calc(var(--nav-tree-fade)+--spacing(6)))] pointer-fine:group-focus-within/nav-tree-row:[mask-image:var(--nav-tree-mask)] pointer-fine:group-hover/nav-tree-row:[mask-image:var(--nav-tree-mask)] pointer-fine:group-has-data-popup-open/nav-tree-row:[mask-image:var(--nav-tree-mask)]";
 
 function rowOf(el: Element | null): HTMLElement | null {
   const li = el?.closest<HTMLElement>('[data-slot="nav-tree-row"]');
@@ -210,7 +217,7 @@ export interface NavTreeItemProps extends Omit<
   count?: number | string;
   /** Whether this is the current place. @default false */
   active?: boolean;
-  /** An action shown on hover and focus in the count's place (a ⋯ menu). @default undefined */
+  /** An action shown on hover, focus and while its menu is open, in the count's place (a ⋯ menu); the label fades out before it. @default undefined */
   action?: React.ReactNode;
   /** Child items: the item becomes a parent that folds, its children one step in under it. @default undefined */
   children?: React.ReactNode;
@@ -319,20 +326,36 @@ export function NavTreeItem({
       parent && "pe-8",
       // On touch the action always shows at the row's end: the label keeps clear of it.
       action && (parent ? "pointer-coarse:pe-14" : "pointer-coarse:pe-8"),
+      // Lit while the pointer is on its action and while the action's menu is open.
+      action &&
+        !active &&
+        "group-hover/nav-tree-row:not-focus-visible:not-active:not-disabled:not-aria-disabled:layer-hover group-has-data-popup-open/nav-tree-row:not-focus-visible:not-active:not-disabled:not-aria-disabled:layer-hover",
       className,
       own.className,
     ),
     children: (
       <>
         {depth === 0 ? icon : null}
-        <span className="min-w-0 flex-1 truncate">{label}</span>
+        <span
+          data-slot="nav-tree-label"
+          className={cn(
+            "min-w-0 flex-1 truncate",
+            action && FADE,
+            action &&
+              (shown
+                ? "[--nav-tree-fade:--spacing(2)]"
+                : "[--nav-tree-fade:--spacing(5)]"),
+          )}
+        >
+          {label}
+        </span>
         {shown ? (
           <span
             data-slot="nav-tree-count"
             className={cn(
               "flex-none text-xs font-normal text-muted-foreground tabular-nums",
               action &&
-                "group-focus-within/nav-tree-row:invisible group-hover/nav-tree-row:invisible pointer-coarse:invisible",
+                "group-focus-within/nav-tree-row:invisible group-hover/nav-tree-row:invisible group-has-data-popup-open/nav-tree-row:invisible pointer-coarse:invisible",
             )}
           >
             {countText(count!)}
@@ -354,8 +377,9 @@ export function NavTreeItem({
           <span
             data-slot="nav-tree-action"
             className={cn(
-              // Shown on hover and focus; always on touch, where there is no hover to reveal it.
-              "absolute top-1/2 hidden -translate-y-1/2 items-center group-focus-within/nav-tree-row:flex group-hover/nav-tree-row:flex pointer-coarse:flex",
+              // Shown on hover, focus and while its menu is open; always on touch, where there is no
+              // hover. Faded, never `display: none`: an open or closing menu is anchored to it.
+              "absolute top-1/2 z-10 flex -translate-y-1/2 items-center opacity-0 group-focus-within/nav-tree-row:opacity-100 group-hover/nav-tree-row:opacity-100 group-has-data-popup-open/nav-tree-row:opacity-100 pointer-coarse:opacity-100",
               parent ? "end-7" : "end-1",
             )}
           >

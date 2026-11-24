@@ -4,6 +4,12 @@ import { userEvent } from "vitest/browser";
 import { Hexagon, ListChecks, MoreHorizontal } from "lucide-react";
 import { expectNoA11yViolations } from "../../test/a11y";
 import { Button } from "./button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
 import { NavTree, NavTreeItem, NavTreeSection } from "./nav-tree";
 import "../../test/geometry.css";
 
@@ -191,4 +197,43 @@ test("a child row draws no icon (two levels, N3) and a count over 99 shows 99+",
   expect(
     row("Mentions").querySelector('[data-slot="nav-tree-count"]')?.textContent,
   ).toBe("99+");
+});
+
+test("a row action's menu stays beside its button once the pointer leaves the row", async () => {
+  const screen = await render(
+    <nav aria-label="Chats" style={{ width: 240, marginTop: 120 }}>
+      <NavTree>
+        <NavTreeSection>
+          <NavTreeItem
+            label="Preferred name and reply language"
+            href="#chat"
+            action={
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <Button variant="ghost" size="icon-xs" aria-label="Menu">
+                      <MoreHorizontal />
+                    </Button>
+                  }
+                />
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem>Rename</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            }
+          />
+        </NavTreeSection>
+      </NavTree>
+    </nav>,
+  );
+  await userEvent.hover(row("Preferred"));
+  await userEvent.click(screen.getByRole("button", { name: "Menu" }));
+  await userEvent.hover(screen.getByRole("menuitem", { name: "Rename" }));
+  const action = document.querySelector('[data-slot="nav-tree-action"]')!;
+  expect(getComputedStyle(action).opacity).toBe("1");
+  const menu = document.querySelector('[data-slot="dropdown-menu-content"]')!;
+  await expect
+    .poll(() => box(menu).top - box(action).bottom)
+    .toBeGreaterThan(0);
+  expect(box(menu).top - box(action).bottom).toBeLessThan(16);
 });

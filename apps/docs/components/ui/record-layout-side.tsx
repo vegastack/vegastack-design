@@ -1,4 +1,4 @@
-// @vegastack record-layout@0.123.3 sha256-OJ2wBPvGByrIyyHkRObusviWOjEfFIYWi9f45sINp3c=
+// @vegastack record-layout@0.123.3 sha256-s500GJnI137X3aFA3HFgJYLIKWjVgxjxnrdb7S/sJsM=
 
 "use client";
 
@@ -782,7 +782,7 @@ export function RecordPanelSection({
         {action ? (
           <div
             data-slot="record-panel-section-action"
-            className="flex shrink-0 items-center opacity-0 transition-opacity duration-state group-focus-within/record-panel-section:opacity-100 group-hover/record-panel-section:opacity-100 pointer-coarse:opacity-100"
+            className="flex shrink-0 items-center opacity-0 transition-opacity duration-state group-focus-within/record-panel-section:opacity-100 group-hover/record-panel-section:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100"
           >
             {action}
           </div>
