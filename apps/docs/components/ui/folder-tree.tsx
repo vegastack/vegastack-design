@@ -1,4 +1,4 @@
-// @vegastack folder-tree@0.123.2 sha256-PqFugfGghRBT/UTCOEptEMbIQ1JgEHUjYpOqprpytwY=
+// @vegastack folder-tree@0.123.2 sha256-QAQJKVmjXj3wp5M+Sh+SGRoLpEVmfHXz+JPUZjIjNqY=
 
 "use client";
 
@@ -1089,7 +1089,7 @@ const rowClasses =
   "group/folder-tree-row relative flex h-(--folder-tree-row-h) min-w-0 items-center gap-0.5 rounded-item ps-[calc(var(--folder-tree-depth,0)*var(--folder-tree-indent))] pe-1 text-foreground state-layer data-active:bg-state-selected data-active:font-medium data-dragging:opacity-50 data-drop-over:bg-primary/10 data-drop-invalid:bg-destructive/10";
 
 const actionsClasses =
-  "flex shrink-0 items-center opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 group-data-active/folder-tree-row:opacity-100 pointer-coarse:opacity-100";
+  "flex shrink-0 items-center opacity-0 group-hover/folder-tree-row:opacity-100 group-focus-within/folder-tree-row:opacity-100 group-data-active/folder-tree-row:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100";
 
 /** A non-interactive row under a folder: loading, error, empty, or the "Show all" control. */
 function StatusRow({

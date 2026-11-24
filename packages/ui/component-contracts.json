@@ -2318,6 +2318,7 @@
                 "nav-tree-count",
                 "nav-tree-fold",
                 "nav-tree-group",
+                "nav-tree-label",
                 "nav-tree-row"
               ]
             }
