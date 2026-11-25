@@ -1,4 +1,4 @@
-// @vegastack toggle@0.135.0 sha256-Lx52d9hmME2h/KsKxNnsjFr/+nkfMpmbzFieT8lFPpQ=
+// @vegastack toggle@0.135.0 sha256-7TiVFNjk78SKept4F22d1cDinYu1ufGTdosrQ/eJPEI=
 
 "use client";
 
@@ -15,7 +15,7 @@ const toggleVariants = cva(
       variant: {
         default: "bg-transparent",
         outline:
-          "border border-input bg-transparent aria-pressed:border-primary/30 data-[state=on]:border-primary/30",
+          "border border-input bg-transparent aria-pressed:border-ink/30 data-[state=on]:border-ink/30",
         // A page bar's star or bell: pressed takes no fill — the icon says it (a filled gold
         // star, a ringing bell) — and still takes the hover layer, never over the focus tint or while disabled (API-39).
         bare: "bg-transparent aria-pressed:bg-transparent data-[state=on]:bg-transparent aria-pressed:not-focus-visible:not-disabled:hover:layer-hover data-[state=on]:not-focus-visible:not-disabled:hover:layer-hover",

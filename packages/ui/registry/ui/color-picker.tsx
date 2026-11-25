@@ -1,4 +1,4 @@
-// @vegastack color-picker@0.135.0 sha256-ROzLRqT7lml/lOUkVaf8gfoy3D66q6CuBPxb1Rv6KjQ=
+// @vegastack color-picker@0.135.0 sha256-uS3tkuBA88fS+Pxdn3SAywrDksGd+M2WNlbcoiVy15Y=
 
 "use client";
 
@@ -281,13 +281,13 @@ export function ColorPicker({
               onValueChange?.(color.name);
               commit();
             }}
-            className={cn("rounded-capsule", isSelected && "border-primary")}
+            className={cn("rounded-capsule", isSelected && "border-ink")}
           >
             <span
               data-slot="color-picker-swatch"
               className={cn(
                 "flex size-5 items-center justify-center rounded-full border border-border bg-clip-padding",
-                // Selected swatch reads its state through the primary border (selection = primary ink).
+                // Selected swatch reads its state through the `ink` border, the same in every accent.
               )}
               // Dynamic user color — the sanctioned inline-style exception (see file header).
               style={{ backgroundColor: color.color }}

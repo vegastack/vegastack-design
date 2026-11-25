@@ -27,7 +27,7 @@ wears another one. Print is always neutral.
 | ---------------------------------------------------------- | ------------------------------------------------------ | ------------------ | --------------------------------------------- |
 | `bg-primary`, `text-primary-foreground`                    | primary and send buttons, chosen controls, progress    | near-black / white | the fill and its label                        |
 | `hover:bg-primary-hover`, `active:bg-primary-pressed`      | that fill's hover and press                            | the fill at 80/70% | real shades, one step each                    |
-| `bg-primary/10`, `border-primary/40`                       | drop targets, chosen cards                             | a neutral tint     | a tint of the fill                            |
+| `bg-primary/10`, `border-primary/40`                       | drop targets, your reactions                           | a neutral tint     | a tint of the fill                            |
 | `text-primary-text`                                        | accent ink on a page or a tint                         | `primary`          | a readable shade                              |
 | `text-link`, `hover:text-link-hover`, always underlined    | a link inside text                                     | blue               | a readable shade                              |
 | `bg-unread`                                                | unread dots and bars                                   | blue               | the fill in light, the readable shade in dark |
@@ -38,7 +38,8 @@ wears another one. Print is always neutral.
 - **Done checks** are `text-check`, **highlights** `bg-mark`, **neutral solids** (a workspace tile, an
   avatar badge, a "filter on" dot) `bg-ink text-ink-foreground`.
 - Status, priority, destructive, charts, tags, mentions, focus, recording and the Help dot.
-- Tabs, chips, menus and selected table rows: they stay `state-selected`.
+- Tabs, chips, toggles, question options, choice fields, picker cells, menus and selected table rows: they
+  stay `state-selected`, with an `ink` outline where they have one.
 - Titles, breadcrumbs, table cells, record values and link buttons, even when they are links.
 - Done work: checks, done steps, done milestones, a timeline's bars.
 

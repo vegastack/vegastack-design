@@ -1,4 +1,4 @@
-// @vegastack accent@0.135.0 sha256-A1aiNUpuBgKZAZc7opA6aWWIh6SqFkqZE7PypPbYMOs=
+// @vegastack accent@0.135.0 sha256-sZCdvQjv3e9XlJQmNgEiqzp9Bqy+z2zoaAqM5tl7Nzw=
 
 import * as React from "react";
 import { Inbox, ListTodo } from "lucide-react";
@@ -128,7 +128,7 @@ export function AccentPreview({
               />
             </NavTreeSection>
           </NavTree>
-          <div className={cn(ROW, "flex-wrap justify-between px-2")}>
+          <div className={cn(ROW, "flex-wrap justify-between")}>
             <span className={proseClassName}>
               {words.linkBefore} <a href="#accent-preview">{words.link}</a>
             </span>
@@ -170,7 +170,7 @@ export function AccentPreview({
               {words.done}
             </span>
           </div>
-          <div className={cn(ROW, "mt-auto")}>
+          <div className={ROW}>
             <Button size="sm" variant="destructive">
               {words.remove}
             </Button>

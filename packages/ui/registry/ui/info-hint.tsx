@@ -1,4 +1,4 @@
-// @vegastack info-hint@0.135.0 sha256-ESY5nN6XppQDmcBlIPQny11pH1pv3QuZ6O+hxzh6Iso=
+// @vegastack info-hint@0.135.0 sha256-/mzb7w87jpUcjyaTJxl6pXdfNW0BcdMLPvzB5IsGQWo=
 
 "use client";
 
@@ -151,7 +151,8 @@ export function InfoHint({
             data-slot="info-hint-link"
             className={cn(
               buttonVariants({ variant: "link", size: "xs" }),
-              "h-auto self-start px-0",
+              // Help takes the person's colour once the page wears one; Black keeps the link button's ink.
+              "h-auto self-start px-0 in-[[data-accent]]:text-link in-[[data-accent]]:underline in-[[data-accent]]:hover:text-link-hover",
             )}
           >
             {linkLabel}

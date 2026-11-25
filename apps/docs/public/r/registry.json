@@ -1593,7 +1593,7 @@
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
         "version": "0.135.0",
-        "integrity": "sha256-ROzLRqT7lml/lOUkVaf8gfoy3D66q6CuBPxb1Rv6KjQ="
+        "integrity": "sha256-uS3tkuBA88fS+Pxdn3SAywrDksGd+M2WNlbcoiVy15Y="
       }
     },
     {
@@ -3353,7 +3353,7 @@
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
         "version": "0.135.0",
-        "integrity": "sha256-QHd8iRb1gyOPqYIcdSd7E7kv/YG5FarVD0PjXrAOTvs="
+        "integrity": "sha256-1Lqcwg6ekDGSfSWpvx0EhjkNURusx9nYrDb4T9GJztg="
       }
     },
     {
@@ -17794,7 +17794,7 @@
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
         "version": "0.135.0",
-        "integrity": "sha256-5077kEQdConwSZof8OVTk+CdKYsV/gbxtRzTKu2JGh4="
+        "integrity": "sha256-M9+wQky+xJcK6drLIjG5ky0B8APmkz1NAWMiAH66T6M="
       }
     },
     {
@@ -18126,7 +18126,7 @@
         "whenToUse": "One sentence that explains a heading, label or setting on demand — on click, tap or keyboard — with an optional link to the full help article.",
         "whenNotToUse": "Naming an icon-only control (Tooltip), text people must read to complete a task (FieldDescription or inline copy), or rich content and actions (Popover or HoverCard).",
         "version": "0.135.0",
-        "integrity": "sha256-ESY5nN6XppQDmcBlIPQny11pH1pv3QuZ6O+hxzh6Iso="
+        "integrity": "sha256-/mzb7w87jpUcjyaTJxl6pXdfNW0BcdMLPvzB5IsGQWo="
       }
     },
     {
@@ -19395,7 +19395,7 @@
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
         "version": "0.135.0",
-        "integrity": "sha256-Lx52d9hmME2h/KsKxNnsjFr/+nkfMpmbzFieT8lFPpQ="
+        "integrity": "sha256-7TiVFNjk78SKept4F22d1cDinYu1ufGTdosrQ/eJPEI="
       }
     },
     {
@@ -19976,7 +19976,7 @@
         "whenToUse": "A mode or a choice in ChatComposer: Plan after ChatComposerAgent while it is on (data-composer-hold keeps a resting card open), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
         "version": "0.135.0",
-        "integrity": "sha256-jaJ6jCx3lu9x5RHRe4zU5NyuGU+JxphYjKAKbf+EwW4="
+        "integrity": "sha256-IEdPjimrJqJIsUZ05rLO9QeYkBeTnj+vdcyPw7eX64M="
       }
     },
     {
@@ -24349,7 +24349,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.135.0",
-        "integrity": "sha256-EbE/hM1b6/DGTiRkVoZNlq1OWbAUvCv/EmcnBOelklk="
+        "integrity": "sha256-uZQ1hI8Nxj7Vet87Hsw/gaO/73bNq1rjmrNNSwEACgE="
       }
     },
     {
@@ -24389,7 +24389,7 @@
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
         "version": "0.135.0",
-        "integrity": "sha256-hqS03d7QzUcGFwstzEvwWQyvwMILcuO6HAcCwelAA5o="
+        "integrity": "sha256-KnFmvgiXLJWXUS/uw51pTjC5XZ/y9s678nCYX54MJ7I="
       }
     },
     {
@@ -24527,7 +24527,7 @@
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (AskCard), offering a next step the person may ignore (ForYouCard), or a survey the host defines itself (Questionnaire).",
         "version": "0.135.0",
-        "integrity": "sha256-+npEaVr84uEEaXjK7xVA3Rgj16mNNZBPO5aGPfMmE0Y="
+        "integrity": "sha256-fR89jZJ3FqgLkk5ZdY7fpIVDILd7moh3vbWh7HZYODo="
       }
     },
     {
@@ -24811,7 +24811,7 @@
         "whenToUse": "A settings page where a person or a workspace picks its colour, the root layout that paints it first, and a public page in its workspace's colour.",
         "whenNotToUse": "Colouring data (chart tokens), labels (tags) or status; or an arbitrary brand colour (override the tokens).",
         "version": "0.135.0",
-        "integrity": "sha256-A1aiNUpuBgKZAZc7opA6aWWIh6SqFkqZE7PypPbYMOs="
+        "integrity": "sha256-sZCdvQjv3e9XlJQmNgEiqzp9Bqy+z2zoaAqM5tl7Nzw="
       }
     }
   ]
