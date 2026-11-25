@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.29.2
+
+### Patch Changes
+
+- [#1081](https://github.com/vegastack/vegastack-design/pull/1081) [`3a48c3e`](https://github.com/vegastack/vegastack-design/commit/3a48c3e41f84b55117a137ccad9120c586b08684) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `NavTreeItem` takes `quiet`: the same place listed again (Favourites, Recent) keeps the neutral selected fill, so one row wears the accent. A filled button in `AlertAction` is ink in every accent, and inline chips in prose keep their own colour (COL-27). Black is unchanged.
+
 ## 0.29.1
 
 ### Patch Changes

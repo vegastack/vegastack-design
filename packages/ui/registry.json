@@ -80,7 +80,7 @@
       "meta": {
         "whenToUse": "Persistent, in-page status messages — info, success, warning, or error context tied to surrounding content.",
         "whenNotToUse": "Transient feedback after a user action — use a toast instead.",
-        "version": "0.135.0"
+        "version": "0.135.2"
       }
     },
     {
@@ -199,7 +199,7 @@
       "meta": {
         "whenToUse": "The places in an app's module column — views, saved filters, spaces with their sections, folders, settings pages — in the shell's ShellColumn or a phone sheet.",
         "whenNotToUse": "A file browser with drag and drop (FolderTree), a page's own tabs (Tabs), or the module rail (Rail).",
-        "version": "0.135.0"
+        "version": "0.135.2"
       }
     },
     {

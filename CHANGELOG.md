@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.135.2] — November 25, 2026
+
+<!-- assembled from 1 changeset: d5230a6ff2cb -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.29.2`** (was `0.29.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.135.1 → 0.135.2.
+
+### 🐛 Fixed
+
+- `NavTreeItem` takes `quiet`: the same place listed again (Favourites, Recent) keeps the neutral selected fill, so one row wears the accent. A filled button in `AlertAction` is ink in every accent, and inline chips in prose keep their own colour (COL-27). Black is unchanged.
+  [`3a48c3e`](https://github.com/VegaStack/vegastack-design/commit/3a48c3e)
+
 ## [0.135.1] — November 25, 2026
 
 <!-- assembled from 1 changeset: f6fda9a43a28 -->
