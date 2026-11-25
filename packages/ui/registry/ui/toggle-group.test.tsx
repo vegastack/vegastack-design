@@ -416,7 +416,7 @@ test("API-39: a group item takes Toggle's pressed fill through toggleVariants", 
   const a = screen.getByRole("button", { name: "A" });
   await expect.element(a).toHaveAttribute("aria-pressed", "true");
   await expect.element(a).toHaveClass("aria-pressed:bg-state-selected");
-  await expect.element(a).toHaveClass("aria-pressed:border-primary/30");
+  await expect.element(a).toHaveClass("aria-pressed:border-ink/30");
 });
 
 test("no a11y violations — rest", async () => {
