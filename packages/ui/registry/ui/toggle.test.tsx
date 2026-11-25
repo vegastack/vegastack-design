@@ -151,7 +151,7 @@ test("API-39 + COL-24: pressed takes the selected step, and hover is the shared 
   expect(classes).toContain("state-layer");
   expect(classes).not.toContain("hover:bg-muted");
   const outline = toggleVariants({ variant: "outline" }).split(" ");
-  expect(outline).toContain("aria-pressed:border-primary/30");
+  expect(outline).toContain("aria-pressed:border-ink/30");
   expect(outline).toContain("border-input");
 });
 
