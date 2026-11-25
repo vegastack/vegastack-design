@@ -1,6 +1,7 @@
 # component: alert
-# decisions: A11Y-3, A11Y-8, A11Y-13, API-29, COL-12, DOC-2, LAY-15, BRD-12
+# decisions: A11Y-3, A11Y-8, A11Y-13, API-29, COL-12, DOC-2, LAY-15, BRD-12, COL-27
 # hunks:
+#   COL-27: `AlertAction` is `data-accent="black"`, so a filled button on a status ground is ink in every accent (Black is unchanged).
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   API-29: each status variant gives every non-primary button inside it the family's own hover
@@ -37,7 +38,7 @@
 #   formatting: the repository formatter (prettier defaults: semicolons, trailing commas)
 #               reflows the file; those hunks carry no decision of their own.
 diff --git a/alert.tsx b/alert.tsx
-index babd454..9df94b1 100644
+index babd454..f85dc8f 100644
 --- a/alert.tsx
 +++ b/alert.tsx
 @@ -1,36 +1,49 @@
@@ -116,7 +117,7 @@ index babd454..9df94b1 100644
  }
  
  function AlertDescription({
-@@ -54,22 +67,25 @@ function AlertDescription({
+@@ -54,22 +67,27 @@ function AlertDescription({
      <div
        data-slot="alert-description"
        className={cn(
@@ -136,6 +137,8 @@ index babd454..9df94b1 100644
      <div
        data-slot="alert-action"
 -      className={cn("absolute top-2 end-2", className)}
++      // A filled button on a status ground is ink, whatever the page's accent (COL-27).
++      data-accent="black"
 +      className={cn(
 +        "col-start-1 mt-1.5 flex flex-wrap items-center gap-2 group-has-[>svg]/alert:col-start-2 @md/alert:col-start-2 @md/alert:row-span-2 @md/alert:row-start-1 @md/alert:mt-0 @md/alert:self-start @md/alert:group-has-[>svg]/alert:col-start-3",
 +        className,

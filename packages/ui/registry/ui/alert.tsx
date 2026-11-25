@@ -1,4 +1,4 @@
-// @vegastack alert@0.135.0 sha256-G3D6tjsv7sKDVExnkVA45xsjoQgoIDr4Cz/qsais1K0=
+// @vegastack alert@0.135.0 sha256-p+nyOse/zHHv4APdWMFNS/dUwONf4753mEwo4+5jwU8=
 
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -81,6 +81,8 @@ function AlertAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
       data-slot="alert-action"
+      // A filled button on a status ground is ink, whatever the page's accent (COL-27).
+      data-accent="black"
       className={cn(
         "col-start-1 mt-1.5 flex flex-wrap items-center gap-2 group-has-[>svg]/alert:col-start-2 @md/alert:col-start-2 @md/alert:row-span-2 @md/alert:row-start-1 @md/alert:mt-0 @md/alert:self-start @md/alert:group-has-[>svg]/alert:col-start-3",
         className,

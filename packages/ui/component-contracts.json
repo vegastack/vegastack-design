@@ -988,6 +988,10 @@
         "AlertAction": {
           "attributes": [
             {
+              "name": "data-accent",
+              "values": ["black"]
+            },
+            {
               "name": "data-slot",
               "values": ["alert-action"]
             }

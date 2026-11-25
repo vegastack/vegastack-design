@@ -186,6 +186,7 @@ on the action; a title or longer text keeps everything top-aligned.
 
 Upstream's file plus `packages/ui/upstream/patches/alert.patch`. Every hunk:
 
+- **COL-27** — `AlertAction` is `data-accent="black"`: a filled button on a status ground is ink in every accent.
 - **API-29** — each status variant gives every non-primary button inside it the family's own hover
   (`bg-<family>/10 text-<family>-text`), never the neutral hover that read white in dark mode;
   `contrast-check.mjs` gates the pair in both themes.
