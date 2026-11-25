@@ -298,7 +298,9 @@
       "empty",
       "field",
       "item",
-      "toast"
+      "questionnaire",
+      "toast",
+      "toggle"
     ],
     "LAY-20": ["item"],
     "FOC-15": ["questionnaire"],

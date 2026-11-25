@@ -1,6 +1,7 @@
 # component: toggle
-# decisions: A11Y-1, A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, API-39, COL-24, INT-4, BRD-12
+# decisions: A11Y-1, A11Y-12, API-5, DOC-2, FOC-1, FOC-5, FOC-6, FRM-4, TYP-18, FOC-14, API-39, COL-24, INT-4, BRD-12, COL-27
 # hunks:
+#   COL-27: the pressed outline is `ink` around its grey fill, so no accent colours it (Black is unchanged).
 #   BRD-12: corners are roles, not sizes — every radius is `rounded-control|segment|icon|capsule|chip|inline|mark|item|block|card|bubble|overlay|tile` (operator 2026-11-16, amended 2026-11-18);
 #     rows with a fill are `rounded-item`, bordered menus `rounded-card border p-1.25` (16 − 1 − 5 = 10), table rows `row-fill`.
 #   FOC-1, FOC-6: `outline-none focus-visible:border-ring focus-visible:ring-[3px]
@@ -39,7 +40,7 @@
 #     `hover:bg-muted`/`bg-accent` and their dark-only overrides; selected / open / highlighted
 #     fills are `bg-state-selected` / `bg-state-hover` (operator, Regent, 2026-10-31).
 diff --git a/toggle.tsx b/toggle.tsx
-index 1651768..c031afe 100644
+index 1651768..ff82998 100644
 --- a/toggle.tsx
 +++ b/toggle.tsx
 @@ -1,21 +1,27 @@
@@ -64,7 +65,7 @@ index 1651768..c031afe 100644
          default: "bg-transparent",
 -        outline: "border border-input bg-transparent hover:bg-muted",
 +        outline:
-+          "border border-input bg-transparent aria-pressed:border-primary/30 data-[state=on]:border-primary/30",
++          "border border-input bg-transparent aria-pressed:border-ink/30 data-[state=on]:border-ink/30",
 +        // A page bar's star or bell: pressed takes no fill — the icon says it (a filled gold
 +        // star, a ringing bell) — and still takes the hover layer, never over the focus tint or while disabled (API-39).
 +        bare: "bg-transparent aria-pressed:bg-transparent data-[state=on]:bg-transparent aria-pressed:not-focus-visible:not-disabled:hover:layer-hover data-[state=on]:not-focus-visible:not-disabled:hover:layer-hover",

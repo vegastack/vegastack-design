@@ -1,4 +1,4 @@
-// @vegastack agent-question-form@0.135.0 sha256-+npEaVr84uEEaXjK7xVA3Rgj16mNNZBPO5aGPfMmE0Y=
+// @vegastack agent-question-form@0.135.0 sha256-fR89jZJ3FqgLkk5ZdY7fpIVDILd7moh3vbWh7HZYODo=
 
 "use client";
 
@@ -375,7 +375,7 @@ function CompactForm({
               loading={chosen && status === "submitting"}
               disabled={locked}
               onClick={() => pick(index)}
-              className="h-auto min-h-11 w-full rounded-item items-start justify-start gap-2 px-3 py-2 text-start whitespace-normal data-selected:border-primary/40 data-selected:bg-state-selected"
+              className="h-auto min-h-11 w-full rounded-item items-start justify-start gap-2 px-3 py-2 text-start whitespace-normal data-selected:border-ink/40 data-selected:bg-state-selected"
             >
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <OptionHeading
@@ -413,7 +413,7 @@ function CompactForm({
             setOtherOpen(open);
             if (open) requestAnimationFrame(() => otherRef.current?.focus());
           }}
-          className="h-auto min-h-11 w-full rounded-item justify-start px-3 py-2 text-start whitespace-normal data-selected:border-primary/40 data-selected:bg-state-selected"
+          className="h-auto min-h-11 w-full rounded-item justify-start px-3 py-2 text-start whitespace-normal data-selected:border-ink/40 data-selected:bg-state-selected"
         >
           {labels.other}
         </Button>

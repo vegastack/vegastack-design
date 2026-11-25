@@ -121,11 +121,12 @@ Upstream's file plus `packages/ui/upstream/patches/toggle.patch`. Every hunk:
 - **API-39** — a pressed toggle is filled, so pressed never reads as hover: `aria-pressed` and
   `data-[state=on]` take `bg-state-selected` (COL-24; was `bg-primary/10`), hovering a pressed
   toggle holds its fill through hover, and the `outline` variant's pressed border is
-  `border-primary/30`. The ink stays `text-foreground`, icons included. An unpressed toggle keeps
+  `border-ink/30`. The ink stays `text-foreground`, icons included. An unpressed toggle keeps
   upstream's transparent fill and the `state-layer` hover. ToggleGroup items inherit it. The
   `bare` variant (amended 2026-11-19) takes no pressed fill — a page bar's star or bell, whose icon
   says it — and keeps the hover layer while pressed.
 - **DOC-2** — `cn` is imported from `@vegastack/design`.
+- **COL-27** — the pressed outline of `outline` is `ink` around its grey fill, so no accent colours it.
 - **COL-24**, **INT-4** — hover and press come from the shared `state-layer` utility, a translucent
   foreground layer (`--state-hover`, `--state-pressed`) over whatever fill is there, so the step
   reads the same on every surface in both themes; selected, open and highlighted fills are `bg-

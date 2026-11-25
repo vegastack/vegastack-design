@@ -1,4 +1,4 @@
-// @vegastack picker-panel@0.135.0 sha256-EbE/hM1b6/DGTiRkVoZNlq1OWbAUvCv/EmcnBOelklk=
+// @vegastack picker-panel@0.135.0 sha256-uZQ1hI8Nxj7Vet87Hsw/gaO/73bNq1rjmrNNSwEACgE=
 
 "use client";
 import * as React from "react";
@@ -299,7 +299,7 @@ export function PickerPanel({
                       }}
                       className={cn(
                         "text-lg leading-none",
-                        value === entry.key && "border-primary bg-muted",
+                        value === entry.key && "border-ink bg-muted",
                       )}
                     >
                       {entry.glyph}

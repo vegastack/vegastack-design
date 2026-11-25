@@ -72,7 +72,7 @@ test("selection marks the outer cell without covering the colour", async () => {
   const screen = await render(<ColorPicker value="blue" />);
   await screen.getByRole("button", { name: "Pick a color" }).click();
   const selected = screen.getByRole("button", { name: "Blue" }).element();
-  expect(selected.getAttribute("class")).toContain("border-primary");
+  expect(selected.getAttribute("class")).toContain("border-ink");
   expect(selected.querySelector('[data-slot="color-picker-check"]')).toBeNull();
 });
 
