@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.29.1
+
+### Patch Changes
+
+- [#1080](https://github.com/vegastack/vegastack-design/pull/1080) [`b128679`](https://github.com/vegastack/vegastack-design/commit/b128679a2283a559692822ab0cd1a605605c1906) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Selected toggles, toggle groups, composer chips, question options, choice fields and picker cells keep a neutral outline around their grey fill in every accent (COL-27); Black is unchanged. `AccentPreview`: the last tile lines up from the top like its neighbours, and the sentence starts at the navigation rows' edge. `InfoHint`'s link takes the colour once the page wears one.
+
 ## 0.29.0
 
 ### Patch Changes

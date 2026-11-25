@@ -1424,7 +1424,7 @@
       "meta": {
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -2983,7 +2983,7 @@
       "meta": {
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -14480,7 +14480,7 @@
       "meta": {
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -14779,7 +14779,7 @@
       "meta": {
         "whenToUse": "One sentence that explains a heading, label or setting on demand — on click, tap or keyboard — with an optional link to the full help article.",
         "whenNotToUse": "Naming an icon-only control (Tooltip), text people must read to complete a task (FieldDescription or inline copy), or rich content and actions (Popover or HoverCard).",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -15897,7 +15897,7 @@
       "meta": {
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -16413,7 +16413,7 @@
       "meta": {
         "whenToUse": "A mode or a choice in ChatComposer: Plan after ChatComposerAgent while it is on (data-composer-hold keeps a resting card open), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -20030,7 +20030,7 @@
       "meta": {
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -20067,7 +20067,7 @@
       "meta": {
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -20193,7 +20193,7 @@
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (AskCard), offering a next step the person may ignore (ForYouCard), or a survey the host defines itself (Questionnaire).",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     },
     {
@@ -20448,7 +20448,7 @@
       "meta": {
         "whenToUse": "A settings page where a person or a workspace picks its colour, the root layout that paints it first, and a public page in its workspace's colour.",
         "whenNotToUse": "Colouring data (chart tokens), labels (tags) or status; or an arbitrary brand colour (override the tokens).",
-        "version": "0.135.0"
+        "version": "0.135.1"
       }
     }
   ]

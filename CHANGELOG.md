@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.135.1] — November 25, 2026
+
+<!-- assembled from 1 changeset: f6fda9a43a28 -->
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.29.1`** (was `0.29.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.135.0 → 0.135.1.
+
+### 🐛 Fixed
+
+- Selected toggles, toggle groups, composer chips, question options, choice fields and picker cells keep a neutral outline around their grey fill in every accent (COL-27); Black is unchanged. `AccentPreview`: the last tile lines up from the top like its neighbours, and the sentence starts at the navigation rows' edge. `InfoHint`'s link takes the colour once the page wears one.
+  [`b128679`](https://github.com/VegaStack/vegastack-design/commit/b128679)
+
 ## [0.135.0] — November 24, 2026
 
 <!-- assembled from 1 changeset: 5c6b9ec3c490 -->

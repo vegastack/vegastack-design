@@ -1592,8 +1592,8 @@
       "meta": {
         "whenToUse": "Pick a single color from a small curated set — labels, tags, calendar categories.",
         "whenNotToUse": "Full-spectrum hue/saturation/alpha selection.",
-        "version": "0.135.0",
-        "integrity": "sha256-uS3tkuBA88fS+Pxdn3SAywrDksGd+M2WNlbcoiVy15Y="
+        "version": "0.135.1",
+        "integrity": "sha256-d6YkAFaZDdIwqx+ugqOqfrDixkr+c3FBDyBUn3BFiP4="
       }
     },
     {
@@ -3352,8 +3352,8 @@
       "meta": {
         "whenToUse": "Wrap any form control to give it a label, description and error message: inside a Field the control gets its label, aria-describedby ids and aria-invalid from Base UI Field with no ids to wire.",
         "whenNotToUse": "A bare control with its own label already wired — Field is for the label+message+a11y scaffold.",
-        "version": "0.135.0",
-        "integrity": "sha256-1Lqcwg6ekDGSfSWpvx0EhjkNURusx9nYrDb4T9GJztg="
+        "version": "0.135.1",
+        "integrity": "sha256-1y+Yt/xnmjW9oM0khi7Qk/d1D6s8pRFPMZ8qr/OGRh0="
       }
     },
     {
@@ -17793,8 +17793,8 @@
       "meta": {
         "whenToUse": "An onboarding, survey or intake flow that asks one question at a time, validates each answer, and can be resumed.",
         "whenNotToUse": "A conventional form where every field is visible at once — compose Field with the form primitives instead.",
-        "version": "0.135.0",
-        "integrity": "sha256-M9+wQky+xJcK6drLIjG5ky0B8APmkz1NAWMiAH66T6M="
+        "version": "0.135.1",
+        "integrity": "sha256-EXc2SCPTaIwhBdTRjxq2jPXGKLW9hgchpiQIIrh2+Ow="
       }
     },
     {
@@ -18125,8 +18125,8 @@
       "meta": {
         "whenToUse": "One sentence that explains a heading, label or setting on demand — on click, tap or keyboard — with an optional link to the full help article.",
         "whenNotToUse": "Naming an icon-only control (Tooltip), text people must read to complete a task (FieldDescription or inline copy), or rich content and actions (Popover or HoverCard).",
-        "version": "0.135.0",
-        "integrity": "sha256-/mzb7w87jpUcjyaTJxl6pXdfNW0BcdMLPvzB5IsGQWo="
+        "version": "0.135.1",
+        "integrity": "sha256-1NTwSfX0PzAZbi/QMgXgADiwrwBINfegkO5RwHQ78/I="
       }
     },
     {
@@ -19394,8 +19394,8 @@
       "meta": {
         "whenToUse": "A binary on/off control that persists — bold/italic, mute, pin.",
         "whenNotToUse": "One-shot action (Button) or mutually-exclusive options (ToggleGroup/RadioGroup).",
-        "version": "0.135.0",
-        "integrity": "sha256-7TiVFNjk78SKept4F22d1cDinYu1ufGTdosrQ/eJPEI="
+        "version": "0.135.1",
+        "integrity": "sha256-potuPzCg4IdfiiynFLWRz8l+aSuE3M4rJlUpha2b7NE="
       }
     },
     {
@@ -19975,8 +19975,8 @@
       "meta": {
         "whenToUse": "A mode or a choice in ChatComposer: Plan after ChatComposerAgent while it is on (data-composer-hold keeps a resting card open), a picker's trigger, or a choice shown read-only.",
         "whenNotToUse": "Something that travels with the message (the composer's chips), or a filter in a toolbar (Toggle, Segmented).",
-        "version": "0.135.0",
-        "integrity": "sha256-IEdPjimrJqJIsUZ05rLO9QeYkBeTnj+vdcyPw7eX64M="
+        "version": "0.135.1",
+        "integrity": "sha256-IkyqjdVeSQMK+kNn2V4RolipzaJdLkR37wNyWDJwtCk="
       }
     },
     {
@@ -24348,8 +24348,8 @@
       "meta": {
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
-        "version": "0.135.0",
-        "integrity": "sha256-uZQ1hI8Nxj7Vet87Hsw/gaO/73bNq1rjmrNNSwEACgE="
+        "version": "0.135.1",
+        "integrity": "sha256-RunM2F1ZuOH//10uDKT+tRlef0jdDlUcuBH6MGOEH2E="
       }
     },
     {
@@ -24388,8 +24388,8 @@
       "meta": {
         "whenToUse": "Reusable identity glyphs and picker content.",
         "whenNotToUse": "Entity data or permission rules.",
-        "version": "0.135.0",
-        "integrity": "sha256-KnFmvgiXLJWXUS/uw51pTjC5XZ/y9s678nCYX54MJ7I="
+        "version": "0.135.1",
+        "integrity": "sha256-c21p59rgVBlNKO9vxeB7BcLgzT4RKamyv/6Rav6+T84="
       }
     },
     {
@@ -24526,8 +24526,8 @@
       "meta": {
         "whenToUse": "An agent that needs the person's choice before it goes on: one quick pick, or a batch of questions with options, previews and own words.",
         "whenNotToUse": "An agent asking to perform one action (AskCard), offering a next step the person may ignore (ForYouCard), or a survey the host defines itself (Questionnaire).",
-        "version": "0.135.0",
-        "integrity": "sha256-fR89jZJ3FqgLkk5ZdY7fpIVDILd7moh3vbWh7HZYODo="
+        "version": "0.135.1",
+        "integrity": "sha256-/o8COl+yaLsBV7PKbYxlAzG9oIzeYXbQNkBRpm8LEJs="
       }
     },
     {
@@ -24810,8 +24810,8 @@
       "meta": {
         "whenToUse": "A settings page where a person or a workspace picks its colour, the root layout that paints it first, and a public page in its workspace's colour.",
         "whenNotToUse": "Colouring data (chart tokens), labels (tags) or status; or an arbitrary brand colour (override the tokens).",
-        "version": "0.135.0",
-        "integrity": "sha256-sZCdvQjv3e9XlJQmNgEiqzp9Bqy+z2zoaAqM5tl7Nzw="
+        "version": "0.135.1",
+        "integrity": "sha256-TzDSd0fpcNeGaF038Hf1M13RkG0liYbLmrpgYYk8dOk="
       }
     }
   ]
