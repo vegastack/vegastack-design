@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.135.0 sha256-HYo/Ig5Wi7mr1IyXlned5TFq3iPEreIbM2LSOgPv1rQ=
+// @vegastack nav-tree@0.135.0 sha256-u0spcnTDFgY18iQZxXExt0AVTtxBqRulf/CnnIN9TTg=
 
 "use client";
 
@@ -217,6 +217,12 @@ export interface NavTreeItemProps extends Omit<
   count?: number | string;
   /** Whether this is the current place. @default false */
   active?: boolean;
+  /**
+   * The same place listed again (Favourites, Recent): while active it keeps the neutral selected
+   * fill and ink, so one row of the column wears the accent.
+   * @default false
+   */
+  quiet?: boolean;
   /** An action shown on hover, focus and while its menu is open, in the count's place (a ⋯ menu); the label fades out before it. @default undefined */
   action?: React.ReactNode;
   /** Child items: the item becomes a parent that folds, its children one step in under it. @default undefined */
@@ -275,6 +281,7 @@ export function NavTreeItem({
   icon,
   count,
   active = false,
+  quiet = false,
   action,
   children,
   defaultOpen,
@@ -312,6 +319,7 @@ export function NavTreeItem({
     ...own,
     "data-slot": "nav-tree-item",
     "data-active": active ? "" : undefined,
+    "data-quiet": quiet ? "" : undefined,
     "data-depth": depth,
     "aria-current": active ? "page" : undefined,
     ...(folds
@@ -323,6 +331,8 @@ export function NavTreeItem({
       : { onClick: onClick ?? own.onClick }),
     className: cn(
       "state-layer relative flex h-(--nav-tree-row) w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-foreground no-underline outline-none data-active:bg-nav-selected data-active:font-medium data-active:text-nav-selected-foreground [&_svg:not([class*='size-'])]:size-4 [&>svg]:flex-none [&>svg]:text-muted-foreground data-active:[&>svg]:text-nav-selected-icon",
+      quiet &&
+        "data-active:bg-state-selected data-active:text-foreground data-active:[&>svg]:text-muted-foreground",
       parent && "pe-8",
       // On touch the action always shows at the row's end: the label keeps clear of it.
       action && (parent ? "pointer-coarse:pe-14" : "pointer-coarse:pe-8"),

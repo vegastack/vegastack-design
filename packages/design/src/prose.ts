@@ -75,7 +75,7 @@ export const prose = {
 
   // Marks. Links are `link` ink per design.md §Colours (blue, or the accent: COL-27) at body weight; `s` is Tiptap's strike
   // element and `del` is GFM's — the same mark from two producers.
-  a: "[&_a]:text-link [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-link-hover",
+  a: "[&_a]:text-link [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-link-hover [&_a[data-slot=inline-chip]]:text-info-text [&_a[data-slot=inline-chip]]:hover:text-info-text/88",
   strong: "[&_strong]:font-semibold",
   em: "[&_em]:italic",
   del: "[&_del]:line-through [&_s]:line-through",

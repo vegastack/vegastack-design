@@ -291,6 +291,7 @@
     "MOT-14": ["collapsible"],
     "COL-25": ["toast"],
     "COL-27": [
+      "alert",
       "avatar",
       "badge",
       "bubble",
