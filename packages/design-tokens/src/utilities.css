@@ -1122,6 +1122,515 @@
 }
 
 /* ---------------------------------------------------------------------------
+ * motion-face-* — agent faces (`AgentFace`; operator 27-11-2026, "Approve, go dark",
+ * MOT-15). Every keyframe starts and ends on the face's resting pose, so the
+ * reduced-motion reset in base.css (and `motion={false}`) leaves the still face.
+ * Lengths are SVG user units (the face draws in a 100 × 100 box). Body moves
+ * pivot on the bottom of the body; eye moves on the eyes' centre.
+ *   body     breathe (idle) · ponder (thinking) · bob (working) · talk (writing)
+ *            hop (needs you) · sway + joy (replied) · doze (scheduled)
+ *   shape    wobble (bloom, burst, clover) · rock (arch) · slide (stack layers)
+ *            bounce (cairn's stone)
+ *   eyes     blink · glance · drift · scan · read · mouth (talking)
+ *   inside   light (the drifting highlight) · orbit (thinking glow, cue dots)
+ *            sheen (working) · flash (writing) · warm (needs you)
+ *   cue      float (thought bubbles) · type (typing dots) · flare (amber ticks) · twinkle (sparkles)
+ *            rise (z's) · ping (the amber badge) · moon (a ring's moon)
+ *   once     change (a state change: a squash and a blink)
+ *   dots     chase (thinking) · wave (working) — the Dot form's cells
+ * ------------------------------------------------------------------------- */
+@keyframes vs-face-breathe {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(0.988, 1.02);
+  }
+}
+@utility motion-face-breathe {
+  animation: vs-face-breathe 3.5s ease-in-out infinite;
+}
+@keyframes vs-face-ponder {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(2.2deg) scale(0.992, 1.014);
+  }
+}
+@utility motion-face-ponder {
+  animation: vs-face-ponder 5.2s ease-in-out infinite;
+}
+@keyframes vs-face-bob {
+  0%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  50% {
+    transform: translateY(-1.6px) scale(1, 0.985);
+  }
+}
+@utility motion-face-bob {
+  animation: vs-face-bob 0.63s ease-in-out infinite;
+}
+@keyframes vs-face-talk {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(1.02, 0.972);
+  }
+}
+@utility motion-face-talk {
+  animation: vs-face-talk 0.52s ease-in-out infinite;
+}
+@keyframes vs-face-hop {
+  0%,
+  6%,
+  30%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  3% {
+    transform: translateY(0) scale(1.08, 0.92);
+  }
+  15% {
+    transform: translateY(-7.7px) scale(0.96, 1.05);
+  }
+  24% {
+    transform: translateY(0) scale(1, 1);
+  }
+  27% {
+    transform: translateY(0) scale(1.06, 0.94);
+  }
+}
+@utility motion-face-hop {
+  animation: vs-face-hop 2.4s ease-in-out infinite;
+}
+@keyframes vs-face-sway {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(1.7deg);
+  }
+  75% {
+    transform: rotate(-1.7deg);
+  }
+}
+@utility motion-face-sway {
+  animation: vs-face-sway 2.85s ease-in-out infinite;
+}
+@keyframes vs-face-joy {
+  0%,
+  12.5%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  6% {
+    transform: translateY(-3.2px) scale(0.98, 1.03);
+  }
+}
+@utility motion-face-joy {
+  animation: vs-face-joy 3.6s ease-in-out infinite;
+}
+@keyframes vs-face-doze {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  50% {
+    transform: scale(0.985, 1.035);
+  }
+}
+@utility motion-face-doze {
+  animation: vs-face-doze 7s ease-in-out infinite;
+}
+@keyframes vs-face-wobble {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(9deg);
+  }
+  75% {
+    transform: rotate(-9deg);
+  }
+}
+@utility motion-face-wobble {
+  animation: vs-face-wobble 3s ease-in-out infinite;
+}
+@keyframes vs-face-rock {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5.7deg);
+  }
+  75% {
+    transform: rotate(-5.7deg);
+  }
+}
+@utility motion-face-rock {
+  animation: vs-face-rock 1.57s ease-in-out infinite;
+}
+@keyframes vs-face-slide {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(3.5px);
+  }
+  75% {
+    transform: translateX(-3.5px);
+  }
+}
+@utility motion-face-slide {
+  animation: vs-face-slide 2.1s ease-in-out infinite;
+  animation-delay: calc(var(--face-layer, 0) * -0.43s);
+}
+@keyframes vs-face-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7.7px);
+  }
+}
+@utility motion-face-bounce {
+  animation: vs-face-bounce 0.63s cubic-bezier(0.33, 0, 0.67, 1) infinite;
+}
+@keyframes vs-face-blink {
+  0%,
+  95%,
+  100% {
+    transform: scaleY(1);
+  }
+  97.5% {
+    transform: scaleY(0.08);
+  }
+}
+@utility motion-face-blink {
+  animation: vs-face-blink calc(3.4s + var(--face-seed, 0) * 0.7s) linear
+    infinite;
+  animation-delay: calc(var(--face-seed, 0) * -1.37s);
+}
+@keyframes vs-face-glance {
+  0%,
+  50%,
+  100% {
+    transform: translate(0, 0);
+  }
+  18%,
+  34% {
+    transform: translate(2.1px, 0.6px);
+  }
+  66%,
+  84% {
+    transform: translate(-2.1px, -0.4px);
+  }
+}
+@utility motion-face-glance {
+  animation: vs-face-glance 9s ease-in-out infinite;
+  animation-delay: calc(var(--face-seed, 0) * -2.1s);
+}
+@keyframes vs-face-drift {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  50% {
+    transform: translateX(1.1px);
+  }
+}
+@utility motion-face-drift {
+  animation: vs-face-drift 7s ease-in-out infinite;
+}
+@keyframes vs-face-scan {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  6%,
+  44% {
+    transform: translateX(3.1px);
+  }
+  56%,
+  94% {
+    transform: translateX(-3.1px);
+  }
+}
+@utility motion-face-scan {
+  animation: vs-face-scan 2.7s ease-in-out infinite;
+}
+@keyframes vs-face-read {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  42% {
+    transform: translateX(2.8px);
+  }
+  50% {
+    transform: translateX(-2.8px);
+  }
+}
+@utility motion-face-read {
+  animation: vs-face-read 2.4s linear infinite;
+}
+@keyframes vs-face-mouth {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.35);
+  }
+}
+@utility motion-face-mouth {
+  animation: vs-face-mouth 0.37s ease-in-out infinite;
+}
+@keyframes vs-face-light {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(4.9px, 2.4px);
+  }
+  50% {
+    transform: translate(0, 3.2px);
+  }
+  75% {
+    transform: translate(-4.9px, 0.8px);
+  }
+}
+@utility motion-face-light {
+  animation: vs-face-light var(--face-light-speed, 12s) ease-in-out infinite;
+}
+@keyframes vs-face-orbit {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+@utility motion-face-orbit {
+  animation: vs-face-orbit var(--face-orbit-speed, 3.7s) linear infinite;
+}
+@keyframes vs-face-sheen {
+  from {
+    transform: translateX(0);
+  }
+  72%,
+  to {
+    transform: translateX(200px);
+  }
+}
+@utility motion-face-sheen {
+  animation: vs-face-sheen 1.87s linear infinite;
+}
+@keyframes vs-face-flash {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.12;
+  }
+}
+@utility motion-face-flash {
+  animation: vs-face-flash 0.52s ease-in-out infinite;
+}
+@keyframes vs-face-warm {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@utility motion-face-warm {
+  animation: vs-face-warm 1.6s ease-in-out infinite;
+}
+@keyframes vs-face-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-1.6px) scale(1.12);
+    opacity: 0.7;
+  }
+}
+@utility motion-face-float {
+  animation: vs-face-float 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--face-dot, 0) * 0.3s);
+}
+@keyframes vs-face-type {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  25% {
+    transform: translateY(-2.2px);
+    opacity: 0.55;
+  }
+}
+@utility motion-face-type {
+  animation: vs-face-type 0.97s ease-in-out infinite;
+  animation-delay: calc(var(--face-dot, 0) * 0.14s);
+}
+@keyframes vs-face-flare {
+  0%,
+  30%,
+  100% {
+    transform: scale(1);
+  }
+  15% {
+    transform: scale(1.22);
+  }
+}
+@utility motion-face-flare {
+  animation: vs-face-flare 2.4s ease-in-out infinite;
+}
+@keyframes vs-face-twinkle {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(0.78);
+    opacity: 0.6;
+  }
+}
+@utility motion-face-twinkle {
+  animation: vs-face-twinkle 2.1s ease-in-out infinite;
+  animation-delay: calc(var(--face-dot, 0) * -0.7s);
+}
+@keyframes vs-face-rise {
+  0% {
+    transform: translate(-2px, 3px) scale(0.8);
+    opacity: 0;
+  }
+  30%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(2px, -4px) scale(1.1);
+    opacity: 0;
+  }
+}
+@utility motion-face-rise {
+  animation: vs-face-rise 2.6s ease-in-out infinite;
+  animation-delay: calc(var(--face-dot, 0) * -1.3s);
+}
+@keyframes vs-face-ping {
+  from {
+    transform: scale(1);
+    opacity: 0.4;
+  }
+  to {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+@utility motion-face-ping {
+  animation: vs-face-ping 1.4s ease-out infinite;
+}
+@keyframes vs-face-moon {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+@keyframes vs-face-moon-half {
+  0%,
+  49.9% {
+    opacity: var(--face-moon-a, 1);
+  }
+  50%,
+  100% {
+    opacity: var(--face-moon-b, 0);
+  }
+}
+@utility motion-face-moon {
+  animation:
+    vs-face-moon var(--face-orbit-speed, 2.6s) linear infinite,
+    vs-face-moon-half var(--face-orbit-speed, 2.6s) step-end infinite;
+}
+@keyframes vs-face-change {
+  0%,
+  100% {
+    transform: scale(1, 1);
+  }
+  45% {
+    transform: scale(1.07, 0.93);
+  }
+}
+@utility motion-face-change {
+  animation: vs-face-change 0.42s ease-out 1;
+}
+@keyframes vs-face-change-eyes {
+  0%,
+  100% {
+    transform: scaleY(1);
+  }
+  40%,
+  55% {
+    transform: scaleY(0.08);
+  }
+}
+@utility motion-face-change-eyes {
+  animation: vs-face-change-eyes 0.42s ease-out 1;
+}
+@keyframes vs-face-chase {
+  0%,
+  22%,
+  100% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+}
+@utility motion-face-chase {
+  animation: vs-face-chase 2.3s linear infinite;
+  animation-delay: calc(var(--face-dot, 0) * 0.143s);
+}
+@keyframes vs-face-wave {
+  0%,
+  40%,
+  100% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+}
+@utility motion-face-wave {
+  animation: vs-face-wave 1.4s ease-in-out infinite;
+  animation-delay: calc(var(--face-dot, 0) * 0.2s);
+}
+
+/* ---------------------------------------------------------------------------
  * motion-dock-in / motion-dock-out — the docked-control enter/exit pair
  * (audit D11 amendment #7, 2026-09-07).
  *

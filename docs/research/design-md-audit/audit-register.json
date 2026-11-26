@@ -2,17 +2,31 @@
   "schemaVersion": 1,
   "kind": "vegastack-zero-gap-audit-register",
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "19932af37a939ae6a45d33b305af08db7ecbc37c655e48ae3ca5ac694b85ae4e",
+  "contractSha256": "15a7f85106eb4cc75f71b0ad883a01495ce2a2fd070b5afb06a707b91a0d8a60",
   "expectedCounts": {
-    "totalRegistryItems": 825,
-    "components": 236,
+    "totalRegistryItems": 827,
+    "components": 237,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
-    "libs": 23,
+    "libs": 24,
     "chartBlocks": 68
   },
   "records": [
+    {
+      "name": "accent",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/accent.tsx",
+        "packages/ui/registry/ui/accent-picker.tsx",
+        "packages/ui/registry/ui/accent-preview.tsx",
+        "packages/ui/registry/ui/accent-script.tsx"
+      ],
+      "docsSlug": "/docs/components/accent",
+      "contractStatus": "reconciled"
+    },
     {
       "name": "accordion",
       "inventoryClass": "component",
@@ -33,6 +47,83 @@
         "packages/ui/registry/ui/action-bar.tsx"
       ],
       "docsSlug": "/docs/components/action-bar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "activity-feed",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/activity-feed.tsx"
+      ],
+      "docsSlug": "/docs/components/activity-feed",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "add-filter-menu",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/add-filter-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/add-filter-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-directory-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-directory-card.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-directory-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-edit-banner",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-edit-banner.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-edit-banner",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-face",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-face.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-face",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-panel",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-panel.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-panel",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "agent-question-form",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/agent-question-form.tsx"
+      ],
+      "docsSlug": "/docs/components/agent-question-form",
       "contractStatus": "reconciled"
     },
     {
@@ -58,51 +149,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "shell",
+      "name": "ask-card",
       "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "layout",
+      "wave": "AI/chat",
+      "family": "chat",
       "sourceFiles": [
-        "packages/ui/registry/ui/shell.tsx",
-        "packages/ui/registry/ui/shell-client.tsx",
-        "packages/ui/registry/ui/shell-scripts.tsx"
+        "packages/ui/registry/ui/ask-card.tsx"
       ],
-      "docsSlug": "/docs/components/shell",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "nav-tree",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "navigation",
-      "sourceFiles": [
-        "packages/ui/registry/ui/nav-tree.tsx"
-      ],
-      "docsSlug": "/docs/components/nav-tree",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "global-bar",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "layout",
-      "sourceFiles": [
-        "packages/ui/registry/ui/global-bar.tsx",
-        "packages/ui/registry/ui/global-bar-client.tsx"
-      ],
-      "docsSlug": "/docs/components/global-bar",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "rail",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "navigation",
-      "sourceFiles": [
-        "packages/ui/registry/ui/rail.tsx",
-        "packages/ui/registry/ui/rail-client.tsx"
-      ],
-      "docsSlug": "/docs/components/rail",
+      "docsSlug": "/docs/components/ask-card",
       "contractStatus": "reconciled"
     },
     {
@@ -184,6 +238,39 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "block-header",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/block-header.tsx"
+      ],
+      "docsSlug": "/docs/components/block-header",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "block-toolbar",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/block-toolbar.tsx"
+      ],
+      "docsSlug": "/docs/components/block-toolbar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "block-view",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/block-view.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "board",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -203,6 +290,17 @@
         "packages/ui/registry/ui/board-card.tsx"
       ],
       "docsSlug": "/docs/components/board-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "brand-logo",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/brand-logo.tsx"
+      ],
+      "docsSlug": "/docs/components/brand-logo",
       "contractStatus": "reconciled"
     },
     {
@@ -306,6 +404,149 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "chat-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-card.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-chip",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-composer",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-composer.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-composer",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-menu",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-message-parts",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-message-parts.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-message-parts",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-plan-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-plan-card.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-plan-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-question-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-question-card.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-question-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-request-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-request-card.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-request-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-skeleton",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-skeleton.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-skeleton",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-subagents",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-subagents.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-subagents",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-task-list",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-task-list.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-task-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-user-bubble",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-user-bubble.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-user-bubble",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "chat-work-log",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/chat-work-log.tsx"
+      ],
+      "docsSlug": "/docs/components/chat-work-log",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "checkbox",
       "inventoryClass": "component",
       "wave": "Core controls",
@@ -336,6 +577,28 @@
         "packages/ui/registry/ui/chip-input.tsx"
       ],
       "docsSlug": "/docs/components/chip-input",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "choice-card",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/choice-card.tsx"
+      ],
+      "docsSlug": "/docs/components/choice-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "cited-list",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/cited-list.tsx"
+      ],
+      "docsSlug": "/docs/components/cited-list",
       "contractStatus": "reconciled"
     },
     {
@@ -394,6 +657,50 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "command-search",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/command-search.tsx"
+      ],
+      "docsSlug": "/docs/components/command-search",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "comment-margin",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/comment-margin.tsx"
+      ],
+      "docsSlug": "/docs/components/comment-margin",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "comments",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/comments.tsx"
+      ],
+      "docsSlug": "/docs/components/comments",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "composer-chip",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/composer-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/composer-chip",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "context-menu",
       "inventoryClass": "component",
       "wave": "Overlays",
@@ -405,6 +712,28 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "context-panel",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/context-panel.tsx"
+      ],
+      "docsSlug": "/docs/components/context-panel",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "context-ring",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/context-ring.tsx"
+      ],
+      "docsSlug": "/docs/components/context-ring",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "copy-button",
       "inventoryClass": "component",
       "wave": "Core controls",
@@ -413,6 +742,28 @@
         "packages/ui/registry/ui/copy-button.tsx"
       ],
       "docsSlug": "/docs/components/copy-button",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "coverage-banner",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/coverage-banner.tsx"
+      ],
+      "docsSlug": "/docs/components/coverage-banner",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "cursor-pager",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/cursor-pager.tsx"
+      ],
+      "docsSlug": "/docs/components/cursor-pager",
       "contractStatus": "reconciled"
     },
     {
@@ -449,127 +800,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "cursor-pager",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/cursor-pager.tsx"
-      ],
-      "docsSlug": "/docs/components/cursor-pager",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "load-more",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/load-more.tsx"
-      ],
-      "docsSlug": "/docs/components/load-more",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "media-card",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/media-card.tsx"
-      ],
-      "docsSlug": "/docs/components/media-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "priority-icon",
-      "inventoryClass": "component",
-      "wave": "Core controls",
-      "family": "data-display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/priority-icon.tsx"
-      ],
-      "docsSlug": "/docs/components/priority-icon",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "thumbnail",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/thumbnail.tsx"
-      ],
-      "docsSlug": "/docs/components/thumbnail",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "view-tabs",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/view-tabs.tsx"
-      ],
-      "docsSlug": "/docs/components/view-tabs",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "list-toolbar",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/list-toolbar.tsx"
-      ],
-      "docsSlug": "/docs/components/list-toolbar",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "filter-row",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/filter-row.tsx"
-      ],
-      "docsSlug": "/docs/components/filter-row",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "add-filter-menu",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/add-filter-menu.tsx"
-      ],
-      "docsSlug": "/docs/components/add-filter-menu",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "sort-menu",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/sort-menu.tsx"
-      ],
-      "docsSlug": "/docs/components/sort-menu",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "display-menu",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/display-menu.tsx"
-      ],
-      "docsSlug": "/docs/components/display-menu",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "data-table-parts",
       "inventoryClass": "component",
       "wave": "Shared internals",
@@ -593,25 +823,36 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "time-field",
+      "name": "delegate-popover",
       "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
+      "wave": "AI/chat",
+      "family": "chat",
       "sourceFiles": [
-        "packages/ui/registry/ui/time-field.tsx"
+        "packages/ui/registry/ui/delegate-popover.tsx"
       ],
-      "docsSlug": "/docs/components/time-field",
+      "docsSlug": "/docs/components/delegate-popover",
       "contractStatus": "reconciled"
     },
     {
-      "name": "recurrence-picker",
+      "name": "delegate-row",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/delegate-row.tsx"
+      ],
+      "docsSlug": "/docs/components/delegate-row",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "destination-picker",
       "inventoryClass": "component",
       "wave": "Forms/editing",
-      "family": "form",
+      "family": "forms",
       "sourceFiles": [
-        "packages/ui/registry/ui/recurrence-picker.tsx"
+        "packages/ui/registry/ui/destination-picker.tsx"
       ],
-      "docsSlug": "/docs/components/recurrence-picker",
+      "docsSlug": "/docs/components/destination-picker",
       "contractStatus": "reconciled"
     },
     {
@@ -626,6 +867,28 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "diff-view",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/diff-view.tsx"
+      ],
+      "docsSlug": "/docs/components/diff-view",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "digest-group",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/digest-group.tsx"
+      ],
+      "docsSlug": "/docs/components/digest-group",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "direction",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -634,6 +897,32 @@
         "packages/ui/registry/ui/direction.tsx"
       ],
       "docsSlug": "/docs/components/direction",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "display-menu",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/display-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/display-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "document-layout",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/document-layout-meta.tsx",
+        "packages/ui/registry/ui/document-layout-sections.tsx",
+        "packages/ui/registry/ui/document-layout-tools.tsx",
+        "packages/ui/registry/ui/document-layout.tsx",
+        "packages/ui/registry/ui/use-document-layout-tier.ts"
+      ],
+      "docsSlug": "/docs/components/document-layout",
       "contractStatus": "reconciled"
     },
     {
@@ -659,6 +948,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "dropdown-menu-form",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/dropdown-menu-form.tsx"
+      ],
+      "docsSlug": "/docs/components/dropdown-menu-form",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "dropzone",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -667,17 +967,6 @@
         "packages/ui/registry/ui/dropzone.tsx"
       ],
       "docsSlug": "/docs/components/dropzone",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "upload-panel",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "forms",
-      "sourceFiles": [
-        "packages/ui/registry/ui/upload-panel.tsx"
-      ],
-      "docsSlug": "/docs/components/upload-panel",
       "contractStatus": "reconciled"
     },
     {
@@ -692,14 +981,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "field-cell",
+      "name": "effect-pill",
       "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
+      "wave": "AI/chat",
+      "family": "chat",
       "sourceFiles": [
-        "packages/ui/registry/ui/field-cell.tsx"
+        "packages/ui/registry/ui/effect-pill.tsx"
       ],
-      "docsSlug": "/docs/components/field-cell",
+      "docsSlug": "/docs/components/effect-pill",
       "contractStatus": "reconciled"
     },
     {
@@ -725,6 +1014,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "entry-list",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/entry-list.tsx"
+      ],
+      "docsSlug": "/docs/components/entry-list",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "field",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -733,6 +1033,17 @@
         "packages/ui/registry/ui/field.tsx"
       ],
       "docsSlug": "/docs/components/field",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "field-cell",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/field-cell.tsx"
+      ],
+      "docsSlug": "/docs/components/field-cell",
       "contractStatus": "reconciled"
     },
     {
@@ -747,36 +1058,25 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "filter-bar-managed",
+      "name": "file-card",
       "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/filter-bar-managed.tsx"
-      ],
-      "docsSlug": "/docs/components/filter-bar-managed",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "hover-card",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/hover-card.tsx"
-      ],
-      "docsSlug": "/docs/components/hover-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "image",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
+      "wave": "Data display",
       "family": "media",
       "sourceFiles": [
-        "packages/ui/registry/ui/image.tsx"
+        "packages/ui/registry/ui/file-card.tsx"
       ],
-      "docsSlug": "/docs/components/image",
+      "docsSlug": "/docs/components/file-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "file-preview",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/file-preview.tsx"
+      ],
+      "docsSlug": "/docs/components/file-preview",
       "contractStatus": "reconciled"
     },
     {
@@ -793,6 +1093,39 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "filter-bar-managed",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/filter-bar-managed.tsx"
+      ],
+      "docsSlug": "/docs/components/filter-bar-managed",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "filter-row",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/filter-row.tsx"
+      ],
+      "docsSlug": "/docs/components/filter-row",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "floating-cell-editor",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/floating-cell-editor.tsx"
+      ],
+      "docsSlug": "/docs/components/floating-cell-editor",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "folder-tree",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -804,14 +1137,136 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "table-of-contents",
+      "name": "for-you-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/for-you-card.tsx"
+      ],
+      "docsSlug": "/docs/components/for-you-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "global-bar",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/global-bar.tsx",
+        "packages/ui/registry/ui/global-bar-client.tsx"
+      ],
+      "docsSlug": "/docs/components/global-bar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "health-indicator",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/health-indicator.tsx"
+      ],
+      "docsSlug": "/docs/components/health-indicator",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "heatmap",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/heatmap.tsx"
+      ],
+      "docsSlug": "/docs/components/heatmap",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "help-menu",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
       "family": "navigation",
       "sourceFiles": [
-        "packages/ui/registry/ui/table-of-contents.tsx"
+        "packages/ui/registry/ui/help-menu.tsx"
       ],
-      "docsSlug": "/docs/components/table-of-contents",
+      "docsSlug": "/docs/components/help-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "hover-card",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/hover-card.tsx"
+      ],
+      "docsSlug": "/docs/components/hover-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-glyph",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icon-glyph.tsx"
+      ],
+      "docsSlug": "/docs/components/icon-glyph",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "icon-picker",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/icon-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/icon-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "image",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "media",
+      "sourceFiles": [
+        "packages/ui/registry/ui/image.tsx"
+      ],
+      "docsSlug": "/docs/components/image",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "inbox",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "media",
+      "sourceFiles": [
+        "packages/ui/registry/ui/inbox.tsx"
+      ],
+      "docsSlug": "/docs/components/inbox",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "info-hint",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/info-hint.tsx"
+      ],
+      "docsSlug": "/docs/components/info-hint",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "inline-chip",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/inline-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/inline-chip",
       "contractStatus": "reconciled"
     },
     {
@@ -870,6 +1325,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "kpi-card",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/kpi-card.tsx"
+      ],
+      "docsSlug": "/docs/components/kpi-card",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "label",
       "inventoryClass": "component",
       "wave": "Core controls",
@@ -881,14 +1347,36 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "inline-chip",
+      "name": "link-provider",
       "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "data-display",
+      "wave": "Navigation/layout",
+      "family": "navigation",
       "sourceFiles": [
-        "packages/ui/registry/ui/inline-chip.tsx"
+        "packages/ui/registry/ui/link-provider.tsx"
       ],
-      "docsSlug": "/docs/components/inline-chip",
+      "docsSlug": "/docs/components/link-provider",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "list-toolbar",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/list-toolbar.tsx"
+      ],
+      "docsSlug": "/docs/components/list-toolbar",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "load-more",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/load-more.tsx"
+      ],
+      "docsSlug": "/docs/components/load-more",
       "contractStatus": "reconciled"
     },
     {
@@ -916,6 +1404,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "media-card",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/media-card.tsx"
+      ],
+      "docsSlug": "/docs/components/media-card",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "media-player-controls",
       "inventoryClass": "component",
       "wave": "Content/marketing",
@@ -924,6 +1423,50 @@
         "packages/ui/registry/ui/media-player-controls.tsx"
       ],
       "docsSlug": "/docs/components/media-player-controls",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "meeting-icon",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/meeting-icon.tsx"
+      ],
+      "docsSlug": "/docs/components/meeting-icon",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "member-list",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/member-list.tsx"
+      ],
+      "docsSlug": "/docs/components/member-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "members-stack",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/members-stack.tsx"
+      ],
+      "docsSlug": "/docs/components/members-stack",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "memory-group",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/memory-group.tsx"
+      ],
+      "docsSlug": "/docs/components/memory-group",
       "contractStatus": "reconciled"
     },
     {
@@ -938,6 +1481,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "mermaid-block",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/mermaid-block.tsx"
+      ],
+      "docsSlug": "/docs/components/mermaid-block",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "message",
       "inventoryClass": "component",
       "wave": "AI/chat",
@@ -946,6 +1500,17 @@
         "packages/ui/registry/ui/message.tsx"
       ],
       "docsSlug": "/docs/components/message",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "message-parts",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/message-parts.tsx"
+      ],
+      "docsSlug": "/docs/components/message-parts",
       "contractStatus": "reconciled"
     },
     {
@@ -960,14 +1525,47 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "transcript",
+      "name": "meta-line",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/meta-line.tsx"
+      ],
+      "docsSlug": "/docs/components/meta-line",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "milestone-list",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/milestone-list.tsx"
+      ],
+      "docsSlug": "/docs/components/milestone-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "model-effort-menu",
       "inventoryClass": "component",
       "wave": "AI/chat",
-      "family": "communication",
+      "family": "chat",
       "sourceFiles": [
-        "packages/ui/registry/ui/transcript.tsx"
+        "packages/ui/registry/ui/model-effort-menu.tsx"
       ],
-      "docsSlug": "/docs/components/transcript",
+      "docsSlug": "/docs/components/model-effort-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "multi-step-form",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/multi-step-form.tsx"
+      ],
+      "docsSlug": "/docs/components/multi-step-form",
       "contractStatus": "reconciled"
     },
     {
@@ -982,6 +1580,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "nav-tree",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/nav-tree.tsx"
+      ],
+      "docsSlug": "/docs/components/nav-tree",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "navigation-menu",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -990,17 +1599,6 @@
         "packages/ui/registry/ui/navigation-menu.tsx"
       ],
       "docsSlug": "/docs/components/navigation-menu",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "inbox",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "media",
-      "sourceFiles": [
-        "packages/ui/registry/ui/inbox.tsx"
-      ],
-      "docsSlug": "/docs/components/inbox",
       "contractStatus": "reconciled"
     },
     {
@@ -1026,6 +1624,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "option-list-editor",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/option-list-editor.tsx"
+      ],
+      "docsSlug": "/docs/components/option-list-editor",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "page-header",
       "inventoryClass": "component",
       "wave": "Content/marketing",
@@ -1048,6 +1657,105 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "panel-search",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/panel-search.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "password-input",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/password-input.tsx"
+      ],
+      "docsSlug": "/docs/components/password-input",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "peek",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/peek.tsx"
+      ],
+      "docsSlug": "/docs/components/peek",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "people-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/people-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/people-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "permission-menu",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/permission-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/permission-menu",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "person-avatar",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/person-avatar.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "person-hover-card",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/person-hover-card.tsx"
+      ],
+      "docsSlug": "/docs/components/person-hover-card",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "picker-panel",
+      "inventoryClass": "component",
+      "wave": "Shared internals",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/picker-panel.tsx"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "plan-card",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/plan-card.tsx"
+      ],
+      "docsSlug": "/docs/components/plan-card",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "popover",
       "inventoryClass": "component",
       "wave": "Overlays",
@@ -1059,6 +1767,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "priority-icon",
+      "inventoryClass": "component",
+      "wave": "Core controls",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/priority-icon.tsx"
+      ],
+      "docsSlug": "/docs/components/priority-icon",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "progress",
       "inventoryClass": "component",
       "wave": "Core controls",
@@ -1067,17 +1786,6 @@
         "packages/ui/registry/ui/progress.tsx"
       ],
       "docsSlug": "/docs/components/progress",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "questionnaire",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "communication",
-      "sourceFiles": [
-        "packages/ui/registry/ui/questionnaire.tsx"
-      ],
-      "docsSlug": "/docs/components/questionnaire",
       "contractStatus": "reconciled"
     },
     {
@@ -1103,6 +1811,28 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "qr-code",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/qr-code.tsx"
+      ],
+      "docsSlug": "/docs/components/qr-code",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "questionnaire",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "communication",
+      "sourceFiles": [
+        "packages/ui/registry/ui/questionnaire.tsx"
+      ],
+      "docsSlug": "/docs/components/questionnaire",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "radio-group",
       "inventoryClass": "component",
       "wave": "Core controls",
@@ -1111,6 +1841,118 @@
         "packages/ui/registry/ui/radio-group.tsx"
       ],
       "docsSlug": "/docs/components/radio-group",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "rail",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/rail.tsx",
+        "packages/ui/registry/ui/rail-client.tsx"
+      ],
+      "docsSlug": "/docs/components/rail",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "reactions",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/reactions.tsx"
+      ],
+      "docsSlug": "/docs/components/reactions",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "recent-strip",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/recent-strip.tsx"
+      ],
+      "docsSlug": "/docs/components/recent-strip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-aside",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-aside.tsx"
+      ],
+      "docsSlug": "/docs/components/record-aside",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-chip",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/record-chip",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-header",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-header.tsx"
+      ],
+      "docsSlug": "/docs/components/record-header",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-layout",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-layout-side.tsx",
+        "packages/ui/registry/ui/record-layout.tsx"
+      ],
+      "docsSlug": "/docs/components/record-layout",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-list",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-list.tsx"
+      ],
+      "docsSlug": "/docs/components/record-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "record-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "forms",
+      "sourceFiles": [
+        "packages/ui/registry/ui/record-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/record-picker",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "recurrence-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/recurrence-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/recurrence-picker",
       "contractStatus": "reconciled"
     },
     {
@@ -1125,6 +1967,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "request-status-chip",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/request-status-chip.tsx"
+      ],
+      "docsSlug": "/docs/components/request-status-chip",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "resizable",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -1133,6 +1986,72 @@
         "packages/ui/registry/ui/resizable.tsx"
       ],
       "docsSlug": "/docs/components/resizable",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "resource-pill",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/resource-pill.tsx"
+      ],
+      "docsSlug": "/docs/components/resource-pill",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "responsive-dialog",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/responsive-dialog.tsx"
+      ],
+      "docsSlug": "/docs/components/responsive-dialog",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "route-tabs",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/route-tabs.tsx"
+      ],
+      "docsSlug": "/docs/components/route-tabs",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "routine-row",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/routine-row.tsx"
+      ],
+      "docsSlug": "/docs/components/routine-row",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "run-timeline",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/run-timeline.tsx"
+      ],
+      "docsSlug": "/docs/components/run-timeline",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "run-usage",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/run-usage.tsx"
+      ],
+      "docsSlug": "/docs/components/run-usage",
       "contractStatus": "reconciled"
     },
     {
@@ -1147,17 +2066,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "searchable-select",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/searchable-select.tsx"
-      ],
-      "docsSlug": "/docs/components/searchable-select",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "search-input",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -1169,14 +2077,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "password-input",
+      "name": "searchable-select",
       "inventoryClass": "component",
       "wave": "Forms/editing",
       "family": "form",
       "sourceFiles": [
-        "packages/ui/registry/ui/password-input.tsx"
+        "packages/ui/registry/ui/searchable-select.tsx"
       ],
-      "docsSlug": "/docs/components/password-input",
+      "docsSlug": "/docs/components/searchable-select",
       "contractStatus": "reconciled"
     },
     {
@@ -1213,6 +2121,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "share-dialog",
+      "inventoryClass": "component",
+      "wave": "Overlays",
+      "family": "overlay",
+      "sourceFiles": [
+        "packages/ui/registry/ui/share-dialog.tsx"
+      ],
+      "docsSlug": "/docs/components/share-dialog",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "sheet",
       "inventoryClass": "component",
       "wave": "Overlays",
@@ -1221,6 +2140,30 @@
         "packages/ui/registry/ui/sheet.tsx"
       ],
       "docsSlug": "/docs/components/sheet",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shell",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "layout",
+      "sourceFiles": [
+        "packages/ui/registry/ui/shell.tsx",
+        "packages/ui/registry/ui/shell-client.tsx",
+        "packages/ui/registry/ui/shell-scripts.tsx"
+      ],
+      "docsSlug": "/docs/components/shell",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shell-assistant",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/shell-assistant.tsx"
+      ],
+      "docsSlug": "/docs/components/shell-assistant",
       "contractStatus": "reconciled"
     },
     {
@@ -1257,6 +2200,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "sort-menu",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/sort-menu.tsx"
+      ],
+      "docsSlug": "/docs/components/sort-menu",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "sortable-list",
       "inventoryClass": "component",
       "wave": "Forms/editing",
@@ -1265,6 +2219,28 @@
         "packages/ui/registry/ui/sortable-list.tsx"
       ],
       "docsSlug": "/docs/components/sortable-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "source-list",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/source-list.tsx"
+      ],
+      "docsSlug": "/docs/components/source-list",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "space-picker",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/space-picker.tsx"
+      ],
+      "docsSlug": "/docs/components/space-picker",
       "contractStatus": "reconciled"
     },
     {
@@ -1290,25 +2266,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "kpi-card",
+      "name": "status-glyph",
       "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
+      "wave": "AI/chat",
+      "family": "chat",
       "sourceFiles": [
-        "packages/ui/registry/ui/kpi-card.tsx"
+        "packages/ui/registry/ui/status-glyph.tsx"
       ],
-      "docsSlug": "/docs/components/kpi-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "heatmap",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/heatmap.tsx"
-      ],
-      "docsSlug": "/docs/components/heatmap",
+      "docsSlug": "/docs/components/status-glyph",
       "contractStatus": "reconciled"
     },
     {
@@ -1323,6 +2288,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "status-line",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "feedback",
+      "sourceFiles": [
+        "packages/ui/registry/ui/status-line.tsx"
+      ],
+      "docsSlug": "/docs/components/status-line",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "stepper",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -1334,14 +2310,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "multi-step-form",
+      "name": "suggestion-menu",
       "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "navigation",
+      "wave": "Shared internals",
+      "family": "overlay",
       "sourceFiles": [
-        "packages/ui/registry/ui/multi-step-form.tsx"
+        "packages/ui/registry/ui/suggestion-menu.tsx"
       ],
-      "docsSlug": "/docs/components/multi-step-form",
+      "docsSlug": "/docs/guides/components",
       "contractStatus": "reconciled"
     },
     {
@@ -1367,6 +2343,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "table-of-contents",
+      "inventoryClass": "component",
+      "wave": "Navigation/layout",
+      "family": "navigation",
+      "sourceFiles": [
+        "packages/ui/registry/ui/table-of-contents.tsx"
+      ],
+      "docsSlug": "/docs/components/table-of-contents",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "tabs",
       "inventoryClass": "component",
       "wave": "Navigation/layout",
@@ -1389,15 +2376,25 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "terminal",
+      "name": "task-inline",
       "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "marketing",
+      "wave": "Forms/editing",
+      "family": "form",
       "sourceFiles": [
-        "packages/ui/registry/ui/terminal.tsx",
-        "packages/ui/registry/ui/terminal-body.tsx"
+        "packages/ui/registry/ui/task-inline.tsx"
       ],
-      "docsSlug": "/docs/components/terminal",
+      "docsSlug": "/docs/components/task-inline",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "task-list",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/task-list.tsx"
+      ],
+      "docsSlug": "/docs/components/task-list",
       "contractStatus": "reconciled"
     },
     {
@@ -1409,6 +2406,18 @@
         "packages/ui/registry/ui/template-editor.tsx"
       ],
       "docsSlug": "/docs/components/template-editor",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "terminal",
+      "inventoryClass": "component",
+      "wave": "Content/marketing",
+      "family": "marketing",
+      "sourceFiles": [
+        "packages/ui/registry/ui/terminal.tsx",
+        "packages/ui/registry/ui/terminal-body.tsx"
+      ],
+      "docsSlug": "/docs/components/terminal",
       "contractStatus": "reconciled"
     },
     {
@@ -1424,6 +2433,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "text-spinner",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "chat",
+      "sourceFiles": [
+        "packages/ui/registry/ui/text-spinner.tsx"
+      ],
+      "docsSlug": "/docs/components/text-spinner",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "textarea",
       "inventoryClass": "component",
       "wave": "Core controls",
@@ -1432,6 +2452,39 @@
         "packages/ui/registry/ui/textarea.tsx"
       ],
       "docsSlug": "/docs/components/textarea",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "thumbnail",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data",
+      "sourceFiles": [
+        "packages/ui/registry/ui/thumbnail.tsx"
+      ],
+      "docsSlug": "/docs/components/thumbnail",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "time-field",
+      "inventoryClass": "component",
+      "wave": "Forms/editing",
+      "family": "form",
+      "sourceFiles": [
+        "packages/ui/registry/ui/time-field.tsx"
+      ],
+      "docsSlug": "/docs/components/time-field",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "timeline",
+      "inventoryClass": "component",
+      "wave": "Data display",
+      "family": "data-display",
+      "sourceFiles": [
+        "packages/ui/registry/ui/timeline.tsx"
+      ],
+      "docsSlug": "/docs/components/timeline",
       "contractStatus": "reconciled"
     },
     {
@@ -1479,39 +2532,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "cited-list",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/cited-list.tsx"
-      ],
-      "docsSlug": "/docs/components/cited-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "agent-directory-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/agent-directory-card.tsx"
-      ],
-      "docsSlug": "/docs/components/agent-directory-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "ask-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/ask-card.tsx"
-      ],
-      "docsSlug": "/docs/components/ask-card",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "tool-permission-list",
       "inventoryClass": "component",
       "wave": "AI/chat",
@@ -1520,358 +2540,6 @@
         "packages/ui/registry/ui/tool-permission-list.tsx"
       ],
       "docsSlug": "/docs/components/tool-permission-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "for-you-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/for-you-card.tsx"
-      ],
-      "docsSlug": "/docs/components/for-you-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "digest-group",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/digest-group.tsx"
-      ],
-      "docsSlug": "/docs/components/digest-group",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "run-timeline",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/run-timeline.tsx"
-      ],
-      "docsSlug": "/docs/components/run-timeline",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "routine-row",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/routine-row.tsx"
-      ],
-      "docsSlug": "/docs/components/routine-row",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "delegate-row",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/delegate-row.tsx"
-      ],
-      "docsSlug": "/docs/components/delegate-row",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "coverage-banner",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/coverage-banner.tsx"
-      ],
-      "docsSlug": "/docs/components/coverage-banner",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "request-status-chip",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "data-display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/request-status-chip.tsx"
-      ],
-      "docsSlug": "/docs/components/request-status-chip",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "timeline",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data-display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/timeline.tsx"
-      ],
-      "docsSlug": "/docs/components/timeline",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "health-indicator",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data-display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/health-indicator.tsx"
-      ],
-      "docsSlug": "/docs/components/health-indicator",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "meeting-icon",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data-display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/meeting-icon.tsx"
-      ],
-      "docsSlug": "/docs/components/meeting-icon",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "milestone-list",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data-display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/milestone-list.tsx"
-      ],
-      "docsSlug": "/docs/components/milestone-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "effect-pill",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/effect-pill.tsx"
-      ],
-      "docsSlug": "/docs/components/effect-pill",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "composer-chip",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/composer-chip.tsx"
-      ],
-      "docsSlug": "/docs/components/composer-chip",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "context-ring",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/context-ring.tsx"
-      ],
-      "docsSlug": "/docs/components/context-ring",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "text-spinner",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/text-spinner.tsx"
-      ],
-      "docsSlug": "/docs/components/text-spinner",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "status-glyph",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/status-glyph.tsx"
-      ],
-      "docsSlug": "/docs/components/status-glyph",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-card.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-message-parts",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-message-parts.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-message-parts",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-skeleton",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-skeleton.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-skeleton",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-user-bubble",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-user-bubble.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-user-bubble",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-task-list",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-task-list.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-task-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-subagents",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-subagents.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-subagents",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-work-log",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-work-log.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-work-log",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-chip",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-chip.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-chip",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-menu",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-menu.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-menu",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "plan-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/plan-card.tsx"
-      ],
-      "docsSlug": "/docs/components/plan-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "task-list",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/task-list.tsx"
-      ],
-      "docsSlug": "/docs/components/task-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "run-usage",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/run-usage.tsx"
-      ],
-      "docsSlug": "/docs/components/run-usage",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-composer",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-composer.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-composer",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "model-effort-menu",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/model-effort-menu.tsx"
-      ],
-      "docsSlug": "/docs/components/model-effort-menu",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "context-panel",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/context-panel.tsx"
-      ],
-      "docsSlug": "/docs/components/context-panel",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "message-parts",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/message-parts.tsx"
-      ],
-      "docsSlug": "/docs/components/message-parts",
       "contractStatus": "reconciled"
     },
     {
@@ -1886,6 +2554,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "transcript",
+      "inventoryClass": "component",
+      "wave": "AI/chat",
+      "family": "communication",
+      "sourceFiles": [
+        "packages/ui/registry/ui/transcript.tsx"
+      ],
+      "docsSlug": "/docs/components/transcript",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "truncated-text",
       "inventoryClass": "component",
       "wave": "Content/marketing",
@@ -1897,69 +2576,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "video-player",
+      "name": "upload-panel",
       "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "media",
+      "wave": "Forms/editing",
+      "family": "forms",
       "sourceFiles": [
-        "packages/ui/registry/ui/video-player.tsx"
+        "packages/ui/registry/ui/upload-panel.tsx"
       ],
-      "docsSlug": "/docs/components/video-player",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "panel-search",
-      "inventoryClass": "component",
-      "wave": "Shared internals",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/panel-search.tsx"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "suggestion-menu",
-      "inventoryClass": "component",
-      "wave": "Shared internals",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/suggestion-menu.tsx"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "block-view",
-      "inventoryClass": "component",
-      "wave": "Shared internals",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/block-view.tsx"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "meta-line",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/meta-line.tsx"
-      ],
-      "docsSlug": "/docs/components/meta-line",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "entry-list",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/entry-list.tsx"
-      ],
-      "docsSlug": "/docs/components/entry-list",
+      "docsSlug": "/docs/components/upload-panel",
       "contractStatus": "reconciled"
     },
     {
@@ -1974,173 +2598,14 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "file-card",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "media",
-      "sourceFiles": [
-        "packages/ui/registry/ui/file-card.tsx"
-      ],
-      "docsSlug": "/docs/components/file-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "record-chip",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/record-chip.tsx"
-      ],
-      "docsSlug": "/docs/components/record-chip",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "block-toolbar",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/block-toolbar.tsx"
-      ],
-      "docsSlug": "/docs/components/block-toolbar",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "task-inline",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/task-inline.tsx"
-      ],
-      "docsSlug": "/docs/components/task-inline",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "record-list",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/record-list.tsx"
-      ],
-      "docsSlug": "/docs/components/record-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "status-line",
-      "inventoryClass": "component",
-      "wave": "Content/marketing",
-      "family": "feedback",
-      "sourceFiles": [
-        "packages/ui/registry/ui/status-line.tsx"
-      ],
-      "docsSlug": "/docs/components/status-line",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "peek",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/peek.tsx"
-      ],
-      "docsSlug": "/docs/components/peek",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "record-layout",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "layout",
-      "sourceFiles": [
-        "packages/ui/registry/ui/record-layout-side.tsx",
-        "packages/ui/registry/ui/record-layout.tsx"
-      ],
-      "docsSlug": "/docs/components/record-layout",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "document-layout",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "layout",
-      "sourceFiles": [
-        "packages/ui/registry/ui/document-layout-meta.tsx",
-        "packages/ui/registry/ui/document-layout-sections.tsx",
-        "packages/ui/registry/ui/document-layout-tools.tsx",
-        "packages/ui/registry/ui/document-layout.tsx",
-        "packages/ui/registry/ui/use-document-layout-tier.ts"
-      ],
-      "docsSlug": "/docs/components/document-layout",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "comments",
+      "name": "version-compare",
       "inventoryClass": "component",
       "wave": "Data display",
       "family": "display",
       "sourceFiles": [
-        "packages/ui/registry/ui/comments.tsx"
+        "packages/ui/registry/ui/version-compare.tsx"
       ],
-      "docsSlug": "/docs/components/comments",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "activity-feed",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/activity-feed.tsx"
-      ],
-      "docsSlug": "/docs/components/activity-feed",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "diff-view",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/diff-view.tsx"
-      ],
-      "docsSlug": "/docs/components/diff-view",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "mermaid-block",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/mermaid-block.tsx"
-      ],
-      "docsSlug": "/docs/components/mermaid-block",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "qr-code",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/qr-code.tsx"
-      ],
-      "docsSlug": "/docs/components/qr-code",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "brand-logo",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/brand-logo.tsx"
-      ],
-      "docsSlug": "/docs/components/brand-logo",
+      "docsSlug": "/docs/components/version-compare",
       "contractStatus": "reconciled"
     },
     {
@@ -2155,479 +2620,25 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "version-compare",
+      "name": "video-player",
       "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
+      "wave": "Content/marketing",
+      "family": "media",
       "sourceFiles": [
-        "packages/ui/registry/ui/version-compare.tsx"
+        "packages/ui/registry/ui/video-player.tsx"
       ],
-      "docsSlug": "/docs/components/version-compare",
+      "docsSlug": "/docs/components/video-player",
       "contractStatus": "reconciled"
     },
     {
-      "name": "comment-margin",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/comment-margin.tsx"
-      ],
-      "docsSlug": "/docs/components/comment-margin",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "reactions",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/reactions.tsx"
-      ],
-      "docsSlug": "/docs/components/reactions",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "record-aside",
+      "name": "view-tabs",
       "inventoryClass": "component",
       "wave": "Data display",
       "family": "data",
       "sourceFiles": [
-        "packages/ui/registry/ui/record-aside.tsx"
+        "packages/ui/registry/ui/view-tabs.tsx"
       ],
-      "docsSlug": "/docs/components/record-aside",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "members-stack",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/members-stack.tsx"
-      ],
-      "docsSlug": "/docs/components/members-stack",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "person-hover-card",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/person-hover-card.tsx"
-      ],
-      "docsSlug": "/docs/components/person-hover-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "person-avatar",
-      "inventoryClass": "component",
-      "wave": "Shared internals",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/person-avatar.tsx"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "people-picker",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/people-picker.tsx"
-      ],
-      "docsSlug": "/docs/components/people-picker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "permission-menu",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/permission-menu.tsx"
-      ],
-      "docsSlug": "/docs/components/permission-menu",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "responsive-dialog",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/responsive-dialog.tsx"
-      ],
-      "docsSlug": "/docs/components/responsive-dialog",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "member-list",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/member-list.tsx"
-      ],
-      "docsSlug": "/docs/components/member-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "share-dialog",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/share-dialog.tsx"
-      ],
-      "docsSlug": "/docs/components/share-dialog",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "space-picker",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/space-picker.tsx"
-      ],
-      "docsSlug": "/docs/components/space-picker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "info-hint",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/info-hint.tsx"
-      ],
-      "docsSlug": "/docs/components/info-hint",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "choice-card",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/choice-card.tsx"
-      ],
-      "docsSlug": "/docs/components/choice-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "icon-glyph",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data-display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/icon-glyph.tsx"
-      ],
-      "docsSlug": "/docs/components/icon-glyph",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "picker-panel",
-      "inventoryClass": "component",
-      "wave": "Shared internals",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/picker-panel.tsx"
-      ],
-      "docsSlug": "/docs/guides/components",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "icon-picker",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/icon-picker.tsx"
-      ],
-      "docsSlug": "/docs/components/icon-picker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "agent-edit-banner",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/agent-edit-banner.tsx"
-      ],
-      "docsSlug": "/docs/components/agent-edit-banner",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "record-header",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/record-header.tsx"
-      ],
-      "docsSlug": "/docs/components/record-header",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "agent-panel",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/agent-panel.tsx"
-      ],
-      "docsSlug": "/docs/components/agent-panel",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "agent-question-form",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/agent-question-form.tsx"
-      ],
-      "docsSlug": "/docs/components/agent-question-form",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "delegate-popover",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/delegate-popover.tsx"
-      ],
-      "docsSlug": "/docs/components/delegate-popover",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "help-menu",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "navigation",
-      "sourceFiles": [
-        "packages/ui/registry/ui/help-menu.tsx"
-      ],
-      "docsSlug": "/docs/components/help-menu",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "route-tabs",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "navigation",
-      "sourceFiles": [
-        "packages/ui/registry/ui/route-tabs.tsx"
-      ],
-      "docsSlug": "/docs/components/route-tabs",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "command-search",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/command-search.tsx"
-      ],
-      "docsSlug": "/docs/components/command-search",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "block-header",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "display",
-      "sourceFiles": [
-        "packages/ui/registry/ui/block-header.tsx"
-      ],
-      "docsSlug": "/docs/components/block-header",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "record-picker",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "forms",
-      "sourceFiles": [
-        "packages/ui/registry/ui/record-picker.tsx"
-      ],
-      "docsSlug": "/docs/components/record-picker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "destination-picker",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "forms",
-      "sourceFiles": [
-        "packages/ui/registry/ui/destination-picker.tsx"
-      ],
-      "docsSlug": "/docs/components/destination-picker",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "recent-strip",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/recent-strip.tsx"
-      ],
-      "docsSlug": "/docs/components/recent-strip",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "floating-cell-editor",
-      "inventoryClass": "component",
-      "wave": "Data display",
-      "family": "data",
-      "sourceFiles": [
-        "packages/ui/registry/ui/floating-cell-editor.tsx"
-      ],
-      "docsSlug": "/docs/components/floating-cell-editor",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "dropdown-menu-form",
-      "inventoryClass": "component",
-      "wave": "Overlays",
-      "family": "overlay",
-      "sourceFiles": [
-        "packages/ui/registry/ui/dropdown-menu-form.tsx"
-      ],
-      "docsSlug": "/docs/components/dropdown-menu-form",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "option-list-editor",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/option-list-editor.tsx"
-      ],
-      "docsSlug": "/docs/components/option-list-editor",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "link-provider",
-      "inventoryClass": "component",
-      "wave": "Navigation/layout",
-      "family": "navigation",
-      "sourceFiles": [
-        "packages/ui/registry/ui/link-provider.tsx"
-      ],
-      "docsSlug": "/docs/components/link-provider",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-request-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-request-card.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-request-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-plan-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-plan-card.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-plan-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "chat-question-card",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/chat-question-card.tsx"
-      ],
-      "docsSlug": "/docs/components/chat-question-card",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "memory-group",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/memory-group.tsx"
-      ],
-      "docsSlug": "/docs/components/memory-group",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "file-preview",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/file-preview.tsx"
-      ],
-      "docsSlug": "/docs/components/file-preview",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "source-list",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/source-list.tsx"
-      ],
-      "docsSlug": "/docs/components/source-list",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "resource-pill",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/resource-pill.tsx"
-      ],
-      "docsSlug": "/docs/components/resource-pill",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "shell-assistant",
-      "inventoryClass": "component",
-      "wave": "AI/chat",
-      "family": "chat",
-      "sourceFiles": [
-        "packages/ui/registry/ui/shell-assistant.tsx"
-      ],
-      "docsSlug": "/docs/components/shell-assistant",
-      "contractStatus": "reconciled"
-    },
-    {
-      "name": "accent",
-      "inventoryClass": "component",
-      "wave": "Forms/editing",
-      "family": "form",
-      "sourceFiles": [
-        "packages/ui/registry/ui/accent.tsx",
-        "packages/ui/registry/ui/accent-picker.tsx",
-        "packages/ui/registry/ui/accent-preview.tsx",
-        "packages/ui/registry/ui/accent-script.tsx"
-      ],
-      "docsSlug": "/docs/components/accent",
+      "docsSlug": "/docs/components/view-tabs",
       "contractStatus": "reconciled"
     },
     {
@@ -8884,6 +8895,17 @@
       "contractStatus": "reconciled"
     },
     {
+      "name": "agent-face-spec",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/agent-face-spec.ts"
+      ],
+      "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
       "name": "code-highlight",
       "inventoryClass": "lib",
       "wave": "Libs",
@@ -9027,17 +9049,6 @@
       "contractStatus": "reconciled"
     },
     {
-      "name": "shell-layout",
-      "inventoryClass": "lib",
-      "wave": "Libs",
-      "family": "lib",
-      "sourceFiles": [
-        "packages/ui/registry/lib/shell-layout.ts"
-      ],
-      "docsSlug": "/docs/components/shell",
-      "contractStatus": "reconciled"
-    },
-    {
       "name": "picker-preferences",
       "inventoryClass": "lib",
       "wave": "Libs",
@@ -9057,6 +9068,17 @@
         "packages/ui/registry/lib/picker-search.ts"
       ],
       "docsSlug": "/docs/guides/components",
+      "contractStatus": "reconciled"
+    },
+    {
+      "name": "shell-layout",
+      "inventoryClass": "lib",
+      "wave": "Libs",
+      "family": "lib",
+      "sourceFiles": [
+        "packages/ui/registry/lib/shell-layout.ts"
+      ],
+      "docsSlug": "/docs/components/shell",
       "contractStatus": "reconciled"
     },
     {

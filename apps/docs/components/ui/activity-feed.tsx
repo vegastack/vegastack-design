@@ -1,4 +1,4 @@
-// @vegastack activity-feed@0.135.0 sha256-JL6JFcNFqys474fDAGyG63yQbugDdU8p7S0oNvEge1E=
+// @vegastack activity-feed@0.135.0 sha256-21kWlN+CPOfMUdJIbH1k6W169PaDmzrrmW1zx3Z/qzQ=
 
 "use client";
 
@@ -753,7 +753,7 @@ export function ActivityEvent({
             <PersonBadge badge={actor.badge} />{" "}
           </>
         ) : null}
-        {/* Agent-first: "Claude Code for Manoj changed …" — its hexagon says it is an agent, so
+        {/* Agent-first: "Claude Code for Manoj changed …" — its face says it is an agent, so
             the line carries no label. */}
         {children}{" "}
         {/* The dot travels with the time: a wrapped line never ends on it. */}

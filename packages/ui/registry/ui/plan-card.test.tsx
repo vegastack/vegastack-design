@@ -7,7 +7,7 @@ import "../../test/stacking.css";
 import { PlanCard, type PlanCardState, type PlanSpec } from "./plan-card";
 
 const plan: PlanSpec = {
-  agent: { id: "a1", name: "Ops assistant", avatar: null },
+  agent: { id: "a1", name: "Ops assistant" },
   version: 2,
   title: "Clean up overdue tasks in Ops",
   goal: "Every task due before today is in Backlog with a note.",
@@ -367,22 +367,22 @@ test("an answer from elsewhere never moves focus", async () => {
   expect(document.activeElement).toBe(document.body);
 });
 
-test("the agent's own glyph is its face when it has no image", async () => {
+test("the agent is drawn as its own face", async () => {
   const screen = await render(
     <PlanCard
       plan={{
         ...plan,
         agent: {
           ...plan.agent,
-          mark: <svg data-testid="agent-glyph" />,
-          hue: "green",
+          face: { v: 1, preset: "bloom", palette: "green" },
         },
       }}
       {...handlers()}
     />,
   );
-  expect(
-    screen.container.querySelector('[data-testid="agent-glyph"]'),
-  ).not.toBeNull();
-  expect(screen.container.querySelector(".bg-tag-green-subtle")).not.toBeNull();
+  const face = screen.container.querySelector<SVGSVGElement>(
+    "[data-slot=agent-face]",
+  )!;
+  expect(face.dataset.preset).toBe("bloom");
+  expect(face.dataset.palette).toBe("green");
 });

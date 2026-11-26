@@ -64,9 +64,10 @@ link` (upstream's set, verbatim). `destructive` is a soft tint, not a solid red 
   person is (`RecordChip` `person`, `BoardCard` `assignee`, `InboxItem` `avatar`, `PropertyPerson`,
   `SearchableSelect` `itemToAvatar`); never hand-roll `Avatar` + initials for a person, and set a
   person's own photo with `AvatarPicker`. Size it with `size` (`2xs` 16 · `xs` 20 · `sm` 24 ·
-  `default` 32 · `lg` 40 · `xl` 64), never a `className="size-*"`. An agent (`kind: "agent"`) is a
-  soft hexagon: pass its provider's logo as `mark` (`{ src, alt, fit, tile }` or a node); the
-  design system holds no provider names or logos.
+  `default` 32 · `lg` 40 · `xl` 64), never a `className="size-*"`. An agent (`kind: "agent"`) is
+  its face: pass `person.face` (`{ v: 1, preset, palette }`, an `AgentFace` preset and palette) and
+  `faceState`; `motion` only where the person is looking at that agent. A vendor's logo goes in
+  the hover card's footer, never on the face.
 - **Control sizes are upstream's names: `default · xs · sm · lg`**, plus
   `icon · icon-xs · icon-sm · icon-lg` where a square tier exists. The old `md` default is gone, and
   most of the components that are ours dropped their `size` prop entirely and take their height from

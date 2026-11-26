@@ -12,6 +12,7 @@ const root = fileURLToPath(new URL("..", import.meta.url));
 const check = process.argv.includes("--check");
 
 const steps = [
+  ["agent face spec", ["node", "tooling/agent-face-spec.mjs"]],
   [
     "contract fields",
     ["node", "tooling/verify-component-contracts.mjs", "--write"],

@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
   "generatedFrom": "packages/ui/component-contracts.json",
-  "contractSha256": "19932af37a939ae6a45d33b305af08db7ecbc37c655e48ae3ca5ac694b85ae4e",
+  "contractSha256": "15a7f85106eb4cc75f71b0ad883a01495ce2a2fd070b5afb06a707b91a0d8a60",
   "inventory": {
-    "expected": 825,
-    "actual": 825,
-    "unique": 825
+    "expected": 827,
+    "actual": 827,
+    "unique": 827
   },
   "classes": {
-    "components": 236,
+    "components": 237,
     "animatedIcons": 467,
     "hooks": 16,
     "blocks": 15,
     "chartBlocks": 68,
-    "libs": 23
+    "libs": 24
   },
   "waves": {
     "Core controls": {
@@ -243,11 +243,12 @@
       ]
     },
     "AI/chat": {
-      "expected": 52,
-      "actual": 52,
+      "expected": 53,
+      "actual": 53,
       "members": [
         "agent-directory-card",
         "agent-edit-banner",
+        "agent-face",
         "agent-panel",
         "agent-question-form",
         "ask-card",
@@ -885,7 +886,7 @@
       ]
     }
   },
-  "componentRoutes": 230,
+  "componentRoutes": 231,
   "blockRoutes": 22,
   "modeledExemptions": 3
 }

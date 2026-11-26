@@ -238,7 +238,7 @@ const ASSIGNEES: PeoplePickerOption[] = [
     name: "Orbit",
     kind: "agent",
     for: "Dev",
-    mark: { src: "/preview/agent-mark-orbit.svg" },
+    face: { v: 1, preset: "orbit", palette: "ink" },
     hint: "Can't see this space yet",
     group: "Agents",
   },

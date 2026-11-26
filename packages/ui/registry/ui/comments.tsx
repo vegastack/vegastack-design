@@ -1,4 +1,4 @@
-// @vegastack comments@0.135.0 sha256-w+0UIiznx5Nz07W7Qib1favAAR6n5SoddL+oej8hdcs=
+// @vegastack comments@0.135.0 sha256-BgtHCcpJGPjlRMCaUDoh5sVJuuaUtyg7fmsfBCvGEGY=
 
 "use client";
 
@@ -517,7 +517,7 @@ export function CommentItem({
             >
               <PersonName person={author} agentLabel={false} />
             </PersonHoverCard>
-            {/* An agent's comment: its hexagon and "for Manoj" say so; no label (U11). */}
+            {/* An agent's comment: its face and "for Manoj" say so; no label (U11). */}
             {question ? (
               <span
                 data-slot="comment-question"

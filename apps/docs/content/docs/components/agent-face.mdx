@@ -1,0 +1,127 @@
+---
+title: Agent Face
+description: "An agent's face: a preset character in a palette, the Pebble from 40px and the Dot below, showing what it is doing. CSS only, still under reduced motion."
+audience: public
+registry: agent-face
+status: preview
+since: 0.137.0
+a11y: one named image, or hidden beside its name
+preview: agentFace
+---
+
+## Install
+
+<InstallSteps name="agent-face" />
+
+## Usage
+
+```tsx
+import { AgentFace } from "@/components/ui/agent-face";
+
+<AgentFace
+  face={{ v: 1, preset: "squish", palette: "violet" }}
+  size={64}
+  state="thinking"
+  motion
+  label="Scout, agent, thinking"
+/>;
+```
+
+Agents are faces, not hexagons (BRD-13). Every agent is one of 18 preset characters (shape, eyes
+and mouth, designed together) in one of 9 palettes built from the accent theme colours. Avatars in
+rows, chips and stacks don't use this directly: [`PersonAvatar`](/docs/components/person-hover-card)
+draws an agent's face from `person.face`. Use `AgentFace` on its own for a face picker, an agent's
+header or an onboarding moment.
+
+<ComponentPreview name="agentFace" file="components/preview/agent-face.tsx" />
+
+## Anatomy
+
+<Anatomy name="agent-face" />
+
+## Examples
+
+### Presets
+
+No preset's silhouette reads as a circle (a person) or a rounded square (a team or workspace): the
+generator, `tooling/agent-face-spec.mjs`, fails the build if one does.
+
+<ComponentPreview
+  name="agentFacePresets"
+  file="components/preview/agent-face.tsx"
+/>
+
+### Palettes
+
+Blue, Violet, Pink, Orange, Green and Teal take the accent theme colours: the light tone, the theme
+colour's dark-mode text value and its light fill. Ink stands in for Black; Mist and Glass are the
+neutrals. Each palette has a companion that colours a Cairn's top stone and a Stack's lower layers.
+
+<ComponentPreview
+  name="agentFacePalettes"
+  file="components/preview/agent-face.tsx"
+/>
+
+### States
+
+Motion means busy, the cue's colour says who acts next (the agent's colour: it is busy; amber:
+you; blue: something new for you; red: it is stuck; grey: it isn't running), and grey means it
+can't act. From 40px each state has a cue on the head's shoulder: thought bubbles while it thinks, orbiting
+dots while it works, a typing pill while it writes, amber ticks when it needs you, sparkles when it
+replied, a red alert when it failed, z's when it is scheduled and a pause sign when it is paused.
+The Dot badges only the states that need a person: amber, blue and red. A state change blinks and
+squashes once.
+
+| State     | Eyes and mouth                                         | Body                               | Cue             |
+| --------- | ------------------------------------------------------ | ---------------------------------- | --------------- |
+| Idle      | Open, blinking, glancing; a resting smile              | Slow breath                        | None            |
+| Thinking  | Look up toward the cue, lids lowered; a sideways "hmm" | Head tilts; a light travels inside | Thought bubbles |
+| Working   | Narrowed, scanning; pressed mouth                      | Steady bob, a sheen sweeps across  | Orbiting dots   |
+| Writing   | Look down along the line; the mouth talks              | Squashes in rhythm                 | Typing pill     |
+| Needs you | Wide, brows raised; a hopeful smile                    | Hops, warm glow                    | Amber ticks     |
+| Replied   | Smiling eyes                                           | Sways, a small hop now and then    | Sparkles        |
+| Failed    | Worried brows, looking down; a small frown             | Tilts and stops, colour drains     | Red alert       |
+| Scheduled | Closed                                                 | Slow deep breath, light dims       | z's             |
+| Paused    | A flat line                                            | Still, all grey                    | Pause sign      |
+
+<ComponentPreview
+  name="agentFaceStates"
+  file="components/preview/agent-face.tsx"
+/>
+
+### Sizes
+
+A face has no container: it is the avatar. The Pebble is framed so its body fills about as much of
+its box as a person's circle does at the same size step, and its shadow, a ring's ends and a cue
+may reach past the box. Below 40px the face is the Dot: the same agent as a 5 × 5 dot face in its preset's own silhouette,
+because a 3D shape turns into a smudge at row sizes.
+
+<ComponentPreview
+  name="agentFaceSizes"
+  file="components/preview/agent-face.tsx"
+/>
+
+## API Reference
+
+<ApiTable
+  path="../../packages/ui/registry/ui/agent-face.tsx"
+  name="AgentFaceProps"
+/>
+
+## Accessibility
+
+- A named face is one image (`role="img"`) with its `label`, such as "Scout, agent, thinking";
+  `label=""` hides it when the name and state are written beside it.
+- A state is never told by colour alone: each cue has its own shape, and every surface also writes
+  the state's word.
+- It moves only with `motion`, and never under reduced motion: every animation starts and ends on
+  the still pose (MOT-15).
+
+<StatesTested name="agent-face" />
+
+## Do / Don't
+
+<DoDont
+  do="Let faces move only where the person is looking at that agent: its chat, its page header, its hover card."
+  dont="Animate every face in a list, or draw an agent as a circle, a hexagon or a logo."
+/>

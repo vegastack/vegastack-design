@@ -1,4 +1,4 @@
-// @vegastack members-stack@0.135.0 sha256-edGeuyNKa/zU4nBGPQrb7n31yr1eduumYNIrBWAfKh0=
+// @vegastack members-stack@0.135.0 sha256-Zk7RkmmF2QMXsepa11VqUqkpV9TCnU92yFLO+momxZM=
 
 "use client";
 
@@ -238,7 +238,7 @@ export function MembersStack({
   const faces = grouped ? (
     <PersonAvatar person={group} size="sm" />
   ) : (
-    // `avatar-group`: the slot `PersonAvatar` reads to give an agent's hexagon its surface halo
+    // `avatar-group`: the slot `PersonAvatar` reads to give an agent's face its surface halo
     // and to centre overlapped initials, as in any avatar stack.
     <span
       aria-hidden

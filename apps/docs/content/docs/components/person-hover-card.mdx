@@ -93,8 +93,8 @@ changes the box.
 
 `size` is one of six steps: `2xs` 16px and `xs` 20px for rows, chips and meta lines; `sm` 24px (the
 default), `default` 32px and `lg` 40px, which are Avatar's own tiers; and `xl` 64px for a profile or
-an agent's header. The initials, the team and agent icons (about 60% of the shape) and an agent's
-mark all scale with the step, so never resize an avatar with a `className`. That override is what
+an agent's header. The initials, the team icon (about 60% of the shape) and an agent's
+face all scale with the step, so never resize an avatar with a `className`. That override is what
 left a 16px glyph filling a 16px circle. The two row steps show one initial, because two letters
 crowd a 16 or 20px circle. Initials stay `text-xs`. `data-size` names the step that is drawn.
 
@@ -105,47 +105,27 @@ crowd a 16 or 20px circle. Initials stay `text-xs`. `data-size` names the step t
 
 ### Agents
 
-An agent (`kind: "agent"`) is a soft hexagon, pointy at the top and bottom. Only agents use that
-shape: circles are people, and rounded squares are teams and workspaces. With no mark, an agent
-shows the bot on its `hue` (purple when none is set), or its initials with
-`agentFallback="initials"`. `mark` (on the `Person`, or as a prop) puts the agent's own mark inside
-the hexagon. It can be an image `{ src, srcDark, small, alt, fit, tile }`, such as a provider's favicon or the
-workspace's built-in assistant mark, or a node, such as an icon. The design system holds no
-provider names or logos: the app passes them in. An `inset` mark (the default) sits with room on
-every side, on a neutral tile. Use `tile: "light"` for a dark-ink logo that would vanish on a dark
-tile. A `fill` mark covers the whole hexagon. Until the image decodes the bot shows, and an image
-that fails falls back to it. An agent's `image`, with no `mark`, is treated as an inset mark.
-
-The hexagon is a CSS mask over the same square box as a circle, so there is no layout shift between
-people and agents. It carries the same 1px hairline as a person's avatar, in both themes. A `PersonHoverCard` or `AgentHoverCard` around an agent takes the
-hexagon too, so its hover fill and focus tint follow the shape, never a circle.
+An agent (`kind: "agent"`) is its face, drawn by [`AgentFace`](/docs/components/agent-face): one of
+18 preset characters in one of 9 palettes, set by `person.face` (`{ v: 1, preset, palette }`). An
+agent with no stored face gets one picked from its name, so it is never blank. Agents are no longer
+hexagons (operator, 27-11-2026): the face itself says "agent", so circles stay people and rounded
+squares stay teams and workspaces. From 40px (`lg`, `xl`) the face is the Pebble; at the smaller
+steps it is the Dot, the same agent as a 5 × 5 dot face in its own silhouette. `faceState` sets what
+it is doing (or an enclosing `AgentStateRing` does), and `motion` lets it move where the person is
+looking at that agent. In a stack its Dot draws a 2px halo round its own silhouette, the colour of
+the surface beneath, so a circle never notches the next face.
 
 <ComponentPreview
   name="personHoverCardAgents"
   file="components/preview/person-hover-card.tsx"
 />
 
-### Marks across themes and sizes
-
-An image mark can carry `srcDark`, the vendor's own dark-background variant, shown instead of `src`
-under the dark theme. If either fails to load, the other stands in for both themes, and the bot
-shows only when both fail. `small` is the vendor's small glyph for the two row steps (`2xs` 16px and
-`xs` 20px), where a full logo turns to mush; `small: false` draws the agent's fallback (the bot on
-its hue) at those steps instead. Check that a small glyph keeps 3:1 contrast on its tile in each
-theme before passing it; a monochrome dark-ink logo takes `tile: "light"` so it never vanishes in
-the dark theme.
-
-<ComponentPreview
-  name="personHoverCardMarks"
-  file="components/preview/person-hover-card.tsx"
-/>
-
 ### Acting for someone
 
 `actingFor` draws the member an agent works for as a small circle (their photo, else their initials
-on their hue) offset 2px past the hexagon's bottom-end corner, on a halo the colour of the surface
+on their hue) offset 2px past the face's bottom-end corner, on a halo the colour of the surface
 beneath. The agent leads and the person rides on it, as attribution reads: "Claude Code for Manoj".
-It shows from `sm` up; the row steps leave it out, where it would cover the mark. With an
+It shows from `sm` up; the row steps leave it out, where it would cover the face. With an
 `indicator` too, the indicator moves to the top-end corner. It is decorative: `PersonName` names
 the member in text.
 

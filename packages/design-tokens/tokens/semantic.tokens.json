@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.designtokens.org/schemas/2025.10/format.json",
-  "$description": "LIGHT semantic contract. The neutral core is shadcn base-nova's `neutral` base; the additions are the four status families (COL-12), the 8-hue chart palette plus `chart-single` (COL-19 + MK 2026-09-18), the 10-hue tag palette, the brand pair and the media-chrome trio. Everything the pre-reset system layered on top — the surface ladder, the alpha and opacity ladders, the size/icon/z/panel families and the whole type scale — is gone; upstream expresses those with plain Tailwind utilities.",
+  "$description": "LIGHT semantic contract. The neutral core is shadcn base-nova's `neutral` base; the additions are the four status families (COL-12), the 8-hue chart palette plus `chart-single` (COL-19 + MK 2026-09-18), the 10-hue tag palette, the brand pair and the media-chrome trio. Everything the pre-reset system layered on top \u2014 the surface ladder, the alpha and opacity ladders, the size/icon/z/panel families and the whole type scale \u2014 is gone; upstream expresses those with plain Tailwind utilities.",
   "background": {
     "$type": "color",
     "$value": "{color.white}"
@@ -33,7 +33,7 @@
   "popover-border": {
     "$type": "color",
     "$value": "{color.neutral.200}",
-    "$description": "BRD-1 (ours, amended for Regent F32, 2026-11-20; edge restored to the hairline by the Regent operator, 2026-11-22: “border of popovers is darker color, not standard border color”): the EDGE of an anchored popup or floating bar (Popover, Select, Combobox, the menus, HoverCard, Tooltip, NavigationMenu, Toast and the editor, find, upload, audio, PDF and drag-preview bars). It is the `border` hairline in both themes, held equal to it by contrast-check; in dark the raised fill (`popover-raised`) and the shadow carry a popup's boundary over a dialog, never a heavier line. Read it as `border-popover-border`; dividers inside a popup stay `border-border`."
+    "$description": "BRD-1 (ours, amended for Regent F32, 2026-11-20; edge restored to the hairline by the Regent operator, 2026-11-22: \u201cborder of popovers is darker color, not standard border color\u201d): the EDGE of an anchored popup or floating bar (Popover, Select, Combobox, the menus, HoverCard, Tooltip, NavigationMenu, Toast and the editor, find, upload, audio, PDF and drag-preview bars). It is the `border` hairline in both themes, held equal to it by contrast-check; in dark the raised fill (`popover-raised`) and the shadow carry a popup's boundary over a dialog, never a heavier line. Read it as `border-popover-border`; dividers inside a popup stay `border-border`."
   },
   "primary": {
     "$type": "color",
@@ -195,7 +195,7 @@
       "components": [0.53, 0.15, 150],
       "alpha": 1
     },
-    "$description": "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
+    "$description": "COL-12 (ours): written in shadcn's destructive shape \u2014 one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
   },
   "success-foreground": {
     "$type": "color",
@@ -216,7 +216,7 @@
       "components": [0.55, 0.12, 70],
       "alpha": 1
     },
-    "$description": "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
+    "$description": "COL-12 (ours): written in shadcn's destructive shape \u2014 one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
   },
   "warning-foreground": {
     "$type": "color",
@@ -237,7 +237,7 @@
       "components": [0.55, 0.19, 256],
       "alpha": 1
     },
-    "$description": "COL-12 (ours): written in shadcn's destructive shape — one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
+    "$description": "COL-12 (ours): written in shadcn's destructive shape \u2014 one fill, one on-fill foreground. AA-gated as page text and as a fill under its foreground, in both themes."
   },
   "info-foreground": {
     "$type": "color",
@@ -258,7 +258,7 @@
       "components": [0.13, 0.002, 75],
       "alpha": 0.6
     },
-    "$description": "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). TEXT IS PERMITTED on this scrim: media-foreground clears 5.2:1 on it over a white worst-case backdrop, and tooling/contrast-check.mjs gates the pair at the AA TEXT floor (4.5:1), not the 3:1 non-text floor — so a retune that thins this scrim under AA fails the build rather than silently demoting its labels."
+    "$description": "THEME-INVARIANT media chrome scrim (B4-01): the gradient/backdrop behind controls laid over video or imagery. Always a warm-black alpha, never a theme token, so the chrome reads dark-scrim + light-ink in both themes (`primary` flips with the theme and inverted the chrome in dark). TEXT IS PERMITTED on this scrim: media-foreground clears 5.2:1 on it over a white worst-case backdrop, and tooling/contrast-check.mjs gates the pair at the AA TEXT floor (4.5:1), not the 3:1 non-text floor \u2014 so a retune that thins this scrim under AA fails the build rather than silently demoting its labels."
   },
   "media-scrim-strong": {
     "$type": "color",
@@ -267,17 +267,17 @@
       "components": [0.13, 0.002, 75],
       "alpha": 0.8
     },
-    "$description": "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) — 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
+    "$description": "Theme-invariant strong scrim for opaque media pills (volume popover, time badge) \u2014 11:1 for media-foreground over a white worst case. Use it for any block of media text that needs headroom beyond the soft scrim's ~5.2:1, and for text over unusually bright or busy frames."
   },
   "media-foreground": {
     "$type": "color",
     "$value": "{color.neutral.50}",
-    "$description": "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim — both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
+    "$description": "Theme-invariant media chrome ink: the warm off-white used for every icon, label and track drawn over media-scrim or media-scrim-strong. Labels are allowed on EITHER scrim \u2014 both are gated at the AA text floor (4.5:1) against this ink over the white worst case. Not overridden in dark on purpose."
   },
   "scrim": {
     "$type": "color",
     "$value": "{color.black}",
-    "$description": "THEME-INVARIANT photo scrim: the dark wash a tile's image wears under a corner control (Attachment tiles, SortableList grid handle/actions, AvatarPicker's edit overlay, all through the tile-overlay recipe). Opaque on purpose and always read through an opacity modifier — `bg-scrim/40` at rest, `bg-scrim/60` on hover or open — the same way the status families take `/10`-`/30`. Identical in both themes, because it lies over a photograph, not over the page. Not AA-gated: it carries icons over arbitrary imagery, not text; text over media reads through `media-scrim`."
+    "$description": "THEME-INVARIANT photo scrim: the dark wash a tile's image wears under a corner control (Attachment tiles, SortableList grid handle/actions, AvatarPicker's edit overlay, all through the tile-overlay recipe). Opaque on purpose and always read through an opacity modifier \u2014 `bg-scrim/40` at rest, `bg-scrim/60` on hover or open \u2014 the same way the status families take `/10`-`/30`. Identical in both themes, because it lies over a photograph, not over the page. Not AA-gated: it carries icons over arbitrary imagery, not text; text over media reads through `media-scrim`."
   },
   "scrim-foreground": {
     "$type": "color",
@@ -291,7 +291,7 @@
       "components": [0.145, 0, 0],
       "alpha": 0.05
     },
-    "$description": "COL-24 (ours, operator 2026-10-31): the ONE hover fill — the foreground at a low alpha, laid over whatever is underneath (page, card, popover, sidebar, muted, a filled button), so the step reads the same on every ground: ΔL ≈ 0.035–0.045 in both themes. Read it through the `state-layer` utility or `bg-state-hover`; never an opaque `muted`/`accent` hover."
+    "$description": "COL-24 (ours, operator 2026-10-31): the ONE hover fill \u2014 the foreground at a low alpha, laid over whatever is underneath (page, card, popover, sidebar, muted, a filled button), so the step reads the same on every ground: \u0394L \u2248 0.035\u20130.045 in both themes. Read it through the `state-layer` utility or `bg-state-hover`; never an opaque `muted`/`accent` hover."
   },
   "scrollbar-thumb": {
     "$type": "color",
@@ -300,7 +300,7 @@
       "components": [0.145, 0, 0],
       "alpha": 0.2
     },
-    "$description": "BRD-SCR (ours, operator 2026-11-19): the ONE scrollbar thumb — the foreground at low strength on a clear track, on every native scroller (base.css) and ScrollArea's overlay bar. Read it as `--scrollbar-thumb`."
+    "$description": "BRD-SCR (ours, operator 2026-11-19): the ONE scrollbar thumb \u2014 the foreground at low strength on a clear track, on every native scroller (base.css) and ScrollArea's overlay bar. Read it as `--scrollbar-thumb`."
   },
   "scrollbar-thumb-hover": {
     "$type": "color",
@@ -336,7 +336,7 @@
       "components": [0.145, 0, 0],
       "alpha": 0.06
     },
-    "$description": "COL-24: inner tiles (an icon tile in a row, a count chip) — translucent, so a tile stays one step above its row in every row state and never inverts on hover."
+    "$description": "COL-24: inner tiles (an icon tile in a row, a count chip) \u2014 translucent, so a tile stays one step above its row in every row state and never inverts on hover."
   },
   "chat-card": {
     "$type": "color",
@@ -345,7 +345,7 @@
       "components": [0.145, 0, 0],
       "alpha": 0.03
     },
-    "$description": "Chat surface rule (COL-25, operator 2026-11-13, agent chat ground up, Round 1): the ONE card surface in agent UI, for the things a person acts on or opens (a waiting request, question or plan, the task list, a file preview). The foreground at 3% over whatever is underneath, the same formula in both themes, so a card sits exactly one faint step off the page in light and in dark (light ≈ #f7f7f7 on white). Paired with `chat-hairline` and `rounded-chat-card`; no shadow inside a thread. Read it as `bg-chat-card`."
+    "$description": "Chat surface rule (COL-25, operator 2026-11-13, agent chat ground up, Round 1): the ONE card surface in agent UI, for the things a person acts on or opens (a waiting request, question or plan, the task list, a file preview). The foreground at 3% over whatever is underneath, the same formula in both themes, so a card sits exactly one faint step off the page in light and in dark (light \u2248 #f7f7f7 on white). Paired with `chat-hairline` and `rounded-chat-card`; no shadow inside a thread. Read it as `bg-chat-card`."
   },
   "chat-hairline": {
     "$type": "color",
@@ -354,7 +354,7 @@
       "components": [0.145, 0, 0],
       "alpha": 0.1
     },
-    "$description": "COL-25: the chat card's hairline, guide lines inside a fold and dividers inside a card — the foreground at 10%, the same formula in both themes. Read it as `border-chat-hairline` / `bg-chat-hairline`."
+    "$description": "COL-25: the chat card's hairline, guide lines inside a fold and dividers inside a card \u2014 the foreground at 10%, the same formula in both themes. Read it as `border-chat-hairline` / `bg-chat-hairline`."
   },
   "glass-edge": {
     "$type": "color",
@@ -391,7 +391,7 @@
       "components": [0.55, 0.19, 256],
       "alpha": 0.18
     },
-    "$description": "FOC-15 (ours, operator 2026-10-31): the keyboard focus cue — a soft info-hue tint, the one cue distinguishable by hue from the neutral hover/selected/pressed fills (no ring, FOC-13). Painted by base.css as a background image over any fill; it replaces the hover layer while focused."
+    "$description": "FOC-15 (ours, operator 2026-10-31): the keyboard focus cue \u2014 a soft info-hue tint, the one cue distinguishable by hue from the neutral hover/selected/pressed fills (no ring, FOC-13). Painted by base.css as a background image over any fill; it replaces the hover layer while focused."
   },
   "input-hover": {
     "$type": "color",
@@ -400,7 +400,7 @@
       "components": [0.145, 0, 0],
       "alpha": 0.31
     },
-    "$description": "FOC-16 (ours, operator 2026-10-31): text entry's hover border — the middle step between `input` at rest and `input-focus` (2.10:1 on the page)."
+    "$description": "FOC-16 (ours, operator 2026-10-31): text entry's hover border \u2014 the middle step between `input` at rest and `input-focus` (2.10:1 on the page)."
   },
   "input-focus": {
     "$type": "color",
@@ -427,7 +427,7 @@
       "components": [0.546, 0.245, 262.88],
       "alpha": 1
     },
-    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept \u2014 shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-2": {
     "$type": "color",
@@ -436,7 +436,7 @@
       "components": [0.581, 0.118, 184.7],
       "alpha": 1
     },
-    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept \u2014 shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-3": {
     "$type": "color",
@@ -445,7 +445,7 @@
       "components": [0.398, 0.07, 227.39],
       "alpha": 1
     },
-    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept \u2014 shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-4": {
     "$type": "color",
@@ -454,7 +454,7 @@
       "components": [0.623, 0.222, 41.12],
       "alpha": 1
     },
-    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept \u2014 shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-5": {
     "$type": "color",
@@ -463,7 +463,7 @@
       "components": [0.632, 0.246, 16.44],
       "alpha": 1
     },
-    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept \u2014 shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-6": {
     "$type": "color",
@@ -472,7 +472,7 @@
       "components": [0.505, 0.213, 27.52],
       "alpha": 1
     },
-    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept \u2014 shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-7": {
     "$type": "color",
@@ -481,7 +481,7 @@
       "components": [0.598, 0.127, 104.2],
       "alpha": 1
     },
-    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept \u2014 shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-8": {
     "$type": "color",
@@ -490,12 +490,12 @@
       "components": [0.531, 0.182, 256],
       "alpha": 1
     },
-    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept — shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
+    "$description": "Categorical chart hue (MK 2026-09-18: our 8-hue palette is kept \u2014 shadcn's `neutral` base ships a greyscale chart ramp, which cannot carry multi-series data). Light halves retuned for the pure-white page and the 0.97 `muted` ground; every hue clears the WCAG 1.4.11 3:1 floor on background, card and muted in both themes."
   },
   "chart-single": {
     "$type": "color",
     "$value": "{foreground}",
-    "$description": "Single-series chart ink (D29): one series is drawn in foreground ink; the categorical chart-1…8 hues start at two series."
+    "$description": "Single-series chart ink (D29): one series is drawn in foreground ink; the categorical chart-1\u20268 hues start at two series."
   },
   "brand": {
     "$type": "color",
@@ -504,7 +504,7 @@
       "components": [0.6, 0.17, 148],
       "alpha": 1
     },
-    "$description": "The phosphor-green brand accent, LIGHT half (theme-split): MARKER roles only — a live/AI-state dot, a sparkline endpoint, an eyebrow highlight, a terminal prompt glyph. 3.5:1 on card/background, so a meaningful glyph passes WCAG 1.4.11, and it is NOT a text ink: brand LABELS take `brand-text`. Never a headline colour, never a functional state colour, never a full-strength surface."
+    "$description": "The phosphor-green brand accent, LIGHT half (theme-split): MARKER roles only \u2014 a live/AI-state dot, a sparkline endpoint, an eyebrow highlight, a terminal prompt glyph. 3.5:1 on card/background, so a meaningful glyph passes WCAG 1.4.11, and it is NOT a text ink: brand LABELS take `brand-text`. Never a headline colour, never a functional state colour, never a full-strength surface."
   },
   "brand-text": {
     "$type": "color",
@@ -513,7 +513,7 @@
       "components": [0.46, 0.17, 148],
       "alpha": 1
     },
-    "$description": "The PAGE-READABLE brand ink, LIGHT half — the same role every chromatic family ships as `<family>-text`. `brand` itself is a 3.5:1 MARKER value (a live dot, a sparkline endpoint, a terminal prompt glyph) and fails WCAG 1.4.3 as a label, so any brand-coloured TEXT reads through this token instead. Gated at 4.5:1 by contrast-check over background, card, popover, muted, accent, secondary and sidebar."
+    "$description": "The PAGE-READABLE brand ink, LIGHT half \u2014 the same role every chromatic family ships as `<family>-text`. `brand` itself is a 3.5:1 MARKER value (a live dot, a sparkline endpoint, a terminal prompt glyph) and fails WCAG 1.4.3 as a label, so any brand-coloured TEXT reads through this token instead. Gated at 4.5:1 by contrast-check over background, card, popover, muted, accent, secondary and sidebar."
   },
   "tag-blue": {
     "$type": "color",
@@ -839,7 +839,7 @@
   "font-family-display": {
     "$type": "fontFamily",
     "$value": ["Geist", "sans-serif"],
-    "$description": "Display tier face — the same family as sans today, split as a token so a consumer can retune large type without moving body copy."
+    "$description": "Display tier face \u2014 the same family as sans today, split as a token so a consumer can retune large type without moving body copy."
   },
   "duration-fast": {
     "$type": "duration",
@@ -868,7 +868,7 @@
       "value": 1200,
       "unit": "ms"
     },
-    "$description": "1200ms — the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-strike` / `motion-pulse`, the TextSpinner's bolt, MOT-14). Not an interaction duration: interactions use fast/base/slow."
+    "$description": "1200ms \u2014 the loop cadence of `motion-indeterminate` (an indeterminate Progress sweep; audit M-06), one of the two sanctioned loops (the other is `motion-strike` / `motion-pulse`, the TextSpinner's bolt, MOT-14). Not an interaction duration: interactions use fast/base/slow."
   },
   "motion-ease-standard": {
     "$type": "cubicBezier",
@@ -885,7 +885,7 @@
   "motion-ease-spring": {
     "$type": "easing",
     "$value": "linear(0, 0.5 60%, 1.05 80%, 0.98 90%, 1)",
-    "$description": "CSS linear() spring with a very small overshoot — the success-bounce/appear curve for state-feedback micro-interactions (Phase M). Subtle by design: dense dev-tool aesthetic, not playful."
+    "$description": "CSS linear() spring with a very small overshoot \u2014 the success-bounce/appear curve for state-feedback micro-interactions (Phase M). Subtle by design: dense dev-tool aesthetic, not playful."
   },
   "duration-instant": {
     "$type": "duration",
@@ -917,7 +917,7 @@
       "value": 220,
       "unit": "ms"
     },
-    "$description": "MOT-14: a fold opening (height + opacity), its chevron, Send↔Stop, a card settling to its one-line form, Show more. Pairs with `ease-enter`."
+    "$description": "MOT-14: a fold opening (height + opacity), its chevron, Send\u2194Stop, a card settling to its one-line form, Show more. Pairs with `ease-enter`."
   },
   "duration-state-exit": {
     "$type": "duration",
@@ -978,7 +978,7 @@
       "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 10px, the same corner as a row: an action or input in the page content is a rounded rectangle — Button, Input, Select, NativeSelect, Combobox, single-line InputGroup, in-page search fields, Toggle, ToggleGroup, TabsList, Menubar, table-cell editors. 8px read as sharp on a 32px control (operator, 2026-11-19: “10px, same as rows”). A 24px compact control takes `segment`. Read it as `rounded-control`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 10px, the same corner as a row: an action or input in the page content is a rounded rectangle \u2014 Button, Input, Select, NativeSelect, Combobox, single-line InputGroup, in-page search fields, Toggle, ToggleGroup, TabsList, Menubar, table-cell editors. 8px read as sharp on a 32px control (operator, 2026-11-19: \u201c10px, same as rows\u201d). A 24px compact control takes `segment`. Read it as `rounded-control`."
   },
   "corner-segment": {
     "$type": "dimension",
@@ -986,7 +986,7 @@
       "value": 0.5,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 8px, the control corner minus its 2px inset: a control nested in a control — TabsList triggers, Menubar items, buttons inside an InputGroup — so the corners stay concentric; also the 24px compact controls (Button `xs`, `icon-xs`), where 10px would read as a pill. Read it as `rounded-segment`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system; amended 2026-11-18 and 2026-11-19, corner shapes round 2): 8px, the control corner minus its 2px inset: a control nested in a control \u2014 TabsList triggers, Menubar items, buttons inside an InputGroup \u2014 so the corners stay concentric; also the 24px compact controls (Button `xs`, `icon-xs`), where 10px would read as a pill. Read it as `rounded-segment`."
   },
   "corner-icon": {
     "$type": "dimension",
@@ -1018,7 +1018,7 @@
       "value": 0.375,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 6px: a token inside running text — a mention, a record or file link, a template or due token, Kbd, inline code — keeps a medium corner, never a pill. Read it as `rounded-inline`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 6px: a token inside running text \u2014 a mention, a record or file link, a template or due token, Kbd, inline code \u2014 keeps a medium corner, never a pill. Read it as `rounded-inline`."
   },
   "corner-mark": {
     "$type": "dimension",
@@ -1034,7 +1034,7 @@
       "value": 0.625,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill in a list without dividers — menu, select, combobox, sidebar, tree, settings nav — and tooltips. Not table rows: they fill a square band (`row-fill`, amended 2026-11-19). A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 10px: every row with a hover, highlighted or selected fill in a list without dividers \u2014 menu, select, combobox, sidebar, tree, settings nav \u2014 and tooltips. Not table rows: they fill a square band (`row-fill`, amended 2026-11-19). A row is its container's corner minus the inset from its outer edge, border plus padding (a 16px menu: 1px border + 5px padding = 6). Read it as `rounded-item`."
   },
   "corner-block": {
     "$type": "dimension",
@@ -1042,7 +1042,7 @@
       "value": 0.75,
       "unit": "rem"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 12px: a block in the reading flow — code, alerts, embeds, bookmarks, notes, previews, images in content — and a card nested in a card. Read it as `rounded-block`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): 12px: a block in the reading flow \u2014 code, alerts, embeds, bookmarks, notes, previews, images in content \u2014 and a card nested in a card. Read it as `rounded-block`."
   },
   "corner-card": {
     "$type": "dimension",
@@ -1074,7 +1074,7 @@
       "value": 25,
       "unit": "%"
     },
-    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): a square media tile — icon tiles, thumbnails, logos, team and workspace avatars — is rounded at a quarter of its size at every size. Read it as `rounded-tile`."
+    "$description": "BRD-12 (ours, operator 2026-11-16, corner system): a square media tile \u2014 icon tiles, thumbnails, logos, team and workspace avatars \u2014 is rounded at a quarter of its size at every size. Read it as `rounded-tile`."
   },
   "shell-rail-width": {
     "$type": "dimension",
@@ -1082,7 +1082,7 @@
       "value": 4,
       "unit": "rem"
     },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 64px: the module rail, icon with a short label under it (L1, L2). Read it as `w-(--shell-rail-width)`."
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1\u2013L13): 64px: the module rail, icon with a short label under it (L1, L2). Read it as `w-(--shell-rail-width)`."
   },
   "shell-column-width": {
     "$type": "dimension",
@@ -1090,7 +1090,7 @@
       "value": 15,
       "unit": "rem"
     },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 240px: the module column's default width (L1); resizable between `--shell-column-width-min` and `--shell-column-width-max`, folds to 0."
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1\u2013L13): 240px: the module column's default width (L1); resizable between `--shell-column-width-min` and `--shell-column-width-max`, folds to 0."
   },
   "shell-column-width-min": {
     "$type": "dimension",
@@ -1098,7 +1098,7 @@
       "value": 12.5,
       "unit": "rem"
     },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 200px: the narrowest a person can drag the module column."
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1\u2013L13): 200px: the narrowest a person can drag the module column."
   },
   "shell-column-width-max": {
     "$type": "dimension",
@@ -1106,7 +1106,7 @@
       "value": 22.5,
       "unit": "rem"
     },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 360px: the widest a person can drag the module column."
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1\u2013L13): 360px: the widest a person can drag the module column."
   },
   "shell-topbar-height": {
     "$type": "dimension",
@@ -1114,7 +1114,7 @@
       "value": 3,
       "unit": "rem"
     },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 48px: one row height for the top bar, the column title row, the panel head and the desktop title row (L9, L10)."
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1\u2013L13): 48px: one row height for the top bar, the column title row, the panel head and the desktop title row (L9, L10)."
   },
   "shell-globalbar-height": {
     "$type": "dimension",
@@ -1154,7 +1154,7 @@
       "value": 3.5,
       "unit": "rem"
     },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 56px: the phone bottom tab bar, plus `env(safe-area-inset-bottom)` (L13)."
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1\u2013L13): 56px: the phone bottom tab bar, plus `env(safe-area-inset-bottom)` (L13)."
   },
   "shell-titlebar-mac-inset": {
     "$type": "dimension",
@@ -1162,7 +1162,7 @@
       "value": 4.875,
       "unit": "rem"
     },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 78px: the macOS traffic-light zone measured from the window's left edge, for the desktop app's one title row (L10)."
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1\u2013L13): 78px: the macOS traffic-light zone measured from the window's left edge, for the desktop app's one title row (L10)."
   },
   "shell-titlebar-win-inset": {
     "$type": "dimension",
@@ -1170,6 +1170,481 @@
       "value": 8.625,
       "unit": "rem"
     },
-    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1–L13): 138px: the Windows caption buttons' zone at the window's right edge, for the desktop app's one title row (L10)."
+    "$description": "LAY-22 (ours, operator 2026-11-16, shell layout L1\u2013L13): 138px: the Windows caption buttons' zone at the window's right edge, for the desktop app's one title row (L10)."
+  },
+  "face-blue-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.912, 0.04, 260.1],
+      "alpha": 1
+    },
+    "$description": "Agent faces (operator 27-11-2026): nine palettes built from the accent theme colours. a = light tone, b = the theme colour's dark-mode text value, deep = its light fill, mark = the cue colour, ink = the eyes. Values mirror tooling/agent-face-spec.mjs PALETTES (the phone reads that file); change both together."
+  },
+  "face-blue-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.695, 0.149, 257.9],
+      "alpha": 1
+    }
+  },
+  "face-blue-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.531, 0.196, 258],
+      "alpha": 1
+    }
+  },
+  "face-blue-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.531, 0.196, 258],
+      "alpha": 1
+    }
+  },
+  "face-blue-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.252, 0.05, 292.6],
+      "alpha": 1
+    }
+  },
+  "face-violet-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.906, 0.049, 295.6],
+      "alpha": 1
+    }
+  },
+  "face-violet-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.71, 0.158, 292.8],
+      "alpha": 1
+    }
+  },
+  "face-violet-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.545, 0.21, 293.2],
+      "alpha": 1
+    }
+  },
+  "face-violet-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.545, 0.21, 293.2],
+      "alpha": 1
+    }
+  },
+  "face-violet-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.252, 0.05, 292.6],
+      "alpha": 1
+    }
+  },
+  "face-pink-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.923, 0.037, 351.7],
+      "alpha": 1
+    }
+  },
+  "face-pink-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.715, 0.151, 357.8],
+      "alpha": 1
+    }
+  },
+  "face-pink-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.546, 0.2, 357.9],
+      "alpha": 1
+    }
+  },
+  "face-pink-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.546, 0.2, 357.9],
+      "alpha": 1
+    }
+  },
+  "face-pink-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.252, 0.05, 292.6],
+      "alpha": 1
+    }
+  },
+  "face-orange-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.92, 0.031, 48.4],
+      "alpha": 1
+    }
+  },
+  "face-orange-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.704, 0.12, 44.5],
+      "alpha": 1
+    }
+  },
+  "face-orange-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.534, 0.152, 44.9],
+      "alpha": 1
+    }
+  },
+  "face-orange-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.534, 0.152, 44.9],
+      "alpha": 1
+    }
+  },
+  "face-orange-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.252, 0.05, 292.6],
+      "alpha": 1
+    }
+  },
+  "face-green-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.918, 0.03, 148.4],
+      "alpha": 1
+    }
+  },
+  "face-green-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.685, 0.104, 150],
+      "alpha": 1
+    }
+  },
+  "face-green-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.504, 0.138, 150],
+      "alpha": 1
+    }
+  },
+  "face-green-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.504, 0.138, 150],
+      "alpha": 1
+    }
+  },
+  "face-green-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.252, 0.05, 292.6],
+      "alpha": 1
+    }
+  },
+  "face-teal-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.92, 0.023, 190.1],
+      "alpha": 1
+    }
+  },
+  "face-teal-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.685, 0.075, 190],
+      "alpha": 1
+    }
+  },
+  "face-teal-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.088, 189.6],
+      "alpha": 1
+    }
+  },
+  "face-teal-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.51, 0.088, 189.6],
+      "alpha": 1
+    }
+  },
+  "face-teal-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.252, 0.05, 292.6],
+      "alpha": 1
+    }
+  },
+  "face-ink-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.413, 0.018, 285.6],
+      "alpha": 1
+    }
+  },
+  "face-ink-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.229, 0.012, 285.5],
+      "alpha": 1
+    }
+  },
+  "face-ink-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.141, 0.007, 285.5],
+      "alpha": 1
+    }
+  },
+  "face-ink-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.545, 0.21, 293.2],
+      "alpha": 1
+    }
+  },
+  "face-ink-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [1, 0, 0],
+      "alpha": 1
+    }
+  },
+  "face-mist-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.977, 0.004, 286.3],
+      "alpha": 1
+    }
+  },
+  "face-mist-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.87, 0.012, 286.1],
+      "alpha": 1
+    }
+  },
+  "face-mist-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.691, 0.02, 285.9],
+      "alpha": 1
+    }
+  },
+  "face-mist-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.545, 0.21, 293.2],
+      "alpha": 1
+    }
+  },
+  "face-mist-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.252, 0.05, 292.6],
+      "alpha": 1
+    }
+  },
+  "face-glass-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.972, 0.007, 295.5],
+      "alpha": 1
+    }
+  },
+  "face-glass-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.915, 0.022, 265.8],
+      "alpha": 1
+    }
+  },
+  "face-glass-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.728, 0.038, 273.5],
+      "alpha": 1
+    }
+  },
+  "face-glass-mark": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.545, 0.21, 293.2],
+      "alpha": 1
+    }
+  },
+  "face-glass-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.252, 0.05, 292.6],
+      "alpha": 1
+    }
+  },
+  "face-glass-1": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.839, 0.1, 345.8],
+      "alpha": 1
+    }
+  },
+  "face-glass-2": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.806, 0.092, 268],
+      "alpha": 1
+    }
+  },
+  "face-glass-3": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.857, 0.081, 175.9],
+      "alpha": 1
+    }
+  },
+  "face-ring-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.835, 0.091, 293.5],
+      "alpha": 1
+    },
+    "$description": "Agent faces: the ring of Orbit and Moon box (a to b across it), and the floating shadow under an Ink face."
+  },
+  "face-ring-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.719, 0.146, 274.8],
+      "alpha": 1
+    }
+  },
+  "face-shadow": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.295, 0.076, 287.2],
+      "alpha": 1
+    }
+  },
+  "face-grey-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.923, 0.007, 277.2],
+      "alpha": 1
+    },
+    "$description": "Agent faces: the grey a face fades to when it can't act (paused, failed, scheduled); `-ink-` for the Ink palette; the highlight; the dark dot ink on Mist and Glass Dots."
+  },
+  "face-grey-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.72, 0.015, 277],
+      "alpha": 1
+    }
+  },
+  "face-grey-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.556, 0.016, 272.5],
+      "alpha": 1
+    }
+  },
+  "face-grey-ink-a": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.644, 0.018, 285.9],
+      "alpha": 1
+    }
+  },
+  "face-grey-ink-b": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.472, 0.019, 285.6],
+      "alpha": 1
+    }
+  },
+  "face-grey-ink-deep": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.328, 0.014, 285.6],
+      "alpha": 1
+    }
+  },
+  "face-highlight": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [1, 0, 0],
+      "alpha": 1
+    }
+  },
+  "face-dot-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.279, 0.053, 293.8],
+      "alpha": 1
+    }
   }
 }

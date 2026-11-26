@@ -1,11 +1,17 @@
-// @vegastack person-avatar@0.135.0 sha256-OsNPYtZHLdhgd5OH+IvWZEoS2giJUZYGi1VZMRENDPA=
+// @vegastack person-avatar@0.135.0 sha256-GvbB4KIgmczJrMcGDItSxJ4HtxcJG1Gw/gKd3n3ZNnA=
 
 "use client";
 
 import * as React from "react";
-import { Bot, UsersRound } from "lucide-react";
+import { UsersRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
+import {
+  AgentFace,
+  type AgentFaceSpec,
+  type FaceState,
+} from "@/components/ui/agent-face";
+import { FACE_PALETTE_IDS, FACE_PRESET_IDS } from "@/lib/agent-face-spec";
 
 /* ------------------------------------------------------------------------------------------------
  * PersonAvatar — the ONE way a person is drawn as an avatar: their photo, else their initials on
@@ -17,11 +23,11 @@ import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
  * initials — so a team reads as a group wherever people and teams are listed together.
  * A workspace (`kind: "workspace"`) is a rounded-square tile too: its logo contained whole on a
  * plain tile (a company logo is never cropped into a circle), else its initials on its hue.
- * An agent (`kind: "agent"`) — an AI assistant working for a member — is a soft hexagon, the shape
- * only agents take: its mark (a provider's logo, passed by the app) else a bot on its hue (purple
- * by default), and `PersonName` writes its name agent-first as "Claude Code for Manoj" (the hexagon
- * already says it is an agent, so no label by default), so an agent reads the same in every avatar,
- * stack, picker, feed and comment.
+ * An agent (`kind: "agent"`) — an AI assistant working for a member — is its face (`AgentFace`,
+ * operator 27-11-2026: "agent avatars are no longer hexagones"): a preset character in its palette,
+ * the Pebble from 40px and the Dot below, showing what it is doing. `PersonName` writes its name
+ * agent-first as "Claude Code for Manoj" (the face already says it is an agent, so no label by
+ * default), so an agent reads the same in every avatar, stack, picker, feed and comment.
  * ----------------------------------------------------------------------------------------------*/
 
 /**
@@ -97,13 +103,13 @@ export interface Person {
   name: string;
   /** The muted line under the name, and the initials when there is no name; omit for someone without an account. @default undefined */
   email?: string | null;
-  /** The avatar image — for an agent, its mark (shown inset) unless `mark` is set. @default undefined */
+  /** The avatar image (a person's photo, a workspace's logo); agents draw their face instead. @default undefined */
   image?: string | null;
   /**
-   * An agent's mark inside its hexagon: an image (`{ src, alt, fit, tile }`, such as a provider's
-   * favicon) or a node. Only agents draw it. @default undefined
+   * An agent's face: its preset character and palette. Without one an agent gets a face picked
+   * from its name, so it is never blank. Only agents draw it. @default undefined
    */
-  mark?: PersonMark;
+  face?: AgentFaceSpec | null;
   /** The person's colour behind their initials — one of the ten tag hues; none is the muted fallback. @default undefined */
   hue?: AvatarHue | null;
   /** A status after the name, such as "Inactive" — a string is a small muted outline badge. @default undefined */
@@ -111,7 +117,7 @@ export interface Person {
   /**
    * A person, a team of people (a rounded-square tile with the team icon on its hue), a workspace
    * (a rounded-square tile with its whole logo, else its initials), or an agent working for a member
-   * (a soft hexagon with its mark, else a bot on its hue; named "Claude Code for Manoj").
+   * (its face; named "Claude Code for Manoj").
    * @default "person"
    */
   kind?: PersonKind;
@@ -157,14 +163,14 @@ export function personAccessibleName(
 /**
  * The avatar's size steps: `2xs` 16px and `xs` 20px for rows, chips and meta lines; `sm` 24px,
  * `default` 32px and `lg` 40px (Avatar's own tiers); `xl` 64px for a profile or an agent's header.
- * The initials, the icon and an agent's mark scale with the step, so a caller never resizes an
+ * The initials, the icon and an agent's face scale with the step, so a caller never resizes an
  * avatar with a `className`.
  */
 export type PersonAvatarSize = "2xs" | "xs" | "sm" | "default" | "lg" | "xl";
 
 /**
- * Per step: the box (Avatar's own tiers set none), the icon (about 60% of the shape), an inset
- * mark, the initials and the corner indicator. The two row steps show one initial instead of two,
+ * Per step: the box (Avatar's own tiers set none), the icon (about 60% of the shape), the
+ * initials and the corner indicator. The two row steps show one initial instead of two,
  * which `PersonInitials` sizes to the circle; `xl` lifts the initials to `text-lg`.
  */
 const STEP: Record<
@@ -172,7 +178,6 @@ const STEP: Record<
   {
     box: string;
     icon: string;
-    mark: string;
     initials: string;
     /** Show one initial, not two: two letters crowd a 16 or 20px circle's edge. */
     oneInitial?: boolean;
@@ -184,7 +189,6 @@ const STEP: Record<
   "2xs": {
     box: "size-4",
     icon: "size-2.5",
-    mark: "size-2.5",
     initials: "",
     oneInitial: true,
     indicator: "size-1.5",
@@ -193,7 +197,6 @@ const STEP: Record<
   xs: {
     box: "size-5",
     icon: "size-3",
-    mark: "size-3",
     initials: "",
     oneInitial: true,
     indicator: "size-2",
@@ -202,7 +205,6 @@ const STEP: Record<
   sm: {
     box: "",
     icon: "size-3.5",
-    mark: "size-3.5",
     initials: "",
     indicator: "size-2",
     square: "rounded-tile after:rounded-tile",
@@ -210,7 +212,6 @@ const STEP: Record<
   default: {
     box: "",
     icon: "size-4.5",
-    mark: "size-4.5",
     initials: "",
     indicator: "size-2.5",
     square: "rounded-tile after:rounded-tile",
@@ -218,7 +219,6 @@ const STEP: Record<
   lg: {
     box: "",
     icon: "size-6",
-    mark: "size-5.5",
     initials: "",
     indicator: "size-3",
     square: "rounded-tile after:rounded-tile",
@@ -226,7 +226,6 @@ const STEP: Record<
   xl: {
     box: "size-16",
     icon: "size-9",
-    mark: "size-9",
     initials: "text-lg",
     indicator: "size-4",
     square: "rounded-tile after:rounded-tile",
@@ -236,131 +235,70 @@ const STEP: Record<
 /** The sizes Avatar draws itself; the other steps ride on `default` with their own box. */
 const AVATAR_TIER = { sm: "sm", default: "default", lg: "lg" } as const;
 
-/**
- * The agent shape: a soft hexagon, pointy at the top and bottom, a little taller than it is wide
- * (circles are people; rounded squares are teams and workspaces). One path in a 100×100 box,
- * scaled to the avatar, so the corner rounding scales with the size. Painted as a CSS mask (every
- * evergreen browser), so the box — and the layout — is the same as a circle's.
- */
-const AGENT_SHAPE_PATH =
-  "M39.88 2.9C46.15-.97 53.85-.97 60.12 2.9L86.63 19.23C92.44 22.81 96 29.18 96 36V64C96 70.82 92.44 77.19 86.63 80.77L60.12 97.1C53.85 100.97 46.15 100.97 39.88 97.1L13.37 80.77C7.56 77.19 4 70.82 4 64V36C4 29.18 7.56 22.81 13.37 19.23Z";
+/** Each step in CSS pixels, for an agent's face (the Dot below 40, the Pebble from 40). */
+const STEP_PX: Record<PersonAvatarSize, number> = {
+  "2xs": 16,
+  xs: 20,
+  sm: 24,
+  default: 32,
+  lg: 40,
+  xl: 64,
+};
 
 /**
- * `agentShapeStyle` — the agent hexagon as the `--person-avatar-shape` custom property. Spread it
- * on anything that should take the agent's shape (a hover or focus target around its avatar), with
- * `agentShapeMask` in its classes.
+ * `agentFaceFor` — an agent's face: its own, else one picked from its name, so an agent with no
+ * stored face still has a stable one.
  *
- * @example <Button style={agentShapeStyle} className={agentShapeMask} …><PersonAvatar person={agent} /></Button>
+ * @example agentFaceFor({ name: "Scout" }) // { v: 1, preset: "…", palette: "…" }
  */
-export const agentShapeStyle = {
-  "--person-avatar-shape": `url("data:image/svg+xml,${encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><path d="${AGENT_SHAPE_PATH}"/></svg>`,
-  )}")`,
-} as React.CSSProperties;
+export function agentFaceFor(
+  person: Pick<Person, "name" | "face">,
+): AgentFaceSpec {
+  if (person.face) return person.face;
+  let h = 0;
+  for (const c of person.name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return {
+    v: 1,
+    preset: FACE_PRESET_IDS[h % FACE_PRESET_IDS.length]!,
+    palette: FACE_PALETTE_IDS[(h >>> 5) % FACE_PALETTE_IDS.length]!,
+  };
+}
 
 /**
- * `agentShapeMask` — the classes that mask an element to the agent hexagon (with `agentShapeStyle`
- * on it or an ancestor), so a hover fill or focus tint follows the hexagon, never a circle.
- *
- * @example <span style={agentShapeStyle} className={cn("bg-state-hover", agentShapeMask)} />
+ * What an `AgentStateRing` (or any wrapper) tells the agent faces inside it to show, when their
+ * `PersonAvatar` is given no `faceState` of its own.
  */
-export const agentShapeMask =
-  "[mask:var(--person-avatar-shape)_center/100%_100%_no-repeat]";
-const AGENT_SHAPE_MASK = agentShapeMask;
+const FaceStateContext = React.createContext<FaceState | null>(null);
 
 /**
- * `agentShapeTarget` — the classes for a button around an agent's avatar (with `agentShapeStyle` on
- * it, and an `AgentShapeLayer` as its first child): it hugs the avatar at any size and paints no
- * tint of its own. The button is never masked, so the avatar's `actingFor` circle and `indicator`,
- * which reach past the hexagon, are not clipped.
+ * `AgentFaceStateProvider` — sets the state every agent face inside it shows (unless a
+ * `PersonAvatar` passes its own `faceState`). `AgentStateRing` uses it.
  *
- * @example <Button variant="ghost" style={agentShapeStyle} className={agentShapeTarget} …><AgentShapeLayer /><PersonAvatar person={agent} actingFor={owner} /></Button>
+ * @example <AgentFaceStateProvider state="needs-you"><PersonAvatar person={agent} /></AgentFaceStateProvider>
  */
-export const agentShapeTarget =
-  "group/agent-shape size-auto rounded-none p-px hover:not-focus-visible:bg-none focus-visible:bg-none active:bg-none aria-expanded:bg-transparent";
-
-/**
- * `AgentShapeLayer` — the hexagon behind an agent's avatar that carries its button's hover, press,
- * open and keyboard-focus tints, so they follow the shape, never a square. Goes in a button with
- * `agentShapeTarget`.
- *
- * @example <Button variant="ghost" style={agentShapeStyle} className={agentShapeTarget}><AgentShapeLayer /><PersonAvatar person={agent} /></Button>
- */
-export function AgentShapeLayer() {
+export function AgentFaceStateProvider({
+  state,
+  children,
+}: {
+  state: FaceState | null;
+  children: React.ReactNode;
+}) {
   return (
-    <span
-      aria-hidden
-      data-slot="agent-shape-layer"
-      className={cn(
-        "absolute inset-0",
-        AGENT_SHAPE_MASK,
-        "group-hover/agent-shape:layer-hover group-active/agent-shape:bg-(--state-pressed) group-aria-expanded/agent-shape:layer-selected group-focus-visible/agent-shape:layer-focus",
-      )}
-    />
+    <FaceStateContext.Provider value={state}>
+      {children}
+    </FaceStateContext.Provider>
   );
 }
 
 /**
- * The agent root: no circle; the hairline is the shape's own 1px edge (the shape minus the shape
- * inset by 1px), in the same border ink and blend as a person's; and in a group — or inside an
- * `AgentStateRing` — a 2px halo in the shape, which replaces the circular ring a stack gives each
- * avatar (a circle around a hexagon would notch its neighbour).
+ * The agent root: the face's own box with no circle. In a group its Dot draws a 2px halo in its
+ * own silhouette, the colour of the surface beneath (as `PERSON_AVATAR_STACK_RING` does), so a
+ * circle never notches the next face.
  */
 const AGENT_ROOT = cn(
-  "rounded-none after:rounded-none after:border-0 after:bg-border",
-  // Longhands: the `mask` shorthand resets `mask-composite`, which would fill the whole shape.
-  "after:[mask-image:var(--person-avatar-shape),var(--person-avatar-shape)] after:[mask-size:100%_100%,calc(100%-var(--spacing)*0.5)_calc(100%-var(--spacing)*0.5)] after:[mask-position:center] after:[mask-repeat:no-repeat] after:[mask-composite:exclude]",
-  "before:absolute before:-inset-0.5 before:bg-(--person-avatar-halo) before:[mask:var(--person-avatar-shape)_center/100%_100%_no-repeat]",
-  // The halo takes the colour of the surface beneath, as `PERSON_AVATAR_STACK_RING` does.
+  "relative inline-flex shrink-0 items-center justify-center",
   "in-data-[slot=avatar-group]:[--person-avatar-halo:var(--background)] in-data-[slot=avatar-group]:in-data-[slot=card]:[--person-avatar-halo:var(--card)] in-data-[slot=avatar-group]:in-data-[slot=popover-content]:[--person-avatar-halo:var(--popover)] in-data-[slot=avatar-group]:in-data-[slot=hover-card-content]:[--person-avatar-halo:var(--popover)] in-data-[slot=avatar-group]:in-data-[slot=dialog-content]:[--person-avatar-halo:var(--popover)] in-data-[slot=avatar-group]:in-data-[slot=sheet-content]:[--person-avatar-halo:var(--popover)]",
-  "data-[kind=agent]:[[data-slot=avatar-group]_&]:ring-0",
 );
-
-/** An agent's mark: an image (a provider's favicon or logo) or a node (an icon, an SVG logo). */
-export type PersonMark =
-  | React.ReactNode
-  | {
-      /** The mark's image URL. */
-      src: string;
-      /**
-       * The mark for a dark theme — a vendor's own dark-background variant — shown instead of
-       * `src` under `.dark`. If it fails to load, `src` is shown in both themes. @default undefined
-       */
-      srcDark?: string;
-      /**
-       * The mark at the two row steps (`2xs` 16px, `xs` 20px), where a full logo turns to mush:
-       * a vendor's small glyph (`{ src, srcDark }`), or `false` to draw the agent's fallback (the
-       * bot on its hue) there. Check that a glyph keeps 3:1 contrast on its tile in each theme
-       * before passing it. @default the full mark at every step
-       */
-      small?: { src: string; srcDark?: string } | false;
-      /** Its text alternative; leave it empty when the agent's name is shown beside it. @default "" */
-      alt?: string;
-      /**
-       * `inset`: the mark sits inside the shape with room around it, on a neutral tile (a logo on
-       * a transparent background). `fill`: the mark covers the whole shape (a full-bleed mark).
-       * @default "inset"
-       */
-      fit?: "inset" | "fill";
-      /**
-       * The tile behind an inset mark: `neutral` follows the theme; `light` stays light in both
-       * themes, for a dark-ink logo that would vanish on a dark tile.
-       * @default "neutral"
-       */
-      tile?: "neutral" | "light";
-    };
-
-type MarkImage = Extract<PersonMark, { src: string }>;
-
-function isMarkImage(mark: PersonMark): mark is MarkImage {
-  return (
-    typeof mark === "object" &&
-    mark !== null &&
-    !React.isValidElement(mark) &&
-    "src" in mark &&
-    typeof (mark as MarkImage).src === "string"
-  );
-}
 
 /**
  * Whether an image has loaded or failed, keyed by its `src` so a new image starts over: a failure
@@ -409,26 +347,26 @@ export interface PersonAvatarProps extends Omit<
   "children" | "size"
 > {
   /** The person. */
-  person: Pick<Person, "name" | "email" | "image" | "hue" | "kind" | "mark">;
+  person: Pick<Person, "name" | "email" | "image" | "hue" | "kind" | "face">;
   /**
    * The size step: `2xs` 16px, `xs` 20px, `sm` 24px, `default` 32px, `lg` 40px, `xl` 64px.
-   * Initials, icons and marks scale with it — never resize an avatar with a `className`.
+   * Initials, icons and faces scale with it — never resize an avatar with a `className`.
    * @default "sm"
    */
   size?: PersonAvatarSize;
   /** Draw a person, a team, a workspace or an agent; overrides `person.kind`. @default person.kind ?? "person" */
   kind?: PersonKind;
   /**
-   * An agent's mark inside its shape, overriding `person.mark`: an image
-   * (`{ src, srcDark, small, alt, fit, tile }`) or a node. An image that fails to load falls back
-   * to the agent's icon or initials. Ignored for anyone who is not an agent.
-   * @default person.mark
+   * What an agent's face shows (`FaceState`). Ignored for anyone who is not an agent.
+   * @default the enclosing `AgentFaceStateProvider`'s state, else "idle"
    */
-  mark?: PersonMark;
+  faceState?: FaceState;
   /**
-   * What an agent with no mark shows: the bot icon, or its initials. @default "icon"
+   * Whether an agent's face moves: only where the person is looking at that agent (its chat, its
+   * page header, its hover card, quick ask). Reduced motion always gets the still pose.
+   * @default false
    */
-  agentFallback?: "icon" | "initials";
+  motion?: boolean;
   /**
    * A small indicator at the bottom-end corner — a presence dot or a state icon — sized to the
    * step, with a background-coloured gap. Decorative: say what it means in text too. With
@@ -458,28 +396,24 @@ export interface PersonAvatarProps extends Omit<
  * A team (`kind="team"`, or `person.kind`) is a rounded-square tile with the `UsersRound` icon on
  * its hue, and no photo or initials. A workspace (`kind="workspace"`) is the same rounded square
  * with its logo scaled to fit whole (`object-contain`) on the plain background, else its initials
- * on its hue — for workspace switchers and headers. An agent (`kind="agent"`) is a soft hexagon —
- * the shape only agents take, so an agent never passes for a person: its mark (a provider's
- * logo, inset on a neutral tile or full-bleed, with a dark-theme variant and a small glyph for the
- * row steps), else the `Bot` icon (or its initials) on its hue, purple by default; `actingFor`
- * adds the member it works for as a small circle at its corner.
+ * on its hue — for workspace switchers and headers. An agent (`kind="agent"`) is its face
+ * (`AgentFace`): the Dot at the row steps up to `default`, the Pebble at `lg` and `xl`, showing
+ * `faceState`; `actingFor` adds the member it works for as a small circle at its corner.
  *
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} />
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} size="2xs" />
  * @example <PersonAvatar person={{ name: "Sales", kind: "team", hue: "green" }} />
  * @example <PersonAvatar person={{ name: "Acme Lighting", kind: "workspace", image: logoUrl }} />
- * @example <PersonAvatar person={{ name: "Claude Code", kind: "agent" }} />
- * @example <PersonAvatar person={{ name: "Claude Code", kind: "agent", mark: { src: faviconUrl } }} size="xs" />
- * @example <PersonAvatar person={{ name: "Orbit", kind: "agent", mark: { src: light, srcDark: dark, small: { src: glyph } } }} />
+ * @example <PersonAvatar person={{ name: "Scout", kind: "agent", face: { v: 1, preset: "squish", palette: "violet" } }} />
+ * @example <PersonAvatar person={agent} size="xl" faceState="thinking" motion />
  * @example <PersonAvatar person={agent} actingFor={{ name: "Manoj", hue: "blue" }} size="lg" />
- * @example <PersonAvatar person={agent} indicator={<AgentStateIcon state="working" />} />
  */
 export function PersonAvatar({
   person,
   size = "sm",
   kind,
-  mark: markProp,
-  agentFallback = "icon",
+  faceState,
+  motion = false,
   indicator,
   actingFor,
   className,
@@ -500,47 +434,12 @@ export function PersonAvatar({
       ? AVATAR_TIER[size as keyof typeof AVATAR_TIER]
       : "default";
 
-  // An agent's image is its mark; anyone else's is their photo or logo.
-  const rawMark = agent
-    ? (markProp ??
-      person.mark ??
-      (person.image ? { src: person.image } : undefined))
-    : undefined;
-  const fullMarkImage =
-    rawMark != null && isMarkImage(rawMark) ? rawMark : undefined;
-  // At the row steps a mark may bring its small glyph, or ask for the fallback.
-  const rowStep = size === "2xs" || size === "xs";
-  const small = rowStep ? fullMarkImage?.small : undefined;
-  const markImage: MarkImage | undefined =
-    small === false
-      ? undefined
-      : small && fullMarkImage
-        ? { ...fullMarkImage, src: small.src, srcDark: small.srcDark }
-        : fullMarkImage;
-  const markNode =
-    rawMark != null && rawMark !== false && !fullMarkImage
-      ? (rawMark as React.ReactNode)
-      : undefined;
-  const src = team
-    ? undefined
-    : agent
-      ? markImage?.src || undefined
-      : person.image || undefined;
-  const darkSrc = agent ? markImage?.srcDark || undefined : undefined;
+  const src = team || agent ? undefined : person.image || undefined;
+  const contextState = React.useContext(FaceStateContext);
 
   const image = useImageStatus(src);
-  const dark = useImageStatus(darkSrc);
-
-  // Each variant stands in for the other when it fails; the fallback only when both have.
   const showImage = src !== undefined && !image.failed;
-  const showDark = darkSrc !== undefined && !dark.failed;
   const imageLoaded = showImage && image.loaded;
-  // A mark is revealed once every image it shows has decoded, so a theme switch never meets an
-  // empty tile.
-  const markLoaded =
-    (showImage || showDark) &&
-    (!showImage || image.loaded) &&
-    (!showDark || dark.loaded);
 
   const actingForClass = agent && actingFor ? ACTING_FOR[size] : undefined;
   const actingForNode = actingForClass ? (
@@ -569,11 +468,8 @@ export function PersonAvatar({
         data-slot="person-avatar-indicator"
         className={cn(
           "absolute end-0 bottom-0 z-10 inline-flex items-center justify-center overflow-hidden rounded-full bg-background ring-2 ring-background [&>svg]:size-full",
-          // The hexagon's lower edge crosses the diagonal about 6% further in than a circle's,
-          // so the indicator moves in with it and sits on the shape, not beside it.
-          agent && "end-[6%] bottom-[6%]",
           // The member takes the bottom corner; the indicator moves to the top.
-          actingForNode && "top-[6%] bottom-auto",
+          actingForNode && "top-0 bottom-auto",
           step.indicator,
         )}
       >
@@ -608,112 +504,31 @@ export function PersonAvatar({
   }
 
   if (agent) {
-    const fit = markImage?.fit ?? "inset";
-    const tile = markImage?.tile ?? "neutral";
-    // A node mark on an agent with a hue is drawn in the hue's ink on its tile (a workspace's own
-    // assistant icon); without a hue it sits on the neutral tile like a logo.
-    const hueMark = markNode !== undefined && person.hue != null;
-    const tileMark = markNode !== undefined && !hueMark;
-    const markShown = tileMark || markLoaded;
-    const imgClass =
-      fit === "fill"
-        ? "size-full object-cover"
-        : cn("object-contain", step.mark);
+    const px = STEP_PX[size];
+    const { size: _tier, ...agentProps } =
+      rootProps as React.ComponentProps<"span"> & {
+        size?: string;
+      };
     return (
-      <Avatar
-        {...rootProps}
+      <span
+        data-slot="avatar"
+        {...agentProps}
         data-kind="agent"
-        style={{ ...agentShapeStyle, ...style }}
-        // The agent's own classes come after the caller's, so a stack's circular ring never draws
-        // around a hexagon.
-        className={cn(step.box, className, AGENT_ROOT, "ring-0")}
+        style={{ width: px, height: px, ...style }}
+        className={cn(AGENT_ROOT, className, "ring-0")}
       >
-        {markShown ? null : (
-          <AvatarFallback
-            hue={person.hue ?? "purple"}
-            className={cn(
-              "@container/initials relative rounded-none",
-              AGENT_SHAPE_MASK,
-              agentFallback === "initials" && step.initials,
-            )}
-          >
-            {hueMark ? (
-              <span
-                aria-hidden
-                className={cn(
-                  "flex items-center justify-center [&>img]:size-full [&>svg]:size-full",
-                  step.icon,
-                )}
-              >
-                {markNode}
-              </span>
-            ) : agentFallback === "initials" ? (
-              <PersonInitials value={initials} />
-            ) : (
-              <Bot aria-hidden className={step.icon} />
-            )}
-          </AvatarFallback>
-        )}
-        {tileMark || showImage || showDark ? (
-          <span
-            data-slot="person-avatar-mark"
-            data-fit={markImage ? fit : "inset"}
-            className={cn(
-              "absolute inset-0 flex items-center justify-center",
-              AGENT_SHAPE_MASK,
-              fit === "fill" && markImage
-                ? undefined
-                : tile === "light"
-                  ? "bg-white"
-                  : // A step above the page in dark, where `background` would read as a hole.
-                    "bg-background dark:bg-muted",
-              // Held back until the image has decoded, so a slow mark never shows an empty tile.
-              markShown ? undefined : "invisible",
-            )}
-          >
-            {markImage ? (
-              <>
-                {showImage ? (
-                  <img
-                    ref={image.ref}
-                    src={src}
-                    alt={markImage.alt ?? ""}
-                    decoding="async"
-                    data-theme-variant={showDark ? "light" : undefined}
-                    onLoad={image.onLoad}
-                    onError={image.onError}
-                    className={cn(imgClass, showDark && "dark:hidden")}
-                  />
-                ) : null}
-                {showDark ? (
-                  <img
-                    ref={dark.ref}
-                    src={darkSrc}
-                    alt={markImage.alt ?? ""}
-                    decoding="async"
-                    data-theme-variant={showImage ? "dark" : undefined}
-                    onLoad={dark.onLoad}
-                    onError={dark.onError}
-                    className={cn(imgClass, showImage && "hidden dark:block")}
-                  />
-                ) : null}
-              </>
-            ) : (
-              <span
-                aria-hidden
-                className={cn(
-                  "flex items-center justify-center [&>img]:size-full [&>svg]:size-full",
-                  step.mark,
-                )}
-              >
-                {markNode}
-              </span>
-            )}
-          </span>
-        ) : null}
+        <AgentFace
+          face={agentFaceFor(person)}
+          state={faceState ?? contextState ?? "idle"}
+          size={px}
+          motion={motion}
+          halo="var(--person-avatar-halo, transparent)"
+          ring="var(--person-avatar-halo, var(--background))"
+          label=""
+        />
         {actingForNode}
         {indicatorNode}
-      </Avatar>
+      </span>
     );
   }
 
@@ -796,7 +611,7 @@ export interface PersonNameProps extends Omit<
   person: Pick<Person, "name" | "kind" | "for">;
   /**
    * Add the purple "Agent" label after an agent's name — for a surface that names agents without
-   * their hexagon (a hover card's heading, a profile), and in pickers, where people and agents are
+   * their face (a hover card's heading, a profile), and in pickers, where people and agents are
    * chosen side by side. @default false
    */
   agentLabel?: boolean;
@@ -811,7 +626,7 @@ export interface PersonNameProps extends Omit<
 
 /**
  * `PersonName` — a person's name as every surface writes it. A person or a team is their name; an
- * agent is its name and a muted "for Manoj" (its hexagon says it is an agent; `agentLabel` adds
+ * agent is its name and a muted "for Manoj" (its face says it is an agent; `agentLabel` adds
  * the purple label where no avatar shows, or where people and agents are picked together), or
  * "· Manoj" in a picker (`variant="compact"`); a screen reader hears "Claude Code for Manoj,
  * agent". Inline, so it sits in a sentence, a hover-card trigger or a truncating row.
