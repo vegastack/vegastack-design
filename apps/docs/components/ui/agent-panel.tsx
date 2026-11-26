@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.135.0 sha256-tQ5suNzYp9EksbeaomeL/fE7eBI1ac8xUyL89BgNdT8=
+// @vegastack agent-panel@0.135.0 sha256-lIS6/fz5ZON6Se/Gpgc1GNlCQV3adsTFfIuUn+FC3HA=
 
 "use client";
 
@@ -51,14 +51,13 @@ import {
   InputGroupTextarea,
 } from "@/components/ui/input-group";
 import {
+  AgentFaceStateProvider,
   PersonAgentLabel,
-  AgentShapeLayer,
   PersonAvatar,
-  agentShapeStyle,
-  agentShapeTarget,
   personAccessibleName,
   type Person,
 } from "@/components/ui/person-avatar";
+import type { FaceState } from "@/components/ui/agent-face";
 import {
   RecordAsideAction,
   RecordAsideCard,
@@ -122,6 +121,38 @@ export type AgentState =
   | "no-action"
   | "stopped";
 
+/**
+ * `faceStateOfAgentState` — what an agent's face shows for a delegation's state: waiting to start
+ * sleeps, working works, a quiet spell thinks, a question or an approval needs you, done replied,
+ * failed or blocked failed, paused or stopped paused, nothing (or nothing needed) idle.
+ *
+ * @example faceStateOfAgentState("question") // "needs-you"
+ */
+export function faceStateOfAgentState(state: AgentState): FaceState {
+  switch (state) {
+    case "queued":
+    case "not-started":
+      return "scheduled";
+    case "working":
+      return "working";
+    case "quiet":
+      return "thinking";
+    case "question":
+    case "approval":
+      return "needs-you";
+    case "done":
+      return "replied";
+    case "failed":
+    case "blocked":
+      return "failed";
+    case "paused":
+    case "stopped":
+      return "paused";
+    default:
+      return "idle";
+  }
+}
+
 /** The short word for each state, as badges, slots and chips write it. */
 export type AgentStateLabels = Record<Exclude<AgentState, "none">, string>;
 
@@ -141,10 +172,7 @@ const DEFAULT_STATE_LABELS: AgentStateLabels = {
 };
 
 /** The agent an `AgentPanel` shows: a `Person` drawn as an agent, plus its access. */
-export interface AgentPanelAgent extends Pick<
-  Person,
-  "name" | "image" | "mark" | "hue"
-> {
+export interface AgentPanelAgent extends Pick<Person, "name" | "face"> {
   /** The member it acts for: "Priya" reads "For Priya". @default undefined */
   for?: string | null;
   /** What it may do, in a few words: "Read & write". @default undefined */
@@ -286,13 +314,11 @@ function AgentStateIcon({
   }
 }
 
-/** The agent as a `Person`, so the avatar draws the purple bot. */
+/** The agent as a `Person`, so the avatar draws its face. */
 function asPerson(agent: AgentPanelAgent) {
   return {
     name: agent.name,
-    image: agent.image,
-    mark: agent.mark,
-    hue: agent.hue,
+    face: agent.face,
     kind: "agent" as const,
   };
 }
@@ -410,11 +436,12 @@ export interface AgentStateRingProps extends React.ComponentPropsWithRef<"span">
 }
 
 /**
- * `AgentStateRing` — wraps an agent's `PersonAvatar` in a list, a board card or a grid row header
- * with a ring for the states that need someone: amber while it needs you (a question, an approval,
- * a block), red when it failed. Other states draw no ring. Around an agent's hexagon the ring
- * follows the hexagon. The colour is never the only cue: the state is said to screen readers, and
- * the host shows its word where there is room, or badges the state's icon on the avatar (`glyph`).
+ * `AgentStateRing` — wraps an avatar in a list, a board card or a grid row header with its
+ * delegation's state. An agent's face shows the state itself (`faceStateOfAgentState`: its cue,
+ * or its badge at the row steps), so no ring is drawn round a face; anyone else gets a ring for
+ * the states that need someone: amber while it needs you, red when it failed. The colour is never
+ * the only cue: the state is said to screen readers, and the host shows its word where there is
+ * room, or badges the state's icon (`glyph`) on an avatar that isn't a face.
  *
  * @example
  * <AgentStateRing state="question"><PersonAvatar person={{ name: "Claude Code", kind: "agent" }} /></AgentStateRing>
@@ -445,16 +472,15 @@ export function AgentStateRing({
         "inline-flex shrink-0 rounded-full",
         badged && "relative",
         tone === "warning" && "ring-2 ring-warning",
-        // An agent is a hexagon: its avatar draws the ring in its own shape, so a circle never
-        // rings a hexagon.
-        "has-data-[kind=agent]:ring-0",
-        tone === "warning" &&
-          "**:data-[kind=agent]:[--person-avatar-halo:var(--warning)]",
+        // An agent's face shows its own state, so it takes no ring and no corner glyph.
+        "has-data-[kind=agent]:ring-0 has-data-[kind=agent]:[&>[data-slot=agent-state-ring-glyph]]:hidden",
         className,
       )}
       {...props}
     >
-      {children}
+      <AgentFaceStateProvider state={faceStateOfAgentState(state)}>
+        {children}
+      </AgentFaceStateProvider>
       {badged ? (
         <span
           aria-hidden
@@ -497,7 +523,7 @@ export interface AgentSlotProps extends Omit<
 }
 
 /**
- * `AgentSlot` — the Delegate property's value, on one line: the agent's hexagon, its name (which
+ * `AgentSlot` — the Delegate property's value, on one line: the agent's face, its name (which
  * gets the room and truncates last) and its state as an icon, with the word in its tooltip and
  * for screen readers. Empty, it is the dashed "Delegate to an agent…" pill of an empty ghost
  * `RecordChip`; when
@@ -759,7 +785,7 @@ export interface AgentCardProps extends AgentLanyardProps {
 }
 
 /**
- * `AgentCard` — the body of `AgentHoverCard`, the agent's lanyard: its hexagon and name with its
+ * `AgentCard` — the body of `AgentHoverCard`, the agent's lanyard: its face and name with its
  * kind ("Custom") or the "Agent" label, whose it is ("Asha Rao's agent", else "For Priya ·
  * Read & write"), what it does, where its work on this record stands, what it did last, Open
  * agent, and the technical facts in a muted footer. Hand it to a `PersonHoverCardProvider` so an
@@ -882,7 +908,7 @@ export interface AgentHoverCardProps extends AgentLanyardProps {
   /** The trigger — the agent's `PersonAvatar` (`trigger="avatar"`) or its name (`trigger="name"`). */
   children: React.ReactNode;
   /**
-   * `avatar` — the children sit in a ghost button in the agent's hexagon, named for the agent.
+   * `avatar` — the children sit in a ghost button in the agent's face, named for the agent.
    * `name` — inline text (an activity's actor) in a quiet text button.
    * @default "avatar"
    */
@@ -902,7 +928,7 @@ export interface AgentHoverCardProps extends AgentLanyardProps {
 
 /**
  * `AgentHoverCard` — hover or focus an agent's avatar or name (tap it on touch) for its lanyard:
- * its hexagon and name with its kind, whose it is, what it does, where its work on this record
+ * its face and name with its kind, whose it is, what it does, where its work on this record
  * stands, what it did last, Open agent, and the technical facts in a muted footer (`AgentCard`).
  * `PersonHoverCard` for an agent, with the agent's facts.
  *
@@ -960,15 +986,13 @@ export function AgentHoverCard({
               size="icon-sm"
               data-slot="agent-hover-card-avatar"
               aria-label={name}
-              // The hover fill and focus tint follow the agent's hexagon, never a circle.
-              style={agentShapeStyle}
-              className={cn(agentShapeTarget, className)}
+              // A face hugs its own box: the trigger grows with the avatar, never squeezes it.
+              className={cn("size-auto rounded-icon p-px", className)}
               onClick={press}
             />
           )
         }
       >
-        {trigger === "avatar" ? <AgentShapeLayer /> : null}
         {children}
       </HoverCardTrigger>
       <HoverCardContent ref={contentRef} align="start" className="w-72 p-2.5">
@@ -994,7 +1018,7 @@ export function AgentHoverCard({
 }
 
 /**
- * The hexagon, the name with its kind (or "Agent"), and whose it is under it: the host's `owner`
+ * The face, the name with its kind (or "Agent"), and whose it is under it: the host's `owner`
  * line, else "For Priya · claude.ai · Read & write".
  */
 function AgentIdentity({

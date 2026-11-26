@@ -13,25 +13,25 @@
     "activity-feed": {
       "disposition": "keep",
       "family": "display",
-      "source": "Operator brief 2026-10-04 (Regent activity timeline) — approved by MK 2026-10-04",
+      "source": "Operator brief 2026-10-04 (Regent activity timeline) \u2014 approved by MK 2026-10-04",
       "rationale": "Upstream ships no record history. A list of events and comment threads composing upstream button, select and skeleton with our person-hover-card, person-avatar and relative-time; no patch."
     },
     "agent-directory-card": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no agent directory entry. A card or list row that matches the app's directory cards (one link, tags on the name line, people and one secondary action) over upstream card, badge, button, tooltip and skeleton; no patch."
     },
     "agent-edit-banner": {
       "disposition": "keep",
       "family": "chat",
-      "source": "Regent Phase 3 Pages x Agents plan (.vegastack/plans/pages-connections/13-phase3-pages-agents.md §7.1, §7.7, slice S5a; issue #481) — operator go-dark mandate 14-10-2026 under the standing DS authorization (AGENTS.md, 8 October 2026)",
+      "source": "Regent Phase 3 Pages x Agents plan (.vegastack/plans/pages-connections/13-phase3-pages-agents.md \u00a77.1, \u00a77.7, slice S5a; issue #481) \u2014 operator go-dark mandate 14-10-2026 under the standing DS authorization (AGENTS.md, 8 October 2026)",
       "rationale": "Upstream ships no agent-edit notice. A fixed composition of alert, button, popover, person-avatar and relative-time: the strip under a document's header after an agent changed it, with View changes, Undo, the refused and undoing states, the created state and the other agents behind +N; it carries no patch."
     },
     "ask-card": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no permission ask. The one Ask card draws only the server's choices with their ids (never a filled primary), previews sends before the buttons, answers bundle items one by one and settles to one line; composes button, dropdown-menu, item, status-glyph and textarea; no patch."
     },
     "audio-player": {
@@ -52,7 +52,7 @@
     "avatar-picker": {
       "disposition": "keep",
       "family": "forms",
-      "source": "Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
+      "source": "Operator brief 2026-09-27 (Regent member photos) \u2014 approved by MK 2026-09-27",
       "rationale": "Upstream ships no photo picker. A fixed composition of person-avatar, button, spinner and use-file-drop; no patch."
     },
     "board": {
@@ -63,13 +63,13 @@
     "board-card": {
       "disposition": "keep",
       "family": "data",
-      "source": "Operator brief 2026-09-25 (Board redesign) — approved by MK 2026-09-25",
+      "source": "Operator brief 2026-09-25 (Board redesign) \u2014 approved by MK 2026-09-25",
       "rationale": "Upstream ships no work-item card. Board lanes (DataList's board view, the Regent Tasks page) need one shared card with a done tick, due and priority chips and an assignee; it composes our avatar, badge, checkbox and date helpers and carries no patch."
     },
     "breadcrumb-cascade": {
       "disposition": "keep",
       "family": "navigation",
-      "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) — standing approval MK 2026-09-30",
+      "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) \u2014 standing approval MK 2026-09-30",
       "rationale": "Upstream ships no sibling menu or drop-target crumb. breadcrumb.tsx is upstream's file plus a patch whose hunks each need a decision marked ours, so these compose its BreadcrumbLink, the DS DropdownMenu and useDragInto instead of patching it."
     },
     "breadcrumb-drop-target": {
@@ -90,7 +90,7 @@
     "choice-card": {
       "disposition": "keep",
       "family": "form",
-      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md \u00a75 D2/D5/D7/D9) \u2014 approved by MK 2026-10-03 (go-dark mandate)",
       "rationale": "Upstream documents the choice card as a Field composition, not a component. A thin wrapper over upstream field and radio-group; no patch."
     },
     "code-block": {
@@ -106,13 +106,13 @@
     "comment-margin": {
       "disposition": "keep",
       "family": "display",
-      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) \u2014 approved by MK 2026-09-29",
       "rationale": "Upstream ships no comment margin. A layout column for comment cards plus a popover built on Base UI's popover primitive (anchored to a virtual rect, which upstream's PopoverContent does not expose); no patch."
     },
     "comments": {
       "disposition": "keep",
       "family": "display",
-      "source": "Operator brief 2026-09-26 (task page comments) — approved by MK 2026-09-26",
+      "source": "Operator brief 2026-09-26 (task page comments) \u2014 approved by MK 2026-09-26",
       "rationale": "Upstream ships no comments set. It is a fixed composition of upstream avatar, alert-dialog, empty, skeleton and the text editor; no patch."
     },
     "copy-button": {
@@ -123,7 +123,7 @@
     "coverage-banner": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no coverage notice. Upstream alert (banner) or a muted truncated line (inline) with the delegate's avatar and caller words; no patch."
     },
     "data-grid": {
@@ -139,20 +139,20 @@
     "data-list-pager": {
       "disposition": "keep",
       "family": "data",
-      "source": "docs/plans/2026-09-23-consumer-alignment-fixes.md § 2 — approved by MK 2026-09-23",
+      "source": "docs/plans/2026-09-23-consumer-alignment-fixes.md \u00a7 2 \u2014 approved by MK 2026-09-23",
       "rationale": "Upstream ships Pagination and Select but no paging footer that joins them to a range summary; the Regent consumer built one (list-pager.tsx) and MK approved adopting it as the control DataList's footer slot names. It composes upstream's pagination and select unchanged and carries no patch."
     },
     "data-table-parts": {
       "disposition": "keep",
       "family": "data",
       "source": "extras.md",
-      "rationale": "CORRECTED from RETIRE to KEEP by MK on 2026-09-18, executed in Batch 7b. The consumer story extras.md named (shadcn's data-table guide + its dashboard block) is right for a consumer, but the module is 375 lines that BOTH `data-grid` and `data-list` — both keepers — import the same ten symbols from, so retiring it would either duplicate them into two files (the drift the module's own header says it exists to stop) or need a different disposition. It stays ONE shared module. It is off the consumer-facing components nav, the way `geo-data` and `drag-item` are handled: installed as a dependency of the two components that need it, documented where they are documented, not offered as something to pick from a list."
+      "rationale": "CORRECTED from RETIRE to KEEP by MK on 2026-09-18, executed in Batch 7b. The consumer story extras.md named (shadcn's data-table guide + its dashboard block) is right for a consumer, but the module is 375 lines that BOTH `data-grid` and `data-list` \u2014 both keepers \u2014 import the same ten symbols from, so retiring it would either duplicate them into two files (the drift the module's own header says it exists to stop) or need a different disposition. It stays ONE shared module. It is off the consumer-facing components nav, the way `geo-data` and `drag-item` are handled: installed as a dependency of the two components that need it, documented where they are documented, not offered as something to pick from a list."
     },
     "date-picker": {
       "disposition": "keep",
       "family": "form",
       "source": "extras.md",
-      "rationale": "Batch 7b rebuilt it on upstream `calendar`: the grid, the day button, the captions and the nav are imported from `@/components/ui/calendar`, and this module is the Popover/Button composition plus `Intl` formatting and the preset rails. `react-day-picker` survives here as TYPES (`DateRange`, `Matcher`, `DayButton`) plus its two matcher EVALUATORS (`dateMatchModifiers`, `rangeContainsModifiers`), which the preset gate calls so a preset obeys exactly the policy the grid enforces; re-deriving Matcher evaluation is the drift the gate exists to prevent, so that import stayed. The one DOM part here is `PopoverDayButton`, which WRAPS upstream's `CalendarDayButton` (never copies it) to focus with `preventScroll` — see its note and `date-picker.test.tsx`'s below-the-fold regression, which fails without it."
+      "rationale": "Batch 7b rebuilt it on upstream `calendar`: the grid, the day button, the captions and the nav are imported from `@/components/ui/calendar`, and this module is the Popover/Button composition plus `Intl` formatting and the preset rails. `react-day-picker` survives here as TYPES (`DateRange`, `Matcher`, `DayButton`) plus its two matcher EVALUATORS (`dateMatchModifiers`, `rangeContainsModifiers`), which the preset gate calls so a preset obeys exactly the policy the grid enforces; re-deriving Matcher evaluation is the drift the gate exists to prevent, so that import stayed. The one DOM part here is `PopoverDayButton`, which WRAPS upstream's `CalendarDayButton` (never copies it) to focus with `preventScroll` \u2014 see its note and `date-picker.test.tsx`'s below-the-fold regression, which fails without it."
     },
     "date-range-picker": {
       "disposition": "keep",
@@ -162,25 +162,25 @@
     "delegate-row": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no delegation row. MemberList's 36px row anatomy for one delegate with what, when, a note, the state and an Edit/End menu; composes button, dropdown-menu and tooltip; no patch."
     },
     "diff-view": {
       "disposition": "keep",
       "family": "display",
-      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) \u2014 approved by MK 2026-09-29",
       "rationale": "Upstream ships no diff view. Renders jsdiff's (`diff`, sanctioned by MK 2026-09-29) line and word changes as ins/del text; `diff` is imported by this file alone, dynamically, so it loads in its own chunk. No patch."
     },
     "digest-group": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no digest group. A composed section over upstream item and button: header with count and one group action, the caller's rows, a controlled Show N more footer; no patch."
     },
     "document-layout": {
       "disposition": "keep",
       "family": "layout",
-      "source": "Regent Pages v2 plan 12 §4.2 (DS release B.1) — approved by MK 2026-10-14 (Round 2)",
+      "source": "Regent Pages v2 plan 12 \u00a74.2 (DS release B.1) \u2014 approved by MK 2026-10-14 (Round 2)",
       "rationale": "Upstream ships no document frame. A grid of our own with container-query tiers, composing upstream skeleton; no patch."
     },
     "dropzone": {
@@ -207,18 +207,18 @@
     "file-viewer": {
       "disposition": "keep",
       "family": "media",
-      "source": "Operator brief 2026-09-27 (Regent product files viewer) — approved by MK 2026-09-27",
+      "source": "Operator brief 2026-09-27 (Regent product files viewer) \u2014 approved by MK 2026-09-27",
       "rationale": "Upstream ships no file viewer. A full-screen composition of upstream dialog and button with our image, spinner and use-announcer; the PDF half renders with pdfjs-dist (sanctioned renderer exception, MK 2026-09-27). No patch."
     },
     "file-viewer-office": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of file-viewer (the lazily loaded SheetJS and mammoth readers); not listed in extras.md. Regent design review — approved by MK 2026-09-30"
+      "source": "internal part of file-viewer (the lazily loaded SheetJS and mammoth readers); not listed in extras.md. Regent design review \u2014 approved by MK 2026-09-30"
     },
     "file-viewer-pdf": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of file-viewer (the lazily loaded pdf.js stage); not listed in extras.md. Operator brief 2026-09-27 — approved by MK 2026-09-27"
+      "source": "internal part of file-viewer (the lazily loaded pdf.js stage); not listed in extras.md. Operator brief 2026-09-27 \u2014 approved by MK 2026-09-27"
     },
     "filter-bar-managed": {
       "disposition": "keep",
@@ -228,19 +228,19 @@
     "folder-tree": {
       "disposition": "keep",
       "family": "navigation",
-      "source": "Regent library plan 04 (folders, files and pages) — approved by MK 2026-09-29",
+      "source": "Regent library plan 04 (folders, files and pages) \u2014 approved by MK 2026-09-29",
       "rationale": "Upstream ships no tree. A navigation pattern (nav of nested lists, a link and a disclosure per row) over use-list-nav, use-drag-reorder's useDragInto and the file-kind icons, with lazy children and a picker mode; no ARIA tree engine and no patch."
     },
     "for-you-card": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no For you card. A card for one ask waiting on a person, laid out for the 26rem Inbox panel, drawing the source's options (never a filled primary) and bodies through agent-question-form; no patch."
     },
     "health-indicator": {
       "disposition": "keep",
       "family": "data",
-      "source": "VegaStack AI teammates P4.2 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P4.2 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no health indicator. A lucide glyph in the status-glyph vocabulary (primary check, warning and destructive inks as glyphs only, COL-25) with its words; server-safe, no patch."
     },
     "icon-glyph": {
@@ -268,19 +268,19 @@
     "info-hint": {
       "disposition": "keep",
       "family": "overlay",
-      "source": "Operator brief 2026-10-07 (Regent contextual help hints) — approved by MK 2026-10-07",
+      "source": "Operator brief 2026-10-07 (Regent contextual help hints) \u2014 approved by MK 2026-10-07",
       "rationale": "Upstream ships Popover and Tooltip but no info hint. A fixed composition of upstream button and popover with a named icon trigger and an optional new-tab link; no patch."
     },
     "inline-chip": {
       "disposition": "keep",
       "family": "display",
-      "source": "Operator request 2026-10-01 (Regent: one inline chip for mentions and file links everywhere) — standing approval MK 2026-09-30",
+      "source": "Operator request 2026-10-01 (Regent: one inline chip for mentions and file links everywhere) \u2014 standing approval MK 2026-09-30",
       "rationale": "Upstream ships no inline mention chip. An inline (not inline-flex) box on the text baseline, tinted by kind from the tag hues, composing our hover-card, person-avatar and file-kind; no patch."
     },
     "load-more": {
       "disposition": "keep",
       "family": "data",
-      "source": "docs/plans/2026-09-24-facelift-lists-filters-forms.md (DS-30, D6) — approved by MK 2026-09-24",
+      "source": "docs/plans/2026-09-24-facelift-lists-filters-forms.md (DS-30, D6) \u2014 approved by MK 2026-09-24",
       "rationale": "Upstream ships no load-more footer. DataGrid had a private one and every keyset list (DataList, board lanes, the Regent consumer's lists) needs the same control, so one shared footer replaces the copies. It composes upstream's button unchanged and carries no patch."
     },
     "markdown-citation": {
@@ -296,12 +296,12 @@
     "markdown-view-client": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of markdown-view (its client leaves — the table scroll box, the outline, find, print and highlight-layout effects, the heading copy link — apart so MarkdownView stays server-safe). Regent Pages v2 plan 12 §4.3, approved by MK 2026-10-14"
+      "source": "internal part of markdown-view (its client leaves \u2014 the table scroll box, the outline, find, print and highlight-layout effects, the heading copy link \u2014 apart so MarkdownView stays server-safe). Regent Pages v2 plan 12 \u00a74.3, approved by MK 2026-10-14"
     },
     "media-card": {
       "disposition": "keep",
       "family": "data",
-      "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
+      "source": "Operator brief 2026-09-25 (DataList grid/board views) \u2014 approved by MK 2026-09-25",
       "rationale": "Upstream ships no record card with a stretched link, thumbnail, meta line and hover menu. DataList grid view and consumer card grids need one shared card; it composes our thumbnail and carries no patch."
     },
     "media-player-controls": {
@@ -312,7 +312,7 @@
     "meeting-icon": {
       "disposition": "keep",
       "family": "data-display",
-      "source": "VegaStack Create and record — operator batch approval 22-11-2026 (\"Proceed go dark now meticulously and carefully\")",
+      "source": "VegaStack Create and record \u2014 operator batch approval 22-11-2026 (\"Proceed go dark now meticulously and carefully\")",
       "rationale": "Upstream ships no meeting icon. One rule for a meeting's glyph (person, group, or the upstream-backed Spinner while live) and the recording controls' words and glyphs; no patch."
     },
     "meta-line": {
@@ -324,7 +324,7 @@
     "milestone-list": {
       "disposition": "keep",
       "family": "data",
-      "source": "VegaStack AI teammates P4.2 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P4.2 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no milestone list. Ordered rows on our sortable-list (drag, long-press and keyboard reorder) with a diamond state glyph, truncated name, weight chip, tasks and warning meta flush right; no patch."
     },
     "multi-step-form": {
@@ -350,24 +350,24 @@
     "panel-search": {
       "disposition": "keep",
       "family": "overlay",
-      "source": "internal shared part; not listed in extras.md. It is decision OVL-11's implementation — the sticky, box-free search row a filtering popup puts at the top of its panel. Batch 7a retired `floating-surface`, which used to own it, leaving `emoji-picker` and `shortcut-overlay` with two byte-identical private copies; Batch 7c gave it one owner again, off the components nav like `data-table-parts`. Upstream has no counterpart: its `CommandInput` is an `InputGroup` box inside the panel, which is the box-in-box OVL-11 exists to reject."
+      "source": "internal shared part; not listed in extras.md. It is decision OVL-11's implementation \u2014 the sticky, box-free search row a filtering popup puts at the top of its panel. Batch 7a retired `floating-surface`, which used to own it, leaving `emoji-picker` and `shortcut-overlay` with two byte-identical private copies; Batch 7c gave it one owner again, off the components nav like `data-table-parts`. Upstream has no counterpart: its `CommandInput` is an `InputGroup` box inside the panel, which is the box-in-box OVL-11 exists to reject."
     },
     "request-status-chip": {
       "disposition": "keep",
       "family": "data",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no request status. Upstream badge with the eight lifecycle states mapped to its status tints, words overridable, tone fixed by state; no patch."
     },
     "routine-row": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no routine row. A linked row with schedule, next runs, owner, destination, last run, Run now and a Skip/Pause menu; composes badge, button, dropdown-menu, status-glyph and tooltip; no patch."
     },
     "run-timeline": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no run timeline. The chat work log's step anatomy plus per-step cost, decisions, Undo, delivery unknown, nesting and folding, with one live bolt; composes chat-card, chat-work-log, status-glyph and text-spinner; no patch."
     },
     "suggestion-menu": {
@@ -379,37 +379,37 @@
     "password-input": {
       "disposition": "keep",
       "family": "form",
-      "source": "MK instruction 2026-09-23 — reinstated after the shadcn reset retired it",
+      "source": "MK instruction 2026-09-23 \u2014 reinstated after the shadcn reset retired it",
       "rationale": "Upstream ships no password field, only an InputGroup recipe; a reveal toggle hand-rolled per consumer drifts in naming, aria-pressed and type=button. A thin InputGroup composition gives it one owner and carries no patch."
     },
     "people-picker": {
       "disposition": "keep",
       "family": "form",
-      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved); replaced by people-picker on the operator's 11 October 2026 brief (one picker for people and teams)",
+      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing \u2014 Phase DS, implementation.md \u00a74) \u2014 approved by MK 2026-10-01 (A11: DS patch releases approved); replaced by people-picker on the operator's 11 October 2026 brief (one picker for people and teams)",
       "rationale": "Upstream ships no people picker. A fixed composition of upstream command and popover, dropdown-menu items, panel-search, person-avatar, searchable-select's PersonOption, skeleton, load-more and use-async-search; no patch."
     },
     "permission-menu": {
       "disposition": "keep",
       "family": "overlay",
-      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing — Phase DS, implementation.md §4) — approved by MK 2026-10-01 (A11: DS patch releases approved)",
+      "source": "Operator brief 2026-10-01 (Regent access, spaces and sharing \u2014 Phase DS, implementation.md \u00a74) \u2014 approved by MK 2026-10-01 (A11: DS patch releases approved)",
       "rationale": "Upstream ships no access-level menu. A recipe over upstream dropdown-menu (radio items with ItemTitle + ItemDescription, API-19) and button, with a read-only text mode; no patch."
     },
     "person-avatar": {
       "disposition": "keep",
       "family": "data",
-      "source": "internal shared part; not listed in extras.md. Operator brief 2026-09-27 (Regent member photos) — approved by MK 2026-09-27",
+      "source": "internal shared part; not listed in extras.md. Operator brief 2026-09-27 (Regent member photos) \u2014 approved by MK 2026-09-27",
       "rationale": "The one way a person is drawn: upstream avatar with the photo, else initials (its `personInitials` rule) on the person's hue (API-32). It moved out of person-hover-card so searchable-select, record-chip, board-card and inbox can compose it without a dependency cycle."
     },
     "person-hover-card": {
       "disposition": "keep",
       "family": "data",
-      "source": "Operator brief 2026-09-25 (meeting participants) — approved by MK 2026-09-25",
+      "source": "Operator brief 2026-09-25 (meeting participants) \u2014 approved by MK 2026-09-25",
       "rationale": "Upstream ships no person preview. A fixed composition of upstream hover-card and button; no patch. Stacks of people moved to members-stack."
     },
     "members-stack": {
       "disposition": "keep",
       "family": "data",
-      "source": "Regent UI ground rules M1–M5 (operator approved 18-11-2026: \"Approve, start\")",
+      "source": "Regent UI ground rules M1\u2013M5 (operator approved 18-11-2026: \"Approve, start\")",
       "rationale": "Upstream's AvatarGroup count is a 32px circle with no cap and no access forms; the one members stack (24px faces, 6px overlap, a +N pill the faces' height, presence order, only-you/everyone/team forms, one popover) composes person-avatar, tooltip, popover and button; no patch."
     },
     "picker-panel": {
@@ -437,13 +437,13 @@
     "reactions": {
       "disposition": "keep",
       "family": "display",
-      "source": "Operator brief 2026-09-26 (comment reactions) — approved by MK 2026-09-26",
+      "source": "Operator brief 2026-09-26 (comment reactions) \u2014 approved by MK 2026-09-26",
       "rationale": "Upstream ships no reactions. A fixed composition of upstream button, hover-card and our emoji-picker; no patch."
     },
     "record-aside": {
       "disposition": "keep",
       "family": "data",
-      "source": "Operator brief 2026-09-25 (record side panel redesign) — approved by MK 2026-09-25",
+      "source": "Operator brief 2026-09-25 (record side panel redesign) \u2014 approved by MK 2026-09-25",
       "rationale": "Upstream ships no record rail. A fixed composition of upstream card, item, avatar, button and tooltip; no patch."
     },
     "record-chip": {
@@ -455,13 +455,13 @@
     "record-layout": {
       "disposition": "keep",
       "family": "layout",
-      "source": "Operator brief 2026-09-25 (meeting page right rail) — approved by MK 2026-09-25; the stacked side panel (RecordPanel): Regent record side panel rebuild R1–R5 — operator sign-off 18-11-2026",
+      "source": "Operator brief 2026-09-25 (meeting page right rail) \u2014 approved by MK 2026-09-25; the stacked side panel (RecordPanel): Regent record side panel rebuild R1\u2013R5 \u2014 operator sign-off 18-11-2026",
       "rationale": "Upstream ships no record-page frame. It is a fixed composition of upstream button, collapsible, tooltip and the peek sheet; no patch."
     },
     "record-list": {
       "disposition": "keep",
       "family": "data",
-      "source": "Operator brief 2026-09-27 (accessory sheet + impact review) — approved by MK 2026-09-27",
+      "source": "Operator brief 2026-09-27 (accessory sheet + impact review) \u2014 approved by MK 2026-09-27",
       "rationale": "Upstream ships no affected-records list. Confirmation dialogs (a family or accessory save or delete) need numbered rows that keep counting across Show more, a record-type icon and a new-tab link per record; it composes our Button and carries no patch."
     },
     "relative-time": {
@@ -472,13 +472,13 @@
     "responsive-dialog": {
       "disposition": "keep",
       "family": "overlay",
-      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md \u00a75 D2/D5/D7/D9) \u2014 approved by MK 2026-10-03 (go-dark mandate)",
       "rationale": "Upstream ships Dialog and Sheet but no switch between them. A recipe over upstream dialog and sheet with use-mobile; no patch."
     },
     "search-input": {
       "disposition": "keep",
       "family": "form",
-      "source": "issue #156 — approved 2026-09-21",
+      "source": "issue #156 \u2014 approved 2026-09-21",
       "rationale": "Dedicated InputGroup composition owns the cross-browser clear affordance while generic Input keeps its single-input DOM and behavior contract."
     },
     "searchable-select": {
@@ -504,7 +504,7 @@
     "space-picker": {
       "disposition": "keep",
       "family": "form",
-      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md §5 D2/D5/D7/D9) — approved by MK 2026-10-03 (go-dark mandate)",
+      "source": "Operator brief 2026-10-03 (Regent spaces UX, implementation-plan.md \u00a75 D2/D5/D7/D9) \u2014 approved by MK 2026-10-03 (go-dark mandate)",
       "rationale": "Upstream has no space concept. A recipe over upstream command, popover and button plus our space-avatar; no patch."
     },
     "stat": {
@@ -531,7 +531,7 @@
     "table-of-contents": {
       "disposition": "keep",
       "family": "navigation",
-      "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) — standing approval MK 2026-09-30",
+      "source": "Plan docs/plans/2026-09-30-toc-selection.md (Regent Library mandate phases 5, 7, 8) \u2014 standing approval MK 2026-09-30",
       "rationale": "Upstream ships no table of contents. An outline nav with an activation-line scroll spy, a rail of ticks that opens on hover or focus, and a Sheet for narrow screens, composing our sheet, use-list-nav and use-media-query; no patch."
     },
     "tag-group": {
@@ -568,13 +568,13 @@
     "thumbnail": {
       "disposition": "keep",
       "family": "data",
-      "source": "Operator brief 2026-09-25 (DataList grid/board views) — approved by MK 2026-09-25",
+      "source": "Operator brief 2026-09-25 (DataList grid/board views) \u2014 approved by MK 2026-09-25",
       "rationale": "Upstream ships no small cover-fit record image with a fallback (Avatar is for people). Lists and cards need one; no patch."
     },
     "timeline": {
       "disposition": "keep",
       "family": "data",
-      "source": "VegaStack AI teammates P4.2 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P4.2 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no timeline or Gantt view. Dated rows against the calendar over upstream button and toggle-group, the shared load-more tail, use-list-nav and milestone-list's diamond: a sticky label column, status bars, a today line, Month/Quarter zoom and a vertical month list under the tablet container; no engine and no patch."
     },
     "tool-call-chip": {
@@ -585,7 +585,7 @@
     "tool-permission-list": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack AI teammates P2.5 — operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
+      "source": "VegaStack AI teammates P2.5 \u2014 operator batch approval 19-11-2026 \"AI teammates Release 1\" (\"Approve, go dark\")",
       "rationale": "Upstream ships no tool permission list. Class rows group their tools, each answered through permission-menu with only its allowed answers, with inherited, locked, lock-toggle and rule lines; composes button, dropdown-menu, permission-menu, search-input, skeleton and toggle; no patch."
     },
     "transcript": {
@@ -602,89 +602,89 @@
     "upload-panel": {
       "disposition": "keep",
       "family": "forms",
-      "source": "Operator brief 2026-10-04 (Regent uploads, plan.md §5) — approved by MK 2026-10-04 (go-dark mandate)",
+      "source": "Operator brief 2026-10-04 (Regent uploads, plan.md \u00a75) \u2014 approved by MK 2026-10-04 (go-dark mandate)",
       "rationale": "Upstream ships no upload progress surface. A fixed bottom-end card composing upstream alert-dialog, button and progress with our responsive-dialog, image, file-kind and upload-progress; no patch."
     },
     "use-announcer": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-async-search": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it; docs/plans/2026-09-24-facelift-lists-filters-forms.md (DS-39, D6) — approved by MK 2026-09-24"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it; docs/plans/2026-09-24-facelift-lists-filters-forms.md (DS-39, D6) \u2014 approved by MK 2026-09-24"
     },
     "use-document-layout-tier": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of document-layout (its one client hook, apart so DocumentLayout stays server-safe). Regent Pages v2 plan 12 §4.2, approved by MK 2026-10-14"
+      "source": "internal part of document-layout (its one client hook, apart so DocumentLayout stays server-safe). Regent Pages v2 plan 12 \u00a74.2, approved by MK 2026-10-14"
     },
     "use-drag-reorder": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-file-drop": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-inline-edit": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-list-nav": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-media-query": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-mobile": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — upstream ships hooks/use-mobile.ts, which is outside vendor/ui/ and so outside the parity scope"
+      "source": "registry:hook \u2014 upstream ships hooks/use-mobile.ts, which is outside vendor/ui/ and so outside the parity scope"
     },
     "use-modal-inert": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-overflow": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-platform": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-tabs-swipe": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "use-view-transition": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "version-list": {
       "disposition": "keep",
       "family": "display",
-      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) — approved by MK 2026-09-29",
+      "source": "Plan docs/plans/2026-09-29-collaboration.md (Regent Library comments and versions) \u2014 approved by MK 2026-09-29",
       "rationale": "Upstream ships no version history. A listbox composed of upstream badge, button, switch and skeleton with our person-avatar, relative-time and use-list-nav; no patch."
     },
     "version-compare": {
       "disposition": "keep",
       "family": "display",
-      "source": "Regent product-cohesion W1-DS3 item 3 (UXP-14: full-screen history with Restore pinned) — MK blanket approval 27-10-2026 (D19), Regent product-cohesion W1-DS3",
+      "source": "Regent product-cohesion W1-DS3 item 3 (UXP-14: full-screen history with Restore pinned) \u2014 MK blanket approval 27-10-2026 (D19), Regent product-cohesion W1-DS3",
       "rationale": "Upstream ships no version history. A fixed composition of resizable, version-list, diff-view, switch, label and button: the selected version beside a day-grouped list with the actions pinned, for DialogContent size=\"fullscreen\"; it carries no patch."
     },
     "video-player": {
@@ -695,7 +695,7 @@
     "share-dialog": {
       "disposition": "keep",
       "family": "overlay",
-      "source": "Operator brief 2026-10-10 (Regent sharing — promote the share-01 block's ShareDialog to an installable component) — approved by MK 2026-10-10 (DS merges and releases authorized)",
+      "source": "Operator brief 2026-10-10 (Regent sharing \u2014 promote the share-01 block's ShareDialog to an installable component) \u2014 approved by MK 2026-10-10 (DS merges and releases authorized)",
       "rationale": "Upstream ships no share surface. The share-01 block's dialog, promoted unchanged so apps can install and update it: a fixed composition of upstream responsive-dialog, tabs, item, select, switch, input-group, alert-dialog and tooltip with our people-input, permission-menu, person-avatar, icon-glyph and copy-button; no patch."
     },
     "value-change": {
@@ -707,19 +707,19 @@
     "file-card": {
       "disposition": "keep",
       "family": "media",
-      "source": "Operator brief 2026-10-12 (Regent product view — one file tile for the Tasks attachment panel and product Files, Images and Accessories), requested by MK 2026-10-12",
+      "source": "Operator brief 2026-10-12 (Regent product view \u2014 one file tile for the Tasks attachment panel and product Files, Images and Accessories), requested by MK 2026-10-12",
       "rationale": "Upstream ships no file card. A fixed composition of our attachment, data-table-parts, dropdown-menu, file-viewer, image and file-kind parts: the Regent app's FileCard and UploadCard promoted so every file list shares one tile; no patch."
     },
     "mermaid-block": {
       "disposition": "keep",
       "family": "display",
-      "source": "Regent Pages v2 plan 12 §4.12 (DS release B.2) — mermaid@12.1.0 renderer exception approved by MK 2026-10-14 (Round 2)",
+      "source": "Regent Pages v2 plan 12 \u00a74.12 (DS release B.2) \u2014 mermaid@12.1.0 renderer exception approved by MK 2026-10-14 (Round 2)",
       "rationale": "Upstream ships no diagram renderer. Ours: mermaid behind a pinned, strict configuration and a lazy import, composing upstream skeleton; no patch."
     },
     "block-view": {
       "disposition": "keep",
       "family": "display",
-      "source": "Regent Pages v2 plan 12 §4.12 (DS release B.2) — approved by MK 2026-10-14 (Round 2)",
+      "source": "Regent Pages v2 plan 12 \u00a74.12 (DS release B.2) \u2014 approved by MK 2026-10-14 (Round 2)",
       "rationale": "Upstream ships no fenced-block renderer frame. The shared frame of TextEdit's and MarkdownView's blockViews, composing upstream button, dialog and dropdown-menu; no patch."
     },
     "document-layout-meta": {
@@ -752,7 +752,7 @@
     "use-grid-selection": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it (Regent Tables plan 1.2, DS R3)"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it (Regent Tables plan 1.2, DS R3)"
     },
     "view-tabs": {
       "disposition": "keep",
@@ -769,25 +769,25 @@
     "qr-code": {
       "disposition": "keep",
       "family": "display",
-      "source": "Regent product-cohesion W2-MTG (Record on your phone) — uqr@0.1.3 encoder exception: MK blanket approval 27-10-2026 (D19), Regent product-cohesion W2-MTG",
+      "source": "Regent product-cohesion W2-MTG (Record on your phone) \u2014 uqr@0.1.3 encoder exception: MK blanket approval 27-10-2026 (D19), Regent product-cohesion W2-MTG",
       "rationale": "Upstream ships no QR code. Ours: uqr (a pure encoder that renders nothing) computes the matrix; the SVG path, the theme-invariant tile and the quiet zone are ours; no patch."
     },
     "brand-logo": {
       "disposition": "keep",
       "family": "display",
-      "source": "VegaStack agents overhaul P1 (C-P1-6, settings tabs) — operator batch approval 10-11-2026",
+      "source": "VegaStack agents overhaul P1 (C-P1-6, settings tabs) \u2014 operator batch approval 10-11-2026",
       "rationale": "Upstream ships no brand mark. Ours: a monochrome muted tile holding a Simple Icons (CC0) path drawn through BrandIcon's mono variant, or the brand's first letter where Simple Icons has no CC0 mark; no patch."
     },
     "kpi-card": {
       "disposition": "keep",
       "family": "display",
-      "source": "VegaStack agents overhaul P3 (observability dashboards) — operator batch approval 10-11-2026",
+      "source": "VegaStack agents overhaul P3 (observability dashboards) \u2014 operator batch approval 10-11-2026",
       "rationale": "Upstream ships no KPI tile. Ours: composes upstream's Card with our Stat parts, InfoHint and Skeleton, plus an inline SVG sparkline in the chart-single ink; no patch."
     },
     "heatmap": {
       "disposition": "keep",
       "family": "display",
-      "source": "VegaStack agents overhaul P3 (observability dashboards) — operator batch approval 10-11-2026",
+      "source": "VegaStack agents overhaul P3 (observability dashboards) \u2014 operator batch approval 10-11-2026",
       "rationale": "Upstream ships no heatmap. Ours: an ARIA grid of color-mix steps of chart-single over card, bucketed by quintile, with roving focus and upstream's Tooltip on a shared handle; no patch."
     },
     "member-list": {
@@ -817,13 +817,13 @@
     "agent-panel": {
       "disposition": "keep",
       "family": "chat",
-      "source": "Regent product-cohesion W1-DS3 agent slice (plan 41-agent-card-mockups.md, decisions D2/D10/D16; findings UXT-01/02/04/05/07/10/11/12/50, UXP-46) — MK blanket approval 27-10-2026 (D19), Regent product-cohesion W1-DS3",
+      "source": "Regent product-cohesion W1-DS3 agent slice (plan 41-agent-card-mockups.md, decisions D2/D10/D16; findings UXT-01/02/04/05/07/10/11/12/50, UXP-46) \u2014 MK blanket approval 27-10-2026 (D19), Regent product-cohesion W1-DS3",
       "rationale": "Upstream ships no agent collaborator surface. A fixed composition of record-aside, collapsible, dropdown-menu, hover-card, input-group, person-avatar, record-chip, relative-time and use-announcer: the Agent card and peek section with every delegation state, the Delegate slot and pill, the state badge and avatar ring, and the agent hover card; it carries no patch."
     },
     "delegate-popover": {
       "disposition": "keep",
       "family": "chat",
-      "source": "Regent product-cohesion W1-DS3 agent slice (plan 41-agent-card-mockups.md, decisions D2/D10/D16; findings UXT-01/02/04/05/07/10/11/12/50, UXP-46) — MK blanket approval 27-10-2026 (D19), Regent product-cohesion W1-DS3",
+      "source": "Regent product-cohesion W1-DS3 agent slice (plan 41-agent-card-mockups.md, decisions D2/D10/D16; findings UXT-01/02/04/05/07/10/11/12/50, UXP-46) \u2014 MK blanket approval 27-10-2026 (D19), Regent product-cohesion W1-DS3",
       "rationale": "Upstream ships no delegate picker. A fixed composition of popover, people-picker's PeoplePickerContent, textarea, select, empty and button: the one Delegate popover for tasks and rows; it carries no patch."
     },
     "help-menu": {
@@ -871,341 +871,347 @@
     "list-toolbar": {
       "disposition": "keep",
       "family": "data",
-      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
-      "rationale": "Upstream ships no list toolbar. One header row for every list and table — tabs, search, icon tools, the main button — with a measured collapse order; composes upstream button, popover, sheet, dropdown-menu, toggle-group and tooltip."
+      "source": "Regent list & table toolbar proposal (40-proposal \u00a77) with operator decisions T1\u2013T4 \u2014 approved by MK 2026-10-29",
+      "rationale": "Upstream ships no list toolbar. One header row for every list and table \u2014 tabs, search, icon tools, the main button \u2014 with a measured collapse order; composes upstream button, popover, sheet, dropdown-menu, toggle-group and tooltip."
     },
     "filter-row": {
       "disposition": "keep",
       "family": "data",
-      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "source": "Regent list & table toolbar proposal (40-proposal \u00a77) with operator decisions T1\u2013T4 \u2014 approved by MK 2026-10-29",
       "rationale": "Upstream ships no filter row. The chips under a ListToolbar in a fixed order, with the AI note line; composes FilterChip and the facet report channel."
     },
     "add-filter-menu": {
       "disposition": "keep",
       "family": "data",
-      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "source": "Regent list & table toolbar proposal (40-proposal \u00a77) with operator decisions T1\u2013T4 \u2014 approved by MK 2026-10-29",
       "rationale": "Upstream ships no add-filter menu. `+ Filter` with one input that narrows fields or hands a plain-language request to the host; AiFilterInput is its input line. No AI code: the host owns the request."
     },
     "sort-menu": {
       "disposition": "keep",
       "family": "data",
-      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "source": "Regent list & table toolbar proposal (40-proposal \u00a77) with operator decisions T1\u2013T4 \u2014 approved by MK 2026-10-29",
       "rationale": "Upstream ships no one-key sort menu. Two radio groups (field, direction) worded by field type; built on Base UI radio, no patch."
     },
     "display-menu": {
       "disposition": "keep",
       "family": "data",
-      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "source": "Regent list & table toolbar proposal (40-proposal \u00a77) with operator decisions T1\u2013T4 \u2014 approved by MK 2026-10-29",
       "rationale": "Upstream ships no display menu. Layout, sort, rows and Show switches in one popover surface with drill-ins; composes upstream toggle-group, switch and our sortable-list."
     },
     "use-overflow-fold": {
       "disposition": "keep",
       "family": "hook",
-      "source": "Regent list & table toolbar proposal (40-proposal §7) with operator decisions T1–T4 — approved by MK 2026-10-29",
+      "source": "Regent list & table toolbar proposal (40-proposal \u00a77) with operator decisions T1\u2013T4 \u2014 approved by MK 2026-10-29",
       "rationale": "Upstream ships no fold hook. A measured fold-when-it-does-not-fit decision shared by Tabs (LAY-14 menu), RouteTabs, ViewTabs and ListToolbar."
     },
     "floating-cell-editor": {
       "disposition": "keep",
       "family": "data",
-      "source": "Regent Tables grid polish (web-app-regent-v2 3f2318bc) — approved by MK 2026-10-30",
+      "source": "Regent Tables grid polish (web-app-regent-v2 3f2318bc) \u2014 approved by MK 2026-10-30",
       "rationale": "Upstream has no cell editor surface. A recipe over upstream popover (anchored at a cell rect) with a lock layer; no patch."
     },
     "dropdown-menu-form": {
       "disposition": "keep",
       "family": "overlay",
-      "source": "Regent Tables grid polish (web-app-regent-v2 3f2318bc) — approved by MK 2026-10-30",
+      "source": "Regent Tables grid polish (web-app-regent-v2 3f2318bc) \u2014 approved by MK 2026-10-30",
       "rationale": "dropdown-menu is upstream-backed and takes no new exports, so the form parts (input that keeps its keys, switch row, menu at a point) live in a new item that composes it unmodified."
     },
     "option-list-editor": {
       "disposition": "keep",
       "family": "form",
-      "source": "Regent Tables grid polish (web-app-regent-v2 3f2318bc) — approved by MK 2026-10-30",
+      "source": "Regent Tables grid polish (web-app-regent-v2 3f2318bc) \u2014 approved by MK 2026-10-30",
       "rationale": "Upstream has no option editor. A list of rows over our color-picker, input and button; holds no state."
     },
     "cited-list": {
       "disposition": "keep",
       "family": "chat",
-      "source": "Operator request 2026-10-30 (Regent: cited AI answers — numbered points with source chips) — operator approval 2026-10-30",
+      "source": "Operator request 2026-10-30 (Regent: cited AI answers \u2014 numbered points with source chips) \u2014 operator approval 2026-10-30",
       "rationale": "Upstream ships no cited-answer list. A numbered list whose items carry a trailing group of small muted source chips; the chip owns its root through useRender so a host can render a router link or a button; no patch."
     },
     "time-field": {
       "disposition": "keep",
       "family": "form",
-      "source": "Regent agents platform P4 (recurring tasks and schedules), DS-1 — operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
+      "source": "Regent agents platform P4 (recurring tasks and schedules), DS-1 \u2014 operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
       "rationale": "Upstream ships no time-of-day field. One typed InputGroup input with a clock addon, a spin button over minutes since midnight; parsing and the locale clock come from the date-time lib; no patch."
     },
     "recurrence-picker": {
       "disposition": "keep",
       "family": "form",
-      "source": "Regent agents platform P4 (recurring tasks and schedules), DS-1 — operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
+      "source": "Regent agents platform P4 (recurring tasks and schedules), DS-1 \u2014 operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
       "rationale": "Upstream ships no recurrence editor. A presentational body over our radio-group, toggle-group, number-field, select, date-picker and time-field that edits a plain RecurrenceValue; it computes no dates (no RRULE engine) and the host passes the preview; no patch."
     },
     "message-parts": {
       "disposition": "keep",
       "family": "chat",
-      "source": "Regent agents platform P3 (talk to agents), DS-1 — operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
+      "source": "Regent agents platform P3 (talk to agents), DS-1 \u2014 operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
       "rationale": "Upstream's message.tsx is layout only, and a new export there would be a hunk no decision row covers, so these are a separate item: steps, a plan checklist, status and notice lines, a change row, a hand-off divider, sources, the disclaimer, an actions row, a version switch and a fold, composing upstream button, collapsible and separator with our tool-call-chip and status-line; no patch."
     },
     "chat-composer": {
       "disposition": "keep",
       "family": "chat",
-      "source": "Regent agents platform P3 (talk to agents), DS-2 — operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
+      "source": "Regent agents platform P3 (talk to agents), DS-2 \u2014 operator approval 2026-11-04 (go-dark, \"You've my approval for all changes as required\")",
       "rationale": "Upstream ships no chat box with mentions. A composition of our text-edit (Markdown, the same mention chips as a comment) with upstream button and tooltip: Enter sends, the send button swaps to Stop while the agent answers, chips above the text; no patch."
     },
     "agent-question-form": {
       "disposition": "keep",
       "family": "chat",
-      "source": "Regent agents platform, lane AQ (agent question forms) — operator approval 2026-11-05 (go-dark, \"rsume from them on finishing all phases development till the end continuing in godark mode\")",
+      "source": "Regent agents platform, lane AQ (agent question forms) \u2014 operator approval 2026-11-05 (go-dark, \"rsume from them on finishing all phases development till the end continuing in godark mode\")",
       "rationale": "Upstream ships no agent question batch. A composition of our questionnaire (upstream's engine) with upstream badge, button and textarea: a compact pick-and-send form for one question, and a stepped form with own words, notes, previews and a review for the rest; no patch."
     },
     "link-provider": {
       "disposition": "keep",
       "family": "navigation",
-      "source": "Operator request 2026-11-10 (VegaStack: in-app links change only the centre, in the same tab; fixed once in the design system) — VegaStack agents overhaul batch approval",
+      "source": "Operator request 2026-11-10 (VegaStack: in-app links change only the centre, in the same tab; fixed once in the design system) \u2014 VegaStack agents overhaul batch approval",
       "rationale": "Upstream ships no router seam. The React Aria RouterProvider pattern: one context with the host router's navigate and the app's origin, read by default by every link-rendering component (MarkdownView, InlineChip, RecordChip, DataList, TextEdit and the linkRender templates); explicit props still win."
     },
     "use-stick-to-bottom": {
       "disposition": "keep",
       "family": "hook",
-      "source": "registry:hook — not a component, so extras.md does not list it"
+      "source": "registry:hook \u2014 not a component, so extras.md does not list it"
     },
     "task-list": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent harness DS1 Task D.3 (the live task list) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "source": "VegaStack agent harness DS1 Task D.3 (the live task list) \u2014 operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no agent task list. A composition of upstream badge, button, collapsible and spinner with our use-announcer: a windowed checklist (live item on top, done and later items folded, problems never folded), a waiting badge, Subagent progress and a sticky progress bar; no patch."
     },
     "run-usage": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent harness DS1 Task D.5 (run usage chip, panel and table) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "source": "VegaStack agent harness DS1 Task D.5 (run usage chip, panel and table) \u2014 operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no run usage view. A presentational composition over upstream table parts, skeleton and button: one data shape drawn as a chip, a panel (totals, by model, activity, cache per step, total with Subagents) and a per-call table; no patch."
     },
     "effect-pill": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) \u2014 operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no effect label. A thin composition of upstream badge with a lucide icon per effect and a fixed variant per effect; no patch."
     },
     "context-ring": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent harness DS1 Task D.1 (the chat memory ring in the composer) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "source": "VegaStack agent harness DS1 Task D.1 (the chat memory ring in the composer) \u2014 operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no context meter. A composition of upstream button and popover with our use-announcer: upload-panel's masked conic ring in three tones (blue under 75%, amber from 75%, red from 90%) and an empty outline, a breakdown with Continue in a new chat; no patch."
     },
     "composer-chip": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) \u2014 operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no composer mode chip. A composition of upstream toggle, button and tooltip sized to the composer's toolbar; no patch."
     },
     "plan-card": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) — operator batch approval 12-11-2026 \"Agent harness\"",
+      "source": "VegaStack agent harness DS1 Task D.4 (plan mode: plan card, effect pills, composer chips) \u2014 operator batch approval 12-11-2026 \"Agent harness\"",
       "rationale": "Upstream ships no plan approval. Shares AskCard's shell (card, agent hexagon, stacking answers, announced settled line) over upstream button and textarea with our effect-pill, person-avatar and use-announcer; no patch."
     },
     "text-spinner": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream ships only an icon spinner. The dot-matrix bolt text loader the operator chose (ICO-8 amended 2026-11-15): CSS-only `motion-strike` / `motion-pulse` on an aria-hidden SVG, a still bolt under reduced motion; no patch."
     },
     "status-glyph": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no agent status set. Six lucide outline glyphs with one ink each per COL-25 (the check in the blue accent, never green); no patch."
     },
     "chat-card": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no chat surfaces. ChatCard (the COL-25 card), ChatRow and ChatGroup, composed from upstream's collapsible and our status-glyph and text-spinner; no patch."
     },
     "chat-chip": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no background-work chip. A pill on the chat card surface with an attention tone that never fills (COL-25); no patch."
     },
     "chat-menu": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph4 design-system foundations — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
-      "rationale": "A density wrapper over upstream's dropdown-menu with a blue selected ✓, per-level number shortcuts and value-carrying submenus; no patch."
+      "source": "VegaStack agent chat ground up, Ph4 design-system foundations \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
+      "rationale": "A density wrapper over upstream's dropdown-menu with a blue selected \u2713, per-level number shortcuts and value-carrying submenus; no patch."
     },
     "model-effort-menu": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph5 composer — operator batch approval 13-11-2026 \"Agent chat ground up\" (Round 3)",
+      "source": "VegaStack agent chat ground up, Ph5 composer \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Round 3)",
       "rationale": "Upstream has no model picker. Composes our chat-menu (number shortcuts, value submenus) with the operator's Round 3 rules: only the model's effort levels, Recommended, a warning on Max, unusable models muted under More models; no patch."
     },
     "context-panel": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph5 composer — operator batch approval 13-11-2026 \"Agent chat ground up\" (Round 3)",
+      "source": "VegaStack agent chat ground up, Ph5 composer \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Round 3)",
       "rationale": "Upstream has no context breakdown. A segmented bar and a tabular legend that add up to the window, over upstream button; no patch."
     },
     "chat-work-log": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no agent-turn renderers. Chat Work Log, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
     },
     "chat-subagents": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no agent-turn renderers. Chat Subagents, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
     },
     "chat-task-list": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no agent-turn renderers. Chat Task List, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
     },
     "chat-user-bubble": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no agent-turn renderers. Chat User Bubble, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
     },
     "chat-skeleton": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no agent-turn renderers. Chat Skeleton, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
     },
     "chat-message-parts": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph6 thread and work display — operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1–2)",
+      "source": "VegaStack agent chat ground up, Ph6 thread and work display \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\" (Rounds 1\u20132)",
       "rationale": "Upstream has no agent-turn renderers. Message Parts, composed from our chat primitives (chat-card, status-glyph, text-spinner) and upstream's collapsible and button; no patch."
     },
     "chat-request-card": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "source": "VegaStack agent chat ground up, Ph7 cards \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no agent cards. Chat Request Card, composed from upstream's button and textarea and our chat-card, chat-menu and status-glyph; no patch."
     },
     "chat-plan-card": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "source": "VegaStack agent chat ground up, Ph7 cards \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no agent cards. Chat Plan Card, composed from upstream's button, collapsible and textarea and our chat-card, chat-menu and status-glyph; no patch."
     },
     "chat-question-card": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "source": "VegaStack agent chat ground up, Ph7 cards \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no agent cards. Chat Question Card, composed from upstream's button and textarea and our chat-card, chat-menu and status-glyph; no patch."
     },
     "memory-group": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph7 cards — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "source": "VegaStack agent chat ground up, Ph7 cards \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no agent cards. Memory Group, composed from upstream's button and textarea and our chat-card, chat-menu and status-glyph; no patch."
     },
     "file-preview": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no inline file preview. File Preview, composed from upstream's button and our chat-card, file-viewer (its readers), markdown-view and file-kind; no patch."
     },
     "source-list": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no cited-sources list. Source List, composed from our chat-card fold and markdown-view's citation contract; no patch."
     },
     "resource-pill": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors — operator batch approval 13-11-2026 \"Agent chat ground up\"",
+      "source": "VegaStack agent chat ground up, Ph8 files, sources and connectors \u2014 operator batch approval 13-11-2026 \"Agent chat ground up\"",
       "rationale": "Upstream has no connector resource reference. Resource Pill, an InlineChip with the connector kinds' icons and words; no patch."
     },
     "shell": {
       "disposition": "keep",
       "family": "layout",
-      "source": "Regent shell layout overhaul P0 (decisions L1–L22, contract `04-contract.md` §2 and §5) — operator batch approval 16-11-2026 \"Approve, go dark\"",
-      "rationale": "Upstream ships no app frame beyond its Sidebar. One frame of five regions — the module rail, the module column, the top bar with fixed slots, the page and a panel slot — plus the phone bottom bar, laid out by container queries over data attributes before hydration (LAY-22), composing upstream button, collapsible, dropdown-menu and input-group; no patch."
+      "source": "Regent shell layout overhaul P0 (decisions L1\u2013L22, contract `04-contract.md` \u00a72 and \u00a75) \u2014 operator batch approval 16-11-2026 \"Approve, go dark\"",
+      "rationale": "Upstream ships no app frame beyond its Sidebar. One frame of five regions \u2014 the module rail, the module column, the top bar with fixed slots, the page and a panel slot \u2014 plus the phone bottom bar, laid out by container queries over data attributes before hydration (LAY-22), composing upstream button, collapsible, dropdown-menu and input-group; no patch."
     },
     "shell-client": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of shell (its client islands — the controller for ⌘\\, F6, hover-peek, slide-over and cookies, the column resize edge, the skip link, the column toggle and the phone bar) apart so Shell stays server-safe. Regent shell layout overhaul P0 (decisions L1–L22, contract `04-contract.md` §2 and §5) — operator batch approval 16-11-2026 \"Approve, go dark\""
+      "source": "internal part of shell (its client islands \u2014 the controller for \u2318\\, F6, hover-peek, slide-over and cookies, the column resize edge, the skip link, the column toggle and the phone bar) apart so Shell stays server-safe. Regent shell layout overhaul P0 (decisions L1\u2013L22, contract `04-contract.md` \u00a72 and \u00a75) \u2014 operator batch approval 16-11-2026 \"Approve, go dark\""
     },
     "shell-scripts": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of shell (the before-paint ShellStateScript and TimeZoneScript, with no client imports, so a root layout can render them without pulling any client graph into public pages). Regent shell layout overhaul P0 (decisions L1–L22, contract `04-contract.md` §2 and §5) — operator batch approval 16-11-2026 \"Approve, go dark\""
+      "source": "internal part of shell (the before-paint ShellStateScript and TimeZoneScript, with no client imports, so a root layout can render them without pulling any client graph into public pages). Regent shell layout overhaul P0 (decisions L1\u2013L22, contract `04-contract.md` \u00a72 and \u00a75) \u2014 operator batch approval 16-11-2026 \"Approve, go dark\""
     },
     "shell-assistant": {
       "disposition": "keep",
       "family": "chat",
-      "source": "VegaStack shell layout overhaul, P0 lane C — Regent operator batch approval 16-11-2026 \"Shell layout overhaul\" (\"Approve, go dark\")",
+      "source": "VegaStack shell layout overhaul, P0 lane C \u2014 Regent operator batch approval 16-11-2026 \"Shell layout overhaul\" (\"Approve, go dark\")",
       "rationale": "Upstream has no docked assistant card. Shell Assistant is the frame the host's chat renders in; no patch (OVL-26)."
     },
     "nav-tree": {
       "disposition": "keep",
       "family": "navigation",
-      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
+      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) \u2014 operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
       "rationale": "Upstream ships no column navigation since `sidebar` was excluded. Sections of link rows with a compact 12px child indent, a thread line per child (the Inbox's threaded events), a fold control at the row's end and arrow-key movement, on upstream's Base UI button; no ARIA tree engine and no patch."
     },
     "global-bar": {
       "disposition": "keep",
       "family": "layout",
-      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
+      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) \u2014 operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
       "rationale": "Upstream has no app bar. Three slots (leading, centred search, trailing) on upstream's button and kbd, which are also the desktop app's title row (LAY-24); no patch."
     },
     "global-bar-client": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of global-bar (the search and Ask triggers, which print the platform's shortcut through use-platform) apart so GlobalBar stays server-safe. Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\""
+      "source": "internal part of global-bar (the search and Ask triggers, which print the platform's shortcut through use-platform) apart so GlobalBar stays server-safe. Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) \u2014 operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\""
     },
     "rail": {
       "disposition": "keep",
       "family": "navigation",
-      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
+      "source": "Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) \u2014 operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\"",
       "rationale": "Upstream has no module rail. Icon-over-label items with a compact count badge (the one TYP-18 exception) or a dot, and a bottom group, server-rendered on upstream's Base UI button; no patch."
     },
     "rail-client": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of rail (the animated rail icon and lazyAnimatedIcon) apart so Rail stays server-safe. Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) — operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\""
+      "source": "internal part of rail (the animated rail icon and lazyAnimatedIcon) apart so Rail stays server-safe. Regent Layout v2 P0 (`.vegastack/plans/layout-v2/00-plan.md` D1, D2, D9 in the Regent web app) \u2014 operator approval 17-11-2026 \"Okay, the plan looks good to me, as we shared in the design artifact.\""
     },
     "peek": {
       "disposition": "keep",
       "family": "overlay",
-      "source": "VegaStack layout v2, P0 part 4 — Regent operator approval 17-11-2026 \"Layout v2\" (\"Okay, the plan looks good to me, as we shared in the design artifact.\")",
+      "source": "VegaStack layout v2, P0 part 4 \u2014 Regent operator approval 17-11-2026 \"Layout v2\" (\"Okay, the plan looks good to me, as we shared in the design artifact.\")",
       "rationale": "Upstream has no record peek. Peek composes upstream drawer (the phone sheet), button, button-group and tooltip; no patch."
     },
     "record-layout-side": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of record-layout (its client side panel: strip, panels, phone row). VegaStack layout v2, P0 part 5 — operator approval 17-11-2026"
+      "source": "internal part of record-layout (its client side panel: strip, panels, phone row). VegaStack layout v2, P0 part 5 \u2014 operator approval 17-11-2026"
     },
     "accent": {
       "disposition": "keep",
       "family": "form",
-      "source": "Regent accent themes — operator batch approval 25-11-2026 \"Approve, go dark\" (A1–A13, R1–R5, COL-27)",
+      "source": "Regent accent themes \u2014 operator batch approval 25-11-2026 \"Approve, go dark\" (A1\u2013A13, R1\u2013R5, COL-27)",
       "rationale": "Upstream ships no accent switch. The person's accent on <html data-accent>, its cookie, a page-level scope and a picker over upstream radio-group and button recipes; no patch."
     },
     "accent-picker": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of accent (the picker). Regent accent themes — operator batch approval 25-11-2026 \"Approve, go dark\" (A1–A13, R1–R5, COL-27)"
+      "source": "internal part of accent (the picker). Regent accent themes \u2014 operator batch approval 25-11-2026 \"Approve, go dark\" (A1\u2013A13, R1\u2013R5, COL-27)"
     },
     "accent-script": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of accent (the before-paint script, with no client imports, so a root layout can render it without pulling any client graph into public pages). Regent accent themes — operator batch approval 25-11-2026 \"Approve, go dark\" (A1–A13, R1–R5, COL-27)"
+      "source": "internal part of accent (the before-paint script, with no client imports, so a root layout can render it without pulling any client graph into public pages). Regent accent themes \u2014 operator batch approval 25-11-2026 \"Approve, go dark\" (A1\u2013A13, R1\u2013R5, COL-27)"
     },
     "accent-preview": {
       "disposition": "keep",
       "family": "internal",
-      "source": "internal part of accent (the preview, drawn with the real components). Regent accent themes — operator batch approval 25-11-2026 \"Approve, go dark\" (A1–A13, R1–R5, COL-27)"
+      "source": "internal part of accent (the preview, drawn with the real components). Regent accent themes \u2014 operator batch approval 25-11-2026 \"Approve, go dark\" (A1\u2013A13, R1\u2013R5, COL-27)"
+    },
+    "agent-face": {
+      "disposition": "keep",
+      "family": "data",
+      "source": "Regent operator, agent faces, 2026-11-27 (\"Yes, plan both\"; \"Approve, go dark\"; Rounds 1\u20133) \u2014 BRD-13, MOT-15",
+      "rationale": "Upstream has no character avatar. The one way an agent is drawn (BRD-13): a preset character in a palette, Pebble from 40px and Dot below, nine states, CSS-only `motion-face-*` (MOT-15) on an SVG; no patch."
     }
   }
 }

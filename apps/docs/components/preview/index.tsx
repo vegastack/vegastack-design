@@ -47,6 +47,7 @@ export * from "./context-ring";
 export * from "./context-panel";
 export * from "./model-effort-menu";
 export * from "./text-spinner";
+export * from "./agent-face";
 export * from "./status-glyph";
 export * from "./chat-card";
 export * from "./chat-chip";

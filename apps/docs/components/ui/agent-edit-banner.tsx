@@ -1,4 +1,4 @@
-// @vegastack agent-edit-banner@0.135.0 sha256-KpFjAHCNUkLK2/dfZSJn9cnfRYwK6XNHOrW/bOZfcJA=
+// @vegastack agent-edit-banner@0.135.0 sha256-RKp6FTGx8VL2eA9JZLhShq/tsUNZ35O185vjbzOFs40=
 
 "use client";
 
@@ -23,17 +23,14 @@ import { RelativeTime } from "@/components/ui/relative-time";
 
 /* ------------------------------------------------------------------------------------------------
  * AgentEditBanner — the strip pinned under a document's header after an agent changed it: the
- * agent's hexagon, "Edited by Claude for Manoj · 3 changes · 2m ago", View changes, Approve,
+ * agent's face, "Edited by Claude for Manoj · 3 changes · 2m ago", View changes, Approve,
  * Undo this agent's changes and a dismiss ✕. Presentational: the host owns the runs, the undo, the
  * approval, the refusal and the dismiss memory, and passes the state back. Which buttons show is decided by the
  * callbacks passed, so a read-only viewer (no callbacks) gets the words and the ✕ only.
  * ----------------------------------------------------------------------------------------------*/
 
 /** The agent a banner names: `name` is the short form ("Claude"), `for` its owner ("Manoj"). */
-export type AgentEditBannerAgent = Pick<
-  Person,
-  "name" | "for" | "image" | "mark" | "hue"
->;
+export type AgentEditBannerAgent = Pick<Person, "name" | "for" | "face">;
 
 /**
  * Where the banner's actions stand. `idle` — View changes, Approve and Undo; `undoing` — Undo shows

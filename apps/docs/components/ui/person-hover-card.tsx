@@ -1,4 +1,4 @@
-// @vegastack person-hover-card@0.135.0 sha256-cuV2jQONQSkyXPxfogPNGth4Vzt4xEponbSaOiwyXmU=
+// @vegastack person-hover-card@0.135.0 sha256-4RnWDuRAPqpnq3wMQ3L1SWbRKEB1rAarlCyRJOQYy2g=
 
 "use client";
 
@@ -8,9 +8,6 @@ import { Button } from "@/components/ui/button";
 import {
   PersonAvatar as BasePersonAvatar,
   PersonName,
-  AgentShapeLayer,
-  agentShapeTarget,
-  agentShapeStyle,
   personAccessibleName,
   type Person as BasePerson,
 } from "@/components/ui/person-avatar";
@@ -27,7 +24,7 @@ import {
  * muted email stacked beside it (`MembersStack` stacks several and lists them). A person without
  * an account (a free-text participant) shows initials and just the name. A team (`kind: "team"`)
  * stacks and lists the same way, drawn as its rounded-square team tile; an agent
- * (`kind: "agent"`) as its hexagon, named "Claude Code for Manoj".
+ * (`kind: "agent"`) as its face, named "Claude Code for Manoj".
  * `PersonHoverCardProvider` lets the host draw a richer card for some of them (an agent's).
  * ----------------------------------------------------------------------------------------------*/
 
@@ -190,12 +187,10 @@ export function PersonHoverCard({
               variant="ghost"
               size="icon-sm"
               aria-label={personAccessibleName(person)}
-              // An agent's hover fill and focus tint follow its hexagon, never a circle.
-              style={person.kind === "agent" ? agentShapeStyle : undefined}
               className={cn(
-                person.kind === "team"
-                  ? "rounded-tile"
-                  : person.kind === "agent" && agentShapeTarget,
+                person.kind === "team" && "rounded-tile",
+                // A face hugs its own box: the trigger grows with the avatar, never squeezes it.
+                person.kind === "agent" && "size-auto rounded-icon p-px",
                 className,
               )}
               onClick={press}
@@ -203,9 +198,6 @@ export function PersonHoverCard({
           )
         }
       >
-        {trigger === "avatar" && person.kind === "agent" ? (
-          <AgentShapeLayer />
-        ) : null}
         {children}
       </HoverCardTrigger>
       <HoverCardContent

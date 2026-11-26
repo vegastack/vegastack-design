@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 47529
-      sha256: "405f67f4919abf63f0dd44764bcaf5fef1464a20496ea83fc20df019f97e56a2"
+      bytes: 57672
+      sha256: "0bc29ad03ab4aa5e5c6e59991199e5e1e6b27786a16246022241789591a6e5a3"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 16224
-      sha256: "3597de71d3941d5fba798c478f6d64b0114a3c0651030bb8d4ad4a4e12e11cf8"
+      bytes: 25552
+      sha256: "21cac21394eecbe01b30e4a6700d1fb96ad8e591e429931eb3faca8c2de5d8b7"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -224,6 +224,186 @@ themes:
       type: "duration"
       value: "180ms"
       description: "MOT-14: one streamed word fading in, prose only (never code, tables or maths); removed when the stream ends."
+    face-blue-a:
+      type: "color"
+      value: "oklch(0.912 0.04 260.1)"
+      description: "Agent faces (operator 27-11-2026): nine palettes built from the accent theme colours. a = light tone, b = the theme colour's dark-mode text value, deep = its light fill, mark = the cue colour, ink = the eyes. Values mirror tooling/agent-face-spec.mjs PALETTES (the phone reads that file); change both together."
+    face-blue-b:
+      type: "color"
+      value: "oklch(0.695 0.149 257.9)"
+    face-blue-deep:
+      type: "color"
+      value: "oklch(0.531 0.196 258)"
+    face-blue-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-blue-mark:
+      type: "color"
+      value: "oklch(0.531 0.196 258)"
+    face-dot-ink:
+      type: "color"
+      value: "oklch(0.279 0.053 293.8)"
+    face-glass-1:
+      type: "color"
+      value: "oklch(0.839 0.1 345.8)"
+    face-glass-2:
+      type: "color"
+      value: "oklch(0.806 0.092 268)"
+    face-glass-3:
+      type: "color"
+      value: "oklch(0.857 0.081 175.9)"
+    face-glass-a:
+      type: "color"
+      value: "oklch(0.972 0.007 295.5)"
+    face-glass-b:
+      type: "color"
+      value: "oklch(0.915 0.022 265.8)"
+    face-glass-deep:
+      type: "color"
+      value: "oklch(0.728 0.038 273.5)"
+    face-glass-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-glass-mark:
+      type: "color"
+      value: "oklch(0.545 0.21 293.2)"
+    face-green-a:
+      type: "color"
+      value: "oklch(0.918 0.03 148.4)"
+    face-green-b:
+      type: "color"
+      value: "oklch(0.685 0.104 150)"
+    face-green-deep:
+      type: "color"
+      value: "oklch(0.504 0.138 150)"
+    face-green-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-green-mark:
+      type: "color"
+      value: "oklch(0.504 0.138 150)"
+    face-grey-a:
+      type: "color"
+      value: "oklch(0.923 0.007 277.2)"
+      description: "Agent faces: the grey a face fades to when it can't act (paused, failed, scheduled); `-ink-` for the Ink palette; the highlight; the dark dot ink on Mist and Glass Dots."
+    face-grey-b:
+      type: "color"
+      value: "oklch(0.72 0.015 277)"
+    face-grey-deep:
+      type: "color"
+      value: "oklch(0.556 0.016 272.5)"
+    face-grey-ink-a:
+      type: "color"
+      value: "oklch(0.644 0.018 285.9)"
+    face-grey-ink-b:
+      type: "color"
+      value: "oklch(0.472 0.019 285.6)"
+    face-grey-ink-deep:
+      type: "color"
+      value: "oklch(0.328 0.014 285.6)"
+    face-highlight:
+      type: "color"
+      value: "oklch(1 0 0)"
+    face-ink-a:
+      type: "color"
+      value: "oklch(0.413 0.018 285.6)"
+    face-ink-b:
+      type: "color"
+      value: "oklch(0.229 0.012 285.5)"
+    face-ink-deep:
+      type: "color"
+      value: "oklch(0.141 0.007 285.5)"
+    face-ink-ink:
+      type: "color"
+      value: "oklch(1 0 0)"
+    face-ink-mark:
+      type: "color"
+      value: "oklch(0.545 0.21 293.2)"
+    face-mist-a:
+      type: "color"
+      value: "oklch(0.977 0.004 286.3)"
+    face-mist-b:
+      type: "color"
+      value: "oklch(0.87 0.012 286.1)"
+    face-mist-deep:
+      type: "color"
+      value: "oklch(0.691 0.02 285.9)"
+    face-mist-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-mist-mark:
+      type: "color"
+      value: "oklch(0.545 0.21 293.2)"
+    face-orange-a:
+      type: "color"
+      value: "oklch(0.92 0.031 48.4)"
+    face-orange-b:
+      type: "color"
+      value: "oklch(0.704 0.12 44.5)"
+    face-orange-deep:
+      type: "color"
+      value: "oklch(0.534 0.152 44.9)"
+    face-orange-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-orange-mark:
+      type: "color"
+      value: "oklch(0.534 0.152 44.9)"
+    face-pink-a:
+      type: "color"
+      value: "oklch(0.923 0.037 351.7)"
+    face-pink-b:
+      type: "color"
+      value: "oklch(0.715 0.151 357.8)"
+    face-pink-deep:
+      type: "color"
+      value: "oklch(0.546 0.2 357.9)"
+    face-pink-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-pink-mark:
+      type: "color"
+      value: "oklch(0.546 0.2 357.9)"
+    face-ring-a:
+      type: "color"
+      value: "oklch(0.835 0.091 293.5)"
+      description: "Agent faces: the ring of Orbit and Moon box (a to b across it), and the floating shadow under an Ink face."
+    face-ring-b:
+      type: "color"
+      value: "oklch(0.719 0.146 274.8)"
+    face-shadow:
+      type: "color"
+      value: "oklch(0.295 0.076 287.2)"
+    face-teal-a:
+      type: "color"
+      value: "oklch(0.92 0.023 190.1)"
+    face-teal-b:
+      type: "color"
+      value: "oklch(0.685 0.075 190)"
+    face-teal-deep:
+      type: "color"
+      value: "oklch(0.51 0.088 189.6)"
+    face-teal-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-teal-mark:
+      type: "color"
+      value: "oklch(0.51 0.088 189.6)"
+    face-violet-a:
+      type: "color"
+      value: "oklch(0.906 0.049 295.6)"
+    face-violet-b:
+      type: "color"
+      value: "oklch(0.71 0.158 292.8)"
+    face-violet-deep:
+      type: "color"
+      value: "oklch(0.545 0.21 293.2)"
+    face-violet-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-violet-mark:
+      type: "color"
+      value: "oklch(0.545 0.21 293.2)"
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -810,6 +990,183 @@ themes:
       type: "duration"
       value: "180ms"
       description: "MOT-14: one streamed word fading in, prose only (never code, tables or maths); removed when the stream ends."
+    face-blue-a:
+      type: "color"
+      value: "oklch(0.912 0.04 260.1)"
+    face-blue-b:
+      type: "color"
+      value: "oklch(0.695 0.149 257.9)"
+    face-blue-deep:
+      type: "color"
+      value: "oklch(0.531 0.196 258)"
+    face-blue-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-blue-mark:
+      type: "color"
+      value: "oklch(0.695 0.149 257.9)"
+    face-dot-ink:
+      type: "color"
+      value: "oklch(0.279 0.053 293.8)"
+    face-glass-1:
+      type: "color"
+      value: "oklch(0.839 0.1 345.8)"
+    face-glass-2:
+      type: "color"
+      value: "oklch(0.806 0.092 268)"
+    face-glass-3:
+      type: "color"
+      value: "oklch(0.857 0.081 175.9)"
+    face-glass-a:
+      type: "color"
+      value: "oklch(0.972 0.007 295.5)"
+    face-glass-b:
+      type: "color"
+      value: "oklch(0.915 0.022 265.8)"
+    face-glass-deep:
+      type: "color"
+      value: "oklch(0.728 0.038 273.5)"
+    face-glass-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-glass-mark:
+      type: "color"
+      value: "oklch(0.71 0.158 292.8)"
+    face-green-a:
+      type: "color"
+      value: "oklch(0.918 0.03 148.4)"
+    face-green-b:
+      type: "color"
+      value: "oklch(0.685 0.104 150)"
+    face-green-deep:
+      type: "color"
+      value: "oklch(0.504 0.138 150)"
+    face-green-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-green-mark:
+      type: "color"
+      value: "oklch(0.685 0.104 150)"
+    face-grey-a:
+      type: "color"
+      value: "oklch(0.923 0.007 277.2)"
+    face-grey-b:
+      type: "color"
+      value: "oklch(0.72 0.015 277)"
+    face-grey-deep:
+      type: "color"
+      value: "oklch(0.556 0.016 272.5)"
+    face-grey-ink-a:
+      type: "color"
+      value: "oklch(0.644 0.018 285.9)"
+    face-grey-ink-b:
+      type: "color"
+      value: "oklch(0.472 0.019 285.6)"
+    face-grey-ink-deep:
+      type: "color"
+      value: "oklch(0.328 0.014 285.6)"
+    face-highlight:
+      type: "color"
+      value: "oklch(1 0 0)"
+    face-ink-a:
+      type: "color"
+      value: "oklch(0.413 0.018 285.6)"
+    face-ink-b:
+      type: "color"
+      value: "oklch(0.229 0.012 285.5)"
+    face-ink-deep:
+      type: "color"
+      value: "oklch(0.141 0.007 285.5)"
+    face-ink-ink:
+      type: "color"
+      value: "oklch(1 0 0)"
+    face-ink-mark:
+      type: "color"
+      value: "oklch(0.71 0.158 292.8)"
+    face-mist-a:
+      type: "color"
+      value: "oklch(0.977 0.004 286.3)"
+    face-mist-b:
+      type: "color"
+      value: "oklch(0.87 0.012 286.1)"
+    face-mist-deep:
+      type: "color"
+      value: "oklch(0.691 0.02 285.9)"
+    face-mist-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-mist-mark:
+      type: "color"
+      value: "oklch(0.71 0.158 292.8)"
+    face-orange-a:
+      type: "color"
+      value: "oklch(0.92 0.031 48.4)"
+    face-orange-b:
+      type: "color"
+      value: "oklch(0.704 0.12 44.5)"
+    face-orange-deep:
+      type: "color"
+      value: "oklch(0.534 0.152 44.9)"
+    face-orange-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-orange-mark:
+      type: "color"
+      value: "oklch(0.704 0.12 44.5)"
+    face-pink-a:
+      type: "color"
+      value: "oklch(0.923 0.037 351.7)"
+    face-pink-b:
+      type: "color"
+      value: "oklch(0.715 0.151 357.8)"
+    face-pink-deep:
+      type: "color"
+      value: "oklch(0.546 0.2 357.9)"
+    face-pink-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-pink-mark:
+      type: "color"
+      value: "oklch(0.715 0.151 357.8)"
+    face-ring-a:
+      type: "color"
+      value: "oklch(0.835 0.091 293.5)"
+    face-ring-b:
+      type: "color"
+      value: "oklch(0.719 0.146 274.8)"
+    face-shadow:
+      type: "color"
+      value: "oklch(0.295 0.076 287.2)"
+    face-teal-a:
+      type: "color"
+      value: "oklch(0.92 0.023 190.1)"
+    face-teal-b:
+      type: "color"
+      value: "oklch(0.685 0.075 190)"
+    face-teal-deep:
+      type: "color"
+      value: "oklch(0.51 0.088 189.6)"
+    face-teal-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-teal-mark:
+      type: "color"
+      value: "oklch(0.685 0.075 190)"
+    face-violet-a:
+      type: "color"
+      value: "oklch(0.906 0.049 295.6)"
+    face-violet-b:
+      type: "color"
+      value: "oklch(0.71 0.158 292.8)"
+    face-violet-deep:
+      type: "color"
+      value: "oklch(0.545 0.21 293.2)"
+    face-violet-ink:
+      type: "color"
+      value: "oklch(0.252 0.05 292.6)"
+    face-violet-mark:
+      type: "color"
+      value: "oklch(0.71 0.158 292.8)"
     font-family-display:
       type: "fontFamily"
       value: "Geist, sans-serif"
@@ -1310,8 +1667,8 @@ All four scripts under `tooling/upstream/` carry a `--self-test` that observes t
 
 ## What we add — the one hundred exceptions
 
-`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 264 rows, 105 resolved as
-**shadcn** (upstream ships unchanged) and 159 as **ours**. `packages/ui/upstream/decisions.json` is
+`docs/plans/2026-09-18-shadcn-reset/decisions.md` is the register: 266 rows, 105 resolved as
+**shadcn** (upstream ships unchanged) and 161 as **ours**. `packages/ui/upstream/decisions.json` is
 its machine copy and the only thing a gate reads; `packages/ui/upstream/exception-map.json` records
 which shared component each exception is assigned to. Re-opening a row is MK's decision. The ninety-eight
 group into six themes.
@@ -1537,14 +1894,19 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   upstream's `ring-1 ring-foreground/10` box-shadow outline; the floating sidebar draws
   `border border-sidebar-border` (MK, 23-09-2026). Avatar's `ring-2 ring-background` is a stacking
   gap, not an outline, and stays. `design-lint`'s `no-surface-ring` keeps the ring from returning.
-- **Identity shapes** (operator, 03-11-2026) — the shape says what something is before any label:
-  a circle is a person, a rounded square a team or workspace, and a soft hexagon an agent (only
-  agents take it; after Atlassian's agent rule). `PersonAvatar` owns all three, in six size steps
-  (`2xs` 16px to `xl` 64px) whose initials, icons (about 60% of the shape) and marks scale with
-  the step, so an avatar is never resized with a `className`. An agent's mark — a provider's logo
-  or the workspace's own assistant — is passed in by the app as an image or a node (the design
-  system holds no provider names or assets), inset on a neutral tile or full-bleed, and falls back
-  to the bot. In a stack or an `AgentStateRing`, a hexagon's gap and ring follow the hexagon.
+- **Identity shapes** (operator, 03-11-2026; agents amended 27-11-2026, BRD-13) — the shape says
+  what something is before any label: a circle is a person, a rounded square a team or workspace,
+  and an agent is its face ("agent avatars are no longer hexagones"). `PersonAvatar` owns all
+  three, in six size steps (`2xs` 16px to `xl` 64px) whose initials, icons (about 60% of the
+  shape) and faces scale with the step, so an avatar is never resized with a `className`. An
+  agent's face (`AgentFace`) is one of 18 preset characters in one of 9 palettes built from the
+  accent theme colours: the Pebble from 40px, the Dot (a 5 × 5 dot face in the preset's own
+  silhouette) below. No preset's silhouette may read as a circle or a rounded square
+  (`tooling/agent-face-spec.mjs` fails the build). A vendor's logo goes in the hover card's footer,
+  never on the face. The face shows what the agent is doing (`FaceState`): motion means busy, the
+  cue's colour says who acts next, grey means it can't act; it moves only where the person is
+  looking at that agent (MOT-15). In a stack its Dot draws a halo round its own silhouette, and an
+  `AgentStateRing` hands its state to the face instead of ringing it.
 - **Layout** (LAY-9…LAY-16) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on
   edge-pinned surfaces, `dvh` over `vh`; truncation is `min-w-0` on the flex child with `truncate`
@@ -1859,7 +2221,7 @@ rows". Three rules: **one shape per row** (a button added to a row takes the row
   whose search and Ask fills sit 3px in on every side (1px border + `p-0.5`). A floating panel that
   wraps or holds a form stays `rounded-card`. Calendar days, colour swatches and a chip's remove button
   are circles; indicators (progress, meters, grips, connectors, scrollbar thumbs) have pill ends;
-  people are circles and agents keep their hexagon. `none`, `full` (a dot or a true circle that is not
+  people are circles and agents are their faces. `none`, `full` (a dot or a true circle that is not
   a button) and `[inherit]` stay structural.
 
 The Flutter app is a touch platform (`corner-platforms.json`) and follows the same thesis with touch

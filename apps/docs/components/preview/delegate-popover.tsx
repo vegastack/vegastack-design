@@ -95,19 +95,19 @@ export function delegatePopoverStates(): ReactNode {
   );
 }
 
-/** Agents with marks and hues, one of which can't see the record yet. */
+/** Agents with their faces, one of which can't see the record yet. */
 const SPACE_AGENTS: DelegatePopoverAgent[] = [
   {
     id: "notes",
     name: "Field notes",
-    hue: "green",
+    face: { v: 1, preset: "stack", palette: "green" },
     hint: "Can't see this space yet",
   },
   {
     id: "orbit",
     name: "Orbit",
     for: "Priya",
-    mark: { src: "/preview/agent-mark-orbit.svg" },
+    face: { v: 1, preset: "orbit", palette: "ink" },
     access: "Read & write",
   },
   { id: "codex", name: "Codex", disabledReason: "Paused" },

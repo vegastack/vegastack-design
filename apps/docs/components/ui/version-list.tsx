@@ -1,4 +1,4 @@
-// @vegastack version-list@0.135.0 sha256-SDf+z9bh8ZGLiynpgAU55Ab1u3pY/mVogZFifibbvuI=
+// @vegastack version-list@0.135.0 sha256-lLsy8umLsd57iNYDgPJ6knN2RTbl3Jbzd0LFQv9b3c0=
 
 "use client";
 
@@ -58,7 +58,7 @@ export interface VersionItem {
   id: string;
   /**
    * Who wrote the text this version holds; a `badge` on the person ("Inactive") follows the name.
-   * An agent (`kind: "agent"`, `for` its owner) reads as everywhere else: its hexagon and "Claude
+   * An agent (`kind: "agent"`, `for` its owner) reads as everywhere else: its face and "Claude
    * for Manoj".
    * `null` for a version the system kept with no person behind it (a page's text from before it
    * moved to live editing): the row names no one — never a placeholder person.

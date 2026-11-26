@@ -470,7 +470,7 @@ function importantModifierTokens(lit) {
 // `text-spinner` draws the loader's bolt as a 13-dot matrix whose rows animate on their own — a
 // dot-matrix graphic no icon can express (Regent bolt loader, operator 15-11-2026, ICO-8 amended).
 const SVG_GRAPHIC_ALLOWLIST =
-  /(?:^|\/)(?:empty|status-icon|qr-code|kpi-card|text-spinner)\.tsx$/;
+  /(?:^|\/)(?:empty|status-icon|qr-code|kpi-card|text-spinner|agent-face)\.tsx$/;
 
 /**
  * `icon-button-name`'s host escape hatch (Batch 4 of the shadcn reset, 2026-09-18).

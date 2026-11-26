@@ -1,4 +1,4 @@
-// @vegastack people-picker@0.135.0 sha256-j02mlb69RaiuA9SvpoS2vmUfUX/24Io2D1jz5uDXk2s=
+// @vegastack people-picker@0.135.0 sha256-H7WpeCJgiikZnvTSJL5ov4d7qz9EhXWdaNoKtsSYqZk=
 
 "use client";
 
@@ -49,7 +49,7 @@ import {
  * assignee, an owner, a manager, a filter) or several people and teams (members of a team or a
  * space, a share invite) composes it, so a row reads the same everywhere: the avatar on the left,
  * the name (with "(you)" for the viewer), then the email, a description or "Team · N people" in a
- * smaller truncated line. An agent (`kind: "agent"`) reads "Claude Code · Manoj" with its hexagon and
+ * smaller truncated line. An agent (`kind: "agent"`) reads "Claude Code · Manoj" with its face and
  * the "Agent" label, so the same picker delegates to a member's agents; an option it may not
  * take shows why (`disabledReason`) and can't be picked. Three hosts share the rows, the search and the loading skeleton:
  *

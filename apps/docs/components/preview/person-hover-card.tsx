@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { Sparkles } from "lucide-react";
 import { Wrapper } from "./wrapper";
 import {
   PersonAvatar,
@@ -166,22 +165,36 @@ const SIZES: readonly PersonAvatarSize[] = [
   "xl",
 ];
 
-/* Sample marks for the docs only: abstract shapes, not any real provider's logo. */
-const ORBIT = { src: "/preview/agent-mark-orbit.svg" };
-const KNOT = { src: "/preview/agent-mark-knot.svg", tile: "light" } as const;
-const TILE = { src: "/preview/agent-mark-tile.svg", fit: "fill" } as const;
-
 const AGENTS: Person[] = [
   { name: "Review agent", kind: "agent", for: "Manoj" },
-  { name: "Orbit", kind: "agent", for: "Asha", mark: ORBIT },
-  { name: "Knot", kind: "agent", for: "Dev", mark: KNOT },
-  { name: "Atlas", kind: "agent", for: "Lena", mark: TILE },
-  { name: "Assistant", kind: "agent", hue: "blue", mark: <Sparkles /> },
+  {
+    name: "Scout",
+    kind: "agent",
+    for: "Asha",
+    face: { v: 1, preset: "squish", palette: "violet" },
+  },
+  {
+    name: "Relay",
+    kind: "agent",
+    for: "Dev",
+    face: { v: 1, preset: "orbit", palette: "ink" },
+  },
+  {
+    name: "Atlas",
+    kind: "agent",
+    for: "Lena",
+    face: { v: 1, preset: "moonbox", palette: "blue" },
+  },
+  {
+    name: "Assistant",
+    kind: "agent",
+    face: { v: 1, preset: "bloom", palette: "orange" },
+  },
 ];
 
 /**
- * Every size step, people beside agents: a photo, initials on a hue, a team, an agent's icon, an
- * inset mark and a full-bleed mark. Initials, icons and marks scale with the step.
+ * Every size step, people beside agents: a photo, initials on a hue, a team and three agents'
+ * faces (the Dot to `default`, the Pebble from `lg`). Initials, icons and faces scale with the step.
  */
 export function personHoverCardSizes(): ReactNode {
   const rows: { label: string; person: Person }[] = [
@@ -195,8 +208,8 @@ export function personHoverCardSizes(): ReactNode {
       person: { name: "Sales", kind: "team", hue: "green" },
     },
     { label: "Agent", person: AGENTS[0]! },
-    { label: "Inset mark", person: AGENTS[1]! },
-    { label: "Full-bleed mark", person: AGENTS[3]! },
+    { label: "Scout", person: AGENTS[1]! },
+    { label: "Atlas", person: AGENTS[3]! },
   ];
   return (
     <Wrapper className="flex-col items-stretch">
@@ -223,9 +236,8 @@ export function personHoverCardSizes(): ReactNode {
 }
 
 /**
- * An agent is a soft hexagon. With no mark it shows the bot (or, with `agentFallback="initials"`,
- * its initials) on its hue; a mark is an image or a node, inset on a neutral tile, on a light tile
- * for a dark-ink logo, or full-bleed. A mark that fails to load falls back to the bot.
+ * An agent is its face: a stored one, or one picked from its name. One here thinks (and moves);
+ * a small one needs you and shows its badge.
  */
 export function personHoverCardAgents(): ReactNode {
   return (
@@ -234,21 +246,15 @@ export function personHoverCardAgents(): ReactNode {
         <PersonAvatar size="lg" person={AGENTS[0]!} />
         <PersonAvatar
           size="lg"
-          person={{ name: "Build bot", kind: "agent", hue: "cyan" }}
-          agentFallback="initials"
+          person={{ name: "Build bot", kind: "agent" }}
+          faceState="thinking"
+          motion
         />
         <PersonAvatar size="lg" person={AGENTS[1]!} />
         <PersonAvatar size="lg" person={AGENTS[2]!} />
         <PersonAvatar size="lg" person={AGENTS[3]!} />
         <PersonAvatar size="lg" person={AGENTS[4]!} />
-        <PersonAvatar
-          size="lg"
-          person={{
-            name: "Broken mark",
-            kind: "agent",
-            mark: { src: "/missing-mark.png" },
-          }}
-        />
+        <PersonAvatar size="sm" person={AGENTS[1]!} faceState="needs-you" />
       </div>
       <div className="flex flex-wrap items-center justify-center gap-3">
         <PersonAvatar size="lg" person={{ name: "Asha Rao", hue: "blue" }} />
@@ -368,58 +374,8 @@ export function personHoverCardIndicators(): ReactNode {
   );
 }
 
-/* A sample mark with a dark-theme variant and a small glyph for the row steps (abstract, no brand). */
-const ORBIT_THEMED = {
-  src: "/preview/agent-mark-orbit.svg",
-  srcDark: "/preview/agent-mark-orbit-dark.svg",
-  small: { src: "/preview/agent-mark-orbit-small.svg" },
-};
-
 /**
- * A mark with a dark-theme variant (`srcDark`) and a small glyph (`small`) for the 16 and 20px
- * steps; `small: false` draws the bot there instead, for a mark that turns to mush when small.
- */
-export function personHoverCardMarks(): ReactNode {
-  const rows: { label: string; person: Person }[] = [
-    {
-      label: "Theme variant + small glyph",
-      person: { name: "Orbit", kind: "agent", mark: ORBIT_THEMED },
-    },
-    {
-      label: "Bot at the row steps",
-      person: {
-        name: "Knot",
-        kind: "agent",
-        mark: { ...KNOT, small: false },
-      },
-    },
-  ];
-  return (
-    <Wrapper className="flex-col items-stretch">
-      <div className="mx-auto grid grid-cols-[repeat(6,auto)] items-center gap-x-3 gap-y-3 text-xs text-muted-foreground sm:grid-cols-[auto_repeat(6,minmax(0,1fr))] sm:gap-x-4">
-        <span className="max-sm:hidden" />
-        {SIZES.map((size) => (
-          <span key={size} className="text-center">
-            {size}
-          </span>
-        ))}
-        {rows.map(({ label, person }) => (
-          <div key={label} className="contents">
-            <span className="whitespace-nowrap max-sm:hidden">{label}</span>
-            {SIZES.map((size) => (
-              <span key={size} className="flex justify-center">
-                <PersonAvatar person={person} size={size} />
-              </span>
-            ))}
-          </div>
-        ))}
-      </div>
-    </Wrapper>
-  );
-}
-
-/**
- * `actingFor`: the member an agent works for rides on its hexagon as a small circle at the
+ * `actingFor`: the member an agent works for rides on its face as a small circle at the
  * bottom-end corner — the agent leads. From `sm` up; the row steps leave it out. In a picker the
  * name reads compact, "Orbit · Asha", with the "Agent" label.
  */

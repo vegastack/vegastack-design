@@ -1,4 +1,4 @@
-// @vegastack delegate-popover@0.135.0 sha256-mkgO0o2aRsFQvXXKAp7/jGvyW9+CoX3uKc33DAfxTqU=
+// @vegastack delegate-popover@0.135.0 sha256-7Jusm3lIBlHNE5Myl9Be/FxVuKQEXnNQ4Lm0YKXkPiM=
 
 "use client";
 
@@ -37,8 +37,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Textarea } from "@/components/ui/textarea";
-import type { AvatarHue } from "@/components/ui/avatar";
-import type { PersonMark } from "@/components/ui/person-avatar";
+import type { AgentFaceSpec } from "@/components/ui/agent-face";
 
 /* ------------------------------------------------------------------------------------------------
  * DelegatePopover — hand a record (or a selection of rows) to an agent: pick one of the viewer's
@@ -54,12 +53,8 @@ export interface DelegatePopoverAgent {
   id: string;
   /** The agent's name: "Claude Code". */
   name: string;
-  /** Its image, under the purple bot. @default undefined */
-  image?: string | null;
-  /** Its mark inside the hexagon (a provider's logo, or a glyph on its `hue`). @default undefined */
-  mark?: PersonMark;
-  /** Its colour behind the bot or a glyph mark. @default undefined */
-  hue?: AvatarHue | null;
+  /** Its face: a preset character in a palette. @default one picked from its name */
+  face?: AgentFaceSpec | null;
   /** The member it acts for, when the list mixes owners. @default undefined */
   for?: string | null;
   /** What it may do, as its second line: "Read & write · Tasks". @default undefined */
@@ -227,14 +222,12 @@ export interface DelegatePopoverProps {
   className?: string;
 }
 
-/** The agent as a picker option: its hexagon, its access (or its hint), then its note. */
+/** The agent as a picker option: its face, its access (or its hint), then its note. */
 function toOption(agent: DelegatePopoverAgent): PeoplePickerOption {
   return {
     id: agent.id,
     name: agent.name,
-    image: agent.image,
-    mark: agent.mark,
-    hue: agent.hue,
+    face: agent.face,
     for: agent.for,
     kind: "agent",
     description: agent.access ?? null,

@@ -1,4 +1,4 @@
-// @vegastack plan-card@0.135.0 sha256-9K1KYctFzJLLAa4L1Ru807TfDIFR6UZD15/pcr/1R9g=
+// @vegastack plan-card@0.135.0 sha256-X1jLd9+Zv04E2nv7ubsLhqNiFf8QLLSMn3ZwyWotNWQ=
 
 "use client";
 
@@ -18,11 +18,8 @@ import { cn } from "@vegastack/design";
 
 import { Button } from "@/components/ui/button";
 import { EffectPill, type PlanEffect } from "@/components/ui/effect-pill";
-import {
-  PersonAvatar,
-  type Person,
-  type PersonMark,
-} from "@/components/ui/person-avatar";
+import { PersonAvatar } from "@/components/ui/person-avatar";
+import type { AgentFaceSpec } from "@/components/ui/agent-face";
 import { Textarea } from "@/components/ui/textarea";
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
@@ -34,7 +31,7 @@ import { useAnnouncer } from "@/components/ui/use-announcer";
  * plan marks what changed since the last version. Once answered, the card closes to one line in
  * the same words on every channel ("✓ Plan accepted by Priya · 6 steps").
  *
- * It shares `AskCard`'s shell (the bordered card, the agent's hexagon, the answers row that
+ * It shares `AskCard`'s shell (the bordered card, the agent's face, the answers row that
  * stacks in a narrow column, the settled line that is announced when it changes), since a plan is
  * one more question an agent asks before it acts. Every string is the caller's or overridable.
  * ----------------------------------------------------------------------------------------------*/
@@ -45,16 +42,8 @@ export interface PlanAgent {
   id: string;
   /** Its name: "Ops assistant". */
   name: string;
-  /** Its mark, shown inside its hexagon. */
-  avatar: string | null;
-  /**
-   * Its own face: a glyph (a ReactNode, such as a lucide icon) or an image object, drawn inside its
-   * hexagon. When set it wins over `avatar`, which shows only when `mark` is nullish. Same as
-   * `Person.mark`. @default undefined
-   */
-  mark?: PersonMark;
-  /** The hue its hexagon takes behind a glyph or the fallback bot. Same as `Person.hue`. @default undefined */
-  hue?: Person["hue"];
+  /** Its face: a preset character in a palette. Same as `Person.face`. @default one picked from its name */
+  face?: AgentFaceSpec | null;
 }
 
 /** What changed in a step since the previous version. */
@@ -800,9 +789,7 @@ export function PlanCard({
           <PersonAvatar
             person={{
               name: plan.agent.name,
-              image: plan.agent.avatar,
-              mark: plan.agent.mark,
-              hue: plan.agent.hue,
+              face: plan.agent.face,
               kind: "agent",
             }}
             aria-hidden

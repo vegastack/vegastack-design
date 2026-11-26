@@ -727,34 +727,32 @@ test("badge and ring: icon and word; amber ring for needs you, none otherwise (f
   expect(rings[1]!.className).not.toContain("ring-2");
   expect(rings[1]!.textContent).toBe("");
   expect(rings[2]!.className).not.toContain("ring-2");
-  // Around an agent's hexagon the circle ring stands down; the avatar draws it in its own shape.
+  // Round an agent's face the circle ring stands down: the face shows the state itself.
   expect(getComputedStyle(rings[0]!).boxShadow).not.toContain(" 2px");
-  const hex = rings[0]!.querySelector<HTMLElement>("[data-kind=agent]")!;
   expect(
-    getComputedStyle(hex).getPropertyValue("--person-avatar-halo").trim(),
-  ).not.toBe("");
-  expect(getComputedStyle(hex, "::before").backgroundColor).not.toBe(
-    "rgba(0, 0, 0, 0)",
-  );
+    rings[0]!.querySelector<SVGSVGElement>("[data-slot=agent-face]")!.dataset
+      .state,
+  ).toBe("needs-you");
   await expectNoA11yViolations(screen.container);
 });
 
-test("ring glyph: a ringed state's icon on the avatar's corner; none for the quiet states", async () => {
+test("ring glyph: a ringed state's icon on a person's corner; none for the quiet states, none on a face", async () => {
+  const asha = { name: "Asha Rao", hue: "blue" as const };
   const screen = await render(
     <div className="flex gap-4 p-4">
       <AgentStateRing state="question" glyph>
-        <PersonAvatar
-          person={{ name: "Claude Code", kind: "agent" }}
-          size="2xs"
-        />
+        <PersonAvatar person={asha} size="2xs" />
       </AgentStateRing>
       <AgentStateRing state="failed" glyph>
-        <PersonAvatar person={{ name: "Codex", kind: "agent" }} size="2xs" />
+        <PersonAvatar person={asha} size="2xs" />
       </AgentStateRing>
       <AgentStateRing state="working" glyph>
-        <PersonAvatar person={{ name: "Codex", kind: "agent" }} size="2xs" />
+        <PersonAvatar person={asha} size="2xs" />
       </AgentStateRing>
       <AgentStateRing state="failed">
+        <PersonAvatar person={asha} size="2xs" />
+      </AgentStateRing>
+      <AgentStateRing state="failed" glyph>
         <PersonAvatar person={{ name: "Codex", kind: "agent" }} size="2xs" />
       </AgentStateRing>
     </div>,
@@ -763,7 +761,7 @@ test("ring glyph: a ringed state's icon on the avatar's corner; none for the qui
     "[data-slot=agent-state-ring]",
   );
   const glyphOf = (el: HTMLElement) =>
-    el.querySelector("[data-slot=agent-state-ring-glyph]");
+    el.querySelector<HTMLElement>("[data-slot=agent-state-ring-glyph]");
   expect(
     glyphOf(rings[0]!)?.querySelector("svg")?.getAttribute("class"),
   ).toContain("text-warning-text");
@@ -772,6 +770,13 @@ test("ring glyph: a ringed state's icon on the avatar's corner; none for the qui
   ).toContain("text-muted-foreground");
   expect(glyphOf(rings[2]!)).toBeNull();
   expect(glyphOf(rings[3]!)).toBeNull();
+  // A face badges its own state, so the ring's glyph stands down.
+  expect(getComputedStyle(glyphOf(rings[4]!)!).display).toBe("none");
+  expect(
+    rings[4]!
+      .querySelector("[data-slot=agent-face-badge]")!
+      .getAttribute("data-badge"),
+  ).toBe("failed");
   // The state is still said once, in words.
   expect(rings[1]!.textContent).toContain("Failed");
   await expectNoA11yViolations(screen.container);
@@ -1192,7 +1197,7 @@ test("hover card lanyard: kind, owner, description, badges, a link to the page a
   expect(slot(card, "agent-hover-card-footer")!.textContent).toBe(
     "claude.ai · MCP · Signed in",
   );
-  // The lanyard leads with a 40px hexagon.
+  // The lanyard leads with a 40px face.
   expect(
     card
       .querySelector<HTMLElement>('[data-slot="avatar"]')!
@@ -1248,14 +1253,7 @@ test("hover card: the trigger never clips actingFor, and Enter steps into the ca
   expect(getComputedStyle(el).maskImage).toBe("none");
   // It hugs the avatar instead of squeezing it into a fixed box.
   expect(el.getBoundingClientRect().width).toBe(44);
-  // Its hover tint is on the hexagon layer behind the avatar, not the square button.
   await trigger.hover();
-  await expect.poll(() => getComputedStyle(el).backgroundImage).toBe("none");
-  await expect
-    .poll(
-      () => getComputedStyle(slot(el, "agent-shape-layer")!).backgroundImage,
-    )
-    .not.toBe("none");
   await userEvent.unhover(trigger);
   await userEvent.tab();
   await expect

@@ -12,7 +12,11 @@ import {
 const noop = () => {};
 
 const PLAN: PlanSpec = {
-  agent: { id: "ops", name: "Ops assistant", avatar: null },
+  agent: {
+    id: "ops",
+    name: "Ops assistant",
+    face: { v: 1, preset: "cairn", palette: "mist" },
+  },
   version: 1,
   title: "Clean up overdue tasks in Ops",
   goal: "Every task due before today is in Backlog with a note.",
