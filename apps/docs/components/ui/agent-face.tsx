@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.4 sha256-rcXqFBGNzfcdUwrLeAfEXXY2n4AO4ebyaxbPmZDm0wI=
+// @vegastack agent-face@0.136.4 sha256-sd+GYqOtdpwlrRRbV57q4O2W2jTlcURvgalBYZ9fKQw=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -41,7 +41,10 @@ export interface AgentFaceProps extends Omit<
   React.ComponentProps<"svg">,
   "children" | "ref"
 > {
-  /** The agent's face; none picks one from `name` (`agentFaceFor`), so an agent is never blank. */
+  /**
+   * The agent's face; none picks one from `name` (`agentFaceFor`), so an agent is never blank.
+   * @default undefined
+   */
   face?: AgentFaceSpec | null;
   /** The agent's name: picks a face when it has none. @default "" */
   name?: string;
