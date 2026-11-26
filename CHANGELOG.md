@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.136.1] — November 26, 2026
+
+<!-- assembled from 1 changeset: 0fa864a18bd9 -->
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.136.0 → 0.136.1.
+
+### 🐛 Fixed
+
+- `ChatTaskList` renders its rows without a curried render function, so apps that lint `react/display-name` over registry copies stay clean.
+  [`56815a9`](https://github.com/VegaStack/vegastack-design/commit/56815a9)
+
 ## [0.136.0] — November 26, 2026
 
 <!-- assembled from 1 changeset: 0082e8de4abf -->

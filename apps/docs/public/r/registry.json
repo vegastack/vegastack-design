@@ -20325,8 +20325,8 @@
       "meta": {
         "whenToUse": "The data-tasklist part of an agent turn.",
         "whenNotToUse": "A to-do list a person edits (Checkbox lists, Tasks).",
-        "version": "0.136.0",
-        "integrity": "sha256-0sMyIABCBVtitpo3Gy6H840SYgk0i12p+H8y5ReARzY="
+        "version": "0.136.1",
+        "integrity": "sha256-ak3CtoCYK68ATlCyWTS0Wpecwe6y/QbOOKT28wL3HrE="
       }
     },
     {

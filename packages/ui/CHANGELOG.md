@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.136.1
+
+### Patch Changes
+
+- [#1083](https://github.com/vegastack/vegastack-design/pull/1083) [`56815a9`](https://github.com/vegastack/vegastack-design/commit/56815a9e25ea19b5ad4b7421327195e5bc72d744) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 `ChatTaskList` renders its rows without a curried render function, so apps that lint `react/display-name` over registry copies stay clean.
+
 ## 0.136.0
 
 ### Minor Changes
