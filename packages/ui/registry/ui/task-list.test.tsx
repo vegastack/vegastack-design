@@ -361,3 +361,44 @@ test("a focused fold row stays while anything is in it, and focus goes to the he
     ),
   );
 });
+
+test("a row focused in a shrinking fold stays in it; when the list ends, focus goes to the header", async () => {
+  const withProgress = (live: number) =>
+    list(20, live).map((item, index) =>
+      index === 19
+        ? { ...item, progress: "Not started", onOpenProgress: () => {} }
+        : item,
+    );
+  const screen = await render(
+    <TaskList items={withProgress(4)} defaultOpenFolds={["more"]} />,
+  );
+  const button = page.getByRole("button", { name: "Not started" });
+  ((await button.element()) as HTMLElement).focus();
+  await screen.rerender(
+    <TaskList items={withProgress(7)} defaultOpenFolds={["more"]} />,
+  );
+  await expect.element(button).toHaveFocus();
+  const fold = page.getByRole("list", { name: "+1 more" });
+  expect((await fold.element()).contains(await button.element())).toBe(true);
+  await screen.rerender(
+    <TaskList items={list(20, 20)} state="done" defaultOpenFolds={["more"]} />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("data-slot")).toBe(
+      "task-list-trigger",
+    ),
+  );
+});
+
+test("a fold row the reader left never takes focus back when it goes", async () => {
+  const screen = await render(<TaskList items={list(20, 4)} />);
+  const more = page.getByRole("button", { name: "+4 more" });
+  const element = (await more.element()) as HTMLElement;
+  element.focus();
+  // A click on blank space: focus goes to nothing.
+  element.blur();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await screen.rerender(<TaskList items={list(20, 20)} state="done" />);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(document.activeElement).toBe(document.body);
+});

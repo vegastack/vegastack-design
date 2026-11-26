@@ -1,4 +1,4 @@
-// @vegastack task-list@0.135.0 sha256-Z03TVQu4iCvHAZNte6Ukhh0v4iC+c+9e0+qoDFpFmYY=
+// @vegastack task-list@0.135.0 sha256-vnwzGKevrXOgZz+dMI9RHHQSzW184ud4y7qc7P+XtSA=
 
 "use client";
 
@@ -327,17 +327,26 @@ export function useTaskListFolds<T extends TaskListFoldRow>(
     section: TaskListSection;
   } | null>(null);
   const [focused, setFocused] = React.useState<TaskListFold | null>(null);
-  const parts = foldTaskList(rows, {
-    unfolded,
-    pinned,
-    keep: focused ? [focused] : [],
-  });
+  // A fold stays while its row, or a row inside it, holds focus.
+  const keep: TaskListFold[] = [];
+  if (focused) keep.push(focused);
+  if (pinned && pinned.section !== "open") keep.push(pinned.section);
+  const parts = foldTaskList(rows, { unfolded, pinned, keep });
+  const inPart = (section: TaskListSection) =>
+    section === "done"
+      ? parts.done
+      : section === "more"
+        ? parts.later
+        : parts.open;
+  // What held focus was removed anyway (the list ended): focus goes home, unless it went elsewhere.
   const gone =
-    focused != null &&
-    (focused === "done" ? parts.done : parts.later).length === 0;
+    (focused != null && inPart(focused).length === 0) ||
+    (pinned != null &&
+      !inPart(pinned.section).some((row) => row.key === pinned.key));
   React.useEffect(() => {
     if (!gone) return;
     setFocused(null);
+    setPinned(null);
     const active = document.activeElement;
     if (!active || active === document.body) home.current?.focus();
   }, [gone, home]);
@@ -345,19 +354,28 @@ export function useTaskListFolds<T extends TaskListFoldRow>(
     ...parts,
     rowFocus: (key: string, section: TaskListSection) => ({
       onFocus: () => setPinned({ key, section }),
-      onBlur: (event: React.FocusEvent<HTMLElement>) => {
-        if (!event.currentTarget.contains(event.relatedTarget))
-          setPinned((p) => (p?.key === key ? null : p));
-      },
+      onBlur: (event: React.FocusEvent<HTMLElement>) =>
+        onLeave(event, () => setPinned((p) => (p?.key === key ? null : p))),
     }),
     foldFocus: (fold: TaskListFold) => ({
       onFocus: () => setFocused(fold),
-      onBlur: (event: React.FocusEvent<HTMLElement>) => {
-        // Focus going somewhere else; a fold row removed under focus has no new target.
-        if (event.relatedTarget) setFocused((f) => (f === fold ? null : f));
-      },
+      onBlur: (event: React.FocusEvent<HTMLElement>) =>
+        onLeave(event, () => setFocused((f) => (f === fold ? null : f))),
     }),
   };
+}
+
+/**
+ * Calls `leave` when focus really leaves the element (to another one, or to nothing, as a click on
+ * blank space does), but not when the element was removed while holding it: that is the hook's to
+ * recover.
+ */
+function onLeave(event: React.FocusEvent<HTMLElement>, leave: () => void) {
+  const element = event.currentTarget;
+  if (event.relatedTarget && element.contains(event.relatedTarget)) return;
+  queueMicrotask(() => {
+    if (element.isConnected) leave();
+  });
 }
 
 const ROW_ICON =
