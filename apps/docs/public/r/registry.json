@@ -20008,7 +20008,7 @@
         "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposerActionsEnd beside the model.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
         "version": "0.135.0",
-        "integrity": "sha256-TXMNkzcRhvqWgVKQjLAWw989Kqx5QS1crwIZ5DMVZ+4="
+        "integrity": "sha256-MnltzhfkKhf+9CITG/dABH9tLgN3WuIDW8gMDS3g6D0="
       }
     },
     {
@@ -20424,7 +20424,7 @@
         "whenToUse": "Live or partly failed background work, Subagents running, or a count that opens a panel.",
         "whenNotToUse": "Settled work (a muted line), a person's own things such as a Doc or a PR (a resource pill), or a filter or tag (Chip).",
         "version": "0.135.0",
-        "integrity": "sha256-A7T6NPsUTzpJt9f8EQeSgTbGamTYTLfxOCLP/Ue7jAw="
+        "integrity": "sha256-NljD/EzwRA0rcGC7HJeJQSx+0PLOVk63DOD9KzMv4zY="
       }
     },
     {
@@ -20766,7 +20766,7 @@
       "name": "context-panel",
       "type": "registry:ui",
       "title": "Context Panel",
-      "description": "What fills a chat's working memory, adding up to its window: share used, one segmented bar, a legend with tokens and shares, what's free, and Summarize now.",
+      "description": "What fills a chat's working memory, up to its window: share used, a segmented bar, a legend with tokens, shares and what's free, and Continue in a new chat.",
       "categories": [
         "chat"
       ],
@@ -20790,7 +20790,7 @@
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.135.0",
-        "integrity": "sha256-W3m6TrsyjMa0f8BZ2jvRKh1emn5OeIsv7ttqM3K36mU="
+        "integrity": "sha256-dFRQeaMdSLc05Tca04jdqdTY9zDNGFwjVt81DFEGHyE="
       }
     },
     {

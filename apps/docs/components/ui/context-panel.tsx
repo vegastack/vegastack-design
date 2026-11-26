@@ -1,4 +1,4 @@
-// @vegastack context-panel@0.135.0 sha256-W3m6TrsyjMa0f8BZ2jvRKh1emn5OeIsv7ttqM3K36mU=
+// @vegastack context-panel@0.135.0 sha256-dFRQeaMdSLc05Tca04jdqdTY9zDNGFwjVt81DFEGHyE=
 
 "use client";
 
@@ -16,11 +16,12 @@ import {
 /* ------------------------------------------------------------------------------------------------
  * ContextPanel — what fills a chat's working memory, adding up to its window: "26% used  25.9k /
  * 200k", one segmented bar, and a legend (swatch, label, tokens, share) in tabular columns that ends
- * with what's free. Then where older messages get summarised, and Summarize now for whoever may send.
+ * with what's free. Then where the conversation auto-compacts, and Continue in a new chat for whoever may
+ * send.
  * It is the body of `ContextRing`'s hover panel and of a phone's Context sheet. `variant="panel"`
  * is the record side panel's compact form: one line ("9% · 37.5k / 400k"), the bar, and the parts as
- * rows (swatch · label · tokens) with each share and the summary note in tooltips; the host puts
- * Summarize in the section header. Tokens and shares only, never money.
+ * rows (swatch · label · tokens) with each share and the compaction note in tooltips; the host puts
+ * its action in the section header. Tokens and shares only, never money.
  * ----------------------------------------------------------------------------------------------*/
 
 /** One part of what fills the window: "Conversation", 6,900 tokens. */
@@ -43,11 +44,11 @@ export interface ContextPanelLabels {
   other?: string;
   /** What's left of the window. @default "Free" */
   free?: string;
-  /** The note under the legend. @default (percent) => `Older messages are summarised at ${percent}%.` */
+  /** The note under the legend. @default (percent) => `Auto-compacts at ${percent}%` */
   threshold?: (percent: number) => string;
-  /** @default "Summarize now" */
+  /** The button. @default "Continue in a new chat" */
   summarize?: string;
-  /** The button while a summary runs. @default "Summarizing" */
+  /** The button while its action runs. @default "Starting" */
   summarizing?: string;
   /** Before the chat's first answer. @default "Measured after the first answer." */
   empty?: string;
@@ -62,17 +63,17 @@ export interface ContextPanelProps extends Omit<
   used: number | null;
   /** The chat's working window, in tokens (the model it runs on decides it). */
   window: number;
-  /** Where older messages get summarised, as a share of the window (0–1). @default 0.9 */
+  /** Where the conversation auto-compacts, as a share of the window (0–1). @default 0.9 */
   threshold?: number;
   /** What fills the window, in order; any measured remainder lists as Other. @default [] */
   parts?: readonly ContextPart[];
   /**
-   * Summarize older messages now. Without it there is no button (a reader who can't send). A
-   * returned promise keeps the button busy until it settles.
+   * The panel's action (Continue in a new chat). Without it there is no button (a reader who can't
+   * send). A returned promise keeps the button busy until it settles.
    * @default undefined
    */
   onSummarize?: () => void | Promise<unknown>;
-  /** A summary is under way (the host's state, a live one included). @default false */
+  /** The action is under way (the host's state, a live one included). @default false */
   summarizing?: boolean;
   /** Words for a token count. @default compact: 25.9k, 1.2M */
   formatTokens?: (tokens: number) => string;
@@ -80,9 +81,9 @@ export interface ContextPanelProps extends Omit<
   labels?: ContextPanelLabels;
   /**
    * `default` — the hover panel: title, "26% used", the bar, a legend with shares, the note and
-   * Summarize now. `panel` — a side panel's Details: one line "9% · 37.5k / 400k" (the summary note
+   * Continue in a new chat. `panel` — a side panel's Details: one line "9% · 37.5k / 400k" (the note
    * in its tooltip), the bar and compact rows (swatch · label · tokens, the share in a tooltip, Free
-   * muted last). No title and no button: put Summarize in the section header (`onSummarize` is
+   * muted last). No title and no button: put the action in the section header (`onSummarize` is
    * ignored).
    * @default "default"
    */
@@ -126,7 +127,7 @@ const share = (tokens: number, of: number) =>
 
 /**
  * `ContextPanel` — a chat's memory, adding up to its window: the share used, one segmented bar, the
- * parts with tokens and shares, what's free, the summary note and Summarize now.
+ * parts with tokens and shares, what's free, where it auto-compacts and Continue in a new chat.
  *
  * @example
  * <ContextPanel
@@ -186,7 +187,7 @@ export function ContextPanel({
   const thresholdPercent = Math.round(threshold * 100);
   const note =
     labels?.threshold?.(thresholdPercent) ??
-    `Older messages are summarised at ${thresholdPercent}%.`;
+    `Auto-compacts at ${thresholdPercent}%`;
 
   if (variant === "panel")
     return (
@@ -368,8 +369,8 @@ export function ContextPanel({
           {/* The bolt loader is the one moving thing (no icon spinner). */}
           {busy ? <TextSpinner label="" /> : null}
           {busy
-            ? (labels?.summarizing ?? "Summarizing")
-            : (labels?.summarize ?? "Summarize now")}
+            ? (labels?.summarizing ?? "Starting")
+            : (labels?.summarize ?? "Continue in a new chat")}
         </Button>
       ) : null}
     </div>
