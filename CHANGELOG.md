@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.136.2] — November 26, 2026
+
+<!-- assembled from 1 changeset: d7b7d582f81d -->
+
+### 🔧 Changed components
+
+- `ContextPanel` speaks the agent harness's words by default: the note under the legend says "Auto-compacts at 90%" (was "Older messages are summarised at 90%."), and the button says "Continue in a new chat", "Starting" while it runs (was "Summarize now" and "Summarizing"). `ContextRing`'s docs and its panel follow; the props are unchanged. `ChatChip`'s doc comment says "partially done".
+  [`51bb505`](https://github.com/VegaStack/vegastack-design/commit/51bb505)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.29.4`** (was `0.29.3`).
+- The design-system registry (`@vegastack/ui`) bumps 0.136.1 → 0.136.2.
+
 ## [0.136.1] — November 26, 2026
 
 <!-- assembled from 1 changeset: 0fa864a18bd9 -->

@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.29.4
+
+### Patch Changes
+
+- [#1084](https://github.com/vegastack/vegastack-design/pull/1084) [`51bb505`](https://github.com/vegastack/vegastack-design/commit/51bb505343935cc097b093e1ca8484f4439a3c42) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `ContextPanel` speaks the agent harness's words by default: the note under the legend says "Auto-compacts at 90%" (was "Older messages are summarised at 90%."), and the button says "Continue in a new chat", "Starting" while it runs (was "Summarize now" and "Summarizing"). `ContextRing`'s docs and its panel follow; the props are unchanged. `ChatChip`'s doc comment says "partially done".
+
 ## 0.29.3
 
 ### Patch Changes
