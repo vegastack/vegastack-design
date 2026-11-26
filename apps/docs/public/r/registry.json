@@ -19983,7 +19983,7 @@
       "name": "context-ring",
       "type": "registry:ui",
       "title": "Context Ring",
-      "description": "How full a chat's working memory is: a still 10px ring and its share in the composer's actions row, primary from 75%, the warning ink from 90%, opening its ContextPanel on hover, focus or click.",
+      "description": "How full a chat's context window is: a still 10px ring and its share in the composer's actions row, primary from 75%, the warning ink from 90%, opening its ContextPanel on hover, focus or click.",
       "categories": [
         "chat"
       ],
@@ -20008,7 +20008,7 @@
         "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposerActionsEnd beside the model.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
         "version": "0.136.2",
-        "integrity": "sha256-ZlwLBeZXWaMsJpYnJMJbgARu9ghHdgimrnR4HMkhZK8="
+        "integrity": "sha256-JlqKdPy4/rvnbrucYTQyTLWXZce3azNvu03dKd9RN7Y="
       }
     },
     {
@@ -20766,7 +20766,7 @@
       "name": "context-panel",
       "type": "registry:ui",
       "title": "Context Panel",
-      "description": "What fills a chat's working memory, up to its window: share used, a segmented bar, a legend with tokens, shares and what's free, and Continue in a new chat.",
+      "description": "What fills a chat's context window: share used, a segmented bar, a legend with tokens, shares and what's left, and Continue in a new chat.",
       "categories": [
         "chat"
       ],
@@ -20790,7 +20790,7 @@
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.136.2",
-        "integrity": "sha256-qOx+4m3b4cZ4H11ZUP9yrasfzSz/klgWfQ3ueID2EL4="
+        "integrity": "sha256-r2zf7yPCk6ZWgI1UhGvOgwuzhHzbJss4OCKWIZhIXRE="
       }
     },
     {

@@ -37843,7 +37843,7 @@
       "name": "context-panel",
       "registryType": "registry:ui",
       "title": "Context Panel",
-      "summary": "What fills a chat's working memory, adding up to its window: share, a segmented bar, a legend, free, Continue in a new chat.",
+      "summary": "What fills a chat's context window, adding up to it: share, a segmented bar, a legend, what's left, Continue in a new chat.",
       "status": "stable",
       "since": "0.78.0",
       "family": "chat",
