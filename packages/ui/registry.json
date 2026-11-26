@@ -16714,7 +16714,8 @@
         "@vegastack/button",
         "@vegastack/chat-work-log",
         "@vegastack/collapsible",
-        "@vegastack/status-glyph"
+        "@vegastack/status-glyph",
+        "@vegastack/task-list"
       ],
       "files": [
         {

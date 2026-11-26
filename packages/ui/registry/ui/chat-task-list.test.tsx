@@ -202,3 +202,19 @@ test("a group counts its members and shows them nested; a failed task never fold
   expect(members[1]!.textContent).toContain("Skipped: empty");
   await expectNoA11yViolations(screen.container);
 });
+
+test("a focused fold row stays while anything is in it, then hands focus to the header", async () => {
+  const screen = await render(<ChatTaskList data={long(20, 4)} />);
+  const more = screen.getByRole("button", { name: "+4 more" });
+  ((await more.element()) as HTMLElement).focus();
+  await screen.rerender(<ChatTaskList data={long(20, 7)} />);
+  await expect
+    .element(screen.getByRole("button", { name: "+1 more" }))
+    .toHaveFocus();
+  await screen.rerender(
+    <ChatTaskList data={{ ...long(20, 20), state: "done" }} />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(header(screen.container)),
+  );
+});

@@ -57,8 +57,8 @@ One sentence that opens the rows.
 
 A Subagent that finished says how its part went, in `outcome` (`done`, `partial`, `couldnt`,
 `unknown`) with `outcomeReason`. Only Done has the check. Partly done and Couldn't finish show the
-reason and a Retry; an answer that didn't say reads "Finished · outcome not stated", never as done.
-An output without `outcome` reads as a plain Finished with the check.
+reason and a Retry; an answer that didn't say, or an output with no `outcome`, reads "Finished ·
+outcome not stated", never as done.
 
 <ComponentPreview
   name="chatSubagentsOutcomes"

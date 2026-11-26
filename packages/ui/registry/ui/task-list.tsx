@@ -1,4 +1,4 @@
-// @vegastack task-list@0.135.0 sha256-90Gt66SRB+j2CDsZrjFMctGuQchjBjJXezUyyzvDkIU=
+// @vegastack task-list@0.135.0 sha256-Z03TVQu4iCvHAZNte6Ukhh0v4iC+c+9e0+qoDFpFmYY=
 
 "use client";
 
@@ -227,8 +227,6 @@ interface Row {
   tone: RowTone;
 }
 
-const finished = (row: Row) =>
-  row.tone === "completed" || row.tone === "skipped";
 const linesOf = (row: Row) => 1 + (row.item.members?.length ?? 0);
 
 /** The originals an item stands for: a group's members, or the item itself. */
@@ -243,35 +241,63 @@ const countOf = (items: readonly TaskListItem[], status: TaskListItemStatus) =>
     0,
   );
 
+/** Where a row of a folded list sits: behind "N done", in view, or behind "+N more". */
+export type TaskListSection = "done" | "open" | "more";
+
+/** How `foldTaskList` reads one row. */
+export interface TaskListFoldRow {
+  /** A stable key. */
+  key: string;
+  /** `finished` (done or skipped) folds into "N done"; `pending` may fold into "+N more"; `live` never folds. */
+  kind: "finished" | "pending" | "live";
+  /** How many lines it takes (a group's members count). */
+  lines: number;
+}
+
 /**
- * How a list splits: finished rows behind "N done", the open rows in view, and the rest of the
- * open rows behind "+N more". Rows keep their order inside each part. Short lists, finished lists
- * and folds that would hide a single line don't fold.
+ * How a long task list splits (agent-context I7): finished rows behind "N done", the live rows and
+ * up to twelve open ones in view, the rest behind "+N more"; order is kept inside each part. A
+ * short list and a fold that would hide one line don't fold. A row holding the reader's focus
+ * stays in the part it was in (`pinned`), and a fold whose row holds focus stays while it has
+ * anything in it (`keep`), so nothing the reader is on moves or vanishes under them. Shared by
+ * `TaskList` and `ChatTaskList`.
  */
-function foldRows(
-  rows: readonly Row[],
-  state: TaskListState,
-  pinned: string | null = null,
-): { done: Row[]; open: Row[]; later: Row[] } {
-  const lines = rows.reduce((n, row) => n + linesOf(row), 0);
-  if (state === "done" || lines <= NEVER_FOLD)
+export function foldTaskList<T extends TaskListFoldRow>(
+  rows: readonly T[],
+  {
+    unfolded = false,
+    pinned = null,
+    keep = [],
+  }: {
+    /** Show every row in order, with no folds. @default false */
+    unfolded?: boolean;
+    /** The row holding focus and the part it is in. @default null */
+    pinned?: { key: string; section: TaskListSection } | null;
+    /** Folds whose row holds focus. @default [] */
+    keep?: readonly TaskListFold[];
+  } = {},
+): { done: T[]; open: T[]; later: T[] } {
+  const lines = rows.reduce((n, row) => n + row.lines, 0);
+  if (unfolded || lines <= NEVER_FOLD)
     return { done: [], open: [...rows], later: [] };
-  // The live, unfinished and waiting rows always show; pending rows fill the rest of the twelve.
-  const live = rows.filter((row) => !finished(row) && row.tone !== "pending");
-  let room = Math.max(0, OPEN_SHOWN - live.length);
-  const done: Row[] = [];
-  const later: Row[] = [];
+  const live = rows.filter((row) => row.kind === "live").length;
+  let room = Math.max(0, OPEN_SHOWN - live);
+  const section = new Map<T, TaskListSection>();
   for (const row of rows) {
-    // A row holding the reader's focus stays where it is until focus leaves it.
-    if (row.key === pinned) continue;
-    if (finished(row)) done.push(row);
-    else if (row.tone === "pending") {
-      if (room > 0) room--;
-      else later.push(row);
-    }
+    if (row.kind === "finished") section.set(row, "done");
+    else if (row.kind === "live") section.set(row, "open");
+    else if (room > 0) {
+      room--;
+      section.set(row, "open");
+    } else section.set(row, "more");
   }
-  const foldDone = done.reduce((n, row) => n + linesOf(row), 0) >= FOLD_MIN;
-  const foldLater = later.length >= FOLD_MIN;
+  for (const row of rows)
+    if (pinned && row.key === pinned.key) section.set(row, pinned.section);
+  const done = rows.filter((row) => section.get(row) === "done");
+  const later = rows.filter((row) => section.get(row) === "more");
+  const min = (fold: TaskListFold) => (keep.includes(fold) ? 1 : FOLD_MIN);
+  const foldDone = done.reduce((n, row) => n + row.lines, 0) >= min("done");
+  const foldLater = later.reduce((n, row) => n + row.lines, 0) >= min("more");
   const folded = new Set([
     ...(foldDone ? done : []),
     ...(foldLater ? later : []),
@@ -280,6 +306,57 @@ function foldRows(
     done: foldDone ? done : [],
     open: rows.filter((row) => !folded.has(row)),
     later: foldLater ? later : [],
+  };
+}
+
+/**
+ * `foldTaskList` with the reader's focus kept: a row holding focus stays in its part until focus
+ * leaves it, a fold row holding focus stays while anything is left in it, and when one goes anyway
+ * (the list ended) focus moves to `home`. Spread `rowFocus` on each row and `foldFocus` on each
+ * fold row.
+ */
+export function useTaskListFolds<T extends TaskListFoldRow>(
+  rows: readonly T[],
+  {
+    unfolded = false,
+    home,
+  }: { unfolded?: boolean; home: React.RefObject<HTMLElement | null> },
+) {
+  const [pinned, setPinned] = React.useState<{
+    key: string;
+    section: TaskListSection;
+  } | null>(null);
+  const [focused, setFocused] = React.useState<TaskListFold | null>(null);
+  const parts = foldTaskList(rows, {
+    unfolded,
+    pinned,
+    keep: focused ? [focused] : [],
+  });
+  const gone =
+    focused != null &&
+    (focused === "done" ? parts.done : parts.later).length === 0;
+  React.useEffect(() => {
+    if (!gone) return;
+    setFocused(null);
+    const active = document.activeElement;
+    if (!active || active === document.body) home.current?.focus();
+  }, [gone, home]);
+  return {
+    ...parts,
+    rowFocus: (key: string, section: TaskListSection) => ({
+      onFocus: () => setPinned({ key, section }),
+      onBlur: (event: React.FocusEvent<HTMLElement>) => {
+        if (!event.currentTarget.contains(event.relatedTarget))
+          setPinned((p) => (p?.key === key ? null : p));
+      },
+    }),
+    foldFocus: (fold: TaskListFold) => ({
+      onFocus: () => setFocused(fold),
+      onBlur: (event: React.FocusEvent<HTMLElement>) => {
+        // Focus going somewhere else; a fold row removed under focus has no new target.
+        if (event.relatedTarget) setFocused((f) => (f === fold ? null : f));
+      },
+    }),
   };
 }
 
@@ -430,9 +507,25 @@ export function TaskList({
     onOpenFoldsChange?.(folds);
     onExpandedChange?.(next);
   };
-  // A row holding the reader's focus stays put until focus leaves it, even if the window moves on.
-  const [pinned, setPinned] = React.useState<string | null>(null);
-  const { done, open: openRows, later } = foldRows(rows, state, pinned);
+  // A row holding the reader's focus stays in its part until focus leaves it, even if the window
+  // moves on; a fold row holding focus stays while anything is left in it, else focus goes home.
+  const header = React.useRef<HTMLButtonElement>(null);
+  const unfolded = state === "done";
+  const kinds = rows.map((row) => ({
+    row,
+    key: row.key,
+    lines: linesOf(row),
+    kind:
+      row.tone === "completed" || row.tone === "skipped"
+        ? ("finished" as const)
+        : row.tone === "pending"
+          ? ("pending" as const)
+          : ("live" as const),
+  }));
+  const folded = useTaskListFolds(kinds, { unfolded, home: header });
+  const done = folded.done.map((k) => k.row);
+  const openRows = folded.open.map((k) => k.row);
+  const later = folded.later.map((k) => k.row);
   const doneOpen = openFolds.includes("done");
   const moreOpen = openFolds.includes("more");
   const visible = [
@@ -609,6 +702,7 @@ export function TaskList({
       {...props}
     >
       <CollapsibleTrigger
+        ref={header}
         data-slot="task-list-trigger"
         render={
           <Button
@@ -654,6 +748,7 @@ export function TaskList({
             <Fold
               id={`${foldId}-done`}
               slot="task-list-done-fold"
+              focusProps={folded.foldFocus("done")}
               open={doneOpen}
               onOpenChange={(next) => setFold("done", next)}
               icon={
@@ -677,11 +772,7 @@ export function TaskList({
                   format={format}
                   ticked={fresh.ticked.has(row.key)}
                   entered={fresh.entered.has(row.key)}
-                  onFocus={() => setPinned(row.key)}
-                  onBlur={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget))
-                      setPinned((key) => (key === row.key ? null : key));
-                  }}
+                  {...folded.rowFocus(row.key, "done")}
                 />
               ))}
             </Fold>
@@ -696,11 +787,7 @@ export function TaskList({
                 format={format}
                 ticked={fresh.ticked.has(row.key)}
                 entered={fresh.entered.has(row.key)}
-                onFocus={() => setPinned(row.key)}
-                onBlur={(event) => {
-                  if (!event.currentTarget.contains(event.relatedTarget))
-                    setPinned((key) => (key === row.key ? null : key));
-                }}
+                {...folded.rowFocus(row.key, "open")}
               />
             ))}
           </ol>
@@ -708,6 +795,7 @@ export function TaskList({
             <Fold
               id={`${foldId}-more`}
               slot="task-list-more-fold"
+              focusProps={folded.foldFocus("more")}
               open={moreOpen}
               onOpenChange={(next) => setFold("more", next)}
               label={labels.moreFold(later.length)}
@@ -721,11 +809,7 @@ export function TaskList({
                   format={format}
                   ticked={fresh.ticked.has(row.key)}
                   entered={fresh.entered.has(row.key)}
-                  onFocus={() => setPinned(row.key)}
-                  onBlur={(event) => {
-                    if (!event.currentTarget.contains(event.relatedTarget))
-                      setPinned((key) => (key === row.key ? null : key));
-                  }}
+                  {...folded.rowFocus(row.key, "more")}
                 />
               ))}
             </Fold>
@@ -753,10 +837,12 @@ function Fold({
   label,
   open,
   onOpenChange,
+  focusProps,
   children,
 }: {
   id: string;
   slot: string;
+  focusProps: Pick<React.HTMLAttributes<HTMLElement>, "onFocus" | "onBlur">;
   icon?: React.ReactNode;
   label: string;
   open: boolean;
@@ -773,6 +859,7 @@ function Fold({
       <CollapsibleTrigger
         id={id}
         data-slot={slot}
+        {...focusProps}
         render={
           <Button
             variant="ghost"
@@ -810,7 +897,7 @@ function TaskListRow({
   onBlur,
 }: {
   onFocus: () => void;
-  onBlur: (event: React.FocusEvent<HTMLLIElement>) => void;
+  onBlur: (event: React.FocusEvent<HTMLElement>) => void;
   row: Row;
   state: TaskListState;
   labels: TaskListLabels;

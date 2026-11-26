@@ -1,4 +1,4 @@
-// @vegastack chat-subagents@0.135.0 sha256-WEzOrsnL7jC1EMk14dZh+vV+Doj7TEkpnEKtYF5liwI=
+// @vegastack chat-subagents@0.135.0 sha256-0MEZw2cbNZQHghlugLGyBX8hoIDLrh4SLfk/1YBR3HY=
 
 "use client";
 
@@ -43,7 +43,7 @@ export interface SubagentOutput {
   status?: SubagentStatus;
   /** Why it stopped or failed, in words: "ran out of steps". */
   reason?: string;
-  /** How it said its part went, once `status` is `done`. Absent on older answers: a plain "Finished" with the check. */
+  /** How it said its part went, once `status` is `done`; absent reads as `unknown`, never as done. */
   outcome?: SubagentOutcome;
   /** Why it's partly done or couldn't finish, in its own words (one line). */
   outcomeReason?: string;
@@ -99,8 +99,12 @@ function subagentOf(part: ChatToolPart): SubagentView {
       output.reason ??
       (part.state === "output-error" ? part.errorText : undefined) ??
       words.refusal?.words,
-    ...(status === "done" && output.outcome
-      ? { outcome: output.outcome, outcomeReason: output.outcomeReason }
+    // Only a part said done is done: an answer that didn't say is "outcome not stated".
+    ...(status === "done"
+      ? {
+          outcome: output.outcome ?? "unknown",
+          outcomeReason: output.outcomeReason,
+        }
       : {}),
     steps: output.steps,
     durationMs: output.durationMs ?? words.durationMs,
@@ -132,9 +136,9 @@ function outcomeMeta(view: SubagentView): string | null {
   return view.outcomeReason ?? null;
 }
 
-/** Done with the check: a finished row that said done, or an older answer that couldn't say. */
+/** Done with the check: only a finished row whose Subagent said its part is done. */
 const saidDone = (view: SubagentView) =>
-  view.status === "done" && (!view.outcome || view.outcome === "done");
+  view.status === "done" && view.outcome === "done";
 
 const plural = (n: number, one: string, many = `${one}s`) =>
   `${n} ${n === 1 ? one : many}`;

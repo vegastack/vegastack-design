@@ -20312,7 +20312,8 @@
         "@vegastack/button",
         "@vegastack/chat-work-log",
         "@vegastack/collapsible",
-        "@vegastack/status-glyph"
+        "@vegastack/status-glyph",
+        "@vegastack/task-list"
       ],
       "files": [
         {
@@ -20325,7 +20326,7 @@
         "whenToUse": "The data-tasklist part of an agent turn.",
         "whenNotToUse": "A to-do list a person edits (Checkbox lists, Tasks).",
         "version": "0.135.0",
-        "integrity": "sha256-svFEnuY11svbm8MmozIavhPTPpc6EPGFiW1ep6ShnMI="
+        "integrity": "sha256-7Yc6zUej0OpwaOA5pLrOt/6TlVIqvIkre66YgKvPlpw="
       }
     },
     {
@@ -20359,7 +20360,7 @@
         "whenToUse": "Subagent calls of an agent turn; background work summaries.",
         "whenNotToUse": "A single tool call (WorkLog row).",
         "version": "0.135.0",
-        "integrity": "sha256-WEzOrsnL7jC1EMk14dZh+vV+Doj7TEkpnEKtYF5liwI="
+        "integrity": "sha256-0MEZw2cbNZQHghlugLGyBX8hoIDLrh4SLfk/1YBR3HY="
       }
     },
     {
@@ -20658,7 +20659,7 @@
         "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
         "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
         "version": "0.135.0",
-        "integrity": "sha256-90Gt66SRB+j2CDsZrjFMctGuQchjBjJXezUyyzvDkIU="
+        "integrity": "sha256-Z03TVQu4iCvHAZNte6Ukhh0v4iC+c+9e0+qoDFpFmYY="
       }
     },
     {

@@ -320,3 +320,44 @@ test("a row holding focus stays in view when the window moves on", async () => {
   expect(rows(screen.container)).toContain("Item 5");
   await expect.element(button).toHaveFocus();
 });
+
+test("a row focused inside an open fold stays in it, with focus, as the list moves on", async () => {
+  const withProgress = (live: number) =>
+    list(20, live).map((item, index) =>
+      index === 1
+        ? {
+            ...item,
+            progress: "4 of 4 subagents done",
+            onOpenProgress: () => {},
+          }
+        : item,
+    );
+  const screen = await render(
+    <TaskList items={withProgress(4)} defaultOpenFolds={["done"]} />,
+  );
+  const button = page.getByRole("button", { name: "4 of 4 subagents done" });
+  await button.click();
+  await screen.rerender(
+    <TaskList items={withProgress(5)} defaultOpenFolds={["done"]} />,
+  );
+  await expect.element(button).toHaveFocus();
+  const fold = page.getByRole("list", { name: "5 done" });
+  expect((await fold.element()).contains(await button.element())).toBe(true);
+});
+
+test("a focused fold row stays while anything is in it, and focus goes to the header when it goes", async () => {
+  const screen = await render(<TaskList items={list(20, 4)} />);
+  const more = page.getByRole("button", { name: "+4 more" });
+  ((await more.element()) as HTMLElement).focus();
+  // Live item 7: one row left behind the fold, which stays because it holds focus.
+  await screen.rerender(<TaskList items={list(20, 7)} />);
+  await expect
+    .element(page.getByRole("button", { name: "+1 more" }))
+    .toHaveFocus();
+  await screen.rerender(<TaskList items={list(20, 20)} state="done" />);
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("data-slot")).toBe(
+      "task-list-trigger",
+    ),
+  );
+});

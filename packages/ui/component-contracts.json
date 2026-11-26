@@ -35416,7 +35416,8 @@
         "@vegastack/button",
         "@vegastack/chat-work-log",
         "@vegastack/collapsible",
-        "@vegastack/status-glyph"
+        "@vegastack/status-glyph",
+        "@vegastack/task-list"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.29.0",
@@ -36662,6 +36663,42 @@
         {
           "name": "TaskListMember",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "foldTaskList",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TaskListFoldRow",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "TaskListSection",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/task-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "useTaskListFolds",
+          "kind": "hook",
           "source": "packages/ui/registry/ui/task-list.tsx",
           "ref": {
             "status": "not-applicable",

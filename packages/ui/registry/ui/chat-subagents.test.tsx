@@ -34,6 +34,7 @@ const PARTS = [
   part("s2", "Bhagwati and Instapower", { status: "waiting" }),
   part("s3", "Wipro Lighting", {
     status: "done",
+    outcome: "done",
     steps: 5,
     durationMs: 52_000,
     costMicroUsd: 2_000,
@@ -90,8 +91,8 @@ test("settled: one sentence that opens the rows", async () => {
   const settled = [
     PARTS[2]!,
     PARTS[3]!,
-    part("s5", "Havells", { status: "done", costMicroUsd: 0 }),
-    part("s6", "Syska", { status: "done" }),
+    part("s5", "Havells", { status: "done", outcome: "done", costMicroUsd: 0 }),
+    part("s6", "Syska", { status: "done", outcome: "done" }),
   ];
   expect(
     subagentsSummary(
@@ -181,6 +182,8 @@ test("a finished Subagent says how its part went; only done has the check", asyn
       outcomeReason: "the list was empty",
     }),
     part("o4", "Syska", { status: "done", outcome: "unknown" }),
+    // An output from before outcomes: never read as done.
+    part("o5", "Philips", { status: "done" }),
   ];
   const screen = await render(
     <SubagentsBlock
@@ -200,12 +203,13 @@ test("a finished Subagent says how its part went; only done has the check", asyn
     "Partly done Surya Roshni 2 of 3 filesRetry",
     "Couldn't finish Havells the list was emptyRetry",
     "Finished Syska outcome not stated",
+    "Finished Philips outcome not stated",
   ]);
   expect(
     rows.map((row) => row.querySelector('[data-slot="status-glyph"]') != null),
-  ).toEqual([true, false, false, false]);
+  ).toEqual([true, false, false, false, false]);
   expect(subagentsSummary(outcomes.map((p) => subagentOfPart(p)))).toBe(
-    "Finished 4 Subagents · 1 partly done (2 of 3 files) · 1 couldn't finish (the list was empty) · 1 outcome not stated",
+    "Finished 5 Subagents · 1 partly done (2 of 3 files) · 1 couldn't finish (the list was empty) · 2 outcome not stated",
   );
   await expectNoA11yViolations(screen.container);
 });

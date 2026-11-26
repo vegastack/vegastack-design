@@ -1,4 +1,4 @@
-// @vegastack chat-task-list@0.135.0 sha256-svFEnuY11svbm8MmozIavhPTPpc6EPGFiW1ep6ShnMI=
+// @vegastack chat-task-list@0.135.0 sha256-7Yc6zUej0OpwaOA5pLrOt/6TlVIqvIkre66YgKvPlpw=
 
 "use client";
 
@@ -14,6 +14,10 @@ import {
 } from "@/components/ui/collapsible";
 import { StatusGlyph, type ChatStatus } from "@/components/ui/status-glyph";
 import { ChatClock } from "@/components/ui/chat-work-log";
+import {
+  useTaskListFolds,
+  type TaskListSection,
+} from "@/components/ui/task-list";
 
 /* ------------------------------------------------------------------------------------------------
  * ChatTaskList — an agent's task list as the turn's progress (task list v2).
@@ -108,13 +112,6 @@ const LABEL: Record<TaskListItemState, string> = {
 const plural = (n: number, one: string, many = `${one}s`) =>
   `${n} ${n === 1 ? one : many}`;
 
-/** A list of this many lines or fewer (a group's members count) never folds. */
-const NEVER_FOLD = 5;
-/** Open tasks in view: the one in progress and up to eleven to do (agent-context I7). */
-const OPEN_SHOWN = 12;
-/** A fold that would hide a single line is not worth its row. */
-const FOLD_MIN = 2;
-
 /** The tasks an item stands for: a group's members, or the item itself. */
 const originals = (
   item: TaskListDataItem,
@@ -129,41 +126,13 @@ const countOf = (
     0,
   );
 const linesOf = (item: TaskListDataItem) => 1 + (item.members?.length ?? 0);
-const isFinished = (item: TaskListDataItem) =>
-  item.status === "completed" || item.status === "skipped";
-
-/** Finished tasks behind "N done", the open tasks in view, the rest behind "+N more". */
-function foldItems(data: TaskListData): {
-  done: TaskListDataItem[];
-  open: TaskListDataItem[];
-  later: TaskListDataItem[];
-} {
-  const lines = data.items.reduce((n, item) => n + linesOf(item), 0);
-  if (data.state === "done" || lines <= NEVER_FOLD)
-    return { done: [], open: data.items, later: [] };
-  const live = data.items.filter(
-    (item) => !isFinished(item) && item.status !== "pending",
-  ).length;
-  let room = Math.max(0, OPEN_SHOWN - live);
-  const done = data.items.filter(isFinished);
-  const later: TaskListDataItem[] = [];
-  for (const item of data.items) {
-    if (item.status !== "pending") continue;
-    if (room > 0) room--;
-    else later.push(item);
-  }
-  const foldDone = done.reduce((n, item) => n + linesOf(item), 0) >= FOLD_MIN;
-  const foldLater = later.length >= FOLD_MIN;
-  const folded = new Set([
-    ...(foldDone ? done : []),
-    ...(foldLater ? later : []),
-  ]);
-  return {
-    done: foldDone ? done : [],
-    open: data.items.filter((item) => !folded.has(item)),
-    later: foldLater ? later : [],
-  };
-}
+// Done and skipped fold into "N done"; a failed task is a problem and never folds.
+const kindOf = (item: TaskListDataItem) =>
+  item.status === "completed" || item.status === "skipped"
+    ? ("finished" as const)
+    : item.status === "pending"
+      ? ("pending" as const)
+      : ("live" as const);
 
 /** The header's words: a count, never a spinner. */
 function headerOf(data: TaskListData): string {
@@ -209,11 +178,27 @@ function ChatTaskList({
     setSeenState(data.state);
     if (seenState === "working" && !working) setInnerOpen(false);
   }
-  const { done, open: openItems, later } = foldItems(data);
+  const headerRef = React.useRef<HTMLButtonElement>(null);
+  const folded = useTaskListFolds(
+    data.items.map((item) => ({
+      item,
+      key: item.id,
+      kind: kindOf(item),
+      lines: linesOf(item),
+    })),
+    { unfolded: data.state === "done", home: headerRef },
+  );
+  const done = folded.done.map((row) => row.item);
   const doneCount = countOf(done, (s) => s === "completed");
   const skippedCount = countOf(done, (s) => s === "skipped");
-  const row = (item: TaskListDataItem) => (
-    <TaskRow key={item.id} item={item} onOpenItem={onOpenItem} onWhy={onWhy} />
+  const row = (section: TaskListSection) => (item: TaskListDataItem) => (
+    <TaskRow
+      key={item.id}
+      item={item}
+      onOpenItem={onOpenItem}
+      onWhy={onWhy}
+      {...folded.rowFocus(item.id, section)}
+    />
   );
   return (
     <Collapsible
@@ -230,6 +215,7 @@ function ChatTaskList({
       )}
     >
       <CollapsibleTrigger
+        ref={headerRef}
         data-slot="chat-task-list-header"
         className="group/task-list state-layer flex min-h-7 w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-muted-foreground tabular-nums"
       >
@@ -253,6 +239,7 @@ function ChatTaskList({
           {done.length > 0 ? (
             <Fold
               slot="chat-task-list-done-fold"
+              focusProps={folded.foldFocus("done")}
               glyph={<StatusGlyph status="done" label={null} />}
               label={[
                 doneCount ? `${doneCount} done` : null,
@@ -261,18 +248,19 @@ function ChatTaskList({
                 .filter(Boolean)
                 .join(" · ")}
             >
-              {done.map(row)}
+              {done.map(row("done"))}
             </Fold>
           ) : null}
           <ol className="flex min-w-0 flex-col gap-0.5 px-2">
-            {openItems.map(row)}
+            {folded.open.map((r) => row("open")(r.item))}
           </ol>
-          {later.length > 0 ? (
+          {folded.later.length > 0 ? (
             <Fold
               slot="chat-task-list-more-fold"
-              label={`+${later.length} more`}
+              focusProps={folded.foldFocus("more")}
+              label={`+${folded.later.length} more`}
             >
-              {later.map(row)}
+              {folded.later.map((r) => row("more")(r.item))}
             </Fold>
           ) : null}
         </div>
@@ -286,9 +274,11 @@ function Fold({
   slot,
   glyph,
   label,
+  focusProps,
   children,
 }: {
   slot: string;
+  focusProps: Pick<React.HTMLAttributes<HTMLElement>, "onFocus" | "onBlur">;
   glyph?: React.ReactNode;
   label: string;
   children: React.ReactNode;
@@ -299,6 +289,7 @@ function Fold({
       <CollapsibleTrigger
         id={id}
         data-slot={slot}
+        {...focusProps}
         className="group/fold state-layer flex min-h-7 w-full min-w-0 items-center gap-2 rounded-item px-2 text-start text-sm text-muted-foreground tabular-nums"
       >
         <span aria-hidden className="inline-flex size-4 shrink-0">
@@ -353,8 +344,12 @@ function TaskRow({
   item,
   onOpenItem,
   onWhy,
+  onFocus,
+  onBlur,
 }: {
   item: TaskListDataItem;
+  onFocus: () => void;
+  onBlur: (event: React.FocusEvent<HTMLElement>) => void;
   onOpenItem?: (id: string) => void;
   onWhy?: (id: string) => void;
 }) {
@@ -363,6 +358,8 @@ function TaskRow({
     <li
       data-slot="chat-task-list-item"
       data-status={item.status}
+      onFocus={onFocus}
+      onBlur={onBlur}
       className="flex min-w-0 flex-col"
     >
       <div className="flex min-h-7 min-w-0 items-center gap-2 text-sm">
