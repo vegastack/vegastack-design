@@ -20325,7 +20325,7 @@
         "whenToUse": "The data-tasklist part of an agent turn.",
         "whenNotToUse": "A to-do list a person edits (Checkbox lists, Tasks).",
         "version": "0.135.0",
-        "integrity": "sha256-zIP/AnP9eQ+ymhfJTDwg+4tO7HQT6uXK8YI5FXHzPR4="
+        "integrity": "sha256-svFEnuY11svbm8MmozIavhPTPpc6EPGFiW1ep6ShnMI="
       }
     },
     {
@@ -20359,7 +20359,7 @@
         "whenToUse": "Subagent calls of an agent turn; background work summaries.",
         "whenNotToUse": "A single tool call (WorkLog row).",
         "version": "0.135.0",
-        "integrity": "sha256-kLyDpQAQsilzrhNFdP5/YDtljhdTrTqD8G3xx5Tp0nc="
+        "integrity": "sha256-WEzOrsnL7jC1EMk14dZh+vV+Doj7TEkpnEKtYF5liwI="
       }
     },
     {
@@ -20629,7 +20629,7 @@
       "name": "task-list",
       "type": "registry:ui",
       "title": "Task List",
-      "description": "An agent's live checklist for a longer job: the live item on top, the next two, finished items folded into a count and the rest into +N more, a waiting badge, Subagent progress, and a sticky progress bar.",
+      "description": "An agent's live checklist for a longer job: the live item and up to eleven to do in view, finished items (and groups, members nested) folded into one N done row and the rest into +N more, each fold opening in place, a waiting badge, Subagent progress, and a sticky progress bar.",
       "categories": [
         "chat"
       ],
@@ -20658,7 +20658,7 @@
         "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
         "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
         "version": "0.135.0",
-        "integrity": "sha256-QIR++jBCphz+F7nW/zvAGVPH00vn8N3LpkXSrg4ahco="
+        "integrity": "sha256-90Gt66SRB+j2CDsZrjFMctGuQchjBjJXezUyyzvDkIU="
       }
     },
     {

@@ -5,6 +5,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import {
   BackgroundWork,
   SubagentsBlock,
+  subagentOf as subagentOfPart,
   subagentsSummary,
 } from "./chat-subagents";
 import type { ChatToolPart } from "./chat-work-log";
@@ -162,5 +163,49 @@ test("BackgroundWork: live or partly failed is a chip; settled is a muted line; 
     screen.getByRole("button", { name: /Finished 2 background commands/ }),
   );
   expect(onOpen).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a finished Subagent says how its part went; only done has the check", async () => {
+  const onRetry = vi.fn();
+  const outcomes = [
+    part("o1", "Wipro Lighting", { status: "done", outcome: "done" }),
+    part("o2", "Surya Roshni", {
+      status: "done",
+      outcome: "partial",
+      outcomeReason: "2 of 3 files",
+    }),
+    part("o3", "Havells", {
+      status: "done",
+      outcome: "couldnt",
+      outcomeReason: "the list was empty",
+    }),
+    part("o4", "Syska", { status: "done", outcome: "unknown" }),
+  ];
+  const screen = await render(
+    <SubagentsBlock
+      parts={outcomes}
+      live
+      onOpen={() => {}}
+      onRetry={onRetry}
+    />,
+  );
+  const rows = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="subagent-row"]',
+    ),
+  ];
+  expect(rows.map((row) => row.textContent)).toEqual([
+    "Done Wipro Lighting ",
+    "Partly done Surya Roshni 2 of 3 filesRetry",
+    "Couldn't finish Havells the list was emptyRetry",
+    "Finished Syska outcome not stated",
+  ]);
+  expect(
+    rows.map((row) => row.querySelector('[data-slot="status-glyph"]') != null),
+  ).toEqual([true, false, false, false]);
+  expect(subagentsSummary(outcomes.map((p) => subagentOfPart(p)))).toBe(
+    "Finished 4 Subagents · 1 partly done (2 of 3 files) · 1 couldn't finish (the list was empty) · 1 outcome not stated",
+  );
   await expectNoA11yViolations(screen.container);
 });

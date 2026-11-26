@@ -53,6 +53,18 @@ One sentence that opens the rows.
   file="components/preview/chat-subagents.tsx"
 />
 
+### How its part went
+
+A Subagent that finished says how its part went, in `outcome` (`done`, `partial`, `couldnt`,
+`unknown`) with `outcomeReason`. Only Done has the check. Partly done and Couldn't finish show the
+reason and a Retry; an answer that didn't say reads "Finished · outcome not stated", never as done.
+An output without `outcome` reads as a plain Finished with the check.
+
+<ComponentPreview
+  name="chatSubagentsOutcomes"
+  file="components/preview/chat-subagents.tsx"
+/>
+
 ### Background work
 
 A chip while live or partly failed; a muted line once settled.

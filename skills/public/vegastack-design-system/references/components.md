@@ -264,7 +264,7 @@ starts with `icon-` is a component and never an icon.
 - **`shell-assistant`** — The assistant's chat docked beside the page as a second card (the split view), opened from the global bar's Ask or ⌘J.
 - **`source-list`** — The web pages an answer cites: a quiet Sources fold of one-line numbered rows, the citation card and the MarkdownView wiring.
 - **`status-glyph`** — One glyph per state in agent UI: ✓ done in the blue accent, ◌ not started, ◐ running (still), ⊘ skipped, ✗ failed, ⚠ needs you.
-- **`task-list`** — An agent's live checklist for a longer job: the live item on top, the next two, finished items folded into a count and the rest into +N more, a waiting badge, Subagent progress, and a sticky progress bar.
+- **`task-list`** — An agent's live checklist for a longer job: the live item and up to eleven to do in view, finished items (and groups, members nested) folded into one N done row and the rest into +N more, each fold opening in place, a waiting badge, Subagent progress, and a sticky progress bar.
 - **`text-spinner`** — The one inline text loader: a dot-matrix bolt as tall as capital letters, Strike while working and Pulse while waiting, CSS only, a still bolt under reduced motion.
 - **`tool-call-chip`** — An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.
 - **`tool-permission-list`** — What an agent may do with one source's tools: Allow, Auto-check, Ask or Block per class and per tool, inherited answers muted, locks, an admin's lock toggle and the rules at this layer.
