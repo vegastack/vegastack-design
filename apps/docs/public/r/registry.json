@@ -20766,7 +20766,7 @@
       "name": "context-panel",
       "type": "registry:ui",
       "title": "Context Panel",
-      "description": "What fills a chat's working memory, adding up to its window: share used, one segmented bar, a legend with tokens and shares, what's free, and Continue in a new chat.",
+      "description": "What fills a chat's working memory, adding up to its window: share used, a segmented bar, a legend with tokens, shares and what's free, and Continue in a new chat.",
       "categories": [
         "chat"
       ],
@@ -20790,7 +20790,7 @@
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
         "version": "0.135.0",
-        "integrity": "sha256-5JiDr9/WV+4yAk2np+egbzT+i2tO2k7VLLIuORu8z3k="
+        "integrity": "sha256-uEyiHazlGJpdhD/5Pgko30e4TyBtprugxcgBimWOihE="
       }
     },
     {
