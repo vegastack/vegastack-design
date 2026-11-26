@@ -1,9 +1,11 @@
-// @vegastack agent-face@0.136.4 sha256-px8ChfgcSpsbAM+dt2TYOEAn4hyY43r0phu4VyKm1pY=
+// @vegastack agent-face@0.136.4 sha256-rcXqFBGNzfcdUwrLeAfEXXY2n4AO4ebyaxbPmZDm0wI=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
 import {
   facePreset,
+  FACE_PALETTE_IDS,
+  FACE_PRESET_IDS,
   FACE_PALETTES,
   type FacePalette,
   type FacePreset,
@@ -39,8 +41,10 @@ export interface AgentFaceProps extends Omit<
   React.ComponentProps<"svg">,
   "children" | "ref"
 > {
-  /** The agent's face. */
-  face: AgentFaceSpec;
+  /** The agent's face; none picks one from `name` (`agentFaceFor`), so an agent is never blank. */
+  face?: AgentFaceSpec | null;
+  /** The agent's name: picks a face when it has none. @default "" */
+  name?: string;
   /** What it is doing. @default "idle" */
   state?: FaceState;
   /** Its size in CSS pixels. Below 40 it draws the Dot; from 40 the Pebble. */
@@ -67,6 +71,26 @@ export interface AgentFaceProps extends Omit<
    * @default undefined
    */
   label?: string;
+}
+
+/**
+ * `agentFaceFor` — an agent's face: its own, else one picked from its name, so an agent with no
+ * stored face still has a stable one.
+ *
+ * @example agentFaceFor({ name: "Scout" }) // { v: 1, preset: "…", palette: "…" }
+ */
+export function agentFaceFor(person: {
+  name: string;
+  face?: AgentFaceSpec | null;
+}): AgentFaceSpec {
+  if (person.face) return person.face;
+  let h = 0;
+  for (const c of person.name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return {
+    v: 1,
+    preset: FACE_PRESET_IDS[h % FACE_PRESET_IDS.length]!,
+    palette: FACE_PALETTE_IDS[(h >>> 5) % FACE_PALETTE_IDS.length]!,
+  };
 }
 
 /** The short word for each state, as a label or badge writes it. */
@@ -1350,6 +1374,33 @@ function Pebble({
 }
 
 // ---------- the Dot ----------
+/**
+ * The Dot's silhouette: its own path, or the Pebble body's path scaled by `k` round (`ox`, `oy`)
+ * to the 100-unit box's centre (the spec stores that fit, not a second copy of the path).
+ */
+function dotPath(def: FacePresetDef): string {
+  if (def.dot.d) return def.dot.d;
+  const [k, ox, oy] = def.dot.fit ?? [1, 50, 50];
+  const x = (v: string) => n2(50 + (+v - ox) * k);
+  const y = (v: string) => n2(50 + (+v - oy) * k);
+  const tokens = (def.pebble.d ?? "").match(/[MLAZ]|-?\d*\.?\d+/g) ?? [];
+  const out: string[] = [];
+  for (let i = 0; i < tokens.length;) {
+    const t = tokens[i++]!;
+    if (t === "M" || t === "L")
+      out.push(`${t}${x(tokens[i++]!)} ${y(tokens[i++]!)}`);
+    else if (t === "A") {
+      const rx = n2(+tokens[i++]! * k);
+      const ry = n2(+tokens[i++]! * k);
+      const [rot, large, sweep] = [tokens[i++], tokens[i++], tokens[i++]];
+      out.push(
+        `A${rx} ${ry} ${rot} ${large} ${sweep} ${x(tokens[i++]!)} ${y(tokens[i++]!)}`,
+      );
+    } else if (t === "Z") out.push("Z");
+  }
+  return out.join("");
+}
+
 type Cells = [number, number, number?][];
 /** The 16 cells round the 5 × 5 grid's edge, clockwise from the top left. */
 const PERIMETER: [number, number][] = (() => {
@@ -1536,7 +1587,7 @@ function Dot({
     <>
       <Shade
         id={`${uid}-d`}
-        d={def.dot.d}
+        d={dotPath(def)}
         state={state}
         motion={motion}
         pal={pal}
@@ -1583,7 +1634,8 @@ function Dot({
  * <AgentFace face={{ v: 1, preset: "nut", palette: "orange" }} size={20} state="needs-you" label="" />
  */
 function AgentFace({
-  face,
+  face: faceProp,
+  name = "",
   state = "idle",
   size,
   motion = false,
@@ -1595,6 +1647,7 @@ function AgentFace({
   ...props
 }: AgentFaceProps) {
   const uid = `af${React.useId().replace(/[^a-zA-Z0-9]/g, "")}`;
+  const face = agentFaceFor({ name, face: faceProp });
   const def = facePreset(face.preset);
   const pal = paletteOf(face.palette);
   const dot = size < 40;
@@ -1619,7 +1672,7 @@ function AgentFace({
     >
       {halo && dot ? (
         <path
-          d={def.dot.d}
+          d={dotPath(def)}
           fill="none"
           stroke={halo}
           strokeWidth={n2(((2 * 100) / size) * 2)}

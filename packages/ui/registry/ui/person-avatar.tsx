@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.136.4 sha256-N+nS5fNxXIB8+Jo2StXqdFkdkcFrp0/+kmEAGjHmcjU=
+// @vegastack person-avatar@0.136.4 sha256-Uj2QWeIO4AJI7UWwRd0J8HnwXZZou5I/59/Zvbbdom4=
 
 "use client";
 
@@ -6,12 +6,7 @@ import * as React from "react";
 import { UsersRound } from "lucide-react";
 import { cn } from "@vegastack/design";
 import { Avatar, AvatarFallback, type AvatarHue } from "@/components/ui/avatar";
-import {
-  AgentFace,
-  type AgentFaceSpec,
-  type FaceState,
-} from "@/components/ui/agent-face";
-import { FACE_PALETTE_IDS, FACE_PRESET_IDS } from "@/lib/agent-face-spec";
+import type { AgentFaceSpec, FaceState } from "@/components/ui/agent-face";
 
 /* ------------------------------------------------------------------------------------------------
  * PersonAvatar — the ONE way a person is drawn as an avatar: their photo, else their initials on
@@ -235,6 +230,15 @@ const STEP: Record<
 /** The sizes Avatar draws itself; the other steps ride on `default` with their own box. */
 const AVATAR_TIER = { sm: "sm", default: "default", lg: "lg" } as const;
 
+/**
+ * The face, loaded on demand: most pages show people far more than agents, so its drawing and its
+ * presets stay out of every page's first bundle. The server still renders it into the HTML, and
+ * that markup stays on screen until the chunk arrives, so nothing flashes.
+ */
+const AgentFace = React.lazy(() =>
+  import("@/components/ui/agent-face").then((m) => ({ default: m.AgentFace })),
+);
+
 /** Each step in CSS pixels, for an agent's face (the Dot below 40, the Pebble from 40). */
 const STEP_PX: Record<PersonAvatarSize, number> = {
   "2xs": 16,
@@ -244,25 +248,6 @@ const STEP_PX: Record<PersonAvatarSize, number> = {
   lg: 40,
   xl: 64,
 };
-
-/**
- * `agentFaceFor` — an agent's face: its own, else one picked from its name, so an agent with no
- * stored face still has a stable one.
- *
- * @example agentFaceFor({ name: "Scout" }) // { v: 1, preset: "…", palette: "…" }
- */
-export function agentFaceFor(
-  person: Pick<Person, "name" | "face">,
-): AgentFaceSpec {
-  if (person.face) return person.face;
-  let h = 0;
-  for (const c of person.name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return {
-    v: 1,
-    preset: FACE_PRESET_IDS[h % FACE_PRESET_IDS.length]!,
-    palette: FACE_PALETTE_IDS[(h >>> 5) % FACE_PALETTE_IDS.length]!,
-  };
-}
 
 /**
  * What an `AgentStateRing` (or any wrapper) tells the agent faces inside it to show, when their
@@ -517,15 +502,18 @@ export function PersonAvatar({
         style={{ width: px, height: px, ...style }}
         className={cn(AGENT_ROOT, className, "ring-0")}
       >
-        <AgentFace
-          face={agentFaceFor(person)}
-          state={faceState ?? contextState ?? "idle"}
-          size={px}
-          motion={motion}
-          halo="var(--person-avatar-halo, transparent)"
-          ring="var(--person-avatar-halo, var(--background))"
-          label=""
-        />
+        <React.Suspense fallback={null}>
+          <AgentFace
+            face={person.face ?? null}
+            name={person.name}
+            state={faceState ?? contextState ?? "idle"}
+            size={px}
+            motion={motion}
+            halo="var(--person-avatar-halo, transparent)"
+            ring="var(--person-avatar-halo, var(--background))"
+            label=""
+          />
+        </React.Suspense>
         {actingForNode}
         {indicatorNode}
       </span>
