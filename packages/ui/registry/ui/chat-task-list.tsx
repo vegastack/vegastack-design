@@ -1,4 +1,4 @@
-// @vegastack chat-task-list@0.136.0 sha256-iihh6HKqCgQQKMhi0I9wF/cB8QIV0KwKVatevV/W2sM=
+// @vegastack chat-task-list@0.136.0 sha256-0sMyIABCBVtitpo3Gy6H840SYgk0i12p+H8y5ReARzY=
 
 "use client";
 
@@ -196,15 +196,16 @@ function ChatTaskList({
   const done = folded.done.map((row) => row.item);
   const doneCount = countOf(done, (s) => s === "completed");
   const skippedCount = countOf(done, (s) => s === "skipped");
-  const row = (section: TaskListSection) => (item: TaskListDataItem) => (
-    <TaskRow
-      key={item.id}
-      item={item}
-      onOpenItem={onOpenItem}
-      onWhy={onWhy}
-      {...folded.rowFocus(item.id, section)}
-    />
-  );
+  const rows = (items: readonly TaskListDataItem[], section: TaskListSection) =>
+    items.map((item) => (
+      <TaskRow
+        key={item.id}
+        item={item}
+        onOpenItem={onOpenItem}
+        onWhy={onWhy}
+        {...folded.rowFocus(item.id, section)}
+      />
+    ));
   return (
     <Collapsible
       onFocus={() => {
@@ -265,11 +266,14 @@ function ChatTaskList({
                 .filter(Boolean)
                 .join(" · ")}
             >
-              {done.map(row("done"))}
+              {rows(done, "done")}
             </Fold>
           ) : null}
           <ol className="flex min-w-0 flex-col gap-0.5 px-2">
-            {folded.open.map((r) => row("open")(r.item))}
+            {rows(
+              folded.open.map((r) => r.item),
+              "open",
+            )}
           </ol>
           {folded.later.length > 0 ? (
             <Fold
@@ -277,7 +281,10 @@ function ChatTaskList({
               focusProps={folded.foldFocus("more")}
               label={`+${folded.later.length} more`}
             >
-              {folded.later.map((r) => row("more")(r.item))}
+              {rows(
+                folded.later.map((r) => r.item),
+                "more",
+              )}
             </Fold>
           ) : null}
         </div>
