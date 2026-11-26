@@ -1,4 +1,4 @@
-// @vegastack chat-task-list@0.135.0 sha256-7Yc6zUej0OpwaOA5pLrOt/6TlVIqvIkre66YgKvPlpw=
+// @vegastack chat-task-list@0.135.0 sha256-CroQLzx04Iv/zVBezhxW+eURKiBnN3gASZFe02RVpB0=
 
 "use client";
 
@@ -171,13 +171,17 @@ function ChatTaskList({
 }: ChatTaskListProps) {
   const working = data.state === "working";
   const header = headerOf(data);
-  // Uncontrolled, the list is open while working and folds once when the turn settles.
+  // Uncontrolled, the list is open while working and folds once when the turn settles, unless
+  // the reader is inside it: folding would take away what they are on.
   const [innerOpen, setInnerOpen] = React.useState(defaultOpen ?? working);
-  const [seenState, setSeenState] = React.useState(data.state);
-  if (seenState !== data.state) {
-    setSeenState(data.state);
-    if (seenState === "working" && !working) setInnerOpen(false);
-  }
+  const root = React.useRef<HTMLDivElement>(null);
+  const wasWorking = React.useRef(working);
+  React.useEffect(() => {
+    const settled = wasWorking.current && !working;
+    wasWorking.current = working;
+    if (settled && !root.current?.contains(document.activeElement))
+      setInnerOpen(false);
+  }, [working]);
   const headerRef = React.useRef<HTMLButtonElement>(null);
   const folded = useTaskListFolds(
     data.items.map((item) => ({
@@ -202,6 +206,7 @@ function ChatTaskList({
   );
   return (
     <Collapsible
+      ref={root}
       data-slot="chat-task-list"
       data-state-list={data.state}
       open={open ?? innerOpen}
@@ -348,7 +353,7 @@ function TaskRow({
   onBlur,
 }: {
   item: TaskListDataItem;
-  onFocus: () => void;
+  onFocus: (event: React.FocusEvent<HTMLElement>) => void;
   onBlur: (event: React.FocusEvent<HTMLElement>) => void;
   onOpenItem?: (id: string) => void;
   onWhy?: (id: string) => void;

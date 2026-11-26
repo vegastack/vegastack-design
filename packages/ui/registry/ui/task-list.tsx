@@ -1,4 +1,4 @@
-// @vegastack task-list@0.135.0 sha256-vnwzGKevrXOgZz+dMI9RHHQSzW184ud4y7qc7P+XtSA=
+// @vegastack task-list@0.135.0 sha256-/pFF0Wdj6xp2TCHfW2SAZtNQJnfwLHT18UJx5QHO86k=
 
 "use client";
 
@@ -350,17 +350,46 @@ export function useTaskListFolds<T extends TaskListFoldRow>(
     const active = document.activeElement;
     if (!active || active === document.body) home.current?.focus();
   }, [gone, home]);
+  // Any control the reader was on that a render removed (a row's "3 running" once it finished):
+  // focus goes home rather than to the page.
+  const last = React.useRef<HTMLElement | null>(null);
+  React.useEffect(() => {
+    const element = last.current;
+    if (!element || element.isConnected) return;
+    last.current = null;
+    const active = document.activeElement;
+    if (!active || active === document.body) home.current?.focus();
+  });
+  const track = (event: React.FocusEvent<HTMLElement>) => {
+    last.current = event.target;
+  };
+  // Focus really left: nothing of ours holds it any more.
+  const untrack = (element: HTMLElement) => {
+    if (last.current && element.contains(last.current)) last.current = null;
+  };
   return {
     ...parts,
     rowFocus: (key: string, section: TaskListSection) => ({
-      onFocus: () => setPinned({ key, section }),
+      onFocus: (event: React.FocusEvent<HTMLElement>) => {
+        track(event);
+        setPinned({ key, section });
+      },
       onBlur: (event: React.FocusEvent<HTMLElement>) =>
-        onLeave(event, () => setPinned((p) => (p?.key === key ? null : p))),
+        onLeave(event, (element) => {
+          untrack(element);
+          setPinned((p) => (p?.key === key ? null : p));
+        }),
     }),
     foldFocus: (fold: TaskListFold) => ({
-      onFocus: () => setFocused(fold),
+      onFocus: (event: React.FocusEvent<HTMLElement>) => {
+        track(event);
+        setFocused(fold);
+      },
       onBlur: (event: React.FocusEvent<HTMLElement>) =>
-        onLeave(event, () => setFocused((f) => (f === fold ? null : f))),
+        onLeave(event, (element) => {
+          untrack(element);
+          setFocused((f) => (f === fold ? null : f));
+        }),
     }),
   };
 }
@@ -370,11 +399,14 @@ export function useTaskListFolds<T extends TaskListFoldRow>(
  * blank space does), but not when the element was removed while holding it: that is the hook's to
  * recover.
  */
-function onLeave(event: React.FocusEvent<HTMLElement>, leave: () => void) {
+function onLeave(
+  event: React.FocusEvent<HTMLElement>,
+  leave: (element: HTMLElement) => void,
+) {
   const element = event.currentTarget;
   if (event.relatedTarget && element.contains(event.relatedTarget)) return;
   queueMicrotask(() => {
-    if (element.isConnected) leave();
+    if (element.isConnected) leave(element);
   });
 }
 
@@ -914,7 +946,7 @@ function TaskListRow({
   onFocus,
   onBlur,
 }: {
-  onFocus: () => void;
+  onFocus: (event: React.FocusEvent<HTMLElement>) => void;
   onBlur: (event: React.FocusEvent<HTMLElement>) => void;
   row: Row;
   state: TaskListState;

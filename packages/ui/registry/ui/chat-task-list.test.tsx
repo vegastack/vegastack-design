@@ -218,3 +218,30 @@ test("a focused fold row stays while anything is in it, then hands focus to the 
     expect(document.activeElement).toBe(header(screen.container)),
   );
 });
+
+test("settling never folds a list the reader is inside; a control that goes hands focus to the header", async () => {
+  const screen = await render(
+    <ChatTaskList data={WORKING} onOpenItem={() => {}} />,
+  );
+  const running = screen.getByRole("button", { name: "3 running ›" });
+  ((await running.element()) as HTMLElement).focus();
+  await screen.rerender(
+    <ChatTaskList data={{ ...WORKING, state: "done" }} onOpenItem={() => {}} />,
+  );
+  expect(header(screen.container).getAttribute("aria-expanded")).toBe("true");
+  await expect.element(running).toHaveFocus();
+  await screen.rerender(
+    <ChatTaskList
+      data={{
+        ...WORKING,
+        items: WORKING.items.map((item) =>
+          item.id === "b" ? { ...item, status: "completed" } : item,
+        ),
+      }}
+      onOpenItem={() => {}}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(header(screen.container)),
+  );
+});
