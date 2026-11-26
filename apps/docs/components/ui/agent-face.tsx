@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.135.0 sha256-awMKJOY+xLkkDtX3tCFtRcBUD7rD99zuKG1hCtUT1e4=
+// @vegastack agent-face@0.135.0 sha256-iKp9RaoGW3htlt+Z0dkDRNfuU1M0oYvexX51ykWjjrQ=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -88,6 +88,13 @@ const CY = 49;
 /** The cue slot: on the head's top-right shoulder, cut out of it by a ring, so it reads as part of the face. */
 const MX = CX + R * 0.8;
 const MY = CY - R * 0.82;
+/**
+ * The Pebble's frame: an 80-unit window round the body, so the body fills about 88% of the box,
+ * as a person's circle does at the same size step (no container: the face is the avatar). The
+ * floating shadow, a ring's ends and a cue may reach past it (`overflow-visible`).
+ */
+const PEBBLE_BOX = "10 9 80 80";
+const PEBBLE_ZOOM = 100 / 80;
 const BODY_ORIGIN = { transformOrigin: `${CX}px ${CY + R}px` } as const;
 const n2 = (v: number) => Math.round(v * 100) / 100;
 
@@ -1265,7 +1272,7 @@ function Pebble({
                           <Face
                             def={def}
                             state={state}
-                            size={size}
+                            size={size * PEBBLE_ZOOM}
                             motion={motion}
                             dark={!!pal.dark}
                           />
@@ -1318,7 +1325,7 @@ function Pebble({
                   <Face
                     def={def}
                     state={state}
-                    size={size}
+                    size={size * PEBBLE_ZOOM}
                     motion={motion}
                     dark={!!pal.dark}
                   />
@@ -1491,23 +1498,26 @@ function Dot({
       const passes =
         motion && ((chase && per >= 0 && v === 0) || (wave && y === 4));
       const types = motion && typed && y === 3 && x >= 1 && x <= 3;
-      if (!v && !passes && size < 32) continue;
+      // Below 32px an unlit cell isn't drawn at all, with motion or without.
+      const base = v > 0 || size >= 32;
+      if (!base && !passes) continue;
       const cx = n2(ox + cell * (x + 0.5));
       const cy = n2(oy + cell * (y + 0.5));
-      cells.push(
-        <circle
-          key={`${x}${y}`}
-          cx={cx}
-          cy={cy}
-          r={n2(dr * (0.6 + 0.4 * v))}
-          fill={lit}
-          fillOpacity={n2(v ? rest + (1 - rest) * v : rest)}
-          className={types ? "motion-face-type" : undefined}
-          style={
-            types ? ({ "--face-dot": x } as React.CSSProperties) : undefined
-          }
-        />,
-      );
+      if (base)
+        cells.push(
+          <circle
+            key={`${x}${y}`}
+            cx={cx}
+            cy={cy}
+            r={n2(dr * (0.6 + 0.4 * v))}
+            fill={lit}
+            fillOpacity={n2(v ? rest + (1 - rest) * v : rest)}
+            className={types ? "motion-face-type" : undefined}
+            style={
+              types ? ({ "--face-dot": x } as React.CSSProperties) : undefined
+            }
+          />,
+        );
       if (passes)
         cells.push(
           <circle
@@ -1596,7 +1606,7 @@ function AgentFace({
       data-state={state}
       data-preset={def.id}
       data-palette={pal.id}
-      viewBox="0 0 100 100"
+      viewBox={dot ? "0 0 100 100" : PEBBLE_BOX}
       width={size}
       height={size}
       role={named ? "img" : undefined}
