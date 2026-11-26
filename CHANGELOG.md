@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.136.0] — November 26, 2026
+
+<!-- assembled from 1 changeset: 0082e8de4abf -->
+
+### 🧩 New components
+
+- `TaskList` and `ChatTaskList` fold long lists: finished items (done and skipped) fold into one "N done" row, the live item and up to eleven to do stay in view, and the rest fold into "+N more"; each fold opens in place with the height motion. A finished group (`members`) counts each member and shows them nested. `TaskList` gains `openFolds`, `defaultOpenFolds` and `onOpenFoldsChange` (`expanded` still opens both; Show less and `labels.showLess` are gone). `SubagentsBlock` rows say how a finished Subagent's part went from `outcome` and `outcomeReason`: Done (the only check), Partially done and Couldn't finish with the reason and Retry, and Finished with "No outcome reported", which is also how a finished output with no `outcome` reads (never as done); the settled line counts "partially done", "couldn't finish" and "no outcome reported". A row or fold row holding focus stays where it is while the list moves on.
+  [`6cd1785`](https://github.com/VegaStack/vegastack-design/commit/6cd1785)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.29.3`** (was `0.29.2`).
+- The design-system registry (`@vegastack/ui`) bumps 0.135.2 → 0.136.0.
+
 ## [0.135.2] — November 25, 2026
 
 <!-- assembled from 1 changeset: d5230a6ff2cb -->

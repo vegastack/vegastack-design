@@ -20325,8 +20325,8 @@
       "meta": {
         "whenToUse": "The data-tasklist part of an agent turn.",
         "whenNotToUse": "A to-do list a person edits (Checkbox lists, Tasks).",
-        "version": "0.135.0",
-        "integrity": "sha256-x4LYCTxPSVIIAs4kHZhtn8+Ywd3+h2dwXu8inWw+ajg="
+        "version": "0.136.0",
+        "integrity": "sha256-iihh6HKqCgQQKMhi0I9wF/cB8QIV0KwKVatevV/W2sM="
       }
     },
     {
@@ -20359,8 +20359,8 @@
       "meta": {
         "whenToUse": "Subagent calls of an agent turn; background work summaries.",
         "whenNotToUse": "A single tool call (WorkLog row).",
-        "version": "0.135.0",
-        "integrity": "sha256-eUF07lSwEDPRVdE423ZQD/zWiiLKp6U8vYtfAMtXbH8="
+        "version": "0.136.0",
+        "integrity": "sha256-pADO04Klch4bvFIgZfryy9jqKw/WAfnmrxmNaqlZI7M="
       }
     },
     {
@@ -20658,8 +20658,8 @@
       "meta": {
         "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
         "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
-        "version": "0.135.0",
-        "integrity": "sha256-eiuu0ijMKVC7xsYTp56t7VvvbngEowd4unGBUfUkC8U="
+        "version": "0.136.0",
+        "integrity": "sha256-qRH5zDQZMqTeF18Q29npbVe/wX6lBSg/a86pER2rFX0="
       }
     },
     {

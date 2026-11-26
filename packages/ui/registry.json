@@ -16727,7 +16727,7 @@
       "meta": {
         "whenToUse": "The data-tasklist part of an agent turn.",
         "whenNotToUse": "A to-do list a person edits (Checkbox lists, Tasks).",
-        "version": "0.135.0"
+        "version": "0.136.0"
       }
     },
     {
@@ -16758,7 +16758,7 @@
       "meta": {
         "whenToUse": "Subagent calls of an agent turn; background work summaries.",
         "whenNotToUse": "A single tool call (WorkLog row).",
-        "version": "0.135.0"
+        "version": "0.136.0"
       }
     },
     {
@@ -17025,7 +17025,7 @@
       "meta": {
         "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
         "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
-        "version": "0.135.0"
+        "version": "0.136.0"
       }
     },
     {
