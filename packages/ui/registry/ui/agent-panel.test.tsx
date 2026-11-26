@@ -902,10 +902,17 @@ test("hover card: the last action under the state, and AgentCard alone", async (
   await expect.element(last).toBeVisible();
   await expect.element(page.getByText("Last action")).toBeVisible();
   // Let the hover card finish fading in: mid-animation its text reads at partial opacity, which
-  // axe's contrast check reported under the full suite's load.
+  // axe's contrast check reported under the full suite's load. The agent's face in the card moves
+  // for as long as it is open (MOT-15), so its loops don't count.
+  const inFace = (a: Animation) =>
+    ((a.effect as KeyframeEffect | null)?.target as Element | null)?.closest?.(
+      "[data-slot=agent-face]",
+    ) != null;
   await vi.waitFor(() =>
     expect(
-      document.getAnimations().filter((a) => a.playState === "running"),
+      document
+        .getAnimations()
+        .filter((a) => a.playState === "running" && !inFace(a)),
     ).toHaveLength(0),
   );
   await expectNoA11yViolations(document.body);
