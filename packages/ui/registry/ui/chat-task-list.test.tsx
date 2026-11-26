@@ -245,3 +245,27 @@ test("settling never folds a list the reader is inside; a control that goes hand
     expect(document.activeElement).toBe(header(screen.container)),
   );
 });
+
+test("one update that settles the list and removes the focused control keeps it open, focus on the header", async () => {
+  const screen = await render(
+    <ChatTaskList data={WORKING} onOpenItem={() => {}} />,
+  );
+  const running = screen.getByRole("button", { name: "3 running ›" });
+  ((await running.element()) as HTMLElement).focus();
+  await screen.rerender(
+    <ChatTaskList
+      data={{
+        ...WORKING,
+        state: "done",
+        items: WORKING.items.map((item) =>
+          item.id === "b" ? { ...item, status: "completed" } : item,
+        ),
+      }}
+      onOpenItem={() => {}}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(header(screen.container)),
+  );
+  expect(header(screen.container).getAttribute("aria-expanded")).toBe("true");
+});

@@ -1,4 +1,4 @@
-// @vegastack chat-task-list@0.135.0 sha256-CroQLzx04Iv/zVBezhxW+eURKiBnN3gASZFe02RVpB0=
+// @vegastack chat-task-list@0.135.0 sha256-x4LYCTxPSVIIAs4kHZhtn8+Ywd3+h2dwXu8inWw+ajg=
 
 "use client";
 
@@ -174,13 +174,14 @@ function ChatTaskList({
   // Uncontrolled, the list is open while working and folds once when the turn settles, unless
   // the reader is inside it: folding would take away what they are on.
   const [innerOpen, setInnerOpen] = React.useState(defaultOpen ?? working);
-  const root = React.useRef<HTMLDivElement>(null);
+  // Whether focus is in the list; a control removed under focus still counts as in it (its
+  // focus is moved to the header), so the same render that settles and removes it never folds.
+  const inside = React.useRef(false);
   const wasWorking = React.useRef(working);
   React.useEffect(() => {
     const settled = wasWorking.current && !working;
     wasWorking.current = working;
-    if (settled && !root.current?.contains(document.activeElement))
-      setInnerOpen(false);
+    if (settled && !inside.current) setInnerOpen(false);
   }, [working]);
   const headerRef = React.useRef<HTMLButtonElement>(null);
   const folded = useTaskListFolds(
@@ -206,7 +207,18 @@ function ChatTaskList({
   );
   return (
     <Collapsible
-      ref={root}
+      onFocus={() => {
+        inside.current = true;
+      }}
+      onBlur={(event) => {
+        const root = event.currentTarget;
+        const target = event.target;
+        if (event.relatedTarget && root.contains(event.relatedTarget)) return;
+        queueMicrotask(() => {
+          if (target.isConnected && !root.contains(document.activeElement))
+            inside.current = false;
+        });
+      }}
       data-slot="chat-task-list"
       data-state-list={data.state}
       open={open ?? innerOpen}

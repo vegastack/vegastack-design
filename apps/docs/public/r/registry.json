@@ -20326,7 +20326,7 @@
         "whenToUse": "The data-tasklist part of an agent turn.",
         "whenNotToUse": "A to-do list a person edits (Checkbox lists, Tasks).",
         "version": "0.135.0",
-        "integrity": "sha256-CroQLzx04Iv/zVBezhxW+eURKiBnN3gASZFe02RVpB0="
+        "integrity": "sha256-x4LYCTxPSVIIAs4kHZhtn8+Ywd3+h2dwXu8inWw+ajg="
       }
     },
     {
@@ -20659,7 +20659,7 @@
         "whenToUse": "Show the agent's own checklist above its answer while a job of three or more steps runs, and its end state (done or stopped).",
         "whenNotToUse": "What the agent did step by step (MessageActivity), a short static checklist (MessagePlan), or a plan waiting for approval (PlanCard).",
         "version": "0.135.0",
-        "integrity": "sha256-/pFF0Wdj6xp2TCHfW2SAZtNQJnfwLHT18UJx5QHO86k="
+        "integrity": "sha256-a65gSaxP7wWjXqRSMLln2Co810TOJY6g38zRGPqXEko="
       }
     },
     {

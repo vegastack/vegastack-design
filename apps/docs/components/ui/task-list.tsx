@@ -1,4 +1,4 @@
-// @vegastack task-list@0.135.0 sha256-/pFF0Wdj6xp2TCHfW2SAZtNQJnfwLHT18UJx5QHO86k=
+// @vegastack task-list@0.135.0 sha256-a65gSaxP7wWjXqRSMLln2Co810TOJY6g38zRGPqXEko=
 
 "use client";
 
@@ -357,6 +357,8 @@ export function useTaskListFolds<T extends TaskListFoldRow>(
     const element = last.current;
     if (!element || element.isConnected) return;
     last.current = null;
+    setPinned(null);
+    setFocused(null);
     const active = document.activeElement;
     if (!active || active === document.body) home.current?.focus();
   });
