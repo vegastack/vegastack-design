@@ -1,4 +1,4 @@
-// @vegastack chat-subagents@0.135.0 sha256-kLyDpQAQsilzrhNFdP5/YDtljhdTrTqD8G3xx5Tp0nc=
+// @vegastack chat-subagents@0.135.0 sha256-eUF07lSwEDPRVdE423ZQD/zWiiLKp6U8vYtfAMtXbH8=
 
 "use client";
 
@@ -23,11 +23,19 @@ import {
  * so the block has none): a status word, the short title the engine gave the Subagent, and quiet
  * meta — "3 steps · 0:41", "waiting on you", "ran out of steps · Retry". Settled, the block is one
  * muted sentence that opens the same rows. Failures are words with a Retry, never a red ✕.
+ * A Subagent that finished says how its part went: Done (the only row with a check), Partially done
+ * or Couldn't finish with its reason, or Finished with "No outcome reported" when its answer didn't say.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Where one Subagent stands. */
 export type SubagentStatus =
   "running" | "waiting" | "done" | "stopped" | "failed";
+
+/**
+ * How a finished Subagent said its part went: done, partially done, couldn't finish, or `unknown`
+ * when its answer didn't say (never shown as done).
+ */
+export type SubagentOutcome = "done" | "partial" | "couldnt" | "unknown";
 
 /** A Subagent's preliminary or final output, as the server sends it. */
 export interface SubagentOutput {
@@ -35,6 +43,10 @@ export interface SubagentOutput {
   status?: SubagentStatus;
   /** Why it stopped or failed, in words: "ran out of steps". */
   reason?: string;
+  /** How it said its part went, once `status` is `done`; absent reads as `unknown`, never as done. */
+  outcome?: SubagentOutcome;
+  /** Why it's partially done or couldn't finish, in its own words (one line). */
+  outcomeReason?: string;
   steps?: number;
   durationMs?: number;
   costMicroUsd?: number;
@@ -48,6 +60,10 @@ export interface SubagentView {
   /** The running verb from the server ("Researching"); "Running" by default. */
   verb?: string;
   reason?: string;
+  /** How it said its part went, once done. @default undefined */
+  outcome?: SubagentOutcome;
+  /** Why it's partially done or couldn't finish. @default undefined */
+  outcomeReason?: string;
   steps?: number;
   durationMs?: number;
   costMicroUsd?: number;
@@ -83,6 +99,13 @@ function subagentOf(part: ChatToolPart): SubagentView {
       output.reason ??
       (part.state === "output-error" ? part.errorText : undefined) ??
       words.refusal?.words,
+    // Only a part said done is done: an answer that didn't say reads "No outcome reported".
+    ...(status === "done"
+      ? {
+          outcome: output.outcome ?? "unknown",
+          outcomeReason: output.outcomeReason,
+        }
+      : {}),
     steps: output.steps,
     durationMs: output.durationMs ?? words.durationMs,
     costMicroUsd: output.costMicroUsd,
@@ -96,6 +119,26 @@ const STATUS_WORD: Record<SubagentStatus, string> = {
   stopped: "Stopped",
   failed: "Couldn't finish",
 };
+
+/** A finished row's word for what it said of its part; "Finished" when it didn't say. */
+const OUTCOME_WORD: Record<SubagentOutcome, string> = {
+  done: "Done",
+  partial: "Partially done",
+  couldnt: "Couldn't finish",
+  unknown: "Finished",
+};
+
+/** The quiet end of a row whose part isn't done: its reason, or that it didn't say. */
+function outcomeMeta(view: SubagentView): string | null {
+  if (view.status !== "done" || !view.outcome || view.outcome === "done")
+    return null;
+  if (view.outcome === "unknown") return "No outcome reported";
+  return view.outcomeReason ?? null;
+}
+
+/** Done with the check: only a finished row whose Subagent said its part is done. */
+const saidDone = (view: SubagentView) =>
+  view.status === "done" && view.outcome === "done";
 
 const plural = (n: number, one: string, many = `${one}s`) =>
   `${n} ${n === 1 ? one : many}`;
@@ -126,15 +169,27 @@ function subagentsSummary(views: readonly SubagentView[]): string {
       .join(" · ");
   }
   const stopped = views.filter((v) => v.status === "stopped");
-  const failed = views.filter((v) => v.status === "failed");
+  const said = (outcome: SubagentOutcome) =>
+    views.filter((v) => v.status === "done" && v.outcome === outcome);
+  const partial = said("partial");
+  const failed = [
+    ...views.filter((v) => v.status === "failed"),
+    ...said("couldnt"),
+  ];
+  const unstated = said("unknown");
   const bits = [`Finished ${plural(total, "Subagent")}`];
   const why = (list: SubagentView[]) => {
-    const reasons = [...new Set(list.map((v) => v.reason).filter(Boolean))];
+    const reasons = [
+      ...new Set(list.map((v) => v.reason ?? v.outcomeReason).filter(Boolean)),
+    ];
     return reasons.length === 1 ? ` (${reasons[0]})` : "";
   };
   if (stopped.length) bits.push(`${stopped.length} stopped${why(stopped)}`);
+  if (partial.length)
+    bits.push(`${partial.length} partially done${why(partial)}`);
   if (failed.length)
     bits.push(`${failed.length} couldn't finish${why(failed)}`);
+  if (unstated.length) bits.push(`${unstated.length} no outcome reported`);
   const cost = views.reduce((sum, v) => sum + (v.costMicroUsd ?? 0), 0);
   if (cost > 0) bits.push(formatCost(cost));
   return bits.join(" · ");
@@ -172,18 +227,27 @@ function SubagentRow({
   const word =
     view.status === "running"
       ? (view.verb ?? STATUS_WORD.running)
-      : STATUS_WORD[view.status];
+      : view.status === "done" && view.outcome
+        ? OUTCOME_WORD[view.outcome]
+        : STATUS_WORD[view.status];
+  const outcome = outcomeMeta(view);
   const settledMeta = [
     view.steps != null ? plural(view.steps, "step") : null,
     view.durationMs != null ? formatChatDuration(view.durationMs) : null,
   ]
     .filter(Boolean)
     .join(" · ");
-  const ended = view.status === "stopped" || view.status === "failed";
+  // A part it didn't finish can be run again, however the call itself ended.
+  const ended =
+    view.status === "stopped" ||
+    view.status === "failed" ||
+    (view.status === "done" &&
+      (view.outcome === "partial" || view.outcome === "couldnt"));
   return (
     <li
       data-slot="subagent-row"
       data-status={view.status}
+      data-outcome={view.outcome}
       className="flex min-h-9 min-w-0 items-center gap-1 p-1.25"
     >
       <Button
@@ -198,15 +262,17 @@ function SubagentRow({
         <span className="min-w-0 flex-1 truncate text-foreground">
           {view.title}
         </span>{" "}
-        {view.status === "done" ? (
+        {saidDone(view) ? (
           <StatusGlyph status="done" size={14} label={null} />
         ) : null}
         <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
-          {ended
-            ? (view.reason ?? settledMeta)
-            : view.status === "waiting"
-              ? null
-              : settledMeta}
+          {outcome != null
+            ? outcome
+            : ended
+              ? (view.reason ?? settledMeta)
+              : view.status === "waiting"
+                ? null
+                : settledMeta}
         </span>
         <ChevronRight
           aria-hidden="true"

@@ -47,13 +47,28 @@ a request card.
 
 ### Long lists
 
-Five or fewer rows never fold. A longer list keeps the live item on top: finished items fold into
-"✓ N done", the next two to do follow the live item, and the rest fold into "+N more". Opening
-either fold shows every row, with Show less to fold them back. Closed while working, the header
-reads "Step 3 of 9 · Create the PDF".
+Five or fewer rows never fold. A longer list keeps the work in view: finished items (done and
+skipped) fold into one "✓ N done" row, the live item and up to eleven to do follow it, and the rest
+fold into "+N more". Each fold opens in place on its own, with the height motion, and its row stays
+where it was, so focus stays on it. A fold that would hide a single row shows the row instead.
+Closed while working, the header reads "Step 3 of 9 · Create the PDF".
+
+Which folds are open is `openFolds` (`"done"`, `"more"`) with `onOpenFoldsChange`, so a host can
+remember the reader's choice; `expanded` still opens or closes both at once.
 
 <ComponentPreview
   name="taskListSizes"
+  file="components/preview/task-list.tsx"
+/>
+
+### Groups
+
+An agent that runs a long job can fold finished items into one group to keep its list short. Pass
+the group as one finished item with `members`: it counts each member in the header and the fold, and
+shows them nested under it when the fold is open.
+
+<ComponentPreview
+  name="taskListGroups"
   file="components/preview/task-list.tsx"
 />
 
@@ -63,8 +78,8 @@ reads "Step 3 of 9 · Create the PDF".
 and marks the item that didn't finish with an amber ⚠ and the words "didn't finish"; the items not
 reached say "not done". A `waiting` item
 shows the "Waiting for you" badge and its action, and the header says so. Skipped items are struck
-through. Neither a skipped, unfinished nor waiting item ever folds. `note` adds a muted line under
-the list.
+through and fold with the done ones ("5 done · 1 skipped"). Neither an unfinished nor a waiting item
+ever folds. `note` adds a muted line under the list.
 
 <ComponentPreview
   name="taskListStates"
@@ -114,7 +129,9 @@ Below 24rem the time column goes and rows wrap; the header truncates.
 
 ## Accessibility
 
-- The header is a disclosure button; the rows are a list named "Task list". Each item is read with
+- The header is a disclosure button; the rows are a list named "Task list". Each fold is a
+  disclosure button with `aria-expanded`, and the rows it opens are their own list named by it
+  ("4 done"). Each item is read with
   its state first ("In progress: Create the PDF"), since the icon is what shows it.
 - One polite live region says when the live item changes ("Step 3 of 9: Create the PDF"), at most
   once every 3 seconds, and the end once. Nothing is announced when the list first appears.
@@ -125,7 +142,7 @@ Below 24rem the time column goes and rows wrap; the header truncates.
 | Key              | Action                                 |
 | ---------------- | -------------------------------------- |
 | <kbd>Tab</kbd>   | Move to the header, the folds, actions |
-| <kbd>Enter</kbd> | Open or close the list, open a fold    |
+| <kbd>Enter</kbd> | Open or close the list or a fold       |
 | <kbd>Space</kbd> | Same as <kbd>Enter</kbd>               |
 
 <StatesTested name="task-list" />

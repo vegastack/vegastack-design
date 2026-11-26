@@ -52,6 +52,62 @@ export function chatTaskList(): ReactNode {
   );
 }
 
+export function chatTaskListLong(): ReactNode {
+  const steps = [
+    "Read the brief",
+    "List the makers",
+    "Check each site",
+    "Collect the price lists",
+    "Compare the ranges",
+    "Note the gaps",
+    "Draft the summary",
+    "Check the sources",
+    "Write the Google Doc",
+    "Share it with the team",
+    "Create the follow-up tasks",
+    "Set a review for Friday",
+    "Post in #sales",
+    "Tag the owners",
+    "Archive the old notes",
+    "Reply with the links",
+    "Close the request",
+  ];
+  return (
+    <Wrapper className="items-start justify-start bg-background">
+      <ChatTaskList
+        className="w-full max-w-180"
+        data={{
+          id: "t4",
+          state: "working",
+          startedAt: ago(260_000),
+          items: [
+            {
+              id: "g",
+              text: "Read the call transcript",
+              status: "completed",
+              members: [
+                { text: "Read part 1 of 3", status: "completed" },
+                { text: "Read part 2 of 3", status: "completed" },
+                { text: "Read part 3 of 3", status: "completed" },
+              ],
+            },
+            ...steps.map((text, i) => ({
+              id: String(i),
+              text,
+              status:
+                i < 3
+                  ? ("completed" as const)
+                  : i === 3
+                    ? ("in_progress" as const)
+                    : ("pending" as const),
+            })),
+          ],
+        }}
+      />
+    </Wrapper>
+  );
+}
+
 export function chatTaskListStopped(): ReactNode {
   return (
     <Wrapper className="items-start justify-start bg-background">

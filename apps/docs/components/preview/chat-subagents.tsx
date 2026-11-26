@@ -102,6 +102,35 @@ export function chatSubagentsSettled(): ReactNode {
   );
 }
 
+export function chatSubagentsOutcomes(): ReactNode {
+  const answered = [
+    subagent("o1", "Wipro Lighting", {
+      status: "done",
+      outcome: "done",
+      steps: 5,
+      durationMs: 52_000,
+    }),
+    subagent("o2", "Surya Roshni", {
+      status: "done",
+      outcome: "partial",
+      outcomeReason: "2 of 3 catalogues",
+    }),
+    subagent("o3", "Havells", {
+      status: "done",
+      outcome: "couldnt",
+      outcomeReason: "the price list was empty",
+    }),
+    subagent("o4", "Syska", { status: "done", outcome: "unknown" }),
+  ];
+  return (
+    <Wrapper className="items-start justify-start bg-background">
+      <div className="w-full max-w-180">
+        <SubagentsBlock parts={answered} live onOpen={noop} onRetry={noop} />
+      </div>
+    </Wrapper>
+  );
+}
+
 export function chatSubagentsBackground(): ReactNode {
   return (
     <Wrapper className="flex-col items-start justify-start bg-background">

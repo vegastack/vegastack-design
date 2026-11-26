@@ -38,6 +38,14 @@ const STEPS: { text: string; doing: string; ms: number }[] = [
   },
   { text: "Archive last quarter", doing: "Archiving last quarter", ms: 2000 },
   { text: "Check the totals", doing: "Checking the totals", ms: 1000 },
+  { text: "Update the forecast", doing: "Updating the forecast", ms: 3000 },
+  { text: "Share it with finance", doing: "Sharing it with finance", ms: 1000 },
+  { text: "Book the review call", doing: "Booking the review call", ms: 2000 },
+  { text: "Draft the agenda", doing: "Drafting the agenda", ms: 4000 },
+  { text: "Attach last month's deck", doing: "Attaching the deck", ms: 1000 },
+  { text: "Invite the owners", doing: "Inviting the owners", ms: 1000 },
+  { text: "Pin it in #ops", doing: "Pinning it in #ops", ms: 1000 },
+  { text: "Reply with the links", doing: "Replying with the links", ms: 1000 },
 ];
 
 /** `count` items with item `live` (0-based) in progress; earlier ones done, later ones to do. */
@@ -130,7 +138,33 @@ export function taskListSizes(): ReactNode {
       <TaskList items={list(3, 1)} startedAt={startedAt} />
       <TaskList items={list(5, 2)} startedAt={startedAt} />
       <TaskList items={list(9, 6)} startedAt={startedAt} />
-      <TaskList items={list(12, 4)} startedAt={startedAt} />
+      <TaskList items={list(20, 4)} startedAt={startedAt} />
+    </Column>
+  );
+}
+
+export function taskListGroups(): ReactNode {
+  const items: TaskListItem[] = [
+    {
+      id: "read",
+      text: "Read the call transcript",
+      status: "completed",
+      ms: 21000,
+      members: [
+        { text: "Read part 1 of 3", status: "completed", ms: 8000 },
+        { text: "Read part 2 of 3", status: "completed", ms: 7000 },
+        { text: "Read part 3 of 3", status: "completed", ms: 6000 },
+      ],
+    },
+    ...list(16, 3).slice(1),
+  ];
+  return (
+    <Column>
+      <TaskList
+        items={items}
+        startedAt={startedAt}
+        defaultOpenFolds={["done"]}
+      />
     </Column>
   );
 }

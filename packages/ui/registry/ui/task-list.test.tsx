@@ -44,34 +44,70 @@ test("five or fewer rows never fold", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("a long list shows the live item and the next two between the folds", async () => {
+test("a long list keeps the live item and up to eleven to do between the folds", async () => {
   const screen = await render(<TaskList items={list(9, 6)} />);
   expect(rows(screen.container)).toEqual(["Item 7", "Item 8", "Item 9"]);
   expect(slot(screen.container, "task-list-done-fold")!.textContent).toBe(
     "6 done",
   );
   expect(slot(screen.container, "task-list-more-fold")).toBeNull();
-  const twelve = await render(<TaskList items={list(12, 4)} />);
-  expect(rows(twelve.container)).toEqual(["Item 5", "Item 6", "Item 7"]);
-  expect(slot(twelve.container, "task-list-more-fold")!.textContent).toBe(
-    "+5 more",
+  const twenty = await render(<TaskList items={list(20, 4)} />);
+  expect(rows(twenty.container)).toEqual(
+    Array.from({ length: 12 }, (_, i) => `Item ${i + 5}`),
   );
-  await expectNoA11yViolations(twelve.container);
+  expect(slot(twenty.container, "task-list-more-fold")!.textContent).toBe(
+    "+4 more",
+  );
+  await expectNoA11yViolations(twenty.container);
 });
 
-test("opening a fold shows every row, and Show less folds them back", async () => {
+test("a fold that would hide one line shows it instead", async () => {
+  const screen = await render(<TaskList items={list(14, 1)} />);
+  // One done, one live, twelve to do: nothing folds for a single row.
+  expect(rows(screen.container)).toHaveLength(14);
+  expect(slot(screen.container, "task-list-done-fold")).toBeNull();
+  expect(slot(screen.container, "task-list-more-fold")).toBeNull();
+});
+
+test("each fold opens in place on its own and keeps focus on its row", async () => {
+  const onOpenFoldsChange = vi.fn();
+  const screen = await render(
+    <TaskList items={list(20, 4)} onOpenFoldsChange={onOpenFoldsChange} />,
+  );
+  const more = page.getByRole("button", { name: "+4 more" });
+  await more.click();
+  expect(rows(screen.container)).toHaveLength(16);
+  await expect.element(more).toHaveAttribute("aria-expanded", "true");
+  await expect.element(more).toHaveFocus();
+  expect(onOpenFoldsChange).toHaveBeenLastCalledWith(["more"]);
+  const done = page.getByRole("button", { name: "4 done" });
+  await expect.element(done).toHaveAttribute("aria-expanded", "false");
+  await done.click();
+  expect(rows(screen.container)).toHaveLength(20);
+  await expect
+    .element(page.getByRole("list", { name: "4 done" }))
+    .toBeInTheDocument();
+  expect(onOpenFoldsChange).toHaveBeenLastCalledWith(["done", "more"]);
+  await more.click();
+  await vi.waitFor(() => expect(rows(screen.container)).toHaveLength(16));
+  await expectNoA11yViolations(screen.container);
+});
+
+test("expanded opens every fold; the folds move together", async () => {
   const onExpandedChange = vi.fn();
   const screen = await render(
-    <TaskList items={list(12, 4)} onExpandedChange={onExpandedChange} />,
+    <TaskList
+      items={list(20, 4)}
+      expanded
+      onExpandedChange={onExpandedChange}
+    />,
   );
-  await page.getByRole("button", { name: "+5 more" }).click();
-  expect(rows(screen.container)).toHaveLength(12);
-  expect(onExpandedChange).toHaveBeenLastCalledWith(true);
-  await page.getByRole("button", { name: "Show less" }).click();
-  expect(rows(screen.container)).toHaveLength(3);
+  expect(rows(screen.container)).toHaveLength(20);
+  await page.getByRole("button", { name: "+4 more" }).click();
+  expect(onExpandedChange).toHaveBeenLastCalledWith(false);
 });
 
-test("skipped, unfinished and waiting rows never fold", async () => {
+test("finished items fold, skipped ones too; unfinished and waiting rows never do", async () => {
   const items = list(12, 6).map((item, index) =>
     index === 1
       ? { ...item, status: "skipped" as const }
@@ -83,18 +119,57 @@ test("skipped, unfinished and waiting rows never fold", async () => {
     <TaskList items={items} state="stopped" reason="ran out of steps" />,
   );
   expect(rows(screen.container)).toEqual([
-    "Item 2",
     "Item 7 · didn't finish",
     "Item 8 · not done",
     "Item 9 · not done",
+    "Item 10 · not done",
     "Item 11",
+    "Item 12 · not done",
   ]);
+  expect(slot(screen.container, "task-list-done-fold")!.textContent).toBe(
+    "5 done · 1 skipped",
+  );
   const root = slot(screen.container, "task-list")!;
   expect(root.dataset.state).toBe("stopped");
   expect(slot(root, "task-list-summary")!.textContent).toBe(
     "Stopped at 5 of 12 · ran out of steps",
   );
   expect(root.textContent).toContain("Waiting for you");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a group counts its members and shows them nested under it", async () => {
+  const items: TaskListItem[] = [
+    {
+      id: "g",
+      text: "Read the transcript",
+      status: "completed",
+      members: [
+        { text: "Read part 1", status: "completed" },
+        { text: "Read part 2", status: "completed" },
+        { text: "Read part 3", status: "skipped" },
+      ],
+    },
+    ...list(6, 1).slice(1),
+  ];
+  const screen = await render(<TaskList items={items} />);
+  const fold = page.getByRole("button", { name: "2 done · 1 skipped" });
+  await expect.element(fold).toBeInTheDocument();
+  // Eight steps: the group counts its three members, then five items.
+  expect(slot(screen.container, "task-list-meta")!.textContent).toContain(
+    "2 of 8",
+  );
+  await fold.click();
+  const members = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="task-list-member"]',
+    ),
+  ].map((member) => member.textContent);
+  expect(members).toEqual([
+    "Done:Read part 1",
+    "Done:Read part 2",
+    "Skipped:Read part 3",
+  ]);
   await expectNoA11yViolations(screen.container);
 });
 
@@ -191,18 +266,6 @@ test("the progress bar names the step and forwards its click", async () => {
   await expectNoA11yViolations(screen.container);
 });
 
-test("a fold hands focus to Show less, and Show less hands it back to a fold", async () => {
-  await render(<TaskList items={list(12, 4)} />);
-  await page.getByRole("button", { name: "+5 more" }).click();
-  await expect
-    .element(page.getByRole("button", { name: "Show less" }))
-    .toHaveFocus();
-  await page.getByRole("button", { name: "Show less" }).click();
-  await expect
-    .element(page.getByRole("button", { name: "4 done" }))
-    .toHaveFocus();
-});
-
 test("opening a fold animates nothing; a live tick does", async () => {
   const screen = await render(<TaskList items={list(9, 6)} />);
   await page.getByRole("button", { name: "6 done" }).click();
@@ -214,11 +277,13 @@ test("opening a fold animates nothing; a live tick does", async () => {
 });
 
 test("a waiting row anchors the window like a live one", async () => {
-  const items = list(12, 4).map((item, index) =>
+  const items = list(20, 4).map((item, index) =>
     index === 4 ? { ...item, status: "pending" as const, waiting: true } : item,
   );
   const screen = await render(<TaskList items={items} />);
-  expect(rows(screen.container)).toEqual(["Item 5", "Item 6", "Item 7"]);
+  expect(rows(screen.container)).toEqual(
+    Array.from({ length: 12 }, (_, i) => `Item ${i + 5}`),
+  );
 });
 
 test("the end is announced once, and the caller's ref still sees the root", async () => {
@@ -254,4 +319,86 @@ test("a row holding focus stays in view when the window moves on", async () => {
   await screen.rerender(<TaskList items={withProgress(5)} />);
   expect(rows(screen.container)).toContain("Item 5");
   await expect.element(button).toHaveFocus();
+});
+
+test("a row focused inside an open fold stays in it, with focus, as the list moves on", async () => {
+  const withProgress = (live: number) =>
+    list(20, live).map((item, index) =>
+      index === 1
+        ? {
+            ...item,
+            progress: "4 of 4 subagents done",
+            onOpenProgress: () => {},
+          }
+        : item,
+    );
+  const screen = await render(
+    <TaskList items={withProgress(4)} defaultOpenFolds={["done"]} />,
+  );
+  const button = page.getByRole("button", { name: "4 of 4 subagents done" });
+  await button.click();
+  await screen.rerender(
+    <TaskList items={withProgress(5)} defaultOpenFolds={["done"]} />,
+  );
+  await expect.element(button).toHaveFocus();
+  const fold = page.getByRole("list", { name: "5 done" });
+  expect((await fold.element()).contains(await button.element())).toBe(true);
+});
+
+test("a focused fold row stays while anything is in it, and focus goes to the header when it goes", async () => {
+  const screen = await render(<TaskList items={list(20, 4)} />);
+  const more = page.getByRole("button", { name: "+4 more" });
+  ((await more.element()) as HTMLElement).focus();
+  // Live item 7: one row left behind the fold, which stays because it holds focus.
+  await screen.rerender(<TaskList items={list(20, 7)} />);
+  await expect
+    .element(page.getByRole("button", { name: "+1 more" }))
+    .toHaveFocus();
+  await screen.rerender(<TaskList items={list(20, 20)} state="done" />);
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("data-slot")).toBe(
+      "task-list-trigger",
+    ),
+  );
+});
+
+test("a row focused in a shrinking fold stays in it; when the list ends, focus goes to the header", async () => {
+  const withProgress = (live: number) =>
+    list(20, live).map((item, index) =>
+      index === 19
+        ? { ...item, progress: "Not started", onOpenProgress: () => {} }
+        : item,
+    );
+  const screen = await render(
+    <TaskList items={withProgress(4)} defaultOpenFolds={["more"]} />,
+  );
+  const button = page.getByRole("button", { name: "Not started" });
+  ((await button.element()) as HTMLElement).focus();
+  await screen.rerender(
+    <TaskList items={withProgress(7)} defaultOpenFolds={["more"]} />,
+  );
+  await expect.element(button).toHaveFocus();
+  const fold = page.getByRole("list", { name: "+1 more" });
+  expect((await fold.element()).contains(await button.element())).toBe(true);
+  await screen.rerender(
+    <TaskList items={list(20, 20)} state="done" defaultOpenFolds={["more"]} />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement?.getAttribute("data-slot")).toBe(
+      "task-list-trigger",
+    ),
+  );
+});
+
+test("a fold row the reader left never takes focus back when it goes", async () => {
+  const screen = await render(<TaskList items={list(20, 4)} />);
+  const more = page.getByRole("button", { name: "+4 more" });
+  const element = (await more.element()) as HTMLElement;
+  element.focus();
+  // A click on blank space: focus goes to nothing.
+  element.blur();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await screen.rerender(<TaskList items={list(20, 20)} state="done" />);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(document.activeElement).toBe(document.body);
 });

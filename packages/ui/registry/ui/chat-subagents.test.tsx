@@ -5,6 +5,7 @@ import { expectNoA11yViolations } from "../../test/a11y";
 import {
   BackgroundWork,
   SubagentsBlock,
+  subagentOf as subagentOfPart,
   subagentsSummary,
 } from "./chat-subagents";
 import type { ChatToolPart } from "./chat-work-log";
@@ -33,6 +34,7 @@ const PARTS = [
   part("s2", "Bhagwati and Instapower", { status: "waiting" }),
   part("s3", "Wipro Lighting", {
     status: "done",
+    outcome: "done",
     steps: 5,
     durationMs: 52_000,
     costMicroUsd: 2_000,
@@ -89,8 +91,8 @@ test("settled: one sentence that opens the rows", async () => {
   const settled = [
     PARTS[2]!,
     PARTS[3]!,
-    part("s5", "Havells", { status: "done", costMicroUsd: 0 }),
-    part("s6", "Syska", { status: "done" }),
+    part("s5", "Havells", { status: "done", outcome: "done", costMicroUsd: 0 }),
+    part("s6", "Syska", { status: "done", outcome: "done" }),
   ];
   expect(
     subagentsSummary(
@@ -162,5 +164,52 @@ test("BackgroundWork: live or partly failed is a chip; settled is a muted line; 
     screen.getByRole("button", { name: /Finished 2 background commands/ }),
   );
   expect(onOpen).toHaveBeenCalledOnce();
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a finished Subagent says how its part went; only done has the check", async () => {
+  const onRetry = vi.fn();
+  const outcomes = [
+    part("o1", "Wipro Lighting", { status: "done", outcome: "done" }),
+    part("o2", "Surya Roshni", {
+      status: "done",
+      outcome: "partial",
+      outcomeReason: "2 of 3 files",
+    }),
+    part("o3", "Havells", {
+      status: "done",
+      outcome: "couldnt",
+      outcomeReason: "the list was empty",
+    }),
+    part("o4", "Syska", { status: "done", outcome: "unknown" }),
+    // An output from before outcomes: never read as done.
+    part("o5", "Philips", { status: "done" }),
+  ];
+  const screen = await render(
+    <SubagentsBlock
+      parts={outcomes}
+      live
+      onOpen={() => {}}
+      onRetry={onRetry}
+    />,
+  );
+  const rows = [
+    ...screen.container.querySelectorAll<HTMLElement>(
+      '[data-slot="subagent-row"]',
+    ),
+  ];
+  expect(rows.map((row) => row.textContent)).toEqual([
+    "Done Wipro Lighting ",
+    "Partially done Surya Roshni 2 of 3 filesRetry",
+    "Couldn't finish Havells the list was emptyRetry",
+    "Finished Syska No outcome reported",
+    "Finished Philips No outcome reported",
+  ]);
+  expect(
+    rows.map((row) => row.querySelector('[data-slot="status-glyph"]') != null),
+  ).toEqual([true, false, false, false, false]);
+  expect(subagentsSummary(outcomes.map((p) => subagentOfPart(p)))).toBe(
+    "Finished 5 Subagents · 1 partially done (2 of 3 files) · 1 couldn't finish (the list was empty) · 2 no outcome reported",
+  );
   await expectNoA11yViolations(screen.container);
 });

@@ -136,3 +136,136 @@ test("a running list folds once when it settles, and stays as the person leaves 
   );
   expect(header(screen.container).getAttribute("aria-expanded")).toBe("true");
 });
+
+const long = (count: number, live: number): TaskListData => ({
+  id: "long",
+  state: "working",
+  items: Array.from({ length: count }, (_, i) => ({
+    id: String(i),
+    text: `Task ${i + 1}`,
+    status: i < live ? "completed" : i === live ? "in_progress" : "pending",
+  })),
+});
+const texts = (root: ParentNode) =>
+  [
+    ...root.querySelectorAll<HTMLElement>('[data-slot="chat-task-list-item"]'),
+  ].map((li) => li.textContent);
+
+test("a long list folds what's done and what's far off, each opening in place", async () => {
+  const screen = await render(<ChatTaskList data={long(20, 4)} />);
+  expect(texts(screen.container)).toEqual(
+    Array.from({ length: 12 }, (_, i) => `Task ${i + 5}`),
+  );
+  const done = screen.getByRole("button", { name: "4 done" });
+  const more = screen.getByRole("button", { name: "+4 more" });
+  await expect.element(done).toHaveAttribute("aria-expanded", "false");
+  await userEvent.click(more);
+  await expect.element(more).toHaveAttribute("aria-expanded", "true");
+  expect(texts(screen.container)).toHaveLength(16);
+  await userEvent.click(done);
+  expect(texts(screen.container)).toHaveLength(20);
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a group counts its members and shows them nested; a failed task never folds", async () => {
+  const data: TaskListData = {
+    id: "g",
+    state: "working",
+    items: [
+      {
+        id: "g",
+        text: "Read the transcript",
+        status: "completed",
+        members: [
+          { text: "Read part 1", status: "completed" },
+          { text: "Read part 2", status: "skipped", reason: "empty" },
+        ],
+      },
+      {
+        id: "f",
+        text: "Open the sheet",
+        status: "failed",
+        reason: "no access",
+      },
+      ...long(5, 0).items,
+    ],
+  };
+  const screen = await render(<ChatTaskList data={data} />);
+  expect(header(screen.container).textContent).toContain("1 of 8");
+  const fold = screen.getByRole("button", { name: "1 done · 1 skipped" });
+  expect(texts(screen.container)[0]).toContain("Open the sheet");
+  await userEvent.click(fold);
+  const members = screen.container.querySelectorAll(
+    '[data-slot="chat-task-list-member"]',
+  );
+  expect(members).toHaveLength(2);
+  expect(members[1]!.textContent).toContain("Skipped: empty");
+  await expectNoA11yViolations(screen.container);
+});
+
+test("a focused fold row stays while anything is in it, then hands focus to the header", async () => {
+  const screen = await render(<ChatTaskList data={long(20, 4)} />);
+  const more = screen.getByRole("button", { name: "+4 more" });
+  ((await more.element()) as HTMLElement).focus();
+  await screen.rerender(<ChatTaskList data={long(20, 7)} />);
+  await expect
+    .element(screen.getByRole("button", { name: "+1 more" }))
+    .toHaveFocus();
+  await screen.rerender(
+    <ChatTaskList data={{ ...long(20, 20), state: "done" }} />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(header(screen.container)),
+  );
+});
+
+test("settling never folds a list the reader is inside; a control that goes hands focus to the header", async () => {
+  const screen = await render(
+    <ChatTaskList data={WORKING} onOpenItem={() => {}} />,
+  );
+  const running = screen.getByRole("button", { name: "3 running ›" });
+  ((await running.element()) as HTMLElement).focus();
+  await screen.rerender(
+    <ChatTaskList data={{ ...WORKING, state: "done" }} onOpenItem={() => {}} />,
+  );
+  expect(header(screen.container).getAttribute("aria-expanded")).toBe("true");
+  await expect.element(running).toHaveFocus();
+  await screen.rerender(
+    <ChatTaskList
+      data={{
+        ...WORKING,
+        items: WORKING.items.map((item) =>
+          item.id === "b" ? { ...item, status: "completed" } : item,
+        ),
+      }}
+      onOpenItem={() => {}}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(header(screen.container)),
+  );
+});
+
+test("one update that settles the list and removes the focused control keeps it open, focus on the header", async () => {
+  const screen = await render(
+    <ChatTaskList data={WORKING} onOpenItem={() => {}} />,
+  );
+  const running = screen.getByRole("button", { name: "3 running ›" });
+  ((await running.element()) as HTMLElement).focus();
+  await screen.rerender(
+    <ChatTaskList
+      data={{
+        ...WORKING,
+        state: "done",
+        items: WORKING.items.map((item) =>
+          item.id === "b" ? { ...item, status: "completed" } : item,
+        ),
+      }}
+      onOpenItem={() => {}}
+    />,
+  );
+  await vi.waitFor(() =>
+    expect(document.activeElement).toBe(header(screen.container)),
+  );
+  expect(header(screen.container).getAttribute("aria-expanded")).toBe("true");
+});

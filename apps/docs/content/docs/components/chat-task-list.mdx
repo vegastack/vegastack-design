@@ -35,6 +35,18 @@ chat contract's `data-tasklist` payload. The older `TaskList` stays until the ap
 
 ## Examples
 
+### Long lists
+
+Five or fewer rows never fold. A longer list keeps the work in view: finished tasks (done and
+skipped) fold into one "N done" row, the task in progress and up to eleven to do follow it, and the
+rest fold into "+N more". Each fold opens in place; a failed task never folds. A finished group
+(`members`) counts each task it stands for and shows them nested.
+
+<ComponentPreview
+  name="chatTaskListLong"
+  file="components/preview/chat-task-list.tsx"
+/>
+
 ### Stopped
 
 Where it stopped and why, in the header.
@@ -70,10 +82,16 @@ A done list counts what it skipped.
   name="TaskListDataItem"
 />
 
+<ApiTable
+  path="../../packages/ui/registry/ui/chat-task-list.tsx"
+  name="TaskListDataMember"
+/>
+
 ## Accessibility
 
 - The header is a button with `aria-expanded`; it reads "Task list, 1 of 5".
 - Each glyph carries its state as its name ("Done", "In progress", "Skipped").
+- Each fold is a button with `aria-expanded`; the tasks it opens are a list named by it.
 
 <StatesTested name="chat-task-list" />
 
