@@ -1,4 +1,4 @@
-// @vegastack scroll-area@0.135.0 sha256-48668fUOh9vRjh5qqK12mJ9WJSb/AzwcJPXmlTqaIRI=
+// @vegastack scroll-area@0.136.4 sha256-hFRC/Zp+4N8ZxDPKx+j3WObTXxKLcFLrKJO2dUc0ZXk=
 
 "use client";
 

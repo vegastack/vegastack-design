@@ -1,4 +1,4 @@
-// @vegastack nav-tree@0.135.2 sha256-G8O11QaC8TQa99WlGObdzOYDBmq8A/rDr3z0EJHq+fc=
+// @vegastack nav-tree@0.136.4 sha256-DOOHzPRLCSpJAVWm03Da1yLVg2vmquUxWM/gQ36YTC0=
 
 "use client";
 

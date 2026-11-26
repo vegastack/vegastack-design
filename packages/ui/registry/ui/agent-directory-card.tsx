@@ -1,4 +1,4 @@
-// @vegastack agent-directory-card@0.135.0 sha256-Xwi0btrUxL4/Hsp+hlhtMKKP/3iC2sUk1WBzXyOSSaI=
+// @vegastack agent-directory-card@0.136.4 sha256-/ZcZ5+nhXbcMrmMedzgxOaBKx05f4W/mEu8BN/ZypqU=
 
 "use client";
 
