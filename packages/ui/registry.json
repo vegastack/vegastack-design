@@ -16442,7 +16442,7 @@
       "meta": {
         "whenToUse": "Show how much of a chat's working window the last request used, in ChatComposerActionsEnd beside the model.",
         "whenNotToUse": "Upload or task progress (Progress, UploadPanel), or money and run cost (RunUsage).",
-        "version": "0.136.2"
+        "version": "0.136.3"
       }
     },
     {
@@ -17144,7 +17144,7 @@
       "meta": {
         "whenToUse": "The body of ContextRing's panel, or a Context section in a chat's side panel or a phone sheet.",
         "whenNotToUse": "Run cost or usage limits (RunUsage), or upload progress (UploadPanel).",
-        "version": "0.136.2"
+        "version": "0.136.3"
       }
     },
     {

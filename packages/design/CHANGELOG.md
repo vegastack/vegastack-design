@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.29.5
+
+### Patch Changes
+
+- [#1085](https://github.com/vegastack/vegastack-design/pull/1085) [`11cb1a5`](https://github.com/vegastack/vegastack-design/commit/11cb1a5e040652186aede0a0ee4858a494d3602d) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 `ContextPanel` and `ContextRing` say "context", as agent harnesses do: the panel's title is "Context" (was "Chat memory"), the legend's last row is "Left" (was "Free"), and the ring's accessible name is "Context 26% used". Docs follow; the props are unchanged.
+
 ## 0.29.4
 
 ### Patch Changes

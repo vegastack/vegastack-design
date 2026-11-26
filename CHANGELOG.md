@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.136.3] — November 26, 2026
+
+<!-- assembled from 1 changeset: 9e7d51c48bce -->
+
+### 🔧 Changed components
+
+- `ContextPanel` and `ContextRing` say "context", as agent harnesses do: the panel's title is "Context" (was "Chat memory"), the legend's last row is "Left" (was "Free"), and the ring's accessible name is "Context 26% used". Docs follow; the props are unchanged.
+  [`11cb1a5`](https://github.com/VegaStack/vegastack-design/commit/11cb1a5)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.29.5`** (was `0.29.4`).
+- The design-system registry (`@vegastack/ui`) bumps 0.136.2 → 0.136.3.
+
 ## [0.136.2] — November 26, 2026
 
 <!-- assembled from 1 changeset: d7b7d582f81d -->
