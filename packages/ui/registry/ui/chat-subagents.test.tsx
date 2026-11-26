@@ -200,16 +200,16 @@ test("a finished Subagent says how its part went; only done has the check", asyn
   ];
   expect(rows.map((row) => row.textContent)).toEqual([
     "Done Wipro Lighting ",
-    "Partly done Surya Roshni 2 of 3 filesRetry",
+    "Partially done Surya Roshni 2 of 3 filesRetry",
     "Couldn't finish Havells the list was emptyRetry",
-    "Finished Syska outcome not stated",
-    "Finished Philips outcome not stated",
+    "Finished Syska No outcome reported",
+    "Finished Philips No outcome reported",
   ]);
   expect(
     rows.map((row) => row.querySelector('[data-slot="status-glyph"]') != null),
   ).toEqual([true, false, false, false, false]);
   expect(subagentsSummary(outcomes.map((p) => subagentOfPart(p)))).toBe(
-    "Finished 5 Subagents · 1 partly done (2 of 3 files) · 1 couldn't finish (the list was empty) · 2 outcome not stated",
+    "Finished 5 Subagents · 1 partially done (2 of 3 files) · 1 couldn't finish (the list was empty) · 2 no outcome reported",
   );
   await expectNoA11yViolations(screen.container);
 });

@@ -1,4 +1,4 @@
-// @vegastack task-list@0.135.0 sha256-a65gSaxP7wWjXqRSMLln2Co810TOJY6g38zRGPqXEko=
+// @vegastack task-list@0.135.0 sha256-eiuu0ijMKVC7xsYTp56t7VvvbngEowd4unGBUfUkC8U=
 
 "use client";
 
@@ -107,8 +107,6 @@ export interface TaskListLabels {
   doneFold: (done: number, skipped: number) => string;
   /** The fold of later items: @default (n) => `+${n} more` */
   moreFold: (count: number) => string;
-  /** No longer shown: each fold now closes from its own row. @deprecated @default "Show less" */
-  showLess: string;
   /** After a live item when the list stopped. @default "didn't finish" */
   didntFinish: string;
   /** After a pending item when the list stopped. @default "not done" */
@@ -135,7 +133,6 @@ const DEFAULT_LABELS: TaskListLabels = {
       .filter(Boolean)
       .join(" · "),
   moreFold: (count) => `+${count} more`,
-  showLess: "Show less",
   didntFinish: "didn't finish",
   notDone: "not done",
   status: {

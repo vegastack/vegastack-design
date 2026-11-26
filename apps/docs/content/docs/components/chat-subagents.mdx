@@ -56,9 +56,10 @@ One sentence that opens the rows.
 ### How its part went
 
 A Subagent that finished says how its part went, in `outcome` (`done`, `partial`, `couldnt`,
-`unknown`) with `outcomeReason`. Only Done has the check. Partly done and Couldn't finish show the
-reason and a Retry; an answer that didn't say, or an output with no `outcome`, reads "Finished ·
-outcome not stated", never as done.
+`unknown`) with `outcomeReason`. Only Done has the check. Partially done and Couldn't finish show
+the reason and a Retry; an answer that didn't say, or an output with no `outcome`, reads Finished
+with "No outcome reported", never as done. Settled, the line counts them: "1 partially done (2 of
+3 catalogues)", "1 couldn't finish (the price list was empty)", "1 no outcome reported".
 
 <ComponentPreview
   name="chatSubagentsOutcomes"

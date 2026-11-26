@@ -1,4 +1,4 @@
-// @vegastack chat-subagents@0.135.0 sha256-0MEZw2cbNZQHghlugLGyBX8hoIDLrh4SLfk/1YBR3HY=
+// @vegastack chat-subagents@0.135.0 sha256-eUF07lSwEDPRVdE423ZQD/zWiiLKp6U8vYtfAMtXbH8=
 
 "use client";
 
@@ -23,8 +23,8 @@ import {
  * so the block has none): a status word, the short title the engine gave the Subagent, and quiet
  * meta — "3 steps · 0:41", "waiting on you", "ran out of steps · Retry". Settled, the block is one
  * muted sentence that opens the same rows. Failures are words with a Retry, never a red ✕.
- * A Subagent that finished says how its part went: Done (the only row with a check), Partly done
- * or Couldn't finish with its reason, or "Finished · outcome not stated" when its answer didn't say.
+ * A Subagent that finished says how its part went: Done (the only row with a check), Partially done
+ * or Couldn't finish with its reason, or Finished with "No outcome reported" when its answer didn't say.
  * ----------------------------------------------------------------------------------------------*/
 
 /** Where one Subagent stands. */
@@ -32,7 +32,7 @@ export type SubagentStatus =
   "running" | "waiting" | "done" | "stopped" | "failed";
 
 /**
- * How a finished Subagent said its part went: done, partly done, couldn't finish, or `unknown`
+ * How a finished Subagent said its part went: done, partially done, couldn't finish, or `unknown`
  * when its answer didn't say (never shown as done).
  */
 export type SubagentOutcome = "done" | "partial" | "couldnt" | "unknown";
@@ -45,7 +45,7 @@ export interface SubagentOutput {
   reason?: string;
   /** How it said its part went, once `status` is `done`; absent reads as `unknown`, never as done. */
   outcome?: SubagentOutcome;
-  /** Why it's partly done or couldn't finish, in its own words (one line). */
+  /** Why it's partially done or couldn't finish, in its own words (one line). */
   outcomeReason?: string;
   steps?: number;
   durationMs?: number;
@@ -62,7 +62,7 @@ export interface SubagentView {
   reason?: string;
   /** How it said its part went, once done. @default undefined */
   outcome?: SubagentOutcome;
-  /** Why it's partly done or couldn't finish. @default undefined */
+  /** Why it's partially done or couldn't finish. @default undefined */
   outcomeReason?: string;
   steps?: number;
   durationMs?: number;
@@ -99,7 +99,7 @@ function subagentOf(part: ChatToolPart): SubagentView {
       output.reason ??
       (part.state === "output-error" ? part.errorText : undefined) ??
       words.refusal?.words,
-    // Only a part said done is done: an answer that didn't say is "outcome not stated".
+    // Only a part said done is done: an answer that didn't say reads "No outcome reported".
     ...(status === "done"
       ? {
           outcome: output.outcome ?? "unknown",
@@ -123,7 +123,7 @@ const STATUS_WORD: Record<SubagentStatus, string> = {
 /** A finished row's word for what it said of its part; "Finished" when it didn't say. */
 const OUTCOME_WORD: Record<SubagentOutcome, string> = {
   done: "Done",
-  partial: "Partly done",
+  partial: "Partially done",
   couldnt: "Couldn't finish",
   unknown: "Finished",
 };
@@ -132,7 +132,7 @@ const OUTCOME_WORD: Record<SubagentOutcome, string> = {
 function outcomeMeta(view: SubagentView): string | null {
   if (view.status !== "done" || !view.outcome || view.outcome === "done")
     return null;
-  if (view.outcome === "unknown") return "outcome not stated";
+  if (view.outcome === "unknown") return "No outcome reported";
   return view.outcomeReason ?? null;
 }
 
@@ -185,10 +185,11 @@ function subagentsSummary(views: readonly SubagentView[]): string {
     return reasons.length === 1 ? ` (${reasons[0]})` : "";
   };
   if (stopped.length) bits.push(`${stopped.length} stopped${why(stopped)}`);
-  if (partial.length) bits.push(`${partial.length} partly done${why(partial)}`);
+  if (partial.length)
+    bits.push(`${partial.length} partially done${why(partial)}`);
   if (failed.length)
     bits.push(`${failed.length} couldn't finish${why(failed)}`);
-  if (unstated.length) bits.push(`${unstated.length} outcome not stated`);
+  if (unstated.length) bits.push(`${unstated.length} no outcome reported`);
   const cost = views.reduce((sum, v) => sum + (v.costMicroUsd ?? 0), 0);
   if (cost > 0) bits.push(formatCost(cost));
   return bits.join(" · ");
