@@ -51,7 +51,7 @@ test("measured tokens the parts don't name are Other", async () => {
   expect(legend[5]).toEqual(["Free", "170k", "85.0%"]);
 });
 
-test("Summarize now ends the panel, busy while its promise runs; held before the first answer", async () => {
+test("Continue in a new chat ends the panel, busy while its promise runs; held before the first answer", async () => {
   let done: () => void = () => {};
   const summarize = vi.fn(() => new Promise<void>((r) => (done = r)));
   const screen = await render(
@@ -62,11 +62,11 @@ test("Summarize now ends the panel, busy while its promise runs; held before the
       onSummarize={summarize}
     />,
   );
-  const button = page.getByRole("button", { name: "Summarize now" });
+  const button = page.getByRole("button", { name: "Continue in a new chat" });
   const panel = screen.container.querySelector("[data-slot=context-panel]")!;
   expect(panel.lastElementChild).toBe(button.element());
   await button.click();
-  const busy = page.getByRole("button", { name: "Summarizing" });
+  const busy = page.getByRole("button", { name: "Starting" });
   await expect.element(busy).toHaveAttribute("aria-busy", "true");
   // The bolt loader, never an icon spinner: its bolt is the only SVG in the button.
   expect(

@@ -1,4 +1,4 @@
-// @vegastack chat-chip@0.135.0 sha256-A7T6NPsUTzpJt9f8EQeSgTbGamTYTLfxOCLP/Ue7jAw=
+// @vegastack chat-chip@0.135.0 sha256-NljD/EzwRA0rcGC7HJeJQSx+0PLOVk63DOD9KzMv4zY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -23,7 +23,7 @@ export interface ChatChipProps extends Omit<
   href?: string;
   /**
    * `attention` lifts the label to the body ink and medium weight for work that needs a look (one
-   * failed, partly done); it never adds a status fill (COL-25).
+   * failed, partially done); it never adds a status fill (COL-25).
    * @default "default"
    */
   tone?: "default" | "attention";

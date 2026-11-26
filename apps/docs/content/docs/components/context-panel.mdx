@@ -1,6 +1,6 @@
 ---
 title: Context Panel
-description: What fills a chat's working memory, adding up to its window — share used, one segmented bar, a legend with tokens and shares, what's free, and Summarize now.
+description: What fills a chat's working memory, adding up to its window — share used, one segmented bar, a legend with tokens and shares, what's free, and Continue in a new chat.
 audience: public
 registry: context-panel
 status: stable
@@ -35,8 +35,8 @@ The body of [`ContextRing`](/docs/components/context-ring)'s panel, and of a Con
 chat's side panel or a phone sheet. "26% used" with the tokens against the window, one segmented
 bar, then a legend — a swatch, the label, its tokens and its share in two tabular columns — that
 always adds up to the window: measured tokens the parts don't name list as Other, and Free ends it.
-Then where older messages get summarised and, given `onSummarize`, Summarize now, with nothing after
-it.
+Then where the conversation auto-compacts ("Auto-compacts at 90%") and, given `onSummarize`,
+Continue in a new chat, with nothing after it.
 
 <ComponentPreview
   name="contextPanel"
@@ -57,7 +57,7 @@ window.
 
 ### Before the first answer
 
-With `used={null}` the panel says it is measured after the first answer and Summarize now is held.
+With `used={null}` the panel says it is measured after the first answer and Continue in a new chat is held.
 
 <ComponentPreview
   name="contextPanelEmpty"
@@ -67,9 +67,9 @@ With `used={null}` the panel says it is measured after the first answer and Summ
 ### In a side panel
 
 `variant="panel"` is the compact form for a record side panel's Details: one line, "9% · 37.5k /
-400k", whose tooltip says where older messages get summarised; the bar; then each part as a row —
+400k", whose tooltip says where the conversation auto-compacts; the bar; then each part as a row —
 swatch, label, tokens — with its share of the window in a tooltip, and Free muted last. It has no
-title and no button: put Summarize in the section header (`RecordPanelAction`).
+title and no button: put the action in the section header (`RecordPanelAction`).
 
 <ComponentPreview
   name="contextPanelSide"

@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.135.0 sha256-TXMNkzcRhvqWgVKQjLAWw989Kqx5QS1crwIZ5DMVZ+4=
+// @vegastack context-ring@0.135.0 sha256-MnltzhfkKhf+9CITG/dABH9tLgN3WuIDW8gMDS3g6D0=
 
 "use client";
 
@@ -39,13 +39,13 @@ export interface ContextRingProps extends Omit<
   used: number | null;
   /** The chat's working window, in tokens. */
   window: number;
-  /** Where older messages get summarised, as a share of the window (0–1). @default 0.9 */
+  /** Where the conversation auto-compacts, as a share of the window (0–1). @default 0.9 */
   threshold?: number;
   /** What fills the window, for the panel. @default [] */
   parts?: readonly ContextPart[];
-  /** Summarize now in the panel; without it, no button. @default undefined */
+  /** The panel's Continue in a new chat; without it, no button. @default undefined */
   onSummarize?: () => void | Promise<unknown>;
-  /** A summary is under way. @default false */
+  /** The panel's action is under way. @default false */
   summarizing?: boolean;
   /**
    * Pressing opens the host's own surface (a phone's sheet) instead of the hover panel.
@@ -216,7 +216,7 @@ export function ContextRing({
           size="md"
           data-slot="context-ring-panel"
           // Hover and focus show the panel without taking focus; Enter or a click on the ring moves
-          // into it, so Summarize now is a Tab away.
+          // into it, so Continue in a new chat is a Tab away.
           initialFocus={(type) => type === "keyboard"}
         >
           <ContextPanel
