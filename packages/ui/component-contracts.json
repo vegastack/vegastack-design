@@ -34262,7 +34262,7 @@
       "name": "context-ring",
       "registryType": "registry:ui",
       "title": "Context Ring",
-      "summary": "How full a chat's memory is: a still 10px ring and its share, opening its ContextPanel on hover, focus or click.",
+      "summary": "How full a chat's context window is: a still 10px ring and its share, opening its ContextPanel on hover, focus or click.",
       "status": "stable",
       "since": "0.76.0",
       "family": "chat",

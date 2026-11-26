@@ -245,7 +245,7 @@ starts with `icon-` is a component and never an icon.
 - **`cited-list`** — An answer as numbered points, each a sentence followed by its sources as small muted chips — links by default, or any element through render.
 - **`composer-chip`** — A round toolbar chip for the chat composer: a toggle (Plan), a menu trigger with a chevron (the model), or read-only words, with an optional tooltip.
 - **`context-panel`** — What fills a chat's context window, adding up to it: share, a segmented bar, a legend, what's left, Continue in a new chat.
-- **`context-ring`** — How full a chat's memory is: a still 10px ring and its share, opening its ContextPanel on hover, focus or click.
+- **`context-ring`** — How full a chat's context window is: a still 10px ring and its share, opening its ContextPanel on hover, focus or click.
 - **`coverage-banner`** — Someone covering for someone: a quiet strip on a page with the delegate and one action, or one muted line under a name.
 - **`delegate-popover`** — Delegate a record or rows to an agent: search agents (disabled with a reason), instructions, When finished, Connect an agent; bulk, empty and loading states.
 - **`delegate-row`** — One person covering for another, in MemberList's row anatomy: avatar and name over what and when, a note, the state and a ⋯ with Edit and End.
