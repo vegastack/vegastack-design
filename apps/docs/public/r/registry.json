@@ -18241,7 +18241,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.136.4",
-        "integrity": "sha256-Uj2QWeIO4AJI7UWwRd0J8HnwXZZou5I/59/Zvbbdom4="
+        "integrity": "sha256-OiHa4oDzi3DOj3cozAB5KGWbV2YgtV3M7BRuvVVCNEk="
       }
     },
     {

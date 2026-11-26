@@ -232,8 +232,9 @@ const AVATAR_TIER = { sm: "sm", default: "default", lg: "lg" } as const;
 
 /**
  * The face, loaded on demand: most pages show people far more than agents, so its drawing and its
- * presets stay out of every page's first bundle. The server still renders it into the HTML, and
- * that markup stays on screen until the chunk arrives, so nothing flashes.
+ * presets stay out of every page's first bundle. Streaming server rendering (Next's) still renders
+ * it into the HTML, and that markup stays on screen until the chunk arrives, so nothing flashes; a
+ * one-shot `renderToString` leaves the sized box empty for the client to fill.
  */
 const AgentFace = React.lazy(() =>
   import("@/components/ui/agent-face").then((m) => ({ default: m.AgentFace })),

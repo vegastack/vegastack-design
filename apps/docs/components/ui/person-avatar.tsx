@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.136.4 sha256-Uj2QWeIO4AJI7UWwRd0J8HnwXZZou5I/59/Zvbbdom4=
+// @vegastack person-avatar@0.136.4 sha256-OiHa4oDzi3DOj3cozAB5KGWbV2YgtV3M7BRuvVVCNEk=
 
 "use client";
 
@@ -232,8 +232,9 @@ const AVATAR_TIER = { sm: "sm", default: "default", lg: "lg" } as const;
 
 /**
  * The face, loaded on demand: most pages show people far more than agents, so its drawing and its
- * presets stay out of every page's first bundle. The server still renders it into the HTML, and
- * that markup stays on screen until the chunk arrives, so nothing flashes.
+ * presets stay out of every page's first bundle. Streaming server rendering (Next's) still renders
+ * it into the HTML, and that markup stays on screen until the chunk arrives, so nothing flashes; a
+ * one-shot `renderToString` leaves the sized box empty for the client to fill.
  */
 const AgentFace = React.lazy(() =>
   import("@/components/ui/agent-face").then((m) => ({ default: m.AgentFace })),
