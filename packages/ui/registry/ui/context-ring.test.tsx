@@ -54,9 +54,7 @@ test.each([
 
 test("hover opens the panel after 150ms, not before", async () => {
   await render(<ContextRing used={56_000} window={200_000} parts={PARTS} />);
-  await userEvent.hover(
-    page.getByRole("button", { name: "Chat memory 28% used" }),
-  );
+  await userEvent.hover(page.getByRole("button", { name: "Context 28% used" }));
   await new Promise((done) => setTimeout(done, 60));
   expect(panel()).toBeNull();
   await vi.waitFor(() => expect(panel()).toBeTruthy(), { timeout: 1000 });
@@ -74,7 +72,7 @@ test("keyboard focus opens the panel without moving focus; Enter moves in; Escap
     />,
   );
   const trigger = page
-    .getByRole("button", { name: "Chat memory 28% used" })
+    .getByRole("button", { name: "Context 28% used" })
     .element();
   await userEvent.tab();
   expect(document.activeElement).toBe(trigger);
@@ -93,7 +91,7 @@ test("a click toggles the panel; its numbers add up to the window", async () => 
       onSummarize={() => {}}
     />,
   );
-  const button = page.getByRole("button", { name: "Chat memory 28% used" });
+  const button = page.getByRole("button", { name: "Context 28% used" });
   await button.click();
   await vi.waitFor(() => expect(panel()).toBeTruthy());
   const tokens = [
@@ -110,7 +108,7 @@ test("a click toggles the panel; its numbers add up to the window", async () => 
 test("onOpen hands the press to the host and opens no panel", async () => {
   const onOpen = vi.fn();
   await render(<ContextRing used={30_000} window={100_000} onOpen={onOpen} />);
-  await page.getByRole("button", { name: "Chat memory 30% used" }).click();
+  await page.getByRole("button", { name: "Context 30% used" }).click();
   expect(onOpen).toHaveBeenCalledOnce();
   expect(panel()).toBeNull();
 });
@@ -133,9 +131,7 @@ test("the drop after a summary is said once; growth is not", async () => {
   await page.getByRole("button", { name: "Grow" }).click();
   expect(region().textContent).toBe("");
   await page.getByRole("button", { name: "Summarize" }).click();
-  await vi.waitFor(() =>
-    expect(region().textContent).toBe("Chat memory 20% used"),
-  );
+  await vi.waitFor(() => expect(region().textContent).toBe("Context 20% used"));
 });
 
 test("the ring and its panel show one total, even when the parts say more than the measure", async () => {
@@ -149,7 +145,7 @@ test("the ring and its panel show one total, even when the parts say more than t
       ]}
     />,
   );
-  const button = page.getByRole("button", { name: "Chat memory 100% used" });
+  const button = page.getByRole("button", { name: "Context 100% used" });
   await button.click();
   await vi.waitFor(() => expect(panel()).toBeTruthy());
   expect(
@@ -180,6 +176,6 @@ test("a drop the parts make is said too", async () => {
     expect(
       screen.container.querySelector<HTMLElement>('[role="status"]')!
         .textContent,
-    ).toBe("Chat memory 20% used"),
+    ).toBe("Context 20% used"),
   );
 });

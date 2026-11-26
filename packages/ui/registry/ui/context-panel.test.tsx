@@ -35,7 +35,7 @@ test("the share, the window, and a legend that adds up to it", async () => {
     ["Memory", "2k", "1.0%"],
     ["Conversation", "7k", "3.5%"],
     ["Tool results", "1k", "0.5%"],
-    ["Free", "174k", "87.0%"],
+    ["Left", "174k", "87.0%"],
   ]);
   const sum = PARTS.reduce((s, p) => s + p.tokens, 0) + 174_000;
   expect(sum).toBe(200_000);
@@ -48,7 +48,7 @@ test("measured tokens the parts don't name are Other", async () => {
   );
   const legend = rows(screen.container);
   expect(legend[4]).toEqual(["Other", "4k", "2.0%"]);
-  expect(legend[5]).toEqual(["Free", "170k", "85.0%"]);
+  expect(legend[5]).toEqual(["Left", "170k", "85.0%"]);
 });
 
 test("Continue in a new chat ends the panel, busy while its promise runs; held before the first answer", async () => {
@@ -104,11 +104,11 @@ test("parts that say more than the measure, or than the window, never break the 
   expect(rows(screen.container)).toEqual([
     ["Instructions and tools", "70k", "70.0%"],
     ["Conversation", "30k", "30.0%"],
-    ["Free", "0", "0.0%"],
+    ["Left", "0", "0.0%"],
   ]);
 });
 
-test("panel: one line, the bar and compact rows with Free last, shares in tooltips, no title or button", async () => {
+test("panel: one line, the bar and compact rows with Left last, shares in tooltips, no title or button", async () => {
   const screen = await render(
     <ContextPanel
       variant="panel"
@@ -135,7 +135,7 @@ test("panel: one line, the bar and compact rows with Free last, shares in toolti
     "Conversation",
     "Tool results",
     "Other",
-    "Free",
+    "Left",
   ]);
   expect(parts.at(-1)!.hasAttribute("data-free")).toBe(true);
   await page.getByText("Memory").hover();

@@ -1,4 +1,4 @@
-// @vegastack context-ring@0.136.2 sha256-ZlwLBeZXWaMsJpYnJMJbgARu9ghHdgimrnR4HMkhZK8=
+// @vegastack context-ring@0.136.2 sha256-JlqKdPy4/rvnbrucYTQyTLWXZce3azNvu03dKd9RN7Y=
 
 "use client";
 
@@ -21,7 +21,7 @@ import {
 import { useAnnouncer } from "@/components/ui/use-announcer";
 
 /* ------------------------------------------------------------------------------------------------
- * ContextRing — how full a chat's working memory is, as a still 10px ring and its share in the
+ * ContextRing — how full a chat's context window is, as a still 10px ring and its share in the
  * quiet line under the composer: a muted track with a foreground arc, primary from 75%, the warning
  * ink from 90%. Nothing shows before the first measurement, and it never spins. Hover or focus opens
  * the `ContextPanel` after 150ms; a click toggles it.
@@ -54,7 +54,7 @@ export interface ContextRingProps extends Omit<
   onOpen?: () => void;
   /** Words for a token count. @default compact: 25.9k, 1M */
   formatTokens?: (tokens: number) => string;
-  /** The ring's accessible name. @default (percent) => `Chat memory ${percent}% used` */
+  /** The ring's accessible name. @default (percent) => `Context ${percent}% used` */
   label?: (percent: number) => string;
   /** The panel's words. @default undefined */
   labels?: ContextPanelLabels;
@@ -116,7 +116,7 @@ export function ContextRing({
   const shareOf = measured ? total / windowTokens : 0;
   const percent = Math.round(shareOf * 100);
   const tone = contextRingTone(shareOf);
-  const name = label?.(percent) ?? `Chat memory ${percent}% used`;
+  const name = label?.(percent) ?? `Context ${percent}% used`;
 
   const { announce, Announcer } = useAnnouncer();
   // Say the new share once when it drops (a summary ran), never on mount or as it grows.

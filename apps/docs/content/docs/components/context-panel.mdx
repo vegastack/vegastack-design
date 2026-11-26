@@ -1,6 +1,6 @@
 ---
 title: Context Panel
-description: What fills a chat's working memory, up to its window — share used, a segmented bar, a legend with tokens, shares and what's free, and Continue in a new chat.
+description: What fills a chat's context window — share used, a segmented bar, a legend with tokens, shares and what's left, and Continue in a new chat.
 audience: public
 registry: context-panel
 status: stable
@@ -34,7 +34,7 @@ import { ContextPanel } from "@/components/ui/context-panel";
 The body of [`ContextRing`](/docs/components/context-ring)'s panel, and of a Context section in a
 chat's side panel or a phone sheet. "26% used" with the tokens against the window, one segmented
 bar, then a legend — a swatch, the label, its tokens and its share in two tabular columns — that
-always adds up to the window: measured tokens the parts don't name list as Other, and Free ends it.
+always adds up to the window: measured tokens the parts don't name list as Other, and Left ends it.
 Then where the conversation auto-compacts ("Auto-compacts at 90%") and, given `onSummarize`,
 Continue in a new chat, with nothing after it.
 
@@ -68,7 +68,7 @@ With `used={null}` the panel says it is measured after the first answer and Cont
 
 `variant="panel"` is the compact form for a record side panel's Details: one line, "9% · 37.5k /
 400k", whose tooltip says where the conversation auto-compacts; the bar; then each part as a row —
-swatch, label, tokens — with its share of the window in a tooltip, and Free muted last. It has no
+swatch, label, tokens — with its share of the window in a tooltip, and Left muted last. It has no
 title and no button: put the action in the section header (`RecordPanelAction`).
 
 <ComponentPreview
@@ -93,6 +93,6 @@ title and no button: put the action in the section header (`RecordPanelAction`).
 ## Do / Don't
 
 <DoDont
-  do="Pass the parts in the order they fill the window; let the panel add Other and Free."
+  do="Pass the parts in the order they fill the window; let the panel add Other and Left."
   dont="Show money here, or a breakdown that doesn't add up to the window."
 />

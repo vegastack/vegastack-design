@@ -1,4 +1,4 @@
-// @vegastack context-panel@0.136.2 sha256-qOx+4m3b4cZ4H11ZUP9yrasfzSz/klgWfQ3ueID2EL4=
+// @vegastack context-panel@0.136.2 sha256-r2zf7yPCk6ZWgI1UhGvOgwuzhHzbJss4OCKWIZhIXRE=
 
 "use client";
 
@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------------------------------------
- * ContextPanel — what fills a chat's working memory, adding up to its window: "26% used  25.9k /
+ * ContextPanel — what fills a chat's context window, adding up to it: "26% used  25.9k /
  * 200k", one segmented bar, and a legend (swatch, label, tokens, share) in tabular columns that ends
- * with what's free. Then where the conversation auto-compacts, and Continue in a new chat for whoever may
+ * with what's left. Then where the conversation auto-compacts, and Continue in a new chat for whoever may
  * send.
  * It is the body of `ContextRing`'s hover panel and of a phone's Context sheet. `variant="panel"`
  * is the record side panel's compact form: one line ("9% · 37.5k / 400k"), the bar, and the parts as
@@ -36,13 +36,13 @@ export interface ContextPart {
 
 /** The panel's words. */
 export interface ContextPanelLabels {
-  /** The title. @default "Chat memory" */
+  /** The title. @default "Context" */
   title?: string;
   /** The share line. @default (percent) => `${percent}% used` */
   used?: (percent: number) => string;
   /** Measured tokens the parts don't name. @default "Other" */
   other?: string;
-  /** What's left of the window. @default "Free" */
+  /** What's left of the window. @default "Left" */
   free?: string;
   /** The note under the legend. @default (percent) => `Auto-compacts at ${percent}%` */
   threshold?: (percent: number) => string;
@@ -82,7 +82,7 @@ export interface ContextPanelProps extends Omit<
   /**
    * `default` — the hover panel: title, "26% used", the bar, a legend with shares, the note and
    * Continue in a new chat. `panel` — a side panel's Details: one line "9% · 37.5k / 400k" (the note
-   * in its tooltip), the bar and compact rows (swatch · label · tokens, the share in a tooltip, Free
+   * in its tooltip), the bar and compact rows (swatch · label · tokens, the share in a tooltip, Left
    * muted last). No title and no button: put the action in the section header (`onSummarize` is
    * ignored).
    * @default "default"
@@ -98,7 +98,7 @@ const compact = new Intl.NumberFormat("en", {
 export const formatContextTokens = (tokens: number) =>
   compact.format(tokens).replace("K", "k");
 
-/** One swatch per part, in order, from the chart set; free is a hollow swatch. */
+/** One swatch per part, in order, from the chart set; what's left is a hollow swatch. */
 const SWATCHES = [
   "bg-chart-1",
   "bg-chart-2",
@@ -126,8 +126,8 @@ const share = (tokens: number, of: number) =>
   of > 0 ? `${((tokens / of) * 100).toFixed(1)}%` : "0.0%";
 
 /**
- * `ContextPanel` — a chat's memory, adding up to its window: the share used, one segmented bar, the
- * parts with tokens and shares, what's free, where it auto-compacts and Continue in a new chat.
+ * `ContextPanel` — a chat's context, adding up to its window: the share used, one segmented bar, the
+ * parts with tokens and shares, what's left, where it auto-compacts and Continue in a new chat.
  *
  * @example
  * <ContextPanel
@@ -171,7 +171,7 @@ export function ContextPanel({
   const total = contextTotal(used, windowTokens, parts) ?? 0;
   const percent = measured ? Math.round((total / windowTokens) * 100) : null;
   // The legend always adds up to the window: parts fill the total in order (clipped at it), what
-  // they don't name is Other, and Free is the rest.
+  // they don't name is Other, and Left is the rest.
   const rows: { id: string; label: React.ReactNode; tokens: number }[] = [];
   if (measured) {
     let left = total;
@@ -220,7 +220,7 @@ export function ContextPanel({
             <ContextBar rows={rows} windowTokens={windowTokens} />
             <ul
               data-slot="context-panel-parts"
-              aria-label={labels?.title ?? "Chat memory"}
+              aria-label={labels?.title ?? "Context"}
               className="-mx-2 flex min-w-0 flex-col"
             >
               {[
@@ -231,7 +231,7 @@ export function ContextPanel({
                 })),
                 {
                   id: "free",
-                  label: labels?.free ?? "Free",
+                  label: labels?.free ?? "Left",
                   tokens: free,
                   swatch: "border border-muted-foreground/50",
                   free: true,
@@ -294,7 +294,7 @@ export function ContextPanel({
       {...props}
     >
       <p data-slot="context-panel-title" className="font-medium">
-        {labels?.title ?? "Chat memory"}
+        {labels?.title ?? "Context"}
       </p>
       {measured ? (
         <>
@@ -337,7 +337,7 @@ export function ContextPanel({
               className="size-1.5 rounded-mark border border-muted-foreground/50"
             />
             <dt className="min-w-0 truncate text-muted-foreground">
-              {labels?.free ?? "Free"}
+              {labels?.free ?? "Left"}
             </dt>
             <dd className="text-end tabular-nums">{formatTokens(free)}</dd>
             <dd className="min-w-10 text-end text-muted-foreground tabular-nums">

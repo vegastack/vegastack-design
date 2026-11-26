@@ -16420,7 +16420,7 @@
       "name": "context-ring",
       "type": "registry:ui",
       "title": "Context Ring",
-      "description": "How full a chat's working memory is: a still 10px ring and its share in the composer's actions row, primary from 75%, the warning ink from 90%, opening its ContextPanel on hover, focus or click.",
+      "description": "How full a chat's context window is: a still 10px ring and its share in the composer's actions row, primary from 75%, the warning ink from 90%, opening its ContextPanel on hover, focus or click.",
       "categories": ["chat"],
       "dependencies": [
         "@vegastack/design@^0.29.0",
@@ -17123,7 +17123,7 @@
       "name": "context-panel",
       "type": "registry:ui",
       "title": "Context Panel",
-      "description": "What fills a chat's working memory, up to its window: share used, a segmented bar, a legend with tokens, shares and what's free, and Continue in a new chat.",
+      "description": "What fills a chat's context window: share used, a segmented bar, a legend with tokens, shares and what's left, and Continue in a new chat.",
       "categories": ["chat"],
       "dependencies": [
         "@vegastack/design@^0.29.0",
