@@ -26,11 +26,13 @@ test("the Pebble from 40px and the Dot below, at the size asked, named for scree
       <AgentFace face={scout} size={40} label="Scout, agent" />
       <AgentFace face={scout} size={32} label="Scout, agent" />
       <AgentFace face={scout} size={16} label="" />
+      <AgentFace face={scout} size={40} />
     </div>,
   );
-  const [pebble, dot, quiet] = screen.container.querySelectorAll<SVGSVGElement>(
-    '[data-slot="agent-face"]',
-  );
+  const [pebble, dot, quiet, unnamed] =
+    screen.container.querySelectorAll<SVGSVGElement>(
+      '[data-slot="agent-face"]',
+    );
   expect(pebble!.dataset.form).toBe("pebble");
   expect(dot!.dataset.form).toBe("dot");
   expect(pebble!.getBoundingClientRect().width).toBe(40);
@@ -40,12 +42,14 @@ test("the Pebble from 40px and the Dot below, at the size asked, named for scree
   // An empty label hides it: the words beside it say who it is.
   expect(quiet!.getAttribute("aria-hidden")).toBe("true");
   expect(quiet!.getAttribute("role")).toBeNull();
+  // No label at all is hidden too, never an image without a name.
+  expect(unnamed!.getAttribute("aria-hidden")).toBe("true");
   await expectNoA11yViolations(screen.container);
 });
 
 test("every state has its own cue beside the Pebble's head; idle has none", async () => {
   const cues: Partial<Record<FaceState, string>> = {
-    thinking: "spinner",
+    thinking: "bubbles",
     working: "orbit",
     writing: "typing",
     "needs-you": "ticks",
@@ -71,8 +75,10 @@ test("every state has its own cue beside the Pebble's head; idle has none", asyn
     );
     expect(cue?.dataset.cue ?? null).toBe(cues[state] ?? null);
   });
-  // Thinking's cue is the design system's spinner (lucide Loader).
-  expect(faces[1]!.querySelector("svg.lucide-loader")).not.toBeNull();
+  // Thinking's cue is three thought bubbles in the agent's colour, close to its head.
+  expect(
+    faces[1]!.querySelectorAll('[data-cue="bubbles"] circle[fill="var(--fm)"]'),
+  ).toHaveLength(3);
 });
 
 test("the Dot badges only the states that need a person: amber, blue, red", async () => {

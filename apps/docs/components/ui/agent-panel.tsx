@@ -1,4 +1,4 @@
-// @vegastack agent-panel@0.135.0 sha256-lIS6/fz5ZON6Se/Gpgc1GNlCQV3adsTFfIuUn+FC3HA=
+// @vegastack agent-panel@0.135.0 sha256-hn/V+vTngM+zRtsoTGvJl1uwKuk/rKB12VFcmTHeOIM=
 
 "use client";
 
@@ -570,7 +570,12 @@ export function AgentSlot({
   }
   const content = agent ? (
     <>
-      <PersonAvatar person={asPerson(agent)} aria-hidden size="xs" />
+      <PersonAvatar
+        person={asPerson(agent)}
+        aria-hidden
+        size="xs"
+        faceState={faceStateOfAgentState(state)}
+      />
       <span className="min-w-0 truncate">{agent.name}</span>
       {state !== "none" ? <span className="sr-only">, </span> : null}
       {/* The name gets the room; the state is its icon, the word in its tooltip (U3). */}
@@ -673,7 +678,12 @@ export function AgentChip({
       <SplitChipButton {...props}>
         {agent ? (
           <>
-            <PersonAvatar person={asPerson(agent)} aria-hidden size="2xs" />
+            <PersonAvatar
+              person={asPerson(agent)}
+              aria-hidden
+              size="2xs"
+              faceState={faceStateOfAgentState(state)}
+            />
             <span className="min-w-0 truncate">{agent.name}</span>
             {word ? <span className="sr-only">, </span> : null}
             {word ? (
@@ -826,6 +836,7 @@ export function AgentCard({
         kindLabel={kindLabel}
         owner={owner}
         badges={badges}
+        state={state}
       />
       {shown(description) ? (
         <p
@@ -1027,9 +1038,12 @@ function AgentIdentity({
   kindLabel,
   owner,
   badges,
+  state,
 }: {
   agent: AgentPanelAgent;
   labels: Pick<AgentHoverCardLabels, "agent" | "actingFor">;
+  /** Where its work stands, for its face. @default the face's resting state */
+  state?: AgentState;
 } & Pick<AgentLanyardProps, "kindLabel" | "owner" | "badges">) {
   const hasOwner = owner != null && owner !== false && owner !== "";
   const facts = [
@@ -1044,7 +1058,14 @@ function AgentIdentity({
       data-slot="agent-identity"
       className="flex min-w-0 items-center gap-2.5"
     >
-      <PersonAvatar person={asPerson(agent)} aria-hidden size="lg" />
+      <PersonAvatar
+        person={asPerson(agent)}
+        aria-hidden
+        size="lg"
+        faceState={state ? faceStateOfAgentState(state) : undefined}
+        // The card is where the person is looking at the agent.
+        motion
+      />
       <div className="flex min-w-0 flex-col">
         <span className="flex min-w-0 flex-wrap items-center gap-x-1.5 gap-y-0.5 text-sm font-medium">
           <span className="wrap-anywhere">{agent.name}</span>
@@ -1819,7 +1840,12 @@ function PanelIdentity({
       data-slot="agent-panel-header"
       className="flex min-w-0 items-center gap-2.5"
     >
-      <PersonAvatar person={asPerson(agent)} aria-hidden size="default" />
+      <PersonAvatar
+        person={asPerson(agent)}
+        aria-hidden
+        size="default"
+        faceState={faceStateOfAgentState(p.state)}
+      />
       <div className="flex min-w-0 flex-1 flex-col">
         <Name
           data-slot="agent-panel-name"

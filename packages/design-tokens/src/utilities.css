@@ -1134,7 +1134,7 @@
  *   eyes     blink · glance · drift · scan · read · mouth (talking)
  *   inside   light (the drifting highlight) · orbit (thinking glow, cue dots)
  *            sheen (working) · flash (writing) · warm (needs you)
- *   cue      type (typing dots) · flare (amber ticks) · twinkle (sparkles)
+ *   cue      float (thought bubbles) · type (typing dots) · flare (amber ticks) · twinkle (sparkles)
  *            rise (z's) · ping (the amber badge) · moon (a ring's moon)
  *   once     change (a state change: a squash and a blink)
  *   dots     chase (thinking) · wave (working) — the Dot form's cells
@@ -1463,6 +1463,21 @@
 @utility motion-face-warm {
   animation: vs-face-warm 1.6s ease-in-out infinite;
 }
+@keyframes vs-face-float {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-1.6px) scale(1.12);
+    opacity: 0.7;
+  }
+}
+@utility motion-face-float {
+  animation: vs-face-float 1.8s ease-in-out infinite;
+  animation-delay: calc(var(--face-dot, 0) * 0.3s);
+}
 @keyframes vs-face-type {
   0%,
   60%,
@@ -1588,14 +1603,12 @@
 }
 @keyframes vs-face-chase {
   0%,
+  22%,
   100% {
-    opacity: var(--face-dot-rest, 0.13);
+    opacity: 0;
   }
   6% {
     opacity: 1;
-  }
-  22% {
-    opacity: var(--face-dot-rest, 0.13);
   }
 }
 @utility motion-face-chase {
@@ -1604,14 +1617,12 @@
 }
 @keyframes vs-face-wave {
   0%,
+  40%,
   100% {
-    opacity: var(--face-dot-rest, 0.13);
+    opacity: 0;
   }
   15% {
     opacity: 1;
-  }
-  40% {
-    opacity: var(--face-dot-rest, 0.13);
   }
 }
 @utility motion-face-wave {

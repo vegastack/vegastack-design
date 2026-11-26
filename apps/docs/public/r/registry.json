@@ -18210,7 +18210,7 @@
         "whenToUse": "An agent's face on its own: a face picker, an agent's header, an onboarding moment. Avatars in rows and stacks use PersonAvatar, which draws it.",
         "whenNotToUse": "A person, team or workspace (PersonAvatar); a loader (Spinner, TextSpinner).",
         "version": "0.135.0",
-        "integrity": "sha256-x4G8D/pja/adtm8BGVgPBjJzVHwPyQ2nwpgDn+cuacs="
+        "integrity": "sha256-awMKJOY+xLkkDtX3tCFtRcBUD7rD99zuKG1hCtUT1e4="
       }
     },
     {
@@ -24553,7 +24553,7 @@
         "whenToUse": "A record (a task, a table row) that is delegated to an agent: the rail card on its page, the section in its peek, the Delegate property's value, the pill in a peek or phone facts row, and the state mark or ring in lists and boards.",
         "whenNotToUse": "A strip after an agent edited a document (AgentEditBanner), an agent asking before one action with a preview (AskCard), or choosing the agent (DelegatePopover).",
         "version": "0.135.0",
-        "integrity": "sha256-lIS6/fz5ZON6Se/Gpgc1GNlCQV3adsTFfIuUn+FC3HA="
+        "integrity": "sha256-hn/V+vTngM+zRtsoTGvJl1uwKuk/rKB12VFcmTHeOIM="
       }
     },
     {

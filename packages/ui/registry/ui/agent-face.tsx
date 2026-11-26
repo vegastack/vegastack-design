@@ -1,8 +1,7 @@
-// @vegastack agent-face@0.135.0 sha256-x4G8D/pja/adtm8BGVgPBjJzVHwPyQ2nwpgDn+cuacs=
+// @vegastack agent-face@0.135.0 sha256-awMKJOY+xLkkDtX3tCFtRcBUD7rD99zuKG1hCtUT1e4=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
-import { LoaderIcon } from "lucide-react";
 import {
   facePreset,
   FACE_PALETTES,
@@ -86,9 +85,9 @@ export const FACE_STATE_LABELS: Record<FaceState, string> = {
 const R = 35;
 const CX = 50;
 const CY = 49;
-/** The cue slot: top right of the head. */
-const MX = CX + R * 0.98;
-const MY = CY - R * 0.98;
+/** The cue slot: on the head's top-right shoulder, cut out of it by a ring, so it reads as part of the face. */
+const MX = CX + R * 0.8;
+const MY = CY - R * 0.82;
 const BODY_ORIGIN = { transformOrigin: `${CX}px ${CY + R}px` } as const;
 const n2 = (v: number) => Math.round(v * 100) / 100;
 
@@ -801,28 +800,43 @@ function Cue({
   const hw = R * 0.07;
   const mc = "var(--fm)";
   switch (state) {
-    case "thinking":
-      // The design system's spinner (Lucide `LoaderIcon`), as everywhere else in the app.
+    case "thinking": {
+      // Thought bubbles in the agent's colour, rising off its head and pulsing in turn (operator,
+      // 27-11-2026: the spinner didn't suit a character; keep the cues close to the face).
+      const bubbles: [number, number, number][] = [
+        [-0.2, 0.2, 0.06],
+        [-0.02, 0.02, 0.095],
+        [0.2, -0.2, 0.14],
+      ];
       return (
-        <g data-slot="agent-face-cue" data-cue="spinner">
-          <circle cx={MX} cy={MY} r={n2(R * 0.33)} fill={ring} />
-          <g
-            className={motion ? "animate-spin" : undefined}
-            style={{ transformOrigin: `${n2(MX)}px ${n2(MY)}px` }}
-          >
-            <LoaderIcon
-              x={n2(MX - R * 0.27)}
-              y={n2(MY - R * 0.27)}
-              width={n2(R * 0.54)}
-              height={n2(R * 0.54)}
-              color={mc}
-              strokeWidth={2.8}
-              aria-hidden="true"
-              focusable="false"
+        <g data-slot="agent-face-cue" data-cue="bubbles">
+          {bubbles.map(([dx, dy, r], k) => (
+            <circle
+              key={`h${k}`}
+              cx={n2(MX + dx * R)}
+              cy={n2(MY + dy * R)}
+              r={n2(R * r + hw * 0.6)}
+              fill={ring}
             />
-          </g>
+          ))}
+          {bubbles.map(([dx, dy, r], k) => (
+            <circle
+              key={k}
+              cx={n2(MX + dx * R)}
+              cy={n2(MY + dy * R)}
+              r={n2(R * r)}
+              fill={mc}
+              fillOpacity={0.55 + k * 0.2}
+              className={motion ? "motion-face-float" : undefined}
+              style={{
+                transformOrigin: `${n2(MX + dx * R)}px ${n2(MY + dy * R)}px`,
+                ["--face-dot" as string]: k,
+              }}
+            />
+          ))}
         </g>
       );
+    }
     case "working":
       // Orbiting dots in the agent's colour, the same for every tool.
       return (
@@ -1364,14 +1378,21 @@ function dotCells(def: FacePresetDef, state: FaceState): Cells {
         [4, 1],
       ];
     case "working":
+      // Its eyes and a short bar along the bottom: never the same as a round-eyed idle.
       return [
         [1, 2],
         [3, 2],
+        [1, 4, 0.5],
+        [2, 4, 0.85],
+        [3, 4, 0.5],
       ];
     case "writing":
       return [
         [1, 1],
         [3, 1],
+        [1, 3, 0.9],
+        [2, 3, 0.9],
+        [3, 3, 0.9],
       ];
     case "needs-you":
       return [
@@ -1465,41 +1486,41 @@ function Dot({
       const per = chase
         ? PERIMETER.findIndex(([px, py]) => px === x && py === y)
         : -1;
-      const animated =
-        motion &&
-        ((chase && per >= 0 && v === 0) ||
-          (wave && y === 4) ||
-          (typed && y === 3 && x >= 1 && x <= 3));
-      if (!v && !animated && size < 32) continue;
-      const strength =
-        v || (typed && y === 3 && x >= 1 && x <= 3 && !motion ? 0.9 : 0);
+      // The still face is the cells alone; motion adds a light that passes over some of them,
+      // so the still pose (and reduced motion) is the same face either way.
+      const passes =
+        motion && ((chase && per >= 0 && v === 0) || (wave && y === 4));
+      const types = motion && typed && y === 3 && x >= 1 && x <= 3;
+      if (!v && !passes && size < 32) continue;
+      const cx = n2(ox + cell * (x + 0.5));
+      const cy = n2(oy + cell * (y + 0.5));
       cells.push(
         <circle
           key={`${x}${y}`}
-          cx={n2(ox + cell * (x + 0.5))}
-          cy={n2(oy + cell * (y + 0.5))}
-          r={n2(dr * (0.6 + 0.4 * (strength || (animated ? 0.6 : 0))))}
+          cx={cx}
+          cy={cy}
+          r={n2(dr * (0.6 + 0.4 * v))}
           fill={lit}
-          fillOpacity={n2(strength ? rest + (1 - rest) * strength : rest)}
-          className={
-            animated
-              ? chase
-                ? "motion-face-chase"
-                : wave
-                  ? "motion-face-wave"
-                  : "motion-face-type"
-              : undefined
-          }
+          fillOpacity={n2(v ? rest + (1 - rest) * v : rest)}
+          className={types ? "motion-face-type" : undefined}
           style={
-            animated
-              ? ({
-                  "--face-dot": chase ? per : x,
-                  "--face-dot-rest": rest,
-                } as React.CSSProperties)
-              : undefined
+            types ? ({ "--face-dot": x } as React.CSSProperties) : undefined
           }
         />,
       );
+      if (passes)
+        cells.push(
+          <circle
+            key={`p${x}${y}`}
+            cx={cx}
+            cy={cy}
+            r={n2(dr * 0.85)}
+            fill={lit}
+            opacity={0}
+            className={chase ? "motion-face-chase" : "motion-face-wave"}
+            style={{ "--face-dot": chase ? per : x } as React.CSSProperties}
+          />,
+        );
     }
   return (
     <>
@@ -1567,7 +1588,7 @@ function AgentFace({
   const def = facePreset(face.preset);
   const pal = paletteOf(face.palette);
   const dot = size < 40;
-  const named = label !== "";
+  const named = Boolean(label);
   return (
     <svg
       data-slot="agent-face"
