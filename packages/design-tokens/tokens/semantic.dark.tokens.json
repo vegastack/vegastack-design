@@ -977,15 +977,16 @@
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.413, 0.018, 285.6],
+      "components": [0.584, 0.021, 285.7],
       "alpha": 1
-    }
+    },
+    "$description": "Agent faces, dark theme: Ink lifted off the page (its light values sit on the page colour)."
   },
   "face-ink-b": {
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.229, 0.012, 285.5],
+      "components": [0.388, 0.02, 285.4],
       "alpha": 1
     }
   },
@@ -993,7 +994,7 @@
     "$type": "color",
     "$value": {
       "colorSpace": "oklch",
-      "components": [0.141, 0.007, 285.5],
+      "components": [0.272, 0.015, 285.4],
       "alpha": 1
     }
   },

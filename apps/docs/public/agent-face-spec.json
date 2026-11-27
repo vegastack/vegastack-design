@@ -514,7 +514,12 @@
       },
       "ink": "#FFFFFF",
       "companion": "violet",
-      "dark": true
+      "dark": true,
+      "onDark": {
+        "a": "#7A7A88",
+        "b": "#43434F",
+        "deep": "#26262E"
+      }
     },
     "mist": {
       "name": "Mist",

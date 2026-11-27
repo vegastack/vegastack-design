@@ -26,8 +26,8 @@ generated:
       sha256: "0bc29ad03ab4aa5e5c6e59991199e5e1e6b27786a16246022241789591a6e5a3"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 25552
-      sha256: "21cac21394eecbe01b30e4a6700d1fb96ad8e591e429931eb3faca8c2de5d8b7"
+      bytes: 25666
+      sha256: "4ed7501c41182911769da3380972100917fdaa4e6a733ee25f6ced425d9a4a26"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -1070,13 +1070,14 @@ themes:
       value: "oklch(1 0 0)"
     face-ink-a:
       type: "color"
-      value: "oklch(0.413 0.018 285.6)"
+      value: "oklch(0.584 0.021 285.7)"
+      description: "Agent faces, dark theme: Ink lifted off the page (its light values sit on the page colour)."
     face-ink-b:
       type: "color"
-      value: "oklch(0.229 0.012 285.5)"
+      value: "oklch(0.388 0.02 285.4)"
     face-ink-deep:
       type: "color"
-      value: "oklch(0.141 0.007 285.5)"
+      value: "oklch(0.272 0.015 285.4)"
     face-ink-ink:
       type: "color"
       value: "oklch(1 0 0)"
