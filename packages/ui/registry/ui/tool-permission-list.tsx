@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.136.8 sha256-MJRHQKlFrwS6MsGRqjyyNFkxmxjzjkU1JnNnORzllsc=
+// @vegastack tool-permission-list@0.136.8 sha256-UBGNbgnFC82DgTNoG+jWiiW1QKj4dVkYzb7vXEjuV4k=
 
 "use client";
 
@@ -11,7 +11,6 @@ import {
   Lock,
   LockOpen,
   TriangleAlert,
-  Undo2,
 } from "lucide-react";
 
 import type { ToolClass } from "@/components/ui/ask-card";
@@ -29,6 +28,7 @@ import {
 import { SearchInput } from "@/components/ui/search-input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Toggle } from "@/components/ui/toggle";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import {
   Tooltip,
   TooltipContent,
@@ -36,17 +36,20 @@ import {
 } from "@/components/ui/tooltip";
 
 /* ------------------------------------------------------------------------------------------------
- * ToolPermissionList — what an agent may do with one source's tools, answered per class and per
- * tool: Allow, Auto-check, Ask or Block. A class row ("Write · 31") is the group: its answer covers
- * its tools, which sit under it. Each row offers only its `answersAllowed`; an inherited answer is
- * muted with where it comes from; a locked row is read-only with who locked it; an admin view shows
- * the lock toggle. The rules at this layer list under their row, each with its condition. The
- * component holds no state of its own beyond what is open and what is searched: every change goes
- * to `onChange` and the caller's rows come back.
+ * ToolPermissionList — what an agent may do with one source's tools, answered for the whole source,
+ * per class and per tool: Always allow, Needs approval or Blocked. An `all` row ("All tools") comes
+ * first and answers every tool of the source; a class row ("Write · 31") is the group: its answer
+ * covers its tools, which sit under it. Each row offers only its `answersAllowed`; an answer that
+ * comes from elsewhere is muted with "From …"; a row holding its own rule offers "Use the default"
+ * at the end of its answer menu; a locked row is read-only with who locked it; an admin view shows
+ * the lock toggle. The rules at this layer list under their row, each with its condition. The header
+ * can carry a `scope` switch ("Every agent" · "This agent") and a `note` under it. The component
+ * holds no state of its own beyond what is open and what is searched: every change goes to
+ * `onChange` and the caller's rows come back.
  * ----------------------------------------------------------------------------------------------*/
 
-/** An answer to "may it run?". Never "auto". */
-export type ToolAnswer = "allow" | "auto_check" | "ask" | "block";
+/** An answer to "may it run?": Always allow, Needs approval or Blocked. */
+export type ToolAnswer = "allow" | "ask" | "block";
 
 /** One rule at this layer on a row. */
 export type ToolRuleView = {
@@ -66,24 +69,32 @@ export type ToolRuleView = {
   editable: boolean;
 };
 
-/** One class or tool, as P1.3 §9.2 defines it. */
+/** The whole source, one class or one tool. */
 export type ToolPermissionRow = {
-  /** Stable key: "class:write" | "tool:gmail_send" | "tool:create:task". */
+  /** Stable key: "all" | "class:write" | "tool:gmail_send" | "tool:create:task". */
   id: string;
-  /** "Gmail › Send", "Write · 31". */
+  /** "All tools", "Gmail › Send", "Write · 31". */
   label: string;
   /** A muted line under the label. */
   hint?: string;
-  /** A class row is the group of the tools in its `children`. */
-  kind: "class" | "tool";
-  /** Its permission class. */
-  class: ToolClass;
-  /** The unconditional rule's answer, or the inherited one. */
+  /**
+   * `all` answers every tool of the source and is drawn first, above the classes, with no
+   * children; a `class` row is the group of the tools in its `children`; a `tool` row is one tool.
+   */
+  kind: "all" | "class" | "tool";
+  /** Its permission class. Class and tool rows carry one; the `all` row has none. */
+  class?: ToolClass;
+  /** The unconditional rule's answer, or the one it follows. */
   answer: ToolAnswer;
-  /** Shown muted with `inheritedFrom`. */
+  /** The answer comes from elsewhere: shown muted with "From {inheritedFrom}". */
   inherited: boolean;
-  /** "workspace", "Finance team", "Standard". */
+  /** "your admin's lock", "workspace", "this agent's rules", "your rules", "Standard level". */
   inheritedFrom?: string;
+  /**
+   * Where the answer comes from once this row's own rules go — the description of "Use the
+   * default" ("Follows {defaultFrom}."). Omitted, the item has no description.
+   */
+  defaultFrom?: string;
   /** Read-only with the lock and who locked it. */
   locked?: { by: string };
   /** Admin view: shows the lock toggle. */
@@ -142,27 +153,54 @@ export interface ToolPermissionListProps
   onEditRule?(rowId: string, ruleKey: string): void;
   /** Remove one rule. @default undefined */
   onRemoveRule?(rowId: string, ruleKey: string): void;
-  /** "Use inherited": removes every rule at this layer on the row. @default undefined */
+  /**
+   * "Use the default", the last item of a row's answer menu while the row holds its own rule:
+   * removes every rule at this layer on the row. @default undefined
+   */
   onUseInherited?(rowId: string): void;
   /** Every answer as text, with no menus. @default false */
   readOnly?: boolean;
   /** A search box over the tools. @default true when there are over 50 tool rows */
   searchable?: boolean;
+  /** One muted line under the header: "New tools from Supadata follow All tools.". @default undefined */
+  note?: string;
+  /**
+   * Who the answers apply to, as a segmented switch in the header ("Every agent" · "This agent"),
+   * named "Applies to". @default undefined
+   */
+  scope?: ToolPermissionScope;
 }
 
-/** The four answers, with P1.3 §9.1's exact copy. */
-const ANSWERS: Record<ToolAnswer, PermissionMenuOption<ToolAnswer>> = {
-  allow: { value: "allow", label: "Allow", description: "Runs without asking" },
-  auto_check: {
-    value: "auto_check",
-    label: "Auto-check",
-    description: "A quick model check decides; asks when unsure",
-  },
-  ask: { value: "ask", label: "Ask", description: "Asks a person" },
-  block: { value: "block", label: "Block", description: "Never runs" },
+/** The header's "Applies to" switch. */
+export type ToolPermissionScope = {
+  /** The chosen option's value. */
+  value: string;
+  /** Two or three options, in order. */
+  options: { value: string; label: string }[];
+  /** Called with the chosen option's value. */
+  onChange(value: string): void;
 };
 
-const ORDER: ToolAnswer[] = ["allow", "auto_check", "ask", "block"];
+/** The three answers, with the product's exact copy. */
+const ANSWERS: Record<ToolAnswer, PermissionMenuOption<ToolAnswer>> = {
+  allow: {
+    value: "allow",
+    label: "Always allow",
+    description: "Runs without asking.",
+  },
+  ask: {
+    value: "ask",
+    label: "Needs approval",
+    description: "Asks a person each time.",
+  },
+  block: {
+    value: "block",
+    label: "Blocked",
+    description: "Never runs. The agent isn't offered it.",
+  },
+};
+
+const ORDER: ToolAnswer[] = ["allow", "ask", "block"];
 
 /** Tools a class row draws before "Show all". */
 const FIRST = 50;
@@ -176,16 +214,26 @@ function countTools(rows: ToolPermissionRow[]): number {
   return n;
 }
 
-/** The answer control: the menu of `answersAllowed`, locked, or plain text. */
+/**
+ * The answer control: the menu of `answersAllowed` (ending in "Use the default" while the row holds
+ * its own rule), locked, or plain text.
+ */
 function AnswerControl({
   row,
   onChange,
+  onUseInherited,
   readOnly,
 }: {
   row: ToolPermissionRow;
   onChange: RowHandlers["onChange"];
+  onUseInherited?: RowHandlers["onUseInherited"];
   readOnly?: boolean;
 }) {
+  const canReset =
+    Boolean(onUseInherited) &&
+    Boolean(row.rules?.length) &&
+    !row.locked &&
+    !readOnly;
   const options = ORDER.filter(
     (answer) => row.answersAllowed.includes(answer) || answer === row.answer,
   ).map((answer) => ({
@@ -201,80 +249,41 @@ function AnswerControl({
       locked={Boolean(row.locked)}
       lockedReason={row.locked ? `Locked by ${row.locked.by}` : undefined}
       onValueChange={(answer) => onChange(row.id, { answer })}
+      onReset={canReset ? () => onUseInherited?.(row.id) : undefined}
+      resetDescription={
+        row.defaultFrom ? `Follows ${row.defaultFrom}.` : undefined
+      }
       aria-label={`${row.label} answer: ${ANSWERS[row.answer].label}`}
       className={cn(row.inherited && "text-muted-foreground")}
     />
   );
 }
 
-/**
- * A row's ⋯: "Add a condition" and "Use inherited". One item is its own quiet icon button with its
- * name in a tooltip, so a long list doesn't repeat a word on every row.
- */
-function RowMore({
+/** "Add a condition": a quiet icon button with its name in a tooltip, so a long list doesn't repeat a word on every row. */
+function AddCondition({
   row,
   onAddRule,
-  onUseInherited,
 }: {
   row: ToolPermissionRow;
   onAddRule?: RowHandlers["onAddRule"];
-  onUseInherited?: RowHandlers["onUseInherited"];
 }) {
-  const items: { label: string; icon: React.ReactNode; run: () => void }[] = [];
-  if (onAddRule && row.conditionEditable !== false && !row.locked)
-    items.push({
-      label: "Add a condition",
-      icon: <ListFilterPlus aria-hidden />,
-      run: () => onAddRule(row.id),
-    });
-  if (onUseInherited && row.rules && row.rules.length > 0 && !row.locked)
-    items.push({
-      label: "Use inherited",
-      icon: <Undo2 aria-hidden />,
-      run: () => onUseInherited(row.id),
-    });
-  if (items.length === 0) return null;
-  if (items.length === 1) {
-    const only = items[0]!;
-    return (
-      <Tooltip>
-        <TooltipTrigger
-          render={
-            <Button
-              size="icon-xs"
-              variant="ghost"
-              aria-label={`${only.label}: ${row.label}`}
-              onClick={only.run}
-            />
-          }
-        >
-          {only.icon}
-        </TooltipTrigger>
-        <TooltipContent>{only.label}</TooltipContent>
-      </Tooltip>
-    );
-  }
+  if (!onAddRule || row.conditionEditable === false || row.locked) return null;
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
+    <Tooltip>
+      <TooltipTrigger
         render={
           <Button
             size="icon-xs"
             variant="ghost"
-            aria-label={`More for ${row.label}`}
+            aria-label={`Add a condition: ${row.label}`}
+            onClick={() => onAddRule(row.id)}
           />
         }
       >
-        <Ellipsis aria-hidden />
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        {items.map((item) => (
-          <DropdownMenuItem key={item.label} onClick={item.run}>
-            {item.label}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+        <ListFilterPlus aria-hidden />
+      </TooltipTrigger>
+      <TooltipContent>Add a condition</TooltipContent>
+    </Tooltip>
   );
 }
 
@@ -381,11 +390,16 @@ export interface ToolPermissionRowProps extends RowHandlers {
 }
 
 /**
- * `ToolPermissionRow` — one tool or class: its label and hint, where an inherited answer comes
- * from, its condition, its answer menu, the lock toggle in an admin view, and its rules.
+ * `ToolPermissionRow` — the whole source, one class or one tool: its label and hint, where a
+ * followed answer comes from ("From workspace"), its condition, its answer menu (with "Use the
+ * default" while it holds its own rule), the lock toggle in an admin view, and its rules.
  *
  * @example
- * <ToolPermissionRow row={row} onChange={(id, change) => save(id, change)} />
+ * <ToolPermissionRow
+ *   row={row}
+ *   onChange={(id, change) => save(id, change)}
+ *   onUseInherited={(id) => clearRules(id)}
+ * />
  */
 export function ToolPermissionRow({
   row,
@@ -398,9 +412,7 @@ export function ToolPermissionRow({
 }: ToolPermissionRowProps) {
   const sub = [
     row.hint,
-    row.inherited && row.inheritedFrom
-      ? `Inherited from ${row.inheritedFrom}`
-      : null,
+    row.inherited && row.inheritedFrom ? `From ${row.inheritedFrom}` : null,
   ].filter(Boolean);
   const editable = !readOnly && !row.locked;
   return (
@@ -452,6 +464,7 @@ export function ToolPermissionRow({
         <AnswerControl
           row={row}
           onChange={onChange}
+          onUseInherited={onUseInherited}
           readOnly={readOnly && !row.locked}
         />
         {readOnly ? null : (
@@ -459,13 +472,7 @@ export function ToolPermissionRow({
             data-slot="tool-permission-more"
             className="flex w-6 shrink-0 justify-end"
           >
-            {editable ? (
-              <RowMore
-                row={row}
-                onAddRule={onAddRule}
-                onUseInherited={onUseInherited}
-              />
-            ) : null}
+            {editable ? <AddCondition row={row} onAddRule={onAddRule} /> : null}
           </span>
         )}
       </div>
@@ -584,16 +591,27 @@ function ClassGroup({
 }
 
 /**
- * `ToolPermissionList` — one source's tools and what an agent may do with each: a class row per
- * class with its tools under it, each answered Allow, Auto-check, Ask or Block.
+ * `ToolPermissionList` — one source's tools and what an agent may do with each: an "All tools" row
+ * first, then a class row per class with its tools under it, each answered Always allow, Needs
+ * approval or Blocked.
  *
  * @example
  * <ToolPermissionList
  *   title="GitHub"
  *   meta="Connected · company GitHub App"
+ *   note="New tools from GitHub follow All tools."
+ *   scope={{
+ *     value: "agent",
+ *     options: [
+ *       { value: "every", label: "Every agent" },
+ *       { value: "agent", label: "This agent" },
+ *     ],
+ *     onChange: setScope,
+ *   }}
  *   rows={rows}
  *   onChange={(rowId, change) => save(rowId, change)}
  *   onAddRule={(rowId) => openConditionEditor(rowId)}
+ *   onUseInherited={(rowId) => clearRules(rowId)}
  * />
  */
 export function ToolPermissionList({
@@ -608,6 +626,8 @@ export function ToolPermissionList({
   onUseInherited,
   readOnly = false,
   searchable,
+  note,
+  scope,
   className,
   ...props
 }: ToolPermissionListProps) {
@@ -630,7 +650,15 @@ export function ToolPermissionList({
           child.label.toLowerCase().includes(query),
         ) || row.label.toLowerCase().includes(query)
       : row.label.toLowerCase().includes(query);
-  const shownRows = query ? rows.filter(matches) : rows;
+  // The `all` row leads, above the classes, whatever order the caller passed.
+  const ordered = [
+    ...rows.filter((row) => row.kind === "all"),
+    ...rows.filter((row) => row.kind !== "all"),
+  ];
+  const shownRows = query ? ordered.filter(matches) : ordered;
+  const hasGroups = rows.some(
+    (row) => row.kind === "class" && Boolean(row.children?.length),
+  );
   return (
     <section
       data-slot="tool-permission-list"
@@ -638,38 +666,70 @@ export function ToolPermissionList({
       className={cn("flex min-w-0 flex-col gap-3", className)}
       {...props}
     >
-      <header className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-        <div className="flex min-w-0 flex-1 items-center gap-2">
-          {icon ? (
-            <span
-              data-slot="tool-permission-icon"
-              className="inline-flex shrink-0"
+      <div className="flex min-w-0 flex-col gap-1">
+        <header className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
+          <div className="flex min-w-0 flex-1 items-center gap-2">
+            {icon ? (
+              <span
+                data-slot="tool-permission-icon"
+                className="inline-flex shrink-0"
+              >
+                {icon}
+              </span>
+            ) : null}
+            <h3
+              id={titleId}
+              className="min-w-0 truncate text-sm font-semibold text-foreground"
             >
-              {icon}
-            </span>
+              {title}
+            </h3>
+            {meta ? (
+              <span className="min-w-0 truncate text-xs text-muted-foreground">
+                {meta}
+              </span>
+            ) : null}
+          </div>
+          {scope ? (
+            <ToggleGroup
+              spacing={0}
+              variant="outline"
+              deselectable={false}
+              aria-label="Applies to"
+              data-slot="tool-permission-scope"
+              value={[scope.value]}
+              onValueChange={(value) => {
+                const next = value[0];
+                if (typeof next === "string" && next !== scope.value)
+                  scope.onChange(next);
+              }}
+              className="shrink-0"
+            >
+              {scope.options.map((option) => (
+                <ToggleGroupItem key={option.value} value={option.value}>
+                  {option.label}
+                </ToggleGroupItem>
+              ))}
+            </ToggleGroup>
           ) : null}
-          <h3
-            id={titleId}
-            className="min-w-0 truncate text-sm font-semibold text-foreground"
+          {canSearch ? (
+            <SearchInput
+              aria-label={`Search ${title} tools`}
+              placeholder="Search tools"
+              value={search}
+              onValueChange={setSearch}
+              className="w-full sm:w-56"
+            />
+          ) : null}
+        </header>
+        {note ? (
+          <p
+            data-slot="tool-permission-note"
+            className="min-w-0 text-xs text-muted-foreground"
           >
-            {title}
-          </h3>
-          {meta ? (
-            <span className="min-w-0 truncate text-xs text-muted-foreground">
-              {meta}
-            </span>
-          ) : null}
-        </div>
-        {canSearch ? (
-          <SearchInput
-            aria-label={`Search ${title} tools`}
-            placeholder="Search tools"
-            value={search}
-            onValueChange={setSearch}
-            className="w-full sm:w-56"
-          />
+            {note}
+          </p>
         ) : null}
-      </header>
+      </div>
       {rows.length === 0 ? (
         <p
           data-slot="tool-permission-empty"
@@ -696,7 +756,14 @@ export function ToolPermissionList({
                 handlers={handlers}
               />
             ) : (
-              <li key={row.id} className="min-w-0">
+              <li
+                key={row.id}
+                className={cn(
+                  "min-w-0",
+                  // The All tools row's label lines up with the class rows' labels, past their ›.
+                  row.kind === "all" && hasGroups && "ps-7",
+                )}
+              >
                 <ToolPermissionRow row={row} {...handlers} />
               </li>
             ),

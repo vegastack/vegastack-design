@@ -21,12 +21,21 @@ const tool = (
   answer: "ask",
   inherited: true,
   inheritedFrom: "workspace",
-  answersAllowed: ["allow", "auto_check", "ask", "block"],
+  answersAllowed: ["allow", "ask", "block"],
   ...overrides,
 });
 
-/** P1.3 §9.2's example rows. */
+/** The example rows: All tools, then a class with its tools. */
 const ROWS: ToolPermissionRow[] = [
+  {
+    id: "all",
+    label: "All tools",
+    kind: "all",
+    answer: "ask",
+    inherited: true,
+    inheritedFrom: "Standard level",
+    answersAllowed: ["allow", "ask", "block"],
+  },
   {
     id: "class:write",
     label: "Write · 3",
@@ -35,9 +44,10 @@ const ROWS: ToolPermissionRow[] = [
     class: "write",
     answer: "allow",
     inherited: false,
-    answersAllowed: ["allow", "auto_check", "ask", "block"],
+    answersAllowed: ["allow", "ask", "block"],
     children: [
       tool("create_issue", "GitHub › Create issue", {
+        defaultFrom: "workspace",
         rules: [
           {
             key: "r1",
@@ -60,7 +70,7 @@ const ROWS: ToolPermissionRow[] = [
       }),
       tool("comment", "GitHub › Comment", {
         lockable: true,
-        answersAllowed: ["auto_check", "ask", "block"],
+        answersAllowed: ["ask", "block"],
         warningOnAllow: "This lets Donna comment without asking. It's logged.",
       }),
     ],
@@ -86,14 +96,22 @@ test("renders the example rows: a class with its tools, a locked row, an admin r
   const rows = screen.container.querySelectorAll(
     '[data-slot="tool-permission-row"]',
   );
-  expect(rows).toHaveLength(4);
-  expect(rows[0]!.getAttribute("data-kind")).toBe("class");
-  expect(rows[2]!.hasAttribute("data-locked")).toBe(true);
-  expect(rows[1]!.textContent).toContain("Inherited from workspace");
+  expect(rows).toHaveLength(5);
+  expect(rows[0]!.getAttribute("data-kind")).toBe("all");
+  expect(rows[0]!.textContent).toContain("From Standard level");
+  expect(rows[1]!.getAttribute("data-kind")).toBe("class");
+  expect(rows[3]!.hasAttribute("data-locked")).toBe(true);
+  expect(rows[2]!.textContent).toContain("From workspace");
+  expect(screen.container.textContent).not.toContain("Inherited from");
   expect(
     screen.container.querySelectorAll('[data-slot="tool-permission-rule"]'),
   ).toHaveLength(2);
-  expect(rows[1]!.textContent).toContain("Waiting to be published");
+  expect(rows[2]!.textContent).toContain("Waiting to be published");
+  // The rule lines use the answer labels.
+  expect(
+    screen.container.querySelector('[data-slot="tool-permission-rule"]')!
+      .textContent,
+  ).toContain("Always allow");
   await expect
     .element(
       page.getByRole("button", {
@@ -110,27 +128,67 @@ test("a row's menu offers only its answersAllowed, with the exact copy; a class 
     <ToolPermissionList title="GitHub" rows={ROWS} onChange={onChange} />,
   );
   await page
-    .getByRole("button", { name: "GitHub › Comment answer: Ask" })
+    .getByRole("button", { name: "All tools answer: Needs approval" })
+    .click();
+  for (const [label, description] of [
+    ["Always allow", "Runs without asking."],
+    ["Needs approval", "Asks a person each time."],
+    ["Blocked", "Never runs. The agent isn't offered it."],
+  ] as const) {
+    await expect
+      .element(page.getByRole("menuitemradio", { name: label }))
+      .toHaveAccessibleDescription(description);
+  }
+  await page.getByRole("menuitemradio", { name: "Always allow" }).click();
+  expect(onChange).toHaveBeenCalledWith("all", { answer: "allow" });
+  await userEvent.keyboard("{Escape}");
+  await page
+    .getByRole("button", { name: "GitHub › Comment answer: Needs approval" })
     .click();
   await expect
-    .element(page.getByRole("menuitemradio", { name: /^Allow/ }))
+    .element(page.getByRole("menuitemradio", { name: "Always allow" }))
     .not.toBeInTheDocument();
-  await page.getByRole("menuitemradio", { name: /^Auto-check/ }).click();
-  expect(onChange).toHaveBeenCalledWith("tool:comment", {
-    answer: "auto_check",
-  });
+  await page.getByRole("menuitemradio", { name: "Blocked" }).click();
+  expect(onChange).toHaveBeenCalledWith("tool:comment", { answer: "block" });
   await userEvent.keyboard("{Escape}");
-  await page.getByRole("button", { name: "Write · 3 answer: Allow" }).click();
-  await page.getByRole("menuitemradio", { name: /^Block/ }).click();
+  await page
+    .getByRole("button", { name: "Write · 3 answer: Always allow" })
+    .click();
+  await page.getByRole("menuitemradio", { name: "Blocked" }).click();
   expect(onChange).toHaveBeenCalledWith("class:write", { answer: "block" });
+});
+
+test("All tools leads, above the classes, with no fold toggle, its label aligned with the class labels", async () => {
+  const screen = await render(
+    <ToolPermissionList
+      title="GitHub"
+      rows={[...ROWS.slice(1), ROWS[0]!]}
+      onChange={vi.fn()}
+    />,
+  );
+  const rows = screen.container.querySelectorAll(
+    '[data-slot="tool-permission-row"]',
+  );
+  expect(rows[0]!.getAttribute("data-kind")).toBe("all");
+  // One fold toggle: the class's. The All tools row has none.
+  expect(
+    screen.container.querySelectorAll(
+      'button[aria-label^="Hide "], button[aria-label^="Show "]',
+    ),
+  ).toHaveLength(1);
+  const label = (index: number) =>
+    rows[index]!.querySelector(
+      '[data-slot="tool-permission-label"]',
+    )!.getBoundingClientRect().left;
+  expect(Math.abs(label(0) - label(1))).toBeLessThan(1);
 });
 
 test("the lock toggle reports the lock; Allow with a warning shows its line", async () => {
   const onChange = vi.fn();
   const rows = structuredClone(ROWS);
-  rows[0]!.children![2]!.answer = "allow";
-  rows[0]!.children![2]!.inherited = false;
-  rows[0]!.children![2]!.answersAllowed = ["allow", "ask"];
+  rows[1]!.children![2]!.answer = "allow";
+  rows[1]!.children![2]!.inherited = false;
+  rows[1]!.children![2]!.answersAllowed = ["allow", "ask"];
   const screen = await render(
     <ToolPermissionList title="GitHub" rows={rows} onChange={onChange} />,
   );
@@ -144,7 +202,7 @@ test("the lock toggle reports the lock; Allow with a warning shows its line", as
   ).toBe("This lets Donna comment without asking. It's logged.");
 });
 
-test("rules: Add a condition, Edit, Remove and Use inherited reach the caller", async () => {
+test("rules: Use the default ends the answer menu only while the row holds its own rule; Add a condition, Edit and Remove reach the caller", async () => {
   const onAddRule = vi.fn();
   const onEditRule = vi.fn();
   const onRemoveRule = vi.fn();
@@ -161,17 +219,31 @@ test("rules: Add a condition, Edit, Remove and Use inherited reach the caller", 
     />,
   );
   await page
-    .getByRole("button", { name: "More for GitHub › Create issue" })
+    .getByRole("button", {
+      name: "GitHub › Create issue answer: Needs approval",
+    })
     .click();
-  await page.getByRole("menuitem", { name: "Use inherited" }).click();
+  const reset = page.getByRole("menuitem", { name: /^Use the default/ });
+  await expect.element(reset).toHaveAccessibleDescription("Follows workspace.");
+  await reset.click();
   expect(onUseInherited).toHaveBeenCalledWith("tool:create_issue");
+  // A row with no rule of its own has no "Use the default".
   await page
-    .getByRole("button", { name: "More for GitHub › Create issue" })
+    .getByRole("button", { name: "GitHub › Comment answer: Needs approval" })
     .click();
-  await page.getByRole("menuitem", { name: "Add a condition" }).click();
+  await expect
+    .element(page.getByRole("menuitemradio", { name: "Blocked" }))
+    .toBeVisible();
+  await expect
+    .element(page.getByRole("menuitem", { name: /^Use the default/ }))
+    .not.toBeInTheDocument();
+  await userEvent.keyboard("{Escape}");
+  await page
+    .getByRole("button", { name: "Add a condition: GitHub › Create issue" })
+    .click();
   expect(onAddRule).toHaveBeenCalledWith("tool:create_issue");
   await page
-    .getByRole("button", { name: /Rule options: Allow Only when/ })
+    .getByRole("button", { name: /Rule options: Always allow Only when/ })
     .click();
   await page.getByRole("menuitem", { name: "Remove" }).click();
   expect(onRemoveRule).toHaveBeenCalledWith("tool:create_issue", "r1");
@@ -189,7 +261,9 @@ test("read-only shows every answer as text; a class folds with aria-expanded", a
   expect(
     screen.container.querySelectorAll('[data-readonly=""]').length,
   ).toBeGreaterThan(0);
-  expect(screen.container.querySelector('[aria-label^="More for"]')).toBeNull();
+  expect(
+    screen.container.querySelector('[aria-label^="Add a condition"]'),
+  ).toBeNull();
   const toggle = page.getByRole("button", { name: "Hide Write · 3" });
   await expect.element(toggle).toHaveAttribute("aria-expanded", "true");
   await toggle.click();
@@ -236,6 +310,40 @@ test("over 50 tools: search appears, a class shows 50 then Show all, and a miss 
   await expect.element(page.getByText("No tools match “zzz”")).toBeVisible();
 });
 
+test("the scope switch is a segmented group named Applies to; the note sits under the header", async () => {
+  const onScope = vi.fn();
+  const screen = await render(
+    <ToolPermissionList
+      title="Supadata"
+      rows={ROWS}
+      onChange={vi.fn()}
+      note="New tools from Supadata follow All tools."
+      scope={{
+        value: "agent",
+        options: [
+          { value: "every", label: "Every agent" },
+          { value: "agent", label: "This agent" },
+        ],
+        onChange: onScope,
+      }}
+    />,
+  );
+  const group = page.getByRole("group", { name: "Applies to" });
+  await expect.element(group).toBeVisible();
+  await expect
+    .element(page.getByRole("button", { name: "This agent" }))
+    .toHaveAttribute("aria-pressed", "true");
+  await page.getByRole("button", { name: "Every agent" }).click();
+  expect(onScope).toHaveBeenCalledWith("every");
+  await page.getByRole("button", { name: "This agent" }).click();
+  expect(onScope).toHaveBeenCalledTimes(1);
+  expect(
+    screen.container.querySelector('[data-slot="tool-permission-note"]')!
+      .textContent,
+  ).toBe("New tools from Supadata follow All tools.");
+  await expectNoA11yViolations(screen.container);
+});
+
 test("empty and loading", async () => {
   const screen = await render(
     <>
@@ -261,6 +369,7 @@ test("a locked row's rules can't be edited or removed", async () => {
       rows={[
         tool("send", "GitHub › Send", {
           locked: { by: "your admin" },
+          defaultFrom: "workspace",
           rules: [
             { key: "r1", answer: "block", condition: null, editable: true },
           ],
@@ -269,10 +378,12 @@ test("a locked row's rules can't be edited or removed", async () => {
       onChange={vi.fn()}
       onEditRule={vi.fn()}
       onRemoveRule={vi.fn()}
+      onUseInherited={vi.fn()}
     />,
   );
   const rule = screen.container.querySelector(
     '[data-slot="tool-permission-rule"]',
   )!;
   expect(rule.querySelector("button")).toBeNull();
+  expect(document.querySelector("[data-permission-menu-reset]")).toBeNull();
 });
