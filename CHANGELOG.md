@@ -9,6 +9,25 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.136.8] — November 27, 2026
+
+<!-- assembled from 1 changeset: a25e4e2a0439 -->
+
+### 🔧 Changed components
+
+- Agent faces come in two families: Pebbles and Dots.
+
+  - `AgentFaceSpec.family` (`"pebble"` | `"dot"`, new and optional; absent means Pebble) and `FACE_FAMILIES` with their names.
+  - A Dot draws the preset's silhouette with a 5 × 5 dot face at every size: unlit dots show faintly from 40px, the lit dots grow below 24px, states are dot patterns with a light round the edge (thinking), a wave (working) and typing dots (writing), its eyes blink when idle, and it keeps the badges. It moves with the same body rhythms as a Pebble. `data-family` and `data-form="dot"` mark it.
+  - Back: the `face-dot-ink` token and the `motion-face-chase` and `motion-face-wave` utilities.
+    [`5dbdd25`](https://github.com/VegaStack/vegastack-design/commit/5dbdd25)
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.32.0`** (was `0.31.0`).
+- **`@vegastack/design`** → **`0.32.0`** (was `0.31.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.136.7 → 0.136.8.
+
 ## [0.136.7] — November 27, 2026
 
 <!-- assembled from 1 changeset: ac5ea8b5aaf8 -->

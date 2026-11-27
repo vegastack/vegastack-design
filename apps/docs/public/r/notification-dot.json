@@ -4,13 +4,13 @@
   "title": "Notification Dot",
   "description": "The one unread dot: an 8px solid circle, decorative, for unread rows, inbox items and nav items.",
   "dependencies": [
-    "@vegastack/design@^0.31.0",
-    "@vegastack/design-tokens@^0.31.0"
+    "@vegastack/design@^0.32.0",
+    "@vegastack/design-tokens@^0.32.0"
   ],
   "files": [
     {
       "path": "packages/ui/registry/ui/notification-dot.tsx",
-      "content": "// @vegastack notification-dot@0.136.7 sha256-9QWjqiwI63ztRJdFeDJmbNut5FysP3ioHwDl6MKhqNk=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\n/** Props accepted by `NotificationDot`. */\nexport interface NotificationDotProps extends Omit<\n  React.ComponentPropsWithRef<\"span\">,\n  \"children\"\n> {\n  /**\n   * The dot's fill. `default` is the `unread` ink (blue, or the accent: COL-27), for \"unread\" on a row or a\n   * nav item; `destructive` is for something that needs attention.\n   * @default \"default\"\n   */\n  intent?: \"default\" | \"destructive\";\n  /**\n   * Classes merged onto the dot.\n   * @default undefined\n   */\n  className?: string;\n}\n\n/**\n * `NotificationDot` — the one unread dot: an 8px solid circle, decorative\n * (`aria-hidden`), so the row or control it marks must say \"unread\" in its own\n * accessible name. An unread row in a list, an inbox or a nav item shows it.\n *\n * It is solid, never a tint: a dot carries no text, so the 3:1 non-text floor\n * applies and the saturated fill is the only thing legible at 8px.\n *\n * @example\n * <ItemTitle>\n *   Design review <NotificationDot />\n * </ItemTitle>\n */\nexport function NotificationDot({\n  intent = \"default\",\n  className,\n  ...props\n}: NotificationDotProps) {\n  return (\n    <span\n      data-slot=\"notification-dot\"\n      aria-hidden=\"true\"\n      className={cn(\n        \"inline-block size-2 shrink-0 rounded-full\",\n        intent === \"destructive\" ? \"bg-destructive\" : \"bg-unread\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n",
+      "content": "// @vegastack notification-dot@0.136.8 sha256-OC5qc8IZcUMpE3loPSZ34YtvsUfchiDnjHqF0wLWYeY=\n\nimport * as React from \"react\";\nimport { cn } from \"@vegastack/design\";\n\n/** Props accepted by `NotificationDot`. */\nexport interface NotificationDotProps extends Omit<\n  React.ComponentPropsWithRef<\"span\">,\n  \"children\"\n> {\n  /**\n   * The dot's fill. `default` is the `unread` ink (blue, or the accent: COL-27), for \"unread\" on a row or a\n   * nav item; `destructive` is for something that needs attention.\n   * @default \"default\"\n   */\n  intent?: \"default\" | \"destructive\";\n  /**\n   * Classes merged onto the dot.\n   * @default undefined\n   */\n  className?: string;\n}\n\n/**\n * `NotificationDot` — the one unread dot: an 8px solid circle, decorative\n * (`aria-hidden`), so the row or control it marks must say \"unread\" in its own\n * accessible name. An unread row in a list, an inbox or a nav item shows it.\n *\n * It is solid, never a tint: a dot carries no text, so the 3:1 non-text floor\n * applies and the saturated fill is the only thing legible at 8px.\n *\n * @example\n * <ItemTitle>\n *   Design review <NotificationDot />\n * </ItemTitle>\n */\nexport function NotificationDot({\n  intent = \"default\",\n  className,\n  ...props\n}: NotificationDotProps) {\n  return (\n    <span\n      data-slot=\"notification-dot\"\n      aria-hidden=\"true\"\n      className={cn(\n        \"inline-block size-2 shrink-0 rounded-full\",\n        intent === \"destructive\" ? \"bg-destructive\" : \"bg-unread\",\n        className,\n      )}\n      {...props}\n    />\n  );\n}\n",
       "type": "registry:ui",
       "target": "@ui/notification-dot.tsx"
     }
@@ -18,8 +18,8 @@
   "meta": {
     "whenToUse": "Marking something unread — a row in a list, an inbox item, a nav or rail item. The row says \"unread\" in its own accessible name.",
     "whenNotToUse": "A count (use Badge) or a status (use StatusIcon).",
-    "version": "0.136.7",
-    "integrity": "sha256-9QWjqiwI63ztRJdFeDJmbNut5FysP3ioHwDl6MKhqNk="
+    "version": "0.136.8",
+    "integrity": "sha256-OC5qc8IZcUMpE3loPSZ34YtvsUfchiDnjHqF0wLWYeY="
   },
   "categories": [
     "media"

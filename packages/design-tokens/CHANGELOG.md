@@ -1,5 +1,15 @@
 # @vegastack/design-tokens
 
+## 0.32.0
+
+### Minor Changes
+
+- [#1090](https://github.com/vegastack/vegastack-design/pull/1090) [`5dbdd25`](https://github.com/vegastack/vegastack-design/commit/5dbdd2546d408b19819d0fb780d5b4eed1b3dd9a) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 Agent faces come in two families: Pebbles and Dots.
+
+  - `AgentFaceSpec.family` (`"pebble"` | `"dot"`, new and optional; absent means Pebble) and `FACE_FAMILIES` with their names.
+  - A Dot draws the preset's silhouette with a 5 × 5 dot face at every size: unlit dots show faintly from 40px, the lit dots grow below 24px, states are dot patterns with a light round the edge (thinking), a wave (working) and typing dots (writing), its eyes blink when idle, and it keeps the badges. It moves with the same body rhythms as a Pebble. `data-family` and `data-form="dot"` mark it.
+  - Back: the `face-dot-ink` token and the `motion-face-chase` and `motion-face-wave` utilities.
+
 ## 0.31.0
 
 ### Minor Changes
