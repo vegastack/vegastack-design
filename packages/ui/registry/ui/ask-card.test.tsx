@@ -113,6 +113,10 @@ test("an answer passes the choice id back unchanged; a decline with a note sends
   await page.getByRole("button", { name: "Always in this thread" }).click();
   expect(onAnswer).toHaveBeenLastCalledWith("always:thread");
   await page.getByRole("button", { name: "Decline" }).click();
+  // Never keeps its destructive ink inside the menu.
+  await expect
+    .element(page.getByRole("menuitem", { name: "Never" }))
+    .toHaveAttribute("data-variant", "destructive");
   await page.getByRole("menuitem", { name: "Never" }).click();
   expect(onAnswer).toHaveBeenLastCalledWith("never");
   await page.getByRole("button", { name: "Decline" }).click();

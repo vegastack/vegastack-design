@@ -1,4 +1,4 @@
-// @vegastack ask-card@0.139.0 sha256-wSPAqoGAXXyzeL9U1/v0jOaAOeG0ek6y+lEAi3pD+L4=
+// @vegastack ask-card@0.139.0 sha256-/VzD3iic/VYATbLxwgGW9AE3DZaPsYwTrvyvtrt3Ooo=
 
 "use client";
 
@@ -447,6 +447,7 @@ function AskChoices({
                   {choice.needsNote ? DECLINE_WITH_NOTE : choice.label}
                 </DropdownMenuItem>
                 <DropdownMenuItem
+                  variant="destructive"
                   data-choice-id={neverChoice!.id}
                   disabled={disabled}
                   onClick={() => answer(neverChoice!.id)}

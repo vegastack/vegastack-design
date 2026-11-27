@@ -19606,7 +19606,7 @@
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
         "version": "0.139.0",
-        "integrity": "sha256-wSPAqoGAXXyzeL9U1/v0jOaAOeG0ek6y+lEAi3pD+L4="
+        "integrity": "sha256-/VzD3iic/VYATbLxwgGW9AE3DZaPsYwTrvyvtrt3Ooo="
       }
     },
     {
