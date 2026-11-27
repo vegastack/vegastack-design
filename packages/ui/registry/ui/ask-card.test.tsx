@@ -124,7 +124,7 @@ test("an answer passes the choice id back unchanged; a decline with a note sends
   expect(onAnswer).toHaveBeenLastCalledWith("decline", "Send it Monday");
 });
 
-test("past two Always choices fold into one Always… menu listing every scope", async () => {
+test("more than one Always choice folds into one Always… menu listing every scope", async () => {
   const onAnswer = vi.fn();
   const screen = await render(
     <AskCard
@@ -146,6 +146,34 @@ test("past two Always choices fold into one Always… menu listing every scope",
   await page.getByRole("button", { name: "Always…" }).click();
   await page.getByRole("menuitem", { name: "Always in this space" }).click();
   expect(onAnswer).toHaveBeenCalledWith("always:b");
+});
+
+test("at 390px Allow once, Always… and Decline ▾ sit on one row", async () => {
+  await page.viewport(390, 800);
+  const screen = await render(
+    <div style={{ width: 358 }}>
+      <AskCard
+        agent={agent}
+        action={{ ...action, toolClass: "write", preview: undefined }}
+        state="pending"
+        choices={[
+          { id: "once", label: "Allow once", kind: "once" },
+          { id: "always:a", label: "Always in this thread", kind: "always" },
+          { id: "always:b", label: "Always in this space", kind: "always" },
+          { id: "never", label: "Never allow this", kind: "never" },
+          { id: "decline", label: "Decline", kind: "decline", needsNote: true },
+        ]}
+        onAnswer={vi.fn()}
+      />
+    </div>,
+  );
+  const tops = ["once", "always", "decline"].map(
+    (id) =>
+      screen.container
+        .querySelector<HTMLElement>(`[data-choice="${id}"]`)!
+        .getBoundingClientRect().top,
+  );
+  expect(new Set(tops).size).toBe(1);
 });
 
 test("no state draws a filled primary button, in either density or in a bundle", async () => {

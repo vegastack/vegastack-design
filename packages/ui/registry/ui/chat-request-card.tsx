@@ -209,6 +209,18 @@ function RequestChoices({
 }) {
   const [noting, setNoting] = React.useState(false);
   const [note, setNote] = React.useState("");
+  // Leaving the note puts focus back on the Decline control it came from.
+  const declineRef = React.useRef<HTMLButtonElement>(null);
+  const refocus = React.useRef(false);
+  React.useEffect(() => {
+    if (noting || !refocus.current) return;
+    refocus.current = false;
+    declineRef.current?.focus();
+  }, [noting]);
+  const back = () => {
+    refocus.current = true;
+    setNoting(false);
+  };
   const once = choices.find((choice) => choice.id === "once");
   const always = choices.filter((choice) => choice.id.startsWith("always:"));
   const never = choices.find((choice) => choice.id === "never");
@@ -238,19 +250,14 @@ function RequestChoices({
               event.preventDefault();
               send();
             }
-            if (event.key === "Escape") setNoting(false);
+            if (event.key === "Escape") back();
           }}
         />
         <div className="flex items-center gap-2">
           <Button size={size} variant="outline" disabled={busy} onClick={send}>
             {declineLabel ?? decline.label}
           </Button>
-          <Button
-            size={size}
-            variant="ghost"
-            disabled={busy}
-            onClick={() => setNoting(false)}
-          >
+          <Button size={size} variant="ghost" disabled={busy} onClick={back}>
             Back
           </Button>
         </div>
@@ -304,6 +311,7 @@ function RequestChoices({
         <ChatMenu
           trigger={
             <Button
+              ref={declineRef}
               size={size}
               variant="ghost"
               disabled={busy}
@@ -328,6 +336,7 @@ function RequestChoices({
         </ChatMenu>
       ) : decline ? (
         <Button
+          ref={declineRef}
           size={size}
           variant="ghost"
           disabled={busy}

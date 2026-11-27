@@ -38,6 +38,30 @@ test("the trigger reads the current level; the menu checks it and describes each
   expect(onValueChange).toHaveBeenCalledWith("view");
 });
 
+test('valueLabel replaces the trigger\'s words and checks no level, even one valued ""', async () => {
+  const onValueChange = vi.fn();
+  const screen = await render(
+    <PermissionMenu
+      value="edit"
+      valueLabel="Mixed"
+      options={[...LEVELS, { value: "", label: "None" }]}
+      onValueChange={onValueChange}
+      aria-label="Access: Mixed"
+    />,
+  );
+  const trigger = screen.getByRole("button", { name: "Access: Mixed" });
+  await expect.element(trigger).toHaveTextContent("Mixed");
+  await trigger.click();
+  for (const name of ["Full access", "Can edit", "Can view", "None"])
+    await expect
+      .element(
+        screen.getByRole("menuitemradio", { name: new RegExp(`^${name}`) }),
+      )
+      .toHaveAttribute("aria-checked", "false");
+  await screen.getByRole("menuitemradio", { name: /^Can edit/ }).click();
+  expect(onValueChange).toHaveBeenCalledWith("edit");
+});
+
 test("Remove access is the last, destructive item — only with onRemove", async () => {
   const onRemove = vi.fn();
   const screen = await render(

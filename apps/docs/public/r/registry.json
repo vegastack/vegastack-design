@@ -18030,7 +18030,7 @@
         "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
         "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
         "version": "0.138.0",
-        "integrity": "sha256-wNyQvGT9JhI7zLcwTz91pXODd0ahjm+jRJ/Ninu8+M4="
+        "integrity": "sha256-vKS2p/ii49O3NfxQJnMZuvsWNWd8wOKFRVlbiSDmWLM="
       }
     },
     {
@@ -19606,7 +19606,7 @@
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
         "version": "0.139.0",
-        "integrity": "sha256-eISWZ4RkF9ZduFli+jYRJdEzGpQ+rXTc9vjLs/Wuxa4="
+        "integrity": "sha256-wSPAqoGAXXyzeL9U1/v0jOaAOeG0ek6y+lEAi3pD+L4="
       }
     },
     {
@@ -20613,7 +20613,7 @@
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
         "version": "0.139.0",
-        "integrity": "sha256-oacqXM3HaEYg7j69nHNirPTmmDMFzhQXTlTk+mUCt8o="
+        "integrity": "sha256-4vqk4Katd7XesO8L4RMWnw9/v6cMnwVKcCk3EvVPENU="
       }
     },
     {

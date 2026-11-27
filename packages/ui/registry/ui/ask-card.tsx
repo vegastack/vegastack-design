@@ -21,8 +21,8 @@ import { Textarea } from "@/components/ui/textarea";
  * AskCard — the one card an agent uses to ask a person's OK, in a chat, in For you and in a push
  * preview. Every choice is the server's: the card draws them in the server's order with their ids
  * and words, never builds one and never draws a filled primary. The preferred choice (`once`) is
- * secondary, every other one outline (`never` in the destructive ink); past two Always choices
- * they fold into one "Always…" menu. A "Delete or send" action shows its preview before the
+ * secondary, every other one outline (`never` in the destructive ink); more than one Always choice
+ * folds into one "Always…" menu, and Never and Decline share one "Decline ▾" menu. A "Delete or send" action shows its preview before the
  * buttons. Once settled, the buttons give way to one muted line: what was answered, by whom, where.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -259,7 +259,7 @@ const FAILED = "Couldn't send your answer. Try again.";
 const DECLINE_WITH_NOTE = "Decline with a note…";
 
 /**
- * The server's choices as buttons, in the server's order; past two Always choices, one menu. Never
+ * The server's choices as buttons, in the server's order; more than one Always choice, one menu, so the row fits 390px. Never
  * and Decline, when both are offered, share one "Decline ▾" menu: "Decline with a note…" and Never.
  */
 function AskChoices({
@@ -283,7 +283,8 @@ function AskChoices({
     ? (choices.find((choice) => choice.id === notingId) ?? null)
     : null;
   const always = choices.filter((choice) => choice.kind === "always");
-  const folded = always.length > 2;
+  // Two or more Always choices fold, so the row fits one line at 390px beside Decline ▾.
+  const folded = always.length > 1;
   // Every press reads the hold when it lands, so a menu left open can't answer late.
   const answer = (choiceId: string, text?: string) => {
     if (!disabled) onAnswer(choiceId, text);

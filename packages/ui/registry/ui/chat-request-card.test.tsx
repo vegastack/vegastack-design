@@ -163,6 +163,35 @@ test("Decline with a note… opens the note and sends it", async () => {
   expect(onAnswer).toHaveBeenCalledWith("decline", "Not this week");
 });
 
+test("Back and Escape leave the note with focus on Decline", async () => {
+  const choices = [...EMAIL.offer.choices];
+  choices.splice(3, 0, { id: "never", label: "Never allow this" });
+  const screen = await render(
+    <ChatRequestCard
+      agent={agent}
+      data={{ ...EMAIL, offer: { choices } }}
+      onAnswer={async () => {}}
+    />,
+  );
+  const open = async () => {
+    await userEvent.click(screen.getByRole("button", { name: "Decline" }));
+    await userEvent.click(
+      screen.getByRole("menuitem", { name: /Decline with a note/ }),
+    );
+    await expect.element(screen.getByRole("textbox")).toHaveFocus();
+  };
+  await open();
+  await userEvent.click(screen.getByRole("button", { name: "Back" }));
+  await expect
+    .element(screen.getByRole("button", { name: "Decline" }))
+    .toHaveFocus();
+  await open();
+  await userEvent.keyboard("{Escape}");
+  await expect
+    .element(screen.getByRole("button", { name: "Decline" }))
+    .toHaveFocus();
+});
+
 test("Decline alone opens a note and sends it", async () => {
   const onAnswer = vi.fn(async () => {});
   const screen = await render(

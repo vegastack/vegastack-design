@@ -1,4 +1,4 @@
-// @vegastack permission-menu@0.138.0 sha256-wNyQvGT9JhI7zLcwTz91pXODd0ahjm+jRJ/Ninu8+M4=
+// @vegastack permission-menu@0.138.0 sha256-vKS2p/ii49O3NfxQJnMZuvsWNWd8wOKFRVlbiSDmWLM=
 
 import * as React from "react";
 import { ChevronDownIcon, LockIcon } from "lucide-react";
@@ -244,7 +244,7 @@ export function PermissionMenu<Value extends string = string>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className={cn(described && "w-72")}>
         <DropdownMenuRadioGroup
-          value={valueLabel === undefined ? value : ""}
+          value={valueLabel === undefined ? value : null}
           onValueChange={(next) => onValueChange?.(next as Value)}
         >
           {options.map((option) => (

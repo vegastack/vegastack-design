@@ -244,7 +244,7 @@ export function PermissionMenu<Value extends string = string>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className={cn(described && "w-72")}>
         <DropdownMenuRadioGroup
-          value={valueLabel === undefined ? value : ""}
+          value={valueLabel === undefined ? value : null}
           onValueChange={(next) => onValueChange?.(next as Value)}
         >
           {options.map((option) => (
