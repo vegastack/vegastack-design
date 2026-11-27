@@ -18029,8 +18029,8 @@
       "meta": {
         "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
         "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
-        "version": "0.138.0",
-        "integrity": "sha256-vKS2p/ii49O3NfxQJnMZuvsWNWd8wOKFRVlbiSDmWLM="
+        "version": "0.140.0",
+        "integrity": "sha256-bLYPhEavj0wwETNcBngr+7oY7NPyKarKMYMM525GKP8="
       }
     },
     {
@@ -19606,8 +19606,8 @@
       "meta": {
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
-        "version": "0.139.0",
-        "integrity": "sha256-FkzC/PjBZcpox+sQLp+4y/oib7O3Rm0LkPt12c/x2s0="
+        "version": "0.140.0",
+        "integrity": "sha256-B0UZxRF7VfONm4cXB0d/ADSYU0VITuRvogcjVtGo154="
       }
     },
     {
@@ -19644,8 +19644,8 @@
       "meta": {
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
-        "version": "0.139.0",
-        "integrity": "sha256-cxkoI4+9VrRduBD8LhHuxLAmimtPeyvXh+x6ReYGGT8="
+        "version": "0.140.0",
+        "integrity": "sha256-Isaclq5/iJoNaD5Ne9l6bByBsxv2lbaTzCfSO7WYtD4="
       }
     },
     {
@@ -20614,8 +20614,8 @@
       "meta": {
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
-        "version": "0.139.0",
-        "integrity": "sha256-x54+Xp+nUeVo/7RbFy5NtHnaEKqEmNYXvgOvT0ugzyM="
+        "version": "0.140.0",
+        "integrity": "sha256-INWmlweXQx8R7CErmUfnWVeI/qt0h9mAsbHVBIt5r+g="
       }
     },
     {

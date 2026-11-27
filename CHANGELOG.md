@@ -9,6 +9,19 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.140.0] — November 27, 2026
+
+<!-- assembled from 1 changeset: e986e6ca91cf -->
+
+### 🔧 Changed components
+
+- ChatRequestCard and AskCard: Decline ▾ — Decline declines at once, and its arrow ("More ways to decline") holds "Decline with a note…" and Never, so the answer row fits one line at 390px and an open menu never covers an action. AskCard folds more than one Always choice into "Always…". ToolPermissionList: an inherited row whose rows under it differ can read "Mixed" (`mixed`), through PermissionMenu's new `valueLabel`.
+  [`c1234d2`](https://github.com/VegaStack/vegastack-design/commit/c1234d2)
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.139.0 → 0.140.0.
+
 ## [0.139.0] — November 27, 2026
 
 <!-- assembled from 1 changeset: 69312bdde56e -->

@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.140.0
+
+### Minor Changes
+
+- [#1094](https://github.com/vegastack/vegastack-design/pull/1094) [`c1234d2`](https://github.com/vegastack/vegastack-design/commit/c1234d234ee88868dd4cb772ea9073e2f369c446) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 ChatRequestCard and AskCard: Decline ▾ — Decline declines at once, and its arrow ("More ways to decline") holds "Decline with a note…" and Never, so the answer row fits one line at 390px and an open menu never covers an action. AskCard folds more than one Always choice into "Always…". ToolPermissionList: an inherited row whose rows under it differ can read "Mixed" (`mixed`), through PermissionMenu's new `valueLabel`.
+
 ## 0.139.0
 
 ### Minor Changes
