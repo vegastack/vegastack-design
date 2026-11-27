@@ -1211,7 +1211,7 @@
       "disposition": "keep",
       "family": "data",
       "source": "Regent operator, agent faces, 2026-11-27 (\"Yes, plan both\"; \"Approve, go dark\"; Rounds 1\u20133) \u2014 BRD-13, MOT-15",
-      "rationale": "Upstream has no character avatar. The one way an agent is drawn (BRD-13): a preset character in a palette, Pebble from 40px and Dot below, nine states, CSS-only `motion-face-*` (MOT-15) on an SVG; no patch."
+      "rationale": "Upstream has no character avatar. The one way an agent is drawn (BRD-13): a preset character in a palette, Pebble from 40px and the Mini below (the same character, bolder eyes and mouth), nine states, a cue per busy state on the Pebble (thought cloud, gear, speech bubble), CSS-only `motion-face-*` (MOT-15) on an SVG; no patch."
     }
   }
 }

@@ -1137,7 +1137,7 @@
  *   cue      float (the thought cloud and its beads) · orbit (the gear) · type (the speech
  *            bubble's dots) · flare (amber ticks) · twinkle (sparkles) · rise (z's)
  *            ping (the amber badge) · moon (a ring's moon)
- *   once     change (a state change: a squash and a blink) · pop (the new cue grows in)
+ *   once     change (a state change: a squash and a blink) · pop (the new cue gathers and springs)
  * ------------------------------------------------------------------------- */
 @keyframes vs-face-breathe {
   0%,
@@ -1602,21 +1602,19 @@
   }
 }
 @keyframes vs-face-pop {
-  0% {
-    transform: scale(0.4);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.08);
-    opacity: 1;
-  }
+  0%,
   100% {
     transform: scale(1);
-    opacity: 1;
+  }
+  30% {
+    transform: scale(0.72);
+  }
+  70% {
+    transform: scale(1.1);
   }
 }
 @utility motion-face-pop {
-  animation: vs-face-pop 0.36s cubic-bezier(0.2, 0.8, 0.3, 1.2) 1 both;
+  animation: vs-face-pop 0.42s ease-out 1;
 }
 @utility motion-face-change-eyes {
   animation: vs-face-change-eyes 0.42s ease-out 1;

@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.6 sha256-oxOnZVn/J8/VNPuYoBBJJTLFQqr0pdTx8PQcVp09AlM=
+// @vegastack agent-face@0.136.6 sha256-9aqVMEUcwdtu43i8keIbuMUr52kuMqNvLgwh9oS/v74=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -1091,7 +1091,9 @@ function Cue({
               cx={n2(MX + (k - 1) * w * 0.26)}
               cy={MY}
               r={n2(h * 0.13)}
-              fill="var(--fi)"
+              fill={
+                dark ? "color-mix(in oklab, var(--fm), black 70%)" : "var(--fi)"
+              }
               className={motion ? "motion-face-type" : undefined}
               style={{ ["--face-dot" as string]: k }}
             />
@@ -1368,6 +1370,11 @@ function Pebble({
     </g>
   ) : undefined;
   const topLayer = body.layers?.[body.layers.length - 1];
+  const topIndex = (body.layers?.length ?? 1) - 1;
+  const cueShape =
+    motion && working && def.motion === "slide"
+      ? "motion-face-slide"
+      : shapeMotion;
   return (
     <>
       {/* the floating shadow */}
@@ -1530,18 +1537,28 @@ function Pebble({
                   id={uid}
                 />
               ) : null}
-            </g>
-            <g
-              className={motion ? "motion-face-pop" : undefined}
-              style={CUE_ORIGIN}
-            >
-              <Cue
-                state={state}
-                ring={ring}
-                motion={motion}
-                uid={uid}
-                dark={!!pal.dark}
-              />
+              {/* The cue rides with whatever moves the face: the pose, the shape's rock or wobble,
+                  and a stack's top layer as it slides. */}
+              <g
+                className={cueShape}
+                style={{
+                  transformOrigin: `${CX}px ${CY}px`,
+                  ["--face-layer" as string]: topIndex,
+                }}
+              >
+                <g
+                  className={motion ? "motion-face-pop" : undefined}
+                  style={CUE_ORIGIN}
+                >
+                  <Cue
+                    state={state}
+                    ring={ring}
+                    motion={motion}
+                    uid={uid}
+                    dark={!!pal.dark}
+                  />
+                </g>
+              </g>
             </g>
           </g>
         </g>
