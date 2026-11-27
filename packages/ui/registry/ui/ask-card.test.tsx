@@ -130,6 +130,34 @@ test("an answer passes the choice id back unchanged; a decline with a note sends
   expect(onAnswer).toHaveBeenLastCalledWith("decline", "Send it Monday");
 });
 
+test("Back and Escape leave the note with focus on Decline's arrow, answering nothing", async () => {
+  const onAnswer = vi.fn();
+  await render(
+    <AskCard
+      agent={agent}
+      action={action}
+      state="pending"
+      choices={CHOICES}
+      onAnswer={onAnswer}
+    />,
+  );
+  const more = () => page.getByRole("button", { name: "More ways to decline" });
+  const open = async () => {
+    await more().click();
+    await page.getByRole("menuitem", { name: "Decline with a note…" }).click();
+    await expect
+      .element(page.getByRole("textbox", { name: /note to the agent/i }))
+      .toHaveFocus();
+  };
+  await open();
+  await page.getByRole("button", { name: "Back" }).click();
+  await expect.element(more()).toHaveFocus();
+  await open();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(more()).toHaveFocus();
+  expect(onAnswer).not.toHaveBeenCalled();
+});
+
 test("more than one Always choice folds into one Always… menu listing every scope", async () => {
   const onAnswer = vi.fn();
   const screen = await render(
