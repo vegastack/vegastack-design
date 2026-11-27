@@ -1197,13 +1197,5 @@
       "components": [1, 0, 0],
       "alpha": 1
     }
-  },
-  "face-dot-ink": {
-    "$type": "color",
-    "$value": {
-      "colorSpace": "oklch",
-      "components": [0.279, 0.053, 293.8],
-      "alpha": 1
-    }
   }
 }

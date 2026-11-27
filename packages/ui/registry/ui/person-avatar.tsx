@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.136.5 sha256-6znQraLH+0cjzu7NZMaHpkQ3PgyIM9/00SFBIz4jDKk=
+// @vegastack person-avatar@0.136.5 sha256-Ua5igIqN9AJv3kDfpeUYighGoFuD2rjwx+houz30vQk=
 
 "use client";
 
@@ -20,7 +20,7 @@ import type { AgentFaceSpec, FaceState } from "@/components/ui/agent-face";
  * plain tile (a company logo is never cropped into a circle), else its initials on its hue.
  * An agent (`kind: "agent"`) — an AI assistant working for a member — is its face (`AgentFace`,
  * operator 27-11-2026: "agent avatars are no longer hexagones"): a preset character in its palette,
- * the Pebble from 40px and the Dot below, showing what it is doing. `PersonName` writes its name
+ * the Pebble from 40px and the Mini below, showing what it is doing. `PersonName` writes its name
  * agent-first as "Claude Code for Manoj" (the face already says it is an agent, so no label by
  * default), so an agent reads the same in every avatar, stack, picker, feed and comment.
  * ----------------------------------------------------------------------------------------------*/
@@ -240,7 +240,7 @@ const AgentFace = React.lazy(() =>
   import("@/components/ui/agent-face").then((m) => ({ default: m.AgentFace })),
 );
 
-/** Each step in CSS pixels, for an agent's face (the Dot below 40, the Pebble from 40). */
+/** Each step in CSS pixels, for an agent's face (the Mini below 40, the Pebble from 40). */
 const STEP_PX: Record<PersonAvatarSize, number> = {
   "2xs": 16,
   xs: 20,
@@ -277,7 +277,7 @@ export function AgentFaceStateProvider({
 }
 
 /**
- * The agent root: the face's own box with no circle. In a group its Dot draws a 2px halo in its
+ * The agent root: the face's own box with no circle. In a group its Mini draws a 2px halo in its
  * own silhouette, the colour of the surface beneath (as `PERSON_AVATAR_STACK_RING` does), so a
  * circle never notches the next face.
  */
@@ -383,7 +383,7 @@ export interface PersonAvatarProps extends Omit<
  * its hue, and no photo or initials. A workspace (`kind="workspace"`) is the same rounded square
  * with its logo scaled to fit whole (`object-contain`) on the plain background, else its initials
  * on its hue — for workspace switchers and headers. An agent (`kind="agent"`) is its face
- * (`AgentFace`): the Dot at the row steps up to `default`, the Pebble at `lg` and `xl`, showing
+ * (`AgentFace`): the Mini at the row steps up to `default`, the Pebble at `lg` and `xl`, showing
  * `faceState`; `actingFor` adds the member it works for as a small circle at its corner.
  *
  * @example <PersonAvatar person={{ name: "Asha Rao", hue: "blue" }} />

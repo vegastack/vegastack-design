@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.6 sha256-bVgbEcidOLhTJHlGj1TiKA/HJbGU1Du0+2qs3XG0iQk=
+// @vegastack agent-face@0.136.6 sha256-9aqVMEUcwdtu43i8keIbuMUr52kuMqNvLgwh9oS/v74=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -50,7 +50,7 @@ export interface AgentFaceProps extends Omit<
   name?: string;
   /** What it is doing. @default "idle" */
   state?: FaceState;
-  /** Its size in CSS pixels. Below 40 it draws the Dot; from 40 the Pebble. */
+  /** Its size in CSS pixels. Below 40 it draws the Mini; from 40 the Pebble. */
   size: number;
   /**
    * Whether it moves. Pass `true` only where the person is looking at that agent (its chat, its
@@ -64,7 +64,7 @@ export interface AgentFaceProps extends Omit<
    */
   ring?: string;
   /**
-   * A 2px halo in this colour round the Dot's own silhouette, for an overlapping stack (pass the
+   * A 2px halo in this colour round the Mini's own silhouette, for an overlapping stack (pass the
    * surface colour). @default undefined
    */
   halo?: string;
@@ -115,6 +115,10 @@ const CY = 49;
 /** The cue slot: on the head's top-right shoulder, cut out of it by a ring, so it reads as part of the face. */
 const MX = CX + R * 0.8;
 const MY = CY - R * 0.82;
+/** A cue grows out of the head's shoulder. */
+const CUE_ORIGIN = {
+  transformOrigin: `${CX + R * 0.6}px ${CY - R * 0.6}px`,
+} as const;
 /**
  * The Pebble's frame: an 80-unit window round the body, so the body fills about 88% of the box,
  * as a person's circle does at the same size step (no container: the face is the avatar). The
@@ -123,6 +127,8 @@ const MY = CY - R * 0.82;
 const PEBBLE_BOX = "10 9 80 80";
 const PEBBLE_ZOOM = 100 / 80;
 const BODY_ORIGIN = { transformOrigin: `${CX}px ${CY + R}px` } as const;
+/** The small form's body moves pivot on the bottom of its box. */
+const MINI_ORIGIN = { transformOrigin: "50px 96px" } as const;
 const n2 = (v: number) => Math.round(v * 100) / 100;
 
 const paletteOf = (id: FacePalette) =>
@@ -208,6 +214,8 @@ interface FaceGeometry {
   dark: boolean;
   /** The top layer's sideways offset (stacks slide), in units. */
   dx?: number;
+  /** Drawn small (below 40px): bolder eyes, no brows, a mouth only from 24px. */
+  mini?: number;
 }
 
 /**
@@ -215,11 +223,21 @@ interface FaceGeometry {
  * looks down along the line and talks; needs-you looks straight at the person with raised brows;
  * replied smiles with its eyes; failed worries; scheduled sleeps; paused is a flat line.
  */
-function Face({ def, state, size, motion, dark, dx = 0 }: FaceGeometry) {
-  const E = def.eye;
+function Face({ def, state, size, motion, dark, dx = 0, mini }: FaceGeometry) {
+  // Small, the eyes sit centred on the silhouette (a cube's side face or a stack's top layer would
+  // put them on an edge), at a size and spacing that still read.
+  const E = mini
+    ? {
+        x: 0,
+        y: Math.min(Math.max(def.eye.y, -0.2), 0.26),
+        sep: Math.max(def.eye.sep, 0.22),
+        s: Math.max(def.eye.s, 0.85),
+      }
+    : def.eye;
   const round = def.eyes === "round";
-  let ew = R * (round ? 0.19 : 0.15) * E.s;
-  let eh = R * (round ? 0.2 : 0.3) * E.s;
+  const boost = mini ? (mini < 24 ? 1.45 : 1.3) : 1;
+  let ew = R * (round ? 0.19 : 0.15) * E.s * boost;
+  let eh = R * (round ? 0.2 : 0.3) * E.s * boost;
   let lx = 0;
   let ly = 0;
   let lid = 0;
@@ -229,20 +247,25 @@ function Face({ def, state, size, motion, dark, dx = 0 }: FaceGeometry) {
   let shine = true;
   switch (state) {
     case "thinking":
-      lx = 0.08;
-      ly = -0.13;
-      lid = 0.18;
+      // Looks up and over at its thought; the near eye squints, its brow lifts: "hmm".
+      lx = 0.15;
+      ly = -0.18;
+      lid = 0.1;
       break;
     case "working":
+      // Heads down, focused: lids low, eyes scanning the work.
       lx = 0.02;
-      ly = 0.03;
-      lid = 0.36;
-      ew *= 1.15;
+      ly = 0.04;
+      ly = 0.08;
+      lid = 0.46;
+      ew *= 1.14;
       shine = false;
       break;
     case "writing":
-      ly = 0.12;
-      lid = 0.26;
+      // Looks down along the line it is writing; the mouth talks.
+      lx = -0.04;
+      ly = 0.17;
+      lid = 0.3;
       ew *= 1.08;
       shine = false;
       break;
@@ -270,7 +293,7 @@ function Face({ def, state, size, motion, dark, dx = 0 }: FaceGeometry) {
   const lw = Math.max((1.1 * 100) / size, R * 0.062 * E.s);
   const cx = (E.x + lx) * R + CX + dx;
   const cy = (E.y + ly) * R + CY;
-  const sep = E.sep * R;
+  const sep = E.sep * R * (mini ? 1.08 : 1);
   const eyesOrigin = { transformOrigin: `${n2(cx)}px ${n2(cy)}px` };
   const eyeMotion = motion
     ? state === "idle"
@@ -366,7 +389,7 @@ function Face({ def, state, size, motion, dark, dx = 0 }: FaceGeometry) {
   });
 
   const browPaths =
-    brows && size >= 40
+    brows && size >= 40 && !mini
       ? [-1, 1].map((sx) => {
           const ex = cx + sx * sep;
           const d =
@@ -407,7 +430,7 @@ function Face({ def, state, size, motion, dark, dx = 0 }: FaceGeometry) {
   else if (state === "thinking")
     mouth = (
       <path
-        d={`M${n2(cx + mw * 0.1)} ${n2(my + 0.2)}L${n2(cx + mw * 1.25)} ${n2(my - R * 0.02 * E.s)}`}
+        d={`M${n2(cx - mw * 0.15)} ${n2(my + R * 0.005)}Q${n2(cx + mw * 0.55)} ${n2(my + R * 0.035 * E.s)} ${n2(cx + mw * 1.2)} ${n2(my - R * 0.025 * E.s)}`}
       />
     );
   else if (state === "working")
@@ -452,6 +475,7 @@ function Face({ def, state, size, motion, dark, dx = 0 }: FaceGeometry) {
       />
     );
 
+  if (mini && mini < 24) mouth = null;
   return (
     <g
       data-slot="agent-face-features"
@@ -539,12 +563,8 @@ function Shade({
         : state === "idle" || state === "replied"
           ? "12s"
           : "20s";
-  const glowColor = dark
-    ? "var(--fm)"
-    : neutral
-      ? "var(--fm)"
-      : "var(--face-highlight)";
-  const glowAlpha = dark ? 0.75 : neutral ? 0.32 : 0.75;
+  const glowColor = neutral && !dark ? "var(--fm)" : "var(--face-highlight)";
+  const glowAlpha = dark ? 0.22 : neutral ? 0.32 : 0.75;
   return (
     <g>
       <defs>
@@ -617,8 +637,16 @@ function Shade({
         ) : null}
         {effects && state === "needs-you" ? (
           <radialGradient id={`${id}-w`}>
-            <stop offset="0" stopColor="var(--warning)" stopOpacity="0.4" />
-            <stop offset="1" stopColor="var(--warning)" stopOpacity="0" />
+            <stop
+              offset="0"
+              stopColor="color-mix(in oklab, var(--warning), var(--face-highlight) 45%)"
+              stopOpacity={dark ? 0.24 : 0.45}
+            />
+            <stop
+              offset="1"
+              stopColor="color-mix(in oklab, var(--warning), var(--face-highlight) 45%)"
+              stopOpacity="0"
+            />
           </radialGradient>
         ) : null}
       </defs>
@@ -826,41 +854,107 @@ function Cue({
   state,
   ring,
   motion,
+  uid = "c",
+  dark = false,
 }: {
   state: FaceState;
   ring: string;
   motion: boolean;
+  uid?: string;
+  /** A dark palette (Ink): its thought is a light cloud, never dark smoke. */
+  dark?: boolean;
 }) {
   const hw = R * 0.07;
   const mc = "var(--fm)";
+  // The cue is made of the face's own material: lit from the top left, like the body.
+  const lit = `url(#${uid}-cue)`;
+  const litDefs = (
+    <defs>
+      <radialGradient id={`${uid}-cue`} cx="0.36" cy="0.3" r="0.8">
+        <stop
+          offset="0"
+          style={{
+            stopColor:
+              "color-mix(in oklab, var(--fm), var(--face-highlight) 40%)",
+          }}
+        />
+        <stop offset="0.55" style={{ stopColor: "var(--fm)" }} />
+        <stop
+          offset="1"
+          style={{ stopColor: "color-mix(in oklab, var(--fm), var(--fd) 45%)" }}
+        />
+      </radialGradient>
+      <radialGradient id={`${uid}-cloud`} cx="0.4" cy="0.3" r="0.85">
+        <stop
+          offset="0"
+          style={{
+            stopColor: dark
+              ? "color-mix(in oklab, var(--fa), var(--face-highlight) 88%)"
+              : "color-mix(in oklab, var(--fa), var(--face-highlight) 30%)",
+          }}
+        />
+        <stop
+          offset="0.6"
+          style={{
+            stopColor: dark
+              ? "color-mix(in oklab, var(--fa), var(--face-highlight) 72%)"
+              : "var(--fa)",
+          }}
+        />
+        <stop
+          offset="1"
+          style={{
+            stopColor: dark
+              ? "color-mix(in oklab, var(--fb), var(--face-highlight) 56%)"
+              : "var(--fb)",
+          }}
+        />
+      </radialGradient>
+    </defs>
+  );
   switch (state) {
     case "thinking": {
-      // Thought bubbles in the agent's colour, rising off its head and pulsing in turn (operator,
-      // 27-11-2026: the spinner didn't suit a character; keep the cues close to the face).
-      const bubbles: [number, number, number][] = [
-        [-0.2, 0.2, 0.06],
-        [-0.02, 0.02, 0.095],
-        [0.2, -0.2, 0.14],
+      // A thought: a soft cloud of its own material, joined to the head by two rising beads.
+      const lobes: [number, number, number][] = [
+        [-0.17, 0.03, 0.145],
+        [-0.02, -0.085, 0.19],
+        [0.16, -0.02, 0.155],
+        [0.02, 0.085, 0.135],
+      ];
+      const ox = MX + R * 0.12;
+      const oy = MY - R * 0.12;
+      const beads: [number, number, number][] = [
+        [-0.12, 0.26, 0.045],
+        [-0.04, 0.12, 0.07],
       ];
       return (
-        <g data-slot="agent-face-cue" data-cue="bubbles">
-          {bubbles.map(([dx, dy, r], k) => (
+        <g data-slot="agent-face-cue" data-cue="thought">
+          {litDefs}
+          {beads.map(([dx, dy, r], k) => (
             <circle
-              key={`h${k}`}
+              key={`hb${k}`}
               cx={n2(MX + dx * R)}
               cy={n2(MY + dy * R)}
-              r={n2(R * r + hw * 0.6)}
+              r={n2(R * r + hw * 0.5)}
               fill={ring}
             />
           ))}
-          {bubbles.map(([dx, dy, r], k) => (
+          {lobes.map(([dx, dy, r], k) => (
             <circle
-              key={k}
+              key={`h${k}`}
+              cx={n2(ox + dx * R)}
+              cy={n2(oy + dy * R)}
+              r={n2(R * r + hw * 0.5)}
+              fill={ring}
+            />
+          ))}
+          {beads.map(([dx, dy, r], k) => (
+            <circle
+              key={`b${k}`}
               cx={n2(MX + dx * R)}
               cy={n2(MY + dy * R)}
               r={n2(R * r)}
-              fill={mc}
-              fillOpacity={0.55 + k * 0.2}
+              fill={`url(#${uid}-cloud)`}
               className={motion ? "motion-face-float" : undefined}
               style={{
                 transformOrigin: `${n2(MX + dx * R)}px ${n2(MY + dy * R)}px`,
@@ -868,68 +962,138 @@ function Cue({
               }}
             />
           ))}
+          <g
+            className={motion ? "motion-face-float" : undefined}
+            style={{
+              transformOrigin: `${n2(ox)}px ${n2(oy + R * 0.1)}px`,
+              ["--face-dot" as string]: 2,
+            }}
+          >
+            {lobes.map(([dx, dy, r], k) => (
+              <circle
+                key={`r${k}`}
+                cx={n2(ox + dx * R)}
+                cy={n2(oy + dy * R)}
+                r={n2(R * r + R * 0.025)}
+                fill="var(--fm)"
+                fillOpacity={0.45}
+              />
+            ))}
+            {lobes.map(([dx, dy, r], k) => (
+              <circle
+                key={k}
+                cx={n2(ox + dx * R)}
+                cy={n2(oy + dy * R)}
+                r={n2(R * r)}
+                fill={`url(#${uid}-cloud)`}
+              />
+            ))}
+            <ellipse
+              cx={n2(ox - R * 0.06)}
+              cy={n2(oy - R * 0.11)}
+              rx={n2(R * 0.09)}
+              ry={n2(R * 0.04)}
+              fill="var(--face-highlight)"
+              fillOpacity={0.5}
+            />
+          </g>
         </g>
       );
     }
-    case "working":
-      // Orbiting dots in the agent's colour, the same for every tool.
+    case "working": {
+      // A gear of its own material turning on its shoulder: it is doing something.
+      const teeth = 8;
+      const ro = R * 0.28;
+      const ri = R * 0.21;
+      const tw = Math.PI / teeth / 1.6;
+      let d = "";
+      for (let k = 0; k < teeth; k++) {
+        const a = (k * Math.PI * 2) / teeth;
+        const pts: [number, number][] = [
+          [ri, a - tw * 1.35],
+          [ro, a - tw * 0.8],
+          [ro, a + tw * 0.8],
+          [ri, a + tw * 1.35],
+        ];
+        d += pts
+          .map(
+            ([r, t], i) =>
+              `${k === 0 && i === 0 ? "M" : "L"}${n2(MX + Math.cos(t) * r)} ${n2(MY + Math.sin(t) * r)}`,
+          )
+          .join("");
+        const nt = ((k + 1) * Math.PI * 2) / teeth - tw * 1.35;
+        d += `A${n2(ri)} ${n2(ri)} 0 0 1 ${n2(MX + Math.cos(nt) * ri)} ${n2(MY + Math.sin(nt) * ri)}`;
+      }
+      d += "Z";
+      const hole = R * 0.075;
+      const holeD = `M${n2(MX - hole)} ${n2(MY)}a${n2(hole)} ${n2(hole)} 0 1 0 ${n2(hole * 2)} 0a${n2(hole)} ${n2(hole)} 0 1 0 ${n2(-hole * 2)} 0Z`;
       return (
-        <g data-slot="agent-face-cue" data-cue="orbit">
-          <circle cx={MX} cy={MY} r={n2(R * 0.33)} fill={ring} />
+        <g data-slot="agent-face-cue" data-cue="gear">
+          {litDefs}
           <g
             className={motion ? "motion-face-orbit" : undefined}
             style={
               {
                 transformOrigin: `${n2(MX)}px ${n2(MY)}px`,
-                "--face-orbit-speed": "1.2s",
+                "--face-orbit-speed": "3.2s",
               } as React.CSSProperties
             }
           >
-            {[0, 1, 2].map((k) => {
-              const a = -Math.PI / 2 + (k * Math.PI * 2) / 3;
-              return (
-                <circle
-                  key={k}
-                  cx={n2(MX + Math.cos(a) * R * 0.19)}
-                  cy={n2(MY + Math.sin(a) * R * 0.19)}
-                  r={n2(R * (0.075 - k * 0.015))}
-                  fill={mc}
-                  fillOpacity={1 - k * 0.25}
-                />
-              );
-            })}
+            <path
+              d={d}
+              fill={ring}
+              stroke={ring}
+              strokeWidth={n2(hw)}
+              strokeLinejoin="round"
+            />
+            <path d={d + holeD} fill={lit} fillRule="evenodd" />
           </g>
         </g>
       );
+    }
     case "writing": {
-      const w = R * 0.86;
-      const h = R * 0.42;
+      // A speech bubble of its own material, its tail toward the mouth, the words arriving in ink.
+      const w = R * 0.8;
+      const h = R * 0.46;
+      const x0 = MX - w / 2;
+      const y0 = MY - h / 2;
+      const tail = `M${n2(x0 + w * 0.18)} ${n2(y0 + h * 0.8)}L${n2(x0 - R * 0.06)} ${n2(y0 + h + R * 0.14)}L${n2(x0 + w * 0.42)} ${n2(y0 + h * 0.92)}Z`;
       return (
-        <g data-slot="agent-face-cue" data-cue="typing">
-          <rect
-            x={n2(MX - w / 2 - hw * 0.6)}
-            y={n2(MY - h / 2 - hw * 0.6)}
-            width={n2(w + hw * 1.2)}
-            height={n2(h + hw * 1.2)}
-            rx={n2(h / 2 + hw * 0.6)}
+        <g data-slot="agent-face-cue" data-cue="speech">
+          {litDefs}
+          <g
+            stroke={ring}
+            strokeWidth={n2(hw)}
+            strokeLinejoin="round"
             fill={ring}
-          />
+          >
+            <rect
+              x={n2(x0)}
+              y={n2(y0)}
+              width={n2(w)}
+              height={n2(h)}
+              rx={n2(h / 2)}
+            />
+            <path d={tail} />
+          </g>
+          <path d={tail} fill="var(--fb)" />
           <rect
-            x={n2(MX - w / 2)}
-            y={n2(MY - h / 2)}
+            x={n2(x0)}
+            y={n2(y0)}
             width={n2(w)}
             height={n2(h)}
             rx={n2(h / 2)}
-            fill={mc}
-            fillOpacity={0.16}
+            fill={lit}
           />
           {[0, 1, 2].map((k) => (
             <circle
               key={k}
-              cx={n2(MX + (k - 1) * w * 0.27)}
+              cx={n2(MX + (k - 1) * w * 0.26)}
               cy={MY}
-              r={n2(h * 0.15)}
-              fill={mc}
+              r={n2(h * 0.13)}
+              fill={
+                dark ? "color-mix(in oklab, var(--fm), black 70%)" : "var(--fi)"
+              }
               className={motion ? "motion-face-type" : undefined}
               style={{ ["--face-dot" as string]: k }}
             />
@@ -1044,17 +1208,18 @@ function Cue({
       const r = R * 0.24;
       return (
         <g data-slot="agent-face-cue" data-cue="pause">
-          <circle cx={MX} cy={MY} r={n2(r + hw * 0.7)} fill={ring} />
-          <circle cx={MX} cy={MY} r={n2(r)} fill="var(--muted)" />
           {[-1, 1].map((s) => (
             <rect
               key={s}
-              x={n2(MX + s * r * 0.3 - r * 0.12)}
-              y={n2(MY - r * 0.42)}
+              x={n2(MX + R * 0.12 + s * r * 0.3 - r * 0.12)}
+              y={n2(MY - R * 0.06 - r * 0.42)}
               width={n2(r * 0.24)}
               height={n2(r * 0.84)}
               rx={n2(r * 0.12)}
               fill="var(--muted-foreground)"
+              stroke={ring}
+              strokeWidth={n2(hw * 0.8)}
+              paintOrder="stroke"
             />
           ))}
         </g>
@@ -1080,7 +1245,7 @@ function Bang({ x, y, r }: { x: number; y: number; r: number }) {
   );
 }
 
-// ---------- the badge (the Dot: needs-you, replied, failed) ----------
+// ---------- the badge (the Mini: needs-you, replied, failed) ----------
 function Badge({
   state,
   size,
@@ -1205,6 +1370,11 @@ function Pebble({
     </g>
   ) : undefined;
   const topLayer = body.layers?.[body.layers.length - 1];
+  const topIndex = (body.layers?.length ?? 1) - 1;
+  const cueShape =
+    motion && working && def.motion === "slide"
+      ? "motion-face-slide"
+      : shapeMotion;
   return (
     <>
       {/* the floating shadow */}
@@ -1367,23 +1537,44 @@ function Pebble({
                   id={uid}
                 />
               ) : null}
+              {/* The cue rides with whatever moves the face: the pose, the shape's rock or wobble,
+                  and a stack's top layer as it slides. */}
+              <g
+                className={cueShape}
+                style={{
+                  transformOrigin: `${CX}px ${CY}px`,
+                  ["--face-layer" as string]: topIndex,
+                }}
+              >
+                <g
+                  className={motion ? "motion-face-pop" : undefined}
+                  style={CUE_ORIGIN}
+                >
+                  <Cue
+                    state={state}
+                    ring={ring}
+                    motion={motion}
+                    uid={uid}
+                    dark={!!pal.dark}
+                  />
+                </g>
+              </g>
             </g>
           </g>
         </g>
       </g>
-      <Cue state={state} ring={ring} motion={motion} />
     </>
   );
 }
 
-// ---------- the Dot ----------
+// ---------- the Mini ----------
 /**
- * The Dot's silhouette: its own path, or the Pebble body's path scaled by `k` round (`ox`, `oy`)
+ * The Mini's silhouette: its own path, or the Pebble body's path scaled by `k` round (`ox`, `oy`)
  * to the 100-unit box's centre (the spec stores that fit, not a second copy of the path).
  */
 function dotPath(def: FacePresetDef): string {
   if (def.dot.d) return def.dot.d;
-  const [k, ox, oy] = def.dot.fit ?? [1, 50, 50];
+  const [k, ox, oy] = def.dot.fit;
   const x = (v: string) => n2(50 + (+v - ox) * k);
   const y = (v: string) => n2(50 + (+v - oy) * k);
   const tokens = (def.pebble.d ?? "").match(/[MLAZ]|-?\d*\.?\d+/g) ?? [];
@@ -1404,104 +1595,7 @@ function dotPath(def: FacePresetDef): string {
   return out.join("");
 }
 
-type Cells = [number, number, number?][];
-/** The 16 cells round the 5 × 5 grid's edge, clockwise from the top left. */
-const PERIMETER: [number, number][] = (() => {
-  const p: [number, number][] = [];
-  for (let x = 0; x < 5; x++) p.push([x, 0]);
-  for (let y = 1; y < 5; y++) p.push([4, y]);
-  for (let x = 3; x >= 0; x--) p.push([x, 4]);
-  for (let y = 3; y >= 1; y--) p.push([0, y]);
-  return p;
-})();
-
-function dotCells(def: FacePresetDef, state: FaceState): Cells {
-  const tall = def.eyes === "tall";
-  switch (state) {
-    case "idle":
-      return [
-        ...(tall
-          ? ([
-              [1, 1],
-              [1, 2],
-              [3, 1],
-              [3, 2],
-            ] as Cells)
-          : ([
-              [1, 2],
-              [3, 2],
-            ] as Cells)),
-        ...(def.mouth ? ([[2, 3, 0.55]] as Cells) : []),
-      ];
-    case "thinking":
-      return [
-        [2, 1],
-        [4, 1],
-      ];
-    case "working":
-      // Its eyes and a short bar along the bottom: never the same as a round-eyed idle.
-      return [
-        [1, 2],
-        [3, 2],
-        [1, 4, 0.5],
-        [2, 4, 0.85],
-        [3, 4, 0.5],
-      ];
-    case "writing":
-      return [
-        [1, 1],
-        [3, 1],
-        [1, 3, 0.9],
-        [2, 3, 0.9],
-        [3, 3, 0.9],
-      ];
-    case "needs-you":
-      return [
-        [0, 1],
-        [1, 1],
-        [0, 2],
-        [1, 2],
-        [3, 1],
-        [4, 1],
-        [3, 2],
-        [4, 2],
-        [2, 4, 0.75],
-      ];
-    case "replied":
-      return [
-        [1, 1],
-        [3, 1],
-        [0, 2, 0.85],
-        [1, 3, 0.85],
-        [2, 3, 0.85],
-        [3, 3, 0.85],
-        [4, 2, 0.85],
-      ];
-    case "failed":
-      return [
-        [1, 2, 0.85],
-        [3, 2, 0.85],
-        [1, 4, 0.6],
-        [2, 3, 0.6],
-        [3, 4, 0.6],
-      ];
-    case "scheduled":
-      return [
-        [0, 2, 0.6],
-        [1, 2, 0.6],
-        [3, 2, 0.6],
-        [4, 2, 0.6],
-        [4, 0, 0.7],
-      ];
-    case "paused":
-      return [
-        [1, 2, 0.45],
-        [3, 2, 0.45],
-      ];
-  }
-}
-
-function Dot({
+function Mini({
   def,
   pal,
   state,
@@ -1518,99 +1612,50 @@ function Dot({
   ring: string;
   uid: string;
 }) {
-  const darkInk = !!pal.glass || pal.id === "mist";
-  const lit = darkInk ? "var(--face-dot-ink)" : "var(--face-highlight)";
-  const rest = darkInk ? 0.08 : 0.13;
-  const a =
-    pal.dark || darkInk
-      ? "var(--fa)"
-      : "color-mix(in oklab, var(--fb) 85%, var(--fa))";
-  const b =
-    pal.dark || darkInk
-      ? "var(--fb)"
-      : "color-mix(in oklab, var(--fd) 80%, var(--fb))";
-  const g = 58;
-  const cell = g / 5;
-  const dr = cell * 0.41;
-  const ox = 50 - g / 2;
-  const oy = 50 - g / 2;
-  const map = new Map<string, number>();
-  for (const [x, y, v = 1] of dotCells(def, state)) map.set(`${x},${y}`, v);
-  const chase = state === "thinking";
-  const wave = state === "working";
-  const typed = state === "writing";
-  const glow = size >= 28 && !darkInk;
-  const cells: React.ReactNode[] = [];
-  for (let y = 0; y < 5; y++)
-    for (let x = 0; x < 5; x++) {
-      const v = map.get(`${x},${y}`) ?? 0;
-      const per = chase
-        ? PERIMETER.findIndex(([px, py]) => px === x && py === y)
-        : -1;
-      // The still face is the cells alone; motion adds a light that passes over some of them,
-      // so the still pose (and reduced motion) is the same face either way.
-      const passes =
-        motion && ((chase && per >= 0 && v === 0) || (wave && y === 4));
-      const types = motion && typed && y === 3 && x >= 1 && x <= 3;
-      // Below 32px an unlit cell isn't drawn at all, with motion or without.
-      const base = v > 0 || size >= 32;
-      if (!base && !passes) continue;
-      const cx = n2(ox + cell * (x + 0.5));
-      const cy = n2(oy + cell * (y + 0.5));
-      if (base)
-        cells.push(
-          <circle
-            key={`${x}${y}`}
-            cx={cx}
-            cy={cy}
-            r={n2(dr * (0.6 + 0.4 * v))}
-            fill={lit}
-            fillOpacity={n2(v ? rest + (1 - rest) * v : rest)}
-            className={types ? "motion-face-type" : undefined}
-            style={
-              types ? ({ "--face-dot": x } as React.CSSProperties) : undefined
-            }
-          />,
-        );
-      if (passes)
-        cells.push(
-          <circle
-            key={`p${x}${y}`}
-            cx={cx}
-            cy={cy}
-            r={n2(dr * 0.85)}
-            fill={lit}
-            opacity={0}
-            className={chase ? "motion-face-chase" : "motion-face-wave"}
-            style={{ "--face-dot": chase ? per : x } as React.CSSProperties}
-          />,
-        );
-    }
+  // Below 40px: the same character, its own silhouette and its own eyes and mouth, drawn bolder.
+  // While it is busy it keeps the Pebble's body rhythm, smaller (only where `motion` is on).
+  const [k, ox, oy] = def.dot.fit;
+  const busy = motion
+    ? (
+        {
+          thinking: "motion-face-ponder",
+          working: "motion-face-bob",
+          writing: "motion-face-talk",
+        } as Partial<Record<FaceState, string>>
+      )[state]
+    : undefined;
   return (
     <>
-      <Shade
-        id={`${uid}-d`}
-        d={dotPath(def)}
-        state={state}
-        motion={motion}
-        pal={pal}
-        a={a}
-        b={b}
-        cx={50}
-        cy={50}
-        r={46}
-        light={0.45}
-        effects={false}
-      />
       <g
-        clipPath={`url(#${uid}-d-c)`}
-        style={
-          glow
-            ? { filter: "drop-shadow(0 0 2.5px var(--face-highlight))" }
-            : undefined
-        }
+        key={state}
+        className={motion ? "motion-face-change" : undefined}
+        style={MINI_ORIGIN}
       >
-        {cells}
+        <g className={busy} style={MINI_ORIGIN}>
+          <Shade
+            id={`${uid}-d`}
+            d={dotPath(def)}
+            state={state}
+            motion={motion}
+            pal={pal}
+            cx={50}
+            cy={50}
+            r={46}
+            effects={false}
+          />
+          <g
+            transform={`translate(50 50) scale(${n2(k)}) translate(${n2(-ox)} ${n2(-oy)})`}
+          >
+            <Face
+              def={def}
+              state={state}
+              size={size * k}
+              motion={motion}
+              dark={!!pal.dark}
+              mini={size}
+            />
+          </g>
+        </g>
       </g>
       <Badge state={state} size={size} ring={ring} motion={motion} />
     </>
@@ -1621,8 +1666,8 @@ function Dot({
  * An agent's face (operator, 27-11-2026): one of 18 preset characters in one of 9 palettes, the
  * one way every surface draws an agent — agents are no longer hexagons. From 40px it is the
  * **Pebble**, a soft character with eyes, a mouth and a cue beside its head; below 40px it is the
- * **Dot**, the same agent as a 5 × 5 dot face in its own silhouette with a badge for the states
- * that need a person. The face shows nine states (`FaceState`): motion means busy, the cue's
+ * **Mini**, the same character in its own silhouette with its own eyes and mouth drawn bolder,
+ * and a badge for the states that need a person. The face shows nine states (`FaceState`): motion means busy, the cue's
  * colour says who acts next (the agent's colour: it's busy; amber: you; blue: something new;
  * red: it's stuck; grey: not running), and grey means it can't act.
  *
@@ -1653,16 +1698,16 @@ function AgentFace({
   const face = agentFaceFor({ name, face: faceProp });
   const def = facePreset(face.preset);
   const pal = paletteOf(face.palette);
-  const dot = size < 40;
+  const mini = size < 40;
   const named = Boolean(label);
   return (
     <svg
       data-slot="agent-face"
-      data-form={dot ? "dot" : "pebble"}
+      data-form={mini ? "mini" : "pebble"}
       data-state={state}
       data-preset={def.id}
       data-palette={pal.id}
-      viewBox={dot ? "0 0 100 100" : PEBBLE_BOX}
+      viewBox={mini ? "0 0 100 100" : PEBBLE_BOX}
       width={size}
       height={size}
       role={named ? "img" : undefined}
@@ -1680,7 +1725,7 @@ function AgentFace({
       }}
       {...props}
     >
-      {halo && dot ? (
+      {halo && mini ? (
         <path
           d={dotPath(def)}
           fill="none"
@@ -1689,8 +1734,8 @@ function AgentFace({
           strokeLinejoin="round"
         />
       ) : null}
-      {dot ? (
-        <Dot
+      {mini ? (
+        <Mini
           def={def}
           pal={pal}
           state={state}

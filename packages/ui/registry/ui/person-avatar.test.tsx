@@ -92,7 +92,7 @@ test("a workspace is a rounded-square tile: its whole logo, else its initials on
 
 const claude = { name: "Claude Code", kind: "agent" as const, for: "Manoj" };
 
-test("an agent is its face: the Dot below 40px, the Pebble from 40px, and a stable face without a stored one", async () => {
+test("an agent is its face: the Mini below 40px, the Pebble from 40px, and a stable face without a stored one", async () => {
   const scout = { v: 1, preset: "squish", palette: "violet" } as const;
   const screen = await render(
     <div className="flex gap-2">
@@ -115,7 +115,7 @@ test("an agent is its face: the Dot below 40px, the Pebble from 40px, and a stab
   const faceOf = (el: HTMLElement) =>
     el.querySelector<SVGSVGElement>('[data-slot="agent-face"]')!;
   expect(dot!.dataset.kind).toBe("agent");
-  expect(faceOf(dot!).dataset.form).toBe("dot");
+  expect(faceOf(dot!).dataset.form).toBe("mini");
   expect(faceOf(dot!).dataset.preset).toBe("squish");
   expect(faceOf(pebble!).dataset.form).toBe("pebble");
   // No circle, no fallback, no bot: the face is the whole avatar.

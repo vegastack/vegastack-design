@@ -2256,7 +2256,7 @@
           "attributes": [
             {
               "name": "data-form",
-              "values": ["dot", "pebble"]
+              "values": ["mini", "pebble"]
             },
             {
               "name": "data-palette",
