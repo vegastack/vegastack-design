@@ -18029,8 +18029,8 @@
       "meta": {
         "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
         "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
-        "version": "0.136.8",
-        "integrity": "sha256-DRymXshrqTehxMht9H6qVxE7iQB054IdLmRqZkyuVhA="
+        "version": "0.137.0",
+        "integrity": "sha256-gh5OSF5cDA32kxYhCdnavmT+Wc+PUAMB06pZPKnM248="
       }
     },
     {
@@ -19605,8 +19605,8 @@
       "meta": {
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
-        "version": "0.136.8",
-        "integrity": "sha256-OI4AaEwnYZFDeYsq1gJQk2BextrfBlabkRzyQ654eag="
+        "version": "0.137.0",
+        "integrity": "sha256-9X5emiiMEVn9IAfh9wTxZ75omo7SDMqc45POJRMtUqk="
       }
     },
     {
@@ -19643,8 +19643,8 @@
       "meta": {
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
-        "version": "0.136.8",
-        "integrity": "sha256-4hB3nWMGmo/YGA8zskLE2wIoAjXL5e8Dl8Rr9PR8SNc="
+        "version": "0.137.0",
+        "integrity": "sha256-LAWyY5f42ke+f5uvMnpqeFBaT8mxpslQdw0+AmNbSsg="
       }
     },
     {
@@ -19744,8 +19744,8 @@
       "meta": {
         "whenToUse": "A run's own page: what an agent did, step by step, with what it cost.",
         "whenNotToUse": "A chat turn's work (WorkLog), or a list of runs (DataList).",
-        "version": "0.136.8",
-        "integrity": "sha256-lxIYt3D6VQNEYe3M4WhyrG1om8wUXAkfNCwY/itm3ok="
+        "version": "0.137.0",
+        "integrity": "sha256-kwkaZAYxIXGiMvHNGJnQ1nLMCN9mjl0QxGcM4LgAdB0="
       }
     },
     {
