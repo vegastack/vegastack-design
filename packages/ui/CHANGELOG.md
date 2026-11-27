@@ -1,5 +1,14 @@
 # @vegastack/ui
 
+## 0.140.1
+
+### Patch Changes
+
+- [#1095](https://github.com/vegastack/vegastack-design/pull/1095) [`0558b9f`](https://github.com/vegastack/vegastack-design/commit/0558b9f2e56b55dafa65ab9bd905970fc56cd3b8) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 Agent faces: Glass fades toward grey when it couldn't finish, is scheduled or is paused, the same way every other palette does, instead of turning see-through.
+
+  - Glass's three colours mix toward the light-to-deep greys by the state's amount (failed 50%, scheduled 35%, paused 86%), so the body stays solid on any surface and no ring or lower layer shows through it.
+  - Paused features use a solid softer ink (`--fs`, the ink 40% toward the body) in place of 60% opacity.
+
 ## 0.140.0
 
 ### Minor Changes

@@ -10,6 +10,20 @@ npm package versions are listed per entry. This page is generated from the repo'
 
 {/* CHANGELOG:START — generated from /CHANGELOG.md by tooling/sync-changelog.mjs. DO NOT EDIT. */}
 
+## [0.140.1] — November 27, 2026
+
+### 📦 npm
+
+- The design-system registry (`@vegastack/ui`) bumps 0.140.0 → 0.140.1.
+
+### 🐛 Fixed
+
+- Agent faces: Glass fades toward grey when it couldn't finish, is scheduled or is paused, the same way every other palette does, instead of turning see-through.
+
+  - Glass's three colours mix toward the light-to-deep greys by the state's amount (failed 50%, scheduled 35%, paused 86%), so the body stays solid on any surface and no ring or lower layer shows through it.
+  - Paused features use a solid softer ink (`--fs`, the ink 40% toward the body) in place of 60% opacity.
+    [`0558b9f`](https://github.com/VegaStack/vegastack-design/commit/0558b9f)
+
 ## [0.140.0] — November 27, 2026
 
 ### 🔧 Changed components
