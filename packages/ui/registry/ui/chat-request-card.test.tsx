@@ -1,5 +1,5 @@
 import { render } from "vitest-browser-react";
-import { userEvent } from "vitest/browser";
+import { page, userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
 import "../../test/geometry.css";
@@ -436,6 +436,7 @@ test("a reason shows whole under the subject while open; a long Always scope wra
       ],
     },
   };
+  await page.viewport(390, 844);
   const screen = await render(
     <div style={{ width: 390 }}>
       <ChatRequestCard
@@ -463,6 +464,7 @@ test("a reason shows whole under the subject while open; a long Always scope wra
     '[data-slot="chat-menu-content"]',
   )!;
   expect(menu.getBoundingClientRect().width).toBeLessThanOrEqual(320);
+  expect(menu.getBoundingClientRect().right).toBeLessThanOrEqual(390);
   await userEvent.keyboard("{Escape}");
   await screen.rerender(
     <div style={{ width: 390 }}>

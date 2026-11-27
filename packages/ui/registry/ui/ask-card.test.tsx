@@ -399,6 +399,7 @@ test("a reason shows whole under the title while open, and a long scope sentence
     },
     { id: "always:c", label: "Always", kind: "always" },
   ];
+  await page.viewport(390, 844);
   const screen = await render(
     <div style={{ width: 390 }}>
       <AskCard
