@@ -1,4 +1,4 @@
-// @vegastack person-avatar@0.136.4 sha256-OiHa4oDzi3DOj3cozAB5KGWbV2YgtV3M7BRuvVVCNEk=
+// @vegastack person-avatar@0.136.5 sha256-6znQraLH+0cjzu7NZMaHpkQ3PgyIM9/00SFBIz4jDKk=
 
 "use client";
 
