@@ -22,10 +22,10 @@ test("18 presets and 9 palettes, each id once", () => {
   ]);
 });
 
-test("every preset draws a body (a path or layers) and a Dot silhouette (its own or the body refitted)", () => {
+test("every preset draws a body (a path or layers) and a Mini silhouette (its own or the body refitted)", () => {
   for (const p of FACE_PRESETS) {
     expect(Boolean(p.pebble.d) || Boolean(p.pebble.layers?.length)).toBe(true);
-    // A Dot is its own path, or the body's path refitted ([k, ox, oy]).
+    // A Mini is its own path, or the body's path refitted ([k, ox, oy]).
     if (p.dot.d) {
       expect(p.dot.d).toMatch(/^M[\d.]+ [\d.]+/);
       expect(p.dot.d.endsWith("Z")).toBe(true);

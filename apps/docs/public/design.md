@@ -22,8 +22,8 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 57514
-      sha256: "03b71c6b8be4323c08e8d7ab7aa8e009a214f300f33384dc2d40dd7fc2578dda"
+      bytes: 57473
+      sha256: "39ba8cd4777986deba2b40fe2185b2d4ab25942cb3ed7b0095e74dcca759f2e3"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
       bytes: 25508
@@ -282,7 +282,7 @@ themes:
     face-grey-a:
       type: "color"
       value: "oklch(0.923 0.007 277.2)"
-      description: "Agent faces: the grey a face fades to when it can't act (paused, failed, scheduled); `-ink-` for the Ink palette; the highlight; the dark dot ink on Mist and Glass Dots."
+      description: "Agent faces: the grey a face fades to when it can't act (paused, failed, scheduled); `-ink-` for the Ink palette; the highlight."
     face-grey-b:
       type: "color"
       value: "oklch(0.72 0.015 277)"
@@ -1895,9 +1895,9 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   three, in six size steps (`2xs` 16px to `xl` 64px) whose initials, icons (about 60% of the
   shape) and faces scale with the step, so an avatar is never resized with a `className`. An
   agent's face (`AgentFace`) is one of 18 preset characters in one of 9 palettes built from the
-  accent theme colours, in one of two families: Pebbles (the soft character from 40px, the Mini —
-  its eyes and mouth drawn bolder — below) or Dots (the silhouette with a 5 × 5 dot face, at every
-  size). No preset's silhouette may read as a circle or a rounded square
+  accent theme colours: the Pebble (the soft character) from 40px and the Mini (the same
+  silhouette, its eyes and mouth drawn bolder) below. A Pebble is one palette throughout, and its
+  eyes and mouth stay inside the face area the generator works out per preset. No preset's silhouette may read as a circle or a rounded square
   (`tooling/agent-face-spec.mjs` fails the build). A vendor's logo goes in the hover card's footer,
   never on the face. The face shows what the agent is doing (`FaceState`): motion means busy, the
   cue's colour says who acts next, grey means it can't act; it moves only where the person is

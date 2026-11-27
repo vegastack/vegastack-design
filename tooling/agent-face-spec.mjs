@@ -922,7 +922,19 @@ if (failures.length) {
 }
 
 // The phone reads every path whole; the web's copy stores a body-derived Mini as its fit only.
-const presets = out.map(({ _metrics, _fromBody, ...d }) => d);
+// The phone reads layers' legacy \`mix\` (companion → own colour): 1 keeps every layer the face's own
+// palette, the same single-colour result as \`shade\` without the step.
+const presets = out.map(({ _metrics, _fromBody, ...d }) =>
+  d.pebble.layers
+    ? {
+        ...d,
+        pebble: {
+          ...d.pebble,
+          layers: d.pebble.layers.map((L) => ({ ...L, mix: 1 })),
+        },
+      }
+    : d,
+);
 const webPresets = out.map(({ _metrics, _fromBody, ...d }) =>
   _fromBody ? { ...d, dot: { fit: d.dot.fit } } : d,
 );

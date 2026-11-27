@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.8 sha256-YmO4hyLqnwn41pjARN1C9AvyODLmsmSDnU0Wgazso74=
+// @vegastack agent-face@0.136.8 sha256-3WwjkoigDSS0bg8LaiDyE4glLG/H8r4agsRm/5v8QG0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -360,10 +360,15 @@ function Face({ def, state, size, motion, dark, dx = 0, mini }: FaceGeometry) {
       (hasMouth ? eh * 0.62 + R * 0.12 * E.s + mouthDrop : 0) + lw / 2,
       eh / 2 + lw / 2 + EYE_RISE,
     );
+    // Floored to the precision it is written at, so the rounded scale still fits.
     fit = Math.min(
       1,
-      (F.bottom - F.top) / (up + down),
-      (F.right - F.left) / (2 * half),
+      Math.floor(
+        Math.min(
+          (F.bottom - F.top) / (up + down),
+          (F.right - F.left) / (2 * half),
+        ) * 100,
+      ) / 100,
     );
     cy = fitIn(cy, F.top + up * fit, F.bottom - down * fit);
     const travel = motion ? (EYE_TRAVEL[state] ?? 0) : 0;
