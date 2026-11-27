@@ -1,4 +1,4 @@
-// @vegastack request-status-chip@0.136.4 sha256-rFPM8I5rXq5WSDUtR3wfr0cHR/qV6jEWtu41HkQgWhw=
+// @vegastack request-status-chip@0.136.7 sha256-yLdvs4EAqf6w/XZVJB4s3I+6gZgnfQ9SzrOgQ+getIE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

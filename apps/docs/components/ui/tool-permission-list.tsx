@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.136.4 sha256-5VxdTjBTk0pcTa/6H4RJBsxk0hpQykL4ZDOdu7zhsSE=
+// @vegastack tool-permission-list@0.136.7 sha256-WnBOFeLJyhrV8NwUiZGUiDAfTImCn2G8ZxmyROX9/0A=
 
 "use client";
 

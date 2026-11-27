@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.136.4 sha256-kKFS32XNfRYTT3maAKgTiAHkrd/RcE2IWFRX3LlRaBU=
+// @vegastack chat-message-parts@0.136.7 sha256-ILUqYpSWoCcAeN42fdrXBjVRcIfzlM6707Gp7cBm06c=
 
 "use client";
 

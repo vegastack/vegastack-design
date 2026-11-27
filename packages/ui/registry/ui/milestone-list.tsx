@@ -1,4 +1,4 @@
-// @vegastack milestone-list@0.136.4 sha256-dDttltXTfRnjBV9tIZ6995HG8vtjku/mQaXj9s83TlE=
+// @vegastack milestone-list@0.136.7 sha256-3e0BrhULchg97o62qRNO5y52sS4c1qUFQrkF+zJG8dQ=
 
 "use client";
 

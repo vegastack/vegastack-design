@@ -1,4 +1,4 @@
-// @vegastack health-indicator@0.136.4 sha256-Jybw7o7Ex5A9GMsIieJRCh1ZyxAZW8tkjQQ0MrAEsiI=
+// @vegastack health-indicator@0.136.7 sha256-M6PyC1yrvBrqLZaj2ptXFErleu1TAk35RhLVJmNzsxo=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

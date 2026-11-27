@@ -1,4 +1,4 @@
-// @vegastack accent@0.136.4 sha256-QwjkAL5uCfoMTZr3i7Vb6zDPebvAxD3MTomcB+9Z500=
+// @vegastack accent@0.136.7 sha256-oST9VoiEOiEIV7Q0uIc6mBSPQ5f8fhTtuF8AHMOebZU=
 
 "use client";
 

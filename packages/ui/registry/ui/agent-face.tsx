@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.6 sha256-9aqVMEUcwdtu43i8keIbuMUr52kuMqNvLgwh9oS/v74=
+// @vegastack agent-face@0.136.7 sha256-p9TDnz0tnYqUNjCtqBxrRVmJuPOK++dbKgM7xOPRcZY=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
