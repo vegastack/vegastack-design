@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.138.0 sha256-ElLGWF+ZbpFuzqrjBeIed7OkKrY5HsSDH86XLmzzU1g=
+// @vegastack agent-face@0.138.0 sha256-zWzYHuwTjB9tLAM7bM1i0tcFRN15cZVfYuk9heTtnuk=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -134,6 +134,16 @@ const n2 = (v: number) => Math.round(v * 100) / 100;
 const paletteOf = (id: FacePalette) =>
   FACE_PALETTES.find((p) => p.id === id) ?? FACE_PALETTES[0]!;
 
+/** How far a state fades the body toward grey (0 = not at all): Glass's colours and every palette's. */
+const fadeOf = (state: FaceState) =>
+  state === "paused"
+    ? 0.86
+    : state === "failed"
+      ? 0.5
+      : state === "scheduled"
+        ? 0.35
+        : 0;
+
 /** The palette as CSS custom properties, faded toward grey when the agent can't act. */
 function paletteVars(
   id: FacePalette,
@@ -141,14 +151,7 @@ function paletteVars(
   seed: number,
 ): React.CSSProperties {
   const pal = paletteOf(id);
-  const k =
-    state === "paused"
-      ? 0.86
-      : state === "failed"
-        ? 0.5
-        : state === "scheduled"
-          ? 0.35
-          : 0;
+  const k = fadeOf(state);
   const grey = (key: "a" | "b" | "deep") =>
     pal.dark ? `var(--face-grey-ink-${key})` : `var(--face-grey-${key})`;
   const inkK = pal.dark
@@ -173,6 +176,10 @@ function paletteVars(
       ? `color-mix(in oklab, var(--face-${id}-mark), var(--face-grey-b) ${n2(markK * 100)}%)`
       : `var(--face-${id}-mark)`,
     "--fi": `var(--face-${id}-ink)`,
+    // Paused features: the ink 40% toward the body, solid (`Face` swaps it in for `--fi`).
+    ...(state === "paused" && {
+      "--fs": `color-mix(in oklab, var(--face-${id}-ink), var(--fb) 40%)`,
+    }),
     "--face-seed": seed,
   } as React.CSSProperties;
 }
@@ -571,7 +578,14 @@ function Face({ def, state, size, motion, dark, dx = 0, mini }: FaceGeometry) {
       strokeWidth={n2(lw)}
       strokeLinecap="round"
       strokeLinejoin="round"
-      opacity={state === "paused" ? 0.6 : undefined}
+      // Paused softens the features with a solid ink (the ink 40% toward the body), never a see-through layer.
+      style={
+        state === "paused"
+          ? ({
+              "--fi": "var(--fs)",
+            } as React.CSSProperties)
+          : undefined
+      }
       transform={
         fit < 1
           ? `translate(${n2(cx)} ${n2(cy)}) scale(${n2(fit)}) translate(${n2(-cx)} ${n2(-cy)})`
@@ -662,6 +676,18 @@ function Shade({
         : state === "idle" || state === "replied"
           ? "12s"
           : "20s";
+  // Glass fades like every other palette: its three colours mix toward the light-to-deep greys
+  // by the state's amount, so a paused or failed Glass stays a solid grey body on any surface.
+  const fade = fadeOf(state);
+  const glassStops = [
+    "var(--face-grey-a)",
+    "color-mix(in oklab, var(--face-grey-a), var(--face-grey-b))",
+    "var(--face-grey-b)",
+  ].map((grey, i) =>
+    fade
+      ? `color-mix(in oklab, var(--face-glass-${i + 1}), ${grey} ${n2(fade * 100)}%)`
+      : `var(--face-glass-${i + 1})`,
+  );
   const glowColor = neutral && !dark ? "var(--fm)" : "var(--face-highlight)";
   const glowAlpha = dark ? 0.22 : neutral ? 0.32 : 0.75;
   return (
@@ -690,9 +716,9 @@ function Shade({
             x2={n2(cx + r)}
             y2={n2(cy + r * 1.6)}
           >
-            <stop offset="0" stopColor="var(--face-glass-1)" />
-            <stop offset="0.5" stopColor="var(--face-glass-2)" />
-            <stop offset="1" stopColor="var(--face-glass-3)" />
+            {glassStops.map((c, i) => (
+              <stop key={i} offset={i / 2} stopColor={c} />
+            ))}
           </linearGradient>
         ) : null}
         <radialGradient id={`${id}-h`}>
@@ -750,34 +776,13 @@ function Shade({
         ) : null}
       </defs>
       <g clipPath={`url(#${id}-c)`}>
-        {glass ? (
-          <>
-            <rect
-              x="-50"
-              y="-50"
-              width="200"
-              height="200"
-              fill="var(--face-highlight)"
-              fillOpacity={0.5}
-            />
-            <rect
-              x="-50"
-              y="-50"
-              width="200"
-              height="200"
-              fill={`url(#${id}-i)`}
-              opacity={state === "paused" || state === "failed" ? 0.35 : 1}
-            />
-          </>
-        ) : (
-          <rect
-            x="-50"
-            y="-50"
-            width="200"
-            height="200"
-            fill={`url(#${id}-g)`}
-          />
-        )}
+        <rect
+          x="-50"
+          y="-50"
+          width="200"
+          height="200"
+          fill={`url(#${id}-${glass ? "i" : "g"})`}
+        />
         {inner}
         {state !== "paused" ? (
           <ellipse
