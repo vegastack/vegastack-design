@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 57672
-      sha256: "0bc29ad03ab4aa5e5c6e59991199e5e1e6b27786a16246022241789591a6e5a3"
+      bytes: 57514
+      sha256: "03b71c6b8be4323c08e8d7ab7aa8e009a214f300f33384dc2d40dd7fc2578dda"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 25666
-      sha256: "4ed7501c41182911769da3380972100917fdaa4e6a733ee25f6ced425d9a4a26"
+      bytes: 25508
+      sha256: "d65d102ccb803b96661470eaef4682127218c5aca3e6e59c32af226c2345c06e"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -240,9 +240,6 @@ themes:
     face-blue-mark:
       type: "color"
       value: "oklch(0.531 0.196 258)"
-    face-dot-ink:
-      type: "color"
-      value: "oklch(0.279 0.053 293.8)"
     face-glass-1:
       type: "color"
       value: "oklch(0.839 0.1 345.8)"
@@ -1005,9 +1002,6 @@ themes:
     face-blue-mark:
       type: "color"
       value: "oklch(0.695 0.149 257.9)"
-    face-dot-ink:
-      type: "color"
-      value: "oklch(0.279 0.053 293.8)"
     face-glass-1:
       type: "color"
       value: "oklch(0.839 0.1 345.8)"

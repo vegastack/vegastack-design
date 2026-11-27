@@ -1,13 +1,12 @@
 import { expect, test } from "vitest";
 import {
   FACE_PALETTE_IDS,
-  FACE_PALETTES,
   FACE_PRESET_IDS,
   FACE_PRESETS,
   facePreset,
 } from "./agent-face-spec";
 
-test("18 presets and 9 palettes, each id once, every companion a palette", () => {
+test("18 presets and 9 palettes, each id once", () => {
   expect(FACE_PRESET_IDS).toHaveLength(18);
   expect(new Set(FACE_PRESET_IDS).size).toBe(18);
   expect(FACE_PALETTE_IDS).toEqual([
@@ -21,8 +20,6 @@ test("18 presets and 9 palettes, each id once, every companion a palette", () =>
     "mist",
     "glass",
   ]);
-  for (const p of FACE_PALETTES)
-    expect(FACE_PALETTE_IDS).toContain(p.companion);
 });
 
 test("every preset draws a body (a path or layers) and a Dot silhouette (its own or the body refitted)", () => {
