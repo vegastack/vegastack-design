@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.7 sha256-p9TDnz0tnYqUNjCtqBxrRVmJuPOK++dbKgM7xOPRcZY=
+// @vegastack agent-face@0.136.7 sha256-Z8/RziL+lq1ZSM1SySw3UgEHVs6HUpHvyDqUGMTrioE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -30,8 +30,23 @@ export type FaceState =
   | "paused";
 
 /** An agent's face: a preset character in a palette. Stored with the agent. */
+/**
+ * A face family: `pebble` the soft character (the Mini below 40px); `dot` the same silhouette with
+ * a 5 × 5 dot face, at every size.
+ */
+export type FaceFamily = "pebble" | "dot";
+
+/** The families, in picker order, with their names. */
+export const FACE_FAMILIES: readonly { id: FaceFamily; name: string }[] = [
+  { id: "pebble", name: "Pebbles" },
+  { id: "dot", name: "Dots" },
+];
+
+/** An agent's face: a family, a preset character and a palette. Stored with the agent. */
 export interface AgentFaceSpec {
   v: 1;
+  /** Absent means `pebble`, so a face stored before families stays a Pebble. */
+  family?: FaceFamily;
   preset: FacePreset;
   palette: FacePalette;
 }
@@ -50,7 +65,7 @@ export interface AgentFaceProps extends Omit<
   name?: string;
   /** What it is doing. @default "idle" */
   state?: FaceState;
-  /** Its size in CSS pixels. Below 40 it draws the Mini; from 40 the Pebble. */
+  /** Its size in CSS pixels. A Pebble face draws the Mini below 40 and the Pebble from 40; a Dot face is a Dot at every size. */
   size: number;
   /**
    * Whether it moves. Pass `true` only where the person is looking at that agent (its chat, its
@@ -1311,19 +1326,7 @@ function Pebble({
 }) {
   const body = def.pebble;
   const working = state === "working";
-  const bodyMotion = motion
-    ? (
-        {
-          idle: "motion-face-breathe",
-          thinking: "motion-face-ponder",
-          working: "motion-face-bob",
-          writing: "motion-face-talk",
-          "needs-you": "motion-face-hop",
-          replied: "motion-face-sway",
-          scheduled: "motion-face-doze",
-        } as Partial<Record<FaceState, string>>
-      )[state]
-    : undefined;
+  const bodyMotion = motion ? BODY_MOTION[state] : undefined;
   // The still pose of each state (a tilt for thinking and failed).
   const pose =
     state === "thinking"
@@ -1595,6 +1598,262 @@ function dotPath(def: FacePresetDef): string {
   return out.join("");
 }
 
+type Cells = [number, number, number?][];
+/** The 16 cells round the 5 × 5 grid's edge, clockwise from the top left. */
+const PERIMETER: [number, number][] = (() => {
+  const p: [number, number][] = [];
+  for (let x = 0; x < 5; x++) p.push([x, 0]);
+  for (let y = 1; y < 5; y++) p.push([4, y]);
+  for (let x = 3; x >= 0; x--) p.push([x, 4]);
+  for (let y = 3; y >= 1; y--) p.push([0, y]);
+  return p;
+})();
+
+function dotCells(def: FacePresetDef, state: FaceState): Cells {
+  const tall = def.eyes === "tall";
+  switch (state) {
+    case "idle":
+      return [
+        ...(tall
+          ? ([
+              [1, 1],
+              [1, 2],
+              [3, 1],
+              [3, 2],
+            ] as Cells)
+          : ([
+              [1, 2],
+              [3, 2],
+            ] as Cells)),
+        ...(def.mouth ? ([[2, 3, 0.55]] as Cells) : []),
+      ];
+    case "thinking":
+      return [
+        [2, 1],
+        [4, 1],
+      ];
+    case "working":
+      // Its eyes and a short bar along the bottom: never the same as a round-eyed idle.
+      return [
+        [1, 2],
+        [3, 2],
+        [1, 4, 0.5],
+        [2, 4, 0.85],
+        [3, 4, 0.5],
+      ];
+    case "writing":
+      return [
+        [1, 1],
+        [3, 1],
+        [1, 3, 0.9],
+        [2, 3, 0.9],
+        [3, 3, 0.9],
+      ];
+    case "needs-you":
+      return [
+        [0, 1],
+        [1, 1],
+        [0, 2],
+        [1, 2],
+        [3, 1],
+        [4, 1],
+        [3, 2],
+        [4, 2],
+        [2, 4, 0.75],
+      ];
+    case "replied":
+      return [
+        [1, 1],
+        [3, 1],
+        [0, 2, 0.85],
+        [1, 3, 0.85],
+        [2, 3, 0.85],
+        [3, 3, 0.85],
+        [4, 2, 0.85],
+      ];
+    case "failed":
+      return [
+        [1, 2, 0.85],
+        [3, 2, 0.85],
+        [1, 4, 0.6],
+        [2, 3, 0.6],
+        [3, 4, 0.6],
+      ];
+    case "scheduled":
+      return [
+        [0, 2, 0.6],
+        [1, 2, 0.6],
+        [3, 2, 0.6],
+        [4, 2, 0.6],
+      ];
+    case "paused":
+      return [
+        [1, 2, 0.45],
+        [3, 2, 0.45],
+      ];
+  }
+}
+
+/** Each state's body move, shared by the Pebble, the Mini and the Dot. */
+const BODY_MOTION: Partial<Record<FaceState, string>> = {
+  idle: "motion-face-breathe",
+  thinking: "motion-face-ponder",
+  working: "motion-face-bob",
+  writing: "motion-face-talk",
+  "needs-you": "motion-face-hop",
+  replied: "motion-face-sway",
+  scheduled: "motion-face-doze",
+};
+
+/**
+ * The Dot family: the preset's own silhouette in a deeper tone of its palette, with a 5 × 5 dot face
+ * that lights up in each state's pattern. From 40px the unlit dots show faintly, like a small
+ * screen; below that only the lit ones draw. Motion passes a light round the edge while it thinks,
+ * a wave along the bottom while it works and types while it writes; its eyes blink when idle.
+ */
+function Dot({
+  def,
+  pal,
+  state,
+  size,
+  motion,
+  ring,
+  uid,
+}: {
+  def: FacePresetDef;
+  pal: (typeof FACE_PALETTES)[number];
+  state: FaceState;
+  size: number;
+  motion: boolean;
+  ring: string;
+  uid: string;
+}) {
+  const darkInk = !!pal.glass || pal.id === "mist";
+  const lit = darkInk ? "var(--face-dot-ink)" : "var(--face-highlight)";
+  const rest = darkInk ? 0.08 : size >= 40 ? 0.11 : 0.13;
+  const a =
+    pal.dark || darkInk
+      ? "var(--fa)"
+      : "color-mix(in oklab, var(--fb) 85%, var(--fa))";
+  const b =
+    pal.dark || darkInk
+      ? "var(--fb)"
+      : "color-mix(in oklab, var(--fd) 80%, var(--fb))";
+  const g = 58;
+  const cell = g / 5;
+  // Small, the dots grow and the faint ones brighten, so a 16px face still reads.
+  const dr = cell * (size < 24 ? 0.48 : size < 40 ? 0.44 : 0.41);
+  const ox = 50 - g / 2;
+  const oy = 50 - g / 2;
+  const map = new Map<string, number>();
+  for (const [x, y, v = 1] of dotCells(def, state))
+    map.set(`${x},${y}`, size < 24 ? Math.max(v, 0.75) : v);
+  const chase = state === "thinking";
+  const wave = state === "working";
+  const typed = state === "writing";
+  const glow = size >= 28 && !darkInk;
+  const blinks = motion && state === "idle";
+  const cells: React.ReactNode[] = [];
+  const eyes: React.ReactNode[] = [];
+  for (let y = 0; y < 5; y++)
+    for (let x = 0; x < 5; x++) {
+      const v = map.get(`${x},${y}`) ?? 0;
+      const per = chase
+        ? PERIMETER.findIndex(([px, py]) => px === x && py === y)
+        : -1;
+      // The still face is the cells alone; motion adds a light that passes over some of them,
+      // so the still pose (and reduced motion) is the same face either way.
+      const passes =
+        motion && ((chase && per >= 0 && v === 0) || (wave && y === 4));
+      const types = motion && typed && y === 3 && x >= 1 && x <= 3;
+      // Below 40px an unlit dot isn't drawn at all, with motion or without.
+      const base = v > 0 || size >= 40;
+      if (!base && !passes) continue;
+      const cx = n2(ox + cell * (x + 0.5));
+      const cy = n2(oy + cell * (y + 0.5));
+      if (base) {
+        const dotEl = (
+          <circle
+            key={`${x}${y}`}
+            cx={cx}
+            cy={cy}
+            r={n2(dr * (0.6 + 0.4 * v))}
+            fill={lit}
+            fillOpacity={n2(v ? rest + (1 - rest) * v : rest)}
+            className={types ? "motion-face-type" : undefined}
+            style={
+              types ? ({ "--face-dot": x } as React.CSSProperties) : undefined
+            }
+          />
+        );
+        if (blinks && v > 0 && (y === 1 || y === 2)) eyes.push(dotEl);
+        else cells.push(dotEl);
+      }
+      if (passes)
+        cells.push(
+          <circle
+            key={`p${x}${y}`}
+            cx={cx}
+            cy={cy}
+            r={n2(dr * 0.85)}
+            fill={lit}
+            opacity={0}
+            className={chase ? "motion-face-chase" : "motion-face-wave"}
+            style={{ "--face-dot": chase ? per : x } as React.CSSProperties}
+          />,
+        );
+    }
+  // The blink closes the eyes where they are: tall eyes span rows 1–2, round eyes sit on row 2.
+  const eyeOrigin = {
+    transformOrigin: `50px ${n2(oy + cell * (def.eyes === "tall" ? 2 : 2.5))}px`,
+  };
+  return (
+    <>
+      <g
+        key={state}
+        className={motion ? "motion-face-change" : undefined}
+        style={MINI_ORIGIN}
+      >
+        <g
+          className={motion ? BODY_MOTION[state] : undefined}
+          style={MINI_ORIGIN}
+        >
+          <Shade
+            id={`${uid}-d`}
+            d={dotPath(def)}
+            state={state}
+            motion={motion}
+            pal={pal}
+            a={a}
+            b={b}
+            cx={50}
+            cy={50}
+            r={46}
+            light={0.45}
+            effects={false}
+          />
+          <g
+            clipPath={`url(#${uid}-d-c)`}
+            style={
+              glow
+                ? { filter: "drop-shadow(0 0 2.5px var(--face-highlight))" }
+                : undefined
+            }
+          >
+            {cells}
+            {eyes.length ? (
+              <g className="motion-face-blink" style={eyeOrigin}>
+                {eyes}
+              </g>
+            ) : null}
+          </g>
+        </g>
+      </g>
+      <Badge state={state} size={size} ring={ring} motion={motion} />
+    </>
+  );
+}
+
 function Mini({
   def,
   pal,
@@ -1698,16 +1957,19 @@ function AgentFace({
   const face = agentFaceFor({ name, face: faceProp });
   const def = facePreset(face.preset);
   const pal = paletteOf(face.palette);
-  const mini = size < 40;
+  const family: FaceFamily = face.family ?? "pebble";
+  const dot = family === "dot";
+  const mini = !dot && size < 40;
   const named = Boolean(label);
   return (
     <svg
       data-slot="agent-face"
-      data-form={mini ? "mini" : "pebble"}
+      data-family={family}
+      data-form={dot ? "dot" : mini ? "mini" : "pebble"}
       data-state={state}
       data-preset={def.id}
       data-palette={pal.id}
-      viewBox={mini ? "0 0 100 100" : PEBBLE_BOX}
+      viewBox={dot || mini ? "0 0 100 100" : PEBBLE_BOX}
       width={size}
       height={size}
       role={named ? "img" : undefined}
@@ -1725,7 +1987,7 @@ function AgentFace({
       }}
       {...props}
     >
-      {halo && mini ? (
+      {halo && (dot || mini) ? (
         <path
           d={dotPath(def)}
           fill="none"
@@ -1734,7 +1996,17 @@ function AgentFace({
           strokeLinejoin="round"
         />
       ) : null}
-      {mini ? (
+      {dot ? (
+        <Dot
+          def={def}
+          pal={pal}
+          state={state}
+          size={size}
+          motion={motion}
+          ring={ring}
+          uid={uid}
+        />
+      ) : mini ? (
         <Mini
           def={def}
           pal={pal}

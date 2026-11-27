@@ -1,6 +1,6 @@
 ---
 title: Agent Face
-description: "An agent's face: a preset character in a palette, the Pebble from 40px and the Mini below, showing what it is doing. CSS only, still under reduced motion."
+description: "An agent's face: Pebbles or Dots, a preset character and a palette, showing what it is doing. CSS only, still under reduced motion."
 audience: public
 registry: agent-face
 status: preview
@@ -27,8 +27,10 @@ import { AgentFace } from "@/components/ui/agent-face";
 />;
 ```
 
-Agents are faces, not hexagons (BRD-13). Every agent is one of 18 preset characters (shape, eyes
-and mouth, designed together) in one of 9 palettes built from the accent theme colours. Avatars in
+Agents are faces, not hexagons (BRD-13). Every agent is one of two families, one of 18 preset
+characters (shape, eyes and mouth, designed together) and one of 9 palettes built from the accent
+theme colours. **Pebbles** are soft characters with eyes, a mouth and a cue; **Dots** are the same
+silhouettes with a 5 × 5 dot face. `family` is optional on the spec: none means `pebble`. Avatars in
 rows, chips and stacks don't use this directly: [`PersonAvatar`](/docs/components/person-hover-card)
 draws an agent's face from `person.face`. Use `AgentFace` on its own for a face picker, an agent's
 header or an onboarding moment.
@@ -40,6 +42,19 @@ header or an onboarding moment.
 <Anatomy name="agent-face" />
 
 ## Examples
+
+### Families
+
+A Pebble draws the soft character from 40px and the Mini below. A Dot draws the dot face at every
+size: from 40px its unlit dots show faintly, like a small screen; below that only the lit ones draw,
+larger. Its states are dot patterns: eyes up while it thinks (a light runs round the edge), a bar
+along the bottom while it works (a wave passes along it), three dots typing while it writes, and the
+same badges as the Mini for the states that need a person. Its eyes blink when idle.
+
+<ComponentPreview
+  name="agentFaceFamilies"
+  file="components/preview/agent-face.tsx"
+/>
 
 ### Presets
 
@@ -66,11 +81,11 @@ neutrals. Each palette has a companion that colours a Cairn's top stone and a St
 
 Motion means busy, the cue's colour says who acts next (the agent's colour: it is busy; amber:
 you; blue: something new for you; red: it is stuck; grey: it isn't running), and grey means it
-can't act. From 40px each state has a cue on the head's shoulder, made of the face's own material
+can't act. On a Pebble from 40px each state has a cue on the head's shoulder, made of the face's own material
 and moving with its head: a thought cloud while it thinks, a turning gear while it works, a speech
 bubble while it writes, amber ticks when it needs you, sparkles when it replied, a red alert when it
-failed, z's when it is scheduled and a pause sign when it is paused. The Mini badges only the states
-that need a person: amber, blue and red. A state change blinks, squashes once and springs the new
+failed, z's when it is scheduled and a pause sign when it is paused. The Mini and the Dot badge only
+the states that need a person: amber, blue and red; a Dot shows the rest in its dots. A state change blinks, squashes once and springs the new
 cue.
 
 | State     | Eyes and mouth                                         | Body                               | Cue           |

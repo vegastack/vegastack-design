@@ -1138,6 +1138,8 @@
  *            bubble's dots) · flare (amber ticks) · twinkle (sparkles) · rise (z's)
  *            ping (the amber badge) · moon (a ring's moon)
  *   once     change (a state change: a squash and a blink) · pop (the new cue gathers and springs)
+ *   dots     chase (thinking: a light round the edge) · wave (working: along the bottom) — the
+ *            Dot family's cells
  * ------------------------------------------------------------------------- */
 @keyframes vs-face-breathe {
   0%,
@@ -1590,6 +1592,34 @@
 }
 @utility motion-face-change {
   animation: vs-face-change 0.42s ease-out 1;
+}
+@keyframes vs-face-chase {
+  0%,
+  22%,
+  100% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+}
+@utility motion-face-chase {
+  animation: vs-face-chase 2.3s linear infinite;
+  animation-delay: calc(var(--face-dot, 0) * 0.143s);
+}
+@keyframes vs-face-wave {
+  0%,
+  40%,
+  100% {
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+}
+@utility motion-face-wave {
+  animation: vs-face-wave 1.4s ease-in-out infinite;
+  animation-delay: calc(var(--face-dot, 0) * 0.2s);
 }
 @keyframes vs-face-change-eyes {
   0%,
