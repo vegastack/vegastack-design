@@ -1,13 +1,16 @@
-// @vegastack media-player-controls@0.138.0 sha256-FhZ6ObYXXpts8sVZd9T8OOvt0nUeeaNyLxVY569VGOQ=
+// @vegastack media-player-controls@0.138.0 sha256-4k/fhoRO+o5Q+MrFk9EMjB044TfzDREI4kWk+rQptNs=
 
 "use client";
 
 import * as React from "react";
 import {
   AudioLines,
+  Captions,
+  CaptionsOff,
   Maximize,
   Minimize,
   Pause,
+  PictureInPicture2,
   Play,
   RotateCcw,
   RotateCw,
@@ -256,7 +259,51 @@ export interface UseMediaShortcutsOptions {
   onPlayStateChange?: (playing: boolean) => void;
   /** Called after a shortcut changed the current time. @default undefined */
   onTimeChange?: (currentTime: number, duration: number) => void;
+  /**
+   * Seconds moved by ← and →, when they should move less than J/L (a recording: 5 s on the
+   * arrows, 10 s on J/L). @default skipSeconds
+   */
+  arrowSkipSeconds?: number;
+  /** Captions toggle for C. When omitted, C is not handled. @default undefined */
+  onCaptionsToggle?: () => void;
+  /** Picture in picture toggle for P. When omitted, P is not handled. @default undefined */
+  onPictureInPictureToggle?: () => void;
+  /**
+   * The rates `<` and `>` (Shift+, and Shift+.) step through, slower and faster. When omitted,
+   * neither is handled. @default undefined
+   */
+  rateSteps?: readonly number[];
+  /**
+   * 0–9 jump to 0–90 % of the duration, and ↑/↓ change the volume (the latter on the surface
+   * only, where no slider owns the arrows). @default false
+   */
+  videoKeys?: boolean;
+  /** The displayed timeline (skip ranges), so 0–9 jump through the time people see. @default identity */
+  timeline?: MediaTimeline;
 }
+
+/**
+ * The time people see versus the media's own clock. A player that skips ranges of its source (an
+ * edit previewed before it is rendered) shows the edited time on the scrubber and the readout; it
+ * maps every seek back to the media clock. Seconds on both sides.
+ */
+export interface MediaTimeline {
+  /** Media seconds → displayed seconds. */
+  toDisplay: (mediaSeconds: number) => number;
+  /** Displayed seconds → media seconds. */
+  toMedia: (displaySeconds: number) => number;
+}
+
+/** A chapter: where it starts, in the media's own milliseconds, and its title. */
+export interface MediaChapter {
+  start_ms: number;
+  title: string;
+}
+
+const IDENTITY_TIMELINE: MediaTimeline = {
+  toDisplay: (seconds) => seconds,
+  toMedia: (seconds) => seconds,
+};
 
 /** The transport actions plus the single key map, shared by every media surface. */
 export interface UseMediaShortcutsResult {
@@ -269,7 +316,8 @@ export interface UseMediaShortcutsResult {
 
 /**
  * `useMediaShortcuts` — THE media keyboard map (audit B4-02). Space/K play, J/L skip, ←/→ skip,
- * M mute, F fullscreen. It used to exist twice — once inside the controls and once in the video
+ * M mute, F fullscreen; for video, opt in to C captions, P picture in picture, `<`/`>` speed, 0–9
+ * jump to 0–90 % and ↑/↓ volume. It used to exist twice — once inside the controls and once in the video
  * frame plus a document-level listener — which is how the two drifted apart (the controls copy
  * never handled F).
  *
@@ -283,6 +331,12 @@ export function useMediaShortcuts({
   onFullscreenToggle,
   onPlayStateChange,
   onTimeChange,
+  arrowSkipSeconds = skipSeconds,
+  onCaptionsToggle,
+  onPictureInPictureToggle,
+  rateSteps,
+  videoKeys = false,
+  timeline = IDENTITY_TIMELINE,
 }: UseMediaShortcutsOptions): UseMediaShortcutsResult {
   const togglePlayback = React.useCallback(() => {
     const media = mediaRef.current;
@@ -296,14 +350,19 @@ export function useMediaShortcuts({
     media.pause();
   }, [mediaRef, onPlayStateChange]);
 
+  // Relative seeks move through the DISPLAYED timeline, so skipping back across a skipped range
+  // lands where people expect instead of inside the range.
   const skipBy = React.useCallback(
     (offset: number) => {
       const media = mediaRef.current;
       if (!media) return;
-      media.currentTime = clampTime(media, media.currentTime + offset);
+      media.currentTime = clampTime(
+        media,
+        timeline.toMedia(timeline.toDisplay(media.currentTime) + offset),
+      );
       onTimeChange?.(media.currentTime, getMediaDuration(media));
     },
-    [mediaRef, onTimeChange],
+    [mediaRef, onTimeChange, timeline],
   );
 
   const toggleMuted = React.useCallback(() => {
@@ -311,6 +370,49 @@ export function useMediaShortcuts({
     if (!media) return;
     media.muted = !media.muted;
   }, [mediaRef]);
+
+  const jumpToPercent = React.useCallback(
+    (tenths: number) => {
+      const media = mediaRef.current;
+      if (!media) return;
+      const shown = timeline.toDisplay(getMediaDuration(media));
+      media.currentTime = clampTime(
+        media,
+        timeline.toMedia((shown * tenths) / 10),
+      );
+      onTimeChange?.(media.currentTime, getMediaDuration(media));
+    },
+    [mediaRef, onTimeChange, timeline],
+  );
+
+  const stepRate = React.useCallback(
+    (direction: 1 | -1) => {
+      const media = mediaRef.current;
+      if (!media || !rateSteps?.length) return;
+      const sorted = [...rateSteps].sort((a, b) => a - b);
+      const next =
+        direction > 0
+          ? sorted.find((rate) => rate > media.playbackRate + 1e-6)
+          : [...sorted]
+              .reverse()
+              .find((rate) => rate < media.playbackRate - 1e-6);
+      if (next != null) media.playbackRate = next;
+    },
+    [mediaRef, rateSteps],
+  );
+
+  const stepVolume = React.useCallback(
+    (delta: number) => {
+      const media = mediaRef.current;
+      if (!media) return;
+      media.volume = Math.min(
+        Math.max(Math.round((media.volume + delta) * 100) / 100, 0),
+        1,
+      );
+      media.muted = media.volume === 0;
+    },
+    [mediaRef],
+  );
 
   const runShortcut = React.useCallback(
     (key: string, scope: MediaShortcutScope) => {
@@ -322,13 +424,26 @@ export function useMediaShortcuts({
           return true;
         }
         if (key === "ArrowLeft") {
-          skipBy(-skipSeconds);
+          skipBy(-arrowSkipSeconds);
           return true;
         }
         if (key === "ArrowRight") {
-          skipBy(skipSeconds);
+          skipBy(arrowSkipSeconds);
           return true;
         }
+        if (videoKeys && (key === "ArrowUp" || key === "ArrowDown")) {
+          stepVolume(key === "ArrowUp" ? 0.1 : -0.1);
+          return true;
+        }
+      }
+
+      if (videoKeys && /^[0-9]$/.test(key)) {
+        jumpToPercent(Number(key));
+        return true;
+      }
+      if (rateSteps?.length && (key === "<" || key === ">")) {
+        stepRate(key === ">" ? 1 : -1);
+        return true;
       }
 
       switch (key.toLowerCase()) {
@@ -348,11 +463,33 @@ export function useMediaShortcuts({
           if (!onFullscreenToggle) return false;
           onFullscreenToggle();
           return true;
+        case "c":
+          if (!onCaptionsToggle) return false;
+          onCaptionsToggle();
+          return true;
+        case "p":
+          if (!onPictureInPictureToggle) return false;
+          onPictureInPictureToggle();
+          return true;
         default:
           return false;
       }
     },
-    [onFullscreenToggle, skipBy, skipSeconds, toggleMuted, togglePlayback],
+    [
+      arrowSkipSeconds,
+      jumpToPercent,
+      onCaptionsToggle,
+      onFullscreenToggle,
+      onPictureInPictureToggle,
+      rateSteps,
+      skipBy,
+      skipSeconds,
+      stepRate,
+      stepVolume,
+      toggleMuted,
+      togglePlayback,
+      videoKeys,
+    ],
   );
 
   return { togglePlayback, skipBy, toggleMuted, runShortcut };
@@ -426,6 +563,24 @@ function MediaControlTooltip({
   );
 }
 
+/**
+ * The scrubber's spoken position, "1:23 of 4:56". Upstream's `Slider` forwards no
+ * `getAriaValueText` to Base UI's thumb (it is a thumb prop), so the text is written onto the hidden
+ * range input after every commit — React re-writes Base UI's default on the same commit, and this
+ * layout effect runs after it.
+ */
+function useSliderValueText(
+  rootRef: React.RefObject<HTMLElement | null>,
+  valueText: string | undefined,
+) {
+  React.useLayoutEffect(() => {
+    if (!valueText) return;
+    rootRef.current
+      ?.querySelector('input[type="range"]')
+      ?.setAttribute("aria-valuetext", valueText);
+  });
+}
+
 function MediaProgressSlider({
   value,
   max,
@@ -433,6 +588,9 @@ function MediaProgressSlider({
   label,
   onValueChange,
   variant,
+  valueText,
+  chapters,
+  formatTime,
 }: {
   value: number;
   max: number;
@@ -440,9 +598,45 @@ function MediaProgressSlider({
   label: string;
   onValueChange: (value: number | readonly number[]) => void;
   variant: "default" | "overlay";
+  valueText?: string;
+  /** Chapter starts on the displayed timeline, in seconds. */
+  chapters?: ReadonlyArray<{ start: number; title: string }>;
+  formatTime: (seconds: number) => string;
 }) {
+  const rootRef = React.useRef<HTMLDivElement | null>(null);
+  useSliderValueText(rootRef, valueText);
+  // Where the pointer is over the rail, as a ratio, while it hovers (video only): the label above
+  // the rail says the time there and, with chapters, the chapter's title.
+  const [hoverRatio, setHoverRatio] = React.useState<number | null>(null);
+  const showHover = variant === "overlay" && !disabled;
+  const hoverTime = hoverRatio == null ? 0 : hoverRatio * max;
+  const hoverChapter =
+    hoverRatio == null || !chapters?.length
+      ? undefined
+      : [...chapters].reverse().find((chapter) => chapter.start <= hoverTime);
+
   return (
-    <div data-slot="media-player-progress" data-variant={variant}>
+    <div
+      ref={rootRef}
+      data-slot="media-player-progress"
+      data-variant={variant}
+      className="relative"
+      onPointerMove={
+        showHover
+          ? (event) => {
+              const box = event.currentTarget.getBoundingClientRect();
+              if (box.width <= 0) return;
+              setHoverRatio(
+                Math.min(
+                  Math.max((event.clientX - box.left) / box.width, 0),
+                  1,
+                ),
+              );
+            }
+          : undefined
+      }
+      onPointerLeave={showHover ? () => setHoverRatio(null) : undefined}
+    >
       <Slider
         // The seek thumb is hidden at rest on hover-capable devices and shown on
         // hover/focus/drag — but it stays VISIBLE on touch, where there is no
@@ -466,6 +660,42 @@ function MediaProgressSlider({
         aria-label={`${label} seek`}
         onValueChange={onValueChange}
       />
+      {chapters?.length && max > 0 ? (
+        /* Chapter starts as small breaks in the rail, never a target of their own: the rail
+           (and the chapter menu) is how you get there. The first chapter at 0 draws nothing. */
+        <div
+          aria-hidden="true"
+          data-slot="media-player-chapter-ticks"
+          className="pointer-events-none absolute inset-0"
+        >
+          {chapters
+            .filter((chapter) => chapter.start > 0 && chapter.start < max)
+            .map((chapter) => (
+              <span
+                key={chapter.start}
+                className="absolute top-1/2 h-2 w-0.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-media-scrim-strong rtl:translate-x-1/2"
+                style={{ insetInlineStart: `${(chapter.start / max) * 100}%` }}
+              />
+            ))}
+        </div>
+      ) : null}
+      {showHover && hoverRatio != null ? (
+        <div
+          aria-hidden="true"
+          data-slot="media-player-seek-preview"
+          className="pointer-events-none absolute bottom-full mb-2 flex max-w-60 -translate-x-1/2 items-center gap-1.5 rounded-item bg-media-scrim-strong px-2 py-1 text-xs whitespace-nowrap text-media-foreground rtl:translate-x-1/2"
+          style={{
+            insetInlineStart: `clamp(3rem, ${hoverRatio * 100}%, calc(100% - 3rem))`,
+          }}
+        >
+          {hoverChapter ? (
+            <span className="min-w-0 truncate font-medium">
+              {hoverChapter.title}
+            </span>
+          ) : null}
+          <span className="shrink-0 tabular-nums">{formatTime(hoverTime)}</span>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -674,6 +904,44 @@ export interface MediaPlayerControlsProps extends Omit<
    * @default false
    */
   loading?: boolean;
+  /**
+   * The displayed timeline when the player skips ranges of its media (an edit previewed before it
+   * is rendered): the scrubber, the readout and every seek use it. Seconds.
+   * @default identity
+   */
+  timeline?: MediaTimeline;
+  /**
+   * Chapters, in the media's own milliseconds: ticks on the scrubber, the chapter's title over the
+   * rail on hover, and a Chapters entry in the settings menu (`overlay` variant).
+   * @default undefined
+   */
+  chapters?: readonly MediaChapter[];
+  /**
+   * Called when the captions control is pressed. When omitted, the control is not rendered.
+   * @default undefined
+   */
+  onCaptionsToggle?: () => void;
+  /**
+   * Whether captions are showing. Updates the captions control's icon and accessible name.
+   * @default false
+   */
+  captionsEnabled?: boolean;
+  /**
+   * Called when the picture in picture control is pressed. When omitted (the browser has no
+   * picture in picture), the control is not rendered.
+   * @default undefined
+   */
+  onPictureInPictureToggle?: () => void;
+  /**
+   * Whether the media is in picture in picture.
+   * @default false
+   */
+  isPictureInPicture?: boolean;
+  /**
+   * Seconds moved by ← and → when they should differ from J/L.
+   * @default skipSeconds
+   */
+  arrowSkipSeconds?: number;
 }
 
 /**
@@ -713,6 +981,13 @@ export function MediaPlayerControls({
   waveformPeaks,
   waveformFlatPeaks,
   loading = false,
+  timeline = IDENTITY_TIMELINE,
+  chapters,
+  onCaptionsToggle,
+  captionsEnabled = false,
+  onPictureInPictureToggle,
+  isPictureInPicture = false,
+  arrowSkipSeconds,
   onKeyDown,
   ref,
   ...props
@@ -749,14 +1024,23 @@ export function MediaPlayerControls({
     };
   });
 
+  // `currentTime`/`duration` hold the DISPLAYED timeline (identical to the media's unless the
+  // player skips ranges); `onTimeChange` always reports the media's own clock.
+  const timelineRef = React.useRef(timeline);
+  React.useLayoutEffect(() => {
+    timelineRef.current = timeline;
+  });
   const syncFromMedia = React.useCallback(() => {
     const media = mediaRef.current;
     const nextTime = media?.currentTime ?? 0;
     const nextDuration = getMediaDuration(media);
-    setCurrentTime(nextTime);
-    setDuration(nextDuration);
+    setCurrentTime(timelineRef.current.toDisplay(nextTime));
+    setDuration(
+      nextDuration > 0 ? timelineRef.current.toDisplay(nextDuration) : 0,
+    );
     callbacksRef.current.onTimeChange?.(nextTime, nextDuration);
   }, [mediaRef]);
+  React.useEffect(() => syncFromMedia(), [timeline, syncFromMedia]);
 
   const syncPlaying = React.useCallback((nextPlaying: boolean) => {
     setPlaying(nextPlaying);
@@ -822,7 +1106,13 @@ export function MediaPlayerControls({
   const shortcuts = useMediaShortcuts({
     mediaRef,
     skipSeconds,
+    arrowSkipSeconds,
     onFullscreenToggle,
+    onCaptionsToggle,
+    onPictureInPictureToggle,
+    rateSteps: variant === "overlay" ? playbackRates : undefined,
+    videoKeys: variant === "overlay",
+    timeline,
     onPlayStateChange: syncPlaying,
     onTimeChange: () => syncFromMedia(),
   });
@@ -833,7 +1123,7 @@ export function MediaPlayerControls({
       const media = mediaRef.current;
       if (!media) return;
       const next = Array.isArray(value) ? value[0] : value;
-      media.currentTime = clampTime(media, next);
+      media.currentTime = clampTime(media, timelineRef.current.toMedia(next));
       syncFromMedia();
     },
     [mediaRef, syncFromMedia],
@@ -947,6 +1237,37 @@ export function MediaPlayerControls({
   const mergedRef = React.useMemo(() => mergeRefs(ref, rootRef), [ref]);
   const portalContainer = useFullscreenPortalContainer(rootRef);
 
+  const displayChapters = React.useMemo(
+    () =>
+      chapters?.length
+        ? [...chapters]
+            .sort((a, b) => a.start_ms - b.start_ms)
+            .map((chapter) => ({
+              start: timeline.toDisplay(chapter.start_ms / 1000),
+              media: chapter.start_ms / 1000,
+              title: chapter.title,
+            }))
+        : undefined,
+    [chapters, timeline],
+  );
+  const currentChapterIndex = displayChapters
+    ? displayChapters.reduce(
+        (found, chapter, index) =>
+          chapter.start <= currentTime + 0.25 ? index : found,
+        0,
+      )
+    : -1;
+  const seekToChapter = React.useCallback(
+    (value: string) => {
+      const media = mediaRef.current;
+      const chapter = displayChapters?.[Number(value)];
+      if (!media || !chapter) return;
+      media.currentTime = clampTime(media, chapter.media);
+      syncFromMedia();
+    },
+    [displayChapters, mediaRef, syncFromMedia],
+  );
+
   const settingsMenu = (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -990,6 +1311,41 @@ export function MediaPlayerControls({
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
+
+        {isOverlay && displayChapters?.length ? (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger>
+              <span className="min-w-0 flex-1 truncate">Chapters</span>
+              <span className="max-w-32 truncate text-xs text-muted-foreground">
+                {displayChapters[currentChapterIndex]?.title}
+              </span>
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent
+              className={cn(
+                "max-w-80 min-w-56",
+                MEDIA_SUBMENU_RADIO_ITEM_CLASS,
+              )}
+              container={portalContainer}
+            >
+              <DropdownMenuRadioGroup
+                value={String(currentChapterIndex)}
+                onValueChange={seekToChapter}
+              >
+                <DropdownMenuLabel>Chapters</DropdownMenuLabel>
+                {displayChapters.map((chapter, index) => (
+                  <DropdownMenuRadioItem key={index} value={String(index)}>
+                    <span className="min-w-0 flex-1 truncate">
+                      {chapter.title}
+                    </span>
+                    <span className="shrink-0 text-xs text-muted-foreground tabular-nums">
+                      {formatTime(chapter.start)}
+                    </span>
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        ) : null}
 
         {qualities.length > 0 ? (
           <DropdownMenuSub>
@@ -1040,6 +1396,9 @@ export function MediaPlayerControls({
         label={label}
         onValueChange={seekTo}
         variant={variant}
+        valueText={`${formatTime(currentTime)} of ${formatTime(displayedDuration)}`}
+        chapters={displayChapters}
+        formatTime={formatTime}
       />
     );
 
@@ -1265,6 +1624,44 @@ export function MediaPlayerControls({
     </MediaControlTooltip>
   ) : null;
 
+  const captionsControl = onCaptionsToggle ? (
+    <MediaControlTooltip
+      content={captionsEnabled ? "Turn off captions (C)" : "Captions (C)"}
+    >
+      <Button
+        aria-label={`Captions ${label}`}
+        aria-pressed={captionsEnabled}
+        size="icon"
+        variant="ghost"
+        onClick={onCaptionsToggle}
+        className={MEDIA_ACTION_ICON_CLASS}
+      >
+        {captionsEnabled ? <Captions /> : <CaptionsOff />}
+      </Button>
+    </MediaControlTooltip>
+  ) : null;
+
+  const pictureInPictureControl = onPictureInPictureToggle ? (
+    <MediaControlTooltip
+      content={
+        isPictureInPicture
+          ? "Exit picture in picture (P)"
+          : "Picture in picture (P)"
+      }
+    >
+      <Button
+        aria-label={`${isPictureInPicture ? "Exit picture in picture" : "Picture in picture"} ${label}`}
+        aria-pressed={isPictureInPicture}
+        size="icon"
+        variant="ghost"
+        onClick={onPictureInPictureToggle}
+        className={MEDIA_ACTION_ICON_CLASS}
+      >
+        <PictureInPicture2 />
+      </Button>
+    </MediaControlTooltip>
+  ) : null;
+
   if (isOverlay) {
     return (
       <MediaPortalContainerContext.Provider value={portalContainer}>
@@ -1305,7 +1702,9 @@ export function MediaPlayerControls({
 
               <div className="flex justify-self-end">
                 {volumeControl}
+                {captionsControl}
                 {settingsMenu}
+                {pictureInPictureControl}
                 {fullscreenControl}
               </div>
             </div>

@@ -31,15 +31,17 @@ export const AudioPlayerStory: FC<AudioPlayerStoryProps> = (props) => (
 );
 AudioPlayerStory.displayName = "AudioPlayer";
 
-type VideoPlayerStoryProps = Pick<
+// The file source only: the explorer's controls are flat props, and `hls` is an object with a
+// callback (its example lives on the page).
+type VideoPlayerStoryProps = { src: string } & Pick<
   VideoPlayerProps,
-  | "src"
   | "label"
   | "title"
   | "description"
   | "aspectRatio"
   | "poster"
   | "skipSeconds"
+  | "arrowSkipSeconds"
 >;
 
 export const VideoPlayerStory: FC<VideoPlayerStoryProps> = (props) => (

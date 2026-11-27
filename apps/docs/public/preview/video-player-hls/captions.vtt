@@ -1,0 +1,16 @@
+WEBVTT
+
+00:00:00.500 --> 00:00:04.000
+This is the opening of the walkthrough.
+
+00:00:04.500 --> 00:00:08.000
+Captions come from a WebVTT track.
+
+00:00:08.500 --> 00:00:12.000
+The player skips the range from 0:12 to 0:16.
+
+00:00:16.000 --> 00:00:20.000
+Playback picks up here, after the skipped range.
+
+00:00:20.500 --> 00:00:24.000
+The scrubber shows the edited time.

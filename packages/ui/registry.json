@@ -13781,7 +13781,7 @@
       "name": "media-player-controls",
       "type": "registry:ui",
       "title": "Media Player Controls",
-      "description": "The shared media transport — play/pause, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map — composed by Audio Player and Video Player.",
+      "description": "The shared media transport — play/pause, seek (with chapter ticks and an edited timeline), elapsed/duration, mute + volume, playback speed, captions and picture-in-picture toggles, and one keyboard shortcut map — composed by Audio Player and Video Player.",
       "categories": ["media"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -17546,9 +17546,10 @@
       "name": "video-player",
       "type": "registry:ui",
       "title": "Video Player",
-      "description": "A framed video player with the same grouped custom transport controls as Audio Player — a poster, no autoplay, a \"can't play\" card with Download, and onSourceExpired to renew an expired signed URL.",
+      "description": "A framed video player with the same grouped custom transport controls as Audio Player — a file or an HLS playlist (hls.js loaded lazily where the browser has no native HLS) with signed-URL renewal at the same position, skip ranges shown as edited time, chapters, captions, picture in picture and fullscreen, a poster, no autoplay, and a \"can't play\" card with Download.",
       "categories": ["media"],
       "dependencies": [
+        "hls.js@1.7.4",
         "lucide-react@^1.47.0",
         "@vegastack/design@^0.33.0",
         "@vegastack/design-tokens@^0.33.0"
@@ -17556,6 +17557,7 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/media-player-controls",
+        "@vegastack/text-spinner",
         "@vegastack/use-media-query"
       ],
       "files": [
@@ -17563,11 +17565,16 @@
           "path": "packages/ui/registry/ui/video-player.tsx",
           "type": "registry:ui",
           "target": "@ui/video-player.tsx"
+        },
+        {
+          "path": "packages/ui/registry/ui/video-player-hls.ts",
+          "type": "registry:ui",
+          "target": "@ui/video-player-hls.ts"
         }
       ],
       "meta": {
-        "whenToUse": "A single video asset that needs a branded frame plus grouped skip controls, mute, and keyboard shortcuts.",
-        "whenNotToUse": "Playlists, caption editing, fullscreen-first viewing, or adaptive streaming control surfaces.",
+        "whenToUse": "A video on a page — a stored file, or a recording served as an HLS playlist with renewing signed URLs, chapters, captions and an edit previewed as skipped ranges.",
+        "whenNotToUse": "Opening a stored file full screen (FileViewer), caption editing, or multi-rendition streaming with a quality picker.",
         "version": "0.138.0"
       }
     },

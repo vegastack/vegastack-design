@@ -1017,3 +1017,192 @@ test("on a coarse pointer (touch) the controls, and the play button, are always 
     .element(screen.getByRole("button", { name: /^Play/ }))
     .toBeInTheDocument();
 });
+
+/** Make this browser report native HLS for the rest of the test (the Safari path). */
+function stubNativeHls() {
+  const original = HTMLMediaElement.prototype.canPlayType;
+  const spy = vi
+    .spyOn(HTMLMediaElement.prototype, "canPlayType")
+    .mockImplementation(function (this: HTMLMediaElement, type: string) {
+      return type === "application/vnd.apple.mpegurl"
+        ? "maybe"
+        : original.call(this, type);
+    });
+  onTestFinished(() => spy.mockRestore());
+}
+
+test("an hls source renews on failure at the same position, playing if it was", async () => {
+  stubNativeHls();
+  let settle!: (url: string) => void;
+  const onExpired = vi.fn(
+    () => new Promise<string>((resolve) => (settle = resolve)),
+  );
+  const mediaRef = React.createRef<HTMLVideoElement>();
+  const screen = await render(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      hls={{ playlistUrl: SOURCE, onExpired }}
+      label="Clip"
+    />,
+  );
+  const video = mediaRef.current!;
+  // Attached on visibility; the playlist loads before a failure counts as an expiry.
+  await vi.waitFor(() => expect(video.getAttribute("src")).toBe(SOURCE));
+  await vi.waitFor(() => expect(video.readyState).toBeGreaterThan(0));
+  video.currentTime = 30;
+  Object.defineProperty(video, "paused", { configurable: true, value: false });
+  video.dispatchEvent(new Event("error"));
+  await vi.waitFor(() => expect(onExpired).toHaveBeenCalledOnce());
+  // More failures while that renewal is in flight belong to it: no second call, no card.
+  video.dispatchEvent(new Event("error"));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onExpired).toHaveBeenCalledOnce();
+  expect(screen.container.querySelector('[role="alert"]')).toBeNull();
+
+  const play = vi.spyOn(video, "play").mockResolvedValue();
+  const fresh = `${SOURCE}#fresh`;
+  settle(fresh);
+  await vi.waitFor(() => expect(video.getAttribute("src")).toBe(fresh));
+  video.dispatchEvent(new Event("loadedmetadata"));
+  expect(video.currentTime).toBe(30);
+  expect(play).toHaveBeenCalled();
+});
+
+test("a new hls source never takes an earlier source's renewal or position", async () => {
+  stubNativeHls();
+  let settle!: (url: string) => void;
+  const onExpired = vi.fn(
+    () => new Promise<string>((resolve) => (settle = resolve)),
+  );
+  const mediaRef = React.createRef<HTMLVideoElement>();
+  const screen = await render(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      hls={{ playlistUrl: SOURCE, onExpired }}
+      label="Clip"
+    />,
+  );
+  const video = mediaRef.current!;
+  await vi.waitFor(() => expect(video.readyState).toBeGreaterThan(0));
+  video.currentTime = 30;
+  video.dispatchEvent(new Event("error"));
+  await vi.waitFor(() => expect(onExpired).toHaveBeenCalledOnce());
+
+  const other = `${SOURCE}#other`;
+  await screen.rerender(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      hls={{ playlistUrl: other, onExpired }}
+      label="Clip"
+    />,
+  );
+  await vi.waitFor(() => expect(video.getAttribute("src")).toBe(other));
+  settle(`${SOURCE}#first-renewed`);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(video.getAttribute("src")).toBe(other);
+  video.dispatchEvent(new Event("loadedmetadata"));
+  expect(video.currentTime).not.toBe(30);
+});
+
+test("an hls playlist that fails again after its renewal shows the card, never a loop", async () => {
+  stubNativeHls();
+  const onExpired = vi.fn(async () => `${BROKEN}#renewed`);
+  const screen = await render(
+    <VideoPlayer hls={{ playlistUrl: BROKEN, onExpired }} label="Clip" />,
+  );
+  await expect
+    .element(screen.getByRole("alert"))
+    .toHaveTextContent("Can’t play this video here");
+  expect(onExpired).toHaveBeenCalledOnce();
+});
+
+test("an hls source renews 60 s before it expires, without being asked twice", async () => {
+  stubNativeHls();
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
+  try {
+    vi.setSystemTime(new Date("2026-11-28T10:00:00Z"));
+    const onExpired = vi.fn(async () => `${SOURCE}#renewed`);
+    const mediaRef = React.createRef<HTMLVideoElement>();
+    const screen = await render(
+      <VideoPlayer
+        mediaRef={mediaRef}
+        hls={{
+          playlistUrl: SOURCE,
+          expiresAt: "2026-11-28T10:05:00Z",
+          onExpired,
+        }}
+        label="Clip"
+      />,
+    );
+    const video = mediaRef.current!;
+    await vi.waitFor(() => expect(video.getAttribute("src")).toBe(SOURCE));
+    await vi.advanceTimersByTimeAsync(3 * 60_000 + 59_000);
+    expect(onExpired).not.toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(onExpired).toHaveBeenCalledOnce();
+    await vi.waitFor(() =>
+      expect(video.getAttribute("src")).toBe(`${SOURCE}#renewed`),
+    );
+    // The caller never re-rendered with a new expiry: no renewal loop.
+    await vi.advanceTimersByTimeAsync(10 * 60_000);
+    expect(onExpired).toHaveBeenCalledOnce();
+
+    // The usual caller then passes the renewed playlist and its expiry: nothing reloads.
+    const load = vi.spyOn(video, "load");
+    await screen.rerender(
+      <VideoPlayer
+        mediaRef={mediaRef}
+        hls={{
+          playlistUrl: `${SOURCE}#renewed`,
+          expiresAt: "2026-11-28T10:20:00Z",
+          onExpired,
+        }}
+        label="Clip"
+      />,
+    );
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(load).not.toHaveBeenCalled();
+    expect(video.getAttribute("src")).toBe(`${SOURCE}#renewed`);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+test("skip ranges jump playback past each range and the scrubber shows the edited time", async () => {
+  const mediaRef = React.createRef<HTMLVideoElement>();
+  const screen = await render(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      src={SOURCE}
+      label="Clip"
+      arrowSkipSeconds={5}
+      skipRanges={[
+        [10_000, 20_000],
+        [60_000, 90_000],
+      ]}
+    />,
+  );
+  const video = mediaRef.current!;
+  await vi.waitFor(() => expect(video.readyState).toBeGreaterThan(0));
+  video.currentTime = 12;
+  video.dispatchEvent(new Event("timeupdate"));
+  expect(video.currentTime).toBe(20);
+
+  // A relative seek moves through the edited time: back 5 s from 0:21 (0:11 shown) is 0:06.
+  video.currentTime = 21;
+  (
+    screen.container.querySelector(
+      '[data-slot="video-player-frame"]',
+    ) as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{ArrowLeft}");
+  expect(video.currentTime).toBe(6);
+
+  video.currentTime = 100;
+  video.dispatchEvent(new Event("timeupdate"));
+  await showVideoControls(screen.container);
+  // 100 s of media minus the 40 s skipped is 1:00; 10 min minus 40 s is 9:20.
+  await expect
+    .element(screen.getByRole("slider", { name: "Clip seek" }))
+    .toHaveAttribute("aria-valuetext", "1:00 of 9:20");
+});
