@@ -2149,6 +2149,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "agentFaceFor",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/agent-face.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -36411,15 +36420,6 @@
           }
         },
         {
-          "name": "agentFaceFor",
-          "kind": "function",
-          "source": "packages/ui/registry/ui/person-avatar.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
           "name": "AgentFaceStateProvider",
           "kind": "component",
           "source": "packages/ui/registry/ui/person-avatar.tsx",
@@ -36492,11 +36492,7 @@
       },
       "engines": [],
       "docsSlug": "/docs/guides/components",
-      "registryDependencies": [
-        "@vegastack/avatar",
-        "@vegastack/agent-face",
-        "@vegastack/agent-face-spec"
-      ],
+      "registryDependencies": ["@vegastack/avatar", "@vegastack/agent-face"],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.30.0",
         "@vegastack/design@^0.30.0",

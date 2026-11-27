@@ -102,6 +102,13 @@ test("an agent is its face: the Dot below 40px, the Pebble from 40px, and a stab
       <PersonAvatar person={claude} />
     </div>,
   );
+  // The face loads on demand (its chunk), so wait for the four to draw.
+  await expect
+    .poll(
+      () =>
+        screen.container.querySelectorAll('[data-slot="agent-face"]').length,
+    )
+    .toBe(4);
   const [dot, pebble, a, b] = screen.container.querySelectorAll<HTMLElement>(
     '[data-slot="avatar"]',
   );

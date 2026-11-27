@@ -18180,7 +18180,7 @@
         "whenToUse": "Listing the presets and palettes (a face picker) or reading a preset's shape.",
         "whenNotToUse": "Drawing a face (AgentFace) or an agent's avatar (PersonAvatar).",
         "version": "0.136.4",
-        "integrity": "sha256-srsrnbtq80kscoYyVbuL2rapPIC93dDfIMXykujJelE="
+        "integrity": "sha256-Q7sWxjRAM+Oo8V+ZxxWg+ICWXpXdrgkTBIGDMj9EauY="
       }
     },
     {
@@ -18210,7 +18210,7 @@
         "whenToUse": "An agent's face on its own: a face picker, an agent's header, an onboarding moment. Avatars in rows and stacks use PersonAvatar, which draws it.",
         "whenNotToUse": "A person, team or workspace (PersonAvatar); a loader (Spinner, TextSpinner).",
         "version": "0.136.4",
-        "integrity": "sha256-px8ChfgcSpsbAM+dt2TYOEAn4hyY43r0phu4VyKm1pY="
+        "integrity": "sha256-sd+GYqOtdpwlrRRbV57q4O2W2jTlcURvgalBYZ9fKQw="
       }
     },
     {
@@ -18228,7 +18228,6 @@
       ],
       "registryDependencies": [
         "@vegastack/agent-face",
-        "@vegastack/agent-face-spec",
         "@vegastack/avatar"
       ],
       "files": [
@@ -18242,7 +18241,7 @@
         "whenToUse": "Any avatar that stands for a person: rows, chips, cards, menus, comments and the user menu.",
         "whenNotToUse": "An organisation or record image (Thumbnail), a space (IconGlyph), or a non-person avatar composition (Avatar).",
         "version": "0.136.4",
-        "integrity": "sha256-N+nS5fNxXIB8+Jo2StXqdFkdkcFrp0/+kmEAGjHmcjU="
+        "integrity": "sha256-OiHa4oDzi3DOj3cozAB5KGWbV2YgtV3M7BRuvVVCNEk="
       }
     },
     {
