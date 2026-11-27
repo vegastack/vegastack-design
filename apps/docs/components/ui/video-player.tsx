@@ -1,4 +1,4 @@
-// @vegastack video-player@0.138.0 sha256-YSsj8Pz9mltmvo7Mo6Ec95WLl2VfKlqVfJ0FoJrTfj4=
+// @vegastack video-player@0.138.0 sha256-fQfhKOMaooT/5SijNfs0BYtsc7kZfWESYEeaptjdIo0=
 
 "use client";
 
@@ -112,6 +112,8 @@ export interface VideoPlayerHlsSource {
    * Resolve a fresh playlist URL. Called 60 s before `expiresAt`, and when the playlist or a segment
    * answers 403; the player reloads the new playlist at the same position, playing if it was. A
    * second 403 before the new playlist has loaded, or a rejection, shows the "can't play" card.
+   * Pass the returned URL back as `playlistUrl` (with its new `expiresAt`) after the promise
+   * resolves; that re-render reloads nothing. A different `playlistUrl` is a new source.
    */
   onExpired: () => Promise<string>;
 }
@@ -551,24 +553,29 @@ export function VideoPlayer({
   const [attached, setAttached] = React.useState(false);
   const isHls = hls != null;
 
-  // A different playlist from the caller is a new source — unless a renewal is in flight (a
-  // caller that passes the new URL from inside `onExpired`) or it is the URL a renewal returned.
+  // A different playlist from the caller is a new source — unless it is the URL a renewal
+  // returned (the caller handing it back). A new source starts a new generation: an earlier
+  // renewal, finished or in flight, never applies to it, and it starts armed with no resume.
   const propPlaylistUrl = hls?.playlistUrl;
+  const firstPropRef = React.useRef(true);
   React.useLayoutEffect(() => {
-    if (propPlaylistUrl == null) return;
-    if (
-      renewingGenRef.current !== null ||
-      propPlaylistUrl === hlsRenewedUrlRef.current
-    )
+    if (firstPropRef.current) {
+      firstPropRef.current = false;
+      return;
+    }
+    if (propPlaylistUrl != null && propPlaylistUrl === hlsRenewedUrlRef.current)
       return;
     hlsGenRef.current += 1;
     hlsArmedRef.current = true;
     pendingResumeRef.current = null;
+    detachSnapshotRef.current = null;
+    setHlsRenewed(undefined);
   }, [propPlaylistUrl]);
 
   const renewHls = React.useCallback((reason: "ahead" | "forbidden") => {
     const renew = hlsOnExpiredRef.current;
-    if (!renew || hlsPropUrlRef.current == null) return;
+    const from = hlsPropUrlRef.current;
+    if (!renew || from == null) return;
     const gen = hlsGenRef.current;
     // Coalesce: every 403 while one renewal is in flight belongs to it.
     if (renewingGenRef.current === gen) return;
@@ -585,18 +592,16 @@ export function VideoPlayer({
       .then(
         (url) => {
           if (renewingGenRef.current === gen) renewingGenRef.current = null;
-          // The caller kept its playlist: load the renewed one (or reload the same URL).
-          if (hlsGenRef.current === gen) {
-            const from = hlsPropUrlRef.current;
-            if (from == null) return;
-            setHlsRenewed((previous) => ({
-              from,
-              url,
-              nonce: (previous?.nonce ?? 0) + 1,
-            }));
-          }
-          // Otherwise the caller already switched to the renewed URL (and the player reloaded it
-          // at the same position), or moved to another source: nothing to do.
+          // Only for the source it was asked for: the caller still passes that playlist. (A
+          // caller that already moved on — to another recording, or to this URL ahead of the
+          // promise — gets nothing from a late result.)
+          if (hlsGenRef.current !== gen || hlsPropUrlRef.current !== from)
+            return;
+          setHlsRenewed((previous) => ({
+            from,
+            url,
+            nonce: (previous?.nonce ?? 0) + 1,
+          }));
         },
         () => {
           if (renewingGenRef.current === gen) renewingGenRef.current = null;
@@ -632,12 +637,9 @@ export function VideoPlayer({
   React.useEffect(() => {
     const media = internalMediaRef.current;
     if (!media || !playlistUrl || !attached) return;
-    // A reload for a renewal (this nonce, or the caller switching mid-renewal) resumes where the
-    // old source was detached.
-    if (
-      renewalNonce !== consumedNonceRef.current ||
-      renewingGenRef.current !== null
-    ) {
+    // A reload for a renewal (a nonce not yet consumed) resumes where the old source was
+    // detached; any other attach (a new source, a remount) starts fresh.
+    if (renewalNonce !== 0 && renewalNonce !== consumedNonceRef.current) {
       consumedNonceRef.current = renewalNonce;
       pendingResumeRef.current =
         detachSnapshotRef.current ?? pendingResumeRef.current;

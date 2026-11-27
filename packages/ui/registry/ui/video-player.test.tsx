@@ -1068,6 +1068,42 @@ test("an hls source renews on failure at the same position, playing if it was", 
   expect(play).toHaveBeenCalled();
 });
 
+test("a new hls source never takes an earlier source's renewal or position", async () => {
+  stubNativeHls();
+  let settle!: (url: string) => void;
+  const onExpired = vi.fn(
+    () => new Promise<string>((resolve) => (settle = resolve)),
+  );
+  const mediaRef = React.createRef<HTMLVideoElement>();
+  const screen = await render(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      hls={{ playlistUrl: SOURCE, onExpired }}
+      label="Clip"
+    />,
+  );
+  const video = mediaRef.current!;
+  await vi.waitFor(() => expect(video.readyState).toBeGreaterThan(0));
+  video.currentTime = 30;
+  video.dispatchEvent(new Event("error"));
+  await vi.waitFor(() => expect(onExpired).toHaveBeenCalledOnce());
+
+  const other = `${SOURCE}#other`;
+  await screen.rerender(
+    <VideoPlayer
+      mediaRef={mediaRef}
+      hls={{ playlistUrl: other, onExpired }}
+      label="Clip"
+    />,
+  );
+  await vi.waitFor(() => expect(video.getAttribute("src")).toBe(other));
+  settle(`${SOURCE}#first-renewed`);
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(video.getAttribute("src")).toBe(other);
+  video.dispatchEvent(new Event("loadedmetadata"));
+  expect(video.currentTime).not.toBe(30);
+});
+
 test("an hls playlist that fails again after its renewal shows the card, never a loop", async () => {
   stubNativeHls();
   const onExpired = vi.fn(async () => `${BROKEN}#renewed`);
