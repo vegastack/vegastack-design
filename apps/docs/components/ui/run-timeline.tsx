@@ -1,4 +1,4 @@
-// @vegastack run-timeline@0.136.8 sha256-GWAYmmoFv9cly2Y9n2BwHJQDN9P/b6odid1B4LG7O/I=
+// @vegastack run-timeline@0.137.0 sha256-kwkaZAYxIXGiMvHNGJnQ1nLMCN9mjl0QxGcM4LgAdB0=
 
 "use client";
 
@@ -53,7 +53,7 @@ export type RunTimelineStep = {
   cost?: string;
   /** The permission decision behind it: answer, who or what decided, the rule, and "Why?". */
   decision?: {
-    answer: "allow" | "auto_check" | "ask" | "block";
+    answer: "allow" | "ask" | "block";
     by: string;
     rule?: string;
     why?: { href: string };
@@ -98,7 +98,6 @@ const DECISION_WORDS: Record<
   string
 > = {
   allow: "Allowed",
-  auto_check: "Auto-checked",
   ask: "Asked",
   block: "Blocked",
 };

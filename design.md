@@ -2121,8 +2121,9 @@ only the choices the server offered, in its order and with their ids, so a press
 the preferred choice is `secondary`, the others outline (`never` in the destructive ink), and no card,
 row or bundle in agent UI draws a filled primary, which belongs to the page. A send or delete shows
 its words before its buttons. What an agent may do with a source's tools is one
-`ToolPermissionList`: Allow, Auto-check, Ask or Block per class and per tool, inherited answers
-muted with their source, locks read-only with who set them. An agent in a directory is an
+`ToolPermissionList`: Always allow, Needs approval or Blocked for All tools, per class and per tool,
+followed answers muted with their source ("From workspace"), "Use the default" at the end of the
+answer menu while a row holds its own rule, locks read-only with who set them. An agent in a directory is an
 `AgentDirectoryCard`, drawn as the app's other directory cards so agents, spaces and teams read as
 one family: one link, tags on the name line, the people, and one secondary action. What waits on
 one person is a `ForYouCard`, laid out for the 26rem Inbox panel first: it names the kind of ask,

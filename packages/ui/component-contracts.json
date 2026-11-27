@@ -36133,7 +36133,7 @@
       "name": "permission-menu",
       "registryType": "registry:ui",
       "title": "Permission Menu",
-      "summary": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.",
+      "summary": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional quiet Use the default, an optional destructive Remove access, and a read-only text mode for built-in rows.",
       "status": "stable",
       "since": "0.23.112",
       "family": "overlay",
@@ -36196,6 +36196,7 @@
             "open",
             "checked",
             "described",
+            "reset",
             "remove",
             "read-only",
             "disabled"
@@ -36266,6 +36267,10 @@
             },
             {
               "name": "data-permission-menu-remove",
+              "values": [""]
+            },
+            {
+              "name": "data-permission-menu-reset",
               "values": [""]
             },
             {
@@ -51995,7 +52000,7 @@
       "name": "tool-permission-list",
       "registryType": "registry:ui",
       "title": "Tool Permission List",
-      "summary": "What an agent may do with one source's tools: Allow, Auto-check, Ask or Block per class and per tool, inherited answers muted, locks, an admin's lock toggle and the rules at this layer.",
+      "summary": "What an agent may do with one source's tools: Always allow, Needs approval or Blocked for All tools, per class and per tool, followed answers muted, Use the default, locks, an admin's lock toggle, an Applies to switch and the rules at this layer.",
       "status": "stable",
       "since": "0.121.0",
       "family": "chat",
@@ -52073,6 +52078,15 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "ToolPermissionScope",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/tool-permission-list.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -52089,7 +52103,11 @@
         "behavior": {
           "status": "covered",
           "values": [
+            "all-tools-row",
             "inherited",
+            "use-the-default",
+            "scope-switch",
+            "note",
             "locked",
             "lockable",
             "narrowed-answers",
@@ -52148,7 +52166,8 @@
         "@vegastack/search-input",
         "@vegastack/skeleton",
         "@vegastack/toggle",
-        "@vegastack/tooltip"
+        "@vegastack/tooltip",
+        "@vegastack/toggle-group"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.32.0",
@@ -52173,7 +52192,9 @@
               "values": [
                 "tool-permission-empty",
                 "tool-permission-icon",
-                "tool-permission-list"
+                "tool-permission-list",
+                "tool-permission-note",
+                "tool-permission-scope"
               ]
             }
           ],

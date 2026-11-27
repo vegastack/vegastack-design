@@ -1,4 +1,4 @@
-// @vegastack ask-card@0.136.8 sha256-mzw2K7OsDIIHGA6raKL81mFu93eZoMeVEnT009yiA+s=
+// @vegastack ask-card@0.137.0 sha256-9X5emiiMEVn9IAfh9wTxZ75omo7SDMqc45POJRMtUqk=
 
 "use client";
 
@@ -170,7 +170,7 @@ const VIA_WORDS: Record<AskAnsweredVia, string> = {
   phone: "on the phone",
   slack: "in Slack",
   rule: "by a rule",
-  auto_check: "by the quick check",
+  auto_check: "by Auto-check",
 };
 
 /** The words of a settled state, used when there is no `answered` line to say more. */
