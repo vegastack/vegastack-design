@@ -1,4 +1,4 @@
-// @vegastack video-player@0.138.0 sha256-QawYgs+N3aMV60l5mxH08f3iVtB5m9liGu67wTWqosA=
+// @vegastack video-player@0.138.0 sha256-YSsj8Pz9mltmvo7Mo6Ec95WLl2VfKlqVfJ0FoJrTfj4=
 
 "use client";
 
@@ -433,15 +433,19 @@ export function VideoPlayer({
   // Before the first play the frame is the clean poster, as it always was.
   const [pausedPinned, setPausedPinned] = React.useState(false);
   const pausedPinnedRef = React.useRef(false);
-  const controlsPinned =
-    controlsVisibleProp != null || coarsePointer || pausedPinned;
   const controlsVisible =
     controlsVisibleProp ??
     (coarsePointer || pausedPinned || autoControlsVisible);
   const autoVisibleRef = React.useRef(false);
+  // Pinned by the caller or a touch screen (paused-pinned is `pausedPinnedRef`, which the play
+  // and pause listeners write synchronously).
+  const externallyPinnedRef = React.useRef(
+    controlsVisibleProp != null || coarsePointer,
+  );
   React.useLayoutEffect(() => {
     autoVisibleRef.current = autoControlsVisible;
     pausedPinnedRef.current = pausedPinned;
+    externallyPinnedRef.current = controlsVisibleProp != null || coarsePointer;
   });
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const controlsMediaRef =
@@ -493,39 +497,81 @@ export function VideoPlayer({
   }, []);
 
   // ── HLS source ───────────────────────────────────────────────────────────
-  // A playlist `hls.onExpired` renewed stands in for `hls.playlistUrl` until the prop changes.
-  // `resume` carries the position (and play state) across the reload; `nonce` reloads a renewal
-  // that returned the same URL.
+  // A playlist `hls.onExpired` renewed stands in for `hls.playlistUrl`, and stays in force when the
+  // caller re-renders with the URL it returned (the usual pattern: refetch the manifest, pass its
+  // playlist and expiry), so that re-render reloads nothing. `nonce` reloads a renewal that
+  // returned the same URL.
   const [hlsRenewed, setHlsRenewed] = React.useState<{
     from: string;
     url: string;
     nonce: number;
-    resume: { seconds: number; play: boolean } | null;
   }>();
   const hlsRenewal =
-    hls && hlsRenewed?.from === hls.playlistUrl ? hlsRenewed : undefined;
+    hls &&
+    hlsRenewed &&
+    (hlsRenewed.from === hls.playlistUrl || hlsRenewed.url === hls.playlistUrl)
+      ? hlsRenewed
+      : undefined;
   const playlistUrl = hls ? (hlsRenewal?.url ?? hls.playlistUrl) : undefined;
+  const renewalNonce = hlsRenewal?.nonce ?? 0;
   const hlsOnExpiredRef = React.useRef(hls?.onExpired);
   const hlsPropUrlRef = React.useRef(hls?.playlistUrl);
+  const hlsRenewedUrlRef = React.useRef(hlsRenewed?.url);
   React.useLayoutEffect(() => {
     hlsOnExpiredRef.current = hls?.onExpired;
     hlsPropUrlRef.current = hls?.playlistUrl;
+    hlsRenewedUrlRef.current = hlsRenewed?.url;
   });
   // hls.js reports its own errors; the <video> error event is then not ours to act on.
   const hlsJsActiveRef = React.useRef(false);
-  // The current playlist has loaded: a later 403 is an expiry, not a URL that never worked.
+  // Media from the current playlist has played: a later 403 is an expiry, not a URL that never
+  // worked. Re-armed only by loaded media (`loadeddata`), never by a parsed playlist alone, so a
+  // playlist whose segments always answer 403 ends at the card instead of renewing forever.
   const hlsArmedRef = React.useRef(true);
-  const hlsRenewingRef = React.useRef(false);
-  // A play pressed before the playlist is attached and parsed.
+  // Which source generation a renewal is in flight for (`null`: none). A new source (the caller
+  // passing a different playlist) starts a new generation, so a stale renewal never lands on it.
+  const hlsGenRef = React.useRef(0);
+  const renewingGenRef = React.useRef<number | null>(null);
+  // The position and play state to restore after a reload, taken when the old source is detached
+  // (the latest moment, so a slow renewal neither rewinds nor undoes a pause), and kept until the
+  // new source has loaded.
+  const detachSnapshotRef = React.useRef<{
+    seconds: number;
+    play: boolean;
+  } | null>(null);
+  const pendingResumeRef = React.useRef<{
+    seconds: number;
+    play: boolean;
+  } | null>(null);
+  const consumedNonceRef = React.useRef(0);
+  // A play asked for before the playlist is attached and loaded (attaching a source resets the
+  // element's paused state); `pause()` clears it.
   const wantPlayRef = React.useRef(false);
   const sourceReadyRef = React.useRef(false);
   const [attached, setAttached] = React.useState(false);
   const isHls = hls != null;
 
+  // A different playlist from the caller is a new source — unless a renewal is in flight (a
+  // caller that passes the new URL from inside `onExpired`) or it is the URL a renewal returned.
+  const propPlaylistUrl = hls?.playlistUrl;
+  React.useLayoutEffect(() => {
+    if (propPlaylistUrl == null) return;
+    if (
+      renewingGenRef.current !== null ||
+      propPlaylistUrl === hlsRenewedUrlRef.current
+    )
+      return;
+    hlsGenRef.current += 1;
+    hlsArmedRef.current = true;
+    pendingResumeRef.current = null;
+  }, [propPlaylistUrl]);
+
   const renewHls = React.useCallback((reason: "ahead" | "forbidden") => {
     const renew = hlsOnExpiredRef.current;
-    const from = hlsPropUrlRef.current;
-    if (!renew || from == null) return;
+    if (!renew || hlsPropUrlRef.current == null) return;
+    const gen = hlsGenRef.current;
+    // Coalesce: every 403 while one renewal is in flight belongs to it.
+    if (renewingGenRef.current === gen) return;
     if (reason === "forbidden") {
       if (!hlsArmedRef.current) {
         setLoadFailed(true);
@@ -533,29 +579,28 @@ export function VideoPlayer({
       }
       hlsArmedRef.current = false;
     }
-    if (hlsRenewingRef.current) return;
-    hlsRenewingRef.current = true;
-    const media = internalMediaRef.current;
-    const resume =
-      media && (media.currentTime > 0 || !media.paused)
-        ? { seconds: media.currentTime, play: !media.paused }
-        : null;
+    renewingGenRef.current = gen;
     void Promise.resolve()
       .then(() => renew())
       .then(
         (url) => {
-          hlsRenewingRef.current = false;
-          if (hlsPropUrlRef.current !== from) return;
-          setHlsRenewed((previous) => ({
-            from,
-            url,
-            nonce: (previous?.nonce ?? 0) + 1,
-            resume,
-          }));
+          if (renewingGenRef.current === gen) renewingGenRef.current = null;
+          // The caller kept its playlist: load the renewed one (or reload the same URL).
+          if (hlsGenRef.current === gen) {
+            const from = hlsPropUrlRef.current;
+            if (from == null) return;
+            setHlsRenewed((previous) => ({
+              from,
+              url,
+              nonce: (previous?.nonce ?? 0) + 1,
+            }));
+          }
+          // Otherwise the caller already switched to the renewed URL (and the player reloaded it
+          // at the same position), or moved to another source: nothing to do.
         },
         () => {
-          hlsRenewingRef.current = false;
-          if (reason === "forbidden" && hlsPropUrlRef.current === from)
+          if (renewingGenRef.current === gen) renewingGenRef.current = null;
+          if (reason === "forbidden" && hlsGenRef.current === gen)
             setLoadFailed(true);
         },
       );
@@ -587,18 +632,41 @@ export function VideoPlayer({
   React.useEffect(() => {
     const media = internalMediaRef.current;
     if (!media || !playlistUrl || !attached) return;
-    const resume = hlsRenewal?.resume ?? null;
-    const shouldPlay = Boolean(resume?.play) || wantPlayRef.current;
+    // A reload for a renewal (this nonce, or the caller switching mid-renewal) resumes where the
+    // old source was detached.
+    if (
+      renewalNonce !== consumedNonceRef.current ||
+      renewingGenRef.current !== null
+    ) {
+      consumedNonceRef.current = renewalNonce;
+      pendingResumeRef.current =
+        detachSnapshotRef.current ?? pendingResumeRef.current;
+    }
+    detachSnapshotRef.current = null;
+    const resume = pendingResumeRef.current;
+    if (resume?.play) wantPlayRef.current = true;
     sourceReadyRef.current = false;
+
+    const snapshot = () => {
+      detachSnapshotRef.current =
+        pendingResumeRef.current ??
+        (media.currentTime > 0 || !media.paused || wantPlayRef.current
+          ? {
+              seconds: media.currentTime,
+              play: !media.paused || wantPlayRef.current,
+            }
+          : null);
+    };
 
     if (playsHlsNatively(media)) {
       pendingSeekRef.current =
-        resume || shouldPlay
-          ? { seconds: resume?.seconds ?? 0, play: shouldPlay }
+        resume || wantPlayRef.current
+          ? { seconds: resume?.seconds ?? 0, play: wantPlayRef.current }
           : null;
       wantPlayRef.current = false;
       media.src = playlistUrl;
       return () => {
+        snapshot();
         media.removeAttribute("src");
         media.load();
       };
@@ -616,9 +684,8 @@ export function VideoPlayer({
         onForbidden: () => renewHls("forbidden"),
         onFatal: () => setLoadFailed(true),
         onReady: () => {
-          hlsArmedRef.current = true;
           sourceReadyRef.current = true;
-          if (shouldPlay || wantPlayRef.current) {
+          if (wantPlayRef.current) {
             wantPlayRef.current = false;
             void media.play().catch(() => {});
           }
@@ -636,12 +703,12 @@ export function VideoPlayer({
       },
     );
     return () => {
+      snapshot();
       controller.abort();
       detach?.();
       hlsJsActiveRef.current = false;
     };
-    // `hlsRenewal` changes with every renewal (its nonce), which is what reloads a same-URL renewal.
-  }, [attached, hlsRenewal, hlsWorkerPath, playlistUrl, renewHls]);
+  }, [attached, hlsWorkerPath, playlistUrl, renewHls, renewalNonce]);
 
   // Renew ahead of expiry, once per `expiresAt`, only while attached (an unattached player renews
   // on its first 403 instead).
@@ -661,24 +728,34 @@ export function VideoPlayer({
     return () => clearTimeout(timer);
   }, [attached, hlsExpiresAt, renewHls]);
 
-  // Native HLS: the playlist loaded, so a later failure is an expiry. A play pressed before the
-  // source existed is remembered (attaching a source resets the element's paused state).
+  // Loaded media re-arms the 403 renewal and ends a pending resume (both paths). Natively, the
+  // playlist's metadata is the source being ready; a play pressed before then is remembered.
   React.useEffect(() => {
     const media = internalMediaRef.current;
     if (!media || !isHls) return;
-    const ready = () => {
-      if (hlsJsActiveRef.current) return;
+    const loaded = () => {
       hlsArmedRef.current = true;
-      sourceReadyRef.current = true;
+      pendingResumeRef.current = null;
+    };
+    const ready = () => {
+      if (!hlsJsActiveRef.current) sourceReadyRef.current = true;
     };
     const play = () => {
       if (!sourceReadyRef.current) wantPlayRef.current = true;
     };
+    const pause = () => {
+      // A pause the viewer asked for (not the element resetting for a new source).
+      if (sourceReadyRef.current) wantPlayRef.current = false;
+    };
+    media.addEventListener("loadeddata", loaded);
     media.addEventListener("loadedmetadata", ready);
     media.addEventListener("play", play);
+    media.addEventListener("pause", pause);
     return () => {
+      media.removeEventListener("loadeddata", loaded);
       media.removeEventListener("loadedmetadata", ready);
       media.removeEventListener("play", play);
+      media.removeEventListener("pause", pause);
     };
   }, [isHls]);
 
@@ -760,7 +837,9 @@ export function VideoPlayer({
       preserveFocus: boolean | "keyboard" = true,
       delay = VIDEO_CONTROLS_HIDE_DELAY_MS,
     ) => {
-      if (controlsPinned) return;
+      // Read through refs at call time, so the scheduler stays stable across pause/resume and
+      // a listener holding it never sees a stale "pinned".
+      if (externallyPinnedRef.current || pausedPinnedRef.current) return;
       clearHideTimer();
 
       hideTimerRef.current = setTimeout(() => {
@@ -785,7 +864,7 @@ export function VideoPlayer({
         }, VIDEO_CONTROLS_FADE_MS);
       }, delay);
     },
-    [clearHideTimer, controlsPinned],
+    [clearHideTimer],
   );
 
   const handlePointerLeave = React.useCallback(() => {
@@ -813,19 +892,19 @@ export function VideoPlayer({
 
   // Play: the controls step aside after the idle delay. Pause after playing (or the end): they
   // stay up until playback resumes.
+  const hasPlayedRef = React.useRef(false);
   React.useEffect(() => {
     const media = internalMediaRef.current;
     if (!media) return;
-    let hasPlayed = false;
     const onPlay = () => {
-      hasPlayed = true;
+      hasPlayedRef.current = true;
       setPausedPinned(false);
       pausedPinnedRef.current = false;
       if (autoVisibleRef.current)
         scheduleControlsHide("keyboard", VIDEO_CONTROLS_IDLE_MS);
     };
     const onPause = () => {
-      if (!hasPlayed) return;
+      if (!hasPlayedRef.current) return;
       clearHideTimer();
       clearUnmountTimer();
       pausedPinnedRef.current = true;
@@ -993,26 +1072,36 @@ export function VideoPlayer({
       if (range) media.currentTime = clampTime(media, range[1]);
     };
     // `timeupdate` fires about four times a second; a frame callback catches a range within a
-    // frame where the browser has one.
-    let frameHandle = 0;
+    // frame where the browser has one. One chain at a time: paused stops it, play restarts it.
+    const frames = typeof media.requestVideoFrameCallback === "function";
+    let frameHandle: number | null = null;
+    let disposed = false;
+    const stopFrames = () => {
+      if (frameHandle !== null) media.cancelVideoFrameCallback(frameHandle);
+      frameHandle = null;
+    };
     const onFrame = () => {
+      frameHandle = null;
+      if (disposed) return;
       skip();
       if (!media.paused) frameHandle = media.requestVideoFrameCallback(onFrame);
     };
     const startFrames = () => {
-      if (typeof media.requestVideoFrameCallback === "function")
+      if (frames && frameHandle === null && !disposed)
         frameHandle = media.requestVideoFrameCallback(onFrame);
     };
     media.addEventListener("timeupdate", skip);
     media.addEventListener("seeked", skip);
     media.addEventListener("play", startFrames);
+    media.addEventListener("pause", stopFrames);
     if (!media.paused) startFrames();
     return () => {
+      disposed = true;
       media.removeEventListener("timeupdate", skip);
       media.removeEventListener("seeked", skip);
       media.removeEventListener("play", startFrames);
-      if (frameHandle && typeof media.cancelVideoFrameCallback === "function")
-        media.cancelVideoFrameCallback(frameHandle);
+      media.removeEventListener("pause", stopFrames);
+      stopFrames();
     };
   }, [ranges]);
 
@@ -1075,7 +1164,12 @@ export function VideoPlayer({
         }
         return media.play();
       },
-      pause: () => internalMediaRef.current?.pause(),
+      pause: () => {
+        wantPlayRef.current = false;
+        if (pendingSeekRef.current) pendingSeekRef.current.play = false;
+        if (pendingResumeRef.current) pendingResumeRef.current.play = false;
+        internalMediaRef.current?.pause();
+      },
       currentMs: () =>
         Math.round((internalMediaRef.current?.currentTime ?? 0) * 1000),
     }),

@@ -17031,7 +17031,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.138.0",
-        "integrity": "sha256-4hx+m1J+xu5ZfOVr6IUKyH15UZKqCLQFxCw6U0q8NX0="
+        "integrity": "sha256-4k/fhoRO+o5Q+MrFk9EMjB044TfzDREI4kWk+rQptNs="
       }
     },
     {
@@ -21297,7 +21297,7 @@
         "whenToUse": "A video on a page — a stored file, or a recording served as an HLS playlist with renewing signed URLs, chapters, captions and an edit previewed as skipped ranges.",
         "whenNotToUse": "Opening a stored file full screen (FileViewer), caption editing, or multi-rendition streaming with a quality picker.",
         "version": "0.138.0",
-        "integrity": "sha256-QawYgs+N3aMV60l5mxH08f3iVtB5m9liGu67wTWqosA="
+        "integrity": "sha256-YSsj8Pz9mltmvo7Mo6Ec95WLl2VfKlqVfJ0FoJrTfj4="
       }
     },
     {

@@ -1053,6 +1053,10 @@ test("an hls source renews on failure at the same position, playing if it was", 
   Object.defineProperty(video, "paused", { configurable: true, value: false });
   video.dispatchEvent(new Event("error"));
   await vi.waitFor(() => expect(onExpired).toHaveBeenCalledOnce());
+  // More failures while that renewal is in flight belong to it: no second call, no card.
+  video.dispatchEvent(new Event("error"));
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  expect(onExpired).toHaveBeenCalledOnce();
   expect(screen.container.querySelector('[role="alert"]')).toBeNull();
 
   const play = vi.spyOn(video, "play").mockResolvedValue();
@@ -1083,7 +1087,7 @@ test("an hls source renews 60 s before it expires, without being asked twice", a
     vi.setSystemTime(new Date("2026-11-28T10:00:00Z"));
     const onExpired = vi.fn(async () => `${SOURCE}#renewed`);
     const mediaRef = React.createRef<HTMLVideoElement>();
-    await render(
+    const screen = await render(
       <VideoPlayer
         mediaRef={mediaRef}
         hls={{
@@ -1106,6 +1110,23 @@ test("an hls source renews 60 s before it expires, without being asked twice", a
     // The caller never re-rendered with a new expiry: no renewal loop.
     await vi.advanceTimersByTimeAsync(10 * 60_000);
     expect(onExpired).toHaveBeenCalledOnce();
+
+    // The usual caller then passes the renewed playlist and its expiry: nothing reloads.
+    const load = vi.spyOn(video, "load");
+    await screen.rerender(
+      <VideoPlayer
+        mediaRef={mediaRef}
+        hls={{
+          playlistUrl: `${SOURCE}#renewed`,
+          expiresAt: "2026-11-28T10:20:00Z",
+          onExpired,
+        }}
+        label="Clip"
+      />,
+    );
+    await vi.advanceTimersByTimeAsync(1_000);
+    expect(load).not.toHaveBeenCalled();
+    expect(video.getAttribute("src")).toBe(`${SOURCE}#renewed`);
   } finally {
     vi.useRealTimers();
   }
@@ -1118,6 +1139,7 @@ test("skip ranges jump playback past each range and the scrubber shows the edite
       mediaRef={mediaRef}
       src={SOURCE}
       label="Clip"
+      arrowSkipSeconds={5}
       skipRanges={[
         [10_000, 20_000],
         [60_000, 90_000],
@@ -1129,6 +1151,16 @@ test("skip ranges jump playback past each range and the scrubber shows the edite
   video.currentTime = 12;
   video.dispatchEvent(new Event("timeupdate"));
   expect(video.currentTime).toBe(20);
+
+  // A relative seek moves through the edited time: back 5 s from 0:21 (0:11 shown) is 0:06.
+  video.currentTime = 21;
+  (
+    screen.container.querySelector(
+      '[data-slot="video-player-frame"]',
+    ) as HTMLElement
+  ).focus();
+  await userEvent.keyboard("{ArrowLeft}");
+  expect(video.currentTime).toBe(6);
 
   video.currentTime = 100;
   video.dispatchEvent(new Event("timeupdate"));

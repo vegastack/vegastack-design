@@ -1,4 +1,4 @@
-// @vegastack video-player@0.138.0 sha256-QawYgs+N3aMV60l5mxH08f3iVtB5m9liGu67wTWqosA=
+// @vegastack video-player@0.138.0 sha256-YSsj8Pz9mltmvo7Mo6Ec95WLl2VfKlqVfJ0FoJrTfj4=
 
 /**
  * The HLS engine behind `VideoPlayer`'s `hls` source: hls.js, loaded with a dynamic `import()` the

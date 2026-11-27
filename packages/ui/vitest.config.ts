@@ -188,6 +188,8 @@ export default defineConfig({
       "diff",
       // MermaidBlock's renderer, imported dynamically: same reason.
       "mermaid",
+      // VideoPlayer's HLS engine, imported dynamically where native HLS is missing: same reason.
+      "hls.js",
       // QrCode's encoder: pre-bundled so the first QR fixture never reloads a live test page.
       "uqr",
       "@atlaskit/pragmatic-drag-and-drop/utils/combine",

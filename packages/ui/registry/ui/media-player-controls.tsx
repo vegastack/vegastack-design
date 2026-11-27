@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.138.0 sha256-4hx+m1J+xu5ZfOVr6IUKyH15UZKqCLQFxCw6U0q8NX0=
+// @vegastack media-player-controls@0.138.0 sha256-4k/fhoRO+o5Q+MrFk9EMjB044TfzDREI4kWk+rQptNs=
 
 "use client";
 
@@ -350,14 +350,19 @@ export function useMediaShortcuts({
     media.pause();
   }, [mediaRef, onPlayStateChange]);
 
+  // Relative seeks move through the DISPLAYED timeline, so skipping back across a skipped range
+  // lands where people expect instead of inside the range.
   const skipBy = React.useCallback(
     (offset: number) => {
       const media = mediaRef.current;
       if (!media) return;
-      media.currentTime = clampTime(media, media.currentTime + offset);
+      media.currentTime = clampTime(
+        media,
+        timeline.toMedia(timeline.toDisplay(media.currentTime) + offset),
+      );
       onTimeChange?.(media.currentTime, getMediaDuration(media));
     },
-    [mediaRef, onTimeChange],
+    [mediaRef, onTimeChange, timeline],
   );
 
   const toggleMuted = React.useCallback(() => {
