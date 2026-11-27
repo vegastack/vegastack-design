@@ -121,7 +121,7 @@ test("Always allow lists each offered scope and answers with its id", async () =
   expect(onAnswer).toHaveBeenCalledWith("always:domain", undefined);
 });
 
-test("Never is offered only when the server offers it, and answers at once", async () => {
+test("Never and Decline share one Decline menu; Never answers at once", async () => {
   const onAnswer = vi.fn(async () => {});
   const choices = [...EMAIL.offer.choices];
   choices.splice(3, 0, { id: "never", label: "Never allow this" });
@@ -132,10 +132,68 @@ test("Never is offered only when the server offers it, and answers at once", asy
       onAnswer={onAnswer}
     />,
   );
+  expect(screen.container.querySelector('[data-choice="never"]')).toBeNull();
+  await userEvent.click(screen.getByRole("button", { name: "Decline" }));
+  await expect
+    .element(screen.getByRole("menuitem", { name: /Decline with a note/ }))
+    .toBeVisible();
   await userEvent.click(
-    screen.getByRole("button", { name: "Never allow this" }),
+    screen.getByRole("menuitem", { name: /Never allow this/ }),
   );
   expect(onAnswer).toHaveBeenCalledWith("never", undefined);
+});
+
+test("Decline with a note… opens the note and sends it", async () => {
+  const onAnswer = vi.fn(async () => {});
+  const choices = [...EMAIL.offer.choices];
+  choices.splice(3, 0, { id: "never", label: "Never allow this" });
+  const screen = await render(
+    <ChatRequestCard
+      agent={agent}
+      data={{ ...EMAIL, offer: { choices } }}
+      onAnswer={onAnswer}
+    />,
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Decline" }));
+  await userEvent.click(
+    screen.getByRole("menuitem", { name: /Decline with a note/ }),
+  );
+  await userEvent.fill(screen.getByRole("textbox"), "Not this week");
+  await userEvent.click(screen.getByRole("button", { name: "Decline" }));
+  expect(onAnswer).toHaveBeenCalledWith("decline", "Not this week");
+});
+
+test("Decline alone opens a note and sends it", async () => {
+  const onAnswer = vi.fn(async () => {});
+  const screen = await render(
+    <ChatRequestCard agent={agent} data={EMAIL} onAnswer={onAnswer} />,
+  );
+  await userEvent.click(screen.getByRole("button", { name: "Decline" }));
+  await userEvent.fill(screen.getByRole("textbox"), "Not this week");
+  await userEvent.click(screen.getByRole("button", { name: "Decline" }));
+  expect(onAnswer).toHaveBeenCalledWith("decline", "Not this week");
+});
+
+test("at 390px Allow once, Always allow and Decline sit on one row", async () => {
+  await page.viewport(390, 800);
+  const choices = [...EMAIL.offer.choices];
+  choices.splice(3, 0, { id: "never", label: "Never allow this" });
+  const screen = await render(
+    <div style={{ width: 358 }}>
+      <ChatRequestCard
+        agent={agent}
+        data={{ ...EMAIL, offer: { choices } }}
+        onAnswer={async () => {}}
+      />
+    </div>,
+  );
+  const tops = ["once", "always", "decline"].map(
+    (id) =>
+      screen.container
+        .querySelector<HTMLElement>(`[data-choice="${id}"]`)!
+        .getBoundingClientRect().top,
+  );
+  expect(new Set(tops).size).toBe(1);
 });
 
 test("Decline opens a note and sends it", async () => {
@@ -300,6 +358,9 @@ test("Choose each answers a row on its own, carries a decline note, and holds th
   );
   await userEvent.click(screen.getByRole("button", { name: "Choose each" }));
   await userEvent.click(screen.getByRole("button", { name: "Decline" }).nth(2));
+  await userEvent.click(
+    screen.getByRole("menuitem", { name: /Decline with a note/ }),
+  );
   await userEvent.fill(screen.getByRole("textbox"), "Not needed");
   await userEvent.keyboard("{Enter}");
   expect(onAnswer).toHaveBeenCalledWith("b3", "decline", "Not needed");

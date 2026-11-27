@@ -1,4 +1,4 @@
-// @vegastack ask-card@0.139.0 sha256-vQ1+aggcmOz1iQNyOyB4aMyEtFk/vuK+fQ/3jUL1W54=
+// @vegastack ask-card@0.139.0 sha256-eISWZ4RkF9ZduFli+jYRJdEzGpQ+rXTc9vjLs/Wuxa4=
 
 "use client";
 
@@ -255,7 +255,13 @@ function useOneAnswer(handler: AskAnswerHandler | undefined) {
 
 const FAILED = "Couldn't send your answer. Try again.";
 
-/** The server's choices as buttons, in the server's order; past two Always choices, one menu. */
+/** The Decline menu's item that opens the note field. */
+const DECLINE_WITH_NOTE = "Decline with a note…";
+
+/**
+ * The server's choices as buttons, in the server's order; past two Always choices, one menu. Never
+ * and Decline, when both are offered, share one "Decline ▾" menu: "Decline with a note…" and Never.
+ */
 function AskChoices({
   choices,
   onAnswer,
@@ -346,6 +352,17 @@ function AskChoices({
     ...choices.filter((choice) => choice.kind !== "decline"),
     ...choices.filter((choice) => choice.kind === "decline"),
   ];
+  // Never and Decline share one "Decline ▾" menu when both are offered.
+  const declineChoice = choices.find((choice) => choice.kind === "decline");
+  const neverChoice = choices.find((choice) => choice.kind === "never");
+  const refusalsFolded = Boolean(declineChoice && neverChoice);
+  const press = (choice: AskChoice) => {
+    if (disabled) return;
+    if (choice.needsNote) {
+      setNote("");
+      setNotingId(choice.id);
+    } else answer(choice.id);
+  };
   let menuDrawn = false;
   return (
     <div
@@ -401,6 +418,43 @@ function AskChoices({
             </DropdownMenu>
           );
         }
+        if (refusalsFolded && choice.kind === "never") return null;
+        if (refusalsFolded && choice.kind === "decline")
+          return (
+            <DropdownMenu key="decline">
+              <DropdownMenuTrigger
+                disabled={disabled}
+                render={
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    data-choice="decline"
+                    data-choice-id={choice.id}
+                    disabled={disabled}
+                  />
+                }
+              >
+                {choice.label}
+                <ChevronDown aria-hidden data-icon="inline-end" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-56">
+                <DropdownMenuItem
+                  data-choice-id={`${choice.id}:menu`}
+                  disabled={disabled}
+                  onClick={() => press(choice)}
+                >
+                  {choice.needsNote ? DECLINE_WITH_NOTE : choice.label}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  data-choice-id={neverChoice!.id}
+                  disabled={disabled}
+                  onClick={() => answer(neverChoice!.id)}
+                >
+                  {neverChoice!.label}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          );
         const look = choiceLook(choice.kind);
         return (
           <Button
@@ -412,13 +466,7 @@ function AskChoices({
             data-choice={choice.kind}
             data-choice-id={choice.id}
             title={choice.scopeLabel}
-            onClick={() => {
-              if (disabled) return;
-              if (choice.needsNote) {
-                setNote("");
-                setNotingId(choice.id);
-              } else answer(choice.id);
-            }}
+            onClick={() => press(choice)}
           >
             {choice.label}
           </Button>

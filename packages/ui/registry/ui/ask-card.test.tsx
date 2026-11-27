@@ -85,12 +85,13 @@ test("a pending ask names itself by its action, shows the preview first and the 
   const ids = [...choices.querySelectorAll("[data-choice-id]")].map(
     (el) => (el as HTMLElement).dataset.choiceId,
   );
-  expect(ids).toEqual(["once", "always:thread", "never", "decline"]);
+  // Never and Decline share one "Decline ▾" menu.
+  expect(ids).toEqual(["once", "always:thread", "decline"]);
   expect(
     root.querySelector('[data-choice="once"]')!.getAttribute("data-variant"),
   ).toBe("secondary");
   expect(
-    root.querySelector('[data-choice="never"]')!.getAttribute("data-variant"),
+    root.querySelector('[data-choice="decline"]')!.getAttribute("data-variant"),
   ).toBe("outline");
   expect(
     root.querySelector('[data-slot="ask-card-deadline"]')!.textContent,
@@ -112,6 +113,10 @@ test("an answer passes the choice id back unchanged; a decline with a note sends
   await page.getByRole("button", { name: "Always in this thread" }).click();
   expect(onAnswer).toHaveBeenLastCalledWith("always:thread");
   await page.getByRole("button", { name: "Decline" }).click();
+  await page.getByRole("menuitem", { name: "Never" }).click();
+  expect(onAnswer).toHaveBeenLastCalledWith("never");
+  await page.getByRole("button", { name: "Decline" }).click();
+  await page.getByRole("menuitem", { name: "Decline with a note…" }).click();
   const note = page.getByRole("textbox", { name: /note to the agent/i });
   await expect.element(note).toBeVisible();
   await userEvent.type(note, "Send it Monday");
@@ -370,7 +375,7 @@ test("a send with nothing to preview keeps only its refusals; settled states wit
   const ids = [...withheld!.querySelectorAll("[data-choice-id]")].map(
     (el) => (el as HTMLElement).dataset.choiceId,
   );
-  expect(ids).toEqual(["never", "decline"]);
+  expect(ids).toEqual(["decline"]);
   expect(
     withheld!.querySelector('[data-slot="ask-card-withheld"]'),
   ).not.toBeNull();

@@ -1,4 +1,4 @@
-// @vegastack chat-request-card@0.139.0 sha256-RFgktmNBAxiH5s2dh1jdOWBoefrxHXatXK20T5ElCxQ=
+// @vegastack chat-request-card@0.139.0 sha256-oacqXM3HaEYg7j69nHNirPTmmDMFzhQXTlTk+mUCt8o=
 
 "use client";
 
@@ -27,8 +27,8 @@ import { Textarea } from "@/components/ui/textarea";
 /* ------------------------------------------------------------------------------------------------
  * ChatRequestCard — an agent asking a person's OK, drawn from the offer the server stored with the
  * request. The card never computes its own buttons: `once` is the primary button, every `always:*`
- * choice sits in one "Always allow" menu with its scope, and `never` and `decline` are quiet text
- * buttons (a decline can carry a note). Nothing on the card can fail when pressed because nothing on it was invented
+ * choice sits in one "Always allow" menu with its scope, and `decline` and `never` share one quiet
+ * "Decline ▾" menu (a decline can carry a note). Nothing on the card can fail when pressed because nothing on it was invented
  * here. Once answered, refused, withdrawn or expired the card settles into one muted line.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -186,10 +186,13 @@ function RequestSubject({
 
 type Answer = (choiceId: string, note?: string) => Promise<void>;
 
+/** The Decline menu's item that opens the note field. */
+const DECLINE_WITH_NOTE = "Decline with a note…";
+
 /**
  * The offered choices as buttons — exactly the server's, never more. `once` primary, the
- * `always:*` choices in one outline menu, `never` a text button, `decline` a text button that opens
- * a note field.
+ * `always:*` choices in one outline menu, and one quiet "Decline ▾" menu holding "Decline with a
+ * note…" (opens a note field) and `never`. Either refusal alone is a quiet text button.
  */
 function RequestChoices({
   choices,
@@ -296,19 +299,34 @@ function RequestChoices({
           ))}
         </ChatMenu>
       ) : null}
-      {never ? (
-        <Button
-          size={size}
-          variant="ghost"
-          disabled={busy}
-          data-choice="never"
-          className="text-muted-foreground"
-          onClick={() => void onAnswer("never")}
+      {decline && never ? (
+        // One Decline menu: a note, or a rule so it never asks again.
+        <ChatMenu
+          trigger={
+            <Button
+              size={size}
+              variant="ghost"
+              disabled={busy}
+              data-choice="decline"
+              className="text-muted-foreground"
+            >
+              {declineLabel ?? decline.label}
+              <ChevronDown
+                aria-hidden="true"
+                data-icon="inline-end"
+                strokeWidth={1.5}
+              />
+            </Button>
+          }
         >
-          {never.label}
-        </Button>
-      ) : null}
-      {decline ? (
+          <ChatMenuItem shortcut="1" onSelect={() => setNoting(true)}>
+            {DECLINE_WITH_NOTE}
+          </ChatMenuItem>
+          <ChatMenuItem shortcut="2" onSelect={() => void onAnswer("never")}>
+            {never.label}
+          </ChatMenuItem>
+        </ChatMenu>
+      ) : decline ? (
         <Button
           size={size}
           variant="ghost"
@@ -318,6 +336,17 @@ function RequestChoices({
           onClick={() => setNoting(true)}
         >
           {declineLabel ?? decline.label}
+        </Button>
+      ) : never ? (
+        <Button
+          size={size}
+          variant="ghost"
+          disabled={busy}
+          data-choice="never"
+          className="text-muted-foreground"
+          onClick={() => void onAnswer("never")}
+        >
+          {never.label}
         </Button>
       ) : null}
     </>
@@ -482,7 +511,7 @@ export interface ChatRequestCardProps extends Omit<
 
 /**
  * An agent asking a person's OK, drawn from the server's stored offer: Allow once (primary), one
- * "Always allow ▾" menu with each scope, Never as text, and Decline as text with an optional note. When Always
+ * "Always allow ▾" menu with each scope, and one "Decline ▾" menu: "Decline with a note…" and Never. When Always
  * can't be offered the card says why in a muted footnote. While an answer is in flight the buttons
  * hold (`aria-busy`); once settled the card becomes a `RequestLine`.
  *

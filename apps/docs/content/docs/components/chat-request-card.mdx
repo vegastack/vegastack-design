@@ -1,6 +1,6 @@
 ---
 title: Chat Request Card
-description: "An agent asking for an OK, drawn from the server's offer: Allow once, Always allow with its scopes, Never, Decline with a note, and bundles."
+description: "An agent asking for an OK, drawn from the server's offer: Allow once, Always allow with its scopes, one Decline menu (with a note, or Never), and bundles."
 audience: public
 registry: chat-request-card
 status: stable
@@ -27,8 +27,9 @@ import { ChatRequestCard } from "@/components/ui/chat-request-card";
 
 The buttons are exactly `data.offer.choices`, the options the server says it will accept: `once`
 is the primary button, every `always:*` choice sits in one "Always allow" menu with its scope,
-`never` is a quiet text button with the server's words ("Never allow this"), and `decline` is a
-quiet text button that opens a note to the agent. When Always can't be offered,
+and `decline` and `never` share one quiet "Decline ▾" menu: "Decline with a note…" opens a note to
+the agent, and `never` keeps the server's words ("Never allow this"). Either one offered alone is a
+quiet text button. The three controls fit one row at 390px, so an open menu never covers another. When Always can't be offered,
 `offer.noAlways.words` says why under the buttons. While `onAnswer` runs the buttons hold; once
 the request is answered, refused, withdrawn or expired the card becomes a `RequestLine`.
 

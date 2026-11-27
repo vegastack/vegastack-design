@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.139.0 sha256-7z9+Hg59ePY6bFkk2SnuoTyRuWLDP3t2PrRQ5ywTyLY=
+// @vegastack tool-permission-list@0.139.0 sha256-cxkoI4+9VrRduBD8LhHuxLAmimtPeyvXh+x6ReYGGT8=
 
 "use client";
 
@@ -81,6 +81,11 @@ type ToolPermissionRowBase = {
   answer: ToolAnswer;
   /** The answer comes from elsewhere: shown muted with "From {inheritedFrom}". */
   inherited: boolean;
+  /**
+   * The rows under it don't share one answer (an inherited "All tools" whose classes differ): the
+   * menu reads "Mixed" and checks none; picking an answer sets it for the whole row. @default false
+   */
+  mixed?: boolean;
   /** "your admin's lock", "workspace", "this agent's rules", "your rules", "Standard level". */
   inheritedFrom?: string;
   /**
@@ -215,6 +220,9 @@ const ANSWERS: Record<ToolAnswer, PermissionMenuOption<ToolAnswer>> = {
 
 const ORDER: ToolAnswer[] = ["allow", "ask", "block"];
 
+/** What an inherited row reads while the rows under it differ. */
+const MIXED = "Mixed";
+
 /** Tools a class row draws before "Show all". */
 const FIRST = 50;
 
@@ -258,6 +266,7 @@ function AnswerControl({
     <PermissionMenu<ToolAnswer>
       variant="chip"
       value={row.answer}
+      valueLabel={row.mixed ? MIXED : undefined}
       options={options}
       readOnly={readOnly}
       locked={Boolean(row.locked)}
@@ -267,7 +276,7 @@ function AnswerControl({
       resetDescription={
         row.defaultFrom ? `Follows ${row.defaultFrom}.` : undefined
       }
-      aria-label={`${row.label} answer: ${ANSWERS[row.answer].label}`}
+      aria-label={`${row.label} answer: ${row.mixed ? MIXED : ANSWERS[row.answer].label}`}
       className={cn(row.inherited && "text-muted-foreground")}
     />
   );
