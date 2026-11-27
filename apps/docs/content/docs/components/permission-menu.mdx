@@ -29,7 +29,10 @@ import { PermissionMenu } from "@/components/ui/permission-menu";
 
 The last control on a sharing row. The trigger is a ghost button reading the current level and a
 chevron; the menu lists each level with a one-line muted description and a check on the current
-one. With `onRemove`, a separator and a destructive "Remove access" end the menu. A built-in row —
+one. With `onReset`, a separator and a quiet "Use the default" (`resetLabel`, with an optional
+`resetDescription` such as "Follows workspace.") follow the levels: it drops the row's own level, is
+never destructive and carries no check. With `onRemove`, a separator and a destructive "Remove
+access" end the menu. A built-in row —
 the creator, an assignee, a manager — is `locked`: a small lock and the level, still a tab stop,
 with `lockedReason` ("Set by role: Creator") in a tooltip. `readOnly` is plain muted text with no
 tab stop, for a viewer who can change nothing. Descriptions wrap to two lines in an 18rem menu.
@@ -41,9 +44,10 @@ tab stop, for a viewer who can change nothing. Descriptions wrap to two lines in
 
 ## Scope
 
-- Owns: the trigger, the level list with descriptions and the check, Remove access, the read-only
-  text.
-- Does not own: what a level means or saving it — `onValueChange` and `onRemove` are the host's.
+- Owns: the trigger, the level list with descriptions and the check, Use the default, Remove
+  access, the read-only text.
+- Does not own: what a level means or saving it — `onValueChange`, `onReset` and `onRemove` are the
+  host's.
 - Compose with: `PersonAvatar` and `PeoplePicker` in a share dialog (`share-01`).
 
 ## Examples
@@ -54,6 +58,17 @@ Without descriptions the menu is a plain radio list; `size="default"` takes the 
 
 <ComponentPreview
   name="permissionMenuPlain"
+  file="components/preview/permission-menu.tsx"
+/>
+
+### Use the default
+
+`onReset` adds a quiet last item after a separator for a row that holds its own level and can go
+back to the one it follows — the tool permissions' "Use the default", described "Follows
+workspace.".
+
+<ComponentPreview
+  name="permissionMenuReset"
   file="components/preview/permission-menu.tsx"
 />
 

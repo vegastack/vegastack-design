@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { GitBranch } from "lucide-react";
 import { Wrapper } from "./wrapper";
+import type { ToolClass } from "@/components/ui/ask-card";
 // Copied INTO apps/docs via `shadcn add @vegastack/tool-permission-list` (dogfoods the registry) → auto-scanned.
 import {
   ToolPermissionList,
@@ -11,13 +12,15 @@ import {
   type ToolPermissionRow,
 } from "@/components/ui/tool-permission-list";
 
-const ALL: ToolAnswer[] = ["allow", "auto_check", "ask", "block"];
+const ALL: ToolAnswer[] = ["allow", "ask", "block"];
 
 function tool(
   id: string,
   label: string,
-  rowClass: ToolPermissionRow["class"],
-  overrides: Partial<ToolPermissionRow> = {},
+  rowClass: ToolClass,
+  overrides: Partial<
+    Extract<ToolPermissionRow, { kind: "tool" | "class" }>
+  > = {},
 ): ToolPermissionRow {
   return {
     id: `tool:${id}`,
@@ -34,6 +37,15 @@ function tool(
 
 const ROWS: ToolPermissionRow[] = [
   {
+    id: "all",
+    label: "All tools",
+    kind: "all",
+    answer: "ask",
+    inherited: true,
+    inheritedFrom: "Standard level",
+    answersAllowed: ALL,
+  },
+  {
     id: "class:read",
     label: "Read · 3",
     hint: "Reads only",
@@ -41,7 +53,7 @@ const ROWS: ToolPermissionRow[] = [
     class: "read",
     answer: "allow",
     inherited: true,
-    inheritedFrom: "Standard",
+    inheritedFrom: "Standard level",
     answersAllowed: ALL,
     children: [
       tool("list_issues", "GitHub › List issues", "read"),
@@ -55,13 +67,23 @@ const ROWS: ToolPermissionRow[] = [
     hint: "Changes inside the workspace",
     kind: "class",
     class: "write",
-    answer: "auto_check",
+    answer: "ask",
     inherited: false,
+    defaultFrom: "All tools",
+    rules: [
+      {
+        key: "w1",
+        answer: "ask",
+        condition: null,
+        editable: true,
+      },
+    ],
     answersAllowed: ALL,
     children: [
       tool("create_issue", "GitHub › Create issue", "write", {
         inherited: false,
         answer: "allow",
+        defaultFrom: "workspace",
         rules: [
           {
             key: "r1",
@@ -87,6 +109,7 @@ const ROWS: ToolPermissionRow[] = [
       tool("merge_pr", "GitHub › Merge pull request", "write", {
         answer: "block",
         locked: { by: "your admin" },
+        inheritedFrom: "your admin's lock",
       }),
     ],
   },
@@ -99,7 +122,7 @@ const ROWS: ToolPermissionRow[] = [
     answer: "ask",
     inherited: true,
     inheritedFrom: "workspace",
-    answersAllowed: ["auto_check", "ask", "block"],
+    answersAllowed: ["ask", "block"],
     children: [
       tool("delete_branch", "GitHub › Delete a branch", "delete_send", {
         answersAllowed: ["ask", "block"],
@@ -132,6 +155,38 @@ function apply(
   });
 }
 
+/**
+ * "Use the default": the row's own rules go and it follows its default again — a class follows
+ * All tools, a tool its class.
+ */
+function followDefault(
+  rows: ToolPermissionRow[],
+  id: string,
+  parentAnswer?: ToolAnswer,
+): ToolPermissionRow[] {
+  const allAnswer = rows.find((row) => row.kind === "all")?.answer;
+  return rows.map((row) => {
+    const fallback =
+      parentAnswer ?? (row.kind === "all" ? undefined : allAnswer);
+    const next: ToolPermissionRow =
+      row.id === id
+        ? {
+            ...row,
+            rules: undefined,
+            answer: fallback ?? row.answer,
+            inherited: true,
+            inheritedFrom: row.defaultFrom ?? row.inheritedFrom,
+          }
+        : row;
+    return next.children
+      ? {
+          ...next,
+          children: followDefault(next.children, id, next.answer),
+        }
+      : next;
+  });
+}
+
 function Column({
   children,
   width = "max-w-2xl",
@@ -153,6 +208,7 @@ function Live({
   admin?: boolean;
   width?: string;
 }): ReactNode {
+  const [scope, setScope] = useState("agent");
   const [rows, setRows] = useState(() =>
     admin
       ? ROWS.map((row) => ({
@@ -171,12 +227,21 @@ function Live({
         title="GitHub"
         icon={<GitBranch aria-hidden className="size-4" />}
         meta="Connected · company GitHub App"
+        note="New tools from GitHub follow All tools."
+        scope={{
+          value: scope,
+          options: [
+            { value: "every", label: "Every agent" },
+            { value: "agent", label: "This agent" },
+          ],
+          onChange: setScope,
+        }}
         rows={rows}
         onChange={(id, change) => setRows((list) => apply(list, id, change))}
         onAddRule={() => undefined}
         onEditRule={() => undefined}
         onRemoveRule={() => undefined}
-        onUseInherited={() => undefined}
+        onUseInherited={(id) => setRows((list) => followDefault(list, id))}
       />
     </Column>
   );
@@ -213,7 +278,7 @@ export function toolPermissionListMany(): ReactNode {
       class: "read",
       answer: "allow",
       inherited: true,
-      inheritedFrom: "Standard",
+      inheritedFrom: "Standard level",
       answersAllowed: ALL,
       children: Array.from({ length: 88 }, (_, index) =>
         tool(`file_${index}`, `Drive › Read file type ${index + 1}`, "read"),

@@ -47,6 +47,43 @@ export function permissionMenu(): ReactNode {
   );
 }
 
+/** An answer the row set itself, with "Use the default" after the answers. */
+export function permissionMenuReset(): ReactNode {
+  const [answer, setAnswer] = React.useState<string | null>("allow");
+  const ANSWERS = [
+    {
+      value: "allow",
+      label: "Always allow",
+      description: "Runs without asking.",
+    },
+    {
+      value: "ask",
+      label: "Needs approval",
+      description: "Asks a person each time.",
+    },
+    {
+      value: "block",
+      label: "Blocked",
+      description: "Never runs. The agent isn't offered it.",
+    },
+  ];
+  const value = answer ?? "ask";
+  return (
+    <Wrapper>
+      <PermissionMenu
+        variant="chip"
+        value={value}
+        options={ANSWERS}
+        onValueChange={setAnswer}
+        onReset={answer ? () => setAnswer(null) : undefined}
+        resetDescription="Follows workspace."
+        aria-label={`Send email answer: ${ANSWERS.find((a) => a.value === value)?.label}`}
+        className={answer ? undefined : "text-muted-foreground"}
+      />
+    </Wrapper>
+  );
+}
+
 /** Levels without descriptions, and the default size. */
 export function permissionMenuPlain(): ReactNode {
   const [level, setLevel] = React.useState("view");

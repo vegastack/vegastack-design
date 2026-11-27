@@ -152,7 +152,7 @@ starts with `icon-` is a component and never an icon.
 - **`info-hint`** — A small muted info button that opens one sentence of explanation and an optional new-tab link in a popover; keyboard and touch accessible, named by its label.
 - **`panel-search`** — The sticky, box-free search row a filtering popup puts at the top of its panel (decision OVL-11) — shared by EmojiPicker and ShortcutOverlay — plus the scrolling PanelList under it and the PanelActions footer for a searchable menu's static actions.
 - **`peek`** — A record over the right of the page area without leaving its list; a bottom sheet with snap points on a phone.
-- **`permission-menu`** — An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.
+- **`permission-menu`** — An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional quiet Use the default, an optional destructive Remove access, and a read-only text mode for built-in rows.
 - **`picker-panel`** — A searchable, selectable item in an internal picker panel.
 - **`popover`** — An anchored, dismissible surface for secondary content, with a header, title and description.
 - **`responsive-dialog`** — One overlay API that is a centred Dialog from 768px up and a bottom Sheet with a drag handle and a safe-area footer below it — the same header, body and footer in both.
@@ -268,7 +268,7 @@ starts with `icon-` is a component and never an icon.
 - **`task-list`** — An agent's live checklist for a longer job: the live item and up to eleven to do in view, finished items (and groups, members nested) folded into one N done row and the rest into +N more, each fold opening in place, a waiting badge, Subagent progress, and a sticky progress bar.
 - **`text-spinner`** — The one inline text loader: a dot-matrix bolt as tall as capital letters, Strike while working and Pulse while waiting, CSS only, a still bolt under reduced motion.
 - **`tool-call-chip`** — An agent-activity chip — tool action label + muted result meta, optionally rendered as a button.
-- **`tool-permission-list`** — What an agent may do with one source's tools: Allow, Auto-check, Ask or Block per class and per tool, inherited answers muted, locks, an admin's lock toggle and the rules at this layer.
+- **`tool-permission-list`** — What an agent may do with one source's tools: Always allow, Needs approval or Blocked for All tools, per class and per tool, followed answers muted, Use the default, locks, an admin's lock toggle, an Applies to switch and the rules at this layer.
 
 ## Communication
 

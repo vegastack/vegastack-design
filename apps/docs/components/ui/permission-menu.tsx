@@ -1,4 +1,4 @@
-// @vegastack permission-menu@0.136.8 sha256-wR4g/PMoxcVfrAHZQDOywOUgAJPVo1xMJ/HSIwY6eRg=
+// @vegastack permission-menu@0.136.8 sha256-DRymXshrqTehxMht9H6qVxE7iQB054IdLmRqZkyuVhA=
 
 import * as React from "react";
 import { ChevronDownIcon, LockIcon } from "lucide-react";
@@ -23,7 +23,8 @@ import {
 /* ------------------------------------------------------------------------------------------------
  * PermissionMenu — the access level on a sharing row ("Full access", "Can edit", "Can view"): a
  * trigger reading the current level, a menu of levels each with a description of up to two lines
- * and a check on the current one, and an optional destructive "Remove access" at the end.
+ * and a check on the current one, an optional quiet reset ("Use the default") after a separator, and
+ * an optional destructive "Remove access" at the end.
  *
  * Three trigger looks: `ghost` (the original quiet button), `chip` (a 28px property chip for a
  * people row — the tint on hover and a ▾ that says it opens) and `outline` (a bordered 32px control
@@ -56,6 +57,15 @@ export interface PermissionMenuProps<Value extends string = string> {
   onRemove?: () => void;
   /** The remove item's label. @default "Remove access" */
   removeLabel?: string;
+  /**
+   * Adds a quiet, non-destructive item after the levels and a separator that drops this row's own
+   * level so it follows its default again. Omit for no reset item. @default undefined
+   */
+  onReset?: () => void;
+  /** The reset item's label. @default "Use the default" */
+  resetLabel?: string;
+  /** One muted line under the reset item's label, such as "Follows workspace.". @default undefined */
+  resetDescription?: string;
   /** Show the level as plain muted text, with no menu and no tab stop. @default false */
   readOnly?: boolean;
   /**
@@ -101,6 +111,13 @@ export interface PermissionMenuProps<Value extends string = string> {
  *   onValueChange={setLevel}
  *   onRemove={removeAccess}
  * />
+ * <PermissionMenu
+ *   value="allow"
+ *   options={ANSWERS}
+ *   onValueChange={setAnswer}
+ *   onReset={clearOwnRule}
+ *   resetDescription="Follows workspace."
+ * />
  */
 export function PermissionMenu<Value extends string = string>({
   value,
@@ -108,6 +125,9 @@ export function PermissionMenu<Value extends string = string>({
   onValueChange,
   onRemove,
   removeLabel = "Remove access",
+  onReset,
+  resetLabel = "Use the default",
+  resetDescription,
   readOnly = false,
   locked = false,
   lockedReason,
@@ -183,7 +203,8 @@ export function PermissionMenu<Value extends string = string>({
     );
   }
 
-  const described = options.some((option) => option.description);
+  const described =
+    options.some((option) => option.description) || Boolean(resetDescription);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -239,6 +260,28 @@ export function PermissionMenu<Value extends string = string>({
             </DropdownMenuRadioItem>
           ))}
         </DropdownMenuRadioGroup>
+        {onReset ? (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              data-permission-menu-reset=""
+              // Room for the levels' check column, so the reset's text lines up with theirs.
+              className="pe-8"
+              onClick={onReset}
+            >
+              {resetDescription ? (
+                <ItemContent className="gap-0">
+                  <ItemTitle className="font-normal">{resetLabel}</ItemTitle>
+                  <ItemDescription className="line-clamp-2 text-xs">
+                    {resetDescription}
+                  </ItemDescription>
+                </ItemContent>
+              ) : (
+                resetLabel
+              )}
+            </DropdownMenuItem>
+          </>
+        ) : null}
         {onRemove ? (
           <>
             <DropdownMenuSeparator />

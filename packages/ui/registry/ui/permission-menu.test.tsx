@@ -55,11 +55,40 @@ test("Remove access is the last, destructive item — only with onRemove", async
   expect(onRemove).toHaveBeenCalledTimes(1);
 });
 
+test("Use the default follows the levels after a separator: quiet, described, no check, before Remove access", async () => {
+  const onReset = vi.fn();
+  const screen = await render(
+    <PermissionMenu
+      value="view"
+      options={LEVELS}
+      onReset={onReset}
+      resetDescription="Follows workspace."
+      onRemove={vi.fn()}
+    />,
+  );
+  await screen.getByRole("button", { name: "Can view" }).click();
+  const reset = screen.getByRole("menuitem", { name: /^Use the default/ });
+  await expect.element(reset).toHaveAccessibleDescription("Follows workspace.");
+  const el = reset.element();
+  expect(el.getAttribute("data-variant")).toBe("default");
+  expect(el.getAttribute("aria-checked")).toBeNull();
+  expect(el.previousElementSibling?.getAttribute("role")).toBe("separator");
+  const items = screen
+    .getByRole("menu")
+    .element()
+    .querySelectorAll('[role^="menuitem"]');
+  expect(items[items.length - 2]).toBe(el);
+  await expectNoA11yViolations(document.body);
+  await reset.click();
+  expect(onReset).toHaveBeenCalledTimes(1);
+});
+
 test("no onRemove, no Remove access item", async () => {
   const screen = await render(<PermissionMenu value="view" options={LEVELS} />);
   await screen.getByRole("button", { name: "Can view" }).click();
   await expect.element(screen.getByRole("menu")).toBeVisible();
   expect(document.querySelector("[data-permission-menu-remove]")).toBeNull();
+  expect(document.querySelector("[data-permission-menu-reset]")).toBeNull();
 });
 
 test("keyboard: Enter opens on the first level, ArrowDown moves, Enter picks", async () => {

@@ -18004,7 +18004,7 @@
       "name": "permission-menu",
       "type": "registry:ui",
       "title": "Permission Menu",
-      "description": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.",
+      "description": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional quiet Use the default, an optional destructive Remove access, and a read-only text mode for built-in rows.",
       "categories": [
         "overlay"
       ],
@@ -18030,7 +18030,7 @@
         "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
         "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
         "version": "0.136.8",
-        "integrity": "sha256-wR4g/PMoxcVfrAHZQDOywOUgAJPVo1xMJ/HSIwY6eRg="
+        "integrity": "sha256-DRymXshrqTehxMht9H6qVxE7iQB054IdLmRqZkyuVhA="
       }
     },
     {
@@ -19606,14 +19606,14 @@
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
         "version": "0.136.8",
-        "integrity": "sha256-mzw2K7OsDIIHGA6raKL81mFu93eZoMeVEnT009yiA+s="
+        "integrity": "sha256-OI4AaEwnYZFDeYsq1gJQk2BextrfBlabkRzyQ654eag="
       }
     },
     {
       "name": "tool-permission-list",
       "type": "registry:ui",
       "title": "Tool Permission List",
-      "description": "What an agent may do with one source's tools: Allow, Auto-check, Ask or Block per class and per tool, inherited answers muted, locks, an admin's lock toggle and the rules at this layer.",
+      "description": "What an agent may do with one source's tools: Always allow, Needs approval or Blocked for All tools, per class and per tool, followed answers muted, Use the default, locks, an admin's lock toggle, an Applies to switch and the rules at this layer.",
       "categories": [
         "chat"
       ],
@@ -19630,6 +19630,7 @@
         "@vegastack/search-input",
         "@vegastack/skeleton",
         "@vegastack/toggle",
+        "@vegastack/toggle-group",
         "@vegastack/tooltip"
       ],
       "files": [
@@ -19643,7 +19644,7 @@
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
         "version": "0.136.8",
-        "integrity": "sha256-MJRHQKlFrwS6MsGRqjyyNFkxmxjzjkU1JnNnORzllsc="
+        "integrity": "sha256-4hB3nWMGmo/YGA8zskLE2wIoAjXL5e8Dl8Rr9PR8SNc="
       }
     },
     {
@@ -19744,7 +19745,7 @@
         "whenToUse": "A run's own page: what an agent did, step by step, with what it cost.",
         "whenNotToUse": "A chat turn's work (WorkLog), or a list of runs (DataList).",
         "version": "0.136.8",
-        "integrity": "sha256-GWAYmmoFv9cly2Y9n2BwHJQDN9P/b6odid1B4LG7O/I="
+        "integrity": "sha256-lxIYt3D6VQNEYe3M4WhyrG1om8wUXAkfNCwY/itm3ok="
       }
     },
     {

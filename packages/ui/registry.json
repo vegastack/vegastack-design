@@ -14672,7 +14672,7 @@
       "name": "permission-menu",
       "type": "registry:ui",
       "title": "Permission Menu",
-      "description": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional destructive Remove access, and a read-only text mode for built-in rows.",
+      "description": "An access level on a sharing row — a ghost trigger reading the level, a menu of levels with one-line descriptions and a check on the current one, an optional quiet Use the default, an optional destructive Remove access, and a read-only text mode for built-in rows.",
       "categories": ["overlay"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -16087,7 +16087,7 @@
       "name": "tool-permission-list",
       "type": "registry:ui",
       "title": "Tool Permission List",
-      "description": "What an agent may do with one source's tools: Allow, Auto-check, Ask or Block per class and per tool, inherited answers muted, locks, an admin's lock toggle and the rules at this layer.",
+      "description": "What an agent may do with one source's tools: Always allow, Needs approval or Blocked for All tools, per class and per tool, followed answers muted, Use the default, locks, an admin's lock toggle, an Applies to switch and the rules at this layer.",
       "categories": ["chat"],
       "dependencies": [
         "lucide-react@^1.47.0",
@@ -16102,6 +16102,7 @@
         "@vegastack/search-input",
         "@vegastack/skeleton",
         "@vegastack/toggle",
+        "@vegastack/toggle-group",
         "@vegastack/tooltip"
       ],
       "files": [
