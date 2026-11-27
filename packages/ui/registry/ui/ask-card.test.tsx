@@ -85,12 +85,13 @@ test("a pending ask names itself by its action, shows the preview first and the 
   const ids = [...choices.querySelectorAll("[data-choice-id]")].map(
     (el) => (el as HTMLElement).dataset.choiceId,
   );
-  expect(ids).toEqual(["once", "always:thread", "never", "decline"]);
+  // Decline, then its arrow holding a note and Never.
+  expect(ids).toEqual(["once", "always:thread", "decline", "decline:more"]);
   expect(
     root.querySelector('[data-choice="once"]')!.getAttribute("data-variant"),
   ).toBe("secondary");
   expect(
-    root.querySelector('[data-choice="never"]')!.getAttribute("data-variant"),
+    root.querySelector('[data-choice="decline"]')!.getAttribute("data-variant"),
   ).toBe("outline");
   expect(
     root.querySelector('[data-slot="ask-card-deadline"]')!.textContent,
@@ -111,7 +112,17 @@ test("an answer passes the choice id back unchanged; a decline with a note sends
   );
   await page.getByRole("button", { name: "Always in this thread" }).click();
   expect(onAnswer).toHaveBeenLastCalledWith("always:thread");
+  await page.getByRole("button", { name: "More ways to decline" }).click();
+  // Never keeps its destructive ink inside the menu.
+  await expect
+    .element(page.getByRole("menuitem", { name: "Never" }))
+    .toHaveAttribute("data-variant", "destructive");
+  await page.getByRole("menuitem", { name: "Never" }).click();
+  expect(onAnswer).toHaveBeenLastCalledWith("never");
   await page.getByRole("button", { name: "Decline" }).click();
+  expect(onAnswer).toHaveBeenLastCalledWith("decline");
+  await page.getByRole("button", { name: "More ways to decline" }).click();
+  await page.getByRole("menuitem", { name: "Decline with a note…" }).click();
   const note = page.getByRole("textbox", { name: /note to the agent/i });
   await expect.element(note).toBeVisible();
   await userEvent.type(note, "Send it Monday");
@@ -119,7 +130,35 @@ test("an answer passes the choice id back unchanged; a decline with a note sends
   expect(onAnswer).toHaveBeenLastCalledWith("decline", "Send it Monday");
 });
 
-test("past two Always choices fold into one Always… menu listing every scope", async () => {
+test("Back and Escape leave the note with focus on Decline's arrow, answering nothing", async () => {
+  const onAnswer = vi.fn();
+  await render(
+    <AskCard
+      agent={agent}
+      action={action}
+      state="pending"
+      choices={CHOICES}
+      onAnswer={onAnswer}
+    />,
+  );
+  const more = () => page.getByRole("button", { name: "More ways to decline" });
+  const open = async () => {
+    await more().click();
+    await page.getByRole("menuitem", { name: "Decline with a note…" }).click();
+    await expect
+      .element(page.getByRole("textbox", { name: /note to the agent/i }))
+      .toHaveFocus();
+  };
+  await open();
+  await page.getByRole("button", { name: "Back" }).click();
+  await expect.element(more()).toHaveFocus();
+  await open();
+  await userEvent.keyboard("{Escape}");
+  await expect.element(more()).toHaveFocus();
+  expect(onAnswer).not.toHaveBeenCalled();
+});
+
+test("more than one Always choice folds into one Always… menu listing every scope", async () => {
   const onAnswer = vi.fn();
   const screen = await render(
     <AskCard
@@ -141,6 +180,34 @@ test("past two Always choices fold into one Always… menu listing every scope",
   await page.getByRole("button", { name: "Always…" }).click();
   await page.getByRole("menuitem", { name: "Always in this space" }).click();
   expect(onAnswer).toHaveBeenCalledWith("always:b");
+});
+
+test("at 390px Allow once, Always… and Decline ▾ sit on one row", async () => {
+  await page.viewport(390, 800);
+  const screen = await render(
+    <div style={{ width: 358 }}>
+      <AskCard
+        agent={agent}
+        action={{ ...action, toolClass: "write", preview: undefined }}
+        state="pending"
+        choices={[
+          { id: "once", label: "Allow once", kind: "once" },
+          { id: "always:a", label: "Always in this thread", kind: "always" },
+          { id: "always:b", label: "Always in this space", kind: "always" },
+          { id: "never", label: "Never allow this", kind: "never" },
+          { id: "decline", label: "Decline", kind: "decline", needsNote: true },
+        ]}
+        onAnswer={vi.fn()}
+      />
+    </div>,
+  );
+  const tops = ["once", "always", "decline"].map(
+    (id) =>
+      screen.container
+        .querySelector<HTMLElement>(`[data-choice="${id}"]`)!
+        .getBoundingClientRect().top,
+  );
+  expect(new Set(tops).size).toBe(1);
 });
 
 test("no state draws a filled primary button, in either density or in a bundle", async () => {
@@ -370,7 +437,7 @@ test("a send with nothing to preview keeps only its refusals; settled states wit
   const ids = [...withheld!.querySelectorAll("[data-choice-id]")].map(
     (el) => (el as HTMLElement).dataset.choiceId,
   );
-  expect(ids).toEqual(["never", "decline"]);
+  expect(ids).toEqual(["decline", "decline:more"]);
   expect(
     withheld!.querySelector('[data-slot="ask-card-withheld"]'),
   ).not.toBeNull();

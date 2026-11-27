@@ -63,7 +63,9 @@ row holds its own rule, its answer menu ends with "Use the default" after a sepa
 shows the lock and who locked it, read-only. The rules at this layer list under their row, each
 with its answer, its condition (an unconditional rule reads its answer alone), its note, "Waiting to be published" while pending, and Edit or
 Remove when editable. "Add a condition" is a quiet icon button at the row's end. Picking Always
-allow on a row with `warningOnAllow` shows that line under it.
+allow on a row with `warningOnAllow` shows that line under it. An inherited row whose rows under it
+don't share one answer (an "All tools" whose Read and Delete or send differ) sets `mixed`: its menu
+reads "Mixed" and checks none, and picking an answer sets it for the whole row.
 
 ### An admin's view
 

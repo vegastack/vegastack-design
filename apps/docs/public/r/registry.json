@@ -18030,7 +18030,7 @@
         "whenToUse": "Choose or show the access level of one person, team or group on a sharing or membership row.",
         "whenNotToUse": "A form field choosing a value (Select), or a row's general actions (DropdownMenu or RowActionMenu).",
         "version": "0.138.0",
-        "integrity": "sha256-mJHr+z2AXRa/IwF2afGBfjk87hTMNRdVcves7NoQCNo="
+        "integrity": "sha256-vKS2p/ii49O3NfxQJnMZuvsWNWd8wOKFRVlbiSDmWLM="
       }
     },
     {
@@ -19590,6 +19590,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/button-group",
         "@vegastack/dropdown-menu",
         "@vegastack/item",
         "@vegastack/status-glyph",
@@ -19606,7 +19607,7 @@
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
         "version": "0.139.0",
-        "integrity": "sha256-vQ1+aggcmOz1iQNyOyB4aMyEtFk/vuK+fQ/3jUL1W54="
+        "integrity": "sha256-FkzC/PjBZcpox+sQLp+4y/oib7O3Rm0LkPt12c/x2s0="
       }
     },
     {
@@ -19644,7 +19645,7 @@
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
         "version": "0.139.0",
-        "integrity": "sha256-7z9+Hg59ePY6bFkk2SnuoTyRuWLDP3t2PrRQ5ywTyLY="
+        "integrity": "sha256-cxkoI4+9VrRduBD8LhHuxLAmimtPeyvXh+x6ReYGGT8="
       }
     },
     {
@@ -20597,6 +20598,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/button-group",
         "@vegastack/chat-card",
         "@vegastack/chat-menu",
         "@vegastack/status-glyph",
@@ -20613,7 +20615,7 @@
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
         "version": "0.139.0",
-        "integrity": "sha256-RFgktmNBAxiH5s2dh1jdOWBoefrxHXatXK20T5ElCxQ="
+        "integrity": "sha256-x54+Xp+nUeVo/7RbFy5NtHnaEKqEmNYXvgOvT0ugzyM="
       }
     },
     {

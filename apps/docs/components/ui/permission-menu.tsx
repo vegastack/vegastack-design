@@ -1,4 +1,4 @@
-// @vegastack permission-menu@0.138.0 sha256-mJHr+z2AXRa/IwF2afGBfjk87hTMNRdVcves7NoQCNo=
+// @vegastack permission-menu@0.138.0 sha256-vKS2p/ii49O3NfxQJnMZuvsWNWd8wOKFRVlbiSDmWLM=
 
 import * as React from "react";
 import { ChevronDownIcon, LockIcon } from "lucide-react";
@@ -49,6 +49,12 @@ export interface PermissionMenuOption<Value extends string = string> {
 export interface PermissionMenuProps<Value extends string = string> {
   /** The current level. */
   value: Value;
+  /**
+   * Words the trigger shows in place of the level's label — "Mixed" for a row whose parts don't
+   * share one level. No level is checked in the menu then; picking one sets them all.
+   * @default undefined
+   */
+  valueLabel?: string;
   /** The levels, in order — usually from most to least access. */
   options: readonly PermissionMenuOption<Value>[];
   /** Called with the chosen level. @default undefined */
@@ -121,6 +127,7 @@ export interface PermissionMenuProps<Value extends string = string> {
  */
 export function PermissionMenu<Value extends string = string>({
   value,
+  valueLabel,
   options,
   onValueChange,
   onRemove,
@@ -139,7 +146,7 @@ export function PermissionMenu<Value extends string = string>({
   className,
 }: PermissionMenuProps<Value>) {
   const current = options.find((option) => option.value === value);
-  const label = current?.label ?? value;
+  const label = valueLabel ?? current?.label ?? value;
   const size = sizeProp ?? (variant === "outline" ? "default" : "sm");
   const tier = size === "sm" ? "h-7" : "h-8";
 
@@ -237,7 +244,7 @@ export function PermissionMenu<Value extends string = string>({
       </DropdownMenuTrigger>
       <DropdownMenuContent align={align} className={cn(described && "w-72")}>
         <DropdownMenuRadioGroup
-          value={value}
+          value={valueLabel === undefined ? value : null}
           onValueChange={(next) => onValueChange?.(next as Value)}
         >
           {options.map((option) => (

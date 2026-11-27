@@ -206,6 +206,27 @@ test("All tools leads, above the classes, with no fold toggle, its label aligned
   expect(Math.abs(label(0) - label(2))).toBeLessThan(1);
 });
 
+test("a mixed row reads Mixed, checks no answer, and a pick goes to the row", async () => {
+  const onChange = vi.fn();
+  const screen = await render(
+    <ToolPermissionList
+      title="Gmail"
+      rows={[{ ...ROWS[0]!, inherited: true, mixed: true, answer: "ask" }]}
+      onChange={onChange}
+    />,
+  );
+  const trigger = screen.getByRole("button", { name: /answer: Mixed/ });
+  await expect.element(trigger).toHaveTextContent("Mixed");
+  await userEvent.click(trigger);
+  await expect
+    .element(screen.getByRole("menuitemradio", { name: /Needs approval/ }))
+    .toHaveAttribute("aria-checked", "false");
+  await userEvent.click(
+    screen.getByRole("menuitemradio", { name: /Always allow/ }),
+  );
+  expect(onChange).toHaveBeenCalledWith(ROWS[0]!.id, { answer: "allow" });
+});
+
 test("the lock toggle reports the lock; Allow with a warning shows its line", async () => {
   const onChange = vi.fn();
   const rows = structuredClone(ROWS);

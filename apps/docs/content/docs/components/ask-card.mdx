@@ -54,8 +54,10 @@ something the server won't accept.
 ### Choices
 
 The choices keep the server's order, with Decline last. The preferred one, `once`, is a
-**secondary** button; every other choice is outline and `never` takes the destructive ink. Nothing
-on the card is ever a filled primary: the page's primary lives elsewhere. Past two Always choices
+**secondary** button; every other choice is outline and `never` takes the destructive ink. Decline
+declines at once; when there's more to offer, its arrow ("More ways to decline") holds "Decline
+with a note…" (a `needsNote` decline) and Never, still in the destructive ink. Nothing
+on the card is ever a filled primary: the page's primary lives elsewhere. With more than one Always choice
 they fold into one "Always…" menu that lists each scope under its label. When the server offers no
 Always, `noAlways` says why in its own words.
 
