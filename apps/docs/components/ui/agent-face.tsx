@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.138.0 sha256-0WKL4GZ2Ulsk6O6MS1QtQWl8wOnKvOE35U1EbQVPdkk=
+// @vegastack agent-face@0.138.0 sha256-zWzYHuwTjB9tLAM7bM1i0tcFRN15cZVfYuk9heTtnuk=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -578,7 +578,7 @@ function Face({ def, state, size, motion, dark, dx = 0, mini }: FaceGeometry) {
       strokeWidth={n2(lw)}
       strokeLinecap="round"
       strokeLinejoin="round"
-      // Paused softens the features with a solid ink (60% toward the body), never a see-through layer.
+      // Paused softens the features with a solid ink (the ink 40% toward the body), never a see-through layer.
       style={
         state === "paused"
           ? ({
