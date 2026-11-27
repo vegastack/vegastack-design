@@ -2,6 +2,7 @@ import { render } from "vitest-browser-react";
 import { userEvent } from "vitest/browser";
 import { expect, test, vi } from "vitest";
 import { expectNoA11yViolations } from "../../test/a11y";
+import "../../test/geometry.css";
 import {
   ChatRequestCard,
   RequestBundleCard,
@@ -92,7 +93,7 @@ test("Allow once answers once and the card holds until the request settles", asy
     .element(screen.getByRole("button", { name: "Decline" }))
     .toBeDisabled();
   expect(onAnswer).toHaveBeenCalledOnce();
-  screen.rerender(
+  await screen.rerender(
     <ChatRequestCard
       agent={agent}
       onAnswer={onAnswer}
@@ -352,7 +353,7 @@ test("an answer for all holds only the asks it covered; a later ask arrives free
     state: "answered" as const,
     answer: { choiceId: "once", byName: "you", at: "", undoable: false },
   }));
-  screen.rerender(
+  await screen.rerender(
     <RequestBundleCard
       agent={agent}
       items={[...settled, bundle(3)]}
@@ -382,7 +383,7 @@ test("a late failure of an answer whose asks already settled can't free a newer 
     state: "answered" as const,
     answer: { choiceId: "once", byName: "you", at: "", undoable: false },
   }));
-  screen.rerender(
+  await screen.rerender(
     <RequestBundleCard items={[...settled, bundle(3)]} {...props} />,
   );
   await userEvent.click(screen.getByRole("button", { name: "Allow all once" }));
@@ -415,4 +416,70 @@ test("quotes the exact words it would send under the subject, line breaks kept",
     "To: sm@vegastack.com\nSubject: Weekly summary\n\nHi Simran,\nhere it is.",
   );
   await expectNoA11yViolations(screen.container);
+});
+
+test("a reason shows whole under the subject while open; a long Always scope wraps and the menu stays narrow", async () => {
+  const reason = "Auto-check asked: the recipient isn't one anyone named.";
+  const scope =
+    "Saves: William may email anyone at vegastack.com without asking, in any chat.";
+  const data: RequestData = {
+    ...EMAIL,
+    offer: {
+      choices: [
+        { id: "once", label: "Allow once" },
+        {
+          id: "always:domain",
+          label: "Always allow",
+          scope: { kind: "domain", value: "vegastack.com", label: scope },
+        },
+        { id: "decline", label: "Decline" },
+      ],
+    },
+  };
+  const screen = await render(
+    <div style={{ width: 390 }}>
+      <ChatRequestCard
+        agent={agent}
+        data={data}
+        reason={reason}
+        onAnswer={async () => {}}
+      />
+    </div>,
+  );
+  const line = screen.container.querySelector<HTMLElement>(
+    '[data-slot="request-reason"]',
+  )!;
+  expect(line.textContent).toBe(reason);
+  expect(line.scrollWidth).toBeLessThanOrEqual(line.clientWidth);
+  await userEvent.click(screen.getByRole("button", { name: "Always allow" }));
+  const hint = document.querySelector<HTMLElement>(
+    '[data-slot="chat-menu-item-hint"]',
+  )!;
+  expect(hint.textContent).toBe(scope);
+  // Two lines at most, nothing cut sideways, and the menu no wider than the phone.
+  expect(hint.scrollWidth).toBeLessThanOrEqual(hint.clientWidth);
+  expect(hint.getBoundingClientRect().height).toBeGreaterThan(20);
+  const menu = document.querySelector<HTMLElement>(
+    '[data-slot="chat-menu-content"]',
+  )!;
+  expect(menu.getBoundingClientRect().width).toBeLessThanOrEqual(320);
+  await userEvent.keyboard("{Escape}");
+  await screen.rerender(
+    <div style={{ width: 390 }}>
+      <ChatRequestCard
+        agent={agent}
+        data={{
+          ...data,
+          state: "answered",
+          answer: { choiceId: "once", byName: "you", at: "", undoable: false },
+        }}
+        reason={reason}
+        onAnswer={async () => {}}
+      />
+    </div>,
+  );
+  expect(
+    screen.container.querySelector('[data-slot="request-reason"]'),
+  ).toBeNull();
+  expect(screen.container.textContent).not.toContain("Auto-check asked");
 });

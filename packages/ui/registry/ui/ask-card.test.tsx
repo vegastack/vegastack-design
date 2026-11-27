@@ -378,3 +378,67 @@ test("a send with nothing to preview keeps only its refusals; settled states wit
     blocked!.querySelector('[data-slot="ask-card-settled"]')!.textContent,
   ).toBe("Never allowed");
 });
+
+test("a reason shows whole under the title while open, and a long scope sentence wraps in the Always menu at 390px", async () => {
+  const reason =
+    "Auto-check asked: the channel isn't one anyone named in this chat, so a person decides.";
+  const scope = "Saves: Inbox helper may post in Slack in #ops without asking.";
+  const choices: AskChoice[] = [
+    { id: "once", label: "Allow once", kind: "once" },
+    {
+      id: "always:a",
+      label: "Always in #ops",
+      kind: "always",
+      scopeLabel: scope,
+    },
+    {
+      id: "always:b",
+      label: "Always in Slack",
+      kind: "always",
+      scopeLabel: "Anywhere",
+    },
+    { id: "always:c", label: "Always", kind: "always" },
+  ];
+  const screen = await render(
+    <div style={{ width: 390 }}>
+      <AskCard
+        agent={agent}
+        action={{ ...action, toolClass: "write", preview: undefined }}
+        reason={reason}
+        state="pending"
+        choices={choices}
+        onAnswer={vi.fn()}
+      />
+    </div>,
+  );
+  const line = screen.container.querySelector<HTMLElement>(
+    '[data-slot="ask-card-reason"]',
+  )!;
+  expect(line.textContent).toBe(reason);
+  // It wraps rather than cutting: nothing overflows its box.
+  expect(line.scrollWidth).toBeLessThanOrEqual(line.clientWidth);
+  expect(line.getBoundingClientRect().height).toBeGreaterThan(20);
+  await page.getByRole("button", { name: "Always…" }).click();
+  const description = document.querySelector<HTMLElement>(
+    '[data-choice-id="always:a"] [data-slot="item-description"]',
+  )!;
+  expect(description.textContent).toBe(scope);
+  expect(description.scrollHeight).toBeLessThanOrEqual(
+    description.clientHeight + 1,
+  );
+  expect(description.getBoundingClientRect().right).toBeLessThanOrEqual(390);
+  await userEvent.keyboard("{Escape}");
+  // Settled, the reason goes with the buttons.
+  await screen.rerender(
+    <AskCard
+      agent={agent}
+      action={{ ...action, toolClass: "write", preview: undefined }}
+      reason={reason}
+      state="allowed"
+      choices={[]}
+    />,
+  );
+  await expect
+    .poll(() => screen.container.querySelector('[data-slot="ask-card-reason"]'))
+    .toBeNull();
+});

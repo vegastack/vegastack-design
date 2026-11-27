@@ -64,6 +64,15 @@ Always, `noAlways` says why in its own words.
   file="components/preview/ask-card.tsx"
 />
 
+### With Auto-check's reason
+
+When Auto-check sends a call to a person, `reason` carries its words, which the caller passes whole
+("Auto-check asked: …"): one muted line under the title and facts while the ask is open, wrapping
+on a narrow card. An Always choice's `scopeLabel` can be the sentence the rule will save; in the
+Always menu it wraps to two lines rather than truncating.
+
+<ComponentPreview name="askCardReason" file="components/preview/ask-card.tsx" />
+
 ### Settled
 
 Answered, refused, expired, changed or no longer needed, the buttons give way to one muted line:

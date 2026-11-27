@@ -3648,6 +3648,7 @@
                 "ask-card-header",
                 "ask-card-items",
                 "ask-card-readonly",
+                "ask-card-reason",
                 "ask-card-shared",
                 "ask-card-why",
                 "ask-card-withheld"

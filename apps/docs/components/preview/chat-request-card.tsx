@@ -180,3 +180,52 @@ export function chatRequestCardLines(): ReactNode {
     </Wrapper>
   );
 }
+
+const SLACK_DM: RequestData = {
+  interactionId: "i-dm",
+  kind: "slack_dm",
+  title: "Message Ravi Kumar in Slack",
+  detail: "“The revised delivery dates are in the sheet.”",
+  offer: {
+    choices: [
+      { id: "once", label: "Allow once" },
+      {
+        id: "always:recipient",
+        label: "Always for Ravi",
+        scope: {
+          kind: "recipient",
+          value: "U123",
+          label:
+            "Saves: Inbox helper may message Ravi Kumar in Slack without asking.",
+        },
+      },
+      {
+        id: "always:any",
+        label: "Always in Slack",
+        scope: {
+          kind: "any",
+          value: "",
+          label:
+            "Saves: Inbox helper may message anyone in this Slack workspace without asking.",
+        },
+      },
+      { id: "decline", label: "Decline" },
+    ],
+  },
+  state: "open",
+};
+
+export function chatRequestCardReason(): ReactNode {
+  return (
+    <Wrapper className={COLUMN}>
+      <div className="w-full max-w-[390px]">
+        <ChatRequestCard
+          agent={{ name: "Inbox helper" }}
+          data={SLACK_DM}
+          reason="Auto-check asked: the recipient isn't one anyone named."
+          onAnswer={answer}
+        />
+      </div>
+    </Wrapper>
+  );
+}

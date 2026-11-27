@@ -345,3 +345,46 @@ export function askCardNarrow(): ReactNode {
     </Column>
   );
 }
+
+const RULE_WORDS: AskChoice[] = [
+  { id: "once", label: "Allow once", kind: "once" },
+  {
+    id: "always:ch",
+    label: "Always in #ops",
+    kind: "always",
+    scopeLabel: "Saves: Inbox helper may post in Slack in #ops without asking.",
+  },
+  {
+    id: "always:any",
+    label: "Always in Slack",
+    kind: "always",
+    scopeLabel:
+      "Saves: Inbox helper may post in any Slack channel it can reach without asking.",
+  },
+  {
+    id: "always:dm",
+    label: "Always in DMs",
+    kind: "always",
+    scopeLabel: "Saves: Inbox helper may send Slack DMs without asking.",
+  },
+  { id: "decline", label: "Decline", kind: "decline" },
+];
+
+export function askCardReason(): ReactNode {
+  return (
+    <Column width="max-w-[390px]">
+      <AskCard
+        agent={{ ...agent, name: "Inbox helper" }}
+        action={{
+          title: "Post in #ops",
+          toolClass: "write",
+          preview: "Stand-up moved to 10:30 today.",
+        }}
+        reason="Auto-check asked: the channel isn't one anyone named in this chat."
+        state="pending"
+        choices={RULE_WORDS}
+        onAnswer={() => undefined}
+      />
+    </Column>
+  );
+}

@@ -47,7 +47,8 @@ One column, no empty detail pane. The selected item's ✓ is `primary` and share
 slot with its number shortcut; while the menu is open, pressing that number picks the item. A
 `ChatMenuSub` shows its current value before the chevron and opens on hover, Enter or →; its own
 numbers pick within it. A muted item with a hint ("Off · ask an admin") is something this person
-can't use. For a general actions menu use [`DropdownMenu`](/docs/components/dropdown-menu).
+can't use. A long hint wraps to two lines at 16rem, so a sentence keeps the menu narrow. For a
+general actions menu use [`DropdownMenu`](/docs/components/dropdown-menu).
 
 <ComponentPreview name="chatMenu" file="components/preview/chat-menu.tsx" />
 
