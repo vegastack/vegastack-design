@@ -19644,7 +19644,7 @@
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
         "version": "0.136.8",
-        "integrity": "sha256-0jTyvvNInkkEC/j0aTmaMKalfwF/IKBjtPy6AlrWbzM="
+        "integrity": "sha256-4hB3nWMGmo/YGA8zskLE2wIoAjXL5e8Dl8Rr9PR8SNc="
       }
     },
     {

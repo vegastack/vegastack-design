@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.136.8 sha256-0jTyvvNInkkEC/j0aTmaMKalfwF/IKBjtPy6AlrWbzM=
+// @vegastack tool-permission-list@0.136.8 sha256-4hB3nWMGmo/YGA8zskLE2wIoAjXL5e8Dl8Rr9PR8SNc=
 
 "use client";
 
@@ -222,7 +222,8 @@ function countTools(rows: ToolPermissionRow[]): number {
   let n = 0;
   for (const row of rows) {
     if (row.kind === "tool") n += 1;
-    if (row.children) n += countTools(row.children);
+    // An `all` row's children are never drawn, so they never count.
+    if (row.children && row.kind !== "all") n += countTools(row.children);
   }
   return n;
 }
