@@ -1,4 +1,4 @@
-// @vegastack video-player@0.138.0 sha256-7Vmv4aqi9R81ptQ7ct3nlkyRZL4WyePJDtUy7RzQuSA=
+// @vegastack video-player@0.138.0 sha256-QawYgs+N3aMV60l5mxH08f3iVtB5m9liGu67wTWqosA=
 
 "use client";
 
@@ -6,19 +6,86 @@ import * as React from "react";
 import { cn, mergeRefs } from "@vegastack/design";
 import { DownloadIcon } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
+import { TextSpinner } from "@/components/ui/text-spinner";
 import { useMediaQuery } from "@/components/ui/use-media-query";
 import {
   MediaPlayerControls,
   clampTime,
+  type MediaChapter,
   type MediaPlayerControlsProps,
+  type MediaTimeline,
   useExclusivePlayback,
   useMediaShortcuts,
 } from "@/components/ui/media-player-controls";
+import { attachHls, playsHlsNatively } from "@/components/ui/video-player-hls";
 
 const VIDEO_CONTROLS_HIDE_DELAY_MS = 1000;
+// While the video plays, the controls step aside after this long without the pointer moving.
+const VIDEO_CONTROLS_IDLE_MS = 2500;
 const VIDEO_CONTROLS_FADE_MS = 150;
+// The loading bolt appears only when a wait outlasts this, so a quick seek never flashes it.
+const VIDEO_LOADING_REVEAL_MS = 400;
+// An `hls` source is renewed this long before its `expiresAt`.
+const HLS_RENEW_AHEAD_MS = 60_000;
+const VIDEO_PLAYBACK_RATES = [0.75, 1, 1.25, 1.5, 1.75, 2] as const;
 // No quality menu unless the caller has renditions to switch between: a single stored file has one.
 const NO_QUALITIES: readonly string[] = [];
+const CAPTIONS_STORAGE_KEY = "vegastack:video-player:captions";
+
+/** Merge skip ranges (milliseconds) into sorted, non-overlapping second ranges. */
+function normalizeSkipRanges(
+  ranges: ReadonlyArray<readonly [number, number]> | undefined,
+): Array<[number, number]> {
+  if (!ranges?.length) return [];
+  const sorted = ranges
+    .map(([from, to]) => [from / 1000, to / 1000] as [number, number])
+    .filter(([from, to]) => Number.isFinite(from) && to > from)
+    .sort((a, b) => a[0] - b[0]);
+  const merged: Array<[number, number]> = [];
+  for (const range of sorted) {
+    const last = merged.at(-1);
+    if (last && range[0] <= last[1]) last[1] = Math.max(last[1], range[1]);
+    else merged.push([Math.max(range[0], 0), range[1]]);
+  }
+  return merged;
+}
+
+/** The displayed timeline of a source with `ranges` skipped. */
+function skipTimeline(ranges: ReadonlyArray<[number, number]>): MediaTimeline {
+  return {
+    toDisplay: (seconds) =>
+      ranges.reduce(
+        (shown, [from, to]) =>
+          seconds > from ? shown - (Math.min(seconds, to) - from) : shown,
+        seconds,
+      ),
+    toMedia: (seconds) =>
+      ranges.reduce(
+        (media, [from, to]) => (media >= from ? media + (to - from) : media),
+        seconds,
+      ),
+  };
+}
+
+type WebkitVideo = HTMLVideoElement & {
+  webkitEnterFullscreen?: () => void;
+  webkitSupportsPresentationMode?: (mode: string) => boolean;
+  webkitSetPresentationMode?: (mode: string) => void;
+  webkitPresentationMode?: string;
+};
+type WebkitDocument = Document & {
+  webkitFullscreenElement?: Element | null;
+  webkitExitFullscreen?: () => void;
+};
+type WebkitElement = HTMLElement & { webkitRequestFullscreen?: () => void };
+
+function fullscreenElement(): Element | null {
+  return (
+    document.fullscreenElement ??
+    (document as WebkitDocument).webkitFullscreenElement ??
+    null
+  );
+}
 
 function isTextEntryTarget(target: EventTarget | null): boolean {
   return (
@@ -31,13 +98,64 @@ function isTextEntryTarget(target: EventTarget | null): boolean {
   );
 }
 
-/** Props accepted by `VideoPlayer`. */
-export interface VideoPlayerProps extends Omit<
+/** An HLS playlist source for `VideoPlayer` (a recording served as segments). */
+export interface VideoPlayerHlsSource {
+  /** The playlist (`.m3u8`) URL. Safari and iOS play it natively; elsewhere hls.js loads lazily. */
+  playlistUrl: string;
+  /**
+   * When `playlistUrl` stops working (ISO 8601). `onExpired` runs 60 s before it; re-render with
+   * the new expiry after a renewal.
+   * @default undefined
+   */
+  expiresAt?: string;
+  /**
+   * Resolve a fresh playlist URL. Called 60 s before `expiresAt`, and when the playlist or a segment
+   * answers 403; the player reloads the new playlist at the same position, playing if it was. A
+   * second 403 before the new playlist has loaded, or a rejection, shows the "can't play" card.
+   */
+  onExpired: () => Promise<string>;
+}
+
+/** What `controllerRef` exposes. Milliseconds on the media's own clock. */
+export interface VideoPlayerController {
+  seekTo: (ms: number) => void;
+  play: () => Promise<void>;
+  pause: () => void;
+  currentMs: () => number;
+}
+
+/** Captions for `VideoPlayer`: one WebVTT track. */
+export interface VideoPlayerCaptions {
+  src: string;
+  label: string;
+  srclang: string;
+}
+
+/** The two ways to give `VideoPlayer` a source: exactly one of them. */
+export type VideoPlayerSource =
+  | {
+      /**
+       * Video source URL (a single file).
+       */
+      src: string;
+      hls?: undefined;
+    }
+  | {
+      src?: undefined;
+      /**
+       * An HLS playlist instead of a file, with renewal of its signed URL.
+       */
+      hls: VideoPlayerHlsSource;
+    };
+
+/** Props accepted by `VideoPlayer`, apart from the source. */
+export interface VideoPlayerBaseProps extends Omit<
   React.ComponentPropsWithRef<"video">,
   | "children"
   | "className"
   | "controls"
   | "ref"
+  | "src"
   | "title"
   | "onTimeUpdate"
   | "onRateChange"
@@ -45,9 +163,51 @@ export interface VideoPlayerProps extends Omit<
   | "onPause"
 > {
   /**
-   * Video source URL.
+   * Same-origin URL of hls.js's `hls.worker.js` for an `hls` source (keeps `worker-src 'self'`).
+   * @default undefined
    */
-  src: string;
+  hlsWorkerPath?: string;
+  /**
+   * When an `hls` source attaches: once half the player is on screen (`visible`), or on the first
+   * pointer or keyboard interaction (`interaction`). The poster shows until then.
+   * @default 'visible'
+   */
+  attach?: "visible" | "interaction";
+  /**
+   * Ranges of the media to skip, `[from, to]` in milliseconds of the media's own clock — an edit
+   * previewed before it is rendered. Playback jumps past each range, and the scrubber and readout
+   * show the edited time.
+   * @default undefined
+   */
+  skipRanges?: ReadonlyArray<readonly [number, number]>;
+  /**
+   * Chapters, `start_ms` on the media's own clock: ticks on the scrubber, the title over the rail on
+   * hover, and a Chapters menu.
+   * @default undefined
+   */
+  chapters?: readonly MediaChapter[];
+  /**
+   * A WebVTT captions track and a CC control (C). The viewer's choice is remembered on the device.
+   * The video loads with `crossOrigin="anonymous"`, so the track's host must send CORS headers.
+   * @default undefined
+   */
+  captions?: VideoPlayerCaptions;
+  /**
+   * Called as playback moves, with the current time in milliseconds of the media's own clock.
+   * @default undefined
+   */
+  onTimeUpdate?: (ms: number) => void;
+  /**
+   * Imperative control: `seekTo(ms)`, `play()`, `pause()`, `currentMs()`.
+   * @default undefined
+   */
+  controllerRef?: React.Ref<VideoPlayerController>;
+  /**
+   * Seconds moved by ← and → when they should move less than J/L (a recording: 5, with
+   * `skipSeconds` 10).
+   * @default skipSeconds
+   */
+  arrowSkipSeconds?: number;
   /**
    * One media at a time: starting this player pauses any other DS player that is playing
    * (`AudioPlayer`, `VideoPlayer`, `GlobalAudioPlayer`, the `FileViewer` stages), and starting one
@@ -107,8 +267,8 @@ export interface VideoPlayerProps extends Omit<
    */
   skipSeconds?: MediaPlayerControlsProps["skipSeconds"];
   /**
-   * Playback rates cycled by the rate control.
-   * @default [0.75, 1, 1.25, 1.5, 2]
+   * Playback rates in the speed menu; `<` and `>` step through them.
+   * @default [0.75, 1, 1.25, 1.5, 1.75, 2]
    */
   playbackRates?: MediaPlayerControlsProps["playbackRates"];
   /**
@@ -188,28 +348,52 @@ export interface VideoPlayerProps extends Omit<
   downloadLabel?: string;
 }
 
+/** Props accepted by `VideoPlayer`. */
+export type VideoPlayerProps = VideoPlayerBaseProps & VideoPlayerSource;
+
 /**
  * `VideoPlayer` — a tokenized video frame with the same VegaStack transport
  * controls as `AudioPlayer`: play/pause, seek, elapsed/duration labels, mute,
- * playback speed, and keyboard skip shortcuts. It never autoplays. A video the
+ * playback speed, captions, chapters, picture in picture, fullscreen and the
+ * keyboard map. It never autoplays. It plays a file (`src`) or an HLS playlist
+ * (`hls`, hls.js loaded only where the browser lacks native HLS). A video the
  * browser cannot play shows "Can’t play this video here" with a Download
- * button (`downloadHref`), and `onSourceExpired` renews an expired signed URL
- * and resumes where playback stopped.
+ * button (`downloadHref`); `onSourceExpired` (file) and `hls.onExpired`
+ * (playlist) renew an expired signed URL and resume where playback stopped.
  *
  * @example
  * <VideoPlayer src="/media/demo.mp4" poster="/media/poster.webp" label="Product demo video" />
+ *
+ * @example
+ * <VideoPlayer
+ *   hls={{ playlistUrl, expiresAt, onExpired: refetchPlaylist }}
+ *   hlsWorkerPath="/vendor/hls.worker.js"
+ *   poster={posterUrl}
+ *   chapters={[{ start_ms: 0, title: "Intro" }, { start_ms: 42_000, title: "The fix" }]}
+ *   captions={{ src: captionsUrl, label: "English", srclang: "en" }}
+ *   label="Walkthrough"
+ * />
  */
 export function VideoPlayer({
   className,
   videoClassName,
   src,
+  hls,
+  hlsWorkerPath,
+  attach = "visible",
+  skipRanges,
+  chapters,
+  captions,
+  onTimeUpdate,
+  controllerRef,
+  arrowSkipSeconds,
   label = "Video",
   title,
   description,
   aspectRatio = "video",
   mediaRef,
   skipSeconds,
-  playbackRates,
+  playbackRates = VIDEO_PLAYBACK_RATES,
   defaultPlaybackRate,
   qualityOptions = NO_QUALITIES,
   defaultQuality,
@@ -245,9 +429,20 @@ export function VideoPlayer({
   // play button) on screen. A `controlsVisible` prop takes the auto hide/reveal out of the loop
   // entirely.
   const coarsePointer = useMediaQuery("(pointer: coarse)");
-  const controlsPinned = controlsVisibleProp != null || coarsePointer;
+  // Paused after it has played, the controls stay up (the viewer is deciding what to do next).
+  // Before the first play the frame is the clean poster, as it always was.
+  const [pausedPinned, setPausedPinned] = React.useState(false);
+  const pausedPinnedRef = React.useRef(false);
+  const controlsPinned =
+    controlsVisibleProp != null || coarsePointer || pausedPinned;
   const controlsVisible =
-    controlsVisibleProp ?? (coarsePointer || autoControlsVisible);
+    controlsVisibleProp ??
+    (coarsePointer || pausedPinned || autoControlsVisible);
+  const autoVisibleRef = React.useRef(false);
+  React.useLayoutEffect(() => {
+    autoVisibleRef.current = autoControlsVisible;
+    pausedPinnedRef.current = pausedPinned;
+  });
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const controlsMediaRef =
     internalMediaRef as React.RefObject<HTMLMediaElement | null>;
@@ -260,7 +455,13 @@ export function VideoPlayer({
   // The same mechanism as AudioPlayer's: a URL `onSourceExpired` renewed stands in for `src`
   // until `src` changes; the renewal runs once per `src`, and a stale one never lands.
   const [renewed, setRenewed] = React.useState<{ from: string; url: string }>();
-  const videoSrc = renewed && renewed.from === src ? renewed.url : src;
+  const videoSrc =
+    src == null
+      ? undefined
+      : renewed && renewed.from === src
+        ? renewed.url
+        : src;
+  const sourceKey = hls ? `hls:${hls.playlistUrl}` : src;
   const [loadFailed, setLoadFailed] = React.useState(false);
   const renewalArmedRef = React.useRef(true);
   const renewalSeqRef = React.useRef(0);
@@ -272,7 +473,7 @@ export function VideoPlayer({
     renewalArmedRef.current = true;
     renewalSeqRef.current += 1;
     setLoadFailed(false);
-  }, [src]);
+  }, [sourceKey]);
   const onSourceExpiredRef = React.useRef(onSourceExpired);
   React.useLayoutEffect(() => {
     onSourceExpiredRef.current = onSourceExpired;
@@ -291,9 +492,207 @@ export function VideoPlayer({
     return () => media.removeEventListener("loadedmetadata", resume);
   }, []);
 
+  // ── HLS source ───────────────────────────────────────────────────────────
+  // A playlist `hls.onExpired` renewed stands in for `hls.playlistUrl` until the prop changes.
+  // `resume` carries the position (and play state) across the reload; `nonce` reloads a renewal
+  // that returned the same URL.
+  const [hlsRenewed, setHlsRenewed] = React.useState<{
+    from: string;
+    url: string;
+    nonce: number;
+    resume: { seconds: number; play: boolean } | null;
+  }>();
+  const hlsRenewal =
+    hls && hlsRenewed?.from === hls.playlistUrl ? hlsRenewed : undefined;
+  const playlistUrl = hls ? (hlsRenewal?.url ?? hls.playlistUrl) : undefined;
+  const hlsOnExpiredRef = React.useRef(hls?.onExpired);
+  const hlsPropUrlRef = React.useRef(hls?.playlistUrl);
+  React.useLayoutEffect(() => {
+    hlsOnExpiredRef.current = hls?.onExpired;
+    hlsPropUrlRef.current = hls?.playlistUrl;
+  });
+  // hls.js reports its own errors; the <video> error event is then not ours to act on.
+  const hlsJsActiveRef = React.useRef(false);
+  // The current playlist has loaded: a later 403 is an expiry, not a URL that never worked.
+  const hlsArmedRef = React.useRef(true);
+  const hlsRenewingRef = React.useRef(false);
+  // A play pressed before the playlist is attached and parsed.
+  const wantPlayRef = React.useRef(false);
+  const sourceReadyRef = React.useRef(false);
+  const [attached, setAttached] = React.useState(false);
+  const isHls = hls != null;
+
+  const renewHls = React.useCallback((reason: "ahead" | "forbidden") => {
+    const renew = hlsOnExpiredRef.current;
+    const from = hlsPropUrlRef.current;
+    if (!renew || from == null) return;
+    if (reason === "forbidden") {
+      if (!hlsArmedRef.current) {
+        setLoadFailed(true);
+        return;
+      }
+      hlsArmedRef.current = false;
+    }
+    if (hlsRenewingRef.current) return;
+    hlsRenewingRef.current = true;
+    const media = internalMediaRef.current;
+    const resume =
+      media && (media.currentTime > 0 || !media.paused)
+        ? { seconds: media.currentTime, play: !media.paused }
+        : null;
+    void Promise.resolve()
+      .then(() => renew())
+      .then(
+        (url) => {
+          hlsRenewingRef.current = false;
+          if (hlsPropUrlRef.current !== from) return;
+          setHlsRenewed((previous) => ({
+            from,
+            url,
+            nonce: (previous?.nonce ?? 0) + 1,
+            resume,
+          }));
+        },
+        () => {
+          hlsRenewingRef.current = false;
+          if (reason === "forbidden" && hlsPropUrlRef.current === from)
+            setLoadFailed(true);
+        },
+      );
+  }, []);
+
+  // Attach on visibility (default) or on the first interaction: the poster is all a page of
+  // recordings loads until someone is about to watch.
+  React.useEffect(() => {
+    if (!isHls || attached || attach !== "visible") return;
+    const frame = frameRef.current;
+    if (!frame || typeof IntersectionObserver === "undefined") {
+      setAttached(true);
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.intersectionRatio >= 0.5))
+          setAttached(true);
+      },
+      { threshold: 0.5 },
+    );
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, [attach, attached, isHls]);
+  const attachOnInteraction = React.useCallback(() => {
+    if (isHls) setAttached(true);
+  }, [isHls]);
+
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media || !playlistUrl || !attached) return;
+    const resume = hlsRenewal?.resume ?? null;
+    const shouldPlay = Boolean(resume?.play) || wantPlayRef.current;
+    sourceReadyRef.current = false;
+
+    if (playsHlsNatively(media)) {
+      pendingSeekRef.current =
+        resume || shouldPlay
+          ? { seconds: resume?.seconds ?? 0, play: shouldPlay }
+          : null;
+      wantPlayRef.current = false;
+      media.src = playlistUrl;
+      return () => {
+        media.removeAttribute("src");
+        media.load();
+      };
+    }
+
+    const controller = new AbortController();
+    let detach: (() => void) | null = null;
+    hlsJsActiveRef.current = true;
+    void attachHls(
+      media,
+      playlistUrl,
+      {
+        workerPath: hlsWorkerPath,
+        startPosition: resume?.seconds ?? -1,
+        onForbidden: () => renewHls("forbidden"),
+        onFatal: () => setLoadFailed(true),
+        onReady: () => {
+          hlsArmedRef.current = true;
+          sourceReadyRef.current = true;
+          if (shouldPlay || wantPlayRef.current) {
+            wantPlayRef.current = false;
+            void media.play().catch(() => {});
+          }
+        },
+      },
+      controller.signal,
+    ).then(
+      (release) => {
+        if (controller.signal.aborted) return release?.();
+        if (!release) setLoadFailed(true);
+        else detach = release;
+      },
+      () => {
+        if (!controller.signal.aborted) setLoadFailed(true);
+      },
+    );
+    return () => {
+      controller.abort();
+      detach?.();
+      hlsJsActiveRef.current = false;
+    };
+    // `hlsRenewal` changes with every renewal (its nonce), which is what reloads a same-URL renewal.
+  }, [attached, hlsRenewal, hlsWorkerPath, playlistUrl, renewHls]);
+
+  // Renew ahead of expiry, once per `expiresAt`, only while attached (an unattached player renews
+  // on its first 403 instead).
+  const hlsExpiresAt = hls?.expiresAt;
+  const renewedAheadForRef = React.useRef<string | undefined>(undefined);
+  React.useEffect(() => {
+    if (!hlsExpiresAt || !attached) return;
+    if (renewedAheadForRef.current === hlsExpiresAt) return;
+    const at = Date.parse(hlsExpiresAt) - HLS_RENEW_AHEAD_MS;
+    if (!Number.isFinite(at)) return;
+    const delay = Math.max(0, at - Date.now());
+    if (delay > 2_147_483_647) return;
+    const timer = setTimeout(() => {
+      renewedAheadForRef.current = hlsExpiresAt;
+      renewHls("ahead");
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [attached, hlsExpiresAt, renewHls]);
+
+  // Native HLS: the playlist loaded, so a later failure is an expiry. A play pressed before the
+  // source existed is remembered (attaching a source resets the element's paused state).
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media || !isHls) return;
+    const ready = () => {
+      if (hlsJsActiveRef.current) return;
+      hlsArmedRef.current = true;
+      sourceReadyRef.current = true;
+    };
+    const play = () => {
+      if (!sourceReadyRef.current) wantPlayRef.current = true;
+    };
+    media.addEventListener("loadedmetadata", ready);
+    media.addEventListener("play", play);
+    return () => {
+      media.removeEventListener("loadedmetadata", ready);
+      media.removeEventListener("play", play);
+    };
+  }, [isHls]);
+
   const handleMediaError = (event: React.SyntheticEvent<HTMLVideoElement>) => {
     const media = event.currentTarget;
+    if (hlsJsActiveRef.current) return props.onError?.(event);
     if (!media.getAttribute("src")) return props.onError?.(event);
+    if (isHls) {
+      // Native HLS hides the status code: a failure after the playlist loaded is treated as an
+      // expiry once; `renewHls` shows the card when it isn't armed.
+      renewHls("forbidden");
+      props.onError?.(event);
+      return;
+    }
     const renew = onSourceExpiredRef.current;
     if (renew && renewalArmedRef.current) {
       renewalArmedRef.current = false;
@@ -350,28 +749,41 @@ export function VideoPlayer({
     revealFrameRef.current = null;
   }, []);
 
+  /*
+    `preserveFocus`: `true` keeps the controls while focus is anywhere in the frame (a blur moving
+    between controls); `"keyboard"` keeps them only for a keyboard user's visible focus (the idle
+    hide while playing — a clicked button keeps focus in Chromium and must not hold them forever);
+    `false` hides regardless (the pointer left).
+  */
   const scheduleControlsHide = React.useCallback(
-    (preserveFocus = true) => {
+    (
+      preserveFocus: boolean | "keyboard" = true,
+      delay = VIDEO_CONTROLS_HIDE_DELAY_MS,
+    ) => {
       if (controlsPinned) return;
       clearHideTimer();
 
       hideTimerRef.current = setTimeout(() => {
+        hideTimerRef.current = null;
+        if (pausedPinnedRef.current) return;
+        const active = document.activeElement;
+        const focusInside = Boolean(frameRef.current?.contains(active));
         if (
-          preserveFocus &&
-          frameRef.current?.contains(document.activeElement)
+          focusInside &&
+          (preserveFocus === true ||
+            (preserveFocus === "keyboard" &&
+              active instanceof HTMLElement &&
+              active.matches(":focus-visible")))
         ) {
           return;
         }
-        if (frameRef.current?.contains(document.activeElement)) {
-          frameRef.current.focus();
-        }
+        if (focusInside) frameRef.current?.focus();
         setAutoControlsVisible(false);
         unmountTimerRef.current = setTimeout(() => {
-          setControlsRendered(false);
           unmountTimerRef.current = null;
+          if (!pausedPinnedRef.current) setControlsRendered(false);
         }, VIDEO_CONTROLS_FADE_MS);
-        hideTimerRef.current = null;
-      }, VIDEO_CONTROLS_HIDE_DELAY_MS);
+      }, delay);
     },
     [clearHideTimer, controlsPinned],
   );
@@ -391,6 +803,45 @@ export function VideoPlayer({
     });
   }, [clearHideTimer, clearRevealFrame, clearUnmountTimer]);
 
+  // The pointer moving over a playing video brings the controls back and restarts the idle timer.
+  const handlePointerMove = React.useCallback(() => {
+    if (!autoVisibleRef.current) showControls();
+    const media = internalMediaRef.current;
+    if (media && !media.paused)
+      scheduleControlsHide("keyboard", VIDEO_CONTROLS_IDLE_MS);
+  }, [scheduleControlsHide, showControls]);
+
+  // Play: the controls step aside after the idle delay. Pause after playing (or the end): they
+  // stay up until playback resumes.
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media) return;
+    let hasPlayed = false;
+    const onPlay = () => {
+      hasPlayed = true;
+      setPausedPinned(false);
+      pausedPinnedRef.current = false;
+      if (autoVisibleRef.current)
+        scheduleControlsHide("keyboard", VIDEO_CONTROLS_IDLE_MS);
+    };
+    const onPause = () => {
+      if (!hasPlayed) return;
+      clearHideTimer();
+      clearUnmountTimer();
+      pausedPinnedRef.current = true;
+      setPausedPinned(true);
+      setControlsRendered(true);
+    };
+    media.addEventListener("play", onPlay);
+    media.addEventListener("pause", onPause);
+    media.addEventListener("ended", onPause);
+    return () => {
+      media.removeEventListener("play", onPlay);
+      media.removeEventListener("pause", onPause);
+      media.removeEventListener("ended", onPause);
+    };
+  }, [clearHideTimer, clearUnmountTimer, scheduleControlsHide]);
+
   const handleControlsFocus = React.useCallback(() => {
     clearHideTimer();
     setAutoControlsVisible(true);
@@ -401,26 +852,235 @@ export function VideoPlayer({
   React.useEffect(() => {
     if (
       controlsVisibleProp === true ||
-      (controlsVisibleProp == null && coarsePointer)
+      (controlsVisibleProp == null && (coarsePointer || pausedPinned))
     )
       setControlsRendered(true);
-  }, [controlsVisibleProp, coarsePointer]);
+  }, [controlsVisibleProp, coarsePointer, pausedPinned]);
 
   const handleControlsBlur = React.useCallback(() => {
     scheduleControlsHide();
   }, [scheduleControlsHide]);
 
+  // The frame goes fullscreen (so the controls come with it); Safari's prefixed API next; iOS
+  // Safari can only fullscreen the <video> itself, in its system player.
   const toggleFullscreen = React.useCallback(() => {
-    const frame = frameRef.current;
+    const frame = frameRef.current as WebkitElement | null;
     if (!frame) return;
+    const doc = document as WebkitDocument;
 
-    if (document.fullscreenElement === frame) {
-      void document.exitFullscreen();
+    if (fullscreenElement() === frame) {
+      if (typeof doc.exitFullscreen === "function")
+        void doc.exitFullscreen().catch(() => {});
+      else doc.webkitExitFullscreen?.();
       return;
     }
 
-    void frame.requestFullscreen();
+    if (typeof frame.requestFullscreen === "function") {
+      void Promise.resolve(frame.requestFullscreen()).catch(() => {});
+    } else if (typeof frame.webkitRequestFullscreen === "function") {
+      frame.webkitRequestFullscreen();
+    } else {
+      (
+        internalMediaRef.current as WebkitVideo | null
+      )?.webkitEnterFullscreen?.();
+    }
   }, []);
+
+  // ── Picture in picture ───────────────────────────────────────────────────
+  const [pipSupported, setPipSupported] = React.useState(false);
+  const [isPictureInPicture, setIsPictureInPicture] = React.useState(false);
+  React.useEffect(() => {
+    const media = internalMediaRef.current as WebkitVideo | null;
+    if (!media) return;
+    const standard =
+      document.pictureInPictureEnabled === true &&
+      typeof media.requestPictureInPicture === "function";
+    const webkit =
+      typeof media.webkitSupportsPresentationMode === "function" &&
+      media.webkitSupportsPresentationMode("picture-in-picture");
+    setPipSupported(standard || webkit);
+    const sync = () =>
+      setIsPictureInPicture(
+        document.pictureInPictureElement === media ||
+          media.webkitPresentationMode === "picture-in-picture",
+      );
+    media.addEventListener("enterpictureinpicture", sync);
+    media.addEventListener("leavepictureinpicture", sync);
+    media.addEventListener("webkitpresentationmodechanged", sync);
+    return () => {
+      media.removeEventListener("enterpictureinpicture", sync);
+      media.removeEventListener("leavepictureinpicture", sync);
+      media.removeEventListener("webkitpresentationmodechanged", sync);
+    };
+  }, []);
+  const togglePictureInPicture = React.useCallback(() => {
+    const media = internalMediaRef.current as WebkitVideo | null;
+    if (!media) return;
+    if (document.pictureInPictureElement === media) {
+      void document.exitPictureInPicture().catch(() => {});
+    } else if (typeof media.requestPictureInPicture === "function") {
+      void media.requestPictureInPicture().catch(() => {});
+    } else if (media.webkitSetPresentationMode) {
+      media.webkitSetPresentationMode(
+        media.webkitPresentationMode === "picture-in-picture"
+          ? "inline"
+          : "picture-in-picture",
+      );
+    }
+  }, []);
+
+  // ── Captions ─────────────────────────────────────────────────────────────
+  // Off until the viewer turns them on; the choice is remembered on this device.
+  const [captionsOn, setCaptionsOn] = React.useState(false);
+  React.useEffect(() => {
+    try {
+      if (window.localStorage.getItem(CAPTIONS_STORAGE_KEY) === "on")
+        setCaptionsOn(true);
+    } catch {
+      // Storage blocked (a private window): captions start off.
+    }
+  }, []);
+  const captionsOnRef = React.useRef(captionsOn);
+  React.useLayoutEffect(() => {
+    captionsOnRef.current = captionsOn;
+  });
+  const toggleCaptions = React.useCallback(() => {
+    const next = !captionsOnRef.current;
+    captionsOnRef.current = next;
+    setCaptionsOn(next);
+    try {
+      window.localStorage.setItem(CAPTIONS_STORAGE_KEY, next ? "on" : "off");
+    } catch {
+      // Storage blocked: the choice lasts for this page.
+    }
+  }, []);
+  const captionsSrc = captions?.src;
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media || !captionsSrc) return;
+    const apply = () => {
+      for (const track of Array.from(media.textTracks)) {
+        if (track.kind === "captions" || track.kind === "subtitles")
+          track.mode = captionsOn ? "showing" : "hidden";
+      }
+    };
+    apply();
+    media.textTracks.addEventListener?.("addtrack", apply);
+    media.addEventListener("loadedmetadata", apply);
+    return () => {
+      media.textTracks.removeEventListener?.("addtrack", apply);
+      media.removeEventListener("loadedmetadata", apply);
+    };
+  }, [captionsOn, captionsSrc]);
+
+  // ── Skip ranges ──────────────────────────────────────────────────────────
+  const skipKey = skipRanges ? JSON.stringify(skipRanges) : "";
+  const ranges = React.useMemo(
+    () => normalizeSkipRanges(skipRanges),
+    // Keyed on the values, so an inline array doesn't rebuild the timeline every render.
+    [skipKey],
+  );
+  const timeline = React.useMemo(
+    () => (ranges.length ? skipTimeline(ranges) : undefined),
+    [ranges],
+  );
+  React.useEffect(() => {
+    const media = internalMediaRef.current as WebkitVideo | null;
+    if (!media || !ranges.length) return;
+    const skip = () => {
+      const t = media.currentTime;
+      const range = ranges.find(([from, to]) => t >= from && t < to - 0.01);
+      if (range) media.currentTime = clampTime(media, range[1]);
+    };
+    // `timeupdate` fires about four times a second; a frame callback catches a range within a
+    // frame where the browser has one.
+    let frameHandle = 0;
+    const onFrame = () => {
+      skip();
+      if (!media.paused) frameHandle = media.requestVideoFrameCallback(onFrame);
+    };
+    const startFrames = () => {
+      if (typeof media.requestVideoFrameCallback === "function")
+        frameHandle = media.requestVideoFrameCallback(onFrame);
+    };
+    media.addEventListener("timeupdate", skip);
+    media.addEventListener("seeked", skip);
+    media.addEventListener("play", startFrames);
+    if (!media.paused) startFrames();
+    return () => {
+      media.removeEventListener("timeupdate", skip);
+      media.removeEventListener("seeked", skip);
+      media.removeEventListener("play", startFrames);
+      if (frameHandle && typeof media.cancelVideoFrameCallback === "function")
+        media.cancelVideoFrameCallback(frameHandle);
+    };
+  }, [ranges]);
+
+  // ── Loading ──────────────────────────────────────────────────────────────
+  const [waiting, setWaiting] = React.useState(false);
+  const [showLoading, setShowLoading] = React.useState(false);
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media) return;
+    const start = () => setWaiting(true);
+    const stop = () => setWaiting(false);
+    media.addEventListener("waiting", start);
+    for (const name of ["playing", "pause", "canplay", "error", "emptied"])
+      media.addEventListener(name, stop);
+    return () => {
+      media.removeEventListener("waiting", start);
+      for (const name of ["playing", "pause", "canplay", "error", "emptied"])
+        media.removeEventListener(name, stop);
+    };
+  }, []);
+  React.useEffect(() => {
+    if (!waiting) {
+      setShowLoading(false);
+      return;
+    }
+    const timer = setTimeout(
+      () => setShowLoading(true),
+      VIDEO_LOADING_REVEAL_MS,
+    );
+    return () => clearTimeout(timer);
+  }, [waiting]);
+
+  // ── Time and imperative control ──────────────────────────────────────────
+  const onTimeUpdateRef = React.useRef(onTimeUpdate);
+  React.useLayoutEffect(() => {
+    onTimeUpdateRef.current = onTimeUpdate;
+  });
+  React.useEffect(() => {
+    const media = internalMediaRef.current;
+    if (!media) return;
+    const report = () =>
+      onTimeUpdateRef.current?.(Math.round(media.currentTime * 1000));
+    media.addEventListener("timeupdate", report);
+    return () => media.removeEventListener("timeupdate", report);
+  }, []);
+  React.useImperativeHandle(
+    controllerRef,
+    () => ({
+      seekTo: (ms: number) => {
+        const media = internalMediaRef.current;
+        if (media) media.currentTime = clampTime(media, ms / 1000);
+      },
+      play: () => {
+        const media = internalMediaRef.current;
+        if (!media) return Promise.resolve();
+        if (isHls && !sourceReadyRef.current) {
+          wantPlayRef.current = true;
+          setAttached(true);
+          return Promise.resolve();
+        }
+        return media.play();
+      },
+      pause: () => internalMediaRef.current?.pause(),
+      currentMs: () =>
+        Math.round((internalMediaRef.current?.currentTime ?? 0) * 1000),
+    }),
+    [isHls],
+  );
 
   /*
     ONE shortcut map, shared with the controls group (audit B4-02). Space/K
@@ -431,7 +1091,13 @@ export function VideoPlayer({
   const { runShortcut } = useMediaShortcuts({
     mediaRef: controlsMediaRef,
     skipSeconds,
+    arrowSkipSeconds,
     onFullscreenToggle: toggleFullscreen,
+    onCaptionsToggle: captions ? toggleCaptions : undefined,
+    onPictureInPictureToggle: pipSupported ? togglePictureInPicture : undefined,
+    rateSteps: playbackRates,
+    videoKeys: true,
+    timeline,
     onPlayStateChange,
     onTimeChange,
   });
@@ -456,13 +1122,16 @@ export function VideoPlayer({
 
   React.useEffect(() => {
     const syncFullscreen = () => {
-      setIsFullscreen(document.fullscreenElement === frameRef.current);
+      setIsFullscreen(fullscreenElement() === frameRef.current);
     };
 
     syncFullscreen();
     document.addEventListener("fullscreenchange", syncFullscreen);
-    return () =>
+    document.addEventListener("webkitfullscreenchange", syncFullscreen);
+    return () => {
       document.removeEventListener("fullscreenchange", syncFullscreen);
+      document.removeEventListener("webkitfullscreenchange", syncFullscreen);
+    };
   }, []);
 
   React.useEffect(() => {
@@ -543,11 +1212,22 @@ export function VideoPlayer({
       <div
         ref={frameRef}
         data-slot="video-player-frame"
-        onPointerEnter={showControls}
+        onPointerEnter={() => {
+          if (attach === "interaction") attachOnInteraction();
+          showControls();
+        }}
+        onPointerMove={handlePointerMove}
         onPointerLeave={handlePointerLeave}
-        onFocusCapture={handleControlsFocus}
+        onFocusCapture={() => {
+          if (attach === "interaction") attachOnInteraction();
+          handleControlsFocus();
+        }}
         onBlurCapture={handleControlsBlur}
-        onKeyDownCapture={showControls}
+        onPointerDown={attachOnInteraction}
+        onKeyDownCapture={() => {
+          attachOnInteraction();
+          showControls();
+        }}
         onKeyDown={handleFrameKeyDown}
         tabIndex={0}
         role="group"
@@ -569,6 +1249,9 @@ export function VideoPlayer({
           {...exclusiveProps}
           ref={setVideoRef}
           src={videoSrc}
+          crossOrigin={
+            props.crossOrigin ?? (captions ? "anonymous" : undefined)
+          }
           poster={poster}
           preload={preload}
           playsInline={playsInline}
@@ -580,7 +1263,27 @@ export function VideoPlayer({
             videoClassName,
           )}
           onError={handleMediaError}
-        />
+        >
+          {captions ? (
+            <track
+              kind="captions"
+              src={captions.src}
+              label={captions.label}
+              srcLang={captions.srclang}
+            />
+          ) : null}
+        </video>
+
+        {showLoading && !loadFailed ? (
+          <div
+            data-slot="video-player-loading"
+            className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+          >
+            <span className="flex size-12 items-center justify-center rounded-capsule bg-media-scrim-strong text-2xl">
+              <TextSpinner label="Loading" className="text-media-foreground" />
+            </span>
+          </div>
+        ) : null}
 
         {loadFailed ? (
           <div
@@ -639,6 +1342,15 @@ export function VideoPlayer({
               onQualityChange={onQualityChange}
               isFullscreen={isFullscreen}
               onFullscreenToggle={toggleFullscreen}
+              timeline={timeline}
+              chapters={chapters}
+              arrowSkipSeconds={arrowSkipSeconds}
+              captionsEnabled={captionsOn}
+              onCaptionsToggle={captions ? toggleCaptions : undefined}
+              isPictureInPicture={isPictureInPicture}
+              onPictureInPictureToggle={
+                pipSupported ? togglePictureInPicture : undefined
+              }
               variant="overlay"
             />
           </div>

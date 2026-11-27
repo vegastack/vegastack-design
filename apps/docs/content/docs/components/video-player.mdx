@@ -1,6 +1,6 @@
 ---
 title: Video Player
-description: A framed video player with hover-revealed custom transport controls.
+description: A framed video player for a file or an HLS playlist, with hover-revealed custom transport controls, chapters, captions and skip ranges.
 audience: public
 registry: video-player
 status: stable
@@ -99,9 +99,77 @@ the same contract as [`AudioPlayer`](/docs/components/audio-player)'s `onSourceE
 />
 ```
 
+### HLS playlists
+
+Pass `hls` instead of `src` for a recording served as segments. Safari on macOS and iOS plays the
+playlist natively; everywhere else the player loads hls.js with a dynamic `import()` the first time
+it attaches, so a page that never plays a playlist never downloads it. `attach` decides when that
+is: once half the player is on screen (`visible`, the default) or on the first pointer or keyboard
+interaction (`interaction`); the poster shows until then. Pass `hlsWorkerPath` — a same-origin copy
+of hls.js's `dist/hls.worker.js` — so transmuxing runs in a worker under `worker-src 'self'`.
+
+A signed playlist URL expires. `hls.onExpired` resolves a fresh one: the player calls it 60 seconds
+before `expiresAt`, and when the playlist or a segment answers 403, then reloads the new playlist
+at the same position, playing if it was. Re-render with the new `expiresAt` after a renewal. A
+second 403 before the renewed playlist has loaded, or a rejection, shows the "can't play" card.
+The `src` and `onSourceExpired` contract for files is unchanged.
+
+<ComponentPreview
+  name="videoPlayerHls"
+  file="components/preview/video-player.tsx"
+/>
+
+```tsx
+<VideoPlayer
+  hls={{
+    playlistUrl: manifest.playlist_url,
+    expiresAt: manifest.expires_at,
+    onExpired: async () => (await refetchManifest()).playlist_url,
+  }}
+  hlsWorkerPath="/vendor/hls.worker.js"
+  poster={manifest.poster_url}
+  label={recording.title}
+/>
+```
+
+### Chapters
+
+`chapters` (`start_ms` on the media's own clock) draws a small break in the scrubber at each
+chapter start, names the chapter over the rail while the pointer hovers it, and adds a Chapters
+entry to the settings menu that jumps to a chapter.
+
+### Captions
+
+`captions` adds one WebVTT track and a captions control (and <kbd>C</kbd>). Captions start off; the
+viewer's choice is remembered on the device. The video then loads with `crossOrigin="anonymous"`,
+so the server that hosts the track (and the video) must send CORS headers.
+
+### Skip ranges
+
+`skipRanges` previews an edit before it is rendered: `[from, to]` pairs in milliseconds of the
+media's own clock. Playback jumps past each range (on `timeupdate` and, where the browser has it,
+on every frame through `requestVideoFrameCallback`), and the scrubber, the readout, chapters and the
+0–9 jumps all use the edited time, so the duration matches the rendered version. `onTimeUpdate`
+and `controllerRef` stay on the media's own clock, so a transcript can follow along with
+timestamps it already has.
+
+### Picture in picture and fullscreen
+
+Where the browser supports it, a picture-in-picture control (and <kbd>P</kbd>) moves the video into
+a floating window (`requestPictureInPicture`, or Safari's presentation mode). Fullscreen takes the
+whole frame, controls included; iOS Safari, which can only fullscreen the video element, opens its
+system player.
+
+### Following playback
+
+`onTimeUpdate(ms)` reports the position as it moves. `controllerRef` exposes `seekTo(ms)`,
+`play()`, `pause()` and `currentMs()` for a transcript that seeks the video when a line is clicked.
+
 ### Controls always visible
 
-The overlay reveals on pointer or focus and fades a second after the pointer leaves. `controlsVisible`
+The overlay reveals on pointer or focus and fades a second after the pointer leaves; while the video
+plays it also steps aside after 2.5 seconds without the pointer moving, and once it has played and
+is paused it stays up. `controlsVisible`
 takes that out of the loop — `true` pins the chrome open, `false` keeps it closed. Use it for a
 kiosk or always-on player, and for a static fixture: the auto-reveal never fires without a pointer,
 so a screenshot or a contract check would otherwise capture a frame with no controls in it.
@@ -128,24 +196,25 @@ Every `VideoPlayer` prop, auto-generated from its TypeScript types.
 
 ## Accessibility
 
-| Key                                 | Action                                                                |
-| ----------------------------------- | --------------------------------------------------------------------- |
-| <kbd>Tab</kbd>                      | Move through play/pause, seek, mute, settings, and fullscreen         |
-| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused button                                           |
-| <kbd>Space</kbd>                    | Play or pause when the player or media controls group is focused      |
-| <kbd>K</kbd>                        | Play or pause                                                         |
-| <kbd>←</kbd>                        | Rewind 15 seconds when the player or media controls group is focused  |
-| <kbd>→</kbd>                        | Forward 15 seconds when the player or media controls group is focused |
-| <kbd>J</kbd>                        | Rewind 15 seconds                                                     |
-| <kbd>L</kbd>                        | Forward 15 seconds                                                    |
-| <kbd>M</kbd>                        | Toggle mute                                                           |
-| <kbd>F</kbd>                        | Toggle fullscreen when the player is focused                          |
-| <kbd>↑</kbd> / <kbd>↓</kbd>         | Change volume while the volume slider is focused                      |
-| <kbd>←</kbd> / <kbd>↓</kbd>         | Decrease the seek position by one second while the slider is focused  |
-| <kbd>→</kbd> / <kbd>↑</kbd>         | Increase the seek position by one second while the slider is focused  |
-| <kbd>Home</kbd>                     | Seek to the beginning                                                 |
-| <kbd>End</kbd>                      | Seek to the end                                                       |
+| Key                                 | Action                                                                     |
+| ----------------------------------- | -------------------------------------------------------------------------- |
+| <kbd>Tab</kbd>                      | Move through play/pause, seek, volume, captions, settings, PiP, fullscreen |
+| <kbd>Enter</kbd> / <kbd>Space</kbd> | Activate the focused button                                                |
+| <kbd>Space</kbd>                    | Play or pause when the player is focused                                   |
+| <kbd>K</kbd>                        | Play or pause                                                              |
+| <kbd>←</kbd> / <kbd>→</kbd>         | Back or forward `arrowSkipSeconds` (default `skipSeconds`) when focused    |
+| <kbd>J</kbd> / <kbd>L</kbd>         | Back or forward `skipSeconds` (default 15)                                 |
+| <kbd>0</kbd>–<kbd>9</kbd>           | Jump to 0–90 % of the video                                                |
+| <kbd>&lt;</kbd> / <kbd>&gt;</kbd>   | Slower or faster (Shift+, and Shift+.)                                     |
+| <kbd>↑</kbd> / <kbd>↓</kbd>         | Volume up or down when the player is focused                               |
+| <kbd>M</kbd>                        | Toggle mute                                                                |
+| <kbd>C</kbd>                        | Toggle captions, when there are captions                                   |
+| <kbd>P</kbd>                        | Toggle picture in picture, where the browser supports it                   |
+| <kbd>F</kbd>                        | Toggle fullscreen when the player is focused                               |
+| <kbd>Home</kbd> / <kbd>End</kbd>    | Seek to the beginning or the end while the scrubber is focused             |
 
+- The scrubber says where it is as "1:23 of 4:56" (`aria-valuetext`), on the edited timeline when
+  there are skip ranges.
 - Pass a descriptive `label`; it names the video element and prefixes every custom control.
 - The named media progress rail composes `Slider`, so keyboard and screen-reader slider semantics
   stay intact while its video-specific hover treatment remains separate from the generic component.
@@ -157,6 +226,9 @@ Every `VideoPlayer` prop, auto-generated from its TypeScript types.
 - A video that cannot play announces "Can’t play this video here" as an alert, and its Download
   button is a real link with the `download` attribute.
 - Rewind and forward are keyboard shortcuts rather than visible buttons.
+- The captions and picture-in-picture controls are toggle buttons (`aria-pressed`) and appear only
+  when there are captions, or the browser has picture in picture.
+- Waits longer than 400 ms show the loading bolt in the middle of the frame.
 - The overlay controls appear on hover or focus and fade out after the pointer leaves the frame.
 - The fullscreen action changes to an exit-fullscreen icon and accessible name while the frame owns
   document fullscreen. The transport's tooltips and its settings menu stay visible there: they
@@ -170,6 +242,6 @@ Every `VideoPlayer` prop, auto-generated from its TypeScript types.
 ## Do / Don't
 
 <DoDont
-  do="Use VideoPlayer for a single video asset that needs a branded frame and standard transport controls."
-  dont="Use VideoPlayer for playlists, caption editing, or multi-source adaptive streaming controls."
+  do="Use VideoPlayer for a video on a page: a stored file, or a recording's HLS playlist with renewing signed URLs."
+  dont="Use VideoPlayer for caption editing, a playlist of several videos, or a quality picker over many renditions."
 />

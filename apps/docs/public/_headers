@@ -92,3 +92,7 @@
 
 /manifest.webmanifest
   Cache-Control: public, max-age=86400, must-revalidate
+
+# The VideoPlayer HLS preview fixture: the playlist type Safari's native player expects.
+/preview/video-player-hls/index.m3u8
+  Content-Type: application/vnd.apple.mpegurl

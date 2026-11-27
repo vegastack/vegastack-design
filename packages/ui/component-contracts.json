@@ -30308,6 +30308,24 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MediaChapter",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "MediaTimeline",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -53482,12 +53500,15 @@
       "name": "video-player",
       "registryType": "registry:ui",
       "title": "Video Player",
-      "summary": "A framed video player with the same grouped custom transport controls as Audio Player — a poster, no autoplay, a \"can't play\" card with Download, and onSourceExpired to renew an expired signed URL.",
+      "summary": "A framed video player with the same grouped custom transport controls as Audio Player — a file or an HLS playlist (hls.js loaded lazily where the browser has no native HLS) with signed-URL renewal at the same position, skip ranges shown as edited time, chapters, captions, picture in picture and fullscreen, a poster, no autoplay, and a \"can't play\" card with Download.",
       "status": "stable",
       "since": "0.5.0",
       "family": "media",
       "wave": "Content/marketing",
-      "sourceFiles": ["packages/ui/registry/ui/video-player.tsx"],
+      "sourceFiles": [
+        "packages/ui/registry/ui/video-player.tsx",
+        "packages/ui/registry/ui/video-player-hls.ts"
+      ],
       "publicSymbols": [
         {
           "name": "VideoPlayer",
@@ -53501,7 +53522,88 @@
         },
         {
           "name": "VideoPlayerProps",
+          "kind": "type",
+          "source": "packages/ui/registry/ui/video-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "attachHls",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/video-player-hls.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A plain function; it renders nothing."
+          }
+        },
+        {
+          "name": "HlsAttachHandlers",
           "kind": "interface",
+          "source": "packages/ui/registry/ui/video-player-hls.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "HlsAttachOptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/video-player-hls.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "playsHlsNatively",
+          "kind": "function",
+          "source": "packages/ui/registry/ui/video-player-hls.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "A plain function; it renders nothing."
+          }
+        },
+        {
+          "name": "VideoPlayerBaseProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/video-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "VideoPlayerCaptions",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/video-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "VideoPlayerController",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/video-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "VideoPlayerHlsSource",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/video-player.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
+        },
+        {
+          "name": "VideoPlayerSource",
+          "kind": "type",
           "source": "packages/ui/registry/ui/video-player.tsx",
           "ref": {
             "status": "not-applicable",
@@ -53542,9 +53644,19 @@
             "quality-opt-in",
             "poster",
             "load-error",
-            "source-renewal"
+            "source-renewal",
+            "hls-native",
+            "hls-js",
+            "hls-renewal",
+            "skip-ranges",
+            "chapters",
+            "captions",
+            "picture-in-picture",
+            "loading",
+            "paused-controls-pinned",
+            "idle-hide"
           ],
-          "evidence": "Observed from shared media controls, settings submenus, fullscreen handling, frame-level keyboard handlers, and media event handling. The Quality entry shows only when qualityOptions are passed; a poster shows until playback starts and it never autoplays; a media error shows a role=alert card with a Download link and hides the transport; onSourceExpired renews an expired URL once and resumes at the same position."
+          "evidence": "Observed from shared media controls, settings submenus, fullscreen handling, frame-level keyboard handlers, and media event handling. The Quality entry shows only when qualityOptions are passed; a poster shows until playback starts and it never autoplays; a media error shows a role=alert card with a Download link and hides the transport; onSourceExpired renews an expired URL once and resumes at the same position. An hls source plays natively where canPlayType says so, else through a lazily imported hls.js; hls.onExpired renews 60 s before expiresAt and on a 403, resuming at the same position; skipRanges jump playback past each range with the scrubber on the edited timeline; chapters draw ticks, a hover title and a menu; captions toggle a WebVTT track (remembered per device); picture in picture and fullscreen use webkit fallbacks; a wait over 400 ms shows the loading bolt; while playing the controls hide after 2.5 s of pointer stillness and stay up when paused after playing."
         },
         "accessibility": {
           "status": "observed",
@@ -53593,12 +53705,14 @@
       "registryDependencies": [
         "@vegastack/button",
         "@vegastack/media-player-controls",
-        "@vegastack/use-media-query"
+        "@vegastack/use-media-query",
+        "@vegastack/text-spinner"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.33.0",
         "@vegastack/design@^0.33.0",
-        "lucide-react@^1.47.0"
+        "lucide-react@^1.47.0",
+        "hls.js@1.7.4"
       ],
       "testFiles": ["packages/ui/registry/ui/video-player.test.tsx"],
       "coverage": {
@@ -53630,6 +53744,7 @@
                 "video-player-error",
                 "video-player-frame",
                 "video-player-header",
+                "video-player-loading",
                 "video-player-media"
               ]
             },

@@ -89,3 +89,44 @@ export function videoPlayerError(): ReactNode {
     </Wrapper>
   );
 }
+
+const HLS_PLAYLIST = "/preview/video-player-hls/index.m3u8";
+const HLS_CHAPTERS = [
+  { start_ms: 0, title: "Opening" },
+  { start_ms: 8_000, title: "The skipped part" },
+  { start_ms: 16_000, title: "After the skip" },
+];
+const HLS_SKIP: Array<[number, number]> = [[12_000, 16_000]];
+
+/**
+ * An HLS playlist — native in Safari, hls.js (loaded on first attach) elsewhere — with chapters,
+ * captions, a skipped range shown as edited time, and a playlist that "expires" 70 s after the
+ * page opened, so the player renews it at the same position 10 s in. A real playlist route returns
+ * a freshly signed URL from `onExpired`; this static fixture returns the same file.
+ */
+export function videoPlayerHls(): ReactNode {
+  return (
+    <Wrapper>
+      <div className="w-full max-w-2xl">
+        <VideoPlayer
+          hls={{
+            playlistUrl: HLS_PLAYLIST,
+            expiresAt: new Date(Date.now() + 70_000).toISOString(),
+            onExpired: async () => HLS_PLAYLIST,
+          }}
+          poster={POSTER}
+          label="Recording"
+          chapters={HLS_CHAPTERS}
+          skipRanges={HLS_SKIP}
+          captions={{
+            src: "/preview/video-player-hls/captions.vtt",
+            label: "English",
+            srclang: "en",
+          }}
+          skipSeconds={10}
+          arrowSkipSeconds={5}
+        />
+      </div>
+    </Wrapper>
+  );
+}

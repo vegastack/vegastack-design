@@ -216,7 +216,7 @@ starts with `icon-` is a component and never an icon.
 - **`inbox`** — The notification Inbox: frame with header actions, For you · Updates · Archived tabs, sticky day groups, full-bleed rows grouped per record (stacked actors, a count that expands to the events), inline Allow / Decline or an answered line, J / K triage with an active row driving a peek, a fixed right column with the time over the hover actions (read toggle and menu), and empty, loading and error states.
 - **`media-player-controls`** — The shared media transport — play/pause, skip, seek, elapsed/duration, mute + volume, playback speed, and one keyboard shortcut map (useMediaShortcuts) — composed by Audio Player and Video Player.
 - **`notification-dot`** — The one unread dot: an 8px solid circle, decorative, for unread rows, inbox items and nav items.
-- **`video-player`** — A framed video player with the same grouped custom transport controls as Audio Player — a poster, no autoplay, a "can't play" card with Download, and onSourceExpired to renew an expired signed URL.
+- **`video-player`** — A framed video player with the same grouped custom transport controls as Audio Player — a file or an HLS playlist (hls.js loaded lazily where the browser has no native HLS) with signed-URL renewal at the same position, skip ranges shown as edited time, chapters, captions, picture in picture and fullscreen, a poster, no autoplay, and a "can't play" card with Download.
 
 ## Rich text
 
