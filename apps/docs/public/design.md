@@ -22,12 +22,12 @@ generated:
       sha256: "e5a24bfbb45f7c368d1873210183349fb109016271f636f32487d36ab94b0e8e"
     light:
       path: "packages/design-tokens/tokens/semantic.tokens.json"
-      bytes: 57672
-      sha256: "0bc29ad03ab4aa5e5c6e59991199e5e1e6b27786a16246022241789591a6e5a3"
+      bytes: 57473
+      sha256: "39ba8cd4777986deba2b40fe2185b2d4ab25942cb3ed7b0095e74dcca759f2e3"
     dark:
       path: "packages/design-tokens/tokens/semantic.dark.tokens.json"
-      bytes: 25666
-      sha256: "4ed7501c41182911769da3380972100917fdaa4e6a733ee25f6ced425d9a4a26"
+      bytes: 25508
+      sha256: "d65d102ccb803b96661470eaef4682127218c5aca3e6e59c32af226c2345c06e"
     externalSources:
       path: "docs/research/design-md-audit/source-manifest.json"
       bytes: 3742
@@ -240,9 +240,6 @@ themes:
     face-blue-mark:
       type: "color"
       value: "oklch(0.531 0.196 258)"
-    face-dot-ink:
-      type: "color"
-      value: "oklch(0.279 0.053 293.8)"
     face-glass-1:
       type: "color"
       value: "oklch(0.839 0.1 345.8)"
@@ -285,7 +282,7 @@ themes:
     face-grey-a:
       type: "color"
       value: "oklch(0.923 0.007 277.2)"
-      description: "Agent faces: the grey a face fades to when it can't act (paused, failed, scheduled); `-ink-` for the Ink palette; the highlight; the dark dot ink on Mist and Glass Dots."
+      description: "Agent faces: the grey a face fades to when it can't act (paused, failed, scheduled); `-ink-` for the Ink palette; the highlight."
     face-grey-b:
       type: "color"
       value: "oklch(0.72 0.015 277)"
@@ -1005,9 +1002,6 @@ themes:
     face-blue-mark:
       type: "color"
       value: "oklch(0.695 0.149 257.9)"
-    face-dot-ink:
-      type: "color"
-      value: "oklch(0.279 0.053 293.8)"
     face-glass-1:
       type: "color"
       value: "oklch(0.839 0.1 345.8)"
@@ -1901,12 +1895,13 @@ API-24 · API-26 · API-27 · API-28 · API-32 · VOI-1`
   three, in six size steps (`2xs` 16px to `xl` 64px) whose initials, icons (about 60% of the
   shape) and faces scale with the step, so an avatar is never resized with a `className`. An
   agent's face (`AgentFace`) is one of 18 preset characters in one of 9 palettes built from the
-  accent theme colours: the Pebble from 40px, the Dot (a 5 × 5 dot face in the preset's own
-  silhouette) below. No preset's silhouette may read as a circle or a rounded square
+  accent theme colours: the Pebble from 40px, the Mini (the same character in its own silhouette,
+  its eyes and mouth drawn bolder) below. No preset's silhouette may read as a circle or a rounded square
   (`tooling/agent-face-spec.mjs` fails the build). A vendor's logo goes in the hover card's footer,
   never on the face. The face shows what the agent is doing (`FaceState`): motion means busy, the
   cue's colour says who acts next, grey means it can't act; it moves only where the person is
-  looking at that agent (MOT-15). In a stack its Dot draws a halo round its own silhouette, and an
+  looking at that agent (MOT-15). On the Pebble each busy state has its own cue: a thought cloud
+  (thinking), a turning gear (working), a speech bubble (writing). In a stack its Mini draws a halo round its own silhouette, and an
   `AgentStateRing` hands its state to the face instead of ringing it.
 - **Layout** (LAY-9…LAY-16) — container queries first, then viewport breakpoints, then
   `useMediaQuery` last, and a JS branch must declare its `serverFallback`; safe-area insets on

@@ -89,7 +89,7 @@ export function agentFacePalettes(): ReactNode {
   );
 }
 
-/** Every state, moving, as the Pebble and as the Dot. */
+/** Every state, moving, as the Pebble and as the Mini. */
 export function agentFaceStates(): ReactNode {
   return (
     <Wrapper className="flex-col items-stretch gap-4">
@@ -120,7 +120,7 @@ export function agentFaceStates(): ReactNode {
   );
 }
 
-/** The Dot at the row steps and the Pebble from 40px. */
+/** The Mini at the row steps and the Pebble from 40px. */
 export function agentFaceSizes(): ReactNode {
   return (
     <Wrapper className="items-end gap-4">

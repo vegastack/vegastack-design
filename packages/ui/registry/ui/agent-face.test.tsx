@@ -20,7 +20,7 @@ const STATES: FaceState[] = [
 const faceOf = (c: Element) =>
   c.querySelector<SVGSVGElement>('[data-slot="agent-face"]')!;
 
-test("the Pebble from 40px and the Dot below, at the size asked, named for screen readers", async () => {
+test("the Pebble from 40px and the Mini below, at the size asked, named for screen readers", async () => {
   const screen = await render(
     <div className="flex gap-2">
       <AgentFace face={scout} size={40} label="Scout, agent" />
@@ -34,7 +34,7 @@ test("the Pebble from 40px and the Dot below, at the size asked, named for scree
       '[data-slot="agent-face"]',
     );
   expect(pebble!.dataset.form).toBe("pebble");
-  expect(dot!.dataset.form).toBe("dot");
+  expect(dot!.dataset.form).toBe("mini");
   expect(pebble!.getBoundingClientRect().width).toBe(40);
   expect(quiet!.getBoundingClientRect().width).toBe(16);
   expect(pebble!.getAttribute("role")).toBe("img");
@@ -49,9 +49,9 @@ test("the Pebble from 40px and the Dot below, at the size asked, named for scree
 
 test("every state has its own cue beside the Pebble's head; idle has none", async () => {
   const cues: Partial<Record<FaceState, string>> = {
-    thinking: "bubbles",
-    working: "orbit",
-    writing: "typing",
+    thinking: "thought",
+    working: "gear",
+    writing: "speech",
     "needs-you": "ticks",
     replied: "sparkle",
     failed: "alert",
@@ -75,13 +75,9 @@ test("every state has its own cue beside the Pebble's head; idle has none", asyn
     );
     expect(cue?.dataset.cue ?? null).toBe(cues[state] ?? null);
   });
-  // Thinking's cue is three thought bubbles in the agent's colour, close to its head.
-  expect(
-    faces[1]!.querySelectorAll('[data-cue="bubbles"] circle[fill="var(--fm)"]'),
-  ).toHaveLength(3);
 });
 
-test("the Dot badges only the states that need a person: amber, blue, red", async () => {
+test("the Mini badges only the states that need a person: amber, blue, red", async () => {
   const screen = await render(
     <div className="flex gap-2">
       {STATES.map((state) => (

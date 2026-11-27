@@ -1132,12 +1132,12 @@
  *   shape    wobble (bloom, burst, clover) · rock (arch) · slide (stack layers)
  *            bounce (cairn's stone)
  *   eyes     blink · glance · drift · scan · read · mouth (talking)
- *   inside   light (the drifting highlight) · orbit (thinking glow, cue dots)
+ *   inside   light (the drifting highlight) · orbit (thinking glow)
  *            sheen (working) · flash (writing) · warm (needs you)
- *   cue      float (thought bubbles) · type (typing dots) · flare (amber ticks) · twinkle (sparkles)
- *            rise (z's) · ping (the amber badge) · moon (a ring's moon)
- *   once     change (a state change: a squash and a blink)
- *   dots     chase (thinking) · wave (working) — the Dot form's cells
+ *   cue      float (the thought cloud and its beads) · orbit (the gear) · type (the speech
+ *            bubble's dots) · flare (amber ticks) · twinkle (sparkles) · rise (z's)
+ *            ping (the amber badge) · moon (a ring's moon)
+ *   once     change (a state change: a squash and a blink) · pop (the new cue grows in)
  * ------------------------------------------------------------------------- */
 @keyframes vs-face-breathe {
   0%,
@@ -1169,11 +1169,11 @@
     transform: translateY(0) scale(1, 1);
   }
   50% {
-    transform: translateY(-1.6px) scale(1, 0.985);
+    transform: translateY(-1.3px) scale(1, 0.988);
   }
 }
 @utility motion-face-bob {
-  animation: vs-face-bob 0.63s ease-in-out infinite;
+  animation: vs-face-bob 0.9s ease-in-out infinite;
 }
 @keyframes vs-face-talk {
   0%,
@@ -1185,7 +1185,7 @@
   }
 }
 @utility motion-face-talk {
-  animation: vs-face-talk 0.52s ease-in-out infinite;
+  animation: vs-face-talk 0.6s ease-in-out infinite;
 }
 @keyframes vs-face-hop {
   0%,
@@ -1345,10 +1345,13 @@
 @keyframes vs-face-drift {
   0%,
   100% {
-    transform: translateX(0);
+    transform: translate(0, 0);
   }
-  50% {
-    transform: translateX(1.1px);
+  35% {
+    transform: translate(1.4px, -0.5px);
+  }
+  70% {
+    transform: translate(-0.6px, 0.3px);
   }
 }
 @utility motion-face-drift {
@@ -1396,7 +1399,7 @@
   }
 }
 @utility motion-face-mouth {
-  animation: vs-face-mouth 0.37s ease-in-out infinite;
+  animation: vs-face-mouth 0.3s ease-in-out infinite;
 }
 @keyframes vs-face-light {
   0%,
@@ -1598,36 +1601,25 @@
     transform: scaleY(0.08);
   }
 }
+@keyframes vs-face-pop {
+  0% {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@utility motion-face-pop {
+  animation: vs-face-pop 0.36s cubic-bezier(0.2, 0.8, 0.3, 1.2) 1 both;
+}
 @utility motion-face-change-eyes {
   animation: vs-face-change-eyes 0.42s ease-out 1;
-}
-@keyframes vs-face-chase {
-  0%,
-  22%,
-  100% {
-    opacity: 0;
-  }
-  6% {
-    opacity: 1;
-  }
-}
-@utility motion-face-chase {
-  animation: vs-face-chase 2.3s linear infinite;
-  animation-delay: calc(var(--face-dot, 0) * 0.143s);
-}
-@keyframes vs-face-wave {
-  0%,
-  40%,
-  100% {
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-}
-@utility motion-face-wave {
-  animation: vs-face-wave 1.4s ease-in-out infinite;
-  animation-delay: calc(var(--face-dot, 0) * 0.2s);
 }
 
 /* ---------------------------------------------------------------------------

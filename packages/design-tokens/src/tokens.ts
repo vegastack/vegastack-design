@@ -224,8 +224,7 @@ export const tokens = {
     "face-grey-ink-a": "oklch(0.644 0.018 285.9)",
     "face-grey-ink-b": "oklch(0.472 0.019 285.6)",
     "face-grey-ink-deep": "oklch(0.328 0.014 285.6)",
-    "face-highlight": "oklch(1 0 0)",
-    "face-dot-ink": "oklch(0.279 0.053 293.8)"
+    "face-highlight": "oklch(1 0 0)"
   },
   "dark": {
     "background": "oklch(0.145 0 0)",
@@ -451,8 +450,7 @@ export const tokens = {
     "face-grey-ink-a": "oklch(0.644 0.018 285.9)",
     "face-grey-ink-b": "oklch(0.472 0.019 285.6)",
     "face-grey-ink-deep": "oklch(0.328 0.014 285.6)",
-    "face-highlight": "oklch(1 0 0)",
-    "face-dot-ink": "oklch(0.279 0.053 293.8)"
+    "face-highlight": "oklch(1 0 0)"
   }
 } as const;
 export type Theme = keyof typeof tokens;
