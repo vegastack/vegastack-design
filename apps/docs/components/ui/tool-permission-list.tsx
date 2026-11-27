@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.138.0 sha256-BeB7Eb1To00IqGO3FwckC4qGNh6BW6bSoB1sJE4Rz4A=
+// @vegastack tool-permission-list@0.138.0 sha256-s596eeJuzvexYXCtsFdEdqyn2JPFlMkpr4f34ROdE/Q=
 
 "use client";
 
@@ -301,7 +301,10 @@ function AddCondition({
   );
 }
 
-/** One rule under its row: answer, condition, note, pending, and its own Edit · Remove. */
+/**
+ * One rule under its row: answer, condition, note, pending, and its own Edit · Remove. An
+ * unconditional rule reads its answer label alone.
+ */
 function RuleLine({
   row,
   rule,
@@ -337,9 +340,11 @@ function RuleLine({
         <span className="shrink-0 font-medium text-foreground">
           {ANSWERS[rule.answer].label}
         </span>
-        <span className="min-w-0 truncate text-muted-foreground">
-          {rule.condition ?? "Always"}
-        </span>
+        {rule.condition ? (
+          <span className="min-w-0 truncate text-muted-foreground">
+            {rule.condition}
+          </span>
+        ) : null}
         {rule.note ? (
           <span className="min-w-0 truncate text-muted-foreground">
             · {rule.note}
@@ -374,7 +379,7 @@ function RuleLine({
               <Button
                 size="icon-xs"
                 variant="ghost"
-                aria-label={`Rule options: ${ANSWERS[rule.answer].label} ${rule.condition ?? "always"}`}
+                aria-label={`Rule options: ${ANSWERS[rule.answer].label}${rule.condition ? ` ${rule.condition}` : ""}`}
               />
             }
           >

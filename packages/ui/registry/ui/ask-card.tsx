@@ -1,4 +1,4 @@
-// @vegastack ask-card@0.138.0 sha256-iKGisWw25aUM4tBuZ/8fElp1IHAXRXE5qWOcIoXc1dk=
+// @vegastack ask-card@0.138.0 sha256-4LViutCx2PG/+aY4L/4yfIBezw0FhvjbKwJjPBb9yaA=
 
 "use client";
 
@@ -119,6 +119,12 @@ export interface AskCardProps extends Omit<
   choices: AskChoice[];
   /** Answers with a choice's id; absent, the buttons are not drawn. @default undefined */
   onAnswer?: AskAnswerHandler;
+  /**
+   * Why it asks, in the caller's full words ("Auto-check asked: the recipient isn't one anyone
+   * named"): one muted line under the title and facts while the ask is open, wrapping, never
+   * truncating the title. The card adds no prefix. @default undefined
+   */
+  reason?: string;
   /** Why no Always is offered, in the server's words (`offer.noAlways.words`). @default undefined */
   noAlways?: { words: string };
   /** Who answered, with what, where and when; `undo` adds Undo to the line. @default undefined */
@@ -369,7 +375,7 @@ function AskChoices({
                 Always…
                 <ChevronDown aria-hidden data-icon="inline-end" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-64">
+              <DropdownMenuContent align="start" className="w-72">
                 {always.map((option) => (
                   <DropdownMenuItem
                     key={option.id}
@@ -656,6 +662,7 @@ export function AskCard({
   state,
   choices,
   onAnswer,
+  reason,
   noAlways,
   answered,
   refusal,
@@ -765,6 +772,14 @@ export function AskCard({
           toolClass={action.toolClass}
         />
         {action.facts?.length ? <AskFacts facts={action.facts} /> : null}
+        {reason && open ? (
+          <p
+            data-slot="ask-card-reason"
+            className="min-w-0 text-xs text-pretty wrap-break-word text-muted-foreground"
+          >
+            {reason}
+          </p>
+        ) : null}
         {hasPreview(action.preview) && open ? (
           <AskPreview toolClass={action.toolClass}>{action.preview}</AskPreview>
         ) : null}

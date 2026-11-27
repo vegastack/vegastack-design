@@ -1,4 +1,4 @@
-// @vegastack chat-request-card@0.138.0 sha256-tBY+VlC0VUKJ+i9BW/mZWZzUFB5AH9dc8DKWSnBMNhs=
+// @vegastack chat-request-card@0.138.0 sha256-L90nfCLuwJTS9lBTiKFeedaNIn3DkNTlWrB+9FKCP68=
 
 "use client";
 
@@ -102,9 +102,11 @@ const lowerFirst = (text: string) =>
 function RequestSubject({
   data,
   showFrom = false,
+  reason,
 }: {
   data: RequestData;
   showFrom?: boolean;
+  reason?: string;
 }) {
   const Icon = kindIcon(data.kind);
   return (
@@ -157,6 +159,14 @@ function RequestSubject({
               <span className="ms-auto shrink-0">{data.preview.label}</span>
             ) : null}
           </div>
+        ) : null}
+        {reason ? (
+          <p
+            data-slot="request-reason"
+            className="min-w-0 text-xs text-pretty wrap-break-word text-muted-foreground"
+          >
+            {reason}
+          </p>
         ) : null}
         {data.quote ? (
           <blockquote
@@ -461,6 +471,13 @@ export interface ChatRequestCardProps extends Omit<
   agent: { name: string };
   /** Removes the permission an answered request made (passed to its `RequestLine`). @default undefined */
   onUndo?: () => void;
+  /**
+   * Why it asks, in the caller's full words ("Auto-check asked: the recipient isn't one anyone
+   * named"): one muted line under the subject's detail while the request is open, wrapping, never
+   * truncating the title. The card adds no prefix; a settled `RequestLine` doesn't show it.
+   * @default undefined
+   */
+  reason?: string;
 }
 
 /**
@@ -479,7 +496,12 @@ function ChatRequestCard({
   ...props
 }: ChatRequestCardProps) {
   if (data.state !== "open") {
-    const { onAnswer: _answer, agent: _agent, ...rest } = props;
+    const {
+      onAnswer: _answer,
+      agent: _agent,
+      reason: _reason,
+      ...rest
+    } = props;
     return (
       <RequestLine
         data={data}
@@ -504,6 +526,7 @@ function OpenRequestCard({
   data,
   onAnswer,
   agent,
+  reason,
   className,
   ...props
 }: Omit<ChatRequestCardProps, "onUndo">) {
@@ -533,7 +556,7 @@ function OpenRequestCard({
               : undefined
         }
       >
-        <RequestSubject data={data} showFrom />
+        <RequestSubject data={data} showFrom reason={reason} />
       </ChatCard>
     </div>
   );

@@ -114,6 +114,12 @@ test("renders the example rows: a class with its tools, a locked row, an admin r
     screen.container.querySelector('[data-slot="tool-permission-rule"]')!
       .textContent,
   ).toContain("Always allow");
+  // An unconditional rule reads its answer label alone, with no condition word.
+  const unconditional = screen.container.querySelectorAll(
+    '[data-slot="tool-permission-rule"]',
+  )[1]!;
+  expect(unconditional.textContent).toContain("Needs approval");
+  expect(unconditional.textContent).not.toContain("Always");
   await expect
     .element(
       page.getByRole("button", {

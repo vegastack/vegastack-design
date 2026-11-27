@@ -1,4 +1,4 @@
-// @vegastack chat-menu@0.138.0 sha256-OPXyuiis+9cCGwVMzMAMdvuvVqoXd0AyDY4vaA0PkN4=
+// @vegastack chat-menu@0.138.0 sha256-qED2hRR2liRNCLiEw1UMPMJVVEwx4fMN8MfHNXebgwM=
 
 "use client";
 
@@ -208,7 +208,7 @@ function ChatMenuItem({
         {hint != null ? (
           <span
             data-slot="chat-menu-item-hint"
-            className="min-w-0 text-xs text-muted-foreground"
+            className="line-clamp-2 max-w-64 min-w-0 text-xs text-pretty text-muted-foreground"
           >
             {hint}
           </span>

@@ -56,6 +56,18 @@ No Always choice in the offer, so no Always button, and the footnote says why.
   file="components/preview/chat-request-card.tsx"
 />
 
+### With Auto-check's reason
+
+`reason` is one muted line under the subject, in the caller's full words ("Auto-check asked: …"),
+shown while the request is open and wrapping at 390px; the settled line doesn't carry it. An Always
+choice's scope label can be the sentence the rule will save: in the Always menu it wraps to two
+lines and the menu stays narrow.
+
+<ComponentPreview
+  name="chatRequestCardReason"
+  file="components/preview/chat-request-card.tsx"
+/>
+
 ### Several at once
 
 Subagents asking together become one card with the choices every ask offers
