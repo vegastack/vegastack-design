@@ -3613,7 +3613,8 @@
         "@vegastack/dropdown-menu",
         "@vegastack/item",
         "@vegastack/status-glyph",
-        "@vegastack/textarea"
+        "@vegastack/textarea",
+        "@vegastack/button-group"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.33.0",
@@ -9746,7 +9747,8 @@
         "@vegastack/chat-card",
         "@vegastack/chat-menu",
         "@vegastack/status-glyph",
-        "@vegastack/textarea"
+        "@vegastack/textarea",
+        "@vegastack/button-group"
       ],
       "npmDependencies": [
         "@vegastack/design-tokens@^0.33.0",

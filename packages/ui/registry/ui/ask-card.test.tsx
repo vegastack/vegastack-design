@@ -85,8 +85,8 @@ test("a pending ask names itself by its action, shows the preview first and the 
   const ids = [...choices.querySelectorAll("[data-choice-id]")].map(
     (el) => (el as HTMLElement).dataset.choiceId,
   );
-  // Never and Decline share one "Decline ▾" menu.
-  expect(ids).toEqual(["once", "always:thread", "decline"]);
+  // Decline, then its arrow holding a note and Never.
+  expect(ids).toEqual(["once", "always:thread", "decline", "decline:more"]);
   expect(
     root.querySelector('[data-choice="once"]')!.getAttribute("data-variant"),
   ).toBe("secondary");
@@ -112,7 +112,7 @@ test("an answer passes the choice id back unchanged; a decline with a note sends
   );
   await page.getByRole("button", { name: "Always in this thread" }).click();
   expect(onAnswer).toHaveBeenLastCalledWith("always:thread");
-  await page.getByRole("button", { name: "Decline" }).click();
+  await page.getByRole("button", { name: "More ways to decline" }).click();
   // Never keeps its destructive ink inside the menu.
   await expect
     .element(page.getByRole("menuitem", { name: "Never" }))
@@ -120,6 +120,8 @@ test("an answer passes the choice id back unchanged; a decline with a note sends
   await page.getByRole("menuitem", { name: "Never" }).click();
   expect(onAnswer).toHaveBeenLastCalledWith("never");
   await page.getByRole("button", { name: "Decline" }).click();
+  expect(onAnswer).toHaveBeenLastCalledWith("decline");
+  await page.getByRole("button", { name: "More ways to decline" }).click();
   await page.getByRole("menuitem", { name: "Decline with a note…" }).click();
   const note = page.getByRole("textbox", { name: /note to the agent/i });
   await expect.element(note).toBeVisible();
@@ -407,7 +409,7 @@ test("a send with nothing to preview keeps only its refusals; settled states wit
   const ids = [...withheld!.querySelectorAll("[data-choice-id]")].map(
     (el) => (el as HTMLElement).dataset.choiceId,
   );
-  expect(ids).toEqual(["decline"]);
+  expect(ids).toEqual(["decline", "decline:more"]);
   expect(
     withheld!.querySelector('[data-slot="ask-card-withheld"]'),
   ).not.toBeNull();

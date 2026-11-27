@@ -1,4 +1,4 @@
-// @vegastack chat-request-card@0.139.0 sha256-4vqk4Katd7XesO8L4RMWnw9/v6cMnwVKcCk3EvVPENU=
+// @vegastack chat-request-card@0.139.0 sha256-x54+Xp+nUeVo/7RbFy5NtHnaEKqEmNYXvgOvT0ugzyM=
 
 "use client";
 
@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import { ChatCard } from "@/components/ui/chat-card";
 import { ChatMenu, ChatMenuItem } from "@/components/ui/chat-menu";
 import { StatusGlyph } from "@/components/ui/status-glyph";
@@ -27,8 +28,8 @@ import { Textarea } from "@/components/ui/textarea";
 /* ------------------------------------------------------------------------------------------------
  * ChatRequestCard — an agent asking a person's OK, drawn from the offer the server stored with the
  * request. The card never computes its own buttons: `once` is the primary button, every `always:*`
- * choice sits in one "Always allow" menu with its scope, and `decline` and `never` share one quiet
- * "Decline ▾" menu (a decline can carry a note). Nothing on the card can fail when pressed because nothing on it was invented
+ * choice sits in one "Always allow" menu with its scope, and `decline` is a quiet "Decline ▾": the
+ * word declines, its arrow offers a note or `never`. Nothing on the card can fail when pressed because nothing on it was invented
  * here. Once answered, refused, withdrawn or expired the card settles into one muted line.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -186,13 +187,14 @@ function RequestSubject({
 
 type Answer = (choiceId: string, note?: string) => Promise<void>;
 
-/** The Decline menu's item that opens the note field. */
+/** The Decline arrow's item that opens the note field, and the arrow's name. */
 const DECLINE_WITH_NOTE = "Decline with a note…";
+const MORE_DECLINE = "More ways to decline";
 
 /**
  * The offered choices as buttons — exactly the server's, never more. `once` primary, the
- * `always:*` choices in one outline menu, and one quiet "Decline ▾" menu holding "Decline with a
- * note…" (opens a note field) and `never`. Either refusal alone is a quiet text button.
+ * `always:*` choices in one outline menu, and a quiet "Decline ▾": Decline at once, and an arrow
+ * whose menu holds "Decline with a note…" (opens a note field) and `never` when offered.
  */
 function RequestChoices({
   choices,
@@ -306,46 +308,49 @@ function RequestChoices({
           ))}
         </ChatMenu>
       ) : null}
-      {decline && never ? (
-        // One Decline menu: a note, or a rule so it never asks again.
-        <ChatMenu
-          trigger={
-            <Button
-              ref={declineRef}
-              size={size}
-              variant="ghost"
-              disabled={busy}
-              data-choice="decline"
-              className="text-muted-foreground"
-            >
-              {declineLabel ?? decline.label}
-              <ChevronDown
-                aria-hidden="true"
-                data-icon="inline-end"
-                strokeWidth={1.5}
-              />
-            </Button>
-          }
-        >
-          <ChatMenuItem shortcut="1" onSelect={() => setNoting(true)}>
-            {DECLINE_WITH_NOTE}
-          </ChatMenuItem>
-          <ChatMenuItem shortcut="2" onSelect={() => void onAnswer("never")}>
-            {never.label}
-          </ChatMenuItem>
-        </ChatMenu>
-      ) : decline ? (
-        <Button
-          ref={declineRef}
-          size={size}
-          variant="ghost"
-          disabled={busy}
-          data-choice="decline"
-          className="text-muted-foreground"
-          onClick={() => setNoting(true)}
-        >
-          {declineLabel ?? decline.label}
-        </Button>
+      {decline ? (
+        // Decline ▾: Decline at once, and the arrow's menu for a note or a rule so it never asks
+        // again (03-copy §2).
+        <ButtonGroup aria-label={declineLabel ?? decline.label}>
+          <Button
+            size={size}
+            variant="ghost"
+            disabled={busy}
+            data-choice="decline"
+            className="text-muted-foreground"
+            onClick={() => void onAnswer("decline")}
+          >
+            {declineLabel ?? decline.label}
+          </Button>
+          <ChatMenu
+            align="end"
+            trigger={
+              <Button
+                ref={declineRef}
+                size={size === "xs" ? "icon-xs" : "icon-sm"}
+                variant="ghost"
+                disabled={busy}
+                data-choice="decline-more"
+                aria-label={MORE_DECLINE}
+                className="text-muted-foreground"
+              >
+                <ChevronDown aria-hidden="true" strokeWidth={1.5} />
+              </Button>
+            }
+          >
+            <ChatMenuItem shortcut="1" onSelect={() => setNoting(true)}>
+              {DECLINE_WITH_NOTE}
+            </ChatMenuItem>
+            {never ? (
+              <ChatMenuItem
+                shortcut="2"
+                onSelect={() => void onAnswer("never")}
+              >
+                {never.label}
+              </ChatMenuItem>
+            ) : null}
+          </ChatMenu>
+        </ButtonGroup>
       ) : never ? (
         <Button
           size={size}
@@ -520,7 +525,7 @@ export interface ChatRequestCardProps extends Omit<
 
 /**
  * An agent asking a person's OK, drawn from the server's stored offer: Allow once (primary), one
- * "Always allow ▾" menu with each scope, and one "Decline ▾" menu: "Decline with a note…" and Never. When Always
+ * "Always allow ▾" menu with each scope, and Decline with an arrow for "Decline with a note…" and Never. When Always
  * can't be offered the card says why in a muted footnote. While an answer is in flight the buttons
  * hold (`aria-busy`); once settled the card becomes a `RequestLine`.
  *

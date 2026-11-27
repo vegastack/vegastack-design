@@ -1,4 +1,4 @@
-// @vegastack ask-card@0.139.0 sha256-/VzD3iic/VYATbLxwgGW9AE3DZaPsYwTrvyvtrt3Ooo=
+// @vegastack ask-card@0.139.0 sha256-FkzC/PjBZcpox+sQLp+4y/oib7O3Rm0LkPt12c/x2s0=
 
 "use client";
 
@@ -7,6 +7,7 @@ import { cn } from "@vegastack/design";
 import { ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ButtonGroup } from "@/components/ui/button-group";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,7 +23,7 @@ import { Textarea } from "@/components/ui/textarea";
  * preview. Every choice is the server's: the card draws them in the server's order with their ids
  * and words, never builds one and never draws a filled primary. The preferred choice (`once`) is
  * secondary, every other one outline (`never` in the destructive ink); more than one Always choice
- * folds into one "Always…" menu, and Never and Decline share one "Decline ▾" menu. A "Delete or send" action shows its preview before the
+ * folds into one "Always…" menu, and Decline's arrow holds a note and Never. A "Delete or send" action shows its preview before the
  * buttons. Once settled, the buttons give way to one muted line: what was answered, by whom, where.
  * ----------------------------------------------------------------------------------------------*/
 
@@ -59,7 +60,7 @@ export type AskChoice = {
   kind: "once" | "always" | "never" | "decline";
   /** An Always choice's place, shown under it in the Always menu: "only in this thread". */
   scopeLabel?: string;
-  /** A decline that opens a one-line note before it is sent. */
+  /** A decline that can carry a note: Decline's arrow offers "Decline with a note…". */
   needsNote?: boolean;
 };
 
@@ -255,12 +256,15 @@ function useOneAnswer(handler: AskAnswerHandler | undefined) {
 
 const FAILED = "Couldn't send your answer. Try again.";
 
-/** The Decline menu's item that opens the note field. */
+/** The Decline arrow's item that opens the note field, the arrow's name and its id suffix. */
 const DECLINE_WITH_NOTE = "Decline with a note…";
+const MORE_DECLINE = "More ways to decline";
+const MORE = ":more";
 
 /**
- * The server's choices as buttons, in the server's order; more than one Always choice, one menu, so the row fits 390px. Never
- * and Decline, when both are offered, share one "Decline ▾" menu: "Decline with a note…" and Never.
+ * The server's choices as buttons, in the server's order; more than one Always choice, one menu, so
+ * the row fits 390px. Decline declines at once; its arrow holds "Decline with a note…" (a
+ * `needsNote` decline) and Never.
  */
 function AskChoices({
   choices,
@@ -278,6 +282,8 @@ function AskChoices({
   const [note, setNote] = React.useState("");
   const group = React.useRef<HTMLDivElement>(null);
   const returnTo = React.useRef<string | null>(null);
+  // The note was opened from Decline's arrow, so leaving it focuses the arrow.
+  const fromMore = React.useRef(false);
   // A choice the server withdrew while its note was open can't be sent.
   const noting = notingId
     ? (choices.find((choice) => choice.id === notingId) ?? null)
@@ -302,7 +308,8 @@ function AskChoices({
   if (noting) {
     const send = () => answer(noting.id, note.trim() || undefined);
     const back = () => {
-      returnTo.current = noting.id;
+      returnTo.current = fromMore.current ? `${noting.id}${MORE}` : noting.id;
+      fromMore.current = false;
       setNotingId(null);
     };
     return (
@@ -353,10 +360,12 @@ function AskChoices({
     ...choices.filter((choice) => choice.kind !== "decline"),
     ...choices.filter((choice) => choice.kind === "decline"),
   ];
-  // Never and Decline share one "Decline ▾" menu when both are offered.
+  // Decline gets its arrow when there's more to offer than declining: a note or Never.
   const declineChoice = choices.find((choice) => choice.kind === "decline");
   const neverChoice = choices.find((choice) => choice.kind === "never");
-  const refusalsFolded = Boolean(declineChoice && neverChoice);
+  const refusalsSplit = Boolean(
+    declineChoice && (neverChoice || declineChoice.needsNote),
+  );
   const press = (choice: AskChoice) => {
     if (disabled) return;
     if (choice.needsNote) {
@@ -419,43 +428,64 @@ function AskChoices({
             </DropdownMenu>
           );
         }
-        if (refusalsFolded && choice.kind === "never") return null;
-        if (refusalsFolded && choice.kind === "decline")
+        if (refusalsSplit && choice.kind === "never") return null;
+        if (refusalsSplit && choice.kind === "decline")
           return (
-            <DropdownMenu key="decline">
-              <DropdownMenuTrigger
+            // Decline ▾: Decline at once, and the arrow's menu for a note or Never (03-copy §2).
+            <ButtonGroup key="decline" aria-label={choice.label}>
+              <Button
+                size="sm"
+                variant="outline"
                 disabled={disabled}
-                render={
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    data-choice="decline"
-                    data-choice-id={choice.id}
-                    disabled={disabled}
-                  />
-                }
+                data-choice="decline"
+                data-choice-id={choice.id}
+                onClick={() => answer(choice.id)}
               >
                 {choice.label}
-                <ChevronDown aria-hidden data-icon="inline-end" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="min-w-56">
-                <DropdownMenuItem
-                  data-choice-id={`${choice.id}:menu`}
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger
                   disabled={disabled}
-                  onClick={() => press(choice)}
+                  render={
+                    <Button
+                      size="icon-sm"
+                      variant="outline"
+                      data-choice="decline-more"
+                      data-choice-id={`${choice.id}${MORE}`}
+                      aria-label={MORE_DECLINE}
+                      disabled={disabled}
+                    />
+                  }
                 >
-                  {choice.needsNote ? DECLINE_WITH_NOTE : choice.label}
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  variant="destructive"
-                  data-choice-id={neverChoice!.id}
-                  disabled={disabled}
-                  onClick={() => answer(neverChoice!.id)}
-                >
-                  {neverChoice!.label}
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+                  <ChevronDown aria-hidden />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="min-w-56">
+                  {choice.needsNote ? (
+                    <DropdownMenuItem
+                      disabled={disabled}
+                      onClick={() => {
+                        if (disabled) return;
+                        fromMore.current = true;
+                        setNote("");
+                        setNotingId(choice.id);
+                      }}
+                    >
+                      {DECLINE_WITH_NOTE}
+                    </DropdownMenuItem>
+                  ) : null}
+                  {neverChoice ? (
+                    <DropdownMenuItem
+                      variant="destructive"
+                      data-choice-id={neverChoice.id}
+                      disabled={disabled}
+                      onClick={() => answer(neverChoice.id)}
+                    >
+                      {neverChoice.label}
+                    </DropdownMenuItem>
+                  ) : null}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </ButtonGroup>
           );
         const look = choiceLook(choice.kind);
         return (

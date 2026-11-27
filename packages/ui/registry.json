@@ -16065,6 +16065,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/button-group",
         "@vegastack/dropdown-menu",
         "@vegastack/item",
         "@vegastack/status-glyph",
@@ -16964,6 +16965,7 @@
       ],
       "registryDependencies": [
         "@vegastack/button",
+        "@vegastack/button-group",
         "@vegastack/chat-card",
         "@vegastack/chat-menu",
         "@vegastack/status-glyph",
