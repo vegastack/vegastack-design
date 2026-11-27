@@ -1589,7 +1589,7 @@
       "components": [0.923, 0.007, 277.2],
       "alpha": 1
     },
-    "$description": "Agent faces: the grey a face fades to when it can't act (paused, failed, scheduled); `-ink-` for the Ink palette; the highlight."
+    "$description": "Agent faces: the grey a face fades to when it can't act (paused, failed, scheduled); `-ink-` for the Ink palette; the highlight; the dark dot ink on Mist and Glass Dots."
   },
   "face-grey-b": {
     "$type": "color",
@@ -1636,6 +1636,14 @@
     "$value": {
       "colorSpace": "oklch",
       "components": [1, 0, 0],
+      "alpha": 1
+    }
+  },
+  "face-dot-ink": {
+    "$type": "color",
+    "$value": {
+      "colorSpace": "oklch",
+      "components": [0.279, 0.053, 293.8],
       "alpha": 1
     }
   }

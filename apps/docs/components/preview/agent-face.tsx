@@ -110,12 +110,56 @@ export function agentFaceStates(): ReactNode {
               motion
               label=""
             />
+            <AgentFace
+              face={{
+                v: 1,
+                family: "dot",
+                preset: "squish",
+                palette: "violet",
+              }}
+              size={48}
+              state={state}
+              motion
+              label=""
+            />
             <figcaption className="text-xs text-muted-foreground">
               {FACE_STATE_LABELS[state]}
             </figcaption>
           </figure>
         ))}
       </div>
+    </Wrapper>
+  );
+}
+
+const FAMILY_SAMPLE = [
+  ["squish", "violet"],
+  ["arch", "pink"],
+  ["prism", "orange"],
+  ["cairn", "teal"],
+  ["drop", "ink"],
+  ["nut", "glass"],
+] as const;
+
+/** The two families: Pebbles and Dots, the same characters and colours. */
+export function agentFaceFamilies(): ReactNode {
+  return (
+    <Wrapper className="flex-col items-stretch gap-4">
+      {(["pebble", "dot"] as const).map((family) => (
+        <div key={family} className="flex flex-wrap items-center gap-3">
+          <span className="w-full text-sm text-muted-foreground sm:w-16">
+            {family === "pebble" ? "Pebbles" : "Dots"}
+          </span>
+          {FAMILY_SAMPLE.map(([preset, palette]) => (
+            <AgentFace
+              key={preset}
+              face={{ v: 1, family, preset, palette }}
+              size={48}
+              label=""
+            />
+          ))}
+        </div>
+      ))}
     </Wrapper>
   );
 }
