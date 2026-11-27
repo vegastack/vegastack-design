@@ -1,5 +1,14 @@
 # @vegastack/design-tokens
 
+## 0.30.2
+
+### Patch Changes
+
+- [#1088](https://github.com/vegastack/vegastack-design/pull/1088) [`5868b75`](https://github.com/vegastack/vegastack-design/commit/5868b7539c99f635463360f412bb836225dc6529) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🐛 An agent face keeps its size inside a button, and Ink faces stay visible in the dark theme.
+
+  - `AgentFace` sets its width and height inline, so a button's rule for unsized icons (`[&_svg]:size-4`) no longer shrinks a face in a trigger such as a colour picker or a hover card.
+  - `face-ink-a`, `face-ink-b` and `face-ink-deep` are lighter in the dark theme, so an Ink face no longer sinks into the page; the phone's `agent-face-spec.json` carries them as `onDark`.
+
 ## 0.30.1
 
 ### Patch Changes

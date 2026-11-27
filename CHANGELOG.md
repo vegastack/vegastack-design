@@ -9,6 +9,23 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.136.6] — November 27, 2026
+
+<!-- assembled from 1 changeset: af7cf675bf2f -->
+
+### 📦 npm
+
+- **`@vegastack/design-tokens`** → **`0.30.2`** (was `0.30.1`).
+- The design-system registry (`@vegastack/ui`) bumps 0.136.5 → 0.136.6.
+
+### 🐛 Fixed
+
+- An agent face keeps its size inside a button, and Ink faces stay visible in the dark theme.
+
+  - `AgentFace` sets its width and height inline, so a button's rule for unsized icons (`[&_svg]:size-4`) no longer shrinks a face in a trigger such as a colour picker or a hover card.
+  - `face-ink-a`, `face-ink-b` and `face-ink-deep` are lighter in the dark theme, so an Ink face no longer sinks into the page; the phone's `agent-face-spec.json` carries them as `onDark`.
+    [`5868b75`](https://github.com/VegaStack/vegastack-design/commit/5868b75)
+
 ## [0.136.5] — November 27, 2026
 
 <!-- assembled from 1 changeset: 497d7b433da7 -->
