@@ -1,4 +1,4 @@
-// @vegastack meeting-icon@0.136.8 sha256-7pc6Yni+QeAdHoW0iNN6ufNIIuYOcotko7/olzaMQSI=
+// @vegastack meeting-icon@0.138.0 sha256-3ouPEtI6+qQctOoxUA4lzK81K/XD8w/qAg0m+nPKIvw=
 
 import * as React from "react";
 import {

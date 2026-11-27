@@ -1,4 +1,4 @@
-// @vegastack button@0.136.8 sha256-8aSkEr5OpWwysYj2bW4OPcff2hg6XRukmQGOqK/Mz/U=
+// @vegastack button@0.138.0 sha256-smnWXGmz7agOZRtq5GgLLNJ3QdtRoSctSPOMEvouZ6M=
 
 import { Button as ButtonPrimitive } from "@base-ui/react/button";
 import { cva, type VariantProps } from "class-variance-authority";

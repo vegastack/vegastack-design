@@ -1,4 +1,4 @@
-// @vegastack request-status-chip@0.136.8 sha256-SWiSKsJDKXp77TaY3t+OkCGHy6saxEgoalIOdQMfOA0=
+// @vegastack request-status-chip@0.138.0 sha256-tMDAf2pkgPNfvgCOiJ6bZsqdYk8579ZmPolmKG7wtCc=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";

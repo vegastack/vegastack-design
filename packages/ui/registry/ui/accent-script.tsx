@@ -1,4 +1,4 @@
-// @vegastack accent@0.136.8 sha256-TjSvqfzC521XaV5b0DvIztwRmjYj+hM56x/9TKcyfAI=
+// @vegastack accent@0.138.0 sha256-cUZFc7NhaftpUPiRqwAmoqUzIqvb8b5rMIQB3Cyjh3Q=
 
 import {
   ACCENT_COOKIE,
