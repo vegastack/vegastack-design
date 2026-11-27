@@ -1,4 +1,4 @@
-// @vegastack video-player@0.138.0 sha256-fQfhKOMaooT/5SijNfs0BYtsc7kZfWESYEeaptjdIo0=
+// @vegastack video-player@0.138.0 sha256-koc+43Cut3oEnLAYf1gKr6fwDMUO24rHZm6FH3TJVBk=
 
 "use client";
 
@@ -546,6 +546,7 @@ export function VideoPlayer({
     play: boolean;
   } | null>(null);
   const consumedNonceRef = React.useRef(0);
+  const renewalCounterRef = React.useRef(0);
   // A play asked for before the playlist is attached and loaded (attaching a source resets the
   // element's paused state); `pause()` clears it.
   const wantPlayRef = React.useRef(false);
@@ -597,11 +598,9 @@ export function VideoPlayer({
           // promise — gets nothing from a late result.)
           if (hlsGenRef.current !== gen || hlsPropUrlRef.current !== from)
             return;
-          setHlsRenewed((previous) => ({
-            from,
-            url,
-            nonce: (previous?.nonce ?? 0) + 1,
-          }));
+          // Nonces only ever grow (across sources too), so one is never mistaken for consumed.
+          renewalCounterRef.current += 1;
+          setHlsRenewed({ from, url, nonce: renewalCounterRef.current });
         },
         () => {
           if (renewingGenRef.current === gen) renewingGenRef.current = null;
