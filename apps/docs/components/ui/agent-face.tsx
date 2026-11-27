@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.5 sha256-NE8IJidUf4a7aCWgprSVDdBeX0ASN4AFCZawyZcVQvs=
+// @vegastack agent-face@0.136.5 sha256-In86n3qZijIjJ31dLHo+0f31ZMUDAjqIUGKfV+/5/K0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -1670,7 +1670,14 @@ function AgentFace({
       aria-hidden={named ? undefined : true}
       focusable="false"
       className={cn("shrink-0 overflow-visible select-none", className)}
-      style={{ ...paletteVars(pal.id, state, seedOf(face)), ...style }}
+      // Its size inline: a button sizes an unsized svg inside it (`[&_svg]:size-4`), and a face
+      // must stay the size it was asked for wherever it sits.
+      style={{
+        width: size,
+        height: size,
+        ...paletteVars(pal.id, state, seedOf(face)),
+        ...style,
+      }}
       {...props}
     >
       {halo && dot ? (

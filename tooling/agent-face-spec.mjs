@@ -675,6 +675,8 @@ const PALETTES = {
     mark: ["#7A4ADC", "#A68CFA"],
     companion: "violet",
     dark: true,
+    // On a dark page Ink lifts off it (face-ink-* in semantic.dark.tokens.json).
+    onDark: { a: "#7A7A88", b: "#43434F", deep: "#26262E" },
   },
   mist: {
     name: "Mist",
@@ -935,6 +937,7 @@ const json =
             ink: p.dark ? "#FFFFFF" : "#231D38",
             companion: p.companion,
             ...(p.dark && { dark: true }),
+            ...(p.onDark && { onDark: p.onDark }),
             ...(p.glass && { glass: p.glass }),
           },
         ]),

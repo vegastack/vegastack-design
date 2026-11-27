@@ -18210,7 +18210,7 @@
         "whenToUse": "An agent's face on its own: a face picker, an agent's header, an onboarding moment. Avatars in rows and stacks use PersonAvatar, which draws it.",
         "whenNotToUse": "A person, team or workspace (PersonAvatar); a loader (Spinner, TextSpinner).",
         "version": "0.136.5",
-        "integrity": "sha256-NE8IJidUf4a7aCWgprSVDdBeX0ASN4AFCZawyZcVQvs="
+        "integrity": "sha256-In86n3qZijIjJ31dLHo+0f31ZMUDAjqIUGKfV+/5/K0="
       }
     },
     {
