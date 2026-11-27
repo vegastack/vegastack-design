@@ -16080,7 +16080,7 @@
       "meta": {
         "whenToUse": "An agent waits on a person's OK for a tool call: in a chat, in For you, in a push preview.",
         "whenNotToUse": "An agent offering a next step the person may ignore (ForYouCard), or a question with answers to fill (AgentQuestionForm).",
-        "version": "0.138.0"
+        "version": "0.139.0"
       }
     },
     {
@@ -16115,7 +16115,7 @@
       "meta": {
         "whenToUse": "Setting an agent's or the workspace's answers for a connected source's tools.",
         "whenNotToUse": "Sharing a record with people (ShareDialog), or a person's access level on one row (PermissionMenu).",
-        "version": "0.138.0"
+        "version": "0.139.0"
       }
     },
     {
@@ -16979,7 +16979,7 @@
       "meta": {
         "whenToUse": "A permission request waiting in an agent chat (ChatRequestCard), Subagents asking together (RequestBundleCard), an answered or refused ask in the turn's log (RequestLine).",
         "whenNotToUse": "A list of saved permissions in settings; a general confirmation dialog (AlertDialog).",
-        "version": "0.138.0"
+        "version": "0.139.0"
       }
     },
     {
@@ -17008,7 +17008,7 @@
       "meta": {
         "whenToUse": "Picking a model, an effort level or a scope from a chat's composer or header.",
         "whenNotToUse": "A general actions menu (DropdownMenu), a searchable list (Combobox), or a long setting form (Select).",
-        "version": "0.138.0"
+        "version": "0.139.0"
       }
     },
     {
