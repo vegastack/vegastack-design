@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.136.8 sha256-UBGNbgnFC82DgTNoG+jWiiW1QKj4dVkYzb7vXEjuV4k=
+// @vegastack tool-permission-list@0.136.8 sha256-K8LJBmoixYyb1c+BxOS/UYZRFdDxWhEd0O7A5V4cDTk=
 
 "use client";
 
@@ -668,7 +668,7 @@ export function ToolPermissionList({
     >
       <div className="flex min-w-0 flex-col gap-1">
         <header className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
-          <div className="flex min-w-0 flex-1 items-center gap-2">
+          <div className="flex min-w-0 flex-1 basis-48 items-center gap-2">
             {icon ? (
               <span
                 data-slot="tool-permission-icon"
