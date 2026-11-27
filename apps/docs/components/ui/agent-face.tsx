@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.8 sha256-W98lKk7FwpcYvcMC5b6IgfxYX0U+2ioNR7PUBCGPZW4=
+// @vegastack agent-face@0.136.8 sha256-3WwjkoigDSS0bg8LaiDyE4glLG/H8r4agsRm/5v8QG0=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -30,23 +30,8 @@ export type FaceState =
   | "paused";
 
 /** An agent's face: a preset character in a palette. Stored with the agent. */
-/**
- * A face family: `pebble` the soft character (the Mini below 40px); `dot` the same silhouette with
- * a 5 × 5 dot face, at every size.
- */
-export type FaceFamily = "pebble" | "dot";
-
-/** The families, in picker order, with their names. */
-export const FACE_FAMILIES: readonly { id: FaceFamily; name: string }[] = [
-  { id: "pebble", name: "Pebbles" },
-  { id: "dot", name: "Dots" },
-];
-
-/** An agent's face: a family, a preset character and a palette. Stored with the agent. */
 export interface AgentFaceSpec {
   v: 1;
-  /** Absent means `pebble`, so a face stored before families stays a Pebble. */
-  family?: FaceFamily;
   preset: FacePreset;
   palette: FacePalette;
 }
@@ -65,7 +50,7 @@ export interface AgentFaceProps extends Omit<
   name?: string;
   /** What it is doing. @default "idle" */
   state?: FaceState;
-  /** Its size in CSS pixels. A Pebble face draws the Mini below 40 and the Pebble from 40; a Dot face is a Dot at every size. */
+  /** Its size in CSS pixels. It draws the Mini below 40 and the Pebble from 40. */
   size: number;
   /**
    * Whether it moves. Pass `true` only where the person is looking at that agent (its chat, its
@@ -156,7 +141,6 @@ function paletteVars(
   seed: number,
 ): React.CSSProperties {
   const pal = paletteOf(id);
-  const comp = paletteOf(pal.companion);
   const k =
     state === "paused"
       ? 0.86
@@ -174,25 +158,21 @@ function paletteVars(
         ? 0.45
         : 0
     : k;
-  const tone = (palId: FacePalette, key: "a" | "b" | "deep") => {
-    const base = `var(--face-${palId}-${key})`;
-    const kk = palId === id ? inkK : k;
-    return kk
-      ? `color-mix(in oklab, ${base}, ${grey(key)} ${n2(kk * 100)}%)`
+  const tone = (key: "a" | "b" | "deep") => {
+    const base = `var(--face-${id}-${key})`;
+    return inkK
+      ? `color-mix(in oklab, ${base}, ${grey(key)} ${n2(inkK * 100)}%)`
       : base;
   };
   const markK = state === "paused" || state === "failed" ? k : 0;
   return {
-    "--fa": tone(id, "a"),
-    "--fb": tone(id, "b"),
-    "--fd": tone(id, "deep"),
+    "--fa": tone("a"),
+    "--fb": tone("b"),
+    "--fd": tone("deep"),
     "--fm": markK
       ? `color-mix(in oklab, var(--face-${id}-mark), var(--face-grey-b) ${n2(markK * 100)}%)`
       : `var(--face-${id}-mark)`,
     "--fi": `var(--face-${id}-ink)`,
-    "--ca": tone(comp.id, "a"),
-    "--cb": tone(comp.id, "b"),
-    "--cd": tone(comp.id, "deep"),
     "--face-seed": seed,
   } as React.CSSProperties;
 }
@@ -232,6 +212,19 @@ interface FaceGeometry {
   /** Drawn small (below 40px): bolder eyes, no brows, a mouth only from 24px. */
   mini?: number;
 }
+
+/** The farthest the eyes' idle glance, thinking drift, working scan and writing read move them sideways. */
+const EYE_TRAVEL: Partial<Record<FaceState, number>> = {
+  idle: 2.1,
+  thinking: 1.4,
+  working: 3.1,
+  writing: 2.8,
+};
+/** The farthest they move up or down (the glance and drift's small lift). */
+const EYE_RISE = 0.6;
+/** `v` within [lo, hi]; the middle when the range is empty. */
+const fitIn = (v: number, lo: number, hi: number) =>
+  lo > hi ? (lo + hi) / 2 : Math.min(Math.max(v, lo), hi);
 
 /**
  * The expression grammar: thinking looks up toward its cue; working narrows and scans; writing
@@ -306,9 +299,87 @@ function Face({ def, state, size, motion, dark, dx = 0, mini }: FaceGeometry) {
       break;
   }
   const lw = Math.max((1.1 * 100) / size, R * 0.062 * E.s);
-  const cx = (E.x + lx) * R + CX + dx;
-  const cy = (E.y + ly) * R + CY;
   const sep = E.sep * R * (mini ? 1.08 : 1);
+  const showBrows = !!brows && size >= 40 && !mini;
+  const hasMouth =
+    !(mini && mini < 24) &&
+    (state === "writing" ||
+      state === "thinking" ||
+      state === "working" ||
+      state === "needs-you" ||
+      state === "failed" ||
+      ((def.mouth || state === "replied") &&
+        (kind === "open" || kind === "happy")));
+  let cx = (E.x + lx) * R + CX + dx;
+  let cy = (E.y + ly) * R + CY;
+  /** How much of the eyes' glance, scan or read travel fits on this face (1 = all of it). */
+  let room = 1;
+  /** The features' scale, below 1 only where the face area can't hold them at full size. */
+  let fit = 1;
+  if (!mini) {
+    // Keep the features on the face: the state's look moves the eye centre only as far as the
+    // preset's face area (generated per preset) holds the eyes, brows, mouth and eye motion.
+    const F = def.pebble.face;
+    const half =
+      sep +
+      Math.max(
+        ew * 0.6,
+        showBrows ? ew : 0,
+        kind === "happy" || kind === "closed" ? ew * 0.88 : 0,
+      ) +
+      lw / 2;
+    const up =
+      Math.max(
+        eh / 2,
+        showBrows
+          ? brows === "worry"
+            ? eh * 0.98
+            : eh * 0.5 + R * 0.12 * E.s
+          : 0,
+      ) +
+      lw / 2 +
+      EYE_RISE;
+    // The mouth's lowest point below its line `my` (each state's shape, below).
+    const mouthDrop =
+      R *
+      E.s *
+      (state === "writing"
+        ? 0.078
+        : state === "replied"
+          ? 0.062
+          : state === "needs-you"
+            ? 0.036
+            : state === "failed"
+              ? 0.03
+              : state === "thinking"
+                ? 0.02
+                : state === "working"
+                  ? 0
+                  : 0.032);
+    const down = Math.max(
+      (hasMouth ? eh * 0.62 + R * 0.12 * E.s + mouthDrop : 0) + lw / 2,
+      eh / 2 + lw / 2 + EYE_RISE,
+    );
+    // Floored to the precision it is written at, so the rounded scale still fits.
+    fit = Math.min(
+      1,
+      Math.floor(
+        Math.min(
+          (F.bottom - F.top) / (up + down),
+          (F.right - F.left) / (2 * half),
+        ) * 100,
+      ) / 100,
+    );
+    cy = fitIn(cy, F.top + up * fit, F.bottom - down * fit);
+    const travel = motion ? (EYE_TRAVEL[state] ?? 0) : 0;
+    const lo = F.left + half * fit;
+    const hi = F.right - half * fit;
+    if (hi - lo >= 2 * travel) cx = fitIn(cx, lo + travel, hi - travel);
+    else {
+      cx = fitIn(cx, lo, hi);
+      room = Math.max(0, Math.min(cx - lo, hi - cx)) / travel;
+    }
+  }
   const eyesOrigin = { transformOrigin: `${n2(cx)}px ${n2(cy)}px` };
   const eyeMotion = motion
     ? state === "idle"
@@ -404,7 +475,7 @@ function Face({ def, state, size, motion, dark, dx = 0, mini }: FaceGeometry) {
   });
 
   const browPaths =
-    brows && size >= 40 && !mini
+    brows && showBrows
       ? [-1, 1].map((sx) => {
           const ex = cx + sx * sep;
           const d =
@@ -425,6 +496,7 @@ function Face({ def, state, size, motion, dark, dx = 0, mini }: FaceGeometry) {
   const my = cy + eh * 0.62 + R * 0.12 * E.s;
   const mw = R * 0.075 * E.s;
   let mouth: React.ReactNode = null;
+  // (`hasMouth` above mirrors these branches for the face-area fit.)
   if (state === "writing")
     mouth = (
       <path
@@ -500,8 +572,20 @@ function Face({ def, state, size, motion, dark, dx = 0, mini }: FaceGeometry) {
       strokeLinecap="round"
       strokeLinejoin="round"
       opacity={state === "paused" ? 0.6 : undefined}
+      transform={
+        fit < 1
+          ? `translate(${n2(cx)} ${n2(cy)}) scale(${n2(fit)}) translate(${n2(-cx)} ${n2(-cy)})`
+          : undefined
+      }
     >
-      <g className={eyeMotion} style={eyesOrigin}>
+      <g
+        className={eyeMotion}
+        style={
+          room < 1
+            ? { ...eyesOrigin, ["--face-room" as string]: n2(room) }
+            : eyesOrigin
+        }
+      >
         <g
           className={cn(motion && "motion-face-change-eyes")}
           style={eyesOrigin}
@@ -871,6 +955,7 @@ function Cue({
   motion,
   uid = "c",
   dark = false,
+  neutral = false,
 }: {
   state: FaceState;
   ring: string;
@@ -878,6 +963,11 @@ function Cue({
   uid?: string;
   /** A dark palette (Ink): its thought is a light cloud, never dark smoke. */
   dark?: boolean;
+  /**
+   * A near-white palette (Mist, Glass): on a light page its thought takes a deeper edge so the
+   * white cloud doesn't vanish into the page; on a dark page it already stands out.
+   */
+  neutral?: boolean;
 }) {
   const hw = R * 0.07;
   const mc = "var(--fm)";
@@ -921,7 +1011,9 @@ function Cue({
           style={{
             stopColor: dark
               ? "color-mix(in oklab, var(--fb), var(--face-highlight) 56%)"
-              : "var(--fb)",
+              : neutral
+                ? "light-dark(color-mix(in oklab, var(--fb), var(--fd) 55%), var(--fb))"
+                : "var(--fb)",
           }}
         />
       </radialGradient>
@@ -990,8 +1082,12 @@ function Cue({
                 cx={n2(ox + dx * R)}
                 cy={n2(oy + dy * R)}
                 r={n2(R * r + R * 0.025)}
-                fill="var(--fm)"
-                fillOpacity={0.45}
+                fill={
+                  neutral && !dark
+                    ? "light-dark(color-mix(in oklab, var(--fd) 95%, transparent), color-mix(in oklab, var(--fm) 45%, transparent))"
+                    : "var(--fm)"
+                }
+                fillOpacity={neutral && !dark ? undefined : 0.45}
               />
             ))}
             {lobes.map(([dx, dy, r], k) => (
@@ -1426,16 +1522,12 @@ function Pebble({
               >
                 {body.layers ? (
                   body.layers.map((L, i) => {
-                    const mix = (c: string, p: string) =>
-                      L.mix >= 1
-                        ? p
-                        : L.mix <= 0
-                          ? c
-                          : `color-mix(in oklab, ${p} ${n2(L.mix * 100)}%, ${c})`;
-                    const a0 = mix("var(--ca)", "var(--fa)");
-                    const a = L.lift
-                      ? `color-mix(in oklab, ${a0}, var(--face-highlight) ${n2(L.lift * 100)}%)`
-                      : a0;
+                    // One palette throughout: a lower disc steps deeper, a lifted one lighter.
+                    const a = L.shade
+                      ? `color-mix(in oklab, var(--fa), var(--fb) ${n2(L.shade * 100)}%)`
+                      : L.lift
+                        ? `color-mix(in oklab, var(--fa), var(--face-highlight) ${n2(L.lift * 100)}%)`
+                        : "var(--fa)";
                     const slides = motion && working && def.motion === "slide";
                     return (
                       <g
@@ -1460,8 +1552,6 @@ function Pebble({
                           motion={motion}
                           pal={pal}
                           a={a}
-                          b={mix("var(--cb)", "var(--fb)")}
-                          deep={mix("var(--cd)", "var(--fd)")}
                           cx={L.cx}
                           cy={L.cy}
                           r={L.rx}
@@ -1507,9 +1597,7 @@ function Pebble({
                     }
                     motion={false}
                     pal={pal}
-                    a="var(--ca)"
-                    b="var(--cb)"
-                    deep="var(--cd)"
+                    a="color-mix(in oklab, var(--fa), var(--face-highlight) 12%)"
                     cx={body.ball.cx}
                     cy={body.ball.cy}
                     r={body.ball.r}
@@ -1559,6 +1647,7 @@ function Pebble({
                     motion={motion}
                     uid={uid}
                     dark={!!pal.dark}
+                    neutral={!!pal.neutral}
                   />
                 </g>
               </g>
@@ -1598,103 +1687,7 @@ function dotPath(def: FacePresetDef): string {
   return out.join("");
 }
 
-type Cells = [number, number, number?][];
-/** The 16 cells round the 5 × 5 grid's edge, clockwise from the top left. */
-const PERIMETER: [number, number][] = (() => {
-  const p: [number, number][] = [];
-  for (let x = 0; x < 5; x++) p.push([x, 0]);
-  for (let y = 1; y < 5; y++) p.push([4, y]);
-  for (let x = 3; x >= 0; x--) p.push([x, 4]);
-  for (let y = 3; y >= 1; y--) p.push([0, y]);
-  return p;
-})();
-
-function dotCells(def: FacePresetDef, state: FaceState): Cells {
-  const tall = def.eyes === "tall";
-  switch (state) {
-    case "idle":
-      return [
-        ...(tall
-          ? ([
-              [1, 1],
-              [1, 2],
-              [3, 1],
-              [3, 2],
-            ] as Cells)
-          : ([
-              [1, 2],
-              [3, 2],
-            ] as Cells)),
-        ...(def.mouth ? ([[2, 3, 0.55]] as Cells) : []),
-      ];
-    case "thinking":
-      return [
-        [2, 1],
-        [4, 1],
-      ];
-    case "working":
-      // Its eyes and a short bar along the bottom: never the same as a round-eyed idle.
-      return [
-        [1, 2],
-        [3, 2],
-        [1, 4, 0.5],
-        [2, 4, 0.85],
-        [3, 4, 0.5],
-      ];
-    case "writing":
-      return [
-        [1, 1],
-        [3, 1],
-        [1, 3, 0.9],
-        [2, 3, 0.9],
-        [3, 3, 0.9],
-      ];
-    case "needs-you":
-      return [
-        [0, 1],
-        [1, 1],
-        [0, 2],
-        [1, 2],
-        [3, 1],
-        [4, 1],
-        [3, 2],
-        [4, 2],
-        [2, 4, 0.75],
-      ];
-    case "replied":
-      return [
-        [1, 1],
-        [3, 1],
-        [0, 2, 0.85],
-        [1, 3, 0.85],
-        [2, 3, 0.85],
-        [3, 3, 0.85],
-        [4, 2, 0.85],
-      ];
-    case "failed":
-      return [
-        [1, 2, 0.85],
-        [3, 2, 0.85],
-        [1, 4, 0.6],
-        [2, 3, 0.6],
-        [3, 4, 0.6],
-      ];
-    case "scheduled":
-      return [
-        [0, 2, 0.6],
-        [1, 2, 0.6],
-        [3, 2, 0.6],
-        [4, 2, 0.6],
-      ];
-    case "paused":
-      return [
-        [1, 2, 0.45],
-        [3, 2, 0.45],
-      ];
-  }
-}
-
-/** Each state's body move, shared by the Pebble, the Mini and the Dot. */
+/** Each state's body move. */
 const BODY_MOTION: Partial<Record<FaceState, string>> = {
   idle: "motion-face-breathe",
   thinking: "motion-face-ponder",
@@ -1704,155 +1697,6 @@ const BODY_MOTION: Partial<Record<FaceState, string>> = {
   replied: "motion-face-sway",
   scheduled: "motion-face-doze",
 };
-
-/**
- * The Dot family: the preset's own silhouette in a deeper tone of its palette, with a 5 × 5 dot face
- * that lights up in each state's pattern. From 40px the unlit dots show faintly, like a small
- * screen; below that only the lit ones draw. Motion passes a light round the edge while it thinks,
- * a wave along the bottom while it works and types while it writes; its eyes blink when idle.
- */
-function Dot({
-  def,
-  pal,
-  state,
-  size,
-  motion,
-  ring,
-  uid,
-}: {
-  def: FacePresetDef;
-  pal: (typeof FACE_PALETTES)[number];
-  state: FaceState;
-  size: number;
-  motion: boolean;
-  ring: string;
-  uid: string;
-}) {
-  const darkInk = !!pal.glass || pal.id === "mist";
-  const lit = darkInk ? "var(--face-dot-ink)" : "var(--face-highlight)";
-  const rest = darkInk ? 0.08 : size >= 40 ? 0.11 : 0.13;
-  const a =
-    pal.dark || darkInk
-      ? "var(--fa)"
-      : "color-mix(in oklab, var(--fb) 85%, var(--fa))";
-  const b =
-    pal.dark || darkInk
-      ? "var(--fb)"
-      : "color-mix(in oklab, var(--fd) 80%, var(--fb))";
-  const g = 58;
-  const cell = g / 5;
-  // Small, the dots grow and the faint ones brighten, so a 16px face still reads.
-  const dr = cell * (size < 24 ? 0.48 : size < 40 ? 0.44 : 0.41);
-  const ox = 50 - g / 2;
-  const oy = 50 - g / 2;
-  const map = new Map<string, number>();
-  for (const [x, y, v = 1] of dotCells(def, state))
-    map.set(`${x},${y}`, size < 24 ? Math.max(v, 0.75) : v);
-  const chase = state === "thinking";
-  const wave = state === "working";
-  const typed = state === "writing";
-  const glow = size >= 28 && !darkInk;
-  const blinks = motion && state === "idle";
-  const cells: React.ReactNode[] = [];
-  const eyes: React.ReactNode[] = [];
-  for (let y = 0; y < 5; y++)
-    for (let x = 0; x < 5; x++) {
-      const v = map.get(`${x},${y}`) ?? 0;
-      const per = chase
-        ? PERIMETER.findIndex(([px, py]) => px === x && py === y)
-        : -1;
-      // The still face is the cells alone; motion adds a light that passes over some of them,
-      // so the still pose (and reduced motion) is the same face either way.
-      const passes =
-        motion && ((chase && per >= 0 && v === 0) || (wave && y === 4));
-      const types = motion && typed && y === 3 && x >= 1 && x <= 3;
-      // Below 40px an unlit dot isn't drawn at all, with motion or without.
-      const base = v > 0 || size >= 40;
-      if (!base && !passes) continue;
-      const cx = n2(ox + cell * (x + 0.5));
-      const cy = n2(oy + cell * (y + 0.5));
-      if (base) {
-        const dotEl = (
-          <circle
-            key={`${x}${y}`}
-            cx={cx}
-            cy={cy}
-            r={n2(dr * (0.6 + 0.4 * v))}
-            fill={lit}
-            fillOpacity={n2(v ? rest + (1 - rest) * v : rest)}
-            className={types ? "motion-face-type" : undefined}
-            style={
-              types ? ({ "--face-dot": x } as React.CSSProperties) : undefined
-            }
-          />
-        );
-        if (blinks && v > 0 && (y === 1 || y === 2)) eyes.push(dotEl);
-        else cells.push(dotEl);
-      }
-      if (passes)
-        cells.push(
-          <circle
-            key={`p${x}${y}`}
-            cx={cx}
-            cy={cy}
-            r={n2(dr * 0.85)}
-            fill={lit}
-            opacity={0}
-            className={chase ? "motion-face-chase" : "motion-face-wave"}
-            style={{ "--face-dot": chase ? per : x } as React.CSSProperties}
-          />,
-        );
-    }
-  // The blink closes the eyes where they are: tall eyes span rows 1–2, round eyes sit on row 2.
-  const eyeOrigin = {
-    transformOrigin: `50px ${n2(oy + cell * (def.eyes === "tall" ? 2 : 2.5))}px`,
-  };
-  return (
-    <>
-      <g
-        key={state}
-        className={motion ? "motion-face-change" : undefined}
-        style={MINI_ORIGIN}
-      >
-        <g
-          className={motion ? BODY_MOTION[state] : undefined}
-          style={MINI_ORIGIN}
-        >
-          <Shade
-            id={`${uid}-d`}
-            d={dotPath(def)}
-            state={state}
-            motion={motion}
-            pal={pal}
-            a={a}
-            b={b}
-            cx={50}
-            cy={50}
-            r={46}
-            light={0.45}
-            effects={false}
-          />
-          <g
-            clipPath={`url(#${uid}-d-c)`}
-            style={
-              glow
-                ? { filter: "drop-shadow(0 0 2.5px var(--face-highlight))" }
-                : undefined
-            }
-          >
-            {cells}
-            {eyes.length ? (
-              <g className="motion-face-blink" style={eyeOrigin}>
-                {eyes}
-              </g>
-            ) : null}
-          </g>
-        </g>
-      </g>
-      <Badge state={state} size={size} ring={ring} motion={motion} />
-    </>
-  );
-}
 
 function Mini({
   def,
@@ -1957,19 +1801,16 @@ function AgentFace({
   const face = agentFaceFor({ name, face: faceProp });
   const def = facePreset(face.preset);
   const pal = paletteOf(face.palette);
-  const family: FaceFamily = face.family ?? "pebble";
-  const dot = family === "dot";
-  const mini = !dot && size < 40;
+  const mini = size < 40;
   const named = Boolean(label);
   return (
     <svg
       data-slot="agent-face"
-      data-family={family}
-      data-form={dot ? "dot" : mini ? "mini" : "pebble"}
+      data-form={mini ? "mini" : "pebble"}
       data-state={state}
       data-preset={def.id}
       data-palette={pal.id}
-      viewBox={dot || mini ? "0 0 100 100" : PEBBLE_BOX}
+      viewBox={mini ? "0 0 100 100" : PEBBLE_BOX}
       width={size}
       height={size}
       role={named ? "img" : undefined}
@@ -1987,7 +1828,7 @@ function AgentFace({
       }}
       {...props}
     >
-      {halo && (dot || mini) ? (
+      {halo && mini ? (
         <path
           d={dotPath(def)}
           fill="none"
@@ -1996,17 +1837,7 @@ function AgentFace({
           strokeLinejoin="round"
         />
       ) : null}
-      {dot ? (
-        <Dot
-          def={def}
-          pal={pal}
-          state={state}
-          size={size}
-          motion={motion}
-          ring={ring}
-          uid={uid}
-        />
-      ) : mini ? (
+      {mini ? (
         <Mini
           def={def}
           pal={pal}

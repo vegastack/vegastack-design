@@ -320,6 +320,11 @@ const PRESETS = [
         roundedPoly(p, [c.top, c.ur, c.lr, c.bot, c.ll, c.ul], k * 0.2),
       );
     },
+    // The face is drawn on the cube's lit right side.
+    faceArea: () => {
+      const c = cubePts(0.98);
+      return [c.c, c.ur, c.lr, c.bot];
+    },
     faces: () => {
       const c = cubePts(0.98);
       return [
@@ -350,8 +355,8 @@ const PRESETS = [
     mouth: true,
     eye: { y: -0.26, sep: 0.21, s: 0.8 },
     layers: [
-      { cx: 0, cy: 0.4, rx: 1.0, ry: 0.52, mix: 1, lift: 0 },
-      { cx: 0, cy: -0.24, rx: 0.72, ry: 0.44, mix: 1, lift: 0.12 },
+      { cx: 0, cy: 0.4, rx: 1.0, ry: 0.52, shade: 0.22, lift: 0 },
+      { cx: 0, cy: -0.24, rx: 0.72, ry: 0.44, shade: 0, lift: 0.12 },
     ],
     ball: { cx: 0, cy: -0.9, r: 0.22 },
     dot: () =>
@@ -409,7 +414,7 @@ const PRESETS = [
       cy: 0.5 - i * 0.45,
       rx: 1.0 - i * 0.06,
       ry: 0.34,
-      mix: i / 2,
+      shade: (2 - i) * 0.2,
       lift: 0,
     })),
     dot: () =>
@@ -496,6 +501,12 @@ const PRESETS = [
       return pebbleFromPath((p) =>
         roundedPoly(p, [c.top, c.ur, c.lr, c.bot, c.ll, c.ul], k * 0.2),
       );
+    },
+    // Small, the cube's side can't hold a face between its edge and the ring, so the face spans the
+    // lit top and right sides (never the shaded left one).
+    faceArea: () => {
+      const c = cubePts(0.78);
+      return [c.top, c.ur, c.lr, c.bot, c.c, c.ul];
     },
     faces: () => {
       const c = cubePts(0.78);
@@ -617,10 +628,67 @@ function inPoly(pts, x, y) {
   return inside;
 }
 
+// ---------- the face area ----------
+// Where a Pebble's eyes, brows and mouth may sit: the top layer of a layered preset, the side a cube
+// draws its face on, else the body. Stored as a rectangle in box units round the resting eye centre:
+// every row of it holds the resting features' width (`sep` plus an eye) inset by FACE_MARGIN, so the
+// component can move the features anywhere inside it (a state's look, the eyes' glance) and they stay
+// on the face.
+const FACE_MARGIN = 2.6;
+function faceArea(p, body) {
+  const E = { x: 0, y: -0.04, sep: 0.26, s: 1, ...(p.eye ?? {}) };
+  let inside;
+  if (p.layers) {
+    const L = p.layers[p.layers.length - 1];
+    inside = inEllipse(CX + L.cx * R, CY + L.cy * R, L.rx * R, L.ry * R);
+  } else {
+    const poly = p.faceArea ? toPebble(p.faceArea()) : body.pts;
+    inside = (x, y) => inPoly(poly, x, y);
+  }
+  const ins = (x, y) => {
+    if (!inside(x, y)) return false;
+    for (let k = 0; k < 8; k++) {
+      const a = (k * TAU) / 8;
+      if (!inside(x + Math.cos(a) * FACE_MARGIN, y + Math.sin(a) * FACE_MARGIN))
+        return false;
+    }
+    return true;
+  };
+  const ew = R * (p.eyes === "round" ? 0.19 : 0.15) * E.s;
+  const hw = E.sep * R + ew;
+  const ex = CX + E.x * R;
+  const ey = CY + E.y * R;
+  const rowOk = (y) => {
+    for (let x = ex - hw; x <= ex + hw + 1e-9; x += 0.25)
+      if (!ins(x, y)) return false;
+    return true;
+  };
+  if (!rowOk(ey)) {
+    failures.push(`${p.id}: its eyes don't fit their face area at rest`);
+    return null;
+  }
+  let top = ey;
+  while (rowOk(top - 0.1)) top -= 0.1;
+  let bottom = ey;
+  while (rowOk(bottom + 0.1)) bottom += 0.1;
+  let left = -Infinity;
+  let right = Infinity;
+  for (let y = top; y <= bottom + 1e-9; y += 0.25) {
+    let l = ex;
+    while (ins(l - 0.1, y)) l -= 0.1;
+    let r = ex;
+    while (ins(r + 0.1, y)) r += 0.1;
+    left = Math.max(left, l);
+    right = Math.min(right, r);
+  }
+  const r1 = (v) => Math.round(v * 10) / 10;
+  return { top: r1(top), bottom: r1(bottom), left: r1(left), right: r1(right) };
+}
+
 // ---------- palettes (the accent theme colours, accent-themes plan §2) ----------
 // a = the light tone, b = the theme colour's dark-mode text value, deep = its light fill. Ink stands
-// in for Black; Mist and Glass are the neutrals. `mark` is the cue colour on each theme;
-// `companion` colours a cairn's top stone and a stack's lower layers.
+// in for Black; Mist and Glass are the neutrals. `mark` is the cue colour on each theme. Every part
+// of a Pebble is its own palette: a Stack's lower layers and a Cairn's stones step deeper by shade.
 const PALETTES = {
   blue: {
     name: "Blue",
@@ -628,7 +696,6 @@ const PALETTES = {
     b: "#5F9DF8",
     deep: "#0065DA",
     mark: ["#0065DA", "#5F9DF8"],
-    companion: "teal",
   },
   violet: {
     name: "Violet",
@@ -636,7 +703,6 @@ const PALETTES = {
     b: "#A68CFA",
     deep: "#7A4ADC",
     mark: ["#7A4ADC", "#A68CFA"],
-    companion: "blue",
   },
   pink: {
     name: "Pink",
@@ -644,7 +710,6 @@ const PALETTES = {
     b: "#EC77A3",
     deep: "#C32470",
     mark: ["#C32470", "#EC77A3"],
-    companion: "orange",
   },
   orange: {
     name: "Orange",
@@ -652,7 +717,6 @@ const PALETTES = {
     b: "#DD865F",
     deep: "#B14802",
     mark: ["#B14802", "#DD865F"],
-    companion: "pink",
   },
   green: {
     name: "Green",
@@ -660,7 +724,6 @@ const PALETTES = {
     b: "#68AC77",
     deep: "#037936",
     mark: ["#037936", "#68AC77"],
-    companion: "teal",
   },
   teal: {
     name: "Teal",
@@ -668,7 +731,6 @@ const PALETTES = {
     b: "#5EA9A4",
     deep: "#007671",
     mark: ["#007671", "#5EA9A4"],
-    companion: "green",
   },
   ink: {
     name: "Ink",
@@ -676,7 +738,6 @@ const PALETTES = {
     b: "#1C1C22",
     deep: "#09090C",
     mark: ["#7A4ADC", "#A68CFA"],
-    companion: "violet",
     dark: true,
     // On a dark page Ink lifts off it (face-ink-* in semantic.dark.tokens.json).
     onDark: { a: "#7A7A88", b: "#43434F", deep: "#26262E" },
@@ -687,7 +748,7 @@ const PALETTES = {
     b: "#D3D3DC",
     deep: "#9A9AA8",
     mark: ["#7A4ADC", "#A68CFA"],
-    companion: "orange",
+    neutral: true,
   },
   glass: {
     name: "Glass",
@@ -695,7 +756,7 @@ const PALETTES = {
     b: "#DCE3F2",
     deep: "#9FA6C0",
     mark: ["#7A4ADC", "#A68CFA"],
-    companion: "violet",
+    neutral: true,
     glass: ["#FAB0D8", "#A6BEFC", "#96E2CE"],
   },
 };
@@ -797,7 +858,7 @@ const out = PRESETS.map((p) => {
           cy: +fmt(CY + L.cy * R),
           rx: +fmt(L.rx * R),
           ry: +fmt(L.ry * R),
-          mix: L.mix,
+          shade: L.shade,
           lift: L.lift,
         })),
       }),
@@ -816,6 +877,7 @@ const out = PRESETS.map((p) => {
         },
       }),
       ...(p.faces && { faces: p.faces() }),
+      face: faceArea(p, body),
     },
     dot: {
       d: dotD,
@@ -860,7 +922,19 @@ if (failures.length) {
 }
 
 // The phone reads every path whole; the web's copy stores a body-derived Mini as its fit only.
-const presets = out.map(({ _metrics, _fromBody, ...d }) => d);
+// The phone reads layers' legacy \`mix\` (companion → own colour): 1 keeps every layer the face's own
+// palette, the same single-colour result as \`shade\` without the step.
+const presets = out.map(({ _metrics, _fromBody, ...d }) =>
+  d.pebble.layers
+    ? {
+        ...d,
+        pebble: {
+          ...d.pebble,
+          layers: d.pebble.layers.map((L) => ({ ...L, mix: 1 })),
+        },
+      }
+    : d,
+);
 const webPresets = out.map(({ _metrics, _fromBody, ...d }) =>
   _fromBody ? { ...d, dot: { fit: d.dot.fit } } : d,
 );
@@ -888,10 +962,16 @@ export interface FacePresetDef {
   motion?: "spin" | "rock" | "slide";
   pebble: {
     d?: string;
-    layers?: { d: string; cx: number; cy: number; rx: number; ry: number; mix: number; lift: number }[];
+    /** A layered preset's discs, bottom first: \`shade\` deepens a lower one toward the palette's \`b\`, \`lift\` lightens it. */
+    layers?: { d: string; cx: number; cy: number; rx: number; ry: number; shade: number; lift: number }[];
     ring?: { rx: number; ry: number; tilt: number };
     ball?: { cx: number; cy: number; r: number };
     faces?: { d: string; tone: "light" | "shade" | "facet-light" | "facet-shade" }[];
+    /**
+     * Where the eyes, brows and mouth may sit (box units): every row of it holds the resting
+     * features' width, so they can move anywhere inside it and stay on the face.
+     */
+    face: { top: number; bottom: number; left: number; right: number };
   };
   /**
    * The Mini's silhouette in its 100-unit box: its own path, or the
@@ -905,13 +985,13 @@ export const FACE_PRESETS: readonly FacePresetDef[] = ${JSON.stringify(webPreset
 /** Every preset id, in catalogue order. */
 export const FACE_PRESET_IDS = FACE_PRESETS.map((p) => p.id) as readonly FacePreset[];
 
-/** Every palette, in picker order, with its name and companion (a cairn's stone, a stack's lower layers). */
-export const FACE_PALETTES: readonly { id: FacePalette; name: string; companion: FacePalette; dark?: true; glass?: true }[] = ${JSON.stringify(
+/** Every palette, in picker order, with its name. Every part of a Pebble is drawn in its own palette. */
+export const FACE_PALETTES: readonly { id: FacePalette; name: string; dark?: true; neutral?: true; glass?: true }[] = ${JSON.stringify(
   Object.entries(PALETTES).map(([id, p]) => ({
     id,
     name: p.name,
-    companion: p.companion,
     ...(p.dark && { dark: true }),
+    ...(p.neutral && { neutral: true }),
     ...(p.glass && { glass: true }),
   })),
   null,
@@ -945,7 +1025,9 @@ const json =
             deep: p.deep,
             mark: { light: p.mark[0], dark: p.mark[1] },
             ink: p.dark ? "#FFFFFF" : "#231D38",
-            companion: p.companion,
+            // The phone app still reads \`companion\`: naming the palette itself draws every part in it.
+            companion: id,
+            ...(p.neutral && { neutral: true }),
             ...(p.dark && { dark: true }),
             ...(p.onDark && { onDark: p.onDark }),
             ...(p.glass && { glass: p.glass }),

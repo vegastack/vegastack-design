@@ -47,27 +47,6 @@ test("the Pebble from 40px and the Mini below, at the size asked, named for scre
   await expectNoA11yViolations(screen.container);
 });
 
-test("the Dot family draws the dot face at every size; a face with no family is a Pebble", async () => {
-  const dots: AgentFaceSpec = { ...scout, family: "dot" };
-  const screen = await render(
-    <div className="flex gap-2">
-      <AgentFace face={dots} size={64} label="" />
-      <AgentFace face={dots} size={20} label="" />
-      <AgentFace face={scout} size={64} label="" />
-    </div>,
-  );
-  const [large, small, legacy] =
-    screen.container.querySelectorAll<SVGSVGElement>(
-      '[data-slot="agent-face"]',
-    );
-  expect(large!.dataset.form).toBe("dot");
-  expect(small!.dataset.form).toBe("dot");
-  expect(legacy!.dataset.family).toBe("pebble");
-  expect(legacy!.dataset.form).toBe("pebble");
-  // A Dot has no cue: its dots show the state.
-  expect(large!.querySelector('[data-slot="agent-face-cue"]')).toBeNull();
-});
-
 test("every state has its own cue beside the Pebble's head; idle has none", async () => {
   const cues: Partial<Record<FaceState, string>> = {
     thinking: "thought",

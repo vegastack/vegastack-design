@@ -1,6 +1,6 @@
 ---
 title: Agent Face
-description: "An agent's face: Pebbles or Dots, a preset character and a palette, showing what it is doing. CSS only, still under reduced motion."
+description: "An agent's face: a preset character in a palette, showing what it is doing. CSS only, still under reduced motion."
 audience: public
 registry: agent-face
 status: preview
@@ -27,11 +27,9 @@ import { AgentFace } from "@/components/ui/agent-face";
 />;
 ```
 
-Agents are faces, not hexagons (BRD-13). Every agent is one of two families, one of 18 preset
-characters (shape, eyes and mouth, designed together) and one of 9 palettes built from the accent
-theme colours. **Pebbles** are soft characters with eyes, a mouth and a cue; **Dots** are the same
-silhouettes with a 5 × 5 dot face. `family` is optional on the spec: none means `pebble`. Avatars in
-rows, chips and stacks don't use this directly: [`PersonAvatar`](/docs/components/person-hover-card)
+Agents are faces, not hexagons (BRD-13). Every agent is a Pebble: one of 18 preset characters
+(shape, eyes and mouth, designed together) in one of 9 palettes built from the accent theme colours,
+a soft character with eyes, a mouth and a cue. Avatars in rows, chips and stacks don't use this directly: [`PersonAvatar`](/docs/components/person-hover-card)
 draws an agent's face from `person.face`. Use `AgentFace` on its own for a face picker, an agent's
 header or an onboarding moment.
 
@@ -43,23 +41,14 @@ header or an onboarding moment.
 
 ## Examples
 
-### Families
-
-A Pebble draws the soft character from 40px and the Mini below. A Dot draws the dot face at every
-size: from 40px its unlit dots show faintly, like a small screen; below that only the lit ones draw,
-larger. Its states are dot patterns: eyes up while it thinks (a light runs round the edge), a bar
-along the bottom while it works (a wave passes along it), three dots typing while it writes, and the
-same badges as the Mini for the states that need a person. Its eyes blink when idle.
-
-<ComponentPreview
-  name="agentFaceFamilies"
-  file="components/preview/agent-face.tsx"
-/>
-
 ### Presets
 
 No preset's silhouette reads as a circle (a person) or a rounded square (a team or workspace): the
-generator, `tooling/agent-face-spec.mjs`, fails the build if one does.
+generator, `tooling/agent-face-spec.mjs`, fails the build if one does. The generator also works
+out each preset's face area (the top layer of a Stack or Cairn, the lit side of a Prism, else the
+body), and the eyes, brows and mouth never leave it: a state's look (up while it thinks, down while
+it writes) moves them only as far as the face holds them, and where a face is small the eyes'
+glance and scan travel less.
 
 <ComponentPreview
   name="agentFacePresets"
@@ -70,7 +59,9 @@ generator, `tooling/agent-face-spec.mjs`, fails the build if one does.
 
 Blue, Violet, Pink, Orange, Green and Teal take the accent theme colours: the light tone, the theme
 colour's dark-mode text value and its light fill. Ink stands in for Black; Mist and Glass are the
-neutrals. Each palette has a companion that colours a Cairn's top stone and a Stack's lower layers.
+neutrals. A face is one colour throughout: a Stack's lower layers and a Cairn's base step a little
+deeper in the same palette, so the layers read by their shading. On a light page Mist and Glass
+give the thought cloud a deeper edge, so it doesn't vanish into the page.
 
 <ComponentPreview
   name="agentFacePalettes"
@@ -84,9 +75,9 @@ you; blue: something new for you; red: it is stuck; grey: it isn't running), and
 can't act. On a Pebble from 40px each state has a cue on the head's shoulder, made of the face's own material
 and moving with its head: a thought cloud while it thinks, a turning gear while it works, a speech
 bubble while it writes, amber ticks when it needs you, sparkles when it replied, a red alert when it
-failed, z's when it is scheduled and a pause sign when it is paused. The Mini and the Dot badge only
-the states that need a person: amber, blue and red; a Dot shows the rest in its dots. A state change blinks, squashes once and springs the new
-cue.
+failed, z's when it is scheduled and a pause sign when it is paused. The Mini badges only the
+states that need a person: amber, blue and red. A state change blinks, squashes once and springs
+the new cue.
 
 | State     | Eyes and mouth                                         | Body                               | Cue           |
 | --------- | ------------------------------------------------------ | ---------------------------------- | ------------- |

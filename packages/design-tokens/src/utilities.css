@@ -1325,6 +1325,8 @@
     infinite;
   animation-delay: calc(var(--face-seed, 0) * -1.37s);
 }
+/* The eyes' moves scale by --face-room, which a Pebble sets below 1 where its face area can't hold
+   their full travel (agent-face.tsx `room`). */
 @keyframes vs-face-glance {
   0%,
   50%,
@@ -1333,11 +1335,17 @@
   }
   18%,
   34% {
-    transform: translate(2.1px, 0.6px);
+    transform: translate(
+      calc(2.1px * var(--face-room, 1)),
+      calc(0.6px * var(--face-room, 1))
+    );
   }
   66%,
   84% {
-    transform: translate(-2.1px, -0.4px);
+    transform: translate(
+      calc(-2.1px * var(--face-room, 1)),
+      calc(-0.4px * var(--face-room, 1))
+    );
   }
 }
 @utility motion-face-glance {
@@ -1350,10 +1358,16 @@
     transform: translate(0, 0);
   }
   35% {
-    transform: translate(1.4px, -0.5px);
+    transform: translate(
+      calc(1.4px * var(--face-room, 1)),
+      calc(-0.5px * var(--face-room, 1))
+    );
   }
   70% {
-    transform: translate(-0.6px, 0.3px);
+    transform: translate(
+      calc(-0.6px * var(--face-room, 1)),
+      calc(0.3px * var(--face-room, 1))
+    );
   }
 }
 @utility motion-face-drift {
@@ -1366,11 +1380,11 @@
   }
   6%,
   44% {
-    transform: translateX(3.1px);
+    transform: translateX(calc(3.1px * var(--face-room, 1)));
   }
   56%,
   94% {
-    transform: translateX(-3.1px);
+    transform: translateX(calc(-3.1px * var(--face-room, 1)));
   }
 }
 @utility motion-face-scan {
@@ -1382,10 +1396,10 @@
     transform: translateX(0);
   }
   42% {
-    transform: translateX(2.8px);
+    transform: translateX(calc(2.8px * var(--face-room, 1)));
   }
   50% {
-    transform: translateX(-2.8px);
+    transform: translateX(calc(-2.8px * var(--face-room, 1)));
   }
 }
 @utility motion-face-read {
@@ -1592,34 +1606,6 @@
 }
 @utility motion-face-change {
   animation: vs-face-change 0.42s ease-out 1;
-}
-@keyframes vs-face-chase {
-  0%,
-  22%,
-  100% {
-    opacity: 0;
-  }
-  6% {
-    opacity: 1;
-  }
-}
-@utility motion-face-chase {
-  animation: vs-face-chase 2.3s linear infinite;
-  animation-delay: calc(var(--face-dot, 0) * 0.143s);
-}
-@keyframes vs-face-wave {
-  0%,
-  40%,
-  100% {
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-}
-@utility motion-face-wave {
-  animation: vs-face-wave 1.4s ease-in-out infinite;
-  animation-delay: calc(var(--face-dot, 0) * 0.2s);
 }
 @keyframes vs-face-change-eyes {
   0%,

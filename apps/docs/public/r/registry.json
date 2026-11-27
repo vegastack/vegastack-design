@@ -18180,7 +18180,7 @@
         "whenToUse": "Listing the presets and palettes (a face picker) or reading a preset's shape.",
         "whenNotToUse": "Drawing a face (AgentFace) or an agent's avatar (PersonAvatar).",
         "version": "0.136.7",
-        "integrity": "sha256-11RgGgrTerO8veQyex8FyK2epCzrsCj+O+QUbm7+ACA="
+        "integrity": "sha256-c1KG/rKoW36/igjGzO9dJX+L1ICix0UnaJj893LetZs="
       }
     },
     {
@@ -18210,7 +18210,7 @@
         "whenToUse": "An agent's face on its own: a face picker, an agent's header, an onboarding moment. Avatars in rows and stacks use PersonAvatar, which draws it.",
         "whenNotToUse": "A person, team or workspace (PersonAvatar); a loader (Spinner, TextSpinner).",
         "version": "0.136.8",
-        "integrity": "sha256-W98lKk7FwpcYvcMC5b6IgfxYX0U+2ioNR7PUBCGPZW4="
+        "integrity": "sha256-3WwjkoigDSS0bg8LaiDyE4glLG/H8r4agsRm/5v8QG0="
       }
     },
     {

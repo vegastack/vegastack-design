@@ -2158,24 +2158,6 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
-        },
-        {
-          "name": "FACE_FAMILIES",
-          "kind": "component-constant",
-          "source": "packages/ui/registry/ui/agent-face.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
-        },
-        {
-          "name": "FaceFamily",
-          "kind": "type",
-          "source": "packages/ui/registry/ui/agent-face.tsx",
-          "ref": {
-            "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
-          }
         }
       ],
       "variants": {
@@ -2273,12 +2255,8 @@
         "AgentFace": {
           "attributes": [
             {
-              "name": "data-family",
-              "values": []
-            },
-            {
               "name": "data-form",
-              "values": ["dot", "mini", "pebble"]
+              "values": ["mini", "pebble"]
             },
             {
               "name": "data-palette",
