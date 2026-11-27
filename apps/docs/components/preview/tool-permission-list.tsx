@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from "react";
 import { GitBranch } from "lucide-react";
 import { Wrapper } from "./wrapper";
+import type { ToolClass } from "@/components/ui/ask-card";
 // Copied INTO apps/docs via `shadcn add @vegastack/tool-permission-list` (dogfoods the registry) → auto-scanned.
 import {
   ToolPermissionList,
@@ -16,8 +17,10 @@ const ALL: ToolAnswer[] = ["allow", "ask", "block"];
 function tool(
   id: string,
   label: string,
-  rowClass: ToolPermissionRow["class"],
-  overrides: Partial<ToolPermissionRow> = {},
+  rowClass: ToolClass,
+  overrides: Partial<
+    Extract<ToolPermissionRow, { kind: "tool" | "class" }>
+  > = {},
 ): ToolPermissionRow {
   return {
     id: `tool:${id}`,
@@ -152,23 +155,34 @@ function apply(
   });
 }
 
-/** "Use the default": the row's own rules go and it follows its default again. */
+/**
+ * "Use the default": the row's own rules go and it follows its default again — a class follows
+ * All tools, a tool its class.
+ */
 function followDefault(
   rows: ToolPermissionRow[],
   id: string,
+  parentAnswer?: ToolAnswer,
 ): ToolPermissionRow[] {
+  const allAnswer = rows.find((row) => row.kind === "all")?.answer;
   return rows.map((row) => {
-    const next =
+    const fallback =
+      parentAnswer ?? (row.kind === "all" ? undefined : allAnswer);
+    const next: ToolPermissionRow =
       row.id === id
         ? {
             ...row,
             rules: undefined,
+            answer: fallback ?? row.answer,
             inherited: true,
             inheritedFrom: row.defaultFrom ?? row.inheritedFrom,
           }
         : row;
     return next.children
-      ? { ...next, children: followDefault(next.children, id) }
+      ? {
+          ...next,
+          children: followDefault(next.children, id, next.answer),
+        }
       : next;
   });
 }

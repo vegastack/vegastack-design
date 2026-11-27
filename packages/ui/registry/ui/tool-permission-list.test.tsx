@@ -12,7 +12,9 @@ import {
 const tool = (
   id: string,
   label: string,
-  overrides: Partial<ToolPermissionRow> = {},
+  overrides: Partial<
+    Extract<ToolPermissionRow, { kind: "tool" | "class" }>
+  > = {},
 ): ToolPermissionRow => ({
   id: `tool:${id}`,
   label,
@@ -158,11 +160,23 @@ test("a row's menu offers only its answersAllowed, with the exact copy; a class 
   expect(onChange).toHaveBeenCalledWith("class:write", { answer: "block" });
 });
 
-test("All tools leads, above the classes, with no fold toggle, its label aligned with the class labels", async () => {
+test("All tools leads, above the classes, with no fold toggle, its label aligned with every class label", async () => {
   const screen = await render(
     <ToolPermissionList
       title="GitHub"
-      rows={[...ROWS.slice(1), ROWS[0]!]}
+      rows={[
+        {
+          id: "class:read",
+          label: "Read · 0",
+          kind: "class",
+          class: "read",
+          answer: "allow",
+          inherited: true,
+          answersAllowed: ["allow", "ask", "block"],
+        },
+        ...ROWS.slice(1),
+        ROWS[0]!,
+      ]}
       onChange={vi.fn()}
     />,
   );
@@ -180,7 +194,10 @@ test("All tools leads, above the classes, with no fold toggle, its label aligned
     rows[index]!.querySelector(
       '[data-slot="tool-permission-label"]',
     )!.getBoundingClientRect().left;
+  // All tools, an empty class (no ›) and a folding class: one label column.
+  expect(rows[1]!.getAttribute("data-kind")).toBe("class");
   expect(Math.abs(label(0) - label(1))).toBeLessThan(1);
+  expect(Math.abs(label(0) - label(2))).toBeLessThan(1);
 });
 
 test("the lock toggle reports the lock; Allow with a warning shows its line", async () => {

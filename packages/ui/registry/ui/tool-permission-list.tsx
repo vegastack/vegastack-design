@@ -1,4 +1,4 @@
-// @vegastack tool-permission-list@0.136.8 sha256-K8LJBmoixYyb1c+BxOS/UYZRFdDxWhEd0O7A5V4cDTk=
+// @vegastack tool-permission-list@0.136.8 sha256-0jTyvvNInkkEC/j0aTmaMKalfwF/IKBjtPy6AlrWbzM=
 
 "use client";
 
@@ -69,21 +69,14 @@ export type ToolRuleView = {
   editable: boolean;
 };
 
-/** The whole source, one class or one tool. */
-export type ToolPermissionRow = {
+/** What every row carries, whatever its kind. */
+type ToolPermissionRowBase = {
   /** Stable key: "all" | "class:write" | "tool:gmail_send" | "tool:create:task". */
   id: string;
   /** "All tools", "Gmail › Send", "Write · 31". */
   label: string;
   /** A muted line under the label. */
   hint?: string;
-  /**
-   * `all` answers every tool of the source and is drawn first, above the classes, with no
-   * children; a `class` row is the group of the tools in its `children`; a `tool` row is one tool.
-   */
-  kind: "all" | "class" | "tool";
-  /** Its permission class. Class and tool rows carry one; the `all` row has none. */
-  class?: ToolClass;
   /** The unconditional rule's answer, or the one it follows. */
   answer: ToolAnswer;
   /** The answer comes from elsewhere: shown muted with "From {inheritedFrom}". */
@@ -107,11 +100,31 @@ export type ToolPermissionRow = {
   answersAllowed: ToolAnswer[];
   /** Shown under the row while its answer is Allow. */
   warningOnAllow?: string;
-  /** The tools under a class row. */
+  /** The tools under a class row. An `all` row's are never drawn. */
   children?: ToolPermissionRow[];
   /** The rules at this layer on this row, keyed by rule. */
   rules?: ToolRuleView[];
 };
+
+/**
+ * The whole source, one class or one tool. `all` answers every tool of the source and is drawn
+ * first, above the classes, with no class and no tools under it; a `class` row is the group of the tools
+ * in its `children`; a `tool` row is one tool.
+ */
+export type ToolPermissionRow = ToolPermissionRowBase &
+  (
+    | {
+        /** The whole source's row ("All tools"). */
+        kind: "all";
+        class?: never;
+      }
+    | {
+        /** A class row is the group of the tools in its `children`. */
+        kind: "class" | "tool";
+        /** Its permission class. */
+        class: ToolClass;
+      }
+  );
 
 /** Handlers and modes every row shares. */
 interface RowHandlers {
@@ -515,11 +528,14 @@ function ClassGroup({
   row,
   query,
   defaultOpen,
+  gutter,
   handlers,
 }: {
   row: ToolPermissionRow;
   query: string;
   defaultOpen: boolean;
+  /** Another class in the list folds: hold the › column so every label lines up. */
+  gutter: boolean;
   handlers: RowHandlers;
 }) {
   const [open, setOpen] = React.useState(defaultOpen);
@@ -555,6 +571,8 @@ function ClassGroup({
               )}
             />
           </Button>
+        ) : gutter ? (
+          <span aria-hidden className="size-6 shrink-0" />
         ) : null}
         <div className="min-w-0 flex-1">
           <ToolPermissionRow row={row} {...handlers} />
@@ -753,6 +771,7 @@ export function ToolPermissionList({
                 row={row}
                 query={query}
                 defaultOpen={total <= 12}
+                gutter={hasGroups}
                 handlers={handlers}
               />
             ) : (
