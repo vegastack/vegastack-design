@@ -1,4 +1,4 @@
-// @vegastack agent-face@0.136.7 sha256-IFFnIJExH/1wMgS2g6zB+QAJbGIY69bE9iZ4V9auLKg=
+// @vegastack agent-face@0.136.7 sha256-Z8/RziL+lq1ZSM1SySw3UgEHVs6HUpHvyDqUGMTrioE=
 
 import * as React from "react";
 import { cn } from "@vegastack/design";
@@ -65,7 +65,7 @@ export interface AgentFaceProps extends Omit<
   name?: string;
   /** What it is doing. @default "idle" */
   state?: FaceState;
-  /** Its size in CSS pixels. Below 40 it draws the Mini; from 40 the Pebble. */
+  /** Its size in CSS pixels. A Pebble face draws the Mini below 40 and the Pebble from 40; a Dot face is a Dot at every size. */
   size: number;
   /**
    * Whether it moves. Pass `true` only where the person is looking at that agent (its chat, its
@@ -1803,7 +1803,10 @@ function Dot({
           />,
         );
     }
-  const eyeOrigin = { transformOrigin: `50px ${n2(oy + cell * 2)}px` };
+  // The blink closes the eyes where they are: tall eyes span rows 1–2, round eyes sit on row 2.
+  const eyeOrigin = {
+    transformOrigin: `50px ${n2(oy + cell * (def.eyes === "tall" ? 2 : 2.5))}px`,
+  };
   return (
     <>
       <g
