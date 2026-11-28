@@ -511,7 +511,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -520,7 +520,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -529,7 +529,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -538,7 +538,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -547,7 +547,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -556,7 +556,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -565,7 +565,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -574,7 +574,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -583,7 +583,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -592,7 +592,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -601,7 +601,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -610,7 +610,7 @@
           "source": "packages/ui/registry/ui/accent.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -1616,7 +1616,7 @@
           "source": "packages/ui/registry/ui/add-filter-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -1736,7 +1736,7 @@
           "source": "packages/ui/registry/ui/agent-directory-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -1745,7 +1745,7 @@
           "source": "packages/ui/registry/ui/agent-directory-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -1754,7 +1754,7 @@
           "source": "packages/ui/registry/ui/agent-directory-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -1763,7 +1763,7 @@
           "source": "packages/ui/registry/ui/agent-directory-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -1772,7 +1772,7 @@
           "source": "packages/ui/registry/ui/agent-directory-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -2111,7 +2111,7 @@
           "source": "packages/ui/registry/ui/agent-face.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -2120,7 +2120,7 @@
           "source": "packages/ui/registry/ui/agent-face.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -2129,7 +2129,7 @@
           "source": "packages/ui/registry/ui/agent-face.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -2138,7 +2138,7 @@
           "source": "packages/ui/registry/ui/agent-face.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -2147,7 +2147,7 @@
           "source": "packages/ui/registry/ui/agent-face.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -2156,7 +2156,7 @@
           "source": "packages/ui/registry/ui/agent-face.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -2499,7 +2499,7 @@
           "source": "packages/ui/registry/ui/agent-panel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -2508,7 +2508,7 @@
           "source": "packages/ui/registry/ui/agent-panel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -3459,7 +3459,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -3468,7 +3468,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -3477,7 +3477,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -3486,7 +3486,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -3495,7 +3495,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -3504,7 +3504,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -3513,7 +3513,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -3522,7 +3522,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -3531,7 +3531,7 @@
           "source": "packages/ui/registry/ui/ask-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -6622,7 +6622,7 @@
           "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -6631,7 +6631,7 @@
           "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -6640,7 +6640,7 @@
           "source": "packages/ui/registry/ui/breadcrumb-cascade.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -7932,7 +7932,7 @@
           "source": "packages/ui/registry/ui/chart.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -7941,7 +7941,7 @@
           "source": "packages/ui/registry/ui/chart.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -8062,7 +8062,7 @@
           "source": "packages/ui/registry/ui/chat-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8071,7 +8071,7 @@
           "source": "packages/ui/registry/ui/chat-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8080,7 +8080,7 @@
           "source": "packages/ui/registry/ui/chat-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8089,7 +8089,7 @@
           "source": "packages/ui/registry/ui/chat-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8098,7 +8098,7 @@
           "source": "packages/ui/registry/ui/chat-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8107,7 +8107,7 @@
           "source": "packages/ui/registry/ui/chat-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8116,7 +8116,7 @@
           "source": "packages/ui/registry/ui/chat-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -8287,7 +8287,7 @@
           "source": "packages/ui/registry/ui/chat-chip.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8296,7 +8296,7 @@
           "source": "packages/ui/registry/ui/chat-chip.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -8429,7 +8429,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8438,7 +8438,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8447,7 +8447,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8456,7 +8456,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8465,7 +8465,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8474,7 +8474,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8483,7 +8483,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8492,7 +8492,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8501,7 +8501,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8510,7 +8510,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8519,7 +8519,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8528,7 +8528,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8537,7 +8537,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8546,7 +8546,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8555,7 +8555,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8564,7 +8564,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8573,7 +8573,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8582,7 +8582,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8591,7 +8591,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8600,7 +8600,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8609,7 +8609,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8618,7 +8618,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8627,7 +8627,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8636,7 +8636,7 @@
           "source": "packages/ui/registry/ui/chat-composer.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -8919,7 +8919,7 @@
           "source": "packages/ui/registry/ui/chat-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8928,7 +8928,7 @@
           "source": "packages/ui/registry/ui/chat-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8937,7 +8937,7 @@
           "source": "packages/ui/registry/ui/chat-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8946,7 +8946,7 @@
           "source": "packages/ui/registry/ui/chat-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8955,7 +8955,7 @@
           "source": "packages/ui/registry/ui/chat-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8964,7 +8964,7 @@
           "source": "packages/ui/registry/ui/chat-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -8973,7 +8973,7 @@
           "source": "packages/ui/registry/ui/chat-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -9125,7 +9125,7 @@
           "source": "packages/ui/registry/ui/chat-message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9134,7 +9134,7 @@
           "source": "packages/ui/registry/ui/chat-message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9143,7 +9143,7 @@
           "source": "packages/ui/registry/ui/chat-message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9152,7 +9152,7 @@
           "source": "packages/ui/registry/ui/chat-message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9161,7 +9161,7 @@
           "source": "packages/ui/registry/ui/chat-message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9170,7 +9170,7 @@
           "source": "packages/ui/registry/ui/chat-message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -9276,7 +9276,7 @@
           "source": "packages/ui/registry/ui/chat-plan-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9285,7 +9285,7 @@
           "source": "packages/ui/registry/ui/chat-plan-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9294,7 +9294,7 @@
           "source": "packages/ui/registry/ui/chat-plan-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9303,7 +9303,7 @@
           "source": "packages/ui/registry/ui/chat-plan-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9312,7 +9312,7 @@
           "source": "packages/ui/registry/ui/chat-plan-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -9444,7 +9444,7 @@
           "source": "packages/ui/registry/ui/chat-question-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9453,7 +9453,7 @@
           "source": "packages/ui/registry/ui/chat-question-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9462,7 +9462,7 @@
           "source": "packages/ui/registry/ui/chat-question-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9471,7 +9471,7 @@
           "source": "packages/ui/registry/ui/chat-question-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9480,7 +9480,7 @@
           "source": "packages/ui/registry/ui/chat-question-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9489,7 +9489,7 @@
           "source": "packages/ui/registry/ui/chat-question-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -9609,7 +9609,7 @@
           "source": "packages/ui/registry/ui/chat-request-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9618,7 +9618,7 @@
           "source": "packages/ui/registry/ui/chat-request-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9627,7 +9627,7 @@
           "source": "packages/ui/registry/ui/chat-request-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9636,7 +9636,7 @@
           "source": "packages/ui/registry/ui/chat-request-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9645,7 +9645,7 @@
           "source": "packages/ui/registry/ui/chat-request-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9654,7 +9654,7 @@
           "source": "packages/ui/registry/ui/chat-request-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9663,7 +9663,7 @@
           "source": "packages/ui/registry/ui/chat-request-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9672,7 +9672,7 @@
           "source": "packages/ui/registry/ui/chat-request-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -9815,7 +9815,7 @@
           "source": "packages/ui/registry/ui/chat-skeleton.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9824,7 +9824,7 @@
           "source": "packages/ui/registry/ui/chat-skeleton.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9833,7 +9833,7 @@
           "source": "packages/ui/registry/ui/chat-skeleton.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9842,7 +9842,7 @@
           "source": "packages/ui/registry/ui/chat-skeleton.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -9950,7 +9950,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9959,7 +9959,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9968,7 +9968,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9977,7 +9977,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9986,7 +9986,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -9995,7 +9995,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10004,7 +10004,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10013,7 +10013,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10022,7 +10022,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10031,7 +10031,7 @@
           "source": "packages/ui/registry/ui/chat-subagents.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -10141,7 +10141,7 @@
           "source": "packages/ui/registry/ui/chat-task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10150,7 +10150,7 @@
           "source": "packages/ui/registry/ui/chat-task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10159,7 +10159,7 @@
           "source": "packages/ui/registry/ui/chat-task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10168,7 +10168,7 @@
           "source": "packages/ui/registry/ui/chat-task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10177,7 +10177,7 @@
           "source": "packages/ui/registry/ui/chat-task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10186,7 +10186,7 @@
           "source": "packages/ui/registry/ui/chat-task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -10291,7 +10291,7 @@
           "source": "packages/ui/registry/ui/chat-user-bubble.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10300,7 +10300,7 @@
           "source": "packages/ui/registry/ui/chat-user-bubble.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10309,7 +10309,7 @@
           "source": "packages/ui/registry/ui/chat-user-bubble.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -10417,7 +10417,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10426,7 +10426,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10435,7 +10435,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10444,7 +10444,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10453,7 +10453,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10462,7 +10462,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10471,7 +10471,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10480,7 +10480,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10489,7 +10489,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10498,7 +10498,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10507,7 +10507,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10516,7 +10516,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10525,7 +10525,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10534,7 +10534,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10543,7 +10543,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10552,7 +10552,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10561,7 +10561,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10570,7 +10570,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10579,7 +10579,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10588,7 +10588,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10597,7 +10597,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10606,7 +10606,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10615,7 +10615,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -10624,7 +10624,7 @@
           "source": "packages/ui/registry/ui/chat-work-log.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -14153,7 +14153,7 @@
           "source": "packages/ui/registry/ui/context-panel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -14162,7 +14162,7 @@
           "source": "packages/ui/registry/ui/context-panel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -14171,7 +14171,7 @@
           "source": "packages/ui/registry/ui/context-panel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -14180,7 +14180,7 @@
           "source": "packages/ui/registry/ui/context-panel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -14189,7 +14189,7 @@
           "source": "packages/ui/registry/ui/context-panel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -14198,7 +14198,7 @@
           "source": "packages/ui/registry/ui/context-panel.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -14576,7 +14576,7 @@
           "source": "packages/ui/registry/ui/coverage-banner.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -14585,7 +14585,7 @@
           "source": "packages/ui/registry/ui/coverage-banner.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -16845,7 +16845,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16854,7 +16854,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16863,7 +16863,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16872,7 +16872,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16881,7 +16881,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16890,7 +16890,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16899,7 +16899,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16908,7 +16908,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16917,7 +16917,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16926,7 +16926,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16935,7 +16935,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16944,7 +16944,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16953,7 +16953,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16962,7 +16962,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -16971,7 +16971,7 @@
           "source": "packages/ui/registry/ui/date-picker.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -17240,7 +17240,7 @@
           "source": "packages/ui/registry/ui/delegate-popover.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -17384,7 +17384,7 @@
           "source": "packages/ui/registry/ui/delegate-row.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -17393,7 +17393,7 @@
           "source": "packages/ui/registry/ui/delegate-row.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -17402,7 +17402,7 @@
           "source": "packages/ui/registry/ui/delegate-row.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -18074,7 +18074,7 @@
           "source": "packages/ui/registry/ui/digest-group.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -18083,7 +18083,7 @@
           "source": "packages/ui/registry/ui/digest-group.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -22470,7 +22470,7 @@
           "source": "packages/ui/registry/ui/field-cell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -22943,7 +22943,7 @@
           "source": "packages/ui/registry/ui/file-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -23070,7 +23070,7 @@
           "source": "packages/ui/registry/ui/file-preview.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -23079,7 +23079,7 @@
           "source": "packages/ui/registry/ui/file-preview.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -23306,7 +23306,7 @@
           "source": "packages/ui/registry/ui/file-viewer-office.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -23315,7 +23315,7 @@
           "source": "packages/ui/registry/ui/file-viewer-office.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -23324,7 +23324,7 @@
           "source": "packages/ui/registry/ui/file-viewer-office.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -23333,7 +23333,7 @@
           "source": "packages/ui/registry/ui/file-viewer-office.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -23342,7 +23342,7 @@
           "source": "packages/ui/registry/ui/file-viewer-office.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -24433,7 +24433,7 @@
           "source": "packages/ui/registry/ui/floating-cell-editor.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -24815,7 +24815,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24824,7 +24824,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24833,7 +24833,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24842,7 +24842,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24851,7 +24851,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24860,7 +24860,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24869,7 +24869,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24878,7 +24878,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24887,7 +24887,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -24896,7 +24896,7 @@
           "source": "packages/ui/registry/ui/for-you-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -25180,7 +25180,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25189,7 +25189,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25198,7 +25198,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25207,7 +25207,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25216,7 +25216,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25225,7 +25225,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25234,7 +25234,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25243,7 +25243,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25252,7 +25252,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25261,7 +25261,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25270,7 +25270,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25279,7 +25279,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25288,7 +25288,7 @@
           "source": "packages/ui/registry/ui/global-bar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -25383,7 +25383,7 @@
           "source": "packages/ui/registry/ui/health-indicator.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25392,7 +25392,7 @@
           "source": "packages/ui/registry/ui/health-indicator.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25401,7 +25401,7 @@
           "source": "packages/ui/registry/ui/health-indicator.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -25410,7 +25410,7 @@
           "source": "packages/ui/registry/ui/health-indicator.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -25549,7 +25549,7 @@
           "source": "packages/ui/registry/ui/heatmap.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -26596,7 +26596,7 @@
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -26605,7 +26605,7 @@
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -26614,7 +26614,7 @@
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -26623,7 +26623,7 @@
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -26632,7 +26632,7 @@
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -26641,7 +26641,7 @@
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -26650,7 +26650,7 @@
           "source": "packages/ui/registry/ui/inbox.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -28180,7 +28180,7 @@
           "source": "packages/ui/registry/ui/kpi-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28189,7 +28189,7 @@
           "source": "packages/ui/registry/ui/kpi-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28198,7 +28198,7 @@
           "source": "packages/ui/registry/ui/kpi-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28207,7 +28207,7 @@
           "source": "packages/ui/registry/ui/kpi-card.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -28436,7 +28436,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28445,7 +28445,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28454,7 +28454,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28463,7 +28463,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28472,7 +28472,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28481,7 +28481,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28490,7 +28490,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28499,7 +28499,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28508,7 +28508,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28517,7 +28517,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -28526,7 +28526,7 @@
           "source": "packages/ui/registry/ui/link-provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -29604,7 +29604,7 @@
           "source": "packages/ui/registry/ui/markdown-citation.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -29613,7 +29613,7 @@
           "source": "packages/ui/registry/ui/markdown-citation.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -29622,7 +29622,7 @@
           "source": "packages/ui/registry/ui/markdown-citation.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -29631,7 +29631,7 @@
           "source": "packages/ui/registry/ui/markdown-citation.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -29640,7 +29640,7 @@
           "source": "packages/ui/registry/ui/markdown-citation.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -29649,7 +29649,7 @@
           "source": "packages/ui/registry/ui/markdown-citation.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -30365,6 +30365,15 @@
             "status": "not-applicable",
             "rationale": "Type-only exports do not render or accept runtime refs."
           }
+        },
+        {
+          "name": "MediaMarker",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/media-player-controls.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Type-only exports do not render or accept runtime refs."
+          }
         }
       ],
       "variants": {
@@ -30519,7 +30528,7 @@
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -30538,7 +30547,7 @@
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -30547,7 +30556,7 @@
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -30556,7 +30565,7 @@
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -30565,7 +30574,7 @@
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -30574,7 +30583,7 @@
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -30583,7 +30592,7 @@
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -30602,7 +30611,7 @@
           "source": "packages/ui/registry/ui/meeting-icon.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -30970,7 +30979,7 @@
           "source": "packages/ui/registry/ui/members-stack.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -31112,7 +31121,7 @@
           "source": "packages/ui/registry/ui/memory-group.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -31121,7 +31130,7 @@
           "source": "packages/ui/registry/ui/memory-group.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -31130,7 +31139,7 @@
           "source": "packages/ui/registry/ui/memory-group.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -32249,7 +32258,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32258,7 +32267,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32267,7 +32276,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32276,7 +32285,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32285,7 +32294,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32294,7 +32303,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32303,7 +32312,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32312,7 +32321,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32321,7 +32330,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32330,7 +32339,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32339,7 +32348,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32348,7 +32357,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32357,7 +32366,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32366,7 +32375,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32375,7 +32384,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32384,7 +32393,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -32393,7 +32402,7 @@
           "source": "packages/ui/registry/ui/message-parts.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -33113,7 +33122,7 @@
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33122,7 +33131,7 @@
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33131,7 +33140,7 @@
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33140,7 +33149,7 @@
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33149,7 +33158,7 @@
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33158,7 +33167,7 @@
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33167,7 +33176,7 @@
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33176,7 +33185,7 @@
           "source": "packages/ui/registry/ui/milestone-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -33309,7 +33318,7 @@
           "source": "packages/ui/registry/ui/model-effort-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33318,7 +33327,7 @@
           "source": "packages/ui/registry/ui/model-effort-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33327,7 +33336,7 @@
           "source": "packages/ui/registry/ui/model-effort-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33336,7 +33345,7 @@
           "source": "packages/ui/registry/ui/model-effort-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -33345,7 +33354,7 @@
           "source": "packages/ui/registry/ui/model-effort-menu.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -34123,7 +34132,7 @@
           "source": "packages/ui/registry/ui/nav-tree.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -34132,7 +34141,7 @@
           "source": "packages/ui/registry/ui/nav-tree.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -34141,7 +34150,7 @@
           "source": "packages/ui/registry/ui/nav-tree.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -34150,7 +34159,7 @@
           "source": "packages/ui/registry/ui/nav-tree.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -34159,7 +34168,7 @@
           "source": "packages/ui/registry/ui/nav-tree.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -34168,7 +34177,7 @@
           "source": "packages/ui/registry/ui/nav-tree.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -35726,7 +35735,7 @@
           "source": "packages/ui/registry/ui/peek.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -36463,7 +36472,7 @@
           "source": "packages/ui/registry/ui/person-avatar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -36472,7 +36481,7 @@
           "source": "packages/ui/registry/ui/person-avatar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -36481,7 +36490,7 @@
           "source": "packages/ui/registry/ui/person-avatar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -36490,7 +36499,7 @@
           "source": "packages/ui/registry/ui/person-avatar.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -38060,7 +38069,7 @@
           "source": "packages/ui/registry/ui/provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38069,7 +38078,7 @@
           "source": "packages/ui/registry/ui/provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38078,7 +38087,7 @@
           "source": "packages/ui/registry/ui/provider.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -38918,7 +38927,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38927,7 +38936,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38936,7 +38945,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38945,7 +38954,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38954,7 +38963,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38963,7 +38972,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38972,7 +38981,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38981,7 +38990,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38990,7 +38999,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -38999,7 +39008,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -39008,7 +39017,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -39017,7 +39026,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -39026,7 +39035,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -39035,7 +39044,7 @@
           "source": "packages/ui/registry/ui/rail.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -40408,7 +40417,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40417,7 +40426,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40426,7 +40435,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40435,7 +40444,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40444,7 +40453,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40453,7 +40462,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40462,7 +40471,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40471,7 +40480,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40480,7 +40489,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40489,7 +40498,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40498,7 +40507,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40507,7 +40516,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40516,7 +40525,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40525,7 +40534,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40534,7 +40543,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40543,7 +40552,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40552,7 +40561,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40561,7 +40570,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40570,7 +40579,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40579,7 +40588,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -40588,7 +40597,7 @@
           "source": "packages/ui/registry/ui/record-layout-side.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -41697,7 +41706,7 @@
           "source": "packages/ui/registry/ui/relative-time.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -41835,7 +41844,7 @@
           "source": "packages/ui/registry/ui/request-status-chip.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -41844,7 +41853,7 @@
           "source": "packages/ui/registry/ui/request-status-chip.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -41853,7 +41862,7 @@
           "source": "packages/ui/registry/ui/request-status-chip.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -41862,7 +41871,7 @@
           "source": "packages/ui/registry/ui/request-status-chip.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -42122,7 +42131,7 @@
           "source": "packages/ui/registry/ui/resource-pill.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42131,7 +42140,7 @@
           "source": "packages/ui/registry/ui/resource-pill.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42140,7 +42149,7 @@
           "source": "packages/ui/registry/ui/resource-pill.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42149,7 +42158,7 @@
           "source": "packages/ui/registry/ui/resource-pill.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42158,7 +42167,7 @@
           "source": "packages/ui/registry/ui/resource-pill.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -42683,7 +42692,7 @@
           "source": "packages/ui/registry/ui/routine-row.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42692,7 +42701,7 @@
           "source": "packages/ui/registry/ui/routine-row.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42701,7 +42710,7 @@
           "source": "packages/ui/registry/ui/routine-row.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -42828,7 +42837,7 @@
           "source": "packages/ui/registry/ui/run-timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42837,7 +42846,7 @@
           "source": "packages/ui/registry/ui/run-timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42846,7 +42855,7 @@
           "source": "packages/ui/registry/ui/run-timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42855,7 +42864,7 @@
           "source": "packages/ui/registry/ui/run-timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -42864,7 +42873,7 @@
           "source": "packages/ui/registry/ui/run-timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -42992,7 +43001,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43001,7 +43010,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43010,7 +43019,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43019,7 +43028,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43028,7 +43037,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43037,7 +43046,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43046,7 +43055,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43055,7 +43064,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43064,7 +43073,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43073,7 +43082,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43082,7 +43091,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43091,7 +43100,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43100,7 +43109,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43109,7 +43118,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -43118,7 +43127,7 @@
           "source": "packages/ui/registry/ui/run-usage.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -45011,7 +45020,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45020,7 +45029,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45029,7 +45038,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45038,7 +45047,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45047,7 +45056,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45056,7 +45065,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45065,7 +45074,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45074,7 +45083,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45083,7 +45092,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45092,7 +45101,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45101,7 +45110,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45110,7 +45119,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45119,7 +45128,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45128,7 +45137,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45137,7 +45146,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45146,7 +45155,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45155,7 +45164,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45164,7 +45173,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45173,7 +45182,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45182,7 +45191,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45191,7 +45200,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45200,7 +45209,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45209,7 +45218,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45218,7 +45227,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45227,7 +45236,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45236,7 +45245,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45245,7 +45254,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45254,7 +45263,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45263,7 +45272,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45272,7 +45281,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45281,7 +45290,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45290,7 +45299,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45299,7 +45308,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45308,7 +45317,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45317,7 +45326,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45326,7 +45335,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45335,7 +45344,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45344,7 +45353,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45353,7 +45362,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45362,7 +45371,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45371,7 +45380,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45380,7 +45389,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45389,7 +45398,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45398,7 +45407,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45407,7 +45416,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45416,7 +45425,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45425,7 +45434,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45434,7 +45443,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45443,7 +45452,7 @@
           "source": "packages/ui/registry/ui/shell.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -45824,7 +45833,7 @@
           "source": "packages/ui/registry/ui/shell-assistant.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -45833,7 +45842,7 @@
           "source": "packages/ui/registry/ui/shell-assistant.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -46661,7 +46670,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -46670,7 +46679,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -46679,7 +46688,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -46688,7 +46697,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -46697,7 +46706,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -46706,7 +46715,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -46715,7 +46724,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -46724,7 +46733,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -46733,7 +46742,7 @@
           "source": "packages/ui/registry/ui/source-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -47487,7 +47496,7 @@
           "source": "packages/ui/registry/ui/status-glyph.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -47496,7 +47505,7 @@
           "source": "packages/ui/registry/ui/status-glyph.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -47505,7 +47514,7 @@
           "source": "packages/ui/registry/ui/status-glyph.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -49453,7 +49462,7 @@
           "source": "packages/ui/registry/ui/task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -49462,7 +49471,7 @@
           "source": "packages/ui/registry/ui/task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -49471,7 +49480,7 @@
           "source": "packages/ui/registry/ui/task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -49480,7 +49489,7 @@
           "source": "packages/ui/registry/ui/task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -49489,7 +49498,7 @@
           "source": "packages/ui/registry/ui/task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -49498,7 +49507,7 @@
           "source": "packages/ui/registry/ui/task-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -50399,7 +50408,7 @@
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -50408,7 +50417,7 @@
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -50417,7 +50426,7 @@
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -50426,7 +50435,7 @@
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -50435,7 +50444,7 @@
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -50444,7 +50453,7 @@
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -50453,7 +50462,7 @@
           "source": "packages/ui/registry/ui/text-edit.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -50689,7 +50698,7 @@
           "source": "packages/ui/registry/ui/text-spinner.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -50698,7 +50707,7 @@
           "source": "packages/ui/registry/ui/text-spinner.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -51146,7 +51155,7 @@
           "source": "packages/ui/registry/ui/timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -51155,7 +51164,7 @@
           "source": "packages/ui/registry/ui/timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -51164,7 +51173,7 @@
           "source": "packages/ui/registry/ui/timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -51173,7 +51182,7 @@
           "source": "packages/ui/registry/ui/timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -51182,7 +51191,7 @@
           "source": "packages/ui/registry/ui/timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -51191,7 +51200,7 @@
           "source": "packages/ui/registry/ui/timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -51200,7 +51209,7 @@
           "source": "packages/ui/registry/ui/timeline.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -52073,7 +52082,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -52082,7 +52091,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -52091,7 +52100,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -52100,7 +52109,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -52109,7 +52118,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -52118,7 +52127,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -52127,7 +52136,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -52136,7 +52145,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -52145,7 +52154,7 @@
           "source": "packages/ui/registry/ui/tool-permission-list.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -58313,7 +58322,7 @@
           "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -58322,7 +58331,7 @@
           "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -58331,7 +58340,7 @@
           "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -58340,7 +58349,7 @@
           "source": "packages/ui/registry/ui/use-stick-to-bottom.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -58419,7 +58428,7 @@
           "source": "packages/ui/registry/blocks/shell-01/page.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -58428,7 +58437,7 @@
           "source": "packages/ui/registry/blocks/shell-01/page.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -58437,7 +58446,7 @@
           "source": "packages/ui/registry/blocks/shell-01/page.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -60481,7 +60490,7 @@
           "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60490,7 +60499,7 @@
           "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60499,7 +60508,7 @@
           "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60508,7 +60517,7 @@
           "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60517,7 +60526,7 @@
           "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60526,7 +60535,7 @@
           "source": "packages/ui/registry/blocks/email-kit/action-email.tsx",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -60755,7 +60764,7 @@
           "source": "packages/ui/registry/lib/agent-face-spec.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60764,7 +60773,7 @@
           "source": "packages/ui/registry/lib/agent-face-spec.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60773,7 +60782,7 @@
           "source": "packages/ui/registry/lib/agent-face-spec.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60782,7 +60791,7 @@
           "source": "packages/ui/registry/lib/agent-face-spec.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60791,7 +60800,7 @@
           "source": "packages/ui/registry/lib/agent-face-spec.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60800,7 +60809,7 @@
           "source": "packages/ui/registry/lib/agent-face-spec.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60809,7 +60818,7 @@
           "source": "packages/ui/registry/lib/agent-face-spec.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -60818,7 +60827,7 @@
           "source": "packages/ui/registry/lib/agent-face-spec.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -61284,7 +61293,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61293,7 +61302,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61302,7 +61311,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61311,7 +61320,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61320,7 +61329,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61329,7 +61338,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61338,7 +61347,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61347,7 +61356,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61356,7 +61365,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61365,7 +61374,7 @@
           "source": "packages/ui/registry/lib/date-time.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -61701,7 +61710,7 @@
           "source": "packages/ui/registry/lib/embed-providers.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61710,7 +61719,7 @@
           "source": "packages/ui/registry/lib/embed-providers.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61719,7 +61728,7 @@
           "source": "packages/ui/registry/lib/embed-providers.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61728,7 +61737,7 @@
           "source": "packages/ui/registry/lib/embed-providers.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61737,7 +61746,7 @@
           "source": "packages/ui/registry/lib/embed-providers.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -61746,7 +61755,7 @@
           "source": "packages/ui/registry/lib/embed-providers.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -62019,7 +62028,7 @@
           "source": "packages/ui/registry/lib/file-kind.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -62028,7 +62037,7 @@
           "source": "packages/ui/registry/lib/file-kind.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -62993,7 +63002,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -63002,7 +63011,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -63011,7 +63020,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -63020,7 +63029,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -63029,7 +63038,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -63038,7 +63047,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -63047,7 +63056,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -63056,7 +63065,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -63065,7 +63074,7 @@
           "source": "packages/ui/registry/lib/shell-layout.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],
@@ -64266,7 +64275,7 @@
           "source": "packages/ui/registry/lib/text-edit-schema.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -64275,7 +64284,7 @@
           "source": "packages/ui/registry/lib/text-edit-schema.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -64284,7 +64293,7 @@
           "source": "packages/ui/registry/lib/text-edit-schema.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -64293,7 +64302,7 @@
           "source": "packages/ui/registry/lib/text-edit-schema.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         },
         {
@@ -64302,7 +64311,7 @@
           "source": "packages/ui/registry/lib/text-edit-schema.ts",
           "ref": {
             "status": "not-applicable",
-            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+            "rationale": "Type-only exports do not render or accept runtime refs."
           }
         }
       ],

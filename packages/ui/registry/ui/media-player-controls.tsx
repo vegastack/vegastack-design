@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.141.0 sha256-+wwD3vc7lK7kdDNqEYqz7frrIlR7NJbsSeFNyqTlAVY=
+// @vegastack media-player-controls@0.141.0 sha256-+VU9+FPpVSg7sElftAp3IWQ7P9lo4VRjdUk6opqQzyQ=
 
 "use client";
 
@@ -627,7 +627,9 @@ function MediaProgressSlider({
   const hoverMarker =
     hoverRatio == null || !markers?.length || max <= 0
       ? undefined
-      : markers.find((marker) => Math.abs(marker.at - hoverTime) <= max * 0.015);
+      : markers.find(
+          (marker) => Math.abs(marker.at - hoverTime) <= max * 0.015,
+        );
 
   return (
     <div
@@ -706,7 +708,11 @@ function MediaProgressSlider({
             .map((marker, index) => (
               <span
                 key={`${marker.at}-${index}`}
-                className="absolute bottom-0.5 size-1.5 -translate-x-1/2 rounded-full bg-primary ring-1 ring-media-scrim-strong rtl:translate-x-1/2"
+                className={cn(
+                  "absolute bottom-0.5 size-1.5 -translate-x-1/2 rounded-full rtl:translate-x-1/2",
+                  // Over video, the theme-invariant media ink; on the page, the accent.
+                  variant === "overlay" ? "bg-media-foreground" : "bg-primary",
+                )}
                 style={{ insetInlineStart: `${(marker.at / max) * 100}%` }}
               />
             ))}

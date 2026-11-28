@@ -384,6 +384,37 @@ test("renders overlay chrome on the theme-invariant media tokens (B4-01, D16)", 
   ).not.toBeNull();
 });
 
+test("marks each moment with a dot above the rail, on the media's clock", async () => {
+  const mediaRef = React.createRef<HTMLMediaElement>();
+  const screen = await render(
+    <Host
+      mediaRef={mediaRef}
+      variant="overlay"
+      markers={[
+        { at_ms: 30_000, label: "Ana: this part" },
+        { at_ms: 90_000, label: "Ravi: and here" },
+      ]}
+    />,
+  );
+  const media = mediaRef.current!;
+  setMediaState(media, { duration: 120 });
+  media.dispatchEvent(new Event("durationchange"));
+  media.dispatchEvent(new Event("loadedmetadata"));
+  await expect
+    .poll(() =>
+      [
+        ...screen.container.querySelectorAll<HTMLElement>(
+          '[data-slot="media-player-markers"] span',
+        ),
+      ].map((dot) => dot.style.insetInlineStart),
+    )
+    .toEqual(["25%", "75%"]);
+  // Never a target of its own, and hidden from assistive tech (the comment's own link plays it).
+  const layer = within(screen.container, '[data-slot="media-player-markers"]');
+  expect(layer.getAttribute("aria-hidden")).toBe("true");
+  expect(layer.className).toContain("pointer-events-none");
+});
+
 test("renders no fullscreen control without a handler", async () => {
   const screen = await render(<Host variant="overlay" />);
   expect(
