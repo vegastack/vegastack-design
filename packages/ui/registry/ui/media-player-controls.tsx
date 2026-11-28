@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.141.0 sha256-kiNw/kThTdaSP9mXqN4iP9WkXskkHkVHUedDqdNXimY=
+// @vegastack media-player-controls@0.141.0 sha256-NtU9zUX2C3ydPrDQanyhX2RNWfjArj38gEGDu6DZFX4=
 
 "use client";
 
@@ -1312,7 +1312,7 @@ export function MediaPlayerControls({
           // A moment inside a skipped range isn't on the displayed timeline: no dot.
           const media = marker.at_ms / 1000;
           return (
-            Math.abs(timeline.toMedia(timeline.toDisplay(media)) - media) < 0.05
+            Math.abs(timeline.toMedia(timeline.toDisplay(media)) - media) < 1e-6
           );
         })
         .map((marker) => ({
