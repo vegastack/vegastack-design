@@ -679,7 +679,7 @@
   "markdown-view": "sha256-c9HxMIZHa9filkrWUS4dH0Ae5vmPmsEN22Q3cXhNWIY=",
   "marker": "sha256-q4jfKJtuNGzYZtv8ujBgx9bfIGPr+wZpTjrNvzhtwmo=",
   "media-card": "sha256-cXXDEysNq96iFvKM7SSpkiVEPf7T3kpb/EjEVlNnxTs=",
-  "media-player-controls": "sha256-+wwD3vc7lK7kdDNqEYqz7frrIlR7NJbsSeFNyqTlAVY=",
+  "media-player-controls": "sha256-NtU9zUX2C3ydPrDQanyhX2RNWfjArj38gEGDu6DZFX4=",
   "media-probe": "sha256-0zON9xVw7qOuesU2Dxzv+0ebcSSn7Aj7XEu9b7x+MXs=",
   "meeting-icon": "sha256-3ouPEtI6+qQctOoxUA4lzK81K/XD8w/qAg0m+nPKIvw=",
   "member-list": "sha256-Ripc7RmJNC2mPELM1wWTU10zN1kWUeEwq+jxjt04b7Q=",
@@ -824,6 +824,6 @@
   "value-change": "sha256-3iXtqmb+D4iAms8tBGeJRGxcLMru5UMs9w3kuKAKekY=",
   "version-compare": "sha256-F3Tbq+AixUkX2DFD/3jGa0Z/qSgRE94Gdj3yByepNUk=",
   "version-list": "sha256-ko6aqzJGLufFxtgMXi9pzk7f60aFEM7jB3gjROZfWJI=",
-  "video-player": "sha256-zTqnyfzzHUi7rKIem+qBm0hvLxkPV6uDH+EET8N+4cw=",
+  "video-player": "sha256-uzDg9RHyYkauSh7KzFDOChd9PVV3AAYorCGKEQliCjM=",
   "view-tabs": "sha256-/cibNHNypVjgys/342uGXyAkAMNaTBt09dHyteA9hIU="
 }

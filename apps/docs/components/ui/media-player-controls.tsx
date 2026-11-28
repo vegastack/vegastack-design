@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.141.0 sha256-+wwD3vc7lK7kdDNqEYqz7frrIlR7NJbsSeFNyqTlAVY=
+// @vegastack media-player-controls@0.141.0 sha256-NtU9zUX2C3ydPrDQanyhX2RNWfjArj38gEGDu6DZFX4=
 
 "use client";
 
@@ -300,6 +300,12 @@ export interface MediaChapter {
   title: string;
 }
 
+/** A moment someone marked (a comment at a time): where, in the media's own milliseconds, and what. */
+export interface MediaMarker {
+  at_ms: number;
+  label: string;
+}
+
 const IDENTITY_TIMELINE: MediaTimeline = {
   toDisplay: (seconds) => seconds,
   toMedia: (seconds) => seconds,
@@ -590,6 +596,7 @@ function MediaProgressSlider({
   variant,
   valueText,
   chapters,
+  markers,
   formatTime,
 }: {
   value: number;
@@ -601,6 +608,8 @@ function MediaProgressSlider({
   valueText?: string;
   /** Chapter starts on the displayed timeline, in seconds. */
   chapters?: ReadonlyArray<{ start: number; title: string }>;
+  /** Marked moments on the displayed timeline, in seconds. */
+  markers?: ReadonlyArray<{ at: number; label: string }>;
   formatTime: (seconds: number) => string;
 }) {
   const rootRef = React.useRef<HTMLDivElement | null>(null);
@@ -614,6 +623,21 @@ function MediaProgressSlider({
     hoverRatio == null || !chapters?.length
       ? undefined
       : [...chapters].reverse().find((chapter) => chapter.start <= hoverTime);
+  // Only moments on the rail draw or name themselves; one within 1.5 % of the rail under the
+  // pointer names itself in the label.
+  const shownMarkers =
+    max > 0
+      ? markers?.filter(
+          (marker) =>
+            Number.isFinite(marker.at) && marker.at >= 0 && marker.at <= max,
+        )
+      : undefined;
+  const hoverMarker =
+    hoverRatio == null || !shownMarkers?.length
+      ? undefined
+      : shownMarkers.find(
+          (marker) => Math.abs(marker.at - hoverTime) <= max * 0.015,
+        );
 
   return (
     <div
@@ -626,12 +650,14 @@ function MediaProgressSlider({
           ? (event) => {
               const box = event.currentTarget.getBoundingClientRect();
               if (box.width <= 0) return;
-              setHoverRatio(
-                Math.min(
-                  Math.max((event.clientX - box.left) / box.width, 0),
-                  1,
-                ),
+              const fromLeft = Math.min(
+                Math.max((event.clientX - box.left) / box.width, 0),
+                1,
               );
+              // The rail fills from the inline start: right to left in RTL.
+              const rtl =
+                getComputedStyle(event.currentTarget).direction === "rtl";
+              setHoverRatio(rtl ? 1 - fromLeft : fromLeft);
             }
           : undefined
       }
@@ -679,6 +705,27 @@ function MediaProgressSlider({
             ))}
         </div>
       ) : null}
+      {shownMarkers?.length ? (
+        /* Marked moments as dots just above the rail, never a target of their own: the rail, or
+           the moment's own link where it is listed, is how you get there. */
+        <div
+          aria-hidden="true"
+          data-slot="media-player-markers"
+          className="pointer-events-none absolute inset-x-0 bottom-full h-2"
+        >
+          {shownMarkers.map((marker, index) => (
+            <span
+              key={`${marker.at}-${index}`}
+              className={cn(
+                "absolute bottom-0.5 size-1.5 -translate-x-1/2 rounded-full rtl:translate-x-1/2",
+                // Over video, the theme-invariant media ink; on the page, the accent.
+                variant === "overlay" ? "bg-media-foreground" : "bg-primary",
+              )}
+              style={{ insetInlineStart: `${(marker.at / max) * 100}%` }}
+            />
+          ))}
+        </div>
+      ) : null}
       {showHover && hoverRatio != null ? (
         <div
           aria-hidden="true"
@@ -688,9 +735,9 @@ function MediaProgressSlider({
             insetInlineStart: `clamp(3rem, ${hoverRatio * 100}%, calc(100% - 3rem))`,
           }}
         >
-          {hoverChapter ? (
+          {hoverMarker || hoverChapter ? (
             <span className="min-w-0 truncate font-medium">
-              {hoverChapter.title}
+              {hoverMarker ? hoverMarker.label : hoverChapter!.title}
             </span>
           ) : null}
           <span className="shrink-0 tabular-nums">{formatTime(hoverTime)}</span>
@@ -917,6 +964,12 @@ export interface MediaPlayerControlsProps extends Omit<
    */
   chapters?: readonly MediaChapter[];
   /**
+   * Marked moments (comments at a time), in the media's own milliseconds: dots above the rail, and
+   * the moment's label over the rail on hover (`overlay` variant).
+   * @default undefined
+   */
+  markers?: readonly MediaMarker[];
+  /**
    * Called when the captions control is pressed. When omitted, the control is not rendered.
    * @default undefined
    */
@@ -983,6 +1036,7 @@ export function MediaPlayerControls({
   loading = false,
   timeline = IDENTITY_TIMELINE,
   chapters,
+  markers,
   onCaptionsToggle,
   captionsEnabled = false,
   onPictureInPictureToggle,
@@ -1250,6 +1304,23 @@ export function MediaPlayerControls({
         : undefined,
     [chapters, timeline],
   );
+  const displayMarkers = React.useMemo(
+    () =>
+      markers
+        ?.filter((marker) => {
+          if (!Number.isFinite(marker.at_ms) || marker.at_ms < 0) return false;
+          // A moment inside a skipped range isn't on the displayed timeline: no dot.
+          const media = marker.at_ms / 1000;
+          return (
+            Math.abs(timeline.toMedia(timeline.toDisplay(media)) - media) < 1e-6
+          );
+        })
+        .map((marker) => ({
+          at: timeline.toDisplay(marker.at_ms / 1000),
+          label: marker.label,
+        })),
+    [markers, timeline],
+  );
   const currentChapterIndex = displayChapters
     ? displayChapters.reduce(
         (found, chapter, index) =>
@@ -1398,6 +1469,7 @@ export function MediaPlayerControls({
         variant={variant}
         valueText={`${formatTime(currentTime)} of ${formatTime(displayedDuration)}`}
         chapters={displayChapters}
+        markers={displayMarkers}
         formatTime={formatTime}
       />
     );
