@@ -12,6 +12,7 @@ import {
   MediaPlayerControls,
   clampTime,
   type MediaChapter,
+  type MediaMarker,
   type MediaPlayerControlsProps,
   type MediaTimeline,
   useExclusivePlayback,
@@ -188,6 +189,12 @@ export interface VideoPlayerBaseProps extends Omit<
    * @default undefined
    */
   chapters?: readonly MediaChapter[];
+  /**
+   * Marked moments (comments at a time), `at_ms` on the media's own clock: dots above the scrubber
+   * and the moment's label over the rail on hover.
+   * @default undefined
+   */
+  markers?: readonly MediaMarker[];
   /**
    * A WebVTT captions track and a CC control (C). The viewer's choice is remembered on the device.
    * The video loads with `crossOrigin="anonymous"`, so the track's host must send CORS headers.
@@ -385,6 +392,7 @@ export function VideoPlayer({
   attach = "visible",
   skipRanges,
   chapters,
+  markers,
   captions,
   onTimeUpdate,
   controllerRef,
@@ -1439,6 +1447,7 @@ export function VideoPlayer({
               onFullscreenToggle={toggleFullscreen}
               timeline={timeline}
               chapters={chapters}
+              markers={markers}
               arrowSkipSeconds={arrowSkipSeconds}
               captionsEnabled={captionsOn}
               onCaptionsToggle={captions ? toggleCaptions : undefined}

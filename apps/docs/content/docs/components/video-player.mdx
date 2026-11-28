@@ -138,6 +138,13 @@ The `src` and `onSourceExpired` contract for files is unchanged.
 chapter start, names the chapter over the rail while the pointer hovers it, and adds a Chapters
 entry to the settings menu that jumps to a chapter.
 
+### Markers
+
+`markers` (`at_ms` on the media's own clock, and a `label`) marks moments people pointed at, such as
+comments made at a time: a small dot above the scrubber at each one, and its label over the rail
+when the pointer is near it. Markers are never targets of their own: the moment's own link, where
+it's listed, plays from there.
+
 ### Captions
 
 `captions` adds one WebVTT track and a captions control (and <kbd>C</kbd>). Captions start off; the

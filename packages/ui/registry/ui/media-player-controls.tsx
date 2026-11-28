@@ -300,6 +300,12 @@ export interface MediaChapter {
   title: string;
 }
 
+/** A moment someone marked (a comment at a time): where, in the media's own milliseconds, and what. */
+export interface MediaMarker {
+  at_ms: number;
+  label: string;
+}
+
 const IDENTITY_TIMELINE: MediaTimeline = {
   toDisplay: (seconds) => seconds,
   toMedia: (seconds) => seconds,
@@ -590,6 +596,7 @@ function MediaProgressSlider({
   variant,
   valueText,
   chapters,
+  markers,
   formatTime,
 }: {
   value: number;
@@ -601,6 +608,8 @@ function MediaProgressSlider({
   valueText?: string;
   /** Chapter starts on the displayed timeline, in seconds. */
   chapters?: ReadonlyArray<{ start: number; title: string }>;
+  /** Marked moments on the displayed timeline, in seconds. */
+  markers?: ReadonlyArray<{ at: number; label: string }>;
   formatTime: (seconds: number) => string;
 }) {
   const rootRef = React.useRef<HTMLDivElement | null>(null);
@@ -614,6 +623,11 @@ function MediaProgressSlider({
     hoverRatio == null || !chapters?.length
       ? undefined
       : [...chapters].reverse().find((chapter) => chapter.start <= hoverTime);
+  // A marked moment within 1.5 % of the rail under the pointer names itself in the label.
+  const hoverMarker =
+    hoverRatio == null || !markers?.length || max <= 0
+      ? undefined
+      : markers.find((marker) => Math.abs(marker.at - hoverTime) <= max * 0.015);
 
   return (
     <div
@@ -679,6 +693,25 @@ function MediaProgressSlider({
             ))}
         </div>
       ) : null}
+      {markers?.length && max > 0 ? (
+        /* Marked moments as dots just above the rail, never a target of their own: the rail, or
+           the moment's own link where it is listed, is how you get there. */
+        <div
+          aria-hidden="true"
+          data-slot="media-player-markers"
+          className="pointer-events-none absolute inset-x-0 bottom-full h-2"
+        >
+          {markers
+            .filter((marker) => marker.at >= 0 && marker.at <= max)
+            .map((marker, index) => (
+              <span
+                key={`${marker.at}-${index}`}
+                className="absolute bottom-0.5 size-1.5 -translate-x-1/2 rounded-full bg-primary ring-1 ring-media-scrim-strong rtl:translate-x-1/2"
+                style={{ insetInlineStart: `${(marker.at / max) * 100}%` }}
+              />
+            ))}
+        </div>
+      ) : null}
       {showHover && hoverRatio != null ? (
         <div
           aria-hidden="true"
@@ -688,9 +721,9 @@ function MediaProgressSlider({
             insetInlineStart: `clamp(3rem, ${hoverRatio * 100}%, calc(100% - 3rem))`,
           }}
         >
-          {hoverChapter ? (
+          {hoverMarker || hoverChapter ? (
             <span className="min-w-0 truncate font-medium">
-              {hoverChapter.title}
+              {hoverMarker ? hoverMarker.label : hoverChapter!.title}
             </span>
           ) : null}
           <span className="shrink-0 tabular-nums">{formatTime(hoverTime)}</span>
@@ -917,6 +950,12 @@ export interface MediaPlayerControlsProps extends Omit<
    */
   chapters?: readonly MediaChapter[];
   /**
+   * Marked moments (comments at a time), in the media's own milliseconds: dots above the rail, and
+   * the moment's label over the rail on hover (`overlay` variant).
+   * @default undefined
+   */
+  markers?: readonly MediaMarker[];
+  /**
    * Called when the captions control is pressed. When omitted, the control is not rendered.
    * @default undefined
    */
@@ -983,6 +1022,7 @@ export function MediaPlayerControls({
   loading = false,
   timeline = IDENTITY_TIMELINE,
   chapters,
+  markers,
   onCaptionsToggle,
   captionsEnabled = false,
   onPictureInPictureToggle,
@@ -1250,6 +1290,14 @@ export function MediaPlayerControls({
         : undefined,
     [chapters, timeline],
   );
+  const displayMarkers = React.useMemo(
+    () =>
+      markers?.map((marker) => ({
+        at: timeline.toDisplay(marker.at_ms / 1000),
+        label: marker.label,
+      })),
+    [markers, timeline],
+  );
   const currentChapterIndex = displayChapters
     ? displayChapters.reduce(
         (found, chapter, index) =>
@@ -1398,6 +1446,7 @@ export function MediaPlayerControls({
         variant={variant}
         valueText={`${formatTime(currentTime)} of ${formatTime(displayedDuration)}`}
         chapters={displayChapters}
+        markers={displayMarkers}
         formatTime={formatTime}
       />
     );
