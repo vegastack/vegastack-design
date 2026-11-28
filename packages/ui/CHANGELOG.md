@@ -1,5 +1,11 @@
 # @vegastack/ui
 
+## 0.143.0
+
+### Minor Changes
+
+- [#1098](https://github.com/vegastack/vegastack-design/pull/1098) [`b69e644`](https://github.com/vegastack/vegastack-design/commit/b69e644d425bbbdbe307df9d4ee3bf2818b3ba47) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🧩 Video Player marks moments: `markers={[{ at_ms, label }]}` draws a small dot above the scrubber at each one (on the edited timeline when ranges are skipped), and hovering the rail near one shows its label in place of the chapter's. `MediaPlayerControls` gains `markers` and exports `MediaMarker`.
+
 ## 0.142.0
 
 ### Minor Changes
