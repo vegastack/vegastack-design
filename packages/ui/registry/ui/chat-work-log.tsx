@@ -1,4 +1,4 @@
-// @vegastack chat-work-log@0.138.0 sha256-8FgButDlZCwfiRMhBxhkHHDMKX/m+cKgl5AEXgp5HhY=
+// @vegastack chat-work-log@0.138.0 sha256-ry2tB41mrJ4gJMPjXO2x5ifVq9XZKIH+wCKrOgk4kLM=
 
 "use client";
 
@@ -732,5 +732,6 @@ export {
   isToolPart,
   isToolRunning,
   isWorkPart,
+  toolNameOf,
   wordsOf,
 };
