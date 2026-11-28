@@ -17031,7 +17031,7 @@
         "whenToUse": "You are building a player around your own <audio>/<video> element and want the VegaStack transport, chrome and keyboard map.",
         "whenNotToUse": "A ready-made player — reach for Audio Player or Video Player, which compose this.",
         "version": "0.141.0",
-        "integrity": "sha256-+VU9+FPpVSg7sElftAp3IWQ7P9lo4VRjdUk6opqQzyQ="
+        "integrity": "sha256-kiNw/kThTdaSP9mXqN4iP9WkXskkHkVHUedDqdNXimY="
       }
     },
     {

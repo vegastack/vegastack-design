@@ -1,4 +1,4 @@
-// @vegastack media-player-controls@0.141.0 sha256-+VU9+FPpVSg7sElftAp3IWQ7P9lo4VRjdUk6opqQzyQ=
+// @vegastack media-player-controls@0.141.0 sha256-kiNw/kThTdaSP9mXqN4iP9WkXskkHkVHUedDqdNXimY=
 
 "use client";
 
@@ -623,11 +623,19 @@ function MediaProgressSlider({
     hoverRatio == null || !chapters?.length
       ? undefined
       : [...chapters].reverse().find((chapter) => chapter.start <= hoverTime);
-  // A marked moment within 1.5 % of the rail under the pointer names itself in the label.
+  // Only moments on the rail draw or name themselves; one within 1.5 % of the rail under the
+  // pointer names itself in the label.
+  const shownMarkers =
+    max > 0
+      ? markers?.filter(
+          (marker) =>
+            Number.isFinite(marker.at) && marker.at >= 0 && marker.at <= max,
+        )
+      : undefined;
   const hoverMarker =
-    hoverRatio == null || !markers?.length || max <= 0
+    hoverRatio == null || !shownMarkers?.length
       ? undefined
-      : markers.find(
+      : shownMarkers.find(
           (marker) => Math.abs(marker.at - hoverTime) <= max * 0.015,
         );
 
@@ -642,12 +650,14 @@ function MediaProgressSlider({
           ? (event) => {
               const box = event.currentTarget.getBoundingClientRect();
               if (box.width <= 0) return;
-              setHoverRatio(
-                Math.min(
-                  Math.max((event.clientX - box.left) / box.width, 0),
-                  1,
-                ),
+              const fromLeft = Math.min(
+                Math.max((event.clientX - box.left) / box.width, 0),
+                1,
               );
+              // The rail fills from the inline start: right to left in RTL.
+              const rtl =
+                getComputedStyle(event.currentTarget).direction === "rtl";
+              setHoverRatio(rtl ? 1 - fromLeft : fromLeft);
             }
           : undefined
       }
@@ -695,7 +705,7 @@ function MediaProgressSlider({
             ))}
         </div>
       ) : null}
-      {markers?.length && max > 0 ? (
+      {shownMarkers?.length ? (
         /* Marked moments as dots just above the rail, never a target of their own: the rail, or
            the moment's own link where it is listed, is how you get there. */
         <div
@@ -703,19 +713,17 @@ function MediaProgressSlider({
           data-slot="media-player-markers"
           className="pointer-events-none absolute inset-x-0 bottom-full h-2"
         >
-          {markers
-            .filter((marker) => marker.at >= 0 && marker.at <= max)
-            .map((marker, index) => (
-              <span
-                key={`${marker.at}-${index}`}
-                className={cn(
-                  "absolute bottom-0.5 size-1.5 -translate-x-1/2 rounded-full rtl:translate-x-1/2",
-                  // Over video, the theme-invariant media ink; on the page, the accent.
-                  variant === "overlay" ? "bg-media-foreground" : "bg-primary",
-                )}
-                style={{ insetInlineStart: `${(marker.at / max) * 100}%` }}
-              />
-            ))}
+          {shownMarkers.map((marker, index) => (
+            <span
+              key={`${marker.at}-${index}`}
+              className={cn(
+                "absolute bottom-0.5 size-1.5 -translate-x-1/2 rounded-full rtl:translate-x-1/2",
+                // Over video, the theme-invariant media ink; on the page, the accent.
+                variant === "overlay" ? "bg-media-foreground" : "bg-primary",
+              )}
+              style={{ insetInlineStart: `${(marker.at / max) * 100}%` }}
+            />
+          ))}
         </div>
       ) : null}
       {showHover && hoverRatio != null ? (
@@ -1298,10 +1306,19 @@ export function MediaPlayerControls({
   );
   const displayMarkers = React.useMemo(
     () =>
-      markers?.map((marker) => ({
-        at: timeline.toDisplay(marker.at_ms / 1000),
-        label: marker.label,
-      })),
+      markers
+        ?.filter((marker) => {
+          if (!Number.isFinite(marker.at_ms) || marker.at_ms < 0) return false;
+          // A moment inside a skipped range isn't on the displayed timeline: no dot.
+          const media = marker.at_ms / 1000;
+          return (
+            Math.abs(timeline.toMedia(timeline.toDisplay(media)) - media) < 0.05
+          );
+        })
+        .map((marker) => ({
+          at: timeline.toDisplay(marker.at_ms / 1000),
+          label: marker.label,
+        })),
     [markers, timeline],
   );
   const currentChapterIndex = displayChapters

@@ -393,6 +393,9 @@ test("marks each moment with a dot above the rail, on the media's clock", async 
       markers={[
         { at_ms: 30_000, label: "Ana: this part" },
         { at_ms: 90_000, label: "Ravi: and here" },
+        // Off the rail: drawn nowhere.
+        { at_ms: -1_000, label: "before" },
+        { at_ms: 121_000, label: "after" },
       ]}
     />,
   );
