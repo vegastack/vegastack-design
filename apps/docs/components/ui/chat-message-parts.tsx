@@ -1,4 +1,4 @@
-// @vegastack chat-message-parts@0.138.0 sha256-RxBmRyPpbRVOZ2kgCFUM2VohAbQCnoo8+8Jsz/H82gs=
+// @vegastack chat-message-parts@0.138.0 sha256-kzNf5Gb9esDzgS6BZjrFR9RuW510sqXXdnJ3PGXFHUM=
 
 "use client";
 
@@ -21,6 +21,7 @@ import {
   isToolPart,
   isToolRunning,
   isWorkPart,
+  toolNameOf,
   wordsOf,
   type ChatDetail,
   type ChatPart,
@@ -62,7 +63,7 @@ export interface ChatTurn {
     retryable?: boolean;
   };
   /** What a running turn waits on; `null` once it isn't waiting (a streamed update can't drop a key). */
-  waitingOn?: "subagents" | "person" | "limit" | "model" | null;
+  waitingOn?: "subagents" | "agents" | "person" | "limit" | "model" | null;
   /** When the last event arrived (ISO); the stuck line shows 45s later. */
   lastEventAt?: string;
 }
@@ -183,6 +184,18 @@ function waitingWords(turn: ChatTurn, parts: readonly ChatPart[]) {
         .filter(isSubagentPart)
         .filter((p) => isToolRunning(p)).length;
       return running ? plural(running, "Subagent") : "Subagents";
+    }
+    case "agents": {
+      const asked = parts
+        .filter(isToolPart)
+        .filter((p) => toolNameOf(p) === "delegate" && isToolRunning(p))
+        .map((p) => wordsOf(p).subject)
+        .filter((name): name is string => !!name);
+      return asked.length === 1
+        ? asked[0]
+        : asked.length > 1
+          ? plural(asked.length, "agent")
+          : "another agent";
     }
     case "person":
       return "you";
