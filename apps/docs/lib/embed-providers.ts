@@ -1,4 +1,4 @@
-// @vegastack embed-providers@0.133.0 sha256-A2UQakfr/EJIMmcc10OEHAvaPdKKuMCRfzd6rXeM32A=
+// @vegastack embed-providers@0.142.0 sha256-3AtMPC1urzhT+u7aFAewF3Sm7kEvr/U3Dt9/6ri6nmA=
 
 import type { ReactNode } from "react";
 
