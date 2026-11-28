@@ -1929,8 +1929,9 @@ export interface MarkdownAppEmbedProps extends React.ComponentPropsWithRef<"div"
 
 /**
  * `MarkdownAppEmbed` — the block a host app's own embed stands in (`appEmbed`): the host's card
- * as one leaf of the document's text, with the URL in its place when printed. It draws nothing of
- * its own around the card.
+ * as one leaf of the document's text, never editable, with the URL in its place when printed. It
+ * draws nothing of its own around the card; in `TextEdit`'s read view a press, focus or link click
+ * inside the card is the card's own and never starts an edit.
  *
  * @example
  * <MarkdownAppEmbed url={url}>
@@ -1949,6 +1950,8 @@ export function MarkdownAppEmbed({
       // Its anchor text is one leaf (as in `TextEdit`'s document), never the URL it prints.
       data-anchor-block=""
       data-anchor-text={LEAF_TEXT}
+      // The host's card is never text to edit, inside an editable read view or the editor.
+      contentEditable={false}
       className={cn("my-2 max-w-full", className)}
       {...props}
     >

@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.138.0 sha256-hKRVaJ3S3jjjoJuVcxK3G8XEDKq2iraSc6OEQvAEMGc=
+// @vegastack text-edit@0.138.0 sha256-WY/crVEPHqVFvP0RYv48/+aOlphIlXz2q2vBZkB2IV8=
 
 "use client";
 
@@ -2634,12 +2634,15 @@ export function TextEdit(props: TextEditProps) {
     },
     // A link click places the caret, as in the editor, instead of navigating.
     onClick: (event: React.MouseEvent) => {
-      // A task line's ↗ and a bookmark card are links of their own: they navigate.
+      // A task line's ↗, a bookmark card and the host's embed card are links of their own: they
+      // navigate.
+      const target = event.target as Element;
       if (
         editable &&
-        (event.target as Element).closest?.(
+        target.closest?.(
           "a:not([data-slot=task-inline-open]):not([data-slot=markdown-bookmark])",
-        )
+        ) &&
+        !target.closest?.("[data-slot=markdown-app-embed-content]")
       )
         event.preventDefault();
     },
@@ -2834,14 +2837,13 @@ export function TextEdit(props: TextEditProps) {
 
 const ALL_ORIGINS = ["*"] as const;
 
-/** A citation marker in the read view: its press and focus belong to it, not to editing. */
 /**
- * A control of its own in the read view — a citation, a task line's title or ↗, a bookmark card:
- * pressing or focusing it never starts an edit.
+ * A control of its own in the read view — a citation, a task line's title or ↗, a bookmark card,
+ * anything in the host's embed card (`appEmbed`): pressing or focusing it never starts an edit.
  */
 const isCitation = (target: EventTarget) =>
   Boolean(
     (target as Element).closest?.(
-      "[data-slot=markdown-citation],[data-slot=task-inline-title],[data-slot=task-inline-open],[data-slot=markdown-bookmark]",
+      "[data-slot=markdown-citation],[data-slot=task-inline-title],[data-slot=task-inline-open],[data-slot=markdown-bookmark],[data-slot=markdown-app-embed-content]",
     ),
   );
