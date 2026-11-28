@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.138.0 sha256-LHizBTNPgaTq5hkrlLME53XDQO66vYv1FdlylItaq0w=
+// @vegastack text-edit@0.138.0 sha256-hKRVaJ3S3jjjoJuVcxK3G8XEDKq2iraSc6OEQvAEMGc=
 
 "use client";
 
@@ -32,7 +32,6 @@ import type { Awareness } from "y-protocols/awareness";
 
 export type { LiveBlockKind, MentionKind } from "@/lib/text-edit-grammar";
 export type { TextAnchor } from "@/lib/text-anchor";
-export type { AppEmbed } from "@/lib/embed-providers";
 // Type only: the schema module (and Tiptap) stays out of the light first paint.
 export type { TextEditBlock } from "@/lib/text-edit-schema";
 

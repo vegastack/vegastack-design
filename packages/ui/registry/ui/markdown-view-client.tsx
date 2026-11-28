@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.138.0 sha256-F9EqGe9AHt80iyJ9CamTdI8P2VPVsXvhr5mK7HbtIDY=
+// @vegastack markdown-view@0.138.0 sha256-tHSXAHjBAWQrmAU5so4NxIiIPVn/WvAR4oIFWncSlTg=
 
 "use client";
 
@@ -1920,7 +1920,10 @@ export function MarkdownEmbed({
 export interface MarkdownAppEmbedProps extends React.ComponentPropsWithRef<"div"> {
   /** The recording's URL as written — printed in place of the host's card. */
   url: string;
-  /** The host's card for `url` (`AppEmbed`'s `render`). */
+  /**
+   * The host's card for `url` (`AppEmbed`'s `render`).
+   * @default undefined
+   */
   children?: React.ReactNode;
 }
 

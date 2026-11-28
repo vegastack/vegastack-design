@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.138.0 sha256-F9EqGe9AHt80iyJ9CamTdI8P2VPVsXvhr5mK7HbtIDY=
+// @vegastack markdown-view@0.138.0 sha256-tHSXAHjBAWQrmAU5so4NxIiIPVn/WvAR4oIFWncSlTg=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -92,7 +92,6 @@ export {
   headingLinkClassName,
 } from "@/components/ui/markdown-view-client";
 import type { BlockViews } from "@/components/ui/block-view";
-export type { AppEmbed } from "@/lib/embed-providers";
 export type {
   BlockView,
   BlockViewAction,
