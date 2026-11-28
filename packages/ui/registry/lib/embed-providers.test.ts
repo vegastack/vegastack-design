@@ -200,6 +200,11 @@ describe("the host app's recordings (app)", () => {
     `https://user:pw@app.vegastack.com/recordings/${UUID}`,
     `https://app.vegastack.com@evil.com/recordings/${UUID}`,
     `https://app.vegastack.com:8443/recordings/${UUID}`,
+    // An authority URL would normalise to the host: refused as written.
+    `https://app.vegastack.com:443/recordings/${UUID}`,
+    `https://app.vegastack.com:/recordings/${UUID}`,
+    `https://@app.vegastack.com/recordings/${UUID}`,
+    `https://%61pp.vegastack.com/recordings/${UUID}`,
     `http://app.vegastack.com/recordings/${UUID}`,
     ` ${URL_OK}`,
   ])("%s is not an app embed", (url) => {

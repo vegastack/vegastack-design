@@ -337,4 +337,16 @@ describe("app embeds (the host app's recordings)", () => {
     expect(editor.getMarkdown()).toBe(SOURCE);
     editor.destroy();
   });
+
+  test("HTML's embed wrapper takes its provider from the URL it validated, never from the markup", () => {
+    const editor = new Editor({
+      extensions: textEditExtensions({ appEmbedHosts: () => HOSTS }),
+      content: `<div data-type="embed" data-provider="youtube"><a href="${URL}">${URL}</a></div>`,
+    });
+    expect(editor.state.doc.child(0).attrs).toMatchObject({
+      provider: "app",
+      url: URL,
+    });
+    editor.destroy();
+  });
 });

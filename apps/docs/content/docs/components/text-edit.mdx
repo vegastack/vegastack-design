@@ -949,7 +949,8 @@ Content-Security-Policy's `frame-src`.
 
 `appEmbed` makes a link to a recording in your own app an embed block that your app draws:
 `{ hosts: string[]; render: (url: string) => ReactNode }` (`AppEmbed`, from
-`@/lib/embed-providers`). A link alone on its line — typed, pasted, in the Markdown or in HTML — to
+`@/lib/embed-providers`). A link alone on its line — pasted, in the Markdown, or in HTML's
+`div[data-type="embed"]` — to
 exactly `https://<host>/recordings/<uuid>` on one of `hosts` is an `embed` block with
 `provider: "app"` and its `url`, and `render(url)` draws it in place: your own poster, title and
 duration card with its player. `TextEdit` draws no frame and loads nothing for it, so it adds

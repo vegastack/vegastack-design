@@ -1,4 +1,4 @@
-// @vegastack embed-providers@0.133.0 sha256-xoDxjg6i6dlCMUcWUBfybBBAyTbDVCT9ld7snnZ5J4c=
+// @vegastack embed-providers@0.133.0 sha256-A2UQakfr/EJIMmcc10OEHAvaPdKKuMCRfzd6rXeM32A=
 
 import type { ReactNode } from "react";
 
@@ -308,16 +308,18 @@ export function matchAppEmbed(
   if (!hosts?.length || /[?#]/.test(url ?? "")) return null;
   const parsed = parseHttps(url);
   if (!parsed || parsed.search || parsed.hash) return null;
-  const host = parsed.hostname.toLowerCase();
-  const allowed = hosts.some((each) => {
-    const name = typeof each === "string" ? each.trim().toLowerCase() : "";
-    return HOST_NAME.test(name) && name === host;
-  });
-  if (!allowed) return null;
-  // The path as written — never URL's normalisation of it (`/a/../recordings/…`, `%2F`).
-  const path = /^https:\/\/[^/]+(\/[^?#]*)$/i.exec(url)?.[1];
-  const id = path ? APP_RECORDING_PATH.exec(path)?.[1] : null;
-  return id && path === parsed.pathname
+  // The authority and path as written — never URL's normalisation of them (`host:443`, `@host`,
+  // `%61pp…`, `/a/../recordings/…`, `%2F`): both must already be exactly what is allowed.
+  const raw = /^https:\/\/([^/?#]+)(\/[^?#]*)$/i.exec(url);
+  if (!raw) return null;
+  const host = raw[1]!.toLowerCase();
+  if (!HOST_NAME.test(host) || host !== parsed.hostname) return null;
+  const allowed = hosts.some(
+    (each) => typeof each === "string" && each.trim().toLowerCase() === host,
+  );
+  const path = raw[2]!;
+  const id = APP_RECORDING_PATH.exec(path)?.[1];
+  return allowed && id && path === parsed.pathname
     ? { provider: APP_EMBED_PROVIDER, id, url }
     : null;
 }

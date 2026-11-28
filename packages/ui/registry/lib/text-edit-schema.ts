@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.69.0 sha256-liCMr7WNdYJVIWLYCjkHwwP6vh5M+RoyUObmIOXPrPg=
+// @vegastack text-edit-schema@0.69.0 sha256-gGe8WR9w2fQoek5ePnHMHKyVTTEgQLv1FblVZ2XzAOU=
 
 import {
   Extension,
@@ -1535,7 +1535,9 @@ function embedNode(
       return {
         provider: {
           default: null,
-          parseHTML: (element) => element.getAttribute("data-provider"),
+          // Never read from the markup: the rule's `getAttrs` sets it from the URL it validated,
+          // and an attribute's value would override that (`data-provider="youtube"` on any URL).
+          parseHTML: () => null,
           renderHTML: (attrs) =>
             attrs.provider ? { "data-provider": attrs.provider } : {},
         },

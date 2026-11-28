@@ -2746,7 +2746,7 @@
         "version": "0.133.0",
         "whenToUse": "Deciding whether a URL is an embeddable video (YouTube, Loom) and building its player src — in TextEdit, MarkdownView, a server import, or a Content-Security-Policy's frame-src.",
         "whenNotToUse": "Any other host: the allowlist is the security boundary; add a provider here, never a raw URL as a frame src.",
-        "integrity": "sha256-xoDxjg6i6dlCMUcWUBfybBBAyTbDVCT9ld7snnZ5J4c="
+        "integrity": "sha256-A2UQakfr/EJIMmcc10OEHAvaPdKKuMCRfzd6rXeM32A="
       }
     },
     {
@@ -2787,7 +2787,7 @@
         "version": "0.69.0",
         "whenToUse": "Building a TextEdit document anywhere — a collaboration server, an import, an API — with exactly the editor’s nodes and attributes.",
         "whenNotToUse": "Rendering a document to read — use MarkdownView.",
-        "integrity": "sha256-liCMr7WNdYJVIWLYCjkHwwP6vh5M+RoyUObmIOXPrPg="
+        "integrity": "sha256-gGe8WR9w2fQoek5ePnHMHKyVTTEgQLv1FblVZ2XzAOU="
       }
     },
     {
@@ -19360,7 +19360,7 @@
         "whenToUse": "Comments, notes, summaries and documents stored as Markdown (format=\"markdown\") or HTML — with @ mentions, uploads, callouts, toggles, an outline and comment highlights for page editors; in-place editing of a MarkdownView (the read view is the editor until first edited).",
         "whenNotToUse": "Plain single-line input (Input) or collaborative real-time docs (deferred text-edit-collab).",
         "version": "0.138.0",
-        "integrity": "sha256-3SiRASjTQDW9AAH/ycL32cT1aOEQxfhSfVoWmOgtArk="
+        "integrity": "sha256-LHizBTNPgaTq5hkrlLME53XDQO66vYv1FdlylItaq0w="
       }
     },
     {

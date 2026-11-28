@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.138.0 sha256-3SiRASjTQDW9AAH/ycL32cT1aOEQxfhSfVoWmOgtArk=
+// @vegastack text-edit@0.138.0 sha256-LHizBTNPgaTq5hkrlLME53XDQO66vYv1FdlylItaq0w=
 
 "use client";
 
@@ -1898,9 +1898,9 @@ export interface TextEditProps {
   embeds?: EmbedProviders;
   /**
    * The host app's own embeds: a link alone on its line to `https://<host>/recordings/<uuid>` on
-   * one of `hosts` — typed, pasted, or already in the Markdown — is an embed block (provider `app`)
-   * that `render` draws: the host's own card and player, with no frame from the editor and no
-   * `frame-src` origin. Stored as its URL alone on its line, so any other reader (an older app)
+   * one of `hosts` — pasted, or already in the Markdown or `div[data-type=embed]` HTML — is an
+   * embed block (provider `app`) that `render` draws: the host's own card and player, with no
+   * frame from the editor and no `frame-src` origin. Stored as its URL alone on its line, so any other reader (an older app)
    * shows and keeps a link. Without it such a link stays a link, and an `app` embed already in a
    * shared document shows as a link to its URL. `hosts` is read at each parse; the read view before
    * the editor draws the same card.
