@@ -1,4 +1,4 @@
-// @vegastack timeline@0.138.0 sha256-FNA6rR3pAoeEOGvOR2ROIFnYxyXawDmqIbd+YC5oNUw=
+// @vegastack timeline@0.143.1 sha256-1igFR7IrH6UJiNIlWu71Wo3qUcpFfuACtmA8c133eh0=
 
 "use client";
 

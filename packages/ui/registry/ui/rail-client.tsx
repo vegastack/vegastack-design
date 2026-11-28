@@ -1,4 +1,4 @@
-// @vegastack rail@0.138.0 sha256-BAGxPCjOWQ3ZT+QfV3KTegMTrkzZqGrJ7773jiaczcI=
+// @vegastack rail@0.143.1 sha256-wmzCLVZLSAMl6o684MQmMvWBoGT8jIdSn7Pa3B9mSJ4=
 
 "use client";
 

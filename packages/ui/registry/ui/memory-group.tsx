@@ -1,4 +1,4 @@
-// @vegastack memory-group@0.138.0 sha256-nno57pC84nM3XvLegJ824w7CJA0RbJj6Dg3ZXtEigU0=
+// @vegastack memory-group@0.143.1 sha256-LUOPAbDowUvuKS7Ag70aHUMCUbwMIBe3bfB88RjeM4A=
 
 "use client";
 

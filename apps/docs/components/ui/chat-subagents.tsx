@@ -1,4 +1,4 @@
-// @vegastack chat-subagents@0.138.0 sha256-eS8JJ1G3mri0o1VieOiCwtZorM/ICDosCQeKO375sPI=
+// @vegastack chat-subagents@0.143.1 sha256-Zjm4Fq7k1ZIf3NmX0awRYrC4MaS4YJ1/YYlj2yWv8cQ=
 
 "use client";
 

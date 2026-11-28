@@ -1,4 +1,4 @@
-// @vegastack digest-group@0.138.0 sha256-BaJP4C7Q00yQ1h5Vod59HQMnhW1Mj94vmoN/hUoPYiQ=
+// @vegastack digest-group@0.143.1 sha256-kZKx7D4OvQRDglYldFII3J5jgAYkNk54UrVOviWaG7w=
 
 "use client";
 

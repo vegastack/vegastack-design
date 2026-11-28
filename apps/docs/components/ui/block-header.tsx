@@ -1,4 +1,4 @@
-// @vegastack block-header@0.138.0 sha256-zikIqrfT+4iERqq8XD6uxDmXdLaWrjB7JKGulHAo+/Y=
+// @vegastack block-header@0.143.1 sha256-HJ6PwN0goez/vkAsa5hm0zkM4/vV6rl+YLPty/8P+wY=
 
 import * as React from "react";
 import { AppLink } from "@/components/ui/link-provider";

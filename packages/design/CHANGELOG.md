@@ -1,5 +1,11 @@
 # @vegastack/design
 
+## 0.34.0
+
+### Minor Changes
+
+- [#1099](https://github.com/vegastack/vegastack-design/pull/1099) [`26cd2b0`](https://github.com/vegastack/vegastack-design/commit/26cd2b053d6b54ea563f8ebe7070844b181b7bb5) Thanks [@kmanojkumar](https://github.com/kmanojkumar)! - 🔧 ChatMessageParts: a turn waiting on another agent it handed work to (`waitingOn: "agents"`) reads "Waiting on @handle" (the running hand-off's subject; "N agents" for several) instead of "No news for a while". ChatWorkLog exports `toolNameOf`.
+
 ## 0.33.0
 
 ### Patch Changes

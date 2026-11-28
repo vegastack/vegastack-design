@@ -1,4 +1,4 @@
-// @vegastack accent@0.138.0 sha256-cUZFc7NhaftpUPiRqwAmoqUzIqvb8b5rMIQB3Cyjh3Q=
+// @vegastack accent@0.143.1 sha256-t3ZT2HvHikG+bg0ZHTHD+ewUCEMFiwcSd4WK8KhF7To=
 
 import * as React from "react";
 import { Inbox, ListTodo } from "lucide-react";

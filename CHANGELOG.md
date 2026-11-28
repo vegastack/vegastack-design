@@ -9,6 +9,20 @@ All notable changes to VegaStack Design, versioned by the **design-system (regis
 The docs [Changelog page](https://design.vegastack.com/docs/changelog) is **generated from this
 file** by `tooling/sync-changelog.mjs` — edit here, never there.
 
+## [0.143.1] — November 28, 2026
+
+<!-- assembled from 1 changeset: 83bceba17c34 -->
+
+### 🔧 Changed components
+
+- ChatMessageParts: a turn waiting on another agent it handed work to (`waitingOn: "agents"`) reads "Waiting on @handle" (the running hand-off's subject; "N agents" for several) instead of "No news for a while". ChatWorkLog exports `toolNameOf`.
+  [`26cd2b0`](https://github.com/VegaStack/vegastack-design/commit/26cd2b0)
+
+### 📦 npm
+
+- **`@vegastack/design`** → **`0.34.0`** (was `0.33.0`).
+- The design-system registry (`@vegastack/ui`) bumps 0.143.0 → 0.143.1.
+
 ## [0.143.0] — November 28, 2026
 
 <!-- assembled from 1 changeset: 590eba9640ce -->
