@@ -262,6 +262,25 @@ the Content-Security-Policy `frame-src` list.
   file="components/preview/markdown-view.tsx"
 />
 
+`appEmbed={{ hosts, render }}` (`AppEmbed`, from `@/lib/embed-providers`) does the same for a
+recording in your own app: a link alone on its line to exactly `https://<host>/recordings/<uuid>` on
+one of `hosts` — `https:`, a lowercase UUID, no other path (no `/meetings/…` alias), no query, hash,
+credentials or port — renders as `render(url)` inside `MarkdownAppEmbed` (one leaf of the document's
+text; the URL when printed). The view draws no frame and adds no `frame-src` origin for it. Without
+`appEmbed`, or for any other host or path, the line is a plain link. `render` runs during render:
+pass it from a client component, or build the view on the server.
+
+```tsx
+<MarkdownView
+  appEmbed={{
+    hosts: ["app.vegastack.com"],
+    render: (url) => <RecordingEmbed meetingId={url.split("/").pop()!} />,
+  }}
+>
+  {body}
+</MarkdownView>
+```
+
 ### Bookmarks and task lines
 
 A link titled `bookmark` alone on its line — `[https://example.com](https://example.com
@@ -519,6 +538,18 @@ A view of your own is `{ label, render(source, { mode, theme }) }`, plus `defaul
 <ApiTable
   path="../../packages/ui/registry/ui/markdown-view.tsx"
   name="MentionChipProps"
+/>
+
+<ApiTable
+  path="../../packages/ui/registry/lib/embed-providers.ts"
+  name="AppEmbed"
+/>
+
+`MarkdownAppEmbed` takes a `div`'s props plus:
+
+<ApiTable
+  path="../../packages/ui/registry/ui/markdown-view-client.tsx"
+  name="MarkdownAppEmbedProps"
 />
 
 `MarkdownLiveBlock` takes a `div`'s props plus:

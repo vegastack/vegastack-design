@@ -291,3 +291,50 @@ test("a bookmark's address round-trips whatever Markdown it holds; a titled link
   expect(titled.type.name).toBe("paragraph");
   expect(titled.textContent).toBe("Saved title");
 });
+
+describe("app embeds (the host app's recordings)", () => {
+  const URL =
+    "https://app.vegastack.com/recordings/0b0e5e2a-7c1d-4f3e-9a8b-1c2d3e4f5a6b";
+  const HOSTS = ["app.vegastack.com"];
+  const SOURCE = `Before\n\n${URL}\n\nAfter`;
+
+  test("a lone recording link is an app embed only with the host's hosts, and writes back as the same line", () => {
+    const embedded = markdownToDoc(SOURCE, { appEmbedHosts: HOSTS });
+    expect(embedded.child(1).type.name).toBe("embed");
+    expect(embedded.child(1).attrs).toMatchObject({
+      provider: "app",
+      url: URL,
+    });
+    expect(docToMarkdown(embedded)).toBe(SOURCE);
+
+    // Without hosts (a server that names none) it stays a link, written as one; that line is an
+    // app embed again wherever the hosts are named — nothing is lost either way.
+    const plain = markdownToDoc(SOURCE);
+    expect(plain.child(1).type.name).toBe("paragraph");
+    const written = docToMarkdown(plain);
+    expect(written).toBe(`Before\n\n[${URL}](${URL})\n\nAfter`);
+    expect(
+      markdownToDoc(written, { appEmbedHosts: HOSTS }).child(1).attrs,
+    ).toMatchObject({ provider: "app", url: URL });
+
+    // Another path on the host is never an embed.
+    const meetings = URL.replace("/recordings/", "/meetings/");
+    expect(
+      markdownToDoc(meetings, { appEmbedHosts: HOSTS }).child(0).type.name,
+    ).toBe("paragraph");
+  });
+
+  test("the editor given appEmbedHosts reads the line as an app embed and writes it back unchanged", () => {
+    const editor = new Editor({
+      extensions: textEditExtensions({
+        appEmbedHosts: () => HOSTS,
+        plugins: [VegaStackMarkdown],
+      }),
+      content: SOURCE,
+      contentType: "markdown",
+    });
+    expect(editor.state.doc.child(1).attrs.provider).toBe("app");
+    expect(editor.getMarkdown()).toBe(SOURCE);
+    editor.destroy();
+  });
+});

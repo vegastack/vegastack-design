@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.138.0 sha256-WmxDhba8bNkBPmkg0qzh+QHAPn1qkTh02dPWRSgLrqA=
+// @vegastack text-edit@0.138.0 sha256-3SiRASjTQDW9AAH/ycL32cT1aOEQxfhSfVoWmOgtArk=
 
 "use client";
 
@@ -21,7 +21,7 @@ import {
   type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
 import type { LiveBlockKind, MentionKind } from "@/lib/text-edit-grammar";
-import type { EmbedProviders } from "@/lib/embed-providers";
+import type { AppEmbed, EmbedProviders } from "@/lib/embed-providers";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { AvatarHue } from "@/components/ui/avatar";
 import type { TextAnchor } from "@/lib/text-anchor";
@@ -32,6 +32,7 @@ import type { Awareness } from "y-protocols/awareness";
 
 export type { LiveBlockKind, MentionKind } from "@/lib/text-edit-grammar";
 export type { TextAnchor } from "@/lib/text-anchor";
+export type { AppEmbed } from "@/lib/embed-providers";
 // Type only: the schema module (and Tiptap) stays out of the light first paint.
 export type { TextEditBlock } from "@/lib/text-edit-schema";
 
@@ -1896,6 +1897,17 @@ export interface TextEditProps {
    */
   embeds?: EmbedProviders;
   /**
+   * The host app's own embeds: a link alone on its line to `https://<host>/recordings/<uuid>` on
+   * one of `hosts` — typed, pasted, or already in the Markdown — is an embed block (provider `app`)
+   * that `render` draws: the host's own card and player, with no frame from the editor and no
+   * `frame-src` origin. Stored as its URL alone on its line, so any other reader (an older app)
+   * shows and keeps a link. Without it such a link stays a link, and an `app` embed already in a
+   * shared document shows as a link to its URL. `hosts` is read at each parse; the read view before
+   * the editor draws the same card.
+   * @default undefined
+   */
+  appEmbed?: AppEmbed;
+  /**
    * Bookmarks: a link shown as a card with its page's title, icon and site — **Bookmark** in the
    * slash menu (paste or type the address into the new card), and **Link · Bookmark** in the
    * popover under a lone link pasted where a block can stand (**Embed · Link · Bookmark** for a
@@ -2732,6 +2744,7 @@ export function TextEdit(props: TextEditProps) {
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               embeds={props.embeds}
+              appEmbed={props.appEmbed}
               renderTaskQuery={props.renderTaskQuery}
               renderLiveBlock={props.renderLiveBlock}
               liveBlockKinds={props.liveBlockKinds}

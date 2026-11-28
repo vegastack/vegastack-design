@@ -6382,6 +6382,33 @@ test("embeds: without the embeds prop an embed is a link and a pasted video link
   );
 });
 
+test("appEmbed: a pasted recording link is the host's card, stored as its URL alone on the line", async () => {
+  const url =
+    "https://app.vegastack.com/recordings/0b0e5e2a-7c1d-4f3e-9a8b-1c2d3e4f5a6b";
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Intro",
+    appEmbed: {
+      hosts: ["app.vegastack.com"],
+      render: (href: string) => <span data-testid="card">{href}</span>,
+    },
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END}{Enter}`);
+  pasteData(box.element(), { "text/plain": url });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`Intro\n\n${url}`),
+  );
+  await vi.waitFor(() =>
+    expect(box.element().querySelector("[data-testid=card]")?.textContent).toBe(
+      url,
+    ),
+  );
+  expect(box.element().querySelector("iframe")).toBeNull();
+});
+
 /* --- B.2: host slash items, emoji, find & replace, block menu, stats --------------------------- */
 
 const suggestionMenu = (name: string) =>

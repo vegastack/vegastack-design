@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.138.0 sha256-KtEVTrbN0MsqWEMFkmiIgrS15V8Ye106xCNboqrM1dI=
+// @vegastack markdown-view@0.138.0 sha256-F9EqGe9AHt80iyJ9CamTdI8P2VPVsXvhr5mK7HbtIDY=
 
 import * as React from "react";
 import { Lexer, Marked, Tokenizer, type Token, type Tokens } from "marked";
@@ -52,7 +52,13 @@ import {
   type MentionKind,
 } from "@/lib/text-edit-grammar";
 import { resolveAnchor } from "@/lib/text-anchor";
-import { matchEmbed, type EmbedProviders } from "@/lib/embed-providers";
+import {
+  embedProviderOf,
+  matchAppEmbed,
+  matchEmbed,
+  type AppEmbed,
+  type EmbedProviders,
+} from "@/lib/embed-providers";
 // The client leaves: a citation marker's popover, and the behaviour after render (table scroll
 // cue, outline, find, print, highlight layout, heading links). Each renders only when asked for.
 import {
@@ -62,6 +68,7 @@ import {
 import {
   MarkdownBlockedImage,
   MarkdownShownImage,
+  MarkdownAppEmbed,
   MarkdownBookmark,
   MarkdownEmbed,
   MarkdownTaskInline,
@@ -78,12 +85,14 @@ import {
 
 export type { MarkdownCitation } from "@/components/ui/markdown-citation";
 export {
+  MarkdownAppEmbed,
   MarkdownBookmark,
   MarkdownEmbed,
   copyWithToast,
   headingLinkClassName,
 } from "@/components/ui/markdown-view-client";
 import type { BlockViews } from "@/components/ui/block-view";
+export type { AppEmbed } from "@/lib/embed-providers";
 export type {
   BlockView,
   BlockViewAction,
@@ -92,6 +101,7 @@ export type {
   BlockViews,
 } from "@/components/ui/block-view";
 export type {
+  MarkdownAppEmbedProps,
   MarkdownBookmarkPreview,
   MarkdownBookmarkProps,
   MarkdownEmbedProps,
@@ -599,8 +609,15 @@ function toggleClose(tokens: Token[], start: number): number {
 }
 
 /**
+ * The host app's hosts the parse running now reads (`appEmbed`): a lone recording link on one of
+ * them is an embed. Set for the length of one parse (`fromMarkdown`, `fromHtml`).
+ */
+let parseAppHosts: readonly string[] | undefined;
+
+/**
  * A paragraph that is only a link to its own URL (a bare URL, `<url>`, `[url](url)`; no title) on
- * an allowlisted video host: an embed — the rule `TextEdit`'s Markdown parse applies.
+ * an allowlisted video host, or to a recording on the host app's hosts (`appEmbed`): an embed —
+ * the rule `TextEdit`'s Markdown parse applies.
  */
 function embedOf(paragraph: Tokens.Generic): El | null {
   const parts = (paragraph.tokens ?? []) as Tokens.Generic[];
@@ -608,7 +625,12 @@ function embedOf(paragraph: Tokens.Generic): El | null {
   if (link?.type !== "link" || link.title) return null;
   const href = decode(String(link.href ?? ""));
   const text = inline(link.tokens);
-  if (text.length !== 1 || text[0] !== href || !matchEmbed(href)) return null;
+  if (
+    text.length !== 1 ||
+    text[0] !== href ||
+    !embedProviderOf(href, parseAppHosts)
+  )
+    return null;
   return el("embed", { url: href });
 }
 
@@ -1332,13 +1354,17 @@ function annotate(
 function fromMarkdown(
   source: string,
   liveBlockKinds: readonly LiveBlockKind[],
+  appHosts?: readonly string[],
 ): DocNode[] {
   const outer = reader;
+  const outerHosts = parseAppHosts;
   reader = readerFor(liveBlockKinds);
+  parseAppHosts = appHosts;
   try {
     return blocks(lex(source));
   } finally {
     reader = outer;
+    parseAppHosts = outerHosts;
   }
 }
 
@@ -1526,7 +1552,17 @@ function htmlAttrs(source: string): Record<string, string> {
   return attrs;
 }
 
-function fromHtml(source: string): DocNode[] {
+function fromHtml(source: string, appHosts?: readonly string[]): DocNode[] {
+  const outerHosts = parseAppHosts;
+  parseAppHosts = appHosts;
+  try {
+    return htmlTree(source);
+  } finally {
+    parseAppHosts = outerHosts;
+  }
+}
+
+function htmlTree(source: string): DocNode[] {
   const root = el("root");
   const stack: El[] = [root];
   let dropped = 0;
@@ -1598,7 +1634,7 @@ function withSchemaNodes(nodes: DocNode[]): DocNode[] {
         (child): child is El => typeof child !== "string" && child.tag === "a",
       );
       const url = link?.attrs.href ?? "";
-      if (matchEmbed(url)) return el("embed", { url });
+      if (embedProviderOf(url, parseAppHosts)) return el("embed", { url });
     }
     if (node.tag === "div" && node.attrs["data-type"] === "bookmark") {
       const link = node.children.find(
@@ -1899,6 +1935,8 @@ interface RenderContext {
   leadingTask?: El;
   fileLinkPrefix: string;
   embeds?: EmbedProviders;
+  /** The host app's own embeds: a recording link on its hosts draws as `render` returns. */
+  appEmbed?: AppEmbed;
   fileContentType?: (href: string) => string | null | undefined;
   citation?: (n: number) => MarkdownCitation | null | undefined;
   /** A link that names one of the person's own things draws as its `ResourcePill` (`linkResource`). */
@@ -2780,10 +2818,16 @@ function renderNode(
           {children()}
         </summary>
       );
-    case "embed":
-      return (
-        <MarkdownEmbed key={key} url={attrs.url ?? ""} providers={ctx.embeds} />
-      );
+    case "embed": {
+      const url = attrs.url ?? "";
+      if (ctx.appEmbed && matchAppEmbed(url, ctx.appEmbed.hosts))
+        return (
+          <MarkdownAppEmbed key={key} url={url}>
+            {ctx.appEmbed.render(url)}
+          </MarkdownAppEmbed>
+        );
+      return <MarkdownEmbed key={key} url={url} providers={ctx.embeds} />;
+    }
     case "bookmark":
       // Content that may not be trusted never makes the server fetch its URLs on render.
       return (
@@ -3221,6 +3265,15 @@ export interface MarkdownViewProps extends React.ComponentPropsWithRef<"div"> {
    */
   embeds?: EmbedProviders;
   /**
+   * The host app's own embeds: a link alone on its line to `https://<host>/recordings/<uuid>` on
+   * one of `hosts` is a block `render` draws — the host's own card and player; the view draws no
+   * frame and adds no `frame-src` origin for it. Without it (or on any other host or path) such a
+   * line is a plain link. `render` runs during render: pass it from a client component, or build
+   * the view on the server.
+   * @default undefined
+   */
+  appEmbed?: AppEmbed;
+  /**
    * Draws a live task list (`:::tasks{…}` … `:::`) — a host component that fetches the list for
    * this reader — in place of its stored snapshot. Called with `editable: false`. Without it (and
    * where it returns `null`/`undefined`) the snapshot shows as a quiet list (`MarkdownLiveBlock`):
@@ -3356,6 +3409,7 @@ export function MarkdownView({
   onTaskOpen,
   fileLinkPrefix = "/api/files/",
   embeds,
+  appEmbed,
   fileContentType,
   citation,
   linkResource,
@@ -3373,7 +3427,8 @@ export function MarkdownView({
   if (!source.trim()) return null;
 
   let tree: DocNode[];
-  if (format === "html") tree = fromHtml(source);
+  const appHosts = appEmbed?.hosts;
+  if (format === "html") tree = fromHtml(source, appHosts);
   else if (streaming) {
     // The settled blocks render as they will stay; only the last block is completed. A citation
     // marker becomes its pill as soon as it is whole: a half-written one (`[[1`) is held back by
@@ -3383,10 +3438,11 @@ export function MarkdownView({
     tree = fromMarkdown(
       settled + completeStreamingMarkdown(tail),
       liveBlockKinds,
+      appHosts,
     );
     if (citation) tree = withCitations(tree);
   } else {
-    const parsed = fromMarkdown(source, liveBlockKinds);
+    const parsed = fromMarkdown(source, liveBlockKinds, appHosts);
     tree = citation ? withCitations(parsed) : parsed;
   }
 
@@ -3509,6 +3565,7 @@ export function MarkdownView({
         onTaskOpen,
         fileLinkPrefix,
         embeds,
+        appEmbed,
         fileContentType,
         citation,
         linkResource,

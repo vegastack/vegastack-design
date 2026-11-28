@@ -1,4 +1,4 @@
-// @vegastack markdown-view@0.138.0 sha256-KtEVTrbN0MsqWEMFkmiIgrS15V8Ye106xCNboqrM1dI=
+// @vegastack markdown-view@0.138.0 sha256-F9EqGe9AHt80iyJ9CamTdI8P2VPVsXvhr5mK7HbtIDY=
 
 "use client";
 
@@ -1908,6 +1908,52 @@ export function MarkdownEmbed({
       {/* Printed, the video is its address (text: a link would print it twice). */}
       <span
         data-slot="markdown-embed-url"
+        className="hidden wrap-anywhere print:inline"
+      >
+        {url}
+      </span>
+    </div>
+  );
+}
+
+/** Props accepted by `MarkdownAppEmbed`. */
+export interface MarkdownAppEmbedProps extends React.ComponentPropsWithRef<"div"> {
+  /** The recording's URL as written — printed in place of the host's card. */
+  url: string;
+  /** The host's card for `url` (`AppEmbed`'s `render`). */
+  children?: React.ReactNode;
+}
+
+/**
+ * `MarkdownAppEmbed` — the block a host app's own embed stands in (`appEmbed`): the host's card
+ * as one leaf of the document's text, with the URL in its place when printed. It draws nothing of
+ * its own around the card.
+ *
+ * @example
+ * <MarkdownAppEmbed url={url}>
+ *   <RecordingEmbed meetingId={id} />
+ * </MarkdownAppEmbed>
+ */
+export function MarkdownAppEmbed({
+  url,
+  children,
+  className,
+  ...props
+}: MarkdownAppEmbedProps) {
+  return (
+    <div
+      data-slot="markdown-app-embed"
+      // Its anchor text is one leaf (as in `TextEdit`'s document), never the URL it prints.
+      data-anchor-block=""
+      data-anchor-text={LEAF_TEXT}
+      className={cn("my-2 max-w-full", className)}
+      {...props}
+    >
+      <div data-slot="markdown-app-embed-content" className="print:hidden">
+        {children}
+      </div>
+      <span
+        data-slot="markdown-app-embed-url"
         className="hidden wrap-anywhere print:inline"
       >
         {url}

@@ -945,6 +945,42 @@ Content-Security-Policy's `frame-src`.
   panel: its **Link** tab embeds a YouTube or Loom link, plays a video file's link natively, and
   says "Paste a YouTube or Loom link" for anything else.
 
+#### The host app's own embeds
+
+`appEmbed` makes a link to a recording in your own app an embed block that your app draws:
+`{ hosts: string[]; render: (url: string) => ReactNode }` (`AppEmbed`, from
+`@/lib/embed-providers`). A link alone on its line — typed, pasted, in the Markdown or in HTML — to
+exactly `https://<host>/recordings/<uuid>` on one of `hosts` is an `embed` block with
+`provider: "app"` and its `url`, and `render(url)` draws it in place: your own poster, title and
+duration card with its player. `TextEdit` draws no frame and loads nothing for it, so it adds
+nothing to `EMBED_FRAME_ORIGINS` or your `frame-src`.
+
+- Matching is strict: `https:` only, a host that is exactly one of `hosts` (a bare host name, no
+  scheme or port), the path `/recordings/` and a lowercase UUID with nothing after it — no other
+  path (there is no `/meetings/…` alias), no query, no hash, no credentials, no port.
+  `matchAppEmbed(url, hosts)` is the same test for your own code.
+- It writes to Markdown as its URL alone on its line, as every embed does, so any other reader — an
+  older app included — shows and keeps a link. The parse makes that line (or `[url](url)`) an `app`
+  embed again only where `appEmbed` (or `markdownToDoc`'s `appEmbedHosts`) names the host.
+- Without `appEmbed` such a link stays a link, and an `app` embed already in a shared document
+  shows as a link to its URL — never an empty block. `hosts` is read at each parse; a server that
+  builds documents passes the same hosts to `markdownToDoc(markdown, { appEmbedHosts })`.
+- Pasted into an empty paragraph it is the card (a host's `mentions.fromUrl` is not asked for it);
+  the paste popover offers **Embed · Link**, as for a video. The read view before the editor draws
+  the same card.
+
+```tsx
+<TextEdit
+  format="markdown"
+  value={body}
+  onValueChange={setBody}
+  appEmbed={{
+    hosts: ["app.vegastack.com"],
+    render: (url) => <RecordingEmbed meetingId={url.split("/").pop()!} />,
+  }}
+/>
+```
+
 `onExternalImage(url, { signal })` imports images pasted or dropped from another site. Each image
 whose `src` is not this origin's (and not a `blob:`) is taken out of the paste before it reaches
 the document, shows an upload placeholder, and lands as `{ src, alt }` from your promise — or, when

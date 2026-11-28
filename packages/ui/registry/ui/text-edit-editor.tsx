@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.138.0 sha256-WmxDhba8bNkBPmkg0qzh+QHAPn1qkTh02dPWRSgLrqA=
+// @vegastack text-edit@0.138.0 sha256-3SiRASjTQDW9AAH/ycL32cT1aOEQxfhSfVoWmOgtArk=
 
 "use client";
 
@@ -250,6 +250,7 @@ import { toast } from "@/components/ui/toast";
 import {
   CALLOUT_STYLE,
   MarkdownBookmark,
+  MarkdownAppEmbed,
   MarkdownEmbed,
   MarkdownLiveBlock,
   MEDIA_AUDIO_CLASS,
@@ -288,7 +289,14 @@ import {
   ychangeType,
   type TextEditBlock,
 } from "@/lib/text-edit-schema";
-import { matchEmbed, type EmbedProviders } from "@/lib/embed-providers";
+import {
+  APP_EMBED_PROVIDER,
+  matchAppEmbed,
+  matchEmbed,
+  type AppEmbed,
+  type EmbedNodeProvider,
+  type EmbedProviders,
+} from "@/lib/embed-providers";
 import { VegaStackMarkdown } from "@/lib/text-edit-markdown";
 import { useFileDrop } from "@/components/ui/use-file-drop";
 import { useAnnouncer } from "@/components/ui/use-announcer";
@@ -4073,6 +4081,8 @@ interface EditorRuntime {
   /** A shared document: record mentions are inserted without their title. */
   collaborative: boolean;
   fileLinkPrefix: React.RefObject<string>;
+  /** The host app's hosts (`appEmbed`), read at each parse: a recording link there embeds. */
+  appEmbedHosts: React.RefObject<readonly string[]>;
   /** The live block kinds Markdown reads (`liveBlockKinds`), fixed when the editor is created. */
   liveBlockKinds: readonly LiveBlockKind[];
   mention: {
@@ -4785,14 +4795,24 @@ function MediaView({ node, selected }: ReactNodeViewProps) {
 /* --- embeds and external images ----------------------------------------------------------------*/
 
 /**
- * A YouTube or Loom embed's node view: `MarkdownEmbed`'s facade (nothing loads from the provider
- * until Play), selectable and draggable as a block.
- */
-/**
  * Each editor's `embeds` (the providers it shows as players), read by its embed node views, its
  * paste and its video panel. An editor without them shows embeds as links.
  */
 const EDITOR_EMBEDS = new WeakMap<Editor, EmbedProviders | undefined>();
+
+/**
+ * The provider a lone `url` embeds as in `editor`: the host app's (`appEmbed`, on `appHosts`), or
+ * a video provider the editor shows as a player (`embeds`) — else null, and it stays a link.
+ */
+function embedProviderFor(
+  editor: Editor,
+  url: string,
+  appHosts: readonly string[],
+): EmbedNodeProvider | null {
+  if (matchAppEmbed(url, appHosts)) return APP_EMBED_PROVIDER;
+  const match = matchEmbed(url);
+  return match && embedsOn(editor, match.provider) ? match.provider : null;
+}
 
 /** Whether `editor` shows `provider`'s videos as players. */
 function embedsOn(editor: Editor, provider: string): boolean {
@@ -4803,20 +4823,82 @@ function embedsOn(editor: Editor, provider: string): boolean {
   );
 }
 
+/**
+ * Each editor's `appEmbed` (the host app's own embeds) and the embed node views reading it. A new
+ * value re-renders every one, so a host's changed `render` never leaves an old card on screen.
+ */
+const EDITOR_APP_EMBED = new WeakMap<
+  Editor,
+  { value: AppEmbed | undefined; listeners: Set<() => void> }
+>();
+
+function appEmbedStore(editor: Editor) {
+  let store = EDITOR_APP_EMBED.get(editor);
+  if (!store) {
+    store = { value: undefined, listeners: new Set() };
+    EDITOR_APP_EMBED.set(editor, store);
+  }
+  return store;
+}
+
+/** Hand `editor`'s node views the host's current `appEmbed`. */
+function setAppEmbed(editor: Editor, value: AppEmbed | undefined) {
+  const store = appEmbedStore(editor);
+  if (store.value === value) return;
+  store.value = value;
+  for (const listener of store.listeners) listener();
+}
+
+/** The host's current `appEmbed`, re-rendering the caller when it changes. */
+function useAppEmbed(editor: Editor): AppEmbed | undefined {
+  const store = appEmbedStore(editor);
+  return React.useSyncExternalStore(
+    React.useCallback(
+      (listener: () => void) => {
+        store.listeners.add(listener);
+        return () => store.listeners.delete(listener);
+      },
+      [store],
+    ),
+    () => store.value,
+    () => store.value,
+  );
+}
+
+/**
+ * An embed's node view, selectable and draggable as a block: a YouTube or Loom video is
+ * `MarkdownEmbed`'s facade (nothing loads from the provider until Play); a recording in the host
+ * app is the host's card (`appEmbed`'s `render`), or a link to it without one.
+ */
 function EmbedView({ node, selected, editor }: ReactNodeViewProps) {
+  const appEmbed = useAppEmbed(editor);
+  const url = String(node.attrs.url ?? "");
+  const app =
+    node.attrs.provider === APP_EMBED_PROVIDER &&
+    appEmbed &&
+    matchAppEmbed(url, appEmbed.hosts)
+      ? appEmbed
+      : null;
   return (
     <NodeViewWrapper
       data-slot="text-edit-embed"
+      data-provider={app ? APP_EMBED_PROVIDER : undefined}
       data-drag-handle=""
       contentEditable={false}
       data-selected={selected ? "true" : undefined}
-      className="my-2 rounded-block data-selected:[&_[data-slot=markdown-embed-frame]]:outline-2 data-selected:[&_[data-slot=markdown-embed-frame]]:outline-info"
+      className="my-2 rounded-block data-selected:[&_[data-slot=markdown-embed-frame]]:outline-2 data-selected:[&_[data-slot=markdown-embed-frame]]:outline-info data-selected:[&_[data-slot=markdown-app-embed-content]]:rounded-block data-selected:[&_[data-slot=markdown-app-embed-content]]:outline-2 data-selected:[&_[data-slot=markdown-app-embed-content]]:outline-info"
     >
-      <MarkdownEmbed
-        url={String(node.attrs.url ?? "")}
-        providers={EDITOR_EMBEDS.get(editor)}
-        className="my-0"
-      />
+      {app ? (
+        <MarkdownAppEmbed url={url} className="my-0">
+          {app.render(url)}
+        </MarkdownAppEmbed>
+      ) : (
+        <MarkdownEmbed
+          url={url}
+          providers={EDITOR_EMBEDS.get(editor)}
+          className="my-0"
+        />
+      )}
     </NodeViewWrapper>
   );
 }
@@ -5978,6 +6060,7 @@ function buildExtensions(
   return textEditExtensions({
     lowlight: codeLowlight,
     fileLinkPrefix: () => editorRuntime.fileLinkPrefix.current,
+    appEmbedHosts: () => editorRuntime.appEmbedHosts.current,
     liveBlockKinds: editorRuntime.liveBlockKinds,
     ...(collaboration ? { collaboration: { isRemote: isChangeOrigin } } : {}),
     // A version diff's `ychange` mark and attribute: only ever in a diff view's schema.
@@ -7186,8 +7269,17 @@ function MediaPanel({
       onClose();
       return;
     }
-    const match = kind === "video" ? matchEmbed(safe) : null;
-    const embed = match && embedsOn(editor, match.provider) ? match : null;
+    // A recording in the host app (`appEmbed`) embeds as its card; a video provider's link as
+    // its player (`embeds`).
+    const provider =
+      kind === "video"
+        ? embedProviderFor(
+            editor,
+            safe,
+            appEmbedStore(editor).value?.hosts ?? [],
+          )
+        : null;
+    const embed = provider ? { provider } : null;
     if (kind === "video" && embedding && !embed && !isVideoFileUrl(safe)) {
       setError("Paste a YouTube or Loom link");
       return;
@@ -11806,6 +11898,7 @@ export function TextEditEditor({
   fileLinkPrefix = "/api/files/",
   inlineImageTypes = INLINE_IMAGE_TYPES,
   embeds: embedsProp,
+  appEmbed: appEmbedProp,
   renderTaskQuery,
   renderLiveBlock,
   liveBlockKinds,
@@ -11876,6 +11969,7 @@ export function TextEditEditor({
       ? onFileUploadProp
       : undefined;
   const embeds = allowsKind("embed") ? embedsProp : undefined;
+  const appEmbed = allowsKind("embed") ? appEmbedProp : undefined;
   const bookmarks = allowsKind("bookmark") && bookmarksProp;
   const blockViews = React.useMemo(() => {
     if (!blockViewsProp || !allowed || allowed.has("diagram"))
@@ -12055,6 +12149,10 @@ export function TextEditEditor({
   inlineImageTypesRef.current = inlineImageTypes;
   const fileLinkPrefixRef = React.useRef(fileLinkPrefix);
   fileLinkPrefixRef.current = fileLinkPrefix;
+  const appEmbedHostsRef = React.useRef<readonly string[]>(
+    appEmbed?.hosts ?? [],
+  );
+  appEmbedHostsRef.current = appEmbed?.hosts ?? [];
 
   const [panel, setPanel] = React.useState<Panel | null>(null);
   // The block menu is open: the selection toolbar would cover its items, so it steps aside.
@@ -12137,7 +12235,10 @@ export function TextEditEditor({
       let from = range.from;
       let size: number;
       if (form === "embed" || form === "bookmark") {
-        const match = form === "embed" ? matchEmbed(pasted.url) : null;
+        const provider =
+          form === "embed"
+            ? embedProviderFor(ed, pasted.url, appEmbedHostsRef.current)
+            : null;
         // From one block to the other: the block stands where the other did.
         const swap = pasted.form === "embed" || pasted.form === "bookmark";
         const host = swap
@@ -12152,10 +12253,10 @@ export function TextEditEditor({
             })()
           : embedHost(state.doc, range.from);
         const type = schema.nodes[form];
-        if ((form === "embed" && !match) || !host || !type) return;
+        if ((form === "embed" && !provider) || !host || !type) return;
         const embed = type.create(
           form === "embed"
-            ? { provider: match!.provider, url: pasted.url }
+            ? { provider, url: pasted.url }
             : { url: pasted.url },
         );
         // Alone in its paragraph, the link becomes the embed; beside text, the embed follows it.
@@ -12251,13 +12352,17 @@ export function TextEditEditor({
       const link = state.schema.marks.link;
       if (!link) return false;
       const controller = new AbortController();
-      const answer =
-        callbacks.current.mentions?.fromUrl?.(url, {
-          signal: controller.signal,
-        }) ?? null;
-      const match = answer ? null : matchEmbed(url);
+      // A recording in the host app (`appEmbed`) is its embed, never looked up as a mention.
+      const app = matchAppEmbed(url, appEmbedHostsRef.current) !== null;
+      const answer = app
+        ? null
+        : (callbacks.current.mentions?.fromUrl?.(url, {
+            signal: controller.signal,
+          }) ?? null);
       const host =
-        match && embedsOn(ed, match.provider) && state.schema.nodes.embed
+        !answer &&
+        embedProviderFor(ed, url, appEmbedHostsRef.current) &&
+        state.schema.nodes.embed
           ? embedHost(state.doc, from)
           : null;
       // A bookmark where a block can stand in for the paste (`bookmarks`).
@@ -12630,6 +12735,7 @@ export function TextEditEditor({
         labels,
         collaborative: collab !== null,
         fileLinkPrefix: fileLinkPrefixRef,
+        appEmbedHosts: appEmbedHostsRef,
         liveBlockKinds: liveBlockKinds ?? DEFAULT_LIVE_BLOCK_KINDS,
         mention: {
           enabled: () => Boolean(callbacks.current.mentions?.kinds.length),
@@ -13812,6 +13918,10 @@ export function TextEditEditor({
     if (editor && !editor.isDestroyed)
       setLiveBlockRender(editor, liveBlockRender);
   }, [editor, liveBlockRender]);
+  // The host's own embeds, published the same way: a new `appEmbed` re-renders its cards.
+  React.useLayoutEffect(() => {
+    if (editor && !editor.isDestroyed) setAppEmbed(editor, appEmbed);
+  }, [editor, appEmbed]);
   // Its node views and commands read the host's block views from here, during their own render.
   if (editor) blockViewsByEditor.set(editor, blockViews ?? {});
   if (editor) allowedByEditor.set(editor, allowed);
