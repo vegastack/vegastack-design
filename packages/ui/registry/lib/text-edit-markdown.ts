@@ -1,4 +1,4 @@
-// @vegastack text-edit-markdown@0.57.1 sha256-TqPRceK5VNhEvRmkrg/ZGRIHwrW0dgBIQcGjICjBAJs=
+// @vegastack text-edit-markdown@0.57.1 sha256-T6B5Vj44CFVdeQKlqOH9+bKxjiHKWCgWWQRTa0EbnG4=
 
 import { Mark, type AnyExtension, type JSONContent } from "@tiptap/core";
 import { Markdown, MarkdownManager } from "@tiptap/markdown";
@@ -712,15 +712,26 @@ export function createMarkdownManager(
   const internals = created as unknown as ManagerInternals;
   internals.encodeTextForMarkdown = encodeText;
   internals.parseHTMLToken = htmlAsText;
+  // The host app's hosts, as the schema's `embed` node holds them (`appEmbedHosts`).
+  const appHosts = (
+    extensions.find((each) => each.name === "embed")?.options as
+      { appHosts?: () => readonly string[] } | undefined
+  )?.appHosts;
   // Every parse — the editor's initial content, a paste, `setContent`, a server's `markdownToDoc`
   // — reads the same normalized source and returns a document the schema accepts.
   const parse = created.parse.bind(created);
   created.parse = (markdown: string) => {
     // Every per-document index serves only the parse that built it.
     resetParseCaches();
-    return normalizeParsed(
-      withoutRepeatedMarks(parse(normalizeSource(markdown))),
-    );
+    const outer = PARSE_APP_HOSTS;
+    PARSE_APP_HOSTS = APP_HOSTS_OVERRIDE ?? appHosts?.() ?? null;
+    try {
+      return normalizeParsed(
+        withoutRepeatedMarks(parse(normalizeSource(markdown))),
+      );
+    } finally {
+      PARSE_APP_HOSTS = outer;
+    }
   };
   const write = created.serialize.bind(created);
   created.serialize = (doc: JSONContent) => {
@@ -730,6 +741,14 @@ export function createMarkdownManager(
   };
   return created;
 }
+
+/**
+ * The host app's hosts the parse running now reads (`appEmbedHosts`): a lone recording link on one
+ * of them is an `app` embed. Set for the length of one (synchronous) parse.
+ */
+let PARSE_APP_HOSTS: readonly string[] | null = null;
+/** `markdownToDoc`'s `appEmbedHosts`, over the manager's own for the length of its parse. */
+let APP_HOSTS_OVERRIDE: readonly string[] | null = null;
 
 /** Markdown as every parse reads it: no BOM, `\n` line endings, no NUL (Postgres rejects it). */
 function normalizeSource(markdown: string): string {
@@ -941,9 +960,9 @@ function normalizeParsed(node: JSONContent): JSONContent {
     else if (
       child.type === "paragraph" &&
       EMBED_CONTAINERS.has(node.type ?? "") &&
-      embedOfParagraph(child)
+      embedOfParagraph(child, PARSE_APP_HOSTS)
     )
-      content.push(embedOfParagraph(child)!);
+      content.push(embedOfParagraph(child, PARSE_APP_HOSTS)!);
     else if (
       child.type === "paragraph" &&
       EMBED_CONTAINERS.has(node.type ?? "") &&
@@ -1068,6 +1087,12 @@ export interface MarkdownToDocOptions {
    * @default DEFAULT_LIVE_BLOCK_KINDS — the live task list (`tasks`) alone
    */
   liveBlockKinds?: readonly LiveBlockKind[];
+  /**
+   * The host app's hosts (`AppEmbed`'s `hosts`): a lone link to `https://<host>/recordings/<uuid>`
+   * on one of them is an `embed` block with provider `app`, as the editor given `appEmbed` reads
+   * it. Without it such a line stays a link paragraph.
+   */
+  appEmbedHosts?: readonly string[];
 }
 
 /**
@@ -1082,7 +1107,14 @@ export function markdownToDoc(
   markdown: string,
   options: MarkdownToDocOptions = {},
 ): PMNode {
-  const json = manager(options.liveBlockKinds).parse(markdown);
+  const outer = APP_HOSTS_OVERRIDE;
+  APP_HOSTS_OVERRIDE = options.appEmbedHosts ?? null;
+  let json: JSONContent;
+  try {
+    json = manager(options.liveBlockKinds).parse(markdown);
+  } finally {
+    APP_HOSTS_OVERRIDE = outer;
+  }
   const content = json.content?.length ? json.content : [{ type: "paragraph" }];
   const doc = textEditSchema().nodeFromJSON(
     assignBlockIds({ type: "doc", content }, options.blockId ?? blockId),
@@ -1147,7 +1179,7 @@ function withLabels(
  */
 export function normalizeMarkdown(
   markdown: string,
-  options: Pick<MarkdownToDocOptions, "liveBlockKinds"> = {},
+  options: Pick<MarkdownToDocOptions, "liveBlockKinds" | "appEmbedHosts"> = {},
 ): string {
   return docToMarkdown(markdownToDoc(markdown, options));
 }

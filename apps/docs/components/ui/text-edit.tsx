@@ -1,4 +1,4 @@
-// @vegastack text-edit@0.138.0 sha256-WmxDhba8bNkBPmkg0qzh+QHAPn1qkTh02dPWRSgLrqA=
+// @vegastack text-edit@0.138.0 sha256-WY/crVEPHqVFvP0RYv48/+aOlphIlXz2q2vBZkB2IV8=
 
 "use client";
 
@@ -21,7 +21,7 @@ import {
   type TaskQueryRenderProps,
 } from "@/components/ui/markdown-view";
 import type { LiveBlockKind, MentionKind } from "@/lib/text-edit-grammar";
-import type { EmbedProviders } from "@/lib/embed-providers";
+import type { AppEmbed, EmbedProviders } from "@/lib/embed-providers";
 import type { FileViewerItem } from "@/components/ui/file-viewer";
 import type { AvatarHue } from "@/components/ui/avatar";
 import type { TextAnchor } from "@/lib/text-anchor";
@@ -1896,6 +1896,17 @@ export interface TextEditProps {
    */
   embeds?: EmbedProviders;
   /**
+   * The host app's own embeds: a link alone on its line to `https://<host>/recordings/<uuid>` on
+   * one of `hosts` — pasted, or already in the Markdown or `div[data-type=embed]` HTML — is an
+   * embed block (provider `app`) that `render` draws: the host's own card and player, with no
+   * frame from the editor and no `frame-src` origin. Stored as its URL alone on its line, so any other reader (an older app)
+   * shows and keeps a link. Without it such a link stays a link, and an `app` embed already in a
+   * shared document shows as a link to its URL. `hosts` is read at each parse; the read view before
+   * the editor draws the same card.
+   * @default undefined
+   */
+  appEmbed?: AppEmbed;
+  /**
    * Bookmarks: a link shown as a card with its page's title, icon and site — **Bookmark** in the
    * slash menu (paste or type the address into the new card), and **Link · Bookmark** in the
    * popover under a lone link pasted where a block can stand (**Embed · Link · Bookmark** for a
@@ -2623,12 +2634,15 @@ export function TextEdit(props: TextEditProps) {
     },
     // A link click places the caret, as in the editor, instead of navigating.
     onClick: (event: React.MouseEvent) => {
-      // A task line's ↗ and a bookmark card are links of their own: they navigate.
+      // A task line's ↗, a bookmark card and the host's embed card are links of their own: they
+      // navigate.
+      const target = event.target as Element;
       if (
         editable &&
-        (event.target as Element).closest?.(
+        target.closest?.(
           "a:not([data-slot=task-inline-open]):not([data-slot=markdown-bookmark])",
-        )
+        ) &&
+        !target.closest?.("[data-slot=markdown-app-embed-content]")
       )
         event.preventDefault();
     },
@@ -2732,6 +2746,7 @@ export function TextEdit(props: TextEditProps) {
               citation={props.citation}
               fileLinkPrefix={props.fileLinkPrefix}
               embeds={props.embeds}
+              appEmbed={props.appEmbed}
               renderTaskQuery={props.renderTaskQuery}
               renderLiveBlock={props.renderLiveBlock}
               liveBlockKinds={props.liveBlockKinds}
@@ -2822,14 +2837,13 @@ export function TextEdit(props: TextEditProps) {
 
 const ALL_ORIGINS = ["*"] as const;
 
-/** A citation marker in the read view: its press and focus belong to it, not to editing. */
 /**
- * A control of its own in the read view — a citation, a task line's title or ↗, a bookmark card:
- * pressing or focusing it never starts an edit.
+ * A control of its own in the read view — a citation, a task line's title or ↗, a bookmark card,
+ * anything in the host's embed card (`appEmbed`): pressing or focusing it never starts an edit.
  */
 const isCitation = (target: EventTarget) =>
   Boolean(
     (target as Element).closest?.(
-      "[data-slot=markdown-citation],[data-slot=task-inline-title],[data-slot=task-inline-open],[data-slot=markdown-bookmark]",
+      "[data-slot=markdown-citation],[data-slot=task-inline-title],[data-slot=task-inline-open],[data-slot=markdown-bookmark],[data-slot=markdown-app-embed-content]",
     ),
   );

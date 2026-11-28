@@ -3,6 +3,8 @@ import {
   EMBED_FRAME_ATTRIBUTES,
   EMBED_FRAME_ORIGINS,
   EMBED_PROVIDERS,
+  embedProviderOf,
+  matchAppEmbed,
   matchEmbed,
   parseYouTubeTime,
 } from "./embed-providers";
@@ -153,4 +155,78 @@ test("the frame allowlist is the providers' origins, and the frame attributes ar
   });
   expect(EMBED_PROVIDERS.youtube.label).toBe("YouTube video");
   expect(EMBED_PROVIDERS.loom.label).toBe("Loom video");
+});
+
+describe("the host app's recordings (app)", () => {
+  const UUID = "0b0e5e2a-7c1d-4f3e-9a8b-1c2d3e4f5a6b";
+  const HOSTS = ["app.vegastack.com"];
+  const URL_OK = `https://app.vegastack.com/recordings/${UUID}`;
+
+  test("a recording link on a named host is an app embed, the URL kept as written", () => {
+    expect(matchAppEmbed(URL_OK, HOSTS)).toEqual({
+      provider: "app",
+      id: UUID,
+      url: URL_OK,
+    });
+    expect(matchAppEmbed(URL_OK, [" App.VegaStack.com "])?.id).toBe(UUID);
+    expect(embedProviderOf(URL_OK, HOSTS)).toBe("app");
+  });
+
+  test.each([
+    // Another host, a look-alike, a subdomain.
+    `https://evil.com/recordings/${UUID}`,
+    `https://app.vegastack.com.evil.com/recordings/${UUID}`,
+    `https://x.app.vegastack.com/recordings/${UUID}`,
+    `https://app.vegastack.com./recordings/${UUID}`,
+    // No /meetings alias, no other path.
+    `https://app.vegastack.com/meetings/${UUID}`,
+    `https://app.vegastack.com/recordings`,
+    `https://app.vegastack.com/recordings/`,
+    `https://app.vegastack.com/recordings/${UUID}/`,
+    `https://app.vegastack.com/recordings/${UUID}/edit`,
+    `https://app.vegastack.com/x/recordings/${UUID}`,
+    `https://app.vegastack.com/recordings//${UUID}`,
+    `https://app.vegastack.com/a/../recordings/${UUID}`,
+    `https://app.vegastack.com/recordings%2F${UUID}`,
+    `https://app.vegastack.com/RECORDINGS/${UUID}`,
+    // Not a lowercase UUID.
+    `https://app.vegastack.com/recordings/${UUID.toUpperCase()}`,
+    `https://app.vegastack.com/recordings/123`,
+    `https://app.vegastack.com/recordings/${UUID}0`,
+    // Query, hash, credentials, port, scheme.
+    `${URL_OK}?edit=1`,
+    `${URL_OK}?`,
+    `${URL_OK}#t=1`,
+    `https://user:pw@app.vegastack.com/recordings/${UUID}`,
+    `https://app.vegastack.com@evil.com/recordings/${UUID}`,
+    `https://app.vegastack.com:8443/recordings/${UUID}`,
+    // An authority URL would normalise to the host: refused as written.
+    `https://app.vegastack.com:443/recordings/${UUID}`,
+    `https://app.vegastack.com:/recordings/${UUID}`,
+    `https://@app.vegastack.com/recordings/${UUID}`,
+    `https://%61pp.vegastack.com/recordings/${UUID}`,
+    `http://app.vegastack.com/recordings/${UUID}`,
+    ` ${URL_OK}`,
+  ])("%s is not an app embed", (url) => {
+    expect(matchAppEmbed(url, HOSTS)).toBeNull();
+    expect(embedProviderOf(url, HOSTS)).toBeNull();
+  });
+
+  test("without hosts nothing is an app embed, and a host entry that is not a bare name is ignored", () => {
+    expect(matchAppEmbed(URL_OK, [])).toBeNull();
+    expect(matchAppEmbed(URL_OK, undefined)).toBeNull();
+    expect(embedProviderOf(URL_OK)).toBeNull();
+    expect(
+      matchAppEmbed(URL_OK, [
+        "https://app.vegastack.com",
+        "app.vegastack.com:443",
+        "*.vegastack.com",
+      ]),
+    ).toBeNull();
+  });
+
+  test("an app embed adds no frame origin", () => {
+    expect(EMBED_FRAME_ORIGINS).not.toContain("https://app.vegastack.com");
+    expect(EMBED_FRAME_ORIGINS).toHaveLength(2);
+  });
 });

@@ -6382,6 +6382,115 @@ test("embeds: without the embeds prop an embed is a link and a pasted video link
   );
 });
 
+test("appEmbed: a pasted recording link is the host's card, stored as its URL alone on the line", async () => {
+  const url =
+    "https://app.vegastack.com/recordings/0b0e5e2a-7c1d-4f3e-9a8b-1c2d3e4f5a6b";
+  const onValueChange = vi.fn();
+  const screen = await markdownEditor({
+    defaultValue: "Intro",
+    appEmbed: {
+      hosts: ["app.vegastack.com"],
+      render: (href: string) => <span data-testid="card">{href}</span>,
+    },
+    onValueChange,
+  });
+  const box = screen.getByRole("textbox", { name: "Notes" });
+  await box.click();
+  await userEvent.keyboard(`${END}{Enter}`);
+  pasteData(box.element(), { "text/plain": url });
+  await vi.waitFor(() =>
+    expect(lastValue(onValueChange)).toBe(`Intro\n\n${url}`),
+  );
+  await vi.waitFor(() =>
+    expect(box.element().querySelector("[data-testid=card]")?.textContent).toBe(
+      url,
+    ),
+  );
+  expect(box.element().querySelector("iframe")).toBeNull();
+});
+
+// The read view before an edit starts (citations keep it in place: `readView`, `visibleEditor`).
+const RECORDING =
+  "https://app.vegastack.com/recordings/0b0e5e2a-7c1d-4f3e-9a8b-1c2d3e4f5a6b";
+const linkCardEmbed = {
+  hosts: ["app.vegastack.com"],
+  render: (href: string) => <a href={href}>Open recording</a>,
+};
+/** Whether the next click reached the page cancelled; the test page itself never navigates. */
+const nextClickCancelled = () =>
+  new Promise<boolean>((resolve) =>
+    document.addEventListener(
+      "click",
+      (event) => {
+        resolve(event.defaultPrevented);
+        event.preventDefault();
+      },
+      { once: true },
+    ),
+  );
+
+test("appEmbed: in the read view a click on the card's link is the card's own — it navigates and starts no edit", async () => {
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Notes"
+      defaultValue={`Intro\n\n${RECORDING}`}
+      appEmbed={linkCardEmbed}
+      // Citations keep the read view standing in until an edit starts.
+      citation={cite}
+    />,
+  );
+  const link = await vi.waitFor(() => {
+    const found = readView(screen)?.querySelector<HTMLAnchorElement>(
+      '[data-slot="markdown-app-embed"] a',
+    );
+    expect(found).toBeTruthy();
+    return found!;
+  });
+  expect(
+    link
+      .closest('[data-slot="markdown-app-embed"]')
+      ?.getAttribute("contenteditable"),
+  ).toBe("false");
+  const cancelled = nextClickCancelled();
+  await userEvent.click(link);
+  expect(await cancelled).toBe(false);
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(readView(screen)).not.toBeNull();
+  expect(visibleEditor(screen)).toBeNull();
+  expect(link.isConnected).toBe(true);
+});
+
+test("appEmbed: in the read view keyboard focus on the card's link stays there, and Enter follows it", async () => {
+  const screen = await render(
+    <TextEdit
+      format="markdown"
+      aria-label="Notes"
+      defaultValue={`Intro\n\n${RECORDING}`}
+      appEmbed={linkCardEmbed}
+      // Citations keep the read view standing in until an edit starts.
+      citation={cite}
+    />,
+  );
+  const link = await vi.waitFor(() => {
+    const found = readView(screen)?.querySelector<HTMLAnchorElement>(
+      '[data-slot="markdown-app-embed"] a',
+    );
+    expect(found).toBeTruthy();
+    return found!;
+  });
+  link.focus();
+  await new Promise((resolve) => setTimeout(resolve, 100));
+  expect(document.activeElement).toBe(link);
+  expect(readView(screen)).not.toBeNull();
+  expect(visibleEditor(screen)).toBeNull();
+  const cancelled = nextClickCancelled();
+  await userEvent.keyboard("{Enter}");
+  expect(await cancelled).toBe(false);
+  expect(document.activeElement).toBe(link);
+  expect(visibleEditor(screen)).toBeNull();
+});
+
 /* --- B.2: host slash items, emoji, find & replace, block menu, stats --------------------------- */
 
 const suggestionMenu = (name: string) =>

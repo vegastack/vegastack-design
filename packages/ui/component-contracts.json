@@ -29633,6 +29633,24 @@
             "status": "not-applicable",
             "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
+        },
+        {
+          "name": "MarkdownAppEmbed",
+          "kind": "component",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "MarkdownAppEmbedProps",
+          "kind": "interface",
+          "source": "packages/ui/registry/ui/markdown-citation.tsx",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
         }
       ],
       "variants": {
@@ -29872,6 +29890,27 @@
                 "markdown-embed-frame",
                 "markdown-embed-link",
                 "markdown-embed-url"
+              ]
+            }
+          ],
+          "cssVariables": []
+        },
+        "MarkdownAppEmbed": {
+          "attributes": [
+            {
+              "name": "data-anchor-block",
+              "values": [""]
+            },
+            {
+              "name": "data-anchor-text",
+              "values": []
+            },
+            {
+              "name": "data-slot",
+              "values": [
+                "markdown-app-embed",
+                "markdown-app-embed-content",
+                "markdown-app-embed-url"
               ]
             }
           ],
@@ -61654,6 +61693,60 @@
           "ref": {
             "status": "not-applicable",
             "rationale": "A pure function; it renders nothing and takes no ref."
+          }
+        },
+        {
+          "name": "APP_EMBED_PROVIDER",
+          "kind": "component-constant",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AppEmbed",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "AppEmbedMatch",
+          "kind": "interface",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "EmbedNodeProvider",
+          "kind": "type",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "embedProviderOf",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
+          }
+        },
+        {
+          "name": "matchAppEmbed",
+          "kind": "function",
+          "source": "packages/ui/registry/lib/embed-providers.ts",
+          "ref": {
+            "status": "not-applicable",
+            "rationale": "Added by pnpm gen; set a target if this part forwards a ref."
           }
         }
       ],

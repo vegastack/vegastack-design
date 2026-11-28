@@ -1,15 +1,22 @@
-// @vegastack embed-providers@0.133.0 sha256-DBqn588/xTEuFpbwxac4phvvkzlnhah+4e85wT2U9G8=
+// @vegastack embed-providers@0.133.0 sha256-A2UQakfr/EJIMmcc10OEHAvaPdKKuMCRfzd6rXeM32A=
+
+import type { ReactNode } from "react";
 
 /**
  * embed-providers — the video hosts a document may embed (YouTube and Loom), as plain functions: a
  * URL in, the provider and video id out, and the player `src` rebuilt from that id alone. No
- * dependencies, no React, no DOM: `TextEdit`'s schema (`@/lib/text-edit-schema`), `MarkdownView`
- * and server code (a Content-Security-Policy `frame-src`, an import) read the same allowlist.
+ * dependencies, no React at runtime, no DOM: `TextEdit`'s schema (`@/lib/text-edit-schema`),
+ * `MarkdownView` and server code (a Content-Security-Policy `frame-src`, an import) read the same
+ * allowlist.
  *
  * Only an `https:` URL on an exact host, with a strictly shaped id, matches. Everything else in a
  * URL — tracking parameters, a playlist, a session id — is dropped; YouTube's start time (`t=`, or
  * `start=` on an embed link) is the one thing kept, as the player's `?start=`. The raw URL is never
  * a frame's `src`.
+ *
+ * One more provider is not a frame: **`app`**, a recording in the host app itself
+ * (`https://<host>/recordings/<uuid>`), on hosts the app names at runtime (`AppEmbed`). The host
+ * draws it with its own component; nothing here builds a `src` for it or adds a `frame-src` origin.
  */
 
 /** A provider the document can embed. */
@@ -43,6 +50,43 @@ export type EmbedProviders = Partial<
   Readonly<Record<EmbedProviderId, EmbedProvider>>
 >;
 
+/** The provider an `embed` node stores for a recording in the host app itself (`AppEmbed`). */
+export const APP_EMBED_PROVIDER = "app";
+
+/** Every provider an `embed` node may store: a framed video host, or the host app. */
+export type EmbedNodeProvider = EmbedProviderId | typeof APP_EMBED_PROVIDER;
+
+/**
+ * The host app's own embeds — opt-in on `TextEdit` and `MarkdownView` (`appEmbed`). A link alone on
+ * its line to `https://<host>/recordings/<uuid>`, on one of `hosts`, is an embed block the host
+ * draws with `render`: the design system draws no frame and loads nothing for it. Without it such a
+ * link stays a plain link.
+ *
+ * @example
+ * const appEmbed: AppEmbed = {
+ *   hosts: ["app.vegastack.com"],
+ *   render: (url) => <RecordingEmbed meetingId={url.split("/").pop()!} />,
+ * };
+ */
+export interface AppEmbed {
+  /**
+   * The host names (`app.vegastack.com`, no scheme, no port) whose recording links embed. An entry
+   * that is not a bare host name is ignored.
+   */
+  hosts: readonly string[];
+  /** Draws the embed for `url`, the link as written (one `matchAppEmbed` accepted). */
+  render: (url: string) => ReactNode;
+}
+
+/** A URL `matchAppEmbed` recognised. */
+export interface AppEmbedMatch {
+  provider: typeof APP_EMBED_PROVIDER;
+  /** The recording's id: a lowercase UUID. */
+  id: string;
+  /** The URL, as written. */
+  url: string;
+}
+
 /** A URL `matchEmbed` recognised. */
 export interface EmbedMatch {
   provider: EmbedProviderId;
@@ -53,6 +97,13 @@ export interface EmbedMatch {
   /** The player's frame URL: `EMBED_PROVIDERS[provider].src(id, { start })`. */
   src: string;
 }
+
+/** A recording's path in the host app: `/recordings/` and a lowercase UUID, nothing after it. */
+const APP_RECORDING_PATH =
+  /^\/recordings\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})$/;
+/** A bare host name: lowercase labels joined by dots, no port, no trailing dot. */
+const HOST_NAME =
+  /^(?=.{1,253}$)[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/;
 
 /** The longest URL read: a real share link is far shorter. */
 const MAX_URL_LENGTH = 2048;
@@ -238,4 +289,54 @@ export function matchEmbed(url: string): EmbedMatch | null {
     };
   }
   return null;
+}
+
+/**
+ * The recording `url` points at in the host app — or null unless it is exactly
+ * `https://<host>/recordings/<uuid>` on one of `hosts`: a lowercase UUID, nothing after it (no
+ * other path, no query, no hash), no credentials, no port. There is no `/meetings/…` alias.
+ *
+ * @example
+ * matchAppEmbed("https://app.vegastack.com/recordings/0b0e…", ["app.vegastack.com"]);
+ * // { provider: "app", id: "0b0e…", url: "https://app.vegastack.com/recordings/0b0e…" }
+ * matchAppEmbed("https://app.vegastack.com/meetings/0b0e…", ["app.vegastack.com"]); // null
+ */
+export function matchAppEmbed(
+  url: string,
+  hosts: readonly string[] | null | undefined,
+): AppEmbedMatch | null {
+  if (!hosts?.length || /[?#]/.test(url ?? "")) return null;
+  const parsed = parseHttps(url);
+  if (!parsed || parsed.search || parsed.hash) return null;
+  // The authority and path as written — never URL's normalisation of them (`host:443`, `@host`,
+  // `%61pp…`, `/a/../recordings/…`, `%2F`): both must already be exactly what is allowed.
+  const raw = /^https:\/\/([^/?#]+)(\/[^?#]*)$/i.exec(url);
+  if (!raw) return null;
+  const host = raw[1]!.toLowerCase();
+  if (!HOST_NAME.test(host) || host !== parsed.hostname) return null;
+  const allowed = hosts.some(
+    (each) => typeof each === "string" && each.trim().toLowerCase() === host,
+  );
+  const path = raw[2]!;
+  const id = APP_RECORDING_PATH.exec(path)?.[1];
+  return allowed && id && path === parsed.pathname
+    ? { provider: APP_EMBED_PROVIDER, id, url }
+    : null;
+}
+
+/**
+ * The provider an `embed` node stores for `url`: a framed video host (`matchEmbed`), else the host
+ * app's when `appHosts` name its host (`matchAppEmbed`) — or null when `url` is neither.
+ *
+ * @example
+ * embedProviderOf("https://youtu.be/dQw4w9WgXcQ"); // "youtube"
+ * embedProviderOf("https://app.vegastack.com/recordings/0b0e…", ["app.vegastack.com"]); // "app"
+ */
+export function embedProviderOf(
+  url: string,
+  appHosts?: readonly string[] | null,
+): EmbedNodeProvider | null {
+  return (
+    matchEmbed(url)?.provider ?? matchAppEmbed(url, appHosts)?.provider ?? null
+  );
 }

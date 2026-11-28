@@ -1,4 +1,4 @@
-// @vegastack text-edit-schema@0.69.0 sha256-kXZr2L/7ohMD/bgwneqPaoB4ubD8i2pncHaQAz7AGSE=
+// @vegastack text-edit-schema@0.69.0 sha256-gGe8WR9w2fQoek5ePnHMHKyVTTEgQLv1FblVZ2XzAOU=
 
 import {
   Extension,
@@ -70,7 +70,7 @@ import {
   parseImageAlt,
   parseMentionLink,
 } from "@/lib/text-edit-grammar";
-import { matchEmbed, type EmbedProviderId } from "@/lib/embed-providers";
+import { embedProviderOf, type EmbedNodeProvider } from "@/lib/embed-providers";
 
 /**
  * text-edit-schema — `TextEdit`'s document schema as plain Tiptap extensions: every node, mark and
@@ -132,6 +132,13 @@ export interface TextEditSchemaOptions {
    * @default DEFAULT_LIVE_BLOCK_KINDS — the live task list (`tasks`) alone
    */
   liveBlockKinds?: readonly LiveBlockKind[];
+  /**
+   * The host app's hosts (`AppEmbed`'s `hosts`), read at each parse: a lone link to
+   * `https://<host>/recordings/<uuid>` on one of them is an `embed` block with provider `app`
+   * (Markdown, HTML and paste). Without it such a link stays a link; an `app` embed already in a
+   * document is kept either way, and written to Markdown as its URL alone on its line.
+   */
+  appEmbedHosts?: () => readonly string[];
 }
 
 /**
@@ -1477,12 +1484,17 @@ export const EMBED_CONTAINERS: ReadonlySet<string> = new Set([
 
 /**
  * The embed a lone link is, when it is one: a paragraph holding only a link whose text is its own
- * URL (a bare URL, `<url>` or `[url](url)`, with no title) to an allowlisted video host
- * (`embed-providers`). Any other lone URL stays a link.
+ * URL (a bare URL, `<url>` or `[url](url)`, with no title) to an allowlisted video host, or to a
+ * recording in the host app on one of `appHosts` (`embed-providers`). Any other lone URL stays a
+ * link.
  */
 export function embedOfParagraph(
   paragraph: JSONContent,
-): { type: "embed"; attrs: { provider: EmbedProviderId; url: string } } | null {
+  appHosts?: readonly string[] | null,
+): {
+  type: "embed";
+  attrs: { provider: EmbedNodeProvider; url: string };
+} | null {
   const [only, ...rest] = paragraph.content ?? [];
   if (paragraph.type !== "paragraph" || !only || rest.length) return null;
   if (only.type !== "text" || only.marks?.length !== 1) return null;
@@ -1490,22 +1502,31 @@ export function embedOfParagraph(
   const href = link.attrs?.href;
   if (link.type !== "link" || link.attrs?.title || href !== only.text)
     return null;
-  const match = matchEmbed(String(href));
-  return match
-    ? { type: "embed", attrs: { provider: match.provider, url: String(href) } }
+  const provider = embedProviderOf(String(href), appHosts);
+  return provider
+    ? { type: "embed", attrs: { provider, url: String(href) } }
     : null;
 }
 
 /**
- * A YouTube or Loom video — an atom block `{ provider, url }`, `url` as written (the player's
- * address is always rebuilt from the id `embed-providers` reads out of it, never taken from `url`).
- * Its Markdown is the URL alone on its line, which any other reader shows as a link; the parse
- * makes such a line an embed again (`text-edit-markdown`). In HTML it is a link inside a
- * `div[data-type=embed]`, so a reader without the facade still has the address.
+ * A YouTube or Loom video, or a recording in the host app (provider `app`) — an atom block
+ * `{ provider, url }`, `url` as written (a player's address is always rebuilt from the id
+ * `embed-providers` reads out of it, never taken from `url`; the host app draws its own). Its
+ * Markdown is the URL alone on its line, which any other reader shows as a link; the parse makes
+ * such a line an embed again (`text-edit-markdown`; an `app` one only where `appHosts` name its
+ * host). In HTML it is a link inside a `div[data-type=embed]`, so a reader without the facade still
+ * has the address.
  */
-function embedNode(view: (() => NodeViewRenderer) | undefined) {
-  return Node.create({
+function embedNode(
+  view: (() => NodeViewRenderer) | undefined,
+  appHosts: (() => readonly string[]) | undefined,
+) {
+  return Node.create<{ appHosts: (() => readonly string[]) | undefined }>({
     name: "embed",
+    addOptions() {
+      // Read by the Markdown manager at each parse (`createMarkdownManager`).
+      return { appHosts };
+    },
     group: "block",
     atom: true,
     draggable: true,
@@ -1514,7 +1535,9 @@ function embedNode(view: (() => NodeViewRenderer) | undefined) {
       return {
         provider: {
           default: null,
-          parseHTML: (element) => element.getAttribute("data-provider"),
+          // Never read from the markup: the rule's `getAttrs` sets it from the URL it validated,
+          // and an attribute's value would override that (`data-provider="youtube"` on any URL).
+          parseHTML: () => null,
           renderHTML: (attrs) =>
             attrs.provider ? { "data-provider": attrs.provider } : {},
         },
@@ -1538,8 +1561,8 @@ function embedNode(view: (() => NodeViewRenderer) | undefined) {
               element.getAttribute("data-url") ??
               element.querySelector("a")?.getAttribute("href") ??
               "";
-            const match = matchEmbed(url);
-            return match ? { provider: match.provider, url } : false;
+            const provider = embedProviderOf(url, appHosts?.());
+            return provider ? { provider, url } : false;
           },
         },
       ];
@@ -1843,7 +1866,7 @@ export function textEditExtensions(
     ToggleSummary,
     mediaNode("video", view.video),
     mediaNode("audio", view.audio),
-    embedNode(view.embed),
+    embedNode(view.embed, options.appEmbedHosts),
     bookmarkNode(view.bookmark),
     taskQueryNode(
       view.taskQuery,

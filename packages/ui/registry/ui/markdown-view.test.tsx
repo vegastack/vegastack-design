@@ -1405,6 +1405,33 @@ test("embeds: without the embeds prop, or for a provider left out, a video line 
   expect(plain.container.querySelector("button")).toBeNull();
 });
 
+test("appEmbed: a recording link on the host's hosts is the host's card, never a frame; anything else stays a link", async () => {
+  const id = "0b0e5e2a-7c1d-4f3e-9a8b-1c2d3e4f5a6b";
+  const url = `https://app.vegastack.com/recordings/${id}`;
+  const appEmbed = {
+    hosts: ["app.vegastack.com"],
+    render: (href: string) => <span data-testid="card">{href}</span>,
+  };
+  const screen = await render(
+    <MarkdownView appEmbed={appEmbed}>
+      {`${url}\n\nhttps://app.vegastack.com/meetings/${id}\n\nhttps://evil.com/recordings/${id}`}
+    </MarkdownView>,
+  );
+  const cards = screen.container.querySelectorAll("[data-testid=card]");
+  expect([...cards].map((each) => each.textContent)).toEqual([url]);
+  expect(
+    screen.container.querySelector('[data-slot="markdown-app-embed"]'),
+  ).not.toBeNull();
+  expect(screen.container.querySelector("iframe")).toBeNull();
+  expect(screen.container.querySelectorAll("a")).toHaveLength(2);
+  // Without the prop it is a plain link, never an empty block.
+  const plain = await render(<MarkdownView>{url}</MarkdownView>);
+  expect(plain.container.querySelector("a")?.getAttribute("href")).toBe(url);
+  expect(
+    plain.container.querySelector('[data-slot="markdown-app-embed"]'),
+  ).toBeNull();
+});
+
 const TASK_LIST = [
   ':::tasks{id="lb_9f2c" v="1" space="page" status="open"}',
   "- [ ] [@Order glass for block B](mention://task/t1) — To do",
